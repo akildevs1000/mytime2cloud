@@ -141,7 +141,7 @@ class SingleShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
             }
 
-            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift.   Affected Ids: " . json_encode($UserIds);
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. " . $e->getMessage();
         }

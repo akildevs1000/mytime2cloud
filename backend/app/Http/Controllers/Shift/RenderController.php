@@ -33,7 +33,7 @@ class RenderController extends Controller
 
         $shift_type_id = $request->shift_type_id;
 
-         
+
         return array_merge(
             (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
@@ -1251,7 +1251,7 @@ class RenderController extends Controller
 
             AttendanceLog::whereIn("UserID", $UserIds)->where("company_id", $id)->update(["checked" => true]);
 
-            $message = "Log(s) have been rendered. Affected Ids: " . json_encode($UserIds);
+            $message = " Affected Ids: " . json_encode($UserIds);
 
             return $this->getMeta("Multi Shift", $message);
         } catch (\Throwable $e) {

@@ -1,8 +1,14 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
     <div class="text-center">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
+      <v-snackbar
+        v-model="snackbar"
+        multi-line
+        top="top"
+        color="secondary"
+        elevation="24"
+      >
+        <span v-html="response"></span>
       </v-snackbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -995,6 +1001,24 @@ export default {
     });
   },
   async created() {
+    // let data = [
+    //   "[2023-11-21 13:42:26] Filo Shift. Log(s) have been rendered. Affected Ids: [1001] ",
+    //   "[2023-11-21 13:42:26] Single Shift: No data found",
+    //   "[2023-11-21 13:42:26] Dual Shift. Log(s) have been rendered. Affected Ids: [] 1001 has No Logs to render",
+    //   "[2023-11-21 13:42:26] Multi Shift. Log(s) have been rendered. Affected Ids: [] 1001 : has No Logs to render",
+    // ];
+    // let message = "";
+    // data.forEach((element) => {
+    //   message = message + " \n  " + element + " \n  ";
+    // });
+    // this.snackbar = true;
+    // this.response = data
+    //   .map(
+    //     (message) =>
+    //       message.replace(/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] /, "") +
+    //       "<br>"
+    //   )
+    //   .join("");
     // // this.loading = true;
     // // this.setMonthlyDateRange();
     // this.payload.daily_date = new Date().toJSON().slice(0, 10);
@@ -1220,10 +1244,28 @@ export default {
       this.$axios
         .get("render_logs", payload)
         .then(({ data }) => {
-          let message = "";
-          data.forEach((element) => {
-            message = message + " \n \n " + element;
-          });
+          // let message = "";
+          // data.forEach((element) => {
+          //   message = message + " \n \n  \n" + element;
+          // });
+          this.snackbar = true;
+          let message = data
+            .map(
+              (message) =>
+                message.replace(
+                  /^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] /,
+                  ""
+                ) + "<br>"
+            )
+            .join("");
+          let searchString = "No schedule is mapped with   date and employee";
+          let found = data.includes(searchString);
+
+          console.log(found);
+
+          if (found) {
+            message = searchString;
+          }
           this.response = message;
           this.loading = false;
           this.$emit("update-data-table");
