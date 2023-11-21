@@ -79,6 +79,8 @@ class AttendanceLog extends Model
 
         $model->with("device")->where("company_id", $request->company_id);
 
+        $model->whereHas("employee");
+
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
             $q->withOut(["schedule", "department", "sub_department", "designation", "user"]);
