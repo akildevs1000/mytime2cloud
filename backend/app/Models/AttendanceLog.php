@@ -75,7 +75,7 @@ class AttendanceLog extends Model
     {
         $model = self::query();
 
-        $model->whereDoesntHave('device', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance"]));
 
         $model->with("device")->where("company_id", $request->company_id)
             ->with('employee', function ($q) use ($request) {
@@ -144,11 +144,9 @@ class AttendanceLog extends Model
                 $key = strtolower($request->employee_first_name);
                 $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$key%"));
             })
-            ->when($request->filled('branch_id'), function ($q) use ($request) {
-                $key = strtolower($request->branch_id);
-                $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+            ->when($request->filled('branch_id'), function ($q) {
+                $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id', request("branch_id")));
             })
-
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {
                 $sortDesc = $request->input('sortDesc');

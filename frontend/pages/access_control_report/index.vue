@@ -239,6 +239,7 @@ export default {
       status: "-1",
       device_id: "",
       branch_id: "",
+      include_device_types: ["all", "Access Control"],
     },
 
     response: "",
