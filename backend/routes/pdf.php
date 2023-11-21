@@ -106,4 +106,4 @@ Route::get('/generatePresentReportTest/{id}', [PDFTestController::class, 'genera
 
 // access_control
 Route::get('/access_control_report_print_pdf', [AccessControlController::class, 'access_control_report_print_pdf']);
-Route::get('/access_control_report_download_pdf', [DailyController::class, 'access_control_report_download_pdf']);
+Route::get('/access_control_report_download_pdf', [AccessControlController::class, 'access_control_report_download_pdf']);
