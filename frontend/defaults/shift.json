@@ -13,7 +13,7 @@
   "2": {
     "on_duty_time": "00:01",
     "off_duty_time": "23:59",
-    "working_hours": "00:00",
+    "working_hours": "09:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     "weekend1" : "Not Applicable",
