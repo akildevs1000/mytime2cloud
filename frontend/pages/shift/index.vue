@@ -215,10 +215,7 @@
                   v-model="filters[header.key]"
                   item-text="name"
                   item-value="id"
-                  :items="[
-                    { name: `All Branches`, id: `` },
-                    ...branchList,
-                  ]"
+                  :items="[{ name: `All Branches`, id: `` }, ...branchList]"
                   placeholder="All Branches"
                   solo
                   flat
@@ -368,6 +365,12 @@ export default {
   },
 
   methods: {
+    async handleChangeEvent() {
+      this.branchList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branchList",
+        endpoint: "branch-list",
+      });
+    },
     getRelatedShiftComponent() {
       this.payload = {
         shift_type_id: this.payload.shift_type_id,
@@ -401,15 +404,8 @@ export default {
       this.isFilter = !this.isFilter;
 
       if (this.isFilter) {
-        try {
-          this.branchList = await this.$store.dispatch("fetchDropDowns", {
-            key: "branchList",
-            endpoint: "branch-list",
-            refresh: true,
-          });
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
+        this.refresh = true;
+        this.handleChangeEvent();
       }
     },
     goToCreate() {
@@ -423,6 +419,9 @@ export default {
       this.renderComponent = Math.random() * (1000 - 1) + 1;
       this.showDialog = true;
       this.getComponent();
+
+      this.refresh = true;
+      this.handleChangeEvent();
       // this.$router.push(`/shift/create`);
     },
     datatable_cancel() {
@@ -523,6 +522,8 @@ export default {
 
       this.showDialog = true;
       this.getComponent();
+      this.refresh = true;
+      this.handleChangeEvent();
     },
 
     delteteSelectedRecords() {
