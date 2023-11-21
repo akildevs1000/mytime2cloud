@@ -79,6 +79,18 @@ class AttendanceLog extends Model
 
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance"]));
 
+        $model->when(request()->filled("UserID"), function ($query) use ($request) {
+            return $query->where('UserID', $request->UserID);
+        });
+
+
+        $model->when(request()->filled("DeviceID"), function ($query) use ($request) {
+            return $query->where('DeviceID', $request->DeviceID);
+
+            //return $query->where('name', 'like', '%' . $key . '%')->orWhere('email', 'like', '%' . $key . '%');
+        });
+
+
         $model->with("device");
 
         $model->whereHas("employee", fn ($q) => $q->where("company_id", $request->company_id));
@@ -127,16 +139,7 @@ class AttendanceLog extends Model
                 });
             })
 
-            ->when($request->UserID, function ($query) use ($request) {
-                return $query->where('UserID', $request->UserID);
-            })
 
-
-            ->when($request->DeviceID, function ($query) use ($request) {
-                return $query->where('DeviceID', $request->DeviceID);
-
-                //return $query->where('name', 'like', '%' . $key . '%')->orWhere('email', 'like', '%' . $key . '%');
-            })
             ->when($request->filled('department'), function ($q) use ($request) {
 
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department));

@@ -102,15 +102,13 @@
                 </v-btn>
               </template>
               <v-list width="200" dense>
-                <v-list-item @click="process_file(report_type)">
+                <v-list-item @click="process_file('print_pdf')">
                   <v-list-item-title style="cursor: pointer">
                     <img src="/icons/icon_print.png" class="iconsize" />
                     Print
                   </v-list-item-title>
                 </v-list-item>
-                <v-list-item
-                  @click="process_file(report_type + '_download_pdf')"
-                >
+                <v-list-item @click="process_file('download_pdf')">
                   <v-list-item-title style="cursor: pointer">
                     <img src="/icons/icon_pdf.png" class="iconsize" />
                     PDF
@@ -483,37 +481,42 @@ export default {
       pdf.click();
     },
 
-    process_file(type) {
-      if (this.data && !this.data.length) {
-        alert("No data found");
-        return;
+    async process_file(type) {
+      try {
+        if (!this.data || !this.data.length) {
+          alert("No data found");
+          return;
+        }
+
+        const backendUrl = process.env.BACKEND_URL;
+        const queryParams = {
+          company_id: this.$auth.user.company_id,
+          branch_id: this.payload.branch_id,
+          UserID: this.payload.UserID,
+          DeviceID: this.payload.DeviceID,
+          from_date: this.payload.from_date,
+          to_date: this.payload.to_date,
+        };
+
+        const queryString = Object.keys(queryParams)
+          .map(
+            (key) =>
+              `${encodeURIComponent(key)}=${encodeURIComponent(
+                queryParams[key]
+              )}`
+          )
+          .join("&");
+
+        const reportUrl = `${backendUrl}/access_control_report_${type.toLowerCase()}?${queryString}&include_device_types[]=all&include_device_types[]=Access Control`;
+
+        const report = document.createElement("a");
+        report.setAttribute("href", reportUrl);
+        report.setAttribute("target", "_blank");
+        report.click();
+      } catch (error) {
+        console.error("Error processing file:", error.message);
+        // Handle the error (e.g., show an error message to the user)
       }
-
-      let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?report_template=${this.report_template}`;
-      qs += `&main_shift_type=${this.shift_type_id}`;
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
-      qs += `&employee_id=${this.payload.UserID}`;
-      qs += `&report_type=${this.report_type}`;
-      qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      this.getDataFromApi();
-      return;
     },
   },
 };
