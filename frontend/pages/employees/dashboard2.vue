@@ -40,7 +40,7 @@
       <v-col lg="3" md="3" sm="12" xs="12">
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2 mt-2" style="height: 423px; overflow: hidden">
+            <v-card class="py-2 mt-2" style="height: 443px; overflow: hidden">
               <DashboardAnnouncment :branch_id="branch_id" />
             </v-card>
           </v-col>
