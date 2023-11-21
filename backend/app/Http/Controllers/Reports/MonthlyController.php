@@ -290,7 +290,7 @@ class MonthlyController extends Controller
             $main_shift_name = 'Double Shift';
 
 
-        $arr = ['data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+        $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
 
 
         //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);

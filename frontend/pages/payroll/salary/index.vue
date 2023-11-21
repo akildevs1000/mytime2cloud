@@ -510,7 +510,7 @@
                         :hide-details="true"
                         v-if="
                           header.filterSpecial &&
-                          header.value == 'department_name'
+                          header.value == 'department.name.id'
                         "
                         outlined
                         dense
