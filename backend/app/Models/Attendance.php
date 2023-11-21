@@ -155,18 +155,19 @@ class Attendance extends Model
         });
 
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) use ($request) {
-            $q->where(function ($query) {
-                $query->where('shift_type_id',   2)
-                    ->orWhere('shift_type_id', '---');
-            });
+            $q->where('shift_type_id', 5);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   2)
+            //         ->orWhere('shift_type_id', '---');
+            // });
         });
 
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 5, function ($q) {
-            //$q->where('shift_type_id', 5);
-            $q->where(function ($query) {
-                $query->where('shift_type_id',   5)
-                    ->orWhere('shift_type_id', '---');
-            });
+            $q->where('shift_type_id', 5);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   5)
+            //         ->orWhere('shift_type_id', '---');
+            // });
         });
 
         $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {

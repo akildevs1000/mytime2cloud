@@ -173,7 +173,7 @@
 
         <v-tab
           :key="2"
-          @click="commonMethod()"
+          @click="commonMethod(2)"
           style="height: 30px"
           href="#tab-2"
           class="black--text slidegroup1"
@@ -183,7 +183,7 @@
 
         <v-tab
           :key="3"
-          @click="commonMethod"
+          @click="commonMethod(3)"
           style="height: 30px"
           href="#tab-3"
           class="black--text slidegroup1"
@@ -482,6 +482,16 @@ export default {
       this.getDepartments(options);
       this.commonMethod();
     }, 1000);
+
+    setTimeout(() => {
+      this.tab = "tab-2";
+    }, 1000);
+    setTimeout(() => {
+      this.tab = "tab-3";
+    }, 1000);
+    setTimeout(() => {
+      this.tab = "tab-1";
+    }, 1000);
   },
 
   methods: {
@@ -542,7 +552,7 @@ export default {
       this.payload11 = {
         ...this.payload,
         report_type: "Monthly", //filterDay,
-        tabselected: this.tab,
+        tabselected: id, //this.tab
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
