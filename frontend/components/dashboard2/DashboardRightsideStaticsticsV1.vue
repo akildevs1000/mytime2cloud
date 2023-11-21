@@ -191,7 +191,7 @@
                     {{ data.leaveCount }}
                   </div>
 
-                  <div style="width: 200px; text-align: center">On Leave</div>
+                  <div style="text-align: center">On Leave</div>
                 </v-col>
               </v-row>
             </v-row>
