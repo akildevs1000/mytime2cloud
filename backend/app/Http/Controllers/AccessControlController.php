@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 
@@ -20,9 +21,9 @@ class AccessControlController extends Controller
 
         if ($request->debug) return $data;
 
-
         return Pdf::loadView("pdf.access_control_reports.custom", [
             "data" => $data,
+            "company" => Company::whereId(request("company_id") ?? 0)->first(),
             "params" => $request->all()
         ])->stream();
     }
@@ -31,6 +32,12 @@ class AccessControlController extends Controller
     {
         $data = $model->filter($request)->get()->toArray();
 
-        return Pdf::loadView("pdf.access_control_reports.custom", $data)->stream();
+        if ($request->debug) return $data;
+
+        return Pdf::loadView("pdf.access_control_reports.custom", [
+            "data" => $data,
+            "company" => Company::whereId(request("company_id") ?? 0)->first(),
+            "params" => $request->all()
+        ])->download();
     }
 }

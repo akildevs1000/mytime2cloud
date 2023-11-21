@@ -92,15 +92,16 @@ die();
             <td style="text-align: left;width: 300px; border :none; padding:15px;">
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
+                {{-- <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; "> --}}
+
                 <div class="col-12" style="text-align:center">
-                    {{-- @if (env('APP_ENV') !== 'local')
+                    @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                     @else
                         <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png"
                             style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @endif --}}
-                    <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png"
-                    style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                    @endif
+                  
                 </div>
 
                 <div>
@@ -131,24 +132,6 @@ die();
             </td>
         </tr>
     </table>
-
-    @php
-        $dep = ['Ifix', 'Warehouse', 'Bff Head Office', 'Zawaya Walk', 'Vbrand', 'Silicon', 'Magnify'];
-        $eid = ['553', '270', '274', '199', '583', '618', '584', '282', '501', '23', '582', '290'];
-        $name = ['Joan', 'Shinoos', 'Tabinas', 'Faisal', 'Sufail', 'Najeeb', 'Arshad'];
-        $in = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-        $out = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-        $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-        $ot = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-
-        $device_out = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
-        $device_in = ['CMD', 'AFD', 'BMD', 'MOD', 'RKMD', 'MBD', 'RKMD'];
-        $total_hours = ['14:07', '15:59', '13:55', '01:56', '13:42', '11:02', '21:42'];
-        $status = ['A', 'P', '---'];
-
-        $statusColor = '';
-        // $i = 0;
-    @endphp
     <table class="main-table">
         <thead>
             <th style="text-align:;"> Employee </th>
@@ -157,31 +140,6 @@ die();
             <th style="text-align:center;width:150px"> Device Name </th>
             <th style="text-align:center;width:150px"> Device Location </th>
         </thead>
-        {{-- @for ($i = 1; $i <= 20; $i++)
-            @php
-                $pic = 'https://i.pinimg.com/originals/df/5f/5b/df5f5b1b174a2b4b6026cc6c8f9395c1.jpg';
-            @endphp
-            <tbody>
-
-                <tr>
-                    <td style="text-align:; width:120px;height: 50px;">
-                        <img style="
-                        border-radius: 50%;
-                        width: 50px;
-                        float:left"
-                            src="{{ $pic }}" />
-                           <b> {{ $name[array_rand($name, 1)] ?? '---' }} {{ $name[array_rand($name, 1)] ?? '---' }}</b>
-                           <br>
-                           {{ $eid[array_rand($eid, 1)] ?? '---' }}
-                    </td>
-                    <td style="text-align:  center;">{{ $eid[array_rand($eid, 1)] ?? '---' }}</td>
-                    <td style="text-align:  center;"> {{ $in[array_rand($in, 1)] ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $device_in[array_rand($device_in, 1)] ?? '---' }} </td>
-                    <td style="text-align:  center;"> {{ $device_in[array_rand($device_in, 1)] ?? '---' }} </td>
-                </tr>
-            </tbody>
-        @endfor --}}
-
 
         @foreach ($data as $row)
            <tbody>
@@ -206,7 +164,6 @@ die();
                     {{ $row['employee']['branch']['branch_name'] ?? "---" }}</td>
                 <td style="text-align:  center;">
                     {{ $row['LogTime'] ?? "---" }}
-                    {{-- {{ $row['date'] }} {{ $row['time'] }} --}}
                 </td>
 
                 <td style="text-align:  center;">
@@ -226,16 +183,16 @@ die();
     <footer style="padding-top: 100px!important">
         <table class="main-table">
             <tr style="border :none">
-                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance =
+                {{-- <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance =
                     BED
                 </td>
                 <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO
                 </td>
                 <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 =
                     Eve2
-                </td>
+                </td> --}}
                 <td style="text-align: right;border :none;">
-                    <b>Powered by</b>: <span style="color:blue"> www.ideahrms.com</span>
+                    <b>Powered by</b>: <span style="color:blue"> www.mytime2cloud.com</span>
                 </td>
                 <td style="text-align: right;border :none">
                     Printed on : {{ date('d-M-Y ') }}
