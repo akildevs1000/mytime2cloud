@@ -93,12 +93,14 @@ die();
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
                 <div class="col-12" style="text-align:center">
-                    @if (env('APP_ENV') !== 'local')
+                    {{-- @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                     @else
                         <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png"
                             style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @endif
+                    @endif --}}
+                    <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png"
+                    style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                 </div>
 
                 <div>
