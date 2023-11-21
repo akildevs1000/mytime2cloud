@@ -114,6 +114,7 @@ class Controller extends BaseController
     public function getStatusText($status)
     {
         $arr = [
+            "All" => "All",
             "A" => "Absent",
             "M" => "Missing",
             "P" => "Present",

@@ -16,7 +16,19 @@ use Illuminate\Support\Facades\Storage;
 
 class DailyController extends Controller
 {
+
     public function processPDF($request)
+    {
+
+        $request->report_template = "Template1";
+        $request->from_date = date("Y-m-d", strtotime("yesterday"));
+        $request->to_date = date("Y-m-d", strtotime("yesterday"));
+
+
+
+        return (new MonthlyController)->processPDF($request);
+    }
+    public function processPDF2($request)
     {
         $company = Company::whereId($request->company_id)->with('contact')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $model = (new Attendance)->processAttendanceModel($request);
@@ -41,6 +53,7 @@ class DailyController extends Controller
             'total_vaccation' => $model->clone()->where('status', 'V')->count(),
             'total_early' => $model->clone()->where('status', 'EG')->count(),
             'total_late' => $model->clone()->where('status', 'LC')->count(),
+            'total_weekoff' => $model->clone()->where('status', 'O')->count(),
             'report_type' => $this->getStatusText($request->status) ?? "",
             "daily_date" => $request->daily_date ?? date("Y-m-d"),
             'frequency' => "Daily",
@@ -48,7 +61,7 @@ class DailyController extends Controller
 
 
         $data = $model->get();
-        return Pdf::loadView('pdf.daily', compact("company", "info", "data"));
+        return Pdf::loadView('pdf.attendance_reports.daily', compact("company", "info", "data"));
     }
 
     public function daily(Request $request)
@@ -108,6 +121,7 @@ class DailyController extends Controller
     public function daily_generate_pdf(Request $request)
     {
         $data = $this->processPDF($request)->output();
+        //return $data = $this->processPDF($request)->stream();
 
         $id =  $request->company_id;
 

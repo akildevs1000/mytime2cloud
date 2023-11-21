@@ -150,8 +150,16 @@
                     </div>
                 </td>
 
-                <td style="border: nosne;text-align:right" colspan="{{ $interval->format('%a')>=2 ?  4 :7 }}">
-                    <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
+                <td style="border: nosne;text-align:center" colspan="{{ $interval->format('%a')>=2 ?  4 :7 }}">
+                    @if ($request->shift_type_id=='')
+
+
+                    <div style="text-center">
+                        Total Employees : {{count($data)}}
+
+                    </div>
+                    @endif
+                    <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
