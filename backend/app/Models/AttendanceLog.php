@@ -75,11 +75,13 @@ class AttendanceLog extends Model
     {
         $model = self::query();
 
+        $model->where("company_id", $request->company_id);
+
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance"]));
 
-        $model->with("device")->where("company_id", $request->company_id);
+        $model->with("device");
 
-        $model->whereHas("employee");
+        $model->whereHas("employee", fn ($q) => $q->where("company_id", $request->company_id));
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
