@@ -17,99 +17,6 @@
       <v-toolbar class="backgrounds" dense flat>
         <v-toolbar-title> </v-toolbar-title>
 
-        <div style="display: none">
-          <!-- <v-tooltip top color="primary">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn x-small text title="Reload" @click="clearFilters()">
-            <v-icon dark white>mdi-reload</v-icon>
-          </v-btn>
-          <!-- </template>
-          <span>Reload</span>
-        </v-tooltip> -->
-
-          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            title="Render Report"
-            @click="reportSync = true"
-          >
-            <v-icon dark white>mdi-cached</v-icon>
-          </v-btn>
-          <!-- </template>
-          <span>Render Report</span>
-        </v-tooltip> -->
-          <v-spacer></v-spacer>
-          <!-- 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_create`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            class="mr-5"
-            x-small
-            text
-            title="Generate Log"
-            @click="generateLogsDialog = true"
-          >
-            <v-icon dark white>mdi-plus-circle-outline</v-icon>
-          </v-btn>
-          <!-- </template>
-          <span>Generate Log</span>
-        </v-tooltip> -->
-
-          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            class="ma-0"
-            x-small
-            :ripple="false"
-            text
-            title="PRINT"
-            @click="process_file(report_type)"
-          >
-            <img src="/icons/icon_print.png" class="iconsize" />
-            <!-- <v-icon dark white>mdi-printer-outline</v-icon> -->
-          </v-btn>
-          <!-- </template>
-          <span>PRINT</span>
-        </v-tooltip> -->
-
-          <!-- <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            title="DOWNLOAD"
-            @click="process_file(report_type + '_download_pdf')"
-          >
-            <!-- <v-icon dark white>mdi-download-outline</v-icon> -->
-
-            <!-- <span class="material-symbols-outlined"> picture_as_pdf </span> -->
-            <img src="/icons/icon_pdf.png" class="iconsize" />
-          </v-btn>
-          <!-- </template>
-          <span>DOWNLOAD</span>
-        </v-tooltip> -->
-          <!-- 
-        <v-tooltip top color="primary" v-if="can(`attendance_report_view`)">
-          <template v-slot:activator="{ on, attrs }"> -->
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            title="CSV"
-            @click="process_file(report_type + '_download_csv')"
-          >
-            <img src="/icons/icon_excel.png" class="iconsize" />
-            <!-- <v-icon dark white>mdi-file-outline</v-icon> -->
-          </v-btn>
-          <!-- </template>
-          <span>CSV</span>
-        </v-tooltip> -->
-        </div>
-
         <v-spacer></v-spacer>
         <span style="padding-left: 15px"
           ><img
@@ -200,6 +107,7 @@
         :server-items-length="totalRowsCount"
         fixed-header
         :height="tableHeight"
+        no-data-text="No Data available. Click 'Generate' button to see the results"
       >
         <template v-slot:item.employee_name="{ item }" style="padding: 0px">
           <v-row no-gutters :title="'Dep: ' + item.employee.department.name">
@@ -246,6 +154,10 @@
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
               {{ setStatusLabel(item.status) }}
+              <div class="secondary-value" v-if="item.status == 'P'">
+                {{ getShortShiftDetails(item) }}
+              </div>
+
               <v-btn
                 v-if="item.is_manual_entry"
                 color="primary"
@@ -1390,6 +1302,9 @@ export default {
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
+      if (this.filters) {
+        page = 1;
+      }
       let options = {
         params: {
           page: page,
@@ -1600,7 +1515,29 @@ export default {
       this.getDataFromApi();
       return;
     },
+    getShortShiftDetails(item) {
+      if (item.shift) {
+        let shiftWorkingHours = item.shift.working_hours;
+        let employeeHours = item.total_hrs;
 
+        if (
+          shiftWorkingHours != "" &&
+          employeeHours != "" &&
+          shiftWorkingHours != "---" &&
+          employeeHours != "---"
+        ) {
+          let [hours, minutes] = shiftWorkingHours.split(":").map(Number);
+          shiftWorkingHours = hours * 60 + minutes;
+
+          [hours, minutes] = employeeHours.split(":").map(Number);
+          employeeHours = hours * 60 + minutes;
+
+          if (employeeHours < shiftWorkingHours) {
+            return "Short Shift";
+          }
+        }
+      }
+    },
     setStatusLabel(status) {
       const statuses = {
         A: "Absent",
@@ -1618,8 +1555,8 @@ export default {
   },
 };
 </script>
-<style scoped>
+<!-- <style scoped>
 .v-slide-group__content {
   height: 30px !important;
 }
-</style>
+</style> -->

@@ -33,7 +33,7 @@ class RenderController extends Controller
 
         $shift_type_id = $request->shift_type_id;
 
-
+         
         return array_merge(
             (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
