@@ -77,10 +77,23 @@ class AttendanceLog extends Model
 
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance"]));
 
-        $model->with("device")->where("company_id", $request->company_id)
-            ->with('employee', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-            })
+        $model->with("device")->where("company_id", $request->company_id);
+
+        $model->with('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->withOut(["schedule", "department", "sub_department", "designation", "user"]);
+
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "employee_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "timezone_id",
+            );
+        })
             // ->distinct("LogTime", "UserID", "company_id")
             ->when($request->filled('department_ids'), function ($q) use ($request) {
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department_ids));
