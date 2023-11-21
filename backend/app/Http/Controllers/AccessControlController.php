@@ -24,7 +24,9 @@ class AccessControlController extends Controller
 
         $model->when($request->filled('device_id'), fn ($q) => $q->where('DeviceID', $request->device_id));
 
-        $model->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id', $request->branch_id));
+        $model->when($request->filled('branch_id'), function ($query) {
+            $query->whereHas("employee", fn ($q) => $q->where('branch_id', request("branch_id")));
+        });
 
         $model->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
             $q->where(function ($query) use ($request) {
@@ -37,9 +39,9 @@ class AccessControlController extends Controller
 
         $model->with([
             "employee" => function ($q) use ($request) {
-                $q->select("system_user_id", "first_name", "last_name", "display_name","employee_id","profile_picture");
+                $q->select("system_user_id", "first_name", "last_name", "display_name", "employee_id", "profile_picture", "branch_id");
                 $q->where("company_id", $request->company_id);
-                $q->withOut(["schedule", "department", "sub_department", "designation", "branch"]);
+                $q->withOut(["schedule", "department", "sub_department", "designation"]);
             }
         ]);
 

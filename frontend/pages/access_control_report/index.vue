@@ -212,7 +212,7 @@ export default {
     loading: false,
     time_menu: false,
     Model: "Attendance Reports",
-    endpoint: "report",
+    endpoint: "access_control_report",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -298,6 +298,19 @@ export default {
     });
   },
   created() {
+    let branch_header = [
+      {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch_id", //sorting
+        value: "employee.branch.branch_name", //edit purpose
+
+        filterable: true,
+        filterSpecial: true,
+      },
+    ];
+    this.headers.splice(1, 0, ...branch_header);
     this.setFromDate();
     this.getBranches();
     this.getScheduledEmployees();
@@ -410,7 +423,21 @@ export default {
       return this.$pagePermission.can(per, this);
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+    async getDataFromApi() {
+      if (!this.payload.from_date) return false;
+      this.loading = true;
+      const { data, total } = await this.$store.dispatch("fetchData", {
+        key: "access_control_report",
+        options: this.options,
+        refresh: true,
+        endpoint: this.endpoint,
+        filters: this.payload,
+      });
+      this.data = data;
+      this.totalRowsCount = total;
+      this.loading = false;
+      return;
+
       if (!this.payload.from_date) return false;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -431,7 +458,7 @@ export default {
 
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios.get(url + " ", options, {}).then(({ data }) => {
+      this.$axios.get(url, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";

@@ -10,8 +10,11 @@ export const state = () => ({
   shift_name: "",
   branch_id: "",
 
-  devices: [],
+  devices: null,
   employees: null,
+  access_control_report: null,
+
+
   employeeList: null,
   deviceList: null,
 
@@ -45,8 +48,9 @@ export const mutations = {
       shift_id: "",
       shift_name: "",
       branch_id: "",
-      devices: [],
+      devices: null,
       employees: null,
+      access_control_report: null,
       employeeList: null,
       deviceList: null,
       shifts: null,
@@ -80,6 +84,9 @@ export const mutations = {
   },
   employees(state, value) {
     state.employees = value;
+  },
+  access_control_report(state, value) {
+    state.access_control_report = value;
   },
   employeeList(state, value) {
     state.employeeList = value;
