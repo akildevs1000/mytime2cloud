@@ -272,7 +272,7 @@
           <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
-            v-model="branch_id"
+            v-model="filters[`branch_id`]"
             :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
             dense
             placeholder="Select Branch"
@@ -596,7 +596,9 @@ export default {
     popup_device_id: "",
     editDialog: false,
     showFilters: false,
-    filters: {},
+    filters: {
+      branch_id: "",
+    },
     isFilter: false,
     totalRowsCount: 0,
     datatable_search_textbox: "",
@@ -756,7 +758,7 @@ export default {
     device_statusses: [],
     branches: [],
     branchesList: [],
-    branch_id: "",
+
     isCompany: true,
     timeZoneOptions: [],
   }),
@@ -784,7 +786,7 @@ export default {
     this.loading = true;
 
     if (this.$auth.user.branch_id) {
-      this.branch_id = this.$auth.user.branch_id;
+      this.filters[branch_id] = this.$auth.user.branch_id;
       this.isCompany = false;
       return;
     }
@@ -982,6 +984,20 @@ export default {
       filter_column = "",
       filter_value = ""
     ) {
+      this.loading = true;
+      const data = await this.$store.dispatch("fetchData", {
+        key: "devices",
+        options: this.options,
+        refresh: true,
+        endpoint: this.endpoint,
+        filters: this.filters,
+      });
+      this.data = data.data;
+      this.totalRowsCount = data.total;
+      this.loading = false;
+
+      return;
+
       if (url == "") url = this.endpoint;
       this.loading = true;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
