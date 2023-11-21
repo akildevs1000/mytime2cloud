@@ -168,6 +168,7 @@ export default {
     employees: [],
     response: "",
     snackbar: false,
+    lastLog: null,
   }),
   async created() {
     try {
@@ -183,12 +184,23 @@ export default {
     }
   },
   methods: {
-    async getLastLog(UserID) {
+    async lockManualLog() {
+      await this.getLastLog();
+
+      if (!this.lastLog) return false;
+      return (
+        new Date(`${this.log_payload.date}T${this.log_payload.time}:00`) <
+        new Date(`${this.lastLog.edit_date}T${this.lastLog.time}:00`)
+      );
+    },
+    async getLastLog() {
       this.$axios
         .get(`attendance_logs`, {
           params: {
             company_id: this.$auth.user.company_id,
-            UserID,
+            UserID: this.log_payload.user_id,
+            from_date: this.log_payload.date,
+            to_date: this.log_payload.date,
           },
         })
         .then(({ data }) => {
@@ -200,6 +212,8 @@ export default {
           } else {
             this.log_payload.log_type = "in";
           }
+
+          this.lastLog = data.data[0];
         });
     },
     async handleChangeEvent(id) {
@@ -210,7 +224,14 @@ export default {
       }
     },
     async submit() {
-      await this.getLastLog(this.log_payload.user_id);
+
+      // if (this.lockManualLog()) {
+      //   alert("Selected time must be shorter than preiovs log time");
+      //   return;
+      // }
+
+      // return;
+
       let { user_id, date, time, branch_id } = this.log_payload;
 
       let log_payload = {
@@ -265,14 +286,6 @@ export default {
         .get("render_logs", payload)
         .then(({ data }) => {
           this.loading = false;
-
-          let message = "";
-          data.forEach((element) => {
-            message = message + " \n \n " + element;
-          });
-          this.response = message;
-          this.loading = false;
-
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));

@@ -982,6 +982,22 @@ export default {
       filter_column = "",
       filter_value = ""
     ) {
+      
+      this.loading = true;
+
+      const data = await this.$store.dispatch("fetchData", {
+        key: "devices",
+        options: this.options,
+        refresh: true,
+        endpoint: this.endpoint,
+        filters: this.filters,
+      });
+
+      this.data = data.data;
+      this.totalRowsCount = data.total;
+      this.loading = false;
+
+      return;
       if (url == "") url = this.endpoint;
       this.loading = true;
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
