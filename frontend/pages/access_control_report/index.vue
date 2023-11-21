@@ -161,7 +161,7 @@
                       max-width: 30px;
                     "
                     :src="
-                      item.employee.profile_picture
+                      item.employee && item.employee.profile_picture
                         ? item.employee.profile_picture
                         : '/no-profile-image.jpg'
                     "
