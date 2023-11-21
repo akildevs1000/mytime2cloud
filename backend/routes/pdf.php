@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
@@ -101,3 +102,8 @@ Route::get('/access_control_by_device', [PDFController::class, 'monthlyAccessCon
 Route::get('/monthly_access_control_count', [PDFController::class, 'monthlyAccessControlCount']);
 
 Route::get('/generatePresentReportTest/{id}', [PDFTestController::class, 'generatePresentReport']);
+
+
+// access_control
+Route::get('/access_control_report_print_pdf', [AccessControlController::class, 'access_control_report_print_pdf']);
+Route::get('/access_control_report_download_pdf', [DailyController::class, 'access_control_report_download_pdf']);

@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
+use App\Models\Company;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class AccessControlController extends Controller
 {
@@ -11,41 +14,30 @@ class AccessControlController extends Controller
     {
         return $model->filter($request)->paginate($request->per_page);
     }
-    
-    public function index_old(Request $request)
+
+    public function access_control_report_print_pdf(AttendanceLog $model, Request $request)
     {
+        $data = $model->filter($request)->get()->toArray();
 
-        $model = AttendanceLog::query();
+        if ($request->debug) return $data;
 
-        // $model->whereHas('device', fn ($q) => $q->where('device_type', 'Access Control'));
-        $model->whereDoesntHave('device', fn ($q) => $q->where('device_type', 'Attendance'));
+        return Pdf::loadView("pdf.access_control_reports.custom", [
+            "data" => $data,
+            "company" => Company::whereId(request("company_id") ?? 0)->first(),
+            "params" => $request->all()
+        ])->stream();
+    }
 
-        $model->where("company_id", $request->company_id);
+    public function access_control_report_download_pdf(AttendanceLog $model, Request $request)
+    {
+        $data = $model->filter($request)->get()->toArray();
 
-        $model->when($request->filled('employee_id'), fn ($q) => $q->where('UserID', $request->employee_id));
+        if ($request->debug) return $data;
 
-        $model->when($request->filled('device_id'), fn ($q) => $q->where('DeviceID', $request->device_id));
-
-        $model->when($request->filled('branch_id'), function ($query) {
-            $query->whereHas("employee", fn ($q) => $q->where('branch_id', request("branch_id")));
-        });
-
-        $model->when($request->from_date, fn ($q) => $q->whereDate('LogTime', '>=', $request->from_date));
-
-        $model->when($request->to_date, fn ($q) => $q->whereDate('LogTime', '<=', $request->to_date));
-
-        $model->with(["device" => fn ($q) => $q->where("company_id", $request->company_id)]);
-
-        $model->with([
-            "employee" => function ($q) use ($request) {
-                $q->select("system_user_id", "first_name", "last_name", "display_name", "employee_id", "profile_picture", "branch_id");
-                $q->where("company_id", $request->company_id);
-                $q->withOut(["schedule", "department", "sub_department", "designation"]);
-            }
-        ]);
-
-        $model->orderBy('LogTime', 'DESC');
-
-        return $model->paginate($request->per_page);
+        return Pdf::loadView("pdf.access_control_reports.custom", [
+            "data" => $data,
+            "company" => Company::whereId(request("company_id") ?? 0)->first(),
+            "params" => $request->all()
+        ])->download();
     }
 }
