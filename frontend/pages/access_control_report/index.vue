@@ -161,7 +161,7 @@
                       max-width: 30px;
                     "
                     :src="
-                      item.employee.profile_picture
+                      item.employee && item.employee.profile_picture
                         ? item.employee.profile_picture
                         : '/no-profile-image.jpg'
                     "
@@ -170,10 +170,10 @@
                 </v-col>
                 <v-col style="padding: 3px" md="8">
                   <strong>
-                    {{ (item && item.employee.full_name) || "---" }}
+                    {{ item.employee ? item.employee.full_name : "---" }}
                   </strong>
                   <div class="secondary-value">
-                    {{ item.employee.employee_id }}
+                    {{ item.employee ? item.employee.employee_id : "---" }}
                   </div>
                 </v-col>
               </v-row>
@@ -239,6 +239,7 @@ export default {
       status: "-1",
       device_id: "",
       branch_id: "",
+      include_device_types: ["all", "Access Control"],
     },
 
     response: "",

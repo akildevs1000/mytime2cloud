@@ -7,12 +7,18 @@ use App\Models\AttendanceLog;
 
 class AccessControlController extends Controller
 {
-    public function index(Request $request)
+    public function index(AttendanceLog $model, Request $request)
+    {
+        return $model->filter($request)->paginate($request->per_page);
+    }
+    
+    public function index_old(Request $request)
     {
 
         $model = AttendanceLog::query();
 
-        $model->whereHas('device', fn ($q) => $q->where('device_type', 'Access Control'));
+        // $model->whereHas('device', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device', fn ($q) => $q->where('device_type', 'Attendance'));
 
         $model->where("company_id", $request->company_id);
 
