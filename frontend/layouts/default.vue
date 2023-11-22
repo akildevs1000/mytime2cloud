@@ -1232,6 +1232,19 @@ button {
 .company_logo .v-image__image--cover {
   background-size: contain;
 }
+
+.no-border > .v-input__control > .v-input__slot:before {
+  border-color: #fff !important;
+}
+
+/* .no-border:before {
+  border-color: #fff !important;
+} */
+</style>
+<style>
+body {
+  min-width: 1600px;
+}
 </style>
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->

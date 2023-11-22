@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ResetPassword\CheckCodeRequest;
@@ -26,7 +27,7 @@ class ResetPasswordController extends Controller
                 $user->notify(new ResetPasswordNotification());
                 return response()->json(['message' => "successfully sent code to email", 'status' => true], 200);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -37,10 +38,9 @@ class ResetPasswordController extends Controller
             if ($user->reset_password_code == $request->code) {
                 return response()->json(['message' => "your code is correct", 'status' => true], 200);
             } else {
-                return response()->json(['message' => "invalid code please resend", 'status' => false], 200);
+                return response()->json(['message' => "Invalid code. Try again", 'status' => false], 200);
             }
-
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }
@@ -51,11 +51,11 @@ class ResetPasswordController extends Controller
             $record = $user->update(['password' => Hash::make($request->password)]);
             if ($record) {
                 $user->update(['reset_password_code' => null]);
-                return $this->response('password successfully update .', $record, true);
+                return $this->response('password successfully updated .', $record, true);
             } else {
                 return $this->response('password cannot add.', null, false);
             }
-        } catch (\Throwable$th) {
+        } catch (\Throwable $th) {
             throw $th;
         }
     }

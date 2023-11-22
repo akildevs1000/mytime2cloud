@@ -78,199 +78,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialogForgotPassword" width="400px" height="500px">
-      <v-card>
-        <v-card-title dense class="popup_background">
-          Forgot Password
-          <v-spacer></v-spacer>
-          <v-icon @click="dialogForgotPassword = false" outlined dark>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-        <v-card-text>
-          <ForgotPassword></ForgotPassword>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <v-snackbar v-model="snackbar" top="top" color="error" elevation="24">
-      {{ snackbarMessage }}
-    </v-snackbar>
-    <section class="h-100 gradient-form" style="background-color: #6946dd">
-      <div class="container py-5 h-100">
-        <div class="row d-flex justify-content-center align-items-center h-100">
-          <div
-            class="col-xl-8 col-sm-8"
-            style="margin: 25px; width: 100%; height: 200px; position: relative"
-          >
-            <div style="" class="loginForm">
-              <div class="card1 text-black">
-                <v-card class="bgimage2 rounded-4 elevation-5 rounded-lg">
-                  <v-row class="" style="height: 670px">
-                    <v-col md="5" style="padding: 0px">
-                      <div
-                        class="card-body p-md-5 mx-md-4"
-                        style="padding: 3rem !important"
-                      >
-                        <div style="min-height: 100px">
-                          <div style="width: 100%" class="text-center">
-                            <v-img
-                              class="text-center"
-                              style="
-                                width: 200px;
-                                padding: 0px;
-                                margin: auto;
-                                text-align: center;
-                              "
-                              src="/logo22.png"
-                            ></v-img>
-                          </div>
-                          <h3 class="pb-7 pt-15">
-                            Welcome To
-                            <span style="font-size: 20px"> Mytime2Cloud </span>
-                          </h3>
-                        </div>
-                        <div>
-                          <v-form
-                            ref="form"
-                            method="post"
-                            v-model="valid"
-                            lazy-validation
-                            autocomplete="off"
-                          >
-                            <div class="form-outline">
-                              <v-text-field
-                                role="presentation"
-                                label="Email"
-                                v-model="credentials.email"
-                                :hide-details="false"
-                                id="form2Example11"
-                                autofill="false"
-                                required
-                                dense
-                                outlined
-                                type="email"
-                                prepend-inner-icon="mdi-account"
-                                append-icon="mdi-email"
-                                autocomplete="off"
-                                aria-autocomplete="none"
-                              ></v-text-field>
-                            </div>
-
-                            <div class="form-outline">
-                              <v-text-field
-                                role="presentation"
-                                label="Password"
-                                dense
-                                outlined
-                                autocomplete="off"
-                                prepend-inner-icon="mdi-lock  "
-                                :append-icon="
-                                  show_password ? 'mdi-eye' : 'mdi-eye-off'
-                                "
-                                :type="show_password ? 'text' : 'password'"
-                                v-model="credentials.password"
-                                class="input-group--focused"
-                                @click:append="show_password = !show_password"
-                              ></v-text-field>
-                            </div>
-
-                            <v-row>
-                              <v-col md="6">
-                                <v-checkbox value="red" disabled>
-                                  <template v-slot:label>
-                                    <label style=""
-                                      >Remember&nbsp;Password</label
-                                    >
-                                  </template>
-                                </v-checkbox>
-                              </v-col>
-                              <v-col md="6" class="text-right pt-6">
-                                <!-- <nuxt-link to="/reset-password"
-                                  >Forgot password?</nuxt-link
-                                > -->
-                                <v-btn text @click="openForgotPassword"
-                                  >Forgot password?</v-btn
-                                >
-                              </v-col>
-                            </v-row>
-
-                            <div class="text-center pt-1 mb-5 pb-1">
-                              <span
-                                v-if="msg"
-                                class="error--text111"
-                                style="color: #ff9f87"
-                              >
-                                {{ msg }}
-                              </span>
-                              <v-btn
-                                :loading="loading"
-                                @click="loginWithOTP()"
-                                class="btn primary btn-black btn-block mt-1 mb-3 p-4 btntext"
-                                style="width: 100%; height: 48px"
-                              >
-                                Login
-                              </v-btn>
-                            </div>
-                          </v-form>
-                        </div>
-                        <div class="text-center">
-                          Don't Have an Account?. Contact Admin
-                        </div>
-                      </div>
-                    </v-col>
-                    <v-col md="7" style="" class="hide-on-mobile">
-                      <div
-                        style="
-                          padding-left: 150px;
-                          padding-top: 80px;
-                          color: #fff;
-                        "
-                      >
-                        <h3>About Mytime2Cloud</h3>
-                        <div style="font-weight: 300">
-                          Create experiences that both employees and HR
-                          professionals . From automation of people processes to
-                          creating an engaged and driven culture, MyTime2Cloud
-                          is all you need to build a great Time Attendance
-                          management.
-                        </div>
-                        <h3 class="pt-5">Features</h3>
-                        <ul style="font-weight: 300">
-                          <li>Employees management</li>
-                          <li>Attendance management</li>
-                          <li>Time tracking</li>
-                          <li>Leave management</li>
-                          <li>Payroll management</li>
-                          <li>Access Controll</li>
-                          <li>Visitor management</li>
-                          <li>Leave management</li>
-                        </ul>
-                        <v-row class="text-right">
-                          <v-col class="pa-5">
-                            For Technical Support :
-                            <a
-                              target="_blank"
-                              href="https://wa.me/971529048025?text=Hello MyTime2Cloud. I need your support."
-                              ><v-icon color="white">mdi-whatsapp</v-icon></a
-                            >
-                            <a
-                              style="color: #fff; text-decoration: none"
-                              href="tel:+971529048025"
-                              >+971 52 904 8025</a
-                            ></v-col
-                          >
-                        </v-row>
-                      </div>
-                    </v-col>
-                  </v-row>
-                </v-card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- <section class="h-100 gradient-form" style="background-color: #eee">
+    <section class="h-100 gradient-form" style="background-color: #eee">
       <div class="container py-5 h-100">
         <div class="row d-flex justify-content-center align-items-center h-100">
           <div
@@ -391,24 +199,20 @@
           </div>
         </div>
       </div>
-    </section> -->
+    </section>
   </v-app>
 </template>
 
 <script>
-import ForgotPassword from "../components/ForgotPassword.vue";
 export default {
   layout: "login",
-  components: { ForgotPassword },
   data: () => ({
-    dialogForgotPassword: false,
     maskMobileNumber: "",
     whatsappFormValid: true,
     logo: "/ideaHRMS-final-blue.svg",
     valid: true,
     loading: false,
     snackbar: false,
-    snackbarMessage: "",
 
     show_password: false,
     msg: "",
@@ -424,8 +228,8 @@ export default {
     otp: "",
     userId: "",
     credentials: {
-      email: "",
-      password: "",
+      email: "demo@gmail.com",
+      password: "demo",
     },
   }),
   created() {
@@ -441,9 +245,6 @@ export default {
     // }, 1000 * 60 * 15); //15 minutes
   },
   methods: {
-    openForgotPassword() {
-      this.dialogForgotPassword = true;
-    },
     verifyToken() {
       if (this.$route.query.email && this.$route.query.password) {
         this.email = this.$route.query.email;
@@ -498,47 +299,39 @@ export default {
     },
 
     loginWithOTP() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
-      if (this.$refs.form.validate()) {
-        this.loading = true;
-        this.$store.commit("email", this.credentials.email);
-        this.$store.commit("password", this.credentials.password);
+      this.loading = true;
+      this.$store.commit("email", this.credentials.email);
+      this.$store.commit("password", this.credentials.password);
 
-        this.$axios
-          .post("loginwith_otp", this.credentials)
-          .then(({ data }) => {
-            if (!data.status) {
-              //alert("OTP Verification: " + data.message);
-              alert("Invalid Login Deails");
-            } else if (data.user_id) {
-              if (data.enable_whatsapp_otp == 1) {
-                this.dialogWhatsapp = true;
-                this.userId = data.user_id;
-                if (data.mobile_number) {
-                  this.maskMobileNumber = this.hideMobileNumber(
-                    data.mobile_number
-                  );
-                }
-
-                this.loading = false;
-              } else {
-                this.login();
+      this.$axios
+        .post("loginwith_otp", this.credentials)
+        .then(({ data }) => {
+          if (!data.status) {
+            //alert("OTP Verification: " + data.message);
+            alert("Invalid Login Deails");
+          } else if (data.user_id) {
+            if (data.enable_whatsapp_otp == 1) {
+              this.dialogWhatsapp = true;
+              this.userId = data.user_id;
+              if (data.mobile_number) {
+                this.maskMobileNumber = this.hideMobileNumber(
+                  data.mobile_number
+                );
               }
+
+              this.loading = false;
             } else {
-              this.snackbar = true;
-              this.snackbarMessage = "Invalid Login Details";
-              //alert("Invalid Login Deails");
+              this.login();
             }
-          })
-          .catch((err) => console.log(err));
-      } else {
-        this.snackbar = true;
-        this.snackbarMessage = "Invalid Emaild and Password";
-      }
+          } else {
+            alert("Invalid Login Deails");
+          }
+        })
+        .catch((err) => console.log(err));
+
       this.loading = false;
     },
     login() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         this.$store.commit("email", this.credentials.email);
         this.$store.commit("password", this.credentials.password);
@@ -566,22 +359,13 @@ export default {
             this.msg = status == 422 ? data.message : statusText;
             setTimeout(() => (this.loading = false), 2000);
           });
-      } else {
-        this.snackbar = true;
-        this.snackbarMessage = "Invalid Emaild and Password";
       }
     },
   },
 };
 </script>
-<!-- <style>
-body {
-  min-width: 1200px;
-}
-</style> -->
-
 <style scoped>
-/*.v-text-field--outlined >>> fieldset {
+.v-text-field--outlined >>> fieldset {
   border-color: #fff;
 }
 
@@ -596,7 +380,8 @@ body {
 .hidden-sm-and-down .v-icon {
   color: white !important;
 }
- .v-text-field--rounded {
+
+.v-text-field--rounded {
   border-radius: 10px;
 }
 
@@ -609,6 +394,9 @@ body {
 }
 
 .bgimage {
+  /* background-image: url(../static/login2.jpg) no-repeat center center fixed;
+  ; */
+
   background-image: url("../static/login2.jpg");
   background-size: cover;
 
@@ -622,57 +410,32 @@ body {
 .v-input__control .v-label {
   color: red;
 }
-*/
+
 .btntext {
   color: #6946dd;
   font-weight: bold;
   font-size: 22px;
 }
 
+/* fieldset {
+  border-radius: 10px;
+  ;
+} */
+/*
+i {
+  color: #FFF;
+} */
+
 @media (min-width: 768px) {
   .gradient-form {
     height: 100vh !important;
   }
-  /* .displaymobile {
-    display: none;
-  } */
-
-  .bgimage2 {
-    /* background-image: url(../static/login2.jpg) no-repeat center center fixed;
-  ; */
-    background-color: #fff;
-    background-image: url("../static/login/bgimage.png");
-    background-size: cover;
-  }
-
-  .loginForm {
-    width: 100%;
-    position: absolute;
-    top: 50%;
-    left: 24%;
-  }
-}
-@media (max-width: 700px) {
-  /* .hide-on-mobile {
-    display: none;
-  } */
-
-  .loginForm {
-    width: 100%;
-    position: absolute;
-    top: 10%;
-    left: 0%;
-  }
-  body {
-    width: 100%;
-    max-width: 100%;
-  }
 }
 
-/* @media (min-width: 769px) {
+@media (min-width: 769px) {
   .primary {
     background: #5fafa3 !important;
-     
+    /* #5fafa3 */
     border-top-right-radius: 0.3rem;
     border-bottom-right-radius: 0.3rem;
   }
@@ -683,5 +446,34 @@ input:-webkit-autofill::webkit-input-placeholder {
 input:-webkit-autofill {
   -webkit-text-fill-color: red !important;
   background-color: red !important;
+}
+/*
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #6946dd;
+  background-color: #6946dd;
+}
+
+input:-internal-autofill-selected {
+  appearance: menulist-button;
+  background-image: none !important;
+  background-color: -internal-light-dark(#6946dd, #6946dd) !important;
+  color: fieldtext !important;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 0s 600000s, color 0s 600000s;
+}
+input.my-input {
+  background-color: #6946dd !important;
+  background-image: none !important;
+  color: rgb(0, 0, 0) !important;
+}
+
+input.my-input:-internal-autofill-selected {
+  background-color: #6946dd !important;
+  background-image: none !important;
+  color: rgb(0, 0, 0) !important;
 } */
 </style>

@@ -80,7 +80,7 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2" v-if="branchList.length">
+        <v-card class="py-2 mb-2" v-if="branchList.length > 1">
           <!-- <v-row>
             <v-col md="12" class="text-center"> 2222 </v-col>
           </v-row> -->
@@ -94,7 +94,7 @@
 
             <v-col cols="4" class="pa-0 ma-0">
               <v-autocomplete
-                class="no-border no-underline"
+                class="no-border no-underline border-0"
                 style="width: 150px"
                 @change="overlay = !overlay"
                 v-model="branch_id"
@@ -292,3 +292,13 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+  border-color: #fff !important;
+}
+
+.no-border:before {
+  border-color: #fff !important;
+}
+</style>

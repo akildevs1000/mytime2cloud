@@ -12,9 +12,9 @@
             $p = count($data);
             if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
 
-                <div id="pageNumbers">
+                <!-- <div id="pageNumbers">
                     <div class="page-number" style="font-size: 9px"></div>
-                </div>
+                </div> -->
         </div>
         <footer id="page-bottom-line" style="padding-top: 90px!important">
             <hr style="width: 100%;">

@@ -141,3 +141,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+  border-color: #fff !important;
+}
+</style>

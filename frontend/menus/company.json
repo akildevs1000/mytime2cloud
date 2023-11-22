@@ -133,7 +133,7 @@
 
   {
     "icon": "mdi-web-box",
-    "title": "Web Logins",
+    "title": "Web Logs",
     "open_menu": false,
     "to": "/web_login_logs",
     "module": "settings"
@@ -194,7 +194,7 @@
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Logs",
+    "title": "Device Logs",
     "to": "/devicelogs",
     "menu": "logs_access",
     "module": "attendance"
@@ -307,7 +307,7 @@
   },
   {
     "icon": "mdi-chart-box-outline",
-    "title": "Logs",
+    "title": "Visitor Logs",
     "to": "/visitor_logs",
     "menu": "visitors_access",
     "module": "visitors"
@@ -335,7 +335,7 @@
   },
   {
     "icon": "mdi-clipboard-text-clock",
-    "title": "Logs",
+    "title": "Device Logs",
     "to": "/devicelogs",
     "menu": "logs_access",
     "module": "reports"
@@ -367,6 +367,13 @@
     "title": "Visitor Logs",
     "to": "/visitor_logs",
     "menu": "visitors_access",
+    "module": "reports"
+  },
+  {
+    "icon": "mdi-web-box",
+    "title": "Web Logs",
+    "open_menu": false,
+    "to": "/web_login_logs",
     "module": "reports"
   }
 ]
