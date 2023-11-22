@@ -16,13 +16,20 @@ class ChangeRequestController extends Controller
     public function index(Request $request)
     {
         $model = ChangeRequest::query();
+        
         $model->where("company_id", $request->company_id);
         $model->when($request->filled("employee_device_id"), fn ($q) => $q->where('employee_device_id', $request->employee_device_id));
         $model->when($request->filled("request_type"), fn ($q) => $q->where('request_type', $request->request_type));
         $model->when($request->filled("status"), fn ($q) => $q->where('status', $request->status));
-        $model->when($request->filled("branch_id"), fn ($q) => $q->where('branch_id', $request->branch_id));
-        $model->with("branch");
+
+        $model->when($request->filled("branch_id"), function ($query) {
+            $query->whereHas("employee", fn ($q) => $q->where('branch_id', request("branch_id")));
+        });
+
+        $model->with(["branch", "employee"]);
+        
         $model->orderBy("id", "desc");
+
         return $model->paginate($request->per_page ?? 100);
     }
 
@@ -82,7 +89,7 @@ class ChangeRequestController extends Controller
             DB::commit();
 
             if ($record) {
-                
+
                 $employee = Employee::where("system_user_id", $data['employee_device_id'])->where("company_id", $data['company_id'])->first();
 
                 Notification::create([
