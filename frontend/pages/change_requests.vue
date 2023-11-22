@@ -365,7 +365,7 @@ export default {
         align: "left",
         sortable: true,
         key: "branch_id",
-        value: "branch.branch_name",
+        value: "employee.branch.branch_name",
         width: "300px",
         filterable: true,
         filterSpecial: true,

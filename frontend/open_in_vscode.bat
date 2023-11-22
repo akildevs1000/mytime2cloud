@@ -1,1 +1,1 @@
-code . && exit
+code .
