@@ -1241,10 +1241,10 @@ button {
   border-color: #fff !important;
 } */
 </style>
-<style>
+<!-- <style>
 body {
   min-width: 1600px;
 }
-</style>
+</style> -->
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->

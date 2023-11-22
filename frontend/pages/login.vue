@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app class="mobileBGColor">
     <v-dialog persistent v-model="dialogWhatsapp" width="600px">
       <v-card>
         <v-card-title
@@ -106,7 +106,7 @@
               <div class="card1 text-black">
                 <v-card class="bgimage2 rounded-4 elevation-5 rounded-lg">
                   <v-row class="" style="height: 670px">
-                    <v-col md="5" style="padding: 0px">
+                    <v-col xs="6" sm="6" md="5" style="padding: 0px">
                       <div
                         class="card-body p-md-5 mx-md-4"
                         style="padding: 3rem !important"
@@ -216,23 +216,43 @@
                         <div class="text-center">
                           Don't Have an Account?. Contact Admin
                         </div>
+
+                        <v-row class="text-center" style="font-size: 13px">
+                          <v-col class="pa-5">
+                            For Technical Support :
+                            <a
+                              target="_blank"
+                              href="https://wa.me/971529048025?text=Hello MyTime2Cloud. I need your support."
+                              ><v-icon color="black">mdi-whatsapp</v-icon></a
+                            >
+                            <a
+                              style="text-decoration: none; color: black"
+                              href="tel:+971529048025"
+                              >+971 52 904 8025</a
+                            ></v-col
+                          >
+                        </v-row>
                       </div>
                     </v-col>
-                    <v-col md="7" style="" class="hide-on-mobile">
+                    <v-col xs="6" sm="6" md="7" style="" class="hide-on-mobile">
                       <div
                         style="
                           padding-left: 150px;
-                          padding-top: 80px;
+                          padding-top: 60px;
                           color: #fff;
                         "
                       >
                         <h3>About Mytime2Cloud</h3>
                         <div style="font-weight: 300">
-                          Create experiences that both employees and HR
-                          professionals . From automation of people processes to
-                          creating an engaged and driven culture, MyTime2Cloud
-                          is all you need to build a great Time Attendance
-                          management.
+                          MyTime2Cloud is an innovative and comprehensive
+                          platform meticulously crafted to redefine how
+                          organizations approach workforce management. It serves
+                          as the ultimate solution, seamlessly amalgamating
+                          cutting-edge automation with an acute understanding of
+                          employee needs. Tailored to cater to both employees
+                          and HR professionals, it encompasses a myriad of
+                          functionalities designed to optimize time attendance
+                          management and enhance workplace experiences.
                         </div>
                         <h3 class="pt-5">Features</h3>
                         <ul style="font-weight: 300">
@@ -653,9 +673,12 @@ body {
   }
 }
 @media (max-width: 700px) {
-  /* .hide-on-mobile {
+  .hide-on-mobile {
     display: none;
-  } */
+  }
+  .mobileBGColor {
+    background-color: #6946dd;
+  }
 
   .loginForm {
     width: 100%;
@@ -666,6 +689,7 @@ body {
   body {
     width: 100%;
     max-width: 100%;
+    background-color: #6946dd;
   }
 }
 
