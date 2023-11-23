@@ -375,5 +375,12 @@
     "open_menu": false,
     "to": "/web_login_logs",
     "module": "reports"
+  },
+  {
+    "icon": "mdi-file-remove-outline",
+    "title": "Document Expiry",
+    "to": "/document_expiry",
+    "menu": "reports",
+    "module": "reports"
   }
 ]
