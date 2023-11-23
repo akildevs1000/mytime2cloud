@@ -11,3 +11,5 @@ Route::get('dashboard_get_count_department', [ThemeController::class, "dashboard
 Route::get('previous_week_attendance_count/{id}', [ThemeController::class, "previousWeekAttendanceCount"]);
 Route::get('dashboard_Get_Counts_today_multi_general', [ThemeController::class, "dashboardGetCountsTodayMultiGeneral"]);
 Route::get('dashboard_get_counts_today_hour_in_out', [ThemeController::class, "dashboardGetCountsTodayHourInOut"]);
+
+Route::get('dashboard_get_visitor_counts_today_hour_in_out', [ThemeController::class, "dashboardGetVisitorCountsTodayHourInOut"]);

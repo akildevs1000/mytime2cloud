@@ -15,6 +15,8 @@ export const state = () => ({
   attendance_count_by_department: null,
   branch_id: null,
   system_user_id: null,
+
+  visitor_every_hour_count: null,
 });
 
 export const mutations = {
@@ -70,6 +72,10 @@ export const mutations = {
   every_hour_count(state, every_hour_count) {
     // Mutation to set 'every_hour_count'
     state.every_hour_count = every_hour_count;
+  },
+  visitor_every_hour_count(state, visitor_every_hour_count) {
+    // Mutation to set 'every_hour_count'
+    state.visitor_every_hour_count = visitor_every_hour_count;
   },
   web_logins(state, web_logins) {
     // Mutation to set 'web_logins'
@@ -136,7 +142,26 @@ export const actions = {
       return error;
     }
   },
-
+  async visitor_every_hour_count({ commit, state }) {
+    if (state.visitor_every_hour_count) return state.visitor_every_hour_count;
+    try {
+      const { data } = await this.$axios.get(
+        "dashboard_get_visitor_counts_today_hour_in_out",
+        {
+          params: {
+            company_id: this.$auth.user.company_id,
+            branch_id: state.branch_id > 0 ? state.branch_id : null,
+            system_user_id:
+              state.system_user_id > 0 ? state.system_user_id : null,
+          },
+        }
+      );
+      commit("visitor_every_hour_count", data);
+      return data;
+    } catch (error) {
+      return error;
+    }
+  },
   setDates({ commit }, { date_from, date_to, branch_id, system_user_id }) {
     //console.log(date_from);
     // Action to set 'date_from' and 'date_to'

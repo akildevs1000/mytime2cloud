@@ -35,7 +35,7 @@
                     width: 100%;
                     height: 200px;
                     border: 1px solid #5fafa3;
-
+                    border-radius: 15px;
                     margin: 0 auto;
                   "
                   :src="

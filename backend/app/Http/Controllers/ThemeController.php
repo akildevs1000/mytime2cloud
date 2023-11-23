@@ -7,6 +7,7 @@ use App\Models\AttendanceLog;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Theme;
+use App\Models\VisitorLog;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -320,6 +321,41 @@ class ThemeController extends Controller
 
         return  $finalarray;
     }
+
+    public function dashboardGetVisitorCountsTodayHourInOut(Request $request)
+    {
+
+        $finalarray = [];
+
+        for ($i = 0; $i < 24; $i++) {
+
+            $j = $i;
+
+            $j = $i <= 9 ? "0" . $i : $i;
+
+            $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $model = VisitorLog::with(["visitor"])->where('company_id', $request->company_id)
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                // ->whereDate('LogTime', $date)
+
+                ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
+                ->where('LogTime', '<', $date  . ' ' . $j . ':59:59')
+                ->get();
+
+            $finalarray[] = [
+                "date" => $date,
+                "hour" => $i,
+                "count" => $model->count(),
+
+            ];
+        }
+
+
+        return  $finalarray;
+    }
+
     public function dashboardGetCountsTodayMultiGeneral(Request $request)
     {
 
