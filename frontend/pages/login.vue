@@ -1,5 +1,5 @@
 <template>
-  <div class="mobileBGColor bg">
+  <div class="mobileBGColor111 bg-body">
     <v-dialog persistent v-model="dialogWhatsapp" width="600px">
       <v-card>
         <v-card-title
@@ -587,10 +587,9 @@ html {
   background: transparent;
 } */
 
-.bg {
+.bg-body {
   padding-top: 5%;
   /* The image used */
-  background-image: url("../static/login/bgimage3.png") !important;
 
   /* Full height */
   height: 100%;
@@ -603,48 +602,6 @@ html {
 </style>
 
 <style scoped>
-/*.v-text-field--outlined >>> fieldset {
-  border-color: #fff;
-}
-
-.v-list__group__header__prepend-icon .v-icon {
-  color: red;
-}
-
-.v-input__icon {
-  color: #fff !important;
-}
-
-.hidden-sm-and-down .v-icon {
-  color: white !important;
-}
- .v-text-field--rounded {
-  border-radius: 10px;
-}
-
-.text-white {
-  color: #fff;
-}
-
-.v-label {
-  color: #fff !important;
-}
-
-.bgimage {
-  background-image: url("../static/login2.jpg");
-  background-size: cover;
-
-  min-height: 600px;
-}
-
-.v-btn {
-  text-transform: inherit !important;
-}
-
-.v-input__control .v-label {
-  color: red;
-}
-*/
 .btntext {
   color: #6946dd;
   font-weight: bold;
@@ -656,6 +613,9 @@ html {
   }
 }
 @media (min-width: 1300px) {
+  .bg-body {
+    background-image: url("../static/login/bgimage3.png") !important;
+  }
   .gradient-form {
     height: 100vh !important;
   }
@@ -682,9 +642,9 @@ html {
   .hide-on-mobile {
     display: none;
   }
-  .mobileBGColor {
+  /* .mobileBGColor {
     background-color: #6946dd;
-  }
+  } */
 
   .loginForm {
     width: 100%;
