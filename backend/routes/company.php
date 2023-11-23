@@ -160,6 +160,7 @@ Route::apiResource('no-shift-employees', DutyOrganizerController::class);
 Route::apiResource('employee', EmployeeController::class);
 
 Route::get('employeesList', [EmployeeController::class, 'employeesList']);
+Route::get('document_expiry', [EmployeeController::class, 'document_expiry']);
 Route::get('employee-list', [EmployeeController::class, 'dropdownList']);
 Route::get('employeesByDepartment', [EmployeeController::class, 'employeesByDepartment']);
 Route::get('employeesByDepartmentForAnnoucements', [EmployeeController::class, "employeesByDepartmentForAnnoucements"]);
