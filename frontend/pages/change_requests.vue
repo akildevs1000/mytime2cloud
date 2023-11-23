@@ -64,23 +64,6 @@
               </template>
               <span>Filter</span>
             </v-tooltip>
-            <div v-if="isCompany">
-              <v-select
-                outlined
-                autocomplete="off"
-                dense
-                class="ma-2"
-                v-model="branch_id"
-                hide-details
-                @change="getRecords"
-                :items="[
-                  { id: ``, branch_name: `Select All` },
-                  ...branchesList,
-                ]"
-                item-value="id"
-                item-text="branch_name"
-              ></v-select>
-            </div>
             <v-spacer></v-spacer>
             <!-- <v-btn
               title="Change Request"
@@ -119,6 +102,24 @@
             <template v-slot:header="{ props: { headers } }">
               <tr v-if="isFilter">
                 <td v-for="header in headers" :key="header.text">
+                  <v-select
+                    style="width: 250px"
+                    v-if="header.key == 'branch_id' && header.filterable && header.field_type == 'dropdown'"
+                    @input="applyFilters(header, $event)"
+                    outlined
+                    autocomplete="off"
+                    dense
+                    class="mx-2"
+                    hide-details
+                    v-model="branch_id"
+                    :items="[
+                      { id: ``, branch_name: `Select All` },
+                      ...branchesList,
+                    ]"
+                    item-value="id"
+                    item-text="branch_name"
+                  ></v-select>
+
                   <v-text-field
                     style="width: 250px"
                     v-if="header.filterable && header.field_type == 'text'"
@@ -127,13 +128,14 @@
                     outlined
                     clearable
                     autocomplete="off"
+                    hide-details
                     dense
                     class="ma-2"
                   ></v-text-field>
 
                   <v-select
                     style="width: 250px"
-                    v-if="header.filterable && header.field_type == 'dropdown'"
+                    v-if="header.key == 'status' && header.filterable && header.field_type == 'dropdown'"
                     @input="applyFilters(header, $event)"
                     outlined
                     autocomplete="off"
@@ -308,6 +310,7 @@ export default {
         value: "remarks",
       },
       {
+        key: "status",
         text: "Status",
         sortable: false,
         filterable: true,
@@ -361,6 +364,7 @@ export default {
 
     let branch_header = [
       {
+        field_type: "dropdown",
         text: "Branch",
         align: "left",
         sortable: true,
