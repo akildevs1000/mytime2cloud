@@ -27,18 +27,18 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            "visa_no" => "nullable|min:2|max:20",
-            "place_of_issues" => "nullable|min:1|max:20",
-            "country" => "nullable|min:1|max:20",
-            "issue_date" => "nullable",
-            "expiry_date" => "nullable",
+            "visa_no" => "required|min:2|max:20",
+            "place_of_issues" => "required|min:1|max:20",
+            "country" => "required|min:1|max:20",
+            "issue_date" => "required",
+            "expiry_date" => "required",
 
             "security_amount" => "nullable",
-            "labour_no" => "nullable",
+            "labour_no" => "required",
             "personal_no" => "nullable",
-            "labour_issue_date" => "nullable",
-            "labour_expiry_date" => "nullable",
-            "note" => "nullable",
+            "labour_issue_date" => "required",
+            "labour_expiry_date" => "required",
+            "note" => "required",
 
             "employee_id" => "required",
             "company_id" => "required",

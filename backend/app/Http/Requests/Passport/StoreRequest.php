@@ -27,12 +27,12 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            "passport_no" => "nullable|min:2|max:20",
-            "place_of_issues" => "nullable|min:1|max:20",
-            "country" => "nullable|min:1|max:20",
-            "note" => "nullable",
-            "issue_date" => "nullable",
-            "expiry_date" => "nullable",
+            "passport_no" => "required|min:2|max:20",
+            "place_of_issues" => "required|min:1|max:20",
+            "country" => "required|min:1|max:20",
+            "note" => "required",
+            "issue_date" => "required",
+            "expiry_date" => "required",
             "employee_id" => "required",
             "company_id" => "required",
         ];
