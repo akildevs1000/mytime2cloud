@@ -320,14 +320,14 @@
     "module": "visitors"
   },
   {
-    "icon": "mdi-calendar-today",
+    "icon": "mdi-clock-time-four-outline",
     "title": "Attendance",
     "to": "/attendance_report",
     "menu": "attendance_report_access",
     "module": "reports"
   },
   {
-    "icon": "mdi mdi-clock-time-four-outline",
+    "icon": "mdi-lock-outline",
     "title": "Access Control",
     "to": "/access_control_report",
     "menu": "timezone",
