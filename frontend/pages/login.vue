@@ -240,15 +240,7 @@
         style=""
         class="hide-on-mobile d-none d-lg-flex"
       >
-        <div
-          style="
-            padding-left: 250px;
-            padding-top: 60px;
-            color: #fff;
-
-            padding-right: 20%;
-          "
-        >
+        <div class="about-content">
           <h3>About Mytime2Cloud</h3>
           <div style="font-weight: 300">
             MyTime2Cloud is an innovative and comprehensive platform
@@ -631,6 +623,13 @@ html {
 </style>
 
 <style scoped>
+.about-content {
+  padding-left: 26%;
+  padding-top: 60px;
+  color: #fff;
+
+  padding-right: 20%;
+}
 .btntext {
   color: #6946dd;
   font-weight: bold;
@@ -687,20 +686,4 @@ html {
     background-color: #6946dd;
   }
 }
-
-/* @media (min-width: 769px) {
-  .primary {
-    background: #5fafa3 !important;
-     
-    border-top-right-radius: 0.3rem;
-    border-bottom-right-radius: 0.3rem;
-  }
-}
-input:-webkit-autofill::webkit-input-placeholder {
-  background-color: red;
-}
-input:-webkit-autofill {
-  -webkit-text-fill-color: red !important;
-  background-color: red !important;
-} */
 </style>
