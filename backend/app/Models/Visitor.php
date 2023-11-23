@@ -141,7 +141,7 @@ class Visitor extends Model
 
         $model->when($request->filled('status_id'), fn ($q) => $q->Where('status_id',   $request->input("status_id")));
 
-        $model->when($request->filled('branch_id'), fn ($q) => $q->Where('branch_id',   $request->input("branch_id")));
+        // $model->when($request->filled('branch_id'), fn ($q) => $q->Where('branch_id',   $request->input("branch_id")));
 
         $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->input("from_date")));
 
