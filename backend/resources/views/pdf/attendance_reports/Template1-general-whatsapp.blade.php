@@ -12,9 +12,9 @@
             $p = count($data);
             if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
 
-                <div id="pageNumbers">
+                <!-- <div id="pageNumbers">
                     <div class="page-number" style="font-size: 9px"></div>
-                </div>
+                </div> -->
         </div>
         <footer id="page-bottom-line" style="padding-top: 90px!important">
             <hr style="width: 100%;">
@@ -42,13 +42,187 @@
         $i = 0;
         $pageBreak="true";
 
-        $pageBreakDaysDifference=0;
-
         $totalAbsents=0;
         @endphp
 
         <table class="main-table">
 
+            @if (count($data)==0)
+
+
+            <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
+                <td style="border: nonse" colspan="6">
+                    <div class="row">
+
+                        <!-- Template1 Report -->
+
+                        <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                            <table style="padding:0px;margin:0px">
+                                <tr style="text-align: left; border :none; padding:100px 0px;">
+                                    <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
+                                        <b style="padding:0px;margin:0px">
+                                            {{ $company->name }}
+                                        </b>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
+                                        <span style="margin-left: 3px">P.O.Box
+                                            {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                        <span style="margin-left: 3px">{{ $company->location }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
+                                        <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                                <tr style="text-align: left; border :none;padding:10px 0px">
+                                    <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
+                                        <span style="margin-left: 3px">{{ '' }}</span>
+                                        <br>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+                <td style="border: nonse" colspan="6">
+                    <div class="col-12" style="text-align:center">
+
+                        @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @else
+                        <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @endif
+                    </div>
+                    <div>
+
+                        <table style="text-align: left; border :none;  ">
+
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: center; border :none">
+                                    <span class="title-font">
+                                        <!-- {{ $info->report_type }} {{ $company->report_type }} Report -->
+                                        {{ $company->report_type }} Report
+                                        <!-- ({{$main_shift_name}}) -->
+                                    </span>
+                                    <hr style="width: 230px">
+                                </td>
+                            </tr>
+                            <tr style="text-align: left; border :none;">
+                                <td style="text-align: center; border :none">
+                                    <span style="font-size: 11px">
+                                        {{ date('d-M-Y', strtotime($company->start)) }} -
+                                        {{ date('d-M-Y', strtotime($company->end)) }}
+                                    </span>
+                                    <hr style="width: 230px">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+
+                <td style="border: nosne;text-align:center" colspan=" 7  ">
+                    @if ($request->shift_type_id=='')
+
+
+                    <div style="text-center">
+                        Total Employees : {{count($data)}}
+
+                    </div>
+                    @endif
+                    <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <th style="text-align: center; border :none; padding:5px">EID</th>
+                            <th style="text-align: center; border :none">Name</th>
+                            <th style="text-align: center; border :none">Department</th>
+                            <th style="text-align: center; border :none">Report Type</th>
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none; padding:5px;font-size:11px">
+                                {{ '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                {{ '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                {{ '---' }}
+                            </td>
+                            <td style="text-align: center; border:none;font-size:11px">
+                                General
+                            </td>
+                        </tr>
+
+
+
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <th style="text-align: center; border :none; padding:5px">Present</th>
+                            <th style="text-align: center; border :none">Absent</th>
+                            <th style="text-align: center; border :none">Week Off</th>
+                            <th style="text-align: center; border :none">Leaves </th>
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none; padding:5px;color:green">
+                                {{ getStatus($data->toArray())['P'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:red">
+                                {{ getStatus($data->toArray())['A'] ?? 0 }}
+                            </td>
+
+                            <td style="text-align: center; border :none;color:gray">
+                                {{ getStatus($data->toArray())['O'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:blue">
+                                {{ getStatus($data->toArray())['L'] ?? 0 }}
+                            </td>
+                        </tr>
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                            <th style="text-align: center; border :none">Holidays</th>
+                            <th style="text-align: center; border :none">Missing</th>
+
+                            <th style="text-align: center; border :none; padding:5px">Work Hours</th>
+                            <th style="text-align: center; border :none">OT Hours</th>
+
+                            {{-- <th style="text-align: center; border :none">Department</th> --}}
+                        </tr>
+                        <tr style="border: none">
+                            <td style="text-align: center; border :none;color:pink">
+                                {{ getStatus($data->toArray())['H'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:orange">
+                                {{ getStatus($data->toArray())['M'] ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none; padding:5px;color:black">
+                                {{ $empTotWrkHrs ?? 0 }}
+                            </td>
+                            <td style="text-align: center; border :none;color:black">
+                                {{ $empTotOtHrs ?? 0 }}
+                            </td>
+
+                            {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}
+                </td> --}}
+            </tr>
+        </table>
+        <table>
+            <tr>
+
+                <td colspan="19" style="text-align:center">
+                    No Records Found
+                </td>
+            </tr>
+
+
+
+            @endif
             @foreach ($data as $empID => $employee)
             @php
             $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
@@ -154,7 +328,7 @@
                     </div>
                 </td>
 
-                <td style="border: nosne;text-align:center" colspan="{{ $interval->format('%a')>=$pageBreakDaysDifference ?  4 :7 }}">
+                <td style="border: nosne;text-align:center" colspan="{{ $interval->format('%a')>=2 ?  4 :7 }}">
                     @if ($request->shift_type_id=='')
 
 
@@ -172,13 +346,13 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                                @if($interval->format('%a')>=$pageBreakDaysDifference) {{ $empID ?? '---' }} @endif
+                                @if($interval->format('%a')>=2) {{ $empID ?? '---' }} @endif
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                @if($interval->format('%a')>=$pageBreakDaysDifference) {{ $empName ?? '---' }} @endif
+                                @if($interval->format('%a')>=2) {{ $empName ?? '---' }} @endif
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
-                                @if($interval->format('%a')>=$pageBreakDaysDifference) {{ $singleEmployee->department->name ?? '---' }} @endif
+                                @if($interval->format('%a')>=2) {{ $singleEmployee->department->name ?? '---' }} @endif
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
                                 General
@@ -195,17 +369,17 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
-                                {{ getStatus($employee->toArray())['P'] ?? 0 }}
+                                {{ getStatus($data->toArray())['P'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:red">
-                                {{ getStatus($employee->toArray())['A'] ?? 0 }}
+                                {{ getStatus($data->toArray())['A'] ?? 0 }}
                             </td>
 
                             <td style="text-align: center; border :none;color:gray">
-                                {{ getStatus($employee->toArray())['O'] ?? 0 }}
+                                {{ getStatus($data->toArray())['O'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:blue">
-                                {{ getStatus($employee->toArray())['L'] ?? 0 }}
+                                {{ getStatus($data->toArray())['L'] ?? 0 }}
                             </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
@@ -219,10 +393,10 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none;color:pink">
-                                {{ getStatus($employee->toArray())['H'] ?? 0 }}
+                                {{ getStatus($data->toArray())['H'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:orange">
-                                {{ getStatus($employee->toArray())['M'] ?? 0 }}
+                                {{ getStatus($data->toArray())['M'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none; padding:5px;color:black">
                                 {{ $empTotWrkHrs ?? 0 }}
@@ -259,7 +433,7 @@
         @if($pageBreak=='true' ) <tr style="text-align: left;font-weight:bold;margin-top:20px;  width:100%;">
             <td colspan="1" style="text-align: left;"> # </td>
             <td colspan="1" style="text-align: center;"> Date {{ $pageBreak}} </td>
-            @if($interval->format('%a')<=$pageBreakDaysDifference) <td colspan="3" style="text-align: center;"> Employee </td>
+            @if($interval->format('%a')<=2) <td colspan="3" style="text-align: center;"> Employee </td>
                 @endif
                 <td colspan="2" style="text-align: center;"> Shift </td>
                 <td colspan="2" style="text-align: center;"> In Time </td>
@@ -308,7 +482,7 @@
                 <td colspan="1" style="text-align:  center;">{{ $employee->date ?? '---' }}
                     <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
                 </td>
-                @if($interval->format('%a')<=$pageBreakDaysDifference) <td colspan="3" style="text-align:center">
+                @if($interval->format('%a')<=2) <td colspan="3" style="text-align:center">
 
 
                     <img style="
@@ -402,7 +576,7 @@
         </tbody>
 
         @php
-        if((int)$interval->format('%a')<=$pageBreakDaysDifference) { $pageBreak='false' ; } @endphp @endforeach @if ($pageBreak=='true' ) <tr class="my-break">
+        if((int)$interval->format('%a')<=2) { $pageBreak='false' ; } @endphp @endforeach @if ($pageBreak=='true' ) <tr class="my-break">
             <td colspan="11" style="border: none;"></td>
             </tr>
             @else
@@ -419,7 +593,7 @@
             @endphp @endforeach </table>
             @php
 
-            function getStatus($employeeData)
+            function getStatus($data)
             {
             $countA = 0;
             $countP = 0;
@@ -427,11 +601,9 @@
             $countO = 0;
             $countL = 0;
             $countH = 0;
-
+            foreach ($data as $employeeData) {
             foreach ($employeeData as $employee) {
-            if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-            throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-            }
+
             $status = $employee[0]['status'];
             if ($status == 'A') {
             $countA++;
@@ -446,6 +618,8 @@
             } elseif ($status == 'H') {
             $countH++;
             }
+            }
+
             }
             return [
             'A' => $countA,
