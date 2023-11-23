@@ -253,8 +253,9 @@ class MonthlyController extends Controller
         $companyID = $request->company_id;
 
         $model = (new Attendance)->processAttendanceModel($request);
-
         $data = $model->get()->groupBy(['employee_id', 'date']);
+
+
 
         $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
@@ -282,6 +283,10 @@ class MonthlyController extends Controller
         // }
 
         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+        if ($request->from_date == $request->to_date) {
+            $fileName =  $fileName . "-whatsapp";
+        }
 
         $main_shift_name = 'Single Shift';
         if ($request->main_shift_type == 2)
