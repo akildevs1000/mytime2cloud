@@ -11,7 +11,7 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("emirate id") }}</label>
             <v-text-field
-              :hide-details="!emirateItems.emirate_id"
+              :hide-details="!errors.emirate_id"
               :error-messages="errors.emirate_id && errors.emirate_id[0]"
               dense
               outlined
@@ -23,7 +23,7 @@
           <div class="form-group">
             <label class="col-form-label">{{ caps("nationality") }}</label>
             <v-text-field
-              :hide-details="!emirateItems.nationality"
+              :hide-details="!errors.nationality"
               :error-messages="errors.nationality && errors.nationality[0]"
               dense
               outlined
@@ -47,7 +47,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  :hide-details="!emirateItems.issue"
+                  :hide-details="!errors.issue"
                   :error-messages="errors.issue && errors.issue[0]"
                   v-model="emirateItems.issue"
                   persistent-hint
@@ -84,7 +84,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  :hide-details="!emirateItems.expiry"
+                  :hide-details="!errors.expiry"
                   :error-messages="errors.expiry && errors.expiry[0]"
                   v-model="emirateItems.expiry"
                   persistent-hint
@@ -121,7 +121,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <v-text-field
-                  :hide-details="!emirateItems.date_of_birth"
+                  :hide-details="!errors.date_of_birth"
                   :error-messages="
                     errors.date_of_birth && errors.date_of_birth[0]
                   "

@@ -11,6 +11,8 @@
           <label class="col-form-label">{{ caps("passport no") }}</label>
 
           <v-text-field
+            :hide-details="!errors.passport_no"
+            :error-messages="errors.passport_no && errors.passport_no[0]"
             dense
             small
             outlined
@@ -18,9 +20,6 @@
             type="text"
             class="form-control"
           ></v-text-field>
-          <span v-if="errors && errors.passport_no" class="text-danger mt-2">{{
-            errors.passport_no[0]
-          }}</span>
         </div>
       </v-col>
 
@@ -28,6 +27,8 @@
         <div class="form-group">
           <label class="col-form-label">{{ caps("note") }}</label>
           <v-text-field
+            :hide-details="!errors.note"
+            :error-messages="errors.note && errors.note[0]"
             dense
             small
             outlined
@@ -35,15 +36,16 @@
             type="text"
             class="form-control"
           ></v-text-field>
-          <span v-if="errors && errors.note" class="text-danger mt-2">{{
-            errors.note[0]
-          }}</span>
         </div>
       </v-col>
       <v-col cols="6">
         <div class="form-group">
           <label class="col-form-label">{{ caps("place of issues") }}</label>
           <v-text-field
+            :hide-details="!errors.place_of_issues"
+            :error-messages="
+              errors.place_of_issues && errors.place_of_issues[0]
+            "
             dense
             small
             outlined
@@ -51,11 +53,6 @@
             type="text"
             class="form-control"
           ></v-text-field>
-          <span
-            v-if="errors && errors.place_of_issues"
-            class="text-danger mt-2"
-            >{{ errors.place_of_issues[0] }}</span
-          >
         </div>
       </v-col>
 
@@ -63,6 +60,8 @@
         <div class="form-group">
           <label class="col-form-label">{{ caps("country") }}</label>
           <v-text-field
+            :hide-details="!errors.country"
+            :error-messages="errors.country && errors.country[0]"
             dense
             small
             outlined
@@ -70,9 +69,6 @@
             class="form-control"
             type="text"
           ></v-text-field>
-          <span v-if="errors && errors.country" class="text-danger mt-2">{{
-            errors.country[0]
-          }}</span>
         </div>
       </v-col>
 
@@ -80,6 +76,8 @@
         <div class="form-group">
           <label class="col-form-label">{{ caps("issue date") }}</label>
           <v-text-field
+            :hide-details="!errors.issue_date"
+            :error-messages="errors.issue_date && errors.issue_date[0]"
             dense
             small
             outlined
@@ -87,9 +85,6 @@
             type="date"
             class="form-control"
           ></v-text-field>
-          <span v-if="errors && errors.issue_date" class="text-danger mt-2">{{
-            errors.issue_date[0]
-          }}</span>
         </div>
       </v-col>
 
@@ -97,6 +92,8 @@
         <div class="form-group">
           <label class="col-form-label">{{ caps("expiry date") }}</label>
           <v-text-field
+            :hide-details="!errors.expiry_date"
+            :error-messages="errors.expiry_date && errors.expiry_date[0]"
             dense
             small
             outlined
@@ -104,15 +101,8 @@
             type="date"
             class="form-control"
           ></v-text-field>
-          <span v-if="errors && errors.expiry_date" class="text-danger mt-2">{{
-            errors.expiry_date[0]
-          }}</span>
         </div>
       </v-col>
-
-      <span v-if="errors && errors.length" class="error--text">{{
-        errors
-      }}</span>
     </v-row>
     <v-row>
       <v-col cols="12" class="text-right">
