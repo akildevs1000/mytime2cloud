@@ -27,13 +27,13 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            "emirate_id" => "nullable|min:2|max:20",
+            "emirate_id" => "required|min:2|max:20",
             "name" => "nullable|min:1|max:20",
             "gender" => "nullable|min:1|max:20",
-            "date_of_birth" => "nullable",
-            "nationality" => "nullable",
-            "issue" => "nullable",
-            "expiry" => "nullable",
+            "date_of_birth" => "required",
+            "nationality" => "required",
+            "issue" => "required",
+            "expiry" => "required",
 
             "company_id" => "required",
             "employee_id" => "required",
