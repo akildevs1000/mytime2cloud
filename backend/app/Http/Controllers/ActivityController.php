@@ -25,7 +25,7 @@ class ActivityController extends Controller
     public function filters($request)
     {
         $model = Activity::query();
-        $model->when($request->filled("company_id"), fn ($q) => $q->where("company_id", $request->company_id));
+        $model->when($request->filled("company_id") && $request->company_id > 0, fn ($q) => $q->where("company_id", $request->company_id));
         $model->when($request->filled("user_id"), fn ($q) => $q->where("user_id", $request->user_id));
 
 

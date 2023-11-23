@@ -14,98 +14,113 @@
           style="width: 100%; height: 600px"
         ></iframe>
       </v-dialog>
-      <v-row>
-        <v-col
-          v-for="(i, index) in items.visitorCounts"
-          :key="'v' + index"
-          cols="12"
-          md="3"
-        >
-          <div class="card p-2" :class="i.color" style="height: 150px">
-            <div class="card-statistic-3">
-              <div class="card-icon card-icon-large">
-                <i :class="i.icon"></i>
-              </div>
-              <div class="card-content">
-                <h3 class="card-title text-capitalize">{{ i.title }}</h3>
-                <h2
-                  class=""
-                  style="cursor: pointer; font-size: 70px; text-align: center"
-                  @click="filterStatus(i.title)"
+      <v-col lg="12" md="12" sm="12" xs="12">
+        <v-row>
+          <v-col md="12">
+            <v-card class="pa-2" style="height: 354px; overflow: hidden">
+              <v-row background fill>
+                <v-col
+                  lg="3"
+                  md="3"
+                  sm="3"
+                  xs="3"
+                  class="d-xs-flex"
+                  style="flex: auto"
                 >
-                  {{ i.value }}
-                </h2>
-                <!-- <p class="mb-0 text-sm">
-                  <span
-                    style="cursor: pointer"
-                    class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.link)"
-                  >
-                    <span class="mr-2"> </span>
-                    <span class="text-nowrap regular-font"></span>
-                  </span>
-                </p>
-                <p class="mb-0 text-sm">
-                  <span
-                    style="cursor: pointer"
-                    class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.multi_in_out)"
-                  >
-                    <span class="mr-2"> </span>
-                    <span class="text-nowrap regular-font"></span>
-                  </span>
-                </p> -->
-              </div>
-            </div>
-          </div>
-        </v-col>
-        <v-col
-          v-for="(i, index) in items.statusCounts"
-          :key="index"
-          cols="12"
-          md="3"
-        >
-          <div class="card p-2" :class="i.color" style="height: 150px">
-            <div class="card-statistic-3">
-              <div class="card-icon card-icon-large" style="">
-                <i :class="i.icon"></i>
-              </div>
-              <div class="card-content">
-                <h3 class="card-title text-capitalize">{{ i.title }}</h3>
-                <h2
-                  class=""
-                  style="cursor: pointer; font-size: 70px; text-align: center"
-                  @click="filterStatus(i.title)"
+                  <VisitorPieChart
+                    :items="items.visitorCounts"
+                  ></VisitorPieChart>
+                </v-col>
+                <v-col
+                  lg="9"
+                  md="9"
+                  sm="9"
+                  xs="9"
+                  class="d-xs-flex pa-2 pt-5"
+                  style="border-left: 1px solid #ddd"
                 >
-                  {{ i.value }}
-                </h2>
-                <!-- <p class="mb-0 text-sm">
-                  <span
-                    style="cursor: pointer"
-                    class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.link)"
-                  >
-                    <span class="mr-2"> </span>
-                    <span class="text-nowrap regular-font"></span>
-                  </span>
-                </p>
-                <p class="mb-0 text-sm">
-                  <span
-                    style="cursor: pointer"
-                    class="handcursor font-11"
-                    @click="showDialogGeneralreport(i.multi_in_out)"
-                  >
-                    <span class="mr-2"> </span>
-                    <span class="text-nowrap regular-font"></span>
-                  </span>
-                </p> -->
-              </div>
-            </div>
-          </div>
-        </v-col>
-      </v-row>
+                  <v-row class="pa-10">
+                    <v-col
+                      cols="3"
+                      class="card1 rounded-5"
+                      v-for="(i, index) in items.visitorCounts"
+                      :key="'v' + index"
+                    >
+                      <v-row>
+                        <v-col cols="4" class="text-end">
+                          <v-avatar :color="i.color">
+                            <v-icon
+                              size="30"
+                              class="pa-2"
+                              style="color: #fff"
+                              >{{ i.icon }}</v-icon
+                            >
+                          </v-avatar>
+                        </v-col>
+                        <v-col class="text-left pa-0">
+                          <div class="bold" style="font-size: 40px">
+                            {{ i.value }}
+                          </div>
+                          {{ i.title }}
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
 
-      <VisitorList @changeBranch="changeBranch1" :filterValue="filterTitle" />
+                  <v-row class="pa-10 pt-5">
+                    <v-col
+                      cols="3"
+                      class="card1 rounded-5"
+                      v-for="(i, index) in items.statusCounts"
+                      :key="'v' + index"
+                    >
+                      <v-row>
+                        <v-col cols="4" class="text-end">
+                          <v-avatar :color="i.color">
+                            <v-icon
+                              size="30"
+                              class="pa-2"
+                              style="color: #fff"
+                              >{{ i.icon }}</v-icon
+                            >
+                          </v-avatar>
+                        </v-col>
+                        <v-col class="text-left pa-0">
+                          <div class="bold" style="font-size: 40px">
+                            {{ i.value }}
+                          </div>
+                          {{ i.title }}
+                        </v-col>
+                      </v-row>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col lg="12" md="12" sm="12" xs="12">
+            <v-card
+              class="py-2"
+              style="height: 600px; overflow-x: hidden; overflow-y: scroll"
+            >
+              <VisitorLogs></VisitorLogs>
+            </v-card>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col lg="12" md="12" sm="12" xs="12">
+            <v-card class="py-2" style="overflow: hidden">
+              <VisitorHourChart
+                :name="'visitor'"
+                :branch_id="null"
+                :height="300"
+              ></VisitorHourChart>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
     </div>
     <Preloader v-else />
   </div>
@@ -113,9 +128,17 @@
 </template>
 <script>
 import VisitorList from "../components/Visitor/List.vue";
+import VisitorLogs from "../components/Visitor/VisitorLogs.vue";
+import VisitorHourChart from "../components/Visitor/DashboardVisitorHourChart.vue";
+import VisitorPieChart from "../components/Visitor/DashboardVisitorPieChart.vue";
 
 export default {
-  components: { VisitorList },
+  components: {
+    VisitorList,
+    VisitorPieChart,
+    VisitorHourChart,
+    VisitorLogs,
+  },
 
   data() {
     return {

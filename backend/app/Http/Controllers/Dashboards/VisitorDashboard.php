@@ -96,7 +96,7 @@ class VisitorDashboard extends Controller
                 [
                     "title" => "Expected",
                     "value" => $Visitors->clone()->where('status_id',   2)->count(),
-                    "icon" => "fas fa-calendar-times",
+                    "icon" => "mdi-account-details",
                     "color" => "l-bg-orange-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -104,7 +104,7 @@ class VisitorDashboard extends Controller
                 [
                     "title" => "Checked In",
                     "value" => $Visitors->clone()->where('status_id', ">=", 6)->count(),
-                    "icon" => "fas fa-calendar-check",
+                    "icon" => "mdi-account-arrow-left",
                     "color" => "l-bg-green-dark",
                     "link"  => env("BASE_URL") . "/api/daily?company_id=$id&status=SA&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?company_id=$id&status=SA&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -112,7 +112,7 @@ class VisitorDashboard extends Controller
                 [
                     "title" => "Checked Out",
                     "value" => $Visitors->clone()->where('status_id',   7)->count(),
-                    "icon" => "fas fa-calendar-times",
+                    "icon" => "mdi-account-arrow-right",
                     "color" => "l-bg-purple-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -121,7 +121,7 @@ class VisitorDashboard extends Controller
                 [
                     "title" => "Over Stayed",
                     "value" => $overStayCount,
-                    "icon" => "	fas fa-clock",
+                    "icon" => "mdi-account-clock",
                     "color" => "l-bg-red-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
                     "multi_in_out"  => env("BASE_URL") . "/api/multi_in_out_daily?page=1&per_page=1000&company_id=$id&status=M&daily_date=" . $date . "&department_id=-1&report_type=Daily",
