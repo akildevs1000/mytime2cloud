@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\Reports\DailyController;
@@ -107,3 +108,6 @@ Route::get('/generatePresentReportTest/{id}', [PDFTestController::class, 'genera
 // access_control
 Route::get('/access_control_report_print_pdf', [AccessControlController::class, 'access_control_report_print_pdf']);
 Route::get('/access_control_report_download_pdf', [AccessControlController::class, 'access_control_report_download_pdf']);
+
+Route::get('/document_expiry_print_pdf', [EmployeeController::class, 'document_expiry_print_pdf']);
+
