@@ -254,6 +254,8 @@ class EmployeeController extends Controller
             "branch", "department", "designation", "user"
         ]);
 
+        $data->withOut("schedule");
+
         $data->select([
             "id", "first_name", "last_name", "profile_picture",
             "phone_number", "whatsapp_number", "employee_id",
