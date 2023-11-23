@@ -170,11 +170,11 @@
 
               <v-row>
                 <v-col md="6">
-                  <v-checkbox value="red" disabled>
+                  <!-- <v-checkbox value="red" disabled>
                     <template v-slot:label>
                       <label style="">Remember&nbsp;Password</label>
                     </template>
-                  </v-checkbox>
+                  </v-checkbox> -->
                 </v-col>
                 <v-col md="6" class="text-right pt-6">
                   <!-- <nuxt-link to="/reset-password"
