@@ -405,7 +405,9 @@ export default {
       //
       if (this.employeeObject)
         this.$axios
-          .get(`activity/${this.employeeObject.user_id}?action=Login`)
+          .get(
+            `activity/${this.employeeObject.user_id}?action=Login&company_id=${this.$auth.user.company_id}`
+          )
           .then(({ data }) => {
             this.last_login = data.date_time;
           });

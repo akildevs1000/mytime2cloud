@@ -59,7 +59,7 @@ export default {
     let custom_options = {
       params: {
         per_page: 5,
-        // company_id: this.$auth.user.company_id
+        company_id: this.$auth.user.company_id,
       },
     };
     this.$axios.get(`activity`, custom_options).then(({ data }) => {
