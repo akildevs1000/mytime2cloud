@@ -203,6 +203,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage1,
           filter_column: filter_value,
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };

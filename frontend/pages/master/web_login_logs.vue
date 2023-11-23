@@ -369,7 +369,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           pagination: true,
-
+          company_id: this.$auth.user.company_id,
           ...this.filters,
         },
       };
