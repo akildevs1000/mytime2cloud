@@ -180,7 +180,10 @@
                   <!-- <nuxt-link to="/reset-password"
                                   >Forgot password?</nuxt-link
                                 > -->
-                  <v-btn text @click="openForgotPassword"
+                  <v-btn
+                    text
+                    @click="openForgotPassword"
+                    style="font-weight: normal"
                     >Forgot password?</v-btn
                   >
                 </v-col>
@@ -218,6 +221,15 @@
               ></v-col
             >
           </v-row>
+          <v-row class="text-center" style="font-size: 13px">
+            <v-col class="pa-5">
+              <a
+                style="text-decoration: none; color: black"
+                href="mail:support@mytime2cloud.com"
+                >support@mytime2cloud.com</a
+              ></v-col
+            >
+          </v-row>
         </div>
       </v-col>
       <v-col
@@ -228,7 +240,15 @@
         style=""
         class="hide-on-mobile d-none d-lg-flex"
       >
-        <div style="padding-left: 150px; padding-top: 60px; color: #fff">
+        <div
+          style="
+            padding-left: 250px;
+            padding-top: 60px;
+            color: #fff;
+
+            padding-right: 20%;
+          "
+        >
           <h3>About Mytime2Cloud</h3>
           <div style="font-weight: 300">
             MyTime2Cloud is an innovative and comprehensive platform
@@ -240,7 +260,7 @@
             to optimize time attendance management and enhance workplace
             experiences.
           </div>
-          <h3 class="pt-5">Features</h3>
+          <h3 class="pt-10">Features</h3>
           <ul style="font-weight: 300">
             <li>Employees management</li>
             <li>Attendance management</li>
@@ -251,20 +271,29 @@
             <li>Visitor management</li>
             <li>Leave management</li>
           </ul>
-          <v-row class="text-left pt-5">
+          <v-row class="text-left pt-10">
             <v-col class="pa-5">
-              For Technical Support :
+              <h3>Technical Support</h3>
+
               <a
+                style="font-weight: 300"
                 target="_blank"
                 href="https://wa.me/971529048025?text=Hello MyTime2Cloud. I need your support."
                 ><v-icon color="white">mdi-whatsapp</v-icon></a
               >
+
               <a
-                style="color: #fff; text-decoration: none"
+                style="color: #fff; text-decoration: none; font-weight: 300"
                 href="tel:+971529048025"
                 >+971 52 904 8025</a
-              ></v-col
-            >
+              >
+              <br />
+              <a
+                style="text-decoration: none; color: #fff; font-weight: 300"
+                href="mail:support@mytime2cloud.com"
+                >support@mytime2cloud.com</a
+              >
+            </v-col>
           </v-row>
         </div>
       </v-col>
