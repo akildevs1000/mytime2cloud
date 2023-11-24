@@ -104,6 +104,7 @@ class Visitor extends Model
     {
         return $this->belongsTo(Purpose::class);
     }
+
     public function branch()
     {
         return $this->belongsTo(CompanyBranch::class, "branch_id");

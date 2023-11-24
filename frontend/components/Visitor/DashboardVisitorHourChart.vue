@@ -100,10 +100,12 @@ export default {
 
   methods: {
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/visitor_logs");
     },
     async getDataFromApi() {
-      const data = await this.$store.dispatch("dashboard/every_hour_count");
+      const data = await this.$store.dispatch(
+        "dashboard/visitor_every_hour_count"
+      );
       this.renderChart(data);
     },
     renderChart(data) {

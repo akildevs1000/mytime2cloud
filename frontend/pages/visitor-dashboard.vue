@@ -48,9 +48,9 @@
                     >
                       <v-row>
                         <v-col cols="4" class="text-end">
-                          <v-avatar :color="i.color">
+                          <v-avatar size="30" :color="i.color">
                             <v-icon
-                              size="30"
+                              size="20"
                               class="pa-2"
                               style="color: #fff"
                               >{{ i.icon }}</v-icon
@@ -76,10 +76,10 @@
                     >
                       <v-row>
                         <v-col cols="4" class="text-end">
-                          <v-avatar :color="i.color">
+                          <v-avatar size="30" :color="i.color">
                             <v-icon
-                              size="30"
-                              class="pa-2"
+                              size="20"
+                              class="pa-1"
                               style="color: #fff"
                               >{{ i.icon }}</v-icon
                             >
@@ -95,6 +95,21 @@
                     </v-col>
                   </v-row>
                 </v-col>
+
+                <!-- <v-col
+                  lg="3"
+                  md="3"
+                  sm="3"
+                  xs="3"
+                  class="d-xs-flex"
+                  style="border-left: 1px solid #ddd"
+                >
+                  <VisitorHourChart
+                    :name="'visitor'"
+                    :branch_id="null"
+                    :height="300"
+                  ></VisitorHourChart>
+                </v-col> -->
               </v-row>
             </v-card>
           </v-col>
@@ -105,7 +120,7 @@
               class="py-2"
               style="height: 600px; overflow-x: hidden; overflow-y: scroll"
             >
-              <VisitorLogs></VisitorLogs>
+              <VisitorReport></VisitorReport>
             </v-card>
           </v-col>
         </v-row>
@@ -128,7 +143,7 @@
 </template>
 <script>
 import VisitorList from "../components/Visitor/List.vue";
-import VisitorLogs from "../components/Visitor/VisitorLogs.vue";
+import VisitorReport from "../components/visitors_report/VisitorReport.vue";
 import VisitorHourChart from "../components/Visitor/DashboardVisitorHourChart.vue";
 import VisitorPieChart from "../components/Visitor/DashboardVisitorPieChart.vue";
 
@@ -137,7 +152,7 @@ export default {
     VisitorList,
     VisitorPieChart,
     VisitorHourChart,
-    VisitorLogs,
+    VisitorReport,
   },
 
   data() {

@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 0px; width: 100%">
-    <div id="pie2"></div>
+    <div id="pie2" name="pie2"></div>
     <div
       v-if="totalCount == 0"
       style="
@@ -12,7 +12,7 @@
         padding-top: 36%;
       "
     >
-      No Data is available
+      No Data available
     </div>
   </div>
 </template>
@@ -42,7 +42,7 @@ export default {
           align: "left",
           margin: 0,
         },
-        colors: ["#009d00", "#ff0000"],
+        colors: ["#033F9B", "#DC7633", "#02B64B", "#ff0000", "#808080", ""],
 
         series: [],
         chart: {
@@ -84,7 +84,7 @@ export default {
   mounted() {
     try {
       this.items.forEach((element) => {
-        totalCount += element.value;
+        this.totalCount += element.value;
       });
 
       this.options.labels = this.items.map((e) => e.title);
@@ -93,6 +93,17 @@ export default {
     } catch (error) {}
   },
   methods: {},
+  created() {
+    try {
+      this.items.forEach((element) => {
+        this.totalCount += element.value;
+      });
+
+      this.options.labels = this.items.map((e) => e.title);
+      this.options.series = this.items.map((e) => e.value);
+      new ApexCharts(document.querySelector("#pie2"), this.options).render();
+    } catch (error) {}
+  },
 };
 </script>
 

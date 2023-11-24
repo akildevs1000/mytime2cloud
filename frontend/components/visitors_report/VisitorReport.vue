@@ -649,8 +649,97 @@
             model-value="data.id"
             :server-items-length="totalRowsCount"
           >
+            <template v-slot:item.sno="{ item, index }">
+              {{
+                currentPage
+                  ? (currentPage - 1) * perPage +
+                    (cumulativeIndex + data.indexOf(item))
+                  : ""
+              }}
+            </template>
             <template v-slot:item.visitor_full_name="{ item }">
-              {{ item?.visitor?.first_name }} {{ item?.visitor?.last_name }}
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 10%;
+                      height: auto;
+                      width: 100px;
+                      max-width: 50px;
+                    "
+                    :src="
+                      item.visitor && item.visitor.logo
+                        ? item.visitor.logo
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{ item.visitor ? item.visitor.first_name : "---" }}
+                    {{ item.visitor ? item.visitor.last_name : "---" }}</strong
+                  >
+                  <div class="secondary-value">
+                    {{ item.visitor ? item.visitor.phone_number : "---" }}
+                  </div>
+                  <div class="secondary-value">
+                    {{ item.visitor ? item.visitor.email : "---" }}
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
+
+            <template v-slot:item.in="{ item, index }">
+              <div>
+                {{ item.in ? item.in : "---" }}
+                <div class="secondary-value">
+                  {{ item.device_in_name ? item.device_in_name.name : "---" }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.out="{ item, index }">
+              <div>
+                {{ item.out ? item.out : "---" }}
+                <div class="secondary-value">
+                  {{ item.device_out_name ? item.device_out_name.name : "---" }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.overstay="{ item, index }">
+              <div :style="item.over_stay ? 'color:red' : ' ;'">
+                {{ item.over_stay ? item.over_stay : "---" }}
+              </div>
+            </template>
+
+            <template v-slot:item.visitor.host="{ item, index }">
+              <div>
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.first_name
+                    : "---"
+                }}
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.last_name
+                    : "---"
+                }}
+              </div>
+
+              <div class="secondary-value">
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.phone_number
+                    : "---"
+                }}
+              </div>
             </template>
 
             <template
@@ -762,6 +851,9 @@ function getCurrentDate() {
 }
 export default {
   data: () => ({
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
     renderVisitorDialog: false,
     users: [],
     formData: {
@@ -827,18 +919,18 @@ export default {
     total: 0,
     headers: [
       {
+        text: "#",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "sno",
+      },
+      {
         text: "Date",
         align: "left",
         sortable: true,
         filterable: false,
         value: "date",
-      },
-      {
-        text: "Visitor ID",
-        align: "left",
-        sortable: true,
-        filterable: true,
-        value: "visitor_id",
       },
       {
         text: "Full Name",
@@ -848,36 +940,50 @@ export default {
         value: "visitor_full_name",
         key: "item.visitor",
       },
+      {
+        text: "Host",
+        align: "left",
+        sortable: false,
+        filterable: true,
+        value: "visitor.host",
+        key: "visitor.host",
+      },
+      {
+        text: "Purpose",
+        align: "left",
+        sortable: true,
+        filterable: true,
+        value: "visitor.purpose.name",
+      },
 
       {
-        text: "In",
+        text: "Check In",
         align: "left",
         sortable: true,
         filterable: true,
         value: "in",
       },
       {
-        text: "Out",
+        text: "Check Out",
         align: "left",
         sortable: true,
         filterable: true,
         value: "out",
       },
       {
-        text: "Total Hrs",
+        text: "Duration",
         align: "left",
         sortable: true,
         filterable: true,
         value: "total_hrs",
       },
       {
-        text: "Status",
+        text: "OverStay",
         align: "left",
         sortable: true,
         filterable: true,
-        value: "status",
+        value: "overstay",
       },
-
       { text: "Actions", value: "actions", sortable: false },
     ],
     frequency: "Monthly",
@@ -950,7 +1056,7 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
 
-    this.getDataFromApi();
+    //this.getDataFromApi();
   },
 
   methods: {
@@ -1125,6 +1231,8 @@ export default {
           ...this.filters,
         },
       };
+
+      this.currentPage = page;
       if (filter_column != "") options.params[filter_column] = filter_value;
       this.$axios.get(url, options).then(async ({ data }) => {
         if (filter_column != "" && data.data.length == 0) {

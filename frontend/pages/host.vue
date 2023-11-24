@@ -10,6 +10,13 @@
         <v-card>
           <v-toolbar class="popup_background" flat>
             {{ formAction }} Host
+
+            <v-spacer></v-spacer>
+            <span>
+              <v-icon class="ml-2" @click="DialogBox = false" dark>
+                mdi mdi-close-circle</v-icon
+              >
+            </span>
           </v-toolbar>
           <v-container>
             <v-row>

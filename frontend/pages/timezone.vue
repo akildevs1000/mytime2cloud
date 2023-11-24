@@ -250,7 +250,7 @@
               </tr>
 
               <tr v-if="deviceResults.length == 0">
-                <td colspan="3" class="text-center">No Data is available</td>
+                <td colspan="3" class="text-center">No Data available</td>
               </tr>
             </tbody>
           </table>
