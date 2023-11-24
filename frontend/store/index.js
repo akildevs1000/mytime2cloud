@@ -12,9 +12,8 @@ export const state = () => ({
 
   devices: null,
   employees: null,
+  employees_with_document_expiry: null,
   access_control_report: null,
-
-
   employeeList: null,
   deviceList: null,
 
@@ -50,6 +49,7 @@ export const mutations = {
       branch_id: "",
       devices: null,
       employees: null,
+      employees_with_document_expiry: null,
       access_control_report: null,
       employeeList: null,
       deviceList: null,
@@ -84,6 +84,9 @@ export const mutations = {
   },
   employees(state, value) {
     state.employees = value;
+  },
+  employees_with_document_expiry(state, value) {
+    state.employees_with_document_expiry = value;
   },
   access_control_report(state, value) {
     state.access_control_report = value;

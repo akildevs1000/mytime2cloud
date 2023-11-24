@@ -251,7 +251,9 @@ class EmployeeController extends Controller
                     ->whereDate("expiry_date", "<=", $expiryDate);
             },
 
-            "branch", "department", "designation", "user"
+            "branch", "department", "designation",
+
+            "user" => fn ($q) => $q->select("id", "email")
         ]);
 
         $data->withOut("schedule");
@@ -264,6 +266,74 @@ class EmployeeController extends Controller
         ]);
 
         return $data->paginate($request->per_page ?? 100);
+    }
+
+    public function document_expiry_print_pdf(Request $request)
+    {
+
+        $expiryDate = date("Y-m-d", strtotime("+30 days"));
+
+        $company_id = request("company_id");
+
+        $data = (new Employee)->document_expiry_filter($request);
+
+        $data->where(function ($query) use ($expiryDate) {
+            $query->whereHas("passport", function ($q) use ($expiryDate) {
+                $q->whereDate("expiry_date", "<=", $expiryDate);
+            });
+            $query->orWhereHas("emirate", function ($q) use ($expiryDate) {
+                $q->whereCompanyId(request("company_id"))
+                    ->whereDate("expiry", "<=", $expiryDate);
+            });
+            $query->orWhereHas("visa", function ($q) use ($expiryDate) {
+                $q->whereCompanyId(request("company_id"))
+                    ->whereDate("expiry_date", "<=", $expiryDate);
+            });
+            $query->orWhereHas("visa", function ($q) use ($expiryDate) {
+                $q->whereCompanyId(request("company_id"))
+                    ->whereDate("labour_expiry_date", "<=", $expiryDate);
+            });
+        });
+
+
+        $data->with([
+            "passport" => function ($q) use ($expiryDate, $company_id) {
+                $q->whereCompanyId($company_id)
+                    ->whereDate("expiry_date", "<=", $expiryDate);
+            },
+            "emirate" => function ($q) use ($expiryDate, $company_id) {
+                $q->whereCompanyId($company_id)
+                    ->whereDate("expiry", "<=", $expiryDate);
+            },
+            "visa" => function ($q) use ($expiryDate, $company_id) {
+                $q->whereCompanyId($company_id)
+                    ->whereDate("expiry_date", "<=", $expiryDate);
+            },
+
+            "branch", "department", "designation",
+
+            "user" => fn ($q) => $q->select("id", "email")
+        ]);
+
+        $data->withOut("schedule");
+
+        $data->select([
+            "id", "first_name", "last_name", "profile_picture",
+            "phone_number", "whatsapp_number", "employee_id",
+            "designation_id", "department_id", "user_id",
+            "system_user_id", "display_name", "branch_id"
+        ]);
+
+        return $this->print_pdf($request, $data->get()->toArray());
+    }
+
+    public function print_pdf($request, $data)
+    {
+        return Pdf::loadView("pdf.document_expiry.custom", [
+            "data" => $data,
+            "company" => Company::whereId($request->company_id ?? 0)->first(),
+            "params" => $request->all()
+        ])->stream();
     }
 
     public function searchby_emp_table_salary(Request $request, $text)

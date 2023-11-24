@@ -320,14 +320,14 @@
     "module": "visitors"
   },
   {
-    "icon": "mdi-calendar-today",
+    "icon": "mdi-clock-time-four-outline",
     "title": "Attendance",
     "to": "/attendance_report",
     "menu": "attendance_report_access",
     "module": "reports"
   },
   {
-    "icon": "mdi mdi-clock-time-four-outline",
+    "icon": "mdi-lock-outline",
     "title": "Access Control",
     "to": "/access_control_report",
     "menu": "timezone",
@@ -374,6 +374,13 @@
     "title": "Web Logs",
     "open_menu": false,
     "to": "/web_login_logs",
+    "module": "reports"
+  },
+  {
+    "icon": "mdi-file-remove-outline",
+    "title": "Document Expiry",
+    "to": "/document_expiry",
+    "menu": "reports",
     "module": "reports"
   }
 ]
