@@ -589,7 +589,7 @@
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      getDataFromApi();
+                      getDataFromApi(); 
                     "
                     :hide-details="true"
                     v-if="header.filterable && !header.filterSpecial"

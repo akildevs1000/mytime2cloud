@@ -27,9 +27,7 @@
                   class="d-xs-flex"
                   style="flex: auto"
                 >
-                  <VisitorPieChart
-                    :items="items.visitorCounts"
-                  ></VisitorPieChart>
+                  <VisitorPieChart :items="items"></VisitorPieChart>
                 </v-col>
                 <v-col
                   lg="9"
