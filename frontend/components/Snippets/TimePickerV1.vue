@@ -97,7 +97,7 @@
               </v-list-item-content>
             </v-list-item>
 
-            <v-btn class="primary" @click="menu = false">Ok</v-btn>
+            <v-btn large class="primary" @click="menu = false">Ok</v-btn>
           </v-list-item-group>
         </v-list>
       </v-col>
