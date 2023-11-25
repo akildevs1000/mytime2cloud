@@ -435,7 +435,7 @@ class CompanyController extends Controller
                 AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
                     "company_id" => $arr["device"]["company_id"] ?? 0,
                     "gps_location" => $arr["device"]["location"],
-                    "log_type" => $arr["device"]["device_type"]
+                    "log_type" => $arr["device"]["function"]
                 ]);
             } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
