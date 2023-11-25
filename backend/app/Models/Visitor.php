@@ -46,12 +46,12 @@ class Visitor extends Model
 
     public function getFromDateDisplayAttribute()
     {
-        return date("d-M-y", strtotime($this->visit_from));
+        return date("d-M-Y", strtotime($this->visit_from));
     }
 
     public function getToDateDisplayAttribute()
     {
-        return date("d-M-y", strtotime($this->visit_to));
+        return date("d-M-Y", strtotime($this->visit_to));
     }
 
     public function zone()
