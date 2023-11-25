@@ -20,8 +20,9 @@
       max-width="150px"
     >
       <template v-slot:activator="{ on, attrs }">
-        <label v-if="label != ''" for=""> {{ label }}</label>
+        <!-- <label v-if="label != ''" for=""> {{ label }}</label> -->
         <v-text-field
+          :label="label"
           class="mt-1"
           outlined
           dense
