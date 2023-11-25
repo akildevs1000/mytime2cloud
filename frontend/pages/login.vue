@@ -245,12 +245,15 @@
           <div style="font-weight: 300">
             MyTime2Cloud is an innovative and comprehensive platform
             meticulously crafted to redefine how organizations approach
-            workforce management. It serves as the ultimate solution, seamlessly
-            amalgamating cutting-edge automation with an acute understanding of
-            employee needs. Tailored to cater to both employees and HR
-            professionals, it encompasses a myriad of functionalities designed
-            to optimize time attendance management and enhance workplace
-            experiences.
+            workforce management. By combining time attendance management with
+            facial recognition access control, MyTime2Cloud simplifies and
+            provides a streamlined experience for both employees and HR
+            professionals.<br />
+            Customization and Reporting: The platform offers customizable
+            settings to fit the specific needs of different organizations. It
+            generates comprehensive reports and analytics based on attendance
+            data, enabling informed decision-making and efficient resource
+            allocation.
           </div>
           <h3 class="pt-10">Features</h3>
           <ul style="font-weight: 300">
@@ -399,7 +402,6 @@ export default {
     },
 
     loginWithOTP() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         this.loading = true;
         this.$store.commit("email", this.credentials.email);
@@ -439,7 +441,6 @@ export default {
       this.loading = false;
     },
     login() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         this.$store.commit("email", this.credentials.email);
         this.$store.commit("password", this.credentials.password);
@@ -494,11 +495,11 @@ html {
 
 <style scoped>
 .about-content {
-  padding-left: 26%;
-  padding-top: 60px;
+  padding-left: 30%;
+  padding-top: 1%;
   color: #fff;
 
-  padding-right: 20%;
+  padding-right: 15%;
 }
 .btntext {
   color: #6946dd;

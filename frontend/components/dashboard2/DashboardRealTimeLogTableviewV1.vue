@@ -296,7 +296,8 @@ export default {
       }));
     },
     devices() {
-      return this.$store.state.devices.map((e) => e.device_id);
+      if (this.$store.state.devices)
+        return this.$store.state.devices.map((e) => e.device_id);
     },
   },
   methods: {

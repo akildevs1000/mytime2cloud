@@ -16,7 +16,7 @@ class PurposeController extends Controller
      */
     public function purposeList(Purpose $model, Request $request)
     {
-        return $model->where('company_id', $request->company_id)->get();
+        return $model->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
     }
 
     /**

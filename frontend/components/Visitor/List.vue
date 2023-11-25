@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog v-model="viewDialog" width="800">
+    <v-dialog v-model="viewDialog" width="1200">
       <v-card>
         <v-card-title dense class="popup_background">
           Visitor Information
@@ -10,191 +10,7 @@
           </v-icon>
         </v-card-title>
         <v-card-text>
-          <v-container>
-            <span class="bold"> Visitor </span>
-
-            <span style="float: right">
-              <span :style="'color:' + getRelatedColor(item)">{{
-                item.status
-              }}</span></span
-            >
-            <v-row class="100%" style="margin: auto; line-height: 36px">
-              <v-col cols="4" style="padding: 0px">
-                <v-img
-                  style="
-                    border-radius: 2%;
-                    width: 200px;
-                    max-width: 95%;
-                    min-height: 100px;
-                    height: auto;
-                    border: 1px solid #ddd;
-                  "
-                  :src="item.logo ? item.logo : '/no-profile-image.jpg'"
-                >
-                </v-img>
-              </v-col>
-              <v-col cols="4" style="padding-left: 5px; padding-top: 0px">
-                <span cols="8">
-                  <b>{{ item.full_name || "---" }} </b></span
-                >
-
-                <div>
-                  <v-icon size="20" class="icon-blue" title="Date"
-                    >mdi-calendar-range</v-icon
-                  >
-                  {{ item.from_date_display }}
-                  <span v-if="item.to_date_display != item.from_date_display">
-                    to {{ item.to_date_display }}</span
-                  >
-                </div>
-                <div>
-                  <v-icon size="20" class="icon-blue" title="Time"
-                    >mdi-clock-outline</v-icon
-                  >
-                  {{ item.time_in }} - {{ item.time_out }}
-                </div>
-                <div>
-                  <v-icon title="Purpose" size="20" class="icon-blue"
-                    >mdi-briefcase-account-outline</v-icon
-                  >
-                  {{ item.purpose.name || "---" }}
-                </div>
-                <div>
-                  <v-icon size="20" class="icon-blue" title="Contact Number"
-                    >mdi-cellphone</v-icon
-                  >
-                  {{ item.phone_number || "---" }}
-                </div>
-
-                <div class="bold" style="border-top: 1px solid #ddd">
-                  <v-icon size="20" color="green" title="Entry In Time"
-                    >mdi-bank-transfer-in</v-icon
-                  >
-                  {{ (item.attendances && item.attendances[0].in) || "---" }}
-                </div>
-
-                <div v-if="item.over_stay" style="color: red">
-                  Expected Out Time: {{ item.time_out }}
-                </div>
-              </v-col>
-              <v-col cols="4" style="padding-left: 5px; padding-top: 0px">
-                <div>&nbsp;</div>
-                <div>
-                  <v-icon title="Company" size="30" class="icon-blue"
-                    >mdi-domain</v-icon
-                  >
-                  {{ item.visitor_company_name || "---" }}
-                </div>
-                <span cols="8">
-                  <v-icon
-                    size="20"
-                    class="icon-blue"
-                    v-if="item.gender == 'Male'"
-                    >mdi-human-male</v-icon
-                  >
-                  <v-icon
-                    size="20"
-                    class="icon-blue"
-                    v-if="item.gender == 'Female'"
-                    >mdi-human-female</v-icon
-                  >
-                  {{ item.gender || "---" }}
-                </span>
-
-                <div>
-                  <v-icon size="20" class="icon-blue" title="ID"
-                    >mdi-identifier</v-icon
-                  >
-
-                  <span v-if="item.id_type == 1">Emirates ID</span>
-                  <span v-else-if="item.id_type == 2">National ID</span>
-
-                  : {{ item.id_number || "---" }}
-                </div>
-
-                <div>
-                  <v-icon size="20" class="icon-blue" title="Email"
-                    >mdi-email</v-icon
-                  >
-                  {{ item.email || "---" }}
-                </div>
-
-                <div class="bold" style="border-top: 1px solid #ddd">
-                  <v-icon size="30" color="red" title="Exit Out Time"
-                    >mdi-bank-transfer-out</v-icon
-                  >
-                  {{ (item.attendances && item.attendances[0].out) || "---" }}
-
-                  <div style="color: red">
-                    {{ verifyOverstay(item) }}
-                  </div>
-                </div>
-              </v-col>
-            </v-row>
-            <v-divider class="mt-3"></v-divider>
-            <h4 style="background: #ddd" class="mb-3">Host :</h4>
-
-            <v-row>
-              <v-col col="4">
-                <v-img
-                  style="
-                    border-radius: 2%;
-                    width: 200px;
-                    max-width: 95%;
-                    min-height: 100px;
-                    height: auto;
-                    border: 1px solid #ddd;
-                  "
-                  :src="
-                    item.host
-                      ? item.host.employee.profile_picture
-                      : '/no-profile-image.jpg'
-                  "
-                >
-                </v-img>
-              </v-col>
-
-              <v-col cols="8">
-                <v-row>
-                  <v-col col="3">Employee Name </v-col>
-                  <v-col col="9"
-                    >: {{ item.host?.employee.first_name }}
-                    {{ item.host?.employee.last_name }}</v-col
-                  >
-                </v-row>
-                <v-row>
-                  <v-col col="3">Contact Number</v-col>
-                  <v-col col="9"
-                    >: {{ item.host?.employee.phone_number }}</v-col
-                  >
-                </v-row>
-                <v-row>
-                  <v-col col="3"> Email Id </v-col>
-                  <v-col col="9">
-                    {{ item.host?.employee.user?.email || "---" }}
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col col="3"> Branch </v-col>
-                  <v-col col="9">
-                    : {{ item.host?.employee.branch?.branch_name || "---" }}
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col col="3">Status </v-col>
-                  <v-col col="9">
-                    <span :style="'color:' + getRelatedColor(item)">{{
-                      item.status
-                    }}</span></v-col
-                  >
-                </v-row>
-                <v-row>
-                  <v-col col="3">Reason:</v-col>
-                  <v-col col="9"> {{ item.reason || "---" }}</v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-          </v-container>
+          <Visitorinfo :item="item"></Visitorinfo>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -205,31 +21,36 @@
             Visitor Requests</span
           ></v-toolbar-title
         >
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Filter"
-        >
-          <v-icon @click="toggleFilter" class="mx-1 ml-2"
-            >mdi mdi-filter</v-icon
+        <span>
+          <v-btn
+            title="Reload"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            @click="getDataFromApi()"
+            text
           >
-        </v-btn>
+            <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Filter"
+          >
+            <v-icon @click="toggleFilter" class="mx-1 ml-2"
+              >mdi mdi-filter</v-icon
+            >
+          </v-btn>
+        </span>
         <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
-        <!-- <v-btn
-              title="Reload"
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              @click="getData"
-              text
-            >
-              <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
-            </v-btn> -->
+
         <v-spacer></v-spacer>
         <!-- <CustomFilter
           style="margin-bottom: 5px"
@@ -382,7 +203,7 @@
           {{ item.full_name }}
         </template>
         <template v-slot:item.branch_id="{ item }">
-          {{ item.branch && item.branch.branch_name }}
+          {{ (item.branch && item.branch.branch_name) || "---" }}
         </template>
         <template v-slot:item.purpose_id="{ item }">
           {{ item.purpose.name }}
@@ -411,6 +232,7 @@
 
           <span class="secondary-value"> {{ item.id_number }}</span>
         </template>
+
         <template v-slot:item.host_company_id="{ item }">
           {{ item.host?.employee.first_name || "---" }}
           {{ item.host?.employee.last_name }}
@@ -573,8 +395,10 @@
 </template>
 
 <script>
+import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
   props: ["filterValue"],
+  components: { Visitorinfo },
   data: () => ({
     visitor_status_list: [],
     uploadUserToDeviceDialog: false,

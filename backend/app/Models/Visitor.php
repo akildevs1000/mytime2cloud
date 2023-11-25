@@ -102,12 +102,12 @@ class Visitor extends Model
     }
     public function purpose()
     {
-        return $this->belongsTo(Purpose::class);
+        return $this->belongsTo(Purpose::class, "purpose_id");
     }
 
     public function branch()
     {
-        return $this->belongsTo(CompanyBranch::class, "branch_id");
+        return $this->belongsTo(CompanyBranch::class, "branch_id", "id");
     }
     public function timezone()
     {
@@ -151,6 +151,10 @@ class Visitor extends Model
         $model->when($request->filled('host_company_id'), fn ($q) => $q->Where('host_company_id',   $request->input("host_company_id")));
 
         $model->when($request->filled('purpose_id'), fn ($q) => $q->Where('purpose_id',   $request->input("purpose_id")));
+
+        $model->when($request->filled('branch_id'), fn ($q) => $q->Where('branch_id',   $request->input("branch_id")));
+
+
 
         $ilikeFields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'time_in'];
 

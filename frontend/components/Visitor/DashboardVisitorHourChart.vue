@@ -1,7 +1,7 @@
 <template>
   <div style="width: 100%">
     <v-row>
-      <v-col md="10"><h4 class="pl-2">Logs - Every Hour (in/out)</h4></v-col>
+      <v-col md="10"><h4 class="pl-2">Today Device Logs (in/out)</h4></v-col>
       <v-col md="2" class="menu-icon-right">
         <v-menu bottom left>
           <template v-slot:activator="{ on, attrs }">
@@ -31,7 +31,7 @@ export default {
     return {
       series: [
         {
-          name: "Log count",
+          name: "Device Logs",
           data: [],
         },
       ],

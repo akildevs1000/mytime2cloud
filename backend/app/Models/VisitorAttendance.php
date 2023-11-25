@@ -113,7 +113,9 @@ class VisitorAttendance extends Model
         });
 
 
-
+        $model->when($request->filled('purpose_id'), function ($q) use ($request) {
+            $q->whereHas('visitor', fn (Builder $q) => $q->where('purpose_id',   $request->purpose_id));
+        });
 
 
         $model->when($request->status !== "All", function ($q) use ($request) {

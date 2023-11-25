@@ -30,10 +30,10 @@
                   <VisitorPieChart :items="items"></VisitorPieChart>
                 </v-col>
                 <v-col
-                  lg="9"
-                  md="9"
-                  sm="9"
-                  xs="9"
+                  lg="6"
+                  md="6"
+                  sm="6"
+                  xs="6"
                   class="d-xs-flex pa-2 pt-5"
                   style="border-left: 1px solid #ddd"
                 >
@@ -94,7 +94,7 @@
                   </v-row>
                 </v-col>
 
-                <!-- <v-col
+                <v-col
                   lg="3"
                   md="3"
                   sm="3"
@@ -107,7 +107,7 @@
                     :branch_id="null"
                     :height="300"
                   ></VisitorHourChart>
-                </v-col> -->
+                </v-col>
               </v-row>
             </v-card>
           </v-col>
@@ -122,7 +122,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row>
+        <!-- <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2" style="overflow: hidden">
               <VisitorHourChart
@@ -132,7 +132,7 @@
               ></VisitorHourChart>
             </v-card>
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
     </div>
     <Preloader v-else />
@@ -141,7 +141,7 @@
 </template>
 <script>
 import VisitorList from "../components/Visitor/List.vue";
-import VisitorReport from "../components/visitors_report/VisitorReport.vue";
+import VisitorReport from "../components/Visitor/VisitorReport.vue";
 import VisitorHourChart from "../components/Visitor/DashboardVisitorHourChart.vue";
 import VisitorPieChart from "../components/Visitor/DashboardVisitorPieChart.vue";
 

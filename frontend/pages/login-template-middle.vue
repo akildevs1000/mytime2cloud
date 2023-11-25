@@ -525,7 +525,6 @@ export default {
     },
 
     loginWithOTP() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         this.loading = true;
         this.$store.commit("email", this.credentials.email);
@@ -565,7 +564,6 @@ export default {
       this.loading = false;
     },
     login() {
-      console.log("this.$refs.form.validate()", this.$refs.form.validate());
       if (this.$refs.form.validate()) {
         this.$store.commit("email", this.credentials.email);
         this.$store.commit("password", this.credentials.password);

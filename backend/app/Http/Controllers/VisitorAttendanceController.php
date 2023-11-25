@@ -23,12 +23,13 @@ class VisitorAttendanceController extends Controller
 
     public function visitor_log_list(VisitorLog $model, Request $request)
     {
-        return $model->where('UserID', $request->UserID)
+        return $model->with("device")->where('UserID', $request->UserID)
+
             ->where('company_id', $request->company_id)
             ->whereDate('LogTime', $request->LogTime)
-            ->select("LogTime")
+            ->select("LogTime", "DeviceID")
             ->distinct("LogTime")
-            ->orderBy('LogTime')
+            ->orderBy('LogTime', "asc")
             ->paginate($request->per_page ?? 100);
     }
 
