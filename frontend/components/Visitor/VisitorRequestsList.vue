@@ -1,21 +1,21 @@
 <template>
   <div>
-    <v-dialog v-model="viewDialog" width="1200">
+    <v-dialog v-model="viewDialog" width="1400">
       <v-card>
         <v-card-title dense class="popup_background">
-          Visitor Information
+          Visitor Information - {{ item && item.full_name }}
           <v-spacer></v-spacer>
           <v-icon @click="viewDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
         <v-card-text>
-          <Visitorinfo :item="item"></Visitorinfo>
+          <Visitorinfo :key="item && item.id" :item="item"></Visitorinfo>
         </v-card-text>
       </v-card>
     </v-dialog>
     <v-card elevation="1" class="mt-2" style="min-height: 500px">
-      <v-toolbar class="mb-2 popup_background" dense flat>
+      <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">
             Visitor Requests</span
@@ -73,9 +73,10 @@
         }"
         class="elevation-0 alternate-rows"
         :server-items-length="totalRowsCount"
+        :hide-default-footer="isDashboard"
       >
         <template v-slot:header="{ props: { headers } }">
-          <tr v-if="isFilter">
+          <tr v-if="isFilter && !isDashboard">
             <td v-for="header in headers" :key="header.text">
               <v-container>
                 <v-text-field
@@ -185,19 +186,42 @@
           }}
         </template>
 
-        <template v-slot:item.pic="{ item }">
-          <v-img
-            style="
-              border-radius: 2%;
-              width: 100px;
-              max-width: 95%;
-              min-height: 100px;
-              height: auto;
-              border: 1px solid #ddd;
-            "
-            :src="item.logo ? item.logo : '/no-profile-image.jpg'"
-          >
-          </v-img>
+        <template v-slot:item.phone_number_or_email="{ item }">
+          <v-row no-gutters>
+            <v-col
+              style="
+                padding: 5px;
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+              "
+            >
+              <v-img
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 50%;
+                  height: auto;
+                  width: 50px;
+                  max-width: 50px;
+                  height: 50px;
+                "
+                :src="item.logo ? item.logo : '/no-profile-image.jpg'"
+              >
+              </v-img>
+            </v-col>
+            <v-col style="padding: 10px">
+              <strong>
+                {{ item ? item.first_name : "---" }}
+                {{ item ? item.last_name : "---" }}</strong
+              >
+              <div class="secondary-value">
+                {{ item ? item.phone_number : "---" }}
+              </div>
+              <div class="secondary-value">
+                {{ item ? item.email : "---" }}
+              </div>
+            </v-col>
+          </v-row>
         </template>
         <template v-slot:item.first_name="{ item }">
           {{ item.full_name }}
@@ -218,11 +242,11 @@
           {{ item.time_in }} - {{ item.time_out }}
         </template>
 
-        <template v-slot:item.phone_number="{ item }">
+        <!-- <template v-slot:item.phone_number_or_email="{ item }">
           {{ item.phone_number }}
           <br />
           <span class="secondary-value"> {{ item.email }}</span>
-        </template>
+        </template> -->
         <template v-slot:item.visitor_company_name="{ item }"
           >{{ item.visitor_company_name }}
         </template>
@@ -236,6 +260,11 @@
         <template v-slot:item.host_company_id="{ item }">
           {{ item.host?.employee.first_name || "---" }}
           {{ item.host?.employee.last_name }}
+        </template>
+        <template v-slot:item.rejected_reason="{ item }">
+          <div style="color: red">
+            {{ item.rejected_reason }}
+          </div>
         </template>
         <template v-slot:item.status_id="{ item }">
           <span :style="'color:' + getRelatedColor(item)"
@@ -259,12 +288,12 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="uploadUserToDeviceDialog = true">
+              <!-- <v-list-item @click="uploadUserToDeviceDialog = true">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
                   Upload Visitor
                 </v-list-item-title>
-              </v-list-item>
+              </v-list-item> -->
               <!-- <v-list-item @click="updateStatus(item.id, 3)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-cancel</v-icon>
@@ -397,7 +426,7 @@
 <script>
 import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
-  props: ["filterValue"],
+  props: ["filterValue", "isDashboard", "statsFilterValue"],
   components: { Visitorinfo },
   data: () => ({
     visitor_status_list: [],
@@ -454,20 +483,21 @@ export default {
         filterable: false,
       },
       {
+        width: "250px",
         text: "Picture",
         align: "left",
         sortable: true,
-        value: "pic",
-        filterable: false,
-      },
-      {
-        text: "Name",
-        align: "left",
-        sortable: true,
-        value: "first_name",
+        value: "phone_number_or_email",
         filterable: true,
-        filterSpecial: false,
       },
+      // {
+      //   text: "Name",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "first_name",
+      //   filterable: true,
+      //   filterSpecial: false,
+      // },
       {
         text: "Purpose",
         align: "left",
@@ -492,14 +522,14 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-      {
-        text: "Contact Number",
-        align: "left",
-        sortable: true,
-        value: "phone_number",
-        filterable: true,
-        filterSpecial: false,
-      },
+      // {
+      //   text: "Contact Number",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "phone_number_or_email",
+      //   filterable: true,
+      //   filterSpecial: false,
+      // },
       {
         text: "From Company",
         align: "left",
@@ -525,6 +555,7 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
+
       {
         text: "Options",
         align: "left",
@@ -550,12 +581,12 @@ export default {
       deep: true,
     },
 
-    filterValue: {
-      handler(val) {
-        this.getDataFromApi(val);
-      },
-      deep: true,
-    },
+    // filterValue: {
+    //   handler(val) {
+    //     this.getDataFromApi(val);
+    //   },
+    //   deep: true,
+    // },
   },
   created() {
     const today = new Date();
@@ -583,6 +614,23 @@ export default {
         },
       ];
       this.headers_table.splice(2, 0, ...branch_header);
+    }
+    if (this.statsFilterValue == "Rejected") {
+      this.headers_table = this.headers_table.filter(
+        (item) => item.value != "visitor_company_name"
+      );
+
+      let rejected_header = [
+        {
+          text: "Reason",
+          align: "left",
+          sortable: true,
+          value: "rejected_reason",
+          filterable: true,
+          filterSpecial: true,
+        },
+      ];
+      this.headers_table.splice(7, 0, ...rejected_header);
     }
   },
   methods: {
@@ -677,6 +725,7 @@ export default {
       this.applyFilters();
     },
     applyFilters() {
+      console.log("filters", this.filters);
       this.getDataFromApi();
       this.$emit("changeBranch", this.filters["branch_id"]);
     },
@@ -776,9 +825,9 @@ export default {
       // } else if (this.filterValue == "Over Stayed") {
       //   this.filters["status_id"] = null;
       // }
-      if (this.filterValue != "") {
-        this.filters["status_id"] = null;
-      }
+      // if (this.filterValue != "") {
+      //   this.filters["status_id"] = null;
+      // }
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
       let sortedBy = sortBy ? sortBy[0] : "";
@@ -795,7 +844,7 @@ export default {
           from_date: this.from_date,
           to_date: this.to_date,
           ...this.filters,
-          statsFilterValue: filterValue,
+          statsFilterValue: this.statsFilterValue,
 
           //status_id: 2,
         },

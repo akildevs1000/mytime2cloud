@@ -405,23 +405,25 @@ export default {
       };
     },
     getDetails({ SN, RecordImage, UserCode, RecordDate }) {
-      if (this.devices.includes(SN)) {
-        let employee = this.employees.find(
-          (e) => e.system_user_id == UserCode && e.first_name !== null
-        );
+      if (this.devices)
+        if (this.devices.includes(SN)) {
+          let employee = this.employees.find(
+            (e) => e.system_user_id == UserCode && e.first_name !== null
+          );
 
-        let item = {
-          UserCode,
-          image: "data:image;base64," + RecordImage || "/no-profile-image.jpg",
-          time: this.setTime(RecordDate),
-          name:
-            employee &&
-            (employee.display_name ||
-              employee.first_name ||
-              employee.last_name),
-        };
-        this.logs.unshift(item);
-      }
+          let item = {
+            UserCode,
+            image:
+              "data:image;base64," + RecordImage || "/no-profile-image.jpg",
+            time: this.setTime(RecordDate),
+            name:
+              employee &&
+              (employee.display_name ||
+                employee.first_name ||
+                employee.last_name),
+          };
+          this.logs.unshift(item);
+        }
     },
     setTime(dateTimeString) {
       const dateTime = new Date(dateTimeString);

@@ -28,93 +28,114 @@
         </v-card>
       </v-dialog>
     </v-row>
-    <!-- <v-row class="pt-2 mt-5">
-        <v-col cols="12" sm="8" md="2">
-          <v-menu
-            ref="from_menu"
-            v-model="from_menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
+    <v-row class="pt-2 mt-5">
+      <v-col cols="12" sm="8" md="2">
+        <v-menu
+          ref="from_menu"
+          v-model="from_menu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <div class="mb-1">From Date</div>
+            <v-text-field
+              :hide-details="!payload.from_date"
+              outlined
+              dense
+              v-model="payload.from_date_txt"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              placeholder="Date"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            style="height: 350px"
+            v-model="payload.from_date"
+            no-title
+            scrollable
+            @change="searchIt"
           >
-            <template v-slot:activator="{ on, attrs }">
-              <div class="mb-1">From Date</div>
-              <v-text-field
-                :hide-details="!payload.from_date"
-                outlined
-                dense
-                v-model="payload.from_date_txt"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                placeholder="Date"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              style="height: 350px"
-              v-model="payload.from_date"
-              no-title
-              scrollable
-              @change="searchIt"
-            >
-              <v-spacer></v-spacer>
-               
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-        <v-col cols="12" sm="8" md="2">
-          <div class="mb-1">To Date</div>
-          <v-menu
-            ref="to_menu"
-            v-model="to_menu"
-            :close-on-content-click="false"
-            transition="scale-transition"
-            offset-y
-            min-width="auto"
+            <v-spacer></v-spacer>
+            <!-- <v-btn class="blue-grey" small dark @click="from_menu = false">
+              Cancel
+            </v-btn>
+            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
+              OK
+            </v-btn> -->
+          </v-date-picker>
+        </v-menu>
+      </v-col>
+      <v-col cols="12" sm="8" md="2">
+        <div class="mb-1">To Date</div>
+        <v-menu
+          ref="to_menu"
+          v-model="to_menu"
+          :close-on-content-click="false"
+          transition="scale-transition"
+          offset-y
+          min-width="auto"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-text-field
+              :hide-details="!payload.to_date"
+              outlined
+              dense
+              v-model="payload.to_date_txt"
+              readonly
+              v-bind="attrs"
+              v-on="on"
+              placeholder="Date"
+            ></v-text-field>
+          </template>
+          <v-date-picker
+            style="height: 350px"
+            v-model="payload.to_date"
+            no-title
+            scrollable
+            @change="searchIt"
           >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                :hide-details="!payload.to_date"
-                outlined
-                dense
-                v-model="payload.to_date_txt"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                placeholder="Date"
-              ></v-text-field>
-            </template>
-            <v-date-picker
-              style="height: 350px"
-              v-model="payload.to_date"
-              no-title
-              scrollable
-              @change="searchIt"
-            >
-              
-            </v-date-picker>
-          </v-menu>
-        </v-col>
-        <v-col cols="12" sm="6" md="2">
-          <div class="mb-1">System User ID</div>
-          <v-text-field
-            @input="searchIt"
-            v-model="payload.UserID"
-            outlined
-            dense
-            placeholder="Search..."
-          ></v-text-field>
-        </v-col>
-         
-      </v-row> -->
+            <!-- <v-spacer></v-spacer>
+            <v-btn class="blue-grey" small dark @click="to_menu = false">
+              Cancel
+            </v-btn>
+            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
+              OK
+            </v-btn> -->
+          </v-date-picker>
+        </v-menu>
+      </v-col>
+      <v-col cols="12" sm="6" md="2">
+        <div class="mb-1">System User ID</div>
+        <v-text-field
+          @input="searchIt"
+          v-model="payload.UserID"
+          outlined
+          dense
+          placeholder="Search..."
+        ></v-text-field>
+      </v-col>
+      <!-- <v-col cols="12" sm="6" md="2">
+        <div class="mb-1">Device Name</div>
+        <v-autocomplete outlined dense @change="searchIt" placeholder="Search..." v-model="payload.DeviceID"
+          :items="devices" item-text="name" item-value="device_id">
+        </v-autocomplete>
+      </v-col> -->
+
+      <!-- <v-col cols="12" sm="6" md="2">
+        <div class="mb-1"> &nbsp;</div>
+        <v-btn class="primary" @click="searchIt">Submit</v-btn>
+      </v-col> -->
+    </v-row>
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title><span> Visitor Device Logs</span></v-toolbar-title>
+            <v-toolbar-title><span> Visitor Logs</span></v-toolbar-title>
             <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
               dense
               class="ma-0 px-0"
@@ -127,11 +148,11 @@
               <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
             </v-btn>
             <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
+              <span>Reload</span>
+            </v-tooltip> -->
 
             <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
               x-small
               :ripple="false"
@@ -142,8 +163,8 @@
               <v-icon dark>mdi-filter</v-icon>
             </v-btn>
             <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
+              <span>Filter</span>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
           </v-toolbar>
@@ -172,34 +193,12 @@
                     v-model="filters[header.key]"
                     :id="header.value"
                     @input="applyFilters(header.key, $event)"
+                    solo
                     outlined
                     dense
                     autocomplete="off"
                   ></v-text-field>
-                  <v-select
-                    v-if="header.filterSpecial && header.value == 'branch_id'"
-                    :hide-details="true"
-                    clearable
-                    @change="applyFilters('status', $event)"
-                    item-value="id"
-                    item-text="name"
-                    v-model="filters[header.value]"
-                    outlined
-                    dense
-                    :items="[{ name: `All Branches`, id: `` }, ...branchesList]"
-                  ></v-select>
-                  <v-select
-                    v-if="header.filterSpecial && header.value == 'purpose_id'"
-                    :hide-details="true"
-                    clearable
-                    @change="applyFilters('status', $event)"
-                    item-value="id"
-                    item-text="name"
-                    v-model="filters[header.value]"
-                    outlined
-                    dense
-                    :items="[{ name: `All`, id: `` }, ...purposeList]"
-                  ></v-select>
+
                   <v-menu
                     v-if="header.filterSpecial && header.value == 'LogTime'"
                     ref="from_menu_filter"
@@ -213,6 +212,7 @@
                       <v-text-field
                         class="ma-3"
                         :hide-details="!from_date_filter"
+                        solo
                         outlined
                         dense
                         v-model="filters[header.value]"
@@ -220,7 +220,6 @@
                         v-bind="attrs"
                         v-on="on"
                         placeholder="Select Date"
-                        clearable
                       ></v-text-field>
                     </template>
                     <v-date-picker
@@ -228,7 +227,7 @@
                       v-model="filters[header.value]"
                       no-title
                       scrollable
-                      @input="applyFilters('status', $event)"
+                      @input="applyFilters()"
                     >
                       <v-spacer></v-spacer>
 
@@ -246,7 +245,6 @@
                     </v-date-picker>
                   </v-menu>
                   <v-select
-                    clearable
                     class="ma-3"
                     :id="header.key"
                     :hide-details="true"
@@ -256,11 +254,15 @@
                     small
                     v-model="filters[header.key]"
                     item-text="name"
-                    item-value="id"
-                    :items="[{ name: `All Devices`, id: `` }, ...devices]"
+                    item-value="device_id"
+                    :items="[
+                      { name: `All Devices`, device_id: `` },
+                      ...devices,
+                    ]"
                     placeholder="Device Name"
+                    solo
                     flat
-                    @change="applyFilters('status', $event)"
+                    @change="applyFilters(header.key, id)"
                   ></v-select>
                   <v-select
                     class="ma-3"
@@ -270,16 +272,16 @@
                       header.filterSpecial && header.value == 'device.location'
                     "
                     outlined
-                    clearable
                     dense
                     small
                     v-model="filters[header.key]"
                     item-text="location"
-                    item-value="id"
-                    :items="[{ location: `All Locations`, id: '' }, ...devices]"
+                    item-value="location"
+                    :items="[{ location: `All Locations` }, ...devices]"
                     placeholder="Location"
+                    solo
                     flat
-                    @change="applyFilters('status', $event)"
+                    @change="applyFilters(header.key, id)"
                   ></v-select>
                 </td>
               </tr>
@@ -324,20 +326,10 @@
               </v-row>
             </template>
             <!-- <template v-slot:item.LogTime="{ item }">
-                {{ item.visitor ? item.visitor.reason : "---" }}
-              </template> -->
-            <template v-slot:item.branch_id="{ item }">
-              {{
-                (item.visitor?.branch && item.visitor.branch.branch_name) ||
-                "---"
-              }}
-            </template>
-            <template v-slot:item.purpose_id="{ item }">
-              {{ item.visitor?.purpose.name || "---" }}
-            </template>
-
+              {{ item.visitor ? item.visitor.reason : "---" }}
+            </template> -->
             <template v-slot:item.LogTime="{ item }">
-              {{ item.LogTime || "---" }}
+              {{ item.LogTime }}
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
@@ -350,13 +342,13 @@
       </v-col>
     </v-row>
     <!-- <v-row class="mt-5">
-        <v-col cols="12">
-          <v-data-table v-model="ids" item-key="id" :headers="headers" :items="data" :server-items-length="total"
-            :loading="loading" :options.sync="options" :footer-props="{
-              itemsPerPageOptions: [50, 100, 500, 1000],
-            }"></v-data-table>
-        </v-col>
-      </v-row> -->
+      <v-col cols="12">
+        <v-data-table v-model="ids" item-key="id" :headers="headers" :items="data" :server-items-length="total"
+          :loading="loading" :options.sync="options" :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+          }"></v-data-table>
+      </v-col>
+    </v-row> -->
   </div>
   <NoAccess v-else />
 </template>
@@ -364,8 +356,6 @@
 <script>
 export default {
   data: () => ({
-    purposeList: [],
-    branchesList: [],
     id: "",
     from_menu_filter: "",
     from_date_filter: "",
@@ -449,13 +439,13 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Purpose",
+        text: "Reason",
         align: "left",
         sortable: false,
-        key: "purpose", //sorting
-        value: "purpose_id", //edit purpose
+        key: "reason", //sorting
+        value: "visitor.reason", //edit purpose
         filterable: true,
-        filterSpecial: true,
+        filterSpecial: false,
       },
       {
         text: "Log Time",
@@ -488,22 +478,7 @@ export default {
   }),
   created() {
     this.firstLoad();
-    //this.getDepartments();
-
-    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          value: "branch_id",
-          filterable: true,
-          filterName: "branch_id",
-          filterSpecial: true,
-        },
-      ];
-      this.headers.splice(1, 0, ...branch_header);
-    }
+    this.getDepartments();
   },
   watch: {
     options: {
@@ -536,24 +511,9 @@ export default {
       this.from_menu_filter = false;
       this.to_menu_filter = false;
     },
-    async toggleFilter() {
+    toggleFilter() {
+      // this.filters = {};
       this.isFilter = !this.isFilter;
-
-      if (this.isFilter) {
-        this.refresh = true;
-        this.handleChangeEvent();
-        this.getDeviceList();
-      }
-    },
-    async handleChangeEvent() {
-      this.purposeList = await this.$store.dispatch("fetchDropDowns", {
-        key: "purposeList",
-        endpoint: "purpose_list",
-      });
-      this.branchesList = await this.$store.dispatch("fetchDropDowns", {
-        key: "branchList",
-        endpoint: "branch-list",
-      });
     },
     clearFilters() {
       this.filters = {};
@@ -568,7 +528,7 @@ export default {
       this.payload.to_date = this.getDate();
       this.payload.from_date_txt = this.getDate();
       this.payload.to_date_txt = this.getDate();
-
+      this.getDeviceList();
       this.getDataFromApi();
     },
     caps(str) {
@@ -596,7 +556,7 @@ export default {
           company_id: this.$auth.user.company_id,
         },
       };
-      this.$axios.get(`device-list`, payload).then(({ data }) => {
+      this.$axios.get(`/device_list`, payload).then(({ data }) => {
         this.devices = data;
       });
     },

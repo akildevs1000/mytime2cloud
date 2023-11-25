@@ -1,5 +1,23 @@
 <template>
   <div v-if="can(`visitor_access`)">
+    <v-dialog v-model="dialogInformation" max-width="1000px">
+      <v-card>
+        <v-card-title class="popup_background">
+          <span dense> Visitors Requests - {{ statisticsFilter }} </span>
+          <v-spacer></v-spacer>
+          <v-icon dark @click="dialogInformation = false" outlined>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <VisitorRequestsList
+            :key="keyId"
+            :isDashboard="true"
+            :statsFilterValue="statisticsFilter"
+          />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <div v-if="!loading">
       <v-dialog
         persistent
@@ -44,7 +62,7 @@
                       v-for="(i, index) in items.visitorCounts"
                       :key="'v' + index"
                     >
-                      <v-row>
+                      <v-row @click="viewPopupInfo(i.title)">
                         <v-col cols="4" class="text-end">
                           <v-avatar size="30" :color="i.color">
                             <v-icon
@@ -72,7 +90,7 @@
                       v-for="(i, index) in items.statusCounts"
                       :key="'v' + index"
                     >
-                      <v-row>
+                      <v-row @click="viewPopupInfo(i.title)">
                         <v-col cols="4" class="text-end">
                           <v-avatar size="30" :color="i.color">
                             <v-icon
@@ -118,7 +136,8 @@
               class="py-2"
               style="height: 600px; overflow-x: hidden; overflow-y: scroll"
             >
-              <VisitorReport></VisitorReport>
+              <VisitorLogs />
+              <!-- <VisitorReport></VisitorReport> -->
             </v-card>
           </v-col>
         </v-row>
@@ -140,10 +159,12 @@
   <NoAccess v-else />
 </template>
 <script>
-import VisitorList from "../components/Visitor/List.vue";
+import VisitorList from "../components/Visitor/VisitorRequestsList.vue";
 import VisitorReport from "../components/Visitor/VisitorReport.vue";
+import VisitorLogs from "../components/Visitor/VisitorLogs.vue";
 import VisitorHourChart from "../components/Visitor/DashboardVisitorHourChart.vue";
 import VisitorPieChart from "../components/Visitor/DashboardVisitorPieChart.vue";
+import VisitorRequestsList from "../components/Visitor/VisitorRequestsList.vue";
 
 export default {
   components: {
@@ -151,10 +172,13 @@ export default {
     VisitorPieChart,
     VisitorHourChart,
     VisitorReport,
+    VisitorLogs,
+    VisitorRequestsList,
   },
 
   data() {
     return {
+      keyId: 1,
       counter: 1,
       loading: false,
       dialogGeneralreport: false,
@@ -163,6 +187,8 @@ export default {
       items: [],
       filterTitle: "",
       branch_id: null,
+      dialogInformation: false,
+      statisticsFilter: "",
     };
   },
   created() {
@@ -193,6 +219,13 @@ export default {
     },
   },
   methods: {
+    viewPopupInfo(status) {
+      this.statisticsFilter = status;
+
+      console.log("this.statisticsFilter", this.statisticsFilter);
+      this.keyId++;
+      this.dialogInformation = true;
+    },
     changeBranch1(branch_id) {
       console.log("branch_id", branch_id);
       this.branch_id = branch_id;
