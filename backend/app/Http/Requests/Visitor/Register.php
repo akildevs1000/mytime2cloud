@@ -25,9 +25,13 @@ class Register extends FormRequest
     {
         $validations = [];
 
-        // if ($this->logo) {
-        // $validations['logo'] = 'image|mimes:jpeg,png,jpg,gif|max:2048';
-        // }
+        if ($this->withOutHost) {
+            $validations['host_flat_number'] = 'required';
+            $validations['host_company_name'] = 'nullable';
+            $validations['host_name'] = 'nullable';
+            $validations['host_phone_number'] = 'nullable';
+            $validations['host_email'] = 'nullable';
+        }
 
         $validations['visit_from'] = 'required|date';
         $validations['visit_to'] = 'required|date';
@@ -43,7 +47,6 @@ class Register extends FormRequest
         $validations['id_copy'] = 'required';
         $validations['host_company_id'] = 'nullable';
         $validations['company_id'] = 'required';
-        // $validations['branch_id'] = 'required';
         $validations['status_id'] = 'required';
 
         //   $validations['logo'] = 'required';
