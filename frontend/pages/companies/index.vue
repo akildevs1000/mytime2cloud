@@ -44,6 +44,11 @@
                 <span>Password</span>
               </v-tab>
 
+              <v-tab>
+                <v-icon left> mdi-qrcode </v-icon>
+                <span>QrCode</span>
+              </v-tab>
+
               <v-tab-item>
                 <v-card flat>
                   <v-card-text>
@@ -707,6 +712,21 @@
                   </v-row>
                 </v-container>
               </v-tab-item>
+
+              <v-tab-item>
+                <v-container>
+                  <div>
+                    <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
+                      <img :src="qrCompanyCodeDataURL" alt="Avatar" />
+                    </v-avatar>
+                  </div>
+                  <span>
+                    <a :href="`${fullCompanyLink}`" target="_blank">
+                      {{ fullCompanyLink }}
+                    </a>
+                  </span>
+                </v-container>
+              </v-tab-item>
             </v-tabs>
           </v-card>
         </v-col>
@@ -724,6 +744,9 @@ export default {
   components: { Back },
 
   data: () => ({
+    originalURL: `https://mytime2cloud.com/register/visitor/`,
+    fullCompanyLink: null,
+    qrCompanyCodeDataURL: null,
     show_password_confirm: false,
     current_password_show: false,
     show_password: false,
@@ -790,8 +813,21 @@ export default {
   }),
   async created() {
     this.getDataFromApi();
+    if (process.env.ENVIRONMENT == "local") {
+      this.originalURL = `http://${process.env.LOCAL_IP}:${process.env.LOCAL_PORT}/register/visitor/self/`;
+    }
+    this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
+    this.generateCompanyQRCode(this.fullCompanyLink);
   },
   methods: {
+    async generateCompanyQRCode(fullLink) {
+      try {
+        this.qrCompanyCodeDataURL = await this.$qrcode.generate(fullLink);
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    },
+
     can(per) {
       return this.$pagePermission.can(per, this);
     },

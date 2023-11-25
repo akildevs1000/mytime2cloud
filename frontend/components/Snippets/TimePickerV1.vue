@@ -1,5 +1,5 @@
 <template>
-  <v-menu offset-y :close-on-content-click="false">
+  <v-menu v-model="menu" offset-y :close-on-content-click="false">
     <template v-slot:activator="{ on, attrs }">
       <v-text-field
         v-model="finalTime"
@@ -77,18 +77,27 @@
           height="200"
           style="overflow: scroll"
         >
-          <div class="mx-auto">
-            <b>Period </b>
-          </div>
-
           <v-list-item-group color="primary">
             <v-list-item v-for="(period, index) in periods" :key="index">
               <v-list-item-content>
-                <v-list-item-title @click="setPeriod(index)">{{
-                  period
-                }}</v-list-item-title>
+                <v-list-item-title @click="setPeriod(index)"
+                  ><b>
+                    {{ period }}
+                  </b></v-list-item-title
+                >
               </v-list-item-content>
             </v-list-item>
+
+           
+
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title><b>  </b></v-list-item-title>
+
+              </v-list-item-content>
+            </v-list-item>
+
+            <v-btn class="primary" @click="menu = false">Ok</v-btn>
           </v-list-item-group>
         </v-list>
       </v-col>
@@ -101,6 +110,7 @@ export default {
   props: ["label", "default_value"],
   data() {
     return {
+      menu:false,
       selectedHour: 1,
       selectedMinute: 0,
       selectedPeriod: null,
