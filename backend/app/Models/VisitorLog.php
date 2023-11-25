@@ -44,7 +44,7 @@ class VisitorLog extends Model
 
     public function device()
     {
-        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "---", "device_id" => "---"]);
+        return $this->belongsTo(Device::class, "DeviceID", "id")->withDefault(["name" => "---", "device_id" => "---"]);
     }
 
     public function visitor()

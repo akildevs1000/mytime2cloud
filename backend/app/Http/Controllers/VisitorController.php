@@ -57,7 +57,7 @@ class VisitorController extends Controller
     {
         $model = (new Visitor)->filters($request);
 
-        $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
+        $model->with(["branch", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
 
         return $model->paginate($request->input("per_page", 100));
     }

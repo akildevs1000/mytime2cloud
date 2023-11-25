@@ -855,7 +855,7 @@ export default {
     loading: false,
     time_menu: false,
     manual_time_menu: false,
-    Model: "Attendance Reports",
+    Model: "Visitor  Reports",
     endpoint: "report",
     search: "",
     snackbar: false,

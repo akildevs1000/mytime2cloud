@@ -24,7 +24,10 @@ class VisitorLogController extends Controller
                 $q->where('company_id', $request->company_id);
             })
 
-            ->whereHas('visitor', fn (Builder $query) => $query->where('company_id', $request->company_id))
+
+            ->with(["visitor", "visitor.purpose", "visitor.branch", "device"])
+
+            // ->whereHas('visitor', fn (Builder $query) => $query->where('company_id', $request->company_id))
 
             ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
@@ -51,11 +54,28 @@ class VisitorLogController extends Controller
 
                 $q->where('DeviceID', $request->device);
             })
-            ->when($request->filled('devicelocation'), function ($q) use ($request) {
-                if ($request->devicelocation != 'All Locations') {
 
-                    $q->whereHas('device', fn (Builder $query) => $query->where('location', 'ILIKE', "$request->devicelocation%"));
-                }
+            ->when($request->filled('devicelocation'), function ($q) use ($request) {
+
+                $q->where('DeviceID', $request->devicelocation);
+            })
+
+            ->when($request->filled('visitor_full_name') && $request->visitor_full_name != '', function ($q) use ($request) {
+                $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_full_name%")->Orwhere('phone_number', 'ILIKE', "$request->visitor_full_name%"));
+            })
+            // ->when($request->filled('devicelocation'), function ($q) use ($request) {
+            //     //if ($request->devicelocation != 'All Locations') {
+
+            //     $q->whereHas('device', fn (Builder $query) => $query->where('id',  "$request->devicelocation%"));
+            //     // }
+            // })
+            ->when($request->filled('purpose_id'), function ($q) use ($request) {
+                $q->whereHas('visitor', fn (Builder $q) => $q->where('purpose_id',   $request->purpose_id));
+            })
+
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+
+                $q->whereHas('visitor', fn (Builder $query) => $query->where('branch_id',   2));
             })
             ->when($request->filled('reason'), function ($q) use ($request) {
 

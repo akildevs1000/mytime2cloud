@@ -120,16 +120,23 @@ export default {
   },
   mounted() {
     let stats = this.items.visitorCounts.filter((e) => e.title != "Expected");
+    let statsTotal = 0;
     try {
       stats.forEach((element) => {
-        this.totalCount += element.value;
+        statsTotal += element.value;
       });
-
+      this.totalCount = this.items.visitorCounts.filter(
+        (e) => e.title == "Expected"
+      )[0].value;
       this.options.customTotalValue = this.totalCount;
 
       this.options.labels = stats.map((e) => e.title);
       this.options.series = stats.map((e) => e.value);
-      this.options.plotOptions.pie.donut.total = this.totalCount;
+
+      this.options.labels.push("waiting");
+      this.options.series.push(this.totalCount - statsTotal);
+
+      //this.options.plotOptions.pie.donut.total = this.totalCount;
       // this.options.customTotalValue = this.items.statusCounts.filter(
       //   (e) => (e.title = "Total Visitor")
       // )[0].value;

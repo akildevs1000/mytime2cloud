@@ -2,7 +2,7 @@
   <VisitorReport />
 </template>
 <script>
-import VisitorReport from "../../components/visitors_report/VisitorReport.vue";
+import VisitorReport from "../../components/Visitor/VisitorReport.vue";
 
 export default { components: { VisitorReport } };
 </script>

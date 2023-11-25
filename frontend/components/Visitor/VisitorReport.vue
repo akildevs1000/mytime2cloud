@@ -1,5 +1,19 @@
 <template>
   <div v-if="can(`visitors_report_access`)">
+    <v-dialog v-model="viewDialog" width="1200">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Visitor Information
+          <v-spacer></v-spacer>
+          <v-icon @click="viewDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <Visitorinfo :item="item" :attendance="attendance"></Visitorinfo>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -770,7 +784,7 @@
                     style="
                       border-radius: 10%;
                       height: auto;
-                      width: 100px;
+                      width: 50px;
                       max-width: 50px;
                     "
                     :src="
@@ -847,19 +861,36 @@
               </div>
             </template>
 
-            <template
-              v-slot:item.actions="{ item }"
-              v-if="can('attendance_report_edit')"
-            >
-              <v-icon
-                @click="viewItem(item)"
-                x-small
-                color="primary"
-                class="mr-2"
-                v-if="can('attendance_report_view')"
-              >
-                mdi-eye
-              </v-icon>
+            <template v-slot:item.options="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="150" dense>
+                  <v-list-item @click="viewInfo(item)">
+                    <v-list-item-title>
+                      <v-icon small> mdi-eye </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item @click="viewItem(item)">
+                    <v-list-item-title>
+                      <v-icon small> mdi-history </v-icon>
+                      Device Logs
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <!-- <v-list-item @click="updateStatus(item.id, 3)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="red" small> mdi-cancel</v-icon>
+                  Reject
+                </v-list-item-title>
+              </v-list-item> -->
+                </v-list>
+              </v-menu>
             </template>
           </v-data-table>
 
@@ -870,18 +901,34 @@
     <v-row justify="center">
       <v-dialog persistent v-model="log_details" max-width="600px">
         <v-card class="darken-1">
-          <v-toolbar class="primary" dense dark flat>
+          <v-toolbar class="popup_background" dense flat>
             <span class="text-h5 pa-2">Log Details</span>
             <v-spacer></v-spacer>
-            Total logs
-            <b class="background--text mx-1">({{ log_list.length }})</b>
+
+            <!-- logs<b class="background--text mx-1">({{ log_list.length }})</b> -->
+
+            <v-spacer></v-spacer>
+            <v-icon @click="log_details = false"
+              >mdi-close-circle-outline</v-icon
+            >
           </v-toolbar>
           <v-card-text>
             <div class="pt-5">
-              <span v-for="(log, index) in log_list" :key="index">
+              <!-- <span v-for="(log, index) in log_list" :key="index">
                 {{ log.time }}
                 <hr />
-              </span>
+              </span> -->
+
+              <v-data-table
+                :headers="log_headers"
+                :items="log_list"
+                class="elevation-1"
+                hide-default-footer
+              >
+                <template v-slot:item.sno="{ item, index }">
+                  {{ ++index }}
+                </template>
+              </v-data-table>
             </div>
           </v-card-text>
         </v-card>
@@ -955,8 +1002,9 @@ function getCurrentDate() {
   return `${year}-${month}-${day}`;
 }
 import Calender from "../Calender.vue";
+import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
-  components: { Calender },
+  components: { Calender, Visitorinfo },
   data: () => ({
     purposeList: [],
     branchesList: [],
@@ -1027,6 +1075,37 @@ export default {
     },
     loading: false,
     total: 0,
+    log_headers: [
+      {
+        text: "#",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "sno",
+      },
+
+      {
+        text: "Device",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "device.name",
+      },
+      {
+        text: "Location",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "device.location",
+      },
+      {
+        text: "Time",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "time",
+      },
+    ],
     headers: [
       {
         text: "#",
@@ -1102,7 +1181,7 @@ export default {
         filterSpecial: true,
         value: "overstay",
       },
-      { text: "Actions", value: "actions", sortable: false },
+      { text: "Options", value: "options", sortable: false },
     ],
     frequency: "Monthly",
 
@@ -1130,6 +1209,9 @@ export default {
     errors: [],
     custom_options: {},
     max_date: null,
+    item: null,
+    viewDialog: false,
+    attendance: [],
   }),
 
   computed: {
@@ -1193,6 +1275,11 @@ export default {
   },
 
   methods: {
+    viewInfo(item) {
+      this.item = item.visitor;
+      this.attendance = item;
+      this.viewDialog = true;
+    },
     filterAttr(data) {
       this.payload.from_date = data.from;
       this.payload.to_date = data.to;
@@ -1490,7 +1577,7 @@ export default {
       let options = {
         params: {
           per_page: 500,
-          UserID: item.visitor_id,
+          UserID: item.system_user_id,
           LogTime: item.edit_date,
           company_id: this.$auth.user.company_id,
         },
