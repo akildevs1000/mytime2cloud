@@ -744,7 +744,7 @@ export default {
   components: { Back },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/`,
+    originalURL: `https://mytime2cloud.com/register/visitor/self/`,
     fullCompanyLink: null,
     qrCompanyCodeDataURL: null,
     show_password_confirm: false,
