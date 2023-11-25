@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\HostCompany;
 use App\Models\Leave;
 use App\Models\Visitor;
+use App\Models\VisitorAttendance;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -46,6 +47,15 @@ class VisitorDashboard extends Controller
         $Visitors->where("visit_to", ">=", date('Y-m-d'));
 
 
+        $VisitorAttendance = VisitorAttendance::query();
+        $VisitorAttendance->whereCompanyId($id);
+        $VisitorAttendance->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',   $request->branch_id);
+        });;
+        $VisitorAttendance->with(["visitor"])->get();
+
+
+
 
 
         // $visitorCounts = $Visitors->withCount([
@@ -69,11 +79,14 @@ class VisitorDashboard extends Controller
         $closed_office =  $host_count - $opened_office;
         // $Visitors->clone()->where('status_id', ">=", 6)->count();
 
-        $overStayCount = $Visitors->clone()->where('status_id', "=", 6)
+        // $overStayCount = $Visitors->clone()->where('status_id', "=", 6)
 
-            ->where('time_out', '<', date("H:i"))
+        //     ->where('time_out', '<', date("H:i"))
+        //     ->count();
+        $overStayCount =  $VisitorAttendance->clone()
+
+            ->whereHas("visitor", fn ($q) => $q->where("visitor_attendances.out", null)->where("visitors.time_out", '<', date("H:i")))
             ->count();
-
 
         // $overStayCount = 0;
         // $pendingCheckOut = $Visitors->clone()->where('status_id',   6)->get(); //pull checked in 
@@ -95,7 +108,7 @@ class VisitorDashboard extends Controller
             "visitorCounts" => [
                 [
                     "title" => "Expected",
-                    "value" => $Visitors->clone()->where('status_id',   2)->count(),
+                    "value" => $Visitors->clone()->whereIn('status_id', [2, 4, 5, 6, 7])->count(), // $Visitors->clone()->where('status_id',   2)->count(),
                     "icon" => "mdi-account-details",
                     "color" => "l-bg-orange-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=A&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -103,7 +116,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Checked In",
-                    "value" => $Visitors->clone()->where('status_id', ">=", 6)->count(),
+                    "value" => $VisitorAttendance->clone()->where("in", "!=", null)->count(), //$Visitors->clone()->where('status_id', ">=", 6)->count(),
                     "icon" => "mdi-account-arrow-left",
                     "color" => "l-bg-green-dark",
                     "link"  => env("BASE_URL") . "/api/daily?company_id=$id&status=SA&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -111,7 +124,7 @@ class VisitorDashboard extends Controller
                 ],
                 [
                     "title" => "Checked Out",
-                    "value" => $Visitors->clone()->where('status_id',   7)->count(),
+                    "value" => $VisitorAttendance->clone()->where("out", "!=", null)->count(), //$Visitors->clone()->where('status_id',   7)->count(),
                     "icon" => "mdi-account-arrow-right",
                     "color" => "l-bg-purple-dark",
                     "link"  => env("BASE_URL") . "/api/daily?page=1&per_page=1000&company_id=$id&status=P&daily_date=" . $date . "&department_id=-1&report_type=Daily",
@@ -174,7 +187,7 @@ class VisitorDashboard extends Controller
 
             "statusCounts" => [
                 [
-                    "title" => "Total Visitor",
+                    "title" => "Total Visitors",
                     "value" => $Visitors->clone()->count(),
                     "icon" => "	fas fa-users",
                     "color" => "l-bg-cyan-dark",

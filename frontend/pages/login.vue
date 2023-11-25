@@ -255,13 +255,16 @@
           <h3 class="pt-10">Features</h3>
           <ul style="font-weight: 300">
             <li>Employees management</li>
-            <li>Attendance management</li>
-            <li>Time tracking</li>
+
+            <li>Time Attendance</li>
             <li>Leave management</li>
             <li>Payroll management</li>
             <li>Access Controll</li>
             <li>Visitor management</li>
-            <li>Leave management</li>
+            <li>Face Recognisation Integration</li>
+            <li>Custom Reports</li>
+            <li>Custom Dashboards</li>
+            <li>Email and Whatsapp Notifications</li>
           </ul>
           <v-row class="text-left pt-10">
             <v-col class="pa-5">

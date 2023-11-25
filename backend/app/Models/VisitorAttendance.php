@@ -19,7 +19,7 @@ class VisitorAttendance extends Model
 
     public function visitor()
     {
-        return $this->belongsTo(Visitor::class, "visitor_id", "system_user_id")->withDefault([
+        return $this->belongsTo(Visitor::class, "visitor_id")->withDefault([
             "first_name" => "---",
             "last_name" => "---"
 
@@ -35,7 +35,14 @@ class VisitorAttendance extends Model
     {
         return date("d-M-y", strtotime($value));
     }
-
+    public function deviceInName()
+    {
+        return $this->belongsTo(Device::class, "device_id_in", "id");
+    }
+    public function deviceOutName()
+    {
+        return $this->belongsTo(Device::class, "device_id_out", "id");
+    }
     public function getDayAttribute()
     {
         return date("D", strtotime($this->date));
@@ -56,6 +63,7 @@ class VisitorAttendance extends Model
             'name' => '---',
         ]);
     }
+
 
     /**
      * Get the user that owns the Attendance
@@ -78,6 +86,11 @@ class VisitorAttendance extends Model
     {
         return $this->hasMany(VisitorLog::class, "UserID", "visitor_id");
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class);
+    }
+
 
     public function processVisitorModel($request)
     {
@@ -92,6 +105,16 @@ class VisitorAttendance extends Model
         $model->when($request->filled('visitor_id'), function ($q) use ($request) {
             $q->where('visitor_id', $request->visitor_id);
         });
+        $model->when($request->filled('host_id'), function ($q) use ($request) {
+            $q->whereHas('visitor', fn (Builder $q) => $q->where('host_company_id',   $request->host_id));
+        });
+        $model->when($request->filled('purpose_id'), function ($q) use ($request) {
+            $q->whereHas('visitor', fn (Builder $q) => $q->where('purpose_id',   $request->purpose_id));
+        });
+
+
+
+
 
         $model->when($request->status !== "All", function ($q) use ($request) {
             $q->where('status', $request->status);
@@ -105,12 +128,16 @@ class VisitorAttendance extends Model
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
         });
 
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',  $request->branch_id);
+        });
+
         $model->when($request->filled('date'), function ($q) use ($request) {
             $q->whereDate('date', '=', $request->date);
         });
 
         $model->when($request->filled('visitor_first_name') && $request->visitor_first_name != '', function ($q) use ($request) {
-            $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_first_name%"));
+            $q->whereHas('visitor', fn (Builder $q) => $q->where('first_name', 'ILIKE', "$request->visitor_first_name%")->Orwhere('phone_number', 'ILIKE', "$request->visitor_first_name%"));
         });
 
         $model->when($request->filled('in'), function ($q) use ($request) {
@@ -123,24 +150,32 @@ class VisitorAttendance extends Model
             $q->where('total_hrs', 'LIKE', "$request->total_hrs%");
         });
 
+        $model->when($request->filled('overstay'), function ($q) use ($request) {
+            if ($request->overstay == 1)
+                $q->whereHas("visitor", fn ($q) => $q->where("visitor_attendances.out", null)->where("visitors.time_out", '<', date("H:i")));
+            else
+                $q->where("over_stay", null);
+        });
+
+
         // Eager loading relationships
-        $model->with(['visitor' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }, 'device_in' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }, 'device_out' => function ($q) use ($company_id) {
-            $q->where('company_id', $company_id);
-        }]);
+        // $model->with(['visitor' => function ($q) use ($company_id) {
+        //     $q->where('company_id', $company_id);
+        // }, 'device_in' => function ($q) use ($company_id) {
+        //     $q->where('company_id', $company_id);
+        // }, 'device_out' => function ($q) use ($company_id) {
+        //     $q->where('company_id', $company_id);
+        // }]);
 
 
-        $model->with('company');
+        $model->with(['company', 'branch', 'visitor.host', 'visitor.purpose', 'deviceInName', 'deviceOutName']);
 
         // Sorting
         $sortBy = $request->input('sortBy', 'date');
 
         $sortDesc = $request->input('sortDesc') === 'true';
-
-        $model->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
+        if ($sortBy != '')
+            $model->orderBy($sortBy, $sortDesc ? 'desc' : 'asc');
 
         return $model;
     }

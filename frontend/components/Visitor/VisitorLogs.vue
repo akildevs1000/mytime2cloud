@@ -28,7 +28,7 @@
         </v-card>
       </v-dialog>
     </v-row>
-    <!-- <v-row class="pt-2 mt-5">
+    <v-row class="pt-2 mt-5">
       <v-col cols="12" sm="8" md="2">
         <v-menu
           ref="from_menu"
@@ -59,6 +59,12 @@
             @change="searchIt"
           >
             <v-spacer></v-spacer>
+            <!-- <v-btn class="blue-grey" small dark @click="from_menu = false">
+              Cancel
+            </v-btn>
+            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
+              OK
+            </v-btn> -->
           </v-date-picker>
         </v-menu>
       </v-col>
@@ -91,6 +97,13 @@
             scrollable
             @change="searchIt"
           >
+            <!-- <v-spacer></v-spacer>
+            <v-btn class="blue-grey" small dark @click="to_menu = false">
+              Cancel
+            </v-btn>
+            <v-btn class="blue-grey darken-3" small dark @click="searchIt">
+              OK
+            </v-btn> -->
           </v-date-picker>
         </v-menu>
       </v-col>
@@ -104,15 +117,25 @@
           placeholder="Search..."
         ></v-text-field>
       </v-col>
-       
-    </v-row> -->
+      <!-- <v-col cols="12" sm="6" md="2">
+        <div class="mb-1">Device Name</div>
+        <v-autocomplete outlined dense @change="searchIt" placeholder="Search..." v-model="payload.DeviceID"
+          :items="devices" item-text="name" item-value="device_id">
+        </v-autocomplete>
+      </v-col> -->
+
+      <!-- <v-col cols="12" sm="6" md="2">
+        <div class="mb-1"> &nbsp;</div>
+        <v-btn class="primary" @click="searchIt">Submit</v-btn>
+      </v-col> -->
+    </v-row>
     <v-row>
       <v-col>
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
             <v-toolbar-title><span> Visitor Logs</span></v-toolbar-title>
             <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
               dense
               class="ma-0 px-0"
@@ -125,11 +148,11 @@
               <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
             </v-btn>
             <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
+              <span>Reload</span>
+            </v-tooltip> -->
 
             <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
+              <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
               x-small
               :ripple="false"
@@ -140,8 +163,8 @@
               <v-icon dark>mdi-filter</v-icon>
             </v-btn>
             <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
+              <span>Filter</span>
+            </v-tooltip> -->
 
             <v-spacer></v-spacer>
           </v-toolbar>
@@ -156,7 +179,7 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }"
-            class="elevation-0"
+            class="elevation-1"
             :server-items-length="totalRowsCount"
           >
             <template v-slot:header="{ props: { headers } }">
@@ -303,8 +326,8 @@
               </v-row>
             </template>
             <!-- <template v-slot:item.LogTime="{ item }">
-                {{ item.visitor ? item.visitor.reason : "---" }}
-              </template> -->
+              {{ item.visitor ? item.visitor.reason : "---" }}
+            </template> -->
             <template v-slot:item.LogTime="{ item }">
               {{ item.LogTime }}
             </template>
@@ -319,13 +342,13 @@
       </v-col>
     </v-row>
     <!-- <v-row class="mt-5">
-        <v-col cols="12">
-          <v-data-table v-model="ids" item-key="id" :headers="headers" :items="data" :server-items-length="total"
-            :loading="loading" :options.sync="options" :footer-props="{
-              itemsPerPageOptions: [50, 100, 500, 1000],
-            }"></v-data-table>
-        </v-col>
-      </v-row> -->
+      <v-col cols="12">
+        <v-data-table v-model="ids" item-key="id" :headers="headers" :items="data" :server-items-length="total"
+          :loading="loading" :options.sync="options" :footer-props="{
+            itemsPerPageOptions: [50, 100, 500, 1000],
+          }"></v-data-table>
+      </v-col>
+    </v-row> -->
   </div>
   <NoAccess v-else />
 </template>

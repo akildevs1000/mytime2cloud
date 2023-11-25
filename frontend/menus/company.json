@@ -279,7 +279,7 @@
 
   {
     "icon": "mdi-account",
-    "title": "Visitors",
+    "title": "Requests",
     "to": "/visitor",
     "menu": "visitors_access",
     "module": "visitors"

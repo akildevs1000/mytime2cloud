@@ -613,17 +613,33 @@
                 :ripple="false"
                 text
                 title="Filter"
+                @click="toggleFilter"
+              >
+                <v-icon dark>mdi-filter</v-icon>
+              </v-btn>
+              <!-- <v-btn
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
                 @click="attendancFilters = true"
               >
                 <v-icon dark @click="attendancFilters = true"
                   >mdi-filter</v-icon
                 >
-              </v-btn>
+              </v-btn> -->
             </span>
 
             <v-spacer></v-spacer>
             <span>
-              <v-btn
+              <Calender
+                style="width: 100%"
+                @filter-attr="filterAttr"
+                :defaultFilterType="1"
+                :height="'28px '"
+              />
+
+              <!-- <v-btn
                 x-small
                 :ripple="false"
                 text
@@ -631,7 +647,7 @@
                 @click="renderVisitorDialog = true"
               >
                 <v-icon dark>mdi-cached</v-icon>
-              </v-btn>
+              </v-btn> -->
             </span>
           </v-toolbar>
 
@@ -649,8 +665,186 @@
             model-value="data.id"
             :server-items-length="totalRowsCount"
           >
-            <template v-slot:item.visitor_full_name="{ item }">
-              {{ item?.visitor?.first_name }} {{ item?.visitor?.last_name }}
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-container style="padding-left: 0px !important">
+                    <v-text-field
+                      clearable
+                      @click:clear="
+                        filters[header.value] = '';
+                        getDataFromApi();
+                      "
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]"
+                      :id="header.value"
+                      @input="getDataFromApi()"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
+                    <v-select
+                      v-if="header.filterSpecial && header.value == 'branch_id'"
+                      :hide-details="true"
+                      clearable
+                      @change="applyFilters('status', $event)"
+                      item-value="id"
+                      item-text="name"
+                      v-model="filters[header.value]"
+                      outlined
+                      dense
+                      :items="[
+                        { name: `All Branches`, id: `` },
+                        ...branchesList,
+                      ]"
+                    ></v-select>
+                    <v-select
+                      v-if="header.filterSpecial && header.value == 'host_id'"
+                      :hide-details="true"
+                      clearable
+                      @change="applyFilters('status', $event)"
+                      item-value="id"
+                      item-text="employee.full_name"
+                      v-model="filters[header.value]"
+                      outlined
+                      dense
+                      :items="[
+                        { 'employee.full_name': `All Hosts`, id: `` },
+                        ...hostList,
+                      ]"
+                    ></v-select>
+                    <v-select
+                      v-if="
+                        header.filterSpecial && header.value == 'purpose_id'
+                      "
+                      :hide-details="true"
+                      clearable
+                      @change="applyFilters('status', $event)"
+                      item-value="id"
+                      item-text="name"
+                      v-model="filters[header.value]"
+                      outlined
+                      dense
+                      :items="[{ name: `All`, id: `` }, ...purposeList]"
+                    ></v-select>
+                    <v-select
+                      v-if="header.filterSpecial && header.value == 'overstay'"
+                      :hide-details="true"
+                      clearable
+                      @change="applyFilters('status', $event)"
+                      item-value="id"
+                      item-text="name"
+                      v-model="filters[header.value]"
+                      outlined
+                      dense
+                      :items="[
+                        { name: `All`, id: `` },
+                        { name: `No Overstay`, id: `0` },
+                        { name: `Only Overstay`, id: `1` },
+                      ]"
+                    ></v-select>
+                  </v-container>
+                </td>
+              </tr>
+            </template>
+            <template v-slot:item.sno="{ item, index }">
+              {{
+                currentPage
+                  ? (currentPage - 1) * perPage +
+                    (cumulativeIndex + data.indexOf(item))
+                  : ""
+              }}
+            </template>
+            <template v-slot:item.visitor_first_name="{ item }">
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 10%;
+                      height: auto;
+                      width: 100px;
+                      max-width: 50px;
+                    "
+                    :src="
+                      item.visitor && item.visitor.logo
+                        ? item.visitor.logo
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{ item.visitor ? item.visitor.first_name : "---" }}
+                    {{ item.visitor ? item.visitor.last_name : "---" }}</strong
+                  >
+                  <div class="secondary-value">
+                    {{ item.visitor ? item.visitor.phone_number : "---" }}
+                  </div>
+                  <div class="secondary-value">
+                    {{ item.visitor ? item.visitor.email : "---" }}
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
+            <template v-slot:item.branch_id="{ item }">
+              {{ item.branch && item.branch.branch_name }}
+            </template>
+            <template v-slot:item.purpose_id="{ item }">
+              {{ item.visitor && item.visitor.purpose?.name }}
+            </template>
+
+            <template v-slot:item.in="{ item, index }">
+              <div>
+                {{ item.in ? item.in : "---" }}
+                <div class="secondary-value">
+                  {{ item.device_in_name ? item.device_in_name.name : "---" }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.out="{ item, index }">
+              <div>
+                {{ item.out ? item.out : "---" }}
+                <div class="secondary-value">
+                  {{ item.device_out_name ? item.device_out_name.name : "---" }}
+                </div>
+              </div>
+            </template>
+            <template v-slot:item.overstay="{ item, index }">
+              <div :style="item.over_stay ? 'color:red' : ' ;'">
+                {{ item.over_stay ? item.over_stay : "---" }}
+              </div>
+            </template>
+
+            <template v-slot:item.host_id="{ item, index }">
+              <div>
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.first_name
+                    : "---"
+                }}
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.last_name
+                    : "---"
+                }}
+              </div>
+
+              <div class="secondary-value">
+                {{
+                  item.visitor.host
+                    ? item.visitor.host.employee?.phone_number
+                    : "---"
+                }}
+              </div>
             </template>
 
             <template
@@ -760,8 +954,16 @@ function getCurrentDate() {
   const day = String(today.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+import Calender from "../Calender.vue";
 export default {
+  components: { Calender },
   data: () => ({
+    purposeList: [],
+    branchesList: [],
+    hostList: [],
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
     renderVisitorDialog: false,
     users: [],
     formData: {
@@ -827,57 +1029,79 @@ export default {
     total: 0,
     headers: [
       {
+        text: "#",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "sno",
+      },
+      {
         text: "Date",
         align: "left",
         sortable: true,
         filterable: false,
+        filterSpecial: true,
         value: "date",
       },
       {
-        text: "Visitor ID",
-        align: "left",
-        sortable: true,
-        filterable: true,
-        value: "visitor_id",
-      },
-      {
-        text: "Full Name",
+        text: "Visitor  ",
         align: "left",
         sortable: false,
         filterable: true,
-        value: "visitor_full_name",
+        filterSpecial: false,
+        value: "visitor_first_name",
         key: "item.visitor",
       },
-
       {
-        text: "In",
+        text: "Host",
+        align: "left",
+        sortable: false,
+        filterable: true,
+        filterSpecial: true,
+        value: "host_id",
+        key: "host_id",
+      },
+      {
+        text: "Purpose",
         align: "left",
         sortable: true,
         filterable: true,
+        filterSpecial: true,
+        value: "purpose_id",
+      },
+
+      {
+        text: "Check In",
+        align: "left",
+        sortable: true,
+        filterable: true,
+        filterSpecial: false,
         value: "in",
       },
       {
-        text: "Out",
+        text: "Check Out",
         align: "left",
         sortable: true,
         filterable: true,
+        filterSpecial: false,
         value: "out",
       },
       {
-        text: "Total Hrs",
+        text: "Duration",
         align: "left",
         sortable: true,
         filterable: true,
+        filterSpecial: false,
         value: "total_hrs",
       },
       {
-        text: "Status",
+        text: "OverStay",
         align: "left",
         sortable: true,
-        filterable: true,
-        value: "status",
+        filterable: false,
+        filterSpecial: true,
+        value: "overstay",
       },
-
       { text: "Actions", value: "actions", sortable: false },
     ],
     frequency: "Monthly",
@@ -950,10 +1174,30 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
 
-    this.getDataFromApi();
+    //this.getDataFromApi();
+
+    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "branch_id",
+          filterable: true,
+          filterName: "branch_id",
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(2, 0, ...branch_header);
+    }
   },
 
   methods: {
+    filterAttr(data) {
+      this.payload.from_date = data.from;
+      this.payload.to_date = data.to;
+      this.getDataFromApi();
+    },
     addUser() {
       this.users.push({ visitor_id: "" });
     },
@@ -1014,12 +1258,31 @@ export default {
     },
 
     applyFilters(name, value) {
-      if (value && value.length < 2) return false;
+      //if (value && value.length < 2) return false;
 
       this.getDataFromApi();
     },
-    toggleFilter() {
+    async toggleFilter() {
       this.isFilter = !this.isFilter;
+
+      if (this.isFilter) {
+        this.refresh = true;
+        this.handleChangeEvent();
+      }
+    },
+    async handleChangeEvent() {
+      this.branchesList = await this.$store.dispatch("fetchDropDowns", {
+        key: "branchList",
+        endpoint: "branch-list",
+      });
+      this.hostList = await this.$store.dispatch("fetchDropDowns", {
+        key: "hostList",
+        endpoint: "host_list",
+      });
+      this.purposeList = await this.$store.dispatch("fetchDropDowns", {
+        key: "purposeList",
+        endpoint: "purpose_list",
+      });
     },
     clearFilters() {
       this.filters = {};
@@ -1125,6 +1388,8 @@ export default {
           ...this.filters,
         },
       };
+
+      this.currentPage = page;
       if (filter_column != "") options.params[filter_column] = filter_value;
       this.$axios.get(url, options).then(async ({ data }) => {
         if (filter_column != "" && data.data.length == 0) {

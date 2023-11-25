@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 0px; width: 100%">
-    <div id="pie2"></div>
+    <div id="pie2" name="pie2"></div>
     <div
       v-if="totalCount == 0"
       style="
@@ -12,7 +12,7 @@
         padding-top: 36%;
       "
     >
-      No Data is available
+      No Data available
     </div>
   </div>
 </template>
@@ -42,13 +42,50 @@ export default {
           align: "left",
           margin: 0,
         },
-        colors: ["#009d00", "#ff0000"],
+        //colors: ["#033F9B", "#DC7633", "#02B64B", "#ff0000", "#808080", ""],
+        colors: ["#033F9B", "#02B64B", "#ff0000", "#808080", ""],
 
         series: [],
         chart: {
           width: "100%", //200 //275
           type: "donut",
           height: "auto",
+        },
+        customTotalValue: 0,
+        plotOptions: {
+          pie: {
+            donut: {
+              labels: {
+                show: true,
+                name: {
+                  show: true,
+                  fontSize: "22px",
+                  fontFamily: "Rubik",
+                  color: "#dfsda",
+                  offsetY: -10,
+                },
+                value: {
+                  show: true,
+                  fontSize: "16px",
+                  fontFamily: "Helvetica, Arial, sans-serif",
+                  color: undefined,
+                  offsetY: 16,
+                  formatter: function (val) {
+                    return val;
+                  },
+                },
+                total: {
+                  show: true,
+                  label: "Total",
+                  color: "#373d3f",
+                  formatter: function (val) {
+                    console.log("val", val);
+                    return val.config.customTotalValue;
+                  },
+                },
+              },
+            },
+          },
         },
         labels: [],
         // plotOptions: {
@@ -82,17 +119,38 @@ export default {
     };
   },
   mounted() {
+    let stats = this.items.visitorCounts.filter((e) => e.title != "Expected");
     try {
-      this.items.forEach((element) => {
-        totalCount += element.value;
+      stats.forEach((element) => {
+        this.totalCount += element.value;
       });
 
-      this.options.labels = this.items.map((e) => e.title);
-      this.options.series = this.items.map((e) => e.value);
+      this.options.customTotalValue = this.totalCount;
+
+      this.options.labels = stats.map((e) => e.title);
+      this.options.series = stats.map((e) => e.value);
+      this.options.plotOptions.pie.donut.total = this.totalCount;
+      // this.options.customTotalValue = this.items.statusCounts.filter(
+      //   (e) => (e.title = "Total Visitor")
+      // )[0].value;
+      // this.options.customTotalValue = this.items.visitorCounts.filter(
+      //   (e) => (e.title = "Expected")
+      // )[0].value;
+
       new ApexCharts(document.querySelector("#pie2"), this.options).render();
     } catch (error) {}
   },
   methods: {},
+  created() {
+    // try {
+    //   this.items.forEach((element) => {
+    //     this.totalCount += element.value;
+    //   });
+    //   this.options.labels = this.items.map((e) => e.title);
+    //   this.options.series = this.items.map((e) => e.value);
+    //   new ApexCharts(document.querySelector("#pie2"), this.options).render();
+    // } catch (error) {}
+  },
 };
 </script>
 

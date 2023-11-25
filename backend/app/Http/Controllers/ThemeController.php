@@ -356,6 +356,7 @@ class ThemeController extends Controller
         return  $finalarray;
     }
 
+
     public function dashboardGetCountsTodayMultiGeneral(Request $request)
     {
 

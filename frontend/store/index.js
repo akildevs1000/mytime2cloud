@@ -57,6 +57,8 @@ export const mutations = {
       department_list: null,
       timezone_list: null,
       branchList: null,
+      hostList: null,
+      purposeList: null,
       roles: null,
       designation_list: null,
       leave_groups: null,
@@ -148,6 +150,12 @@ export const mutations = {
   branchList(state, value) {
     state.branchList = value;
   },
+  purposeList(state, value) {
+    state.purposeList = value;
+  },
+  hostList(state, value) {
+    state.hostList = value;
+  },
 };
 
 export const actions = {
@@ -155,8 +163,10 @@ export const actions = {
     commit("RESET_STATE");
   },
 
-  async fetchData({ commit, state }, { key, refresh, endpoint, options, filters }) {
-
+  async fetchData(
+    { commit, state },
+    { key, refresh, endpoint, options, filters }
+  ) {
     try {
       // if (state[key] && !options.refresh) {
       //   return state[key];
@@ -192,9 +202,7 @@ export const actions = {
   },
 
   async fetchDropDowns({ commit }, { key, endpoint }) {
-
     try {
-
       const { data } = await this.$axios.get(endpoint, {
         params: {
           order_by: "name",
@@ -213,12 +221,12 @@ export const actions = {
     if (state.roles) return state.roles;
 
     try {
-      const { data } = await this.$axios.get('role-list', {
+      const { data } = await this.$axios.get("role-list", {
         params: {
           order_by: "name",
           company_id: this.$auth.user.company_id,
         },
-      })
+      });
       commit("roles", data);
       return data;
     } catch (error) {
@@ -230,12 +238,12 @@ export const actions = {
     if (state.leave_groups) return state.leave_groups;
 
     try {
-      const { data } = await this.$axios.get('leave-group-list', {
+      const { data } = await this.$axios.get("leave-group-list", {
         params: {
           order_by: "name",
           company_id: this.$auth.user.company_id,
         },
-      })
+      });
       commit("leave_groups", data);
       return data;
     } catch (error) {
@@ -247,12 +255,12 @@ export const actions = {
     if (state.leave_managers) return state.leave_managers;
 
     try {
-      const { data } = await this.$axios.get('employee-list', {
+      const { data } = await this.$axios.get("employee-list", {
         params: {
           order_by: "name",
           company_id: this.$auth.user.company_id,
         },
-      })
+      });
       commit("leave_managers", data);
       return data;
     } catch (error) {
@@ -262,8 +270,9 @@ export const actions = {
 
   async department_list({ commit, state }, options) {
     try {
-      if (state.department_list && options.isFilter == false) return state.department_list;
-      const { data } = await this.$axios.get(options.endpoint, options)
+      if (state.department_list && options.isFilter == false)
+        return state.department_list;
+      const { data } = await this.$axios.get(options.endpoint, options);
       commit("department_list", data);
       return data;
     } catch (error) {
@@ -273,8 +282,9 @@ export const actions = {
 
   async timezone_list({ commit, state }, options) {
     try {
-      if (state.timezone_list && options.isFilter == false) return state.timezone_list;
-      const { data } = await this.$axios.get(options.endpoint, options)
+      if (state.timezone_list && options.isFilter == false)
+        return state.timezone_list;
+      const { data } = await this.$axios.get(options.endpoint, options);
       commit("timezone_list", data);
       return data;
     } catch (error) {
@@ -284,13 +294,13 @@ export const actions = {
 
   async designation_list({ commit, state }, options) {
     try {
-      if (state.designation_list && options.isFilter == false) return state.designation_list;
-      const { data } = await this.$axios.get(options.endpoint, options)
+      if (state.designation_list && options.isFilter == false)
+        return state.designation_list;
+      const { data } = await this.$axios.get(options.endpoint, options);
       commit("designation_list", data);
       return data;
     } catch (error) {
       return error;
     }
   },
-
 };
