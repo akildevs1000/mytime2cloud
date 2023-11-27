@@ -18,7 +18,7 @@
       <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">
-            Visitor Requests</span
+            {{ title }}</span
           ></v-toolbar-title
         >
         <span>
@@ -431,7 +431,13 @@
 <script>
 import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
-  props: ["filterValue", "isDashboard", "statsFilterValue"],
+  props: [
+    "title",
+    "filterValue",
+    "isDashboard",
+    "statsFilterValue",
+    "defaultDates",
+  ],
   components: { Visitorinfo },
   data: () => ({
     visitor_status_list: [],
@@ -598,6 +604,12 @@ export default {
 
     this.from_date = today.toISOString().slice(0, 10);
     this.to_date = today.toISOString().slice(0, 10);
+
+    if (this.defaultDates && this.defaultDates.length) {
+      this.from_date = this.defaultDates[0];
+      this.to_date = this.defaultDates[1];
+    }
+
     this.getDataFromApi();
     setTimeout(() => {
       this.getPurposeList();

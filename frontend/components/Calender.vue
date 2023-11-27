@@ -134,24 +134,24 @@ export default {
   },
 
   mounted() {
-    if (this.filterType == 5) document.querySelector(".mx-input").focus();
+    // if (this.filterType == 5) document.querySelector(".mx-input").focus();
 
-    const elementsArray = document.getElementsByClassName("mx-input");
+    // const elementsArray = document.getElementsByClassName("mx-input");
 
-    if (this.height && this.height != "") {
-      elementsArray[0].style.height = this.height;
-    }
-    if (this.width && this.width != "") {
-      elementsArray[0].style.width = this.width;
-    }
+    // if (this.height && this.height != "") {
+    //   elementsArray[0].style.height = this.height;
+    // }
+    // if (this.width && this.width != "") {
+    //   elementsArray[0].style.width = this.width;
+    // }
 
-    if (this.default_date_from && this.default_date_to) {
-      this.from_date = this.default_date_from;
+    // if (this.default_date_from && this.default_date_to) {
+    //   this.from_date = this.default_date_from;
 
-      this.to_date = this.default_date_to;
-    }
+    //   this.to_date = this.default_date_to;
+    // }
 
-    this.time3 = [this.from_date, this.to_date];
+    // this.time3 = [this.from_date, this.to_date];
   },
   created() {
     if (this.defaultFilterType) {

@@ -25,16 +25,54 @@
     <v-toolbar-title class="primary text-center white--text pa-2 mt-5">
       Visitor Registration
     </v-toolbar-title>
+
+    <template>
+      <div class="text-center">
+        <v-dialog v-model="searchDialog" width="500">
+          <v-card>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-icon color="black" @click="searchDialog = false">
+                mdi-close-circle
+              </v-icon>
+            </v-card-actions>
+
+            <v-card-text>
+              <v-text-field
+                v-model="searchInput"
+                outlined
+                hide-details
+                dense
+                label="Search here"
+              ></v-text-field>
+              <v-btn class="mt-1" color="primary" block @click="searchVisitor">
+                Search
+              </v-btn>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
+
     <v-stepper v-model="step">
       <v-stepper-content step="1">
         <v-row>
+          <v-col class="text-right">
+            <v-icon
+              @click="searchDialog = true"
+              class="primary--text"
+              large
+              dark
+              >mdi-magnify</v-icon
+            >
+          </v-col>
           <v-col cols="12" sm="6" md="4" lg="6">
             <div class="text-center">
               <Camera
                 style="border: 1px solid #6946dd"
                 :isImageBox="isImageBox"
                 class="mb-5"
-                @imageSrc="(e) => (payload.logo = e)"
+                @imageSrc="(e) => (photo = e)"
                 ref="cameraComponent"
               />
             </div>
@@ -56,6 +94,111 @@
           </v-col>
           <v-col cols="12" class="pt-5">
             <v-row>
+              <v-col cols="12" sm="6" md="4" lg="6">
+                <v-text-field
+                  v-model="payload.first_name"
+                  dense
+                  outlined
+                  :hide-details="!errors.first_name"
+                  :error-messages="
+                    errors && errors.first_name ? errors.first_name[0] : ''
+                  "
+                  label="First Name"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="6">
+                <v-text-field
+                  v-model="payload.last_name"
+                  dense
+                  outlined
+                  :hide-details="!errors.last_name"
+                  :error-messages="
+                    errors && errors.last_name ? errors.last_name[0] : ''
+                  "
+                  label="Last Name"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="6">
+                <v-select
+                  :items="[`Male`, `Female`]"
+                  v-model="payload.gender"
+                  dense
+                  outlined
+                  :hide-details="!errors.gender"
+                  :error-messages="
+                    errors && errors.gender ? errors.gender[0] : ''
+                  "
+                  label="Gender"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="4">
+                <v-text-field
+                  v-model="payload.phone_number"
+                  dense
+                  outlined
+                  :hide-details="!errors.phone_number"
+                  :error-messages="
+                    errors && errors.phone_number ? errors.phone_number[0] : ''
+                  "
+                  label="Phone Number"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="4">
+                <v-text-field
+                  v-model="payload.email"
+                  dense
+                  outlined
+                  :hide-details="!errors.email"
+                  :error-messages="
+                    errors && errors.email ? errors.email[0] : ''
+                  "
+                  label="Email Address (optional)"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="4">
+                <v-text-field
+                  v-model="payload.visitor_company_name"
+                  dense
+                  outlined
+                  :hide-details="!errors.visitor_company_name"
+                  :error-messages="
+                    errors && errors.visitor_company_name
+                      ? errors.visitor_company_name[0]
+                      : ''
+                  "
+                  label="Your Company Name"
+                ></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="6">
+                <v-select
+                  v-model="payload.id_type"
+                  :items="[
+                    { id: 1, name: `Emirates ID` },
+                    { id: 2, name: `National ID` },
+                  ]"
+                  dense
+                  outlined
+                  item-text="name"
+                  item-value="id"
+                  :hide-details="!errors.id_type"
+                  :error-messages="
+                    errors && errors.id_type ? errors.id_type[0] : ''
+                  "
+                  label="ID Type"
+                ></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="4" lg="6">
+                <v-text-field
+                  v-model="payload.id_number"
+                  dense
+                  outlined
+                  :hide-details="!errors.id_number"
+                  :error-messages="
+                    errors && errors.id_number ? errors.id_number[0] : ''
+                  "
+                  label="ID Number"
+                ></v-text-field>
+              </v-col>
               <v-col cols="12" sm="6" md="4" lg="6">
                 <v-menu
                   ref="visit_from_menu_ref"
@@ -148,7 +291,6 @@
                   </v-date-picker>
                 </v-menu>
               </v-col>
-
               <v-col cols="12" sm="12" md="12" lg="12">
                 <TimePickerV1
                   label="Entry Time"
@@ -163,7 +305,6 @@
                   @getTime="(e) => (payload.time_out = e)"
                 />
               </v-col>
-
               <v-col cols="12" sm="6" md="4" lg="6">
                 <v-select
                   v-model="payload.purpose_id"
@@ -175,116 +316,6 @@
                   :hide-details="!errors.purpose_id"
                   label="Purpose"
                 ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="4" lg="6">
-                <v-select
-                  :items="[`Male`, `Female`]"
-                  v-model="payload.gender"
-                  dense
-                  outlined
-                  :hide-details="!errors.gender"
-                  :error-messages="
-                    errors && errors.gender ? errors.gender[0] : ''
-                  "
-                  label="Gender"
-                ></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="4" lg="6">
-                <v-text-field
-                  v-model="payload.first_name"
-                  dense
-                  outlined
-                  :hide-details="!errors.first_name"
-                  :error-messages="
-                    errors && errors.first_name ? errors.first_name[0] : ''
-                  "
-                  label="First Name"
-                ></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="4" lg="6">
-                <v-text-field
-                  v-model="payload.last_name"
-                  dense
-                  outlined
-                  :hide-details="!errors.last_name"
-                  :error-messages="
-                    errors && errors.last_name ? errors.last_name[0] : ''
-                  "
-                  label="Last Name"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6" md="4" lg="4">
-                <v-text-field
-                  v-model="payload.phone_number"
-                  dense
-                  outlined
-                  :hide-details="!errors.phone_number"
-                  :error-messages="
-                    errors && errors.phone_number ? errors.phone_number[0] : ''
-                  "
-                  label="Phone Number"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6" md="4" lg="4">
-                <v-text-field
-                  v-model="payload.email"
-                  dense
-                  outlined
-                  :hide-details="!errors.email"
-                  :error-messages="
-                    errors && errors.email ? errors.email[0] : ''
-                  "
-                  label="Email Address (optional)"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6" md="4" lg="4">
-                <v-text-field
-                  v-model="payload.visitor_company_name"
-                  dense
-                  outlined
-                  :hide-details="!errors.visitor_company_name"
-                  :error-messages="
-                    errors && errors.visitor_company_name
-                      ? errors.visitor_company_name[0]
-                      : ''
-                  "
-                  label="Your Company Name"
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="12" sm="6" md="4" lg="6">
-                <v-select
-                  v-model="payload.id_type"
-                  :items="[
-                    { id: 1, name: `Emirates ID` },
-                    { id: 2, name: `National ID` },
-                  ]"
-                  dense
-                  outlined
-                  item-text="name"
-                  item-value="id"
-                  :hide-details="!errors.id_type"
-                  :error-messages="
-                    errors && errors.id_type ? errors.id_type[0] : ''
-                  "
-                  label="ID Type"
-                ></v-select>
-              </v-col>
-
-              <v-col cols="12" sm="6" md="4" lg="6">
-                <v-text-field
-                  v-model="payload.id_number"
-                  dense
-                  outlined
-                  :hide-details="!errors.id_number"
-                  :error-messages="
-                    errors && errors.id_number ? errors.id_number[0] : ''
-                  "
-                  label="ID Number"
-                ></v-text-field>
               </v-col>
             </v-row>
           </v-col>
@@ -377,7 +408,7 @@
           </v-col>
 
           <v-col cols="12">
-            <v-btn block color="primary" @click="prevStep">Previous</v-btn>
+            <v-btn block color="primary" @click="prevStep">Back</v-btn>
           </v-col>
         </v-row>
       </v-stepper-content>
@@ -399,6 +430,8 @@ export default {
   auth: false,
 
   data: () => ({
+    searchDialog: false,
+    searchInput: null,
     time_in_menu: "",
     responseStatus: "",
     responseDialog: false,
@@ -455,15 +488,37 @@ export default {
     step: 1,
     field1: "",
     field2: "",
+
+    company_id: 0,
+    photo:null,
   }),
   mounted() {},
   async created() {
     this.loading = false;
-    this.payload.company_id = this.$route.params.id;
+    this.company_id = this.$route.params.id;
     await this.getPurposes();
   },
 
   methods: {
+    searchVisitor() {
+      if (this.searchInput && this.searchInput.length > 3) {
+        this.$axios
+          .get(`visitor-search`, {
+            params: {
+              company_id: this.company_id,
+              searchInput: this.searchInput,
+            },
+          })
+          .then(({ data }) => {
+            this.payload = {};
+
+            if (data) {
+              this.payload = data;
+            }
+            this.searchDialog = false;
+          });
+      }
+    },
     openCamera() {
       this.isImageBox = false;
       this.$refs.cameraComponent.openCamera();
@@ -481,7 +536,7 @@ export default {
       this.$axios
         .get(`purpose_list`, {
           params: {
-            company_id: this.payload.company_id,
+            company_id: this.company_id,
           },
         })
         .then(({ data }) => {
@@ -501,9 +556,10 @@ export default {
     },
 
     submit() {
-      console.log(this.payload);
+      this.payload.company_id = this.company_id;
+      this.payload.logo = this.photo;
       this.$axios
-        .post("visitor-register", this.payload)
+        .post("visitor-self-register", this.payload)
         .then(({ data }) => {
           this.errors = [];
           this.responseDialog = true;
