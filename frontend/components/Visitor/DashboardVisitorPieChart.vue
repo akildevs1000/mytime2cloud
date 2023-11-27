@@ -49,6 +49,7 @@ export default {
         chart: {
           width: "100%", //200 //275
           type: "donut",
+          height: 350,
         },
         customTotalValue: 0,
         plotOptions: {
