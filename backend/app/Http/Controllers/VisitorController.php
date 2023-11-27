@@ -307,6 +307,7 @@ class VisitorController extends Controller
         $data['date'] = date("Y-m-d");
         $data['visitor_filled_datetime'] = date("Y-m-d H:i:s");
         $data['id_copy'] = 'jpg';
+        $data['status_id'] = 1;
 
 
         try {
