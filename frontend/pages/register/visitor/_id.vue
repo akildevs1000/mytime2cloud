@@ -88,6 +88,109 @@
         <v-col cols="12" class="pt-5">
           <v-row>
             <v-col cols="12" sm="6" md="4" lg="6">
+              <v-text-field
+                v-model="payload.first_name"
+                dense
+                outlined
+                :hide-details="!errors.first_name"
+                :error-messages="
+                  errors && errors.first_name ? errors.first_name[0] : ''
+                "
+                label="First Name"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="6">
+              <v-text-field
+                v-model="payload.last_name"
+                dense
+                outlined
+                :hide-details="!errors.last_name"
+                :error-messages="
+                  errors && errors.last_name ? errors.last_name[0] : ''
+                "
+                label="Last Name"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="6">
+              <v-select
+                :items="[`Male`, `Female`]"
+                v-model="payload.gender"
+                dense
+                outlined
+                :hide-details="!errors.gender"
+                :error-messages="
+                  errors && errors.gender ? errors.gender[0] : ''
+                "
+                label="Gender"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="4">
+              <v-text-field
+                v-model="payload.phone_number"
+                dense
+                outlined
+                :hide-details="!errors.phone_number"
+                :error-messages="
+                  errors && errors.phone_number ? errors.phone_number[0] : ''
+                "
+                label="Phone Number"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="4">
+              <v-text-field
+                v-model="payload.email"
+                dense
+                outlined
+                :hide-details="!errors.email"
+                :error-messages="errors && errors.email ? errors.email[0] : ''"
+                label="Email Address (optional)"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="4">
+              <v-text-field
+                v-model="payload.visitor_company_name"
+                dense
+                outlined
+                :hide-details="!errors.visitor_company_name"
+                :error-messages="
+                  errors && errors.visitor_company_name
+                    ? errors.visitor_company_name[0]
+                    : ''
+                "
+                label="Your Company Name"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="6">
+              <v-select
+                v-model="payload.id_type"
+                :items="[
+                  { id: 1, name: `Emirates ID` },
+                  { id: 2, name: `National ID` },
+                ]"
+                dense
+                outlined
+                item-text="name"
+                item-value="id"
+                :hide-details="!errors.id_type"
+                :error-messages="
+                  errors && errors.id_type ? errors.id_type[0] : ''
+                "
+                label="ID Type"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="6">
+              <v-text-field
+                v-model="payload.id_number"
+                dense
+                outlined
+                :hide-details="!errors.id_number"
+                :error-messages="
+                  errors && errors.id_number ? errors.id_number[0] : ''
+                "
+                label="ID Number"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="4" lg="6">
               <v-menu
                 ref="visit_from_menu_ref"
                 v-model="visit_from_menu"
@@ -169,7 +272,6 @@
                 </v-date-picker>
               </v-menu>
             </v-col>
-
             <v-col cols="12" sm="12" md="12" lg="12">
               <!-- <TimePickerCommon
                 class="mt-5"
@@ -216,7 +318,6 @@
                 @getTime="(e) => (payload.time_out = e)"
               />
             </v-col>
-
             <v-col cols="12" sm="6" md="4" lg="6">
               <v-select
                 v-model="payload.purpose_id"
@@ -228,114 +329,6 @@
                 :hide-details="!errors.purpose_id"
                 label="Purpose"
               ></v-select>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="6">
-              <v-select
-                :items="[`Male`, `Female`]"
-                v-model="payload.gender"
-                dense
-                outlined
-                :hide-details="!errors.gender"
-                :error-messages="
-                  errors && errors.gender ? errors.gender[0] : ''
-                "
-                label="Gender"
-              ></v-select>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="6">
-              <v-text-field
-                v-model="payload.first_name"
-                dense
-                outlined
-                :hide-details="!errors.first_name"
-                :error-messages="
-                  errors && errors.first_name ? errors.first_name[0] : ''
-                "
-                label="First Name"
-              ></v-text-field>
-            </v-col>
-            <v-col cols="12" sm="6" md="4" lg="6">
-              <v-text-field
-                v-model="payload.last_name"
-                dense
-                outlined
-                :hide-details="!errors.last_name"
-                :error-messages="
-                  errors && errors.last_name ? errors.last_name[0] : ''
-                "
-                label="Last Name"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="4" lg="4">
-              <v-text-field
-                v-model="payload.phone_number"
-                dense
-                outlined
-                :hide-details="!errors.phone_number"
-                :error-messages="
-                  errors && errors.phone_number ? errors.phone_number[0] : ''
-                "
-                label="Phone Number"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="4" lg="4">
-              <v-text-field
-                v-model="payload.email"
-                dense
-                outlined
-                :hide-details="!errors.email"
-                :error-messages="errors && errors.email ? errors.email[0] : ''"
-                label="Email Address (optional)"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="4" lg="4">
-              <v-text-field
-                v-model="payload.visitor_company_name"
-                dense
-                outlined
-                :hide-details="!errors.visitor_company_name"
-                :error-messages="
-                  errors && errors.visitor_company_name
-                    ? errors.visitor_company_name[0]
-                    : ''
-                "
-                label="Your Company Name"
-              ></v-text-field>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="4" lg="6">
-              <v-select
-                v-model="payload.id_type"
-                :items="[
-                  { id: 1, name: `Emirates ID` },
-                  { id: 2, name: `National ID` },
-                ]"
-                dense
-                outlined
-                item-text="name"
-                item-value="id"
-                :hide-details="!errors.id_type"
-                :error-messages="
-                  errors && errors.id_type ? errors.id_type[0] : ''
-                "
-                label="ID Type"
-              ></v-select>
-            </v-col>
-
-            <v-col cols="12" sm="6" md="4" lg="6">
-              <v-text-field
-                v-model="payload.id_number"
-                dense
-                outlined
-                :hide-details="!errors.id_number"
-                :error-messages="
-                  errors && errors.id_number ? errors.id_number[0] : ''
-                "
-                label="ID Number"
-              ></v-text-field>
             </v-col>
           </v-row>
         </v-col>
