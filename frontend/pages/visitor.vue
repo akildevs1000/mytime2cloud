@@ -1,3 +1,3 @@
 <template>
-  <VisitorRequestsList :isDashboard="false" />
+  <VisitorRequestsList title="Visitor Requests" :isDashboard="false" />
 </template>

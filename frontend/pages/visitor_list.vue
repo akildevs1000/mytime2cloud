@@ -1,5 +1,5 @@
 <template>
-  <VisitorRequestsList :isDashboard="false" :defaultDates="getDefaultDates" />
+  <VisitorRequestsList title="Visitors" :isDashboard="false" :defaultDates="getDefaultDates" />
 </template>
 
 <script>
