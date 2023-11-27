@@ -10,7 +10,12 @@
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
-          <v-card-text class="ma-2"> {{ response }} </v-card-text>
+          <v-card-text
+            class="ma-2"
+            :class="`${responseStatus == 'Fail' ? 'red--text' : ''}`"
+          >
+            {{ response }}
+          </v-card-text>
         </v-card>
       </v-dialog>
     </v-row>
@@ -438,6 +443,7 @@ export default {
           let { status, data, statusText } = response;
 
           if (status && status == 422) {
+            this.response = data.message;
             this.errors = data.errors;
             return;
           }

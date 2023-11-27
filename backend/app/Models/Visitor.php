@@ -12,12 +12,10 @@ class Visitor extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display'];
+    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display','time_in_display','time_out_display'];
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
-
-
     ];
 
 
@@ -53,6 +51,17 @@ class Visitor extends Model
     public function getToDateDisplayAttribute()
     {
         return date("d-M-Y", strtotime($this->visit_to));
+    }
+
+
+    public function getTimeInDisplayAttribute()
+    {
+        return date("H:i", strtotime($this->time_in));
+    }
+
+    public function getTimeOutDisplayAttribute()
+    {
+        return date("H:i", strtotime($this->time_out));
     }
 
     public function zone()

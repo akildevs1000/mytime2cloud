@@ -227,6 +227,11 @@ class VisitorController extends Controller
                 return $this->response('Form is not submitted.', null, false);
             }
 
+            if ($request->withOutHost) {
+                $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+                return $this->response('Form has been submitted successfully.', $data, true);
+            }
+
             // $preparedJson = $this->prepareJsonForSDK([
             //     "first_name" => "first_name",
             //     "last_name" => "last_name",
@@ -250,13 +255,14 @@ class VisitorController extends Controller
             $message .= "*App Link:* " . "https://mobile.mytime2cloud.com/login" . "\n\n";
             $message .= "Best regards\n";
             $message .= "*MyTime2Cloud*";
-            $company = Company::where("id", $request->company_id)->first();
 
+            $company = Company::where("id", $data['company_id'])->first();
+            $found = HostCompany::whereId($data['host_company_id'])->first();
 
-            if ($data['host_company_id'] ?? false) {
+            if ($found) {
 
                 if (env("APP_ENV") !== "local") {
-                    (new WhatsappController)->sendWhatsappNotification($company, $message, $request->number ?? 971554501483);
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, $found->number ?? 971554501483);
                 }
 
                 Notification::create([
@@ -264,15 +270,16 @@ class VisitorController extends Controller
                     "action" => "Registration",
                     "model" => "Visitor",
                     "user_id" => $request->user_id ?? 21,
-                    "company_id" => $request->company_id,
+                    "company_id" => $data['company_id'],
                     "redirect_url" => "visitor_requests"
                 ]);
             }
 
+
             $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
-
-
+            
             return $this->response('Form has been submitted successfully.', $data, true);
+
         } catch (\Throwable $th) {
 
             return $th;
