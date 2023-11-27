@@ -33,7 +33,7 @@
               style="border: 1px solid #6946dd"
               :isImageBox="isImageBox"
               class="mb-5"
-              @imageSrc="(e) => (payload.logo = e)"
+              @imageSrc="(e) => (photo = e)"
               ref="cameraComponent"
             />
           </div>
@@ -385,14 +385,18 @@ export default {
     data: [],
     errors: [],
     purposes: [],
+    company_id: 0,
+    host_company_id: 0,
+    photo: null,
   }),
   mounted() {},
   async created() {
     this.loading = false;
     this.boilerplate = true;
     let params = this.$route.params.id.split("-");
-    this.payload.company_id = params[0];
-    this.payload.host_company_id = params[1] || 0;
+
+    this.company_id = params[0];
+    this.host_company_id = params[1];
     await this.getPurposes();
   },
 
@@ -414,7 +418,7 @@ export default {
       this.$axios
         .get(`purpose_list`, {
           params: {
-            company_id: this.payload.company_id,
+            company_id: this.company_id,
           },
         })
         .then(({ data }) => {
@@ -423,6 +427,9 @@ export default {
     },
 
     submit() {
+      this.payload.host_company_id = this.host_company_id;
+      this.payload.company_id = this.company_id;
+      this.payload.logo = this.photo;
       this.$axios
         .post("visitor-register", this.payload)
         .then(({ data }) => {
