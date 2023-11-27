@@ -233,16 +233,22 @@ class VisitorController extends Controller
         $data['logo'] = $this->processImage("media/visitor/logo");
         $data['date'] = date("Y-m-d");
         $data['visitor_filled_datetime'] = date("Y-m-d H:i:s");
+        $data['id_copy'] = 'jpg';
+        $data['status_id'] = 1;
 
         try {
 
-            if (!Visitor::create($data)) {
-                return $this->response('Form is not submitted.', null, false);
-            }
+            $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
 
-            if ($request->withOutHost) {
+            if ($existingVisitor) {
+                $existingVisitor->update($data);
                 $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
                 return $this->response('Form has been submitted successfully.', $data, true);
+            }
+
+
+            if (!Visitor::create($data)) {
+                return $this->response('Form is not submitted.', null, false);
             }
 
             // $preparedJson = $this->prepareJsonForSDK([
