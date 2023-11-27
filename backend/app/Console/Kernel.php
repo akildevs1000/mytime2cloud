@@ -87,6 +87,12 @@ class Kernel extends ConsoleKernel
                 // ->dailyAt('09:00')
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-split-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
+                ->everyMinute()
+                // ->dailyAt('09:00')
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/$monthYear-sync-visitor-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("default_attendance_seeder {$companyId}")

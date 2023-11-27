@@ -817,7 +817,22 @@
             </template>
             <template v-slot:item.branch_id="{ item }">
               {{ item.branch && item.branch.branch_name }}
+              <div class="secondary-value">
+                {{
+                  (item.visitor.host && item.visitor.host.floor_number) || "---"
+                }}
+                -
+                {{
+                  (item.visitor.host && item.visitor.host.flat_number) || "---"
+                }}
+              </div>
             </template>
+            <!-- <template v-slot:item.company_name="{ item }">
+              {{ item.host && item.host.company_name }}
+              <div class="secondary-value">
+                {{ item.branch && item.branch.branch_name }}
+              </div>
+            </template> -->
             <template v-slot:item.purpose_id="{ item }">
               {{ item.visitor && item.visitor.purpose?.name }}
             </template>

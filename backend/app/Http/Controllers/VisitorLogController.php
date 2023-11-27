@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VisitorLog\Store;
+use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Visitor;
 use App\Models\VisitorLog;
@@ -16,15 +17,22 @@ class VisitorLogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(VisitorLog $model, Request $request)
+    public function index(AttendanceLog $model, Request $request)
     {
+
+
 
         $data = $model->where("company_id", $request->company_id)
             ->with('visitor', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             })
 
+            ->whereIn('UserID', function ($query) use ($request) {
+                $query->select('system_user_id')
 
+                    ->from('visitors')
+                    ->where('company_id', $request->company_id);
+            })
             ->with(["visitor", "visitor.purpose", "visitor.branch", "device"])
 
             // ->whereHas('visitor', fn (Builder $query) => $query->where('company_id', $request->company_id))
@@ -35,6 +43,8 @@ class VisitorLogController extends Controller
             ->when($request->from_date, function ($query) use ($request) {
                 return $query->whereDate('LogTime', '>=', $request->from_date);
             })
+            // ->whereHas('visitor', fn (Builder $query) => $query->where('system_user_id', 'attendance_logs.UserID'))
+
             ->when($request->to_date, function ($query) use ($request) {
                 return $query->whereDate('LogTime', '<=', $request->to_date);
             })

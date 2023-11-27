@@ -71,13 +71,18 @@ class AttendanceLog extends Model
         return $this->hasOne(Reason::class, "id", "reasonable_id")->latest();
     }
 
+    public function visitor()
+    {
+        return $this->belongsTo(Visitor::class, "UserID", "system_user_id")->with("zone");
+    }
+
     public function filter($request)
     {
         $model = self::query();
 
         $model->where("company_id", $request->company_id);
 
-        $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance","Mobile"]));
+        $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance", "Mobile"]));
 
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
@@ -240,6 +245,17 @@ class AttendanceLog extends Model
             ->groupBy(['UserID']);
     }
 
+    public function getEmployeeIdsForNewLogsToRender_old($params)
+    {
+        return self::where("company_id", $params["company_id"])
+            ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
+            ->where("company_id", $params["company_id"])
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+
+            ->distinct("UserID", "company_id")
+            ->pluck('UserID');
+    }
     public function getEmployeeIdsForNewLogsToRender($params)
     {
         return self::where("company_id", $params["company_id"])
@@ -247,15 +263,38 @@ class AttendanceLog extends Model
             ->where("company_id", $params["company_id"])
             ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
             ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+            ->whereNotIn('UserID', function ($query) {
+                $query->select('system_user_id')
+                    ->where('visit_from', "<=", date('Y-m-d'))
+                    ->where('visit_to', ">=", date('Y-m-d'))
+                    ->from('visitors');
+            })
             ->distinct("UserID", "company_id")
             ->pluck('UserID');
     }
+    public function getVisitorIdsForNewLogsToRender($params)
+    {
+        return self::where("company_id", $params["company_id"])
+            ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
+            ->where("company_id", $params["company_id"])
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+            ->whereIn('UserID', function ($query) {
+                $query->select('system_user_id')
+                    ->where('visit_from', "<=", date('Y-m-d'))
+                    ->where('visit_to', ">=", date('Y-m-d'))
+                    ->from('visitors');
+            })
+            ->distinct("UserID", "company_id")
+            ->pluck('UserID');
+    }
+
 
     public function getLogsForRender($params)
     {
 
 
-        return self::where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+        return self::with("visitor")->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
             ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")))
             ->whereIn("UserID", $params["UserIds"])
             ->where("company_id", $params["company_id"])

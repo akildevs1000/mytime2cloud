@@ -84,7 +84,7 @@ class VisitorAttendance extends Model
 
     public function VisitorLogs()
     {
-        return $this->hasMany(VisitorLog::class, "UserID", "visitor_id");
+        return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");
     }
     public function branch()
     {

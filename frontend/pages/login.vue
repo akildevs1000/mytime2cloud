@@ -204,7 +204,7 @@
               </div>
             </v-form>
           </div>
-          <div class="text-center">Don't Have an Account?. Contact Admin</div>
+          <div class="text-center">Don't Have an Account? Contact Admin</div>
 
           <v-row class="text-center" style="font-size: 13px">
             <v-col class="pa-5">

@@ -186,7 +186,7 @@
                         </div>
                       </v-form>
                       <div class="text-center white--text text-white">
-                        Don't Have an Account?. Contact Admin
+                        Don't Have an Account? Contact Admin
                       </div>
                     </div>
                   </div>

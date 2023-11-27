@@ -42,7 +42,7 @@ class RenderController extends Controller
         $response = $this->run($userIds, $date, $company_id);
 
         return $this->response("Data has been generated", $response, true);
-    }  
+    }
 
     public function run($userIds, $date, $company_id)
     {

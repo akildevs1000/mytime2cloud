@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\VisitorAttendance;
 use App\Models\VisitorLog;
@@ -21,7 +22,19 @@ class VisitorAttendanceController extends Controller
         return (new VisitorAttendance)->processVisitorModel($request)->paginate($request->per_page ?? 100);
     }
 
-    public function visitor_log_list(VisitorLog $model, Request $request)
+    // public function visitor_log_list(VisitorLog $model, Request $request)
+    // {
+    //     return $model->with("device")->where('UserID', $request->UserID)
+
+    //         ->where('company_id', $request->company_id)
+    //         ->whereDate('LogTime', $request->LogTime)
+    //         ->select("LogTime", "DeviceID")
+    //         ->distinct("LogTime")
+    //         ->orderBy('LogTime', "asc")
+    //         ->paginate($request->per_page ?? 100);
+    // }
+
+    public function visitor_log_list(AttendanceLog $model, Request $request)
     {
         return $model->with("device")->where('UserID', $request->UserID)
 

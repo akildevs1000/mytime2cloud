@@ -228,6 +228,11 @@
         </template>
         <template v-slot:item.branch_id="{ item }">
           {{ (item.branch && item.branch.branch_name) || "---" }}
+
+          <div class="secondary-value">
+            {{ (item.host && item.host.floor_number) || "---" }} -
+            {{ (item.host && item.host.flat_number) || "---" }} -
+          </div>
         </template>
         <template v-slot:item.purpose_id="{ item }">
           {{ item.purpose.name }}
@@ -288,12 +293,12 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <!-- <v-list-item @click="uploadUserToDeviceDialog = true">
+              <v-list-item @click="uploadUserToDeviceDialog = true">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
                   Upload Visitor
                 </v-list-item-title>
-              </v-list-item> -->
+              </v-list-item>
               <!-- <v-list-item @click="updateStatus(item.id, 3)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-cancel</v-icon>

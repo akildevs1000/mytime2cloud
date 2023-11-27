@@ -214,7 +214,7 @@
                           </v-form>
                         </div>
                         <div class="text-center">
-                          Don't Have an Account?. Contact Admin
+                          Don't Have an Account? Contact Admin
                         </div>
 
                         <v-row class="text-center" style="font-size: 13px">
@@ -405,7 +405,7 @@
                         </div>
                       </v-form>
                       <div class="text-center white--text text-white">
-                        Don't Have an Account?. Contact Admin
+                        Don't Have an Account? Contact Admin
                       </div>
                     </div>
                   </div>
