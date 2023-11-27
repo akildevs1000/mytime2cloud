@@ -236,7 +236,7 @@
                 </span>
               </v-col>
 
-              <v-col cols="6" v-if="disabled">
+              <!-- <v-col cols="6" v-if="disabled">
                 <div class="px-5 popup_background">Open Link</div>
                 <div>
                   <v-avatar
@@ -253,7 +253,7 @@
                     {{ fullCompanyLink }}
                   </a>
                 </span>
-              </v-col>
+              </v-col> -->
               <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"

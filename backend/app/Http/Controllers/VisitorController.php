@@ -62,6 +62,19 @@ class VisitorController extends Controller
         return $model->paginate($request->input("per_page", 100));
     }
 
+
+    public function search(Request $request)
+    {
+        $model = (new Visitor)->filters($request);
+
+        $model->where("phone_number", $request->searchInput);
+
+        $model->with(["branch", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
+
+        return $model->first() ?? null;
+    }
+
+
     public function index_old(Request $request)
     {
         $model = Visitor::query();
@@ -277,9 +290,8 @@ class VisitorController extends Controller
 
 
             $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
-            
-            return $this->response('Form has been submitted successfully.', $data, true);
 
+            return $this->response('Form has been submitted successfully.', $data, true);
         } catch (\Throwable $th) {
 
             return $th;
