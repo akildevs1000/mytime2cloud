@@ -294,7 +294,6 @@ class VisitorController extends Controller
                 ]);
             }
 
-
             $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
 
             return $this->response('Form has been submitted successfully.', $data, true);
