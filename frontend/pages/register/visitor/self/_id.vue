@@ -72,7 +72,7 @@
                 style="border: 1px solid #6946dd"
                 :isImageBox="isImageBox"
                 class="mb-5"
-                @imageSrc="(e) => (payload.logo = e)"
+                @imageSrc="(e) => (photo = e)"
                 ref="cameraComponent"
               />
             </div>
@@ -490,6 +490,7 @@ export default {
     field2: "",
 
     company_id: 0,
+    photo:null,
   }),
   mounted() {},
   async created() {
@@ -556,6 +557,7 @@ export default {
 
     submit() {
       this.payload.company_id = this.company_id;
+      this.payload.logo = this.photo;
       this.$axios
         .post("visitor-self-register", this.payload)
         .then(({ data }) => {
