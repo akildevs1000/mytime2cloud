@@ -557,7 +557,7 @@ export default {
     submit() {
       this.payload.company_id = this.company_id;
       this.$axios
-        .post("visitor-register", this.payload)
+        .post("visitor-self-register", this.payload)
         .then(({ data }) => {
           this.errors = [];
           this.responseDialog = true;
