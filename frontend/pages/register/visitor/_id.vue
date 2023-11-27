@@ -25,8 +25,40 @@
     <v-toolbar-title class="primary text-center white--text pa-2 mt-5">
       Visitor Registration
     </v-toolbar-title>
+    <template>
+      <div class="text-center">
+        <v-dialog v-model="searchDialog" width="500">
+          <v-card>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-icon color="black" @click="searchDialog = false">
+                mdi-close-circle
+              </v-icon>
+            </v-card-actions>
+
+            <v-card-text>
+              <v-text-field
+                v-model="searchInput"
+                outlined
+                hide-details
+                dense
+                label="Search here"
+              ></v-text-field>
+              <v-btn class="mt-1" color="primary" block @click="searchVisitor">
+                Search
+              </v-btn>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
+    </template>
     <v-container>
       <v-row>
+        <v-col class="text-right">
+          <v-icon @click="searchDialog = true" class="primary--text" large dark
+            >mdi-magnify</v-icon
+          >
+        </v-col>
         <v-col cols="12" sm="6" md="4" lg="6">
           <div class="text-center">
             <Camera
@@ -340,6 +372,8 @@ export default {
   auth: false,
 
   data: () => ({
+    searchDialog: false,
+    searchInput: null,
     time_in_menu: "",
     responseStatus: "",
     responseDialog: false,
@@ -401,6 +435,25 @@ export default {
   },
 
   methods: {
+    searchVisitor() {
+      if (this.searchInput && this.searchInput.length > 3) {
+        this.$axios
+          .get(`visitor-search`, {
+            params: {
+              company_id: this.company_id,
+              searchInput: this.searchInput,
+            },
+          })
+          .then(({ data }) => {
+            this.payload = {};
+
+            if (data) {
+              this.payload = data;
+            }
+            this.searchDialog = false;
+          });
+      }
+    },
     openCamera() {
       this.isImageBox = false;
       this.$refs.cameraComponent.openCamera();
