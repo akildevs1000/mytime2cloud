@@ -426,7 +426,7 @@
 <script>
 import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
-  props: ["filterValue", "isDashboard", "statsFilterValue"],
+  props: ["filterValue", "isDashboard", "statsFilterValue","defaultDates"],
   components: { Visitorinfo },
   data: () => ({
     visitor_status_list: [],
@@ -593,6 +593,12 @@ export default {
 
     this.from_date = today.toISOString().slice(0, 10);
     this.to_date = today.toISOString().slice(0, 10);
+
+    if (this.defaultDates && this.defaultDates.length) {
+      this.from_date = this.defaultDates[0];
+      this.to_date = this.defaultDates[1];
+    }
+
     this.getDataFromApi();
     setTimeout(() => {
       this.getPurposeList();

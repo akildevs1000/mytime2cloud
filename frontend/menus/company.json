@@ -276,11 +276,17 @@
     "menu": "visitors_access",
     "module": "visitors"
   },
-
   {
-    "icon": "mdi-account",
+    "icon": "mdi-comment-alert",
     "title": "Requests",
     "to": "/visitor",
+    "menu": "visitors_access",
+    "module": "visitors"
+  },
+  {
+    "icon": "mdi-account",
+    "title": "Visitors",
+    "to": "/visitor_list",
     "menu": "visitors_access",
     "module": "visitors"
   },
