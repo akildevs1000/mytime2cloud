@@ -238,13 +238,13 @@ class VisitorController extends Controller
 
         try {
 
-            $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
+            // $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
 
-            if ($existingVisitor) {
-                $existingVisitor->update($data);
-                $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
-                return $this->response('Form has been submitted successfully.', $data, true);
-            }
+            // if ($existingVisitor) {
+            //     $existingVisitor->update($data);
+            //     $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+            //     return $this->response('Form has been submitted successfully.', $data, true);
+            // }
 
 
             if (!Visitor::create($data)) {
@@ -318,13 +318,13 @@ class VisitorController extends Controller
 
         try {
 
-            $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
+            // $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
 
-            if ($existingVisitor) {
-                $existingVisitor->update($data);
-                $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
-                return $this->response('Form has been submitted successfully.', $data, true);
-            }
+            // if ($existingVisitor) {
+            //     $existingVisitor->update($data);
+            //     $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+            //     return $this->response('Form has been submitted successfully.', $data, true);
+            // }
 
 
             if (!Visitor::create($data)) {
