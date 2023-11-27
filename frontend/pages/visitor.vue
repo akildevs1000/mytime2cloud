@@ -58,17 +58,17 @@
           </div>
         </v-col>
       </v-row>
-      <VisitorList @changeBranch="changeBranch" />
+      <VisitorRequestsList :isDashboard="false" @changeBranch="changeBranch" />
     </div>
     <Preloader v-else />
   </div>
   <NoAccess v-else />
 </template>
 <script>
-import VisitorList from "../components/Visitor/List.vue";
+import VisitorRequestsList from "../components/Visitor/VisitorRequestsList.vue";
 
 export default {
-  components: { VisitorList },
+  components: { VisitorRequestsList },
 
   data() {
     return {

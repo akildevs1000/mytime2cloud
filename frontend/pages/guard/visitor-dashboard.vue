@@ -112,7 +112,7 @@
   <NoAccess v-else />
 </template>
 <script>
-import VisitorList from "../../components/Visitor/List.vue";
+import VisitorList from "../../components/Visitor/VisitorRequestsList.vue";
 
 export default {
   components: { VisitorList },

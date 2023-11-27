@@ -3,14 +3,18 @@
     <v-dialog v-model="viewDialog" width="1200">
       <v-card>
         <v-card-title dense class="popup_background">
-          Visitor Information
+          Visitor Information - {{ item && item.full_name }}
           <v-spacer></v-spacer>
           <v-icon @click="viewDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
         <v-card-text>
-          <Visitorinfo :item="item" :attendance="attendance"></Visitorinfo>
+          <Visitorinfo
+            :key="keyId"
+            :item="item"
+            :attendance="attendance"
+          ></Visitorinfo>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -776,16 +780,18 @@
                   style="
                     padding: 5px;
                     padding-left: 0px;
-
+                    width: 50px;
                     max-width: 50px;
                   "
                 >
                   <v-img
                     style="
-                      border-radius: 10%;
+                      border-radius: 50%;
                       height: auto;
                       width: 50px;
                       max-width: 50px;
+                      height: 50px;
+                      border: 1px solid #ddd;
                     "
                     :src="
                       item.visitor && item.visitor.logo
@@ -1006,6 +1012,7 @@ import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
   components: { Calender, Visitorinfo },
   data: () => ({
+    keyId: 1,
     purposeList: [],
     branchesList: [],
     hostList: [],
@@ -1276,6 +1283,7 @@ export default {
 
   methods: {
     viewInfo(item) {
+      this.keyId++;
       this.item = item.visitor;
       this.attendance = item;
       this.viewDialog = true;

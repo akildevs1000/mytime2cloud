@@ -1,12 +1,12 @@
 <template>
   <div>
     <div v-if="item">
-      <v-tabs class="pt-3" right>
+      <v-tabs class="slidegroup1" right>
         <v-tabs-slider color="violet"></v-tabs-slider>
         <v-tab>
-          <span>Information</span>
+          <span>Information </span>
         </v-tab>
-        <v-tab>
+        <v-tab @click="loadHistoryPage()">
           <span>History</span>
         </v-tab>
         <v-tab-item>
@@ -21,11 +21,11 @@
             <v-col cols="4" style="padding: 0px">
               <v-img
                 style="
-                  border-radius: 2%;
-                  width: 200px;
+                  border-radius: 50%;
+                  width: 250px;
                   max-width: 95%;
-                  min-height: 100px;
-                  height: auto;
+
+                  height: 250px;
                   border: 1px solid #ddd;
                 "
                 :src="item.logo ? item.logo : '/no-profile-image.jpg'"
@@ -140,7 +140,7 @@
             <v-col col="4">
               <v-img
                 style="
-                  border-radius: 2%;
+                  border-radius: 50%;
                   width: 200px;
                   max-width: 95%;
                   min-height: 100px;
@@ -198,7 +198,10 @@
         <v-tab-item>
           <v-card flat>
             <v-card-text>
-              <VisitorHistory></VisitorHistory>
+              <VisitorHistory
+                :visitorIdentificationNumber="item.id_number"
+                :visitorFullName="item.full_name"
+              ></VisitorHistory>
             </v-card-text>
           </v-card>
         </v-tab-item>
@@ -211,7 +214,7 @@ import VisitorHistory from "../../components/Visitor/VisitorHistory.vue";
 export default {
   props: ["item", "attendance"],
   components: { VisitorHistory },
-  data: () => ({}),
+  data: () => ({ keyid: 1 }),
 
   methods: {
     getRelatedColor(item) {
@@ -223,7 +226,9 @@ export default {
       };
       return colors[item.status_id || "UNKNOWN"];
     },
-
+    loadHistoryPage() {
+      this.keyid++;
+    },
     verifyOverstay(item) {
       if (item.attendances && item.attendances[0]) {
         if (item.status_id >= 6) {

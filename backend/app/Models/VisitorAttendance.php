@@ -134,6 +134,13 @@ class VisitorAttendance extends Model
             $q->where('branch_id',  $request->branch_id);
         });
 
+
+
+        $model->when($request->filled('visitorIdentificationNumber'), function ($q) use ($request) {
+
+            $q->whereHas("visitor", fn ($q) => $q->where("id_number", $request->visitorIdentificationNumber));
+        });
+
         $model->when($request->filled('date'), function ($q) use ($request) {
             $q->whereDate('date', '=', $request->date);
         });

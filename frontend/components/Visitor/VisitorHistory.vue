@@ -1,20 +1,18 @@
 <template>
-  <div v-if="can(`visitors_report_access`)">
-    <div class="text-center ma-2">
-      <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-        {{ response }}
-      </v-snackbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
-    </div>
+  <div>
+    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+      {{ response }}
+    </v-snackbar>
+    <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+      {{ snackText }}
+      <template v-slot:action="{ attrs }">
+        <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
 
     <v-row>
-      <v-col>
-        <v-card class="mb-5" elevation="0">
+      <v-col style="padding: 0px">
+        <v-card class="mb-5 pa-0" style="padding: 0px" elevation="0">
           <v-data-table
             hide-default-footer
             dense
@@ -249,7 +247,6 @@
       </v-dialog>
     </v-row>
   </div>
-  <NoAccess v-else />
 </template>
 <script>
 function getCurrentDate() {
@@ -260,9 +257,10 @@ function getCurrentDate() {
   return `${year}-${month}-${day}`;
 }
 import Calender from "../Calender.vue";
-import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
+
 export default {
-  components: { Calender, Visitorinfo },
+  props: ["visitorIdentificationNumber", "visitorFullName"],
+  components: { Calender },
   data: () => ({
     purposeList: [],
     branchesList: [],
@@ -723,6 +721,7 @@ export default {
           frequency: this.frequency,
           // status: this.getStatus(this.payload.status),
           ...this.filters,
+          visitorIdentificationNumber: this.visitorIdentificationNumber,
         },
       };
 

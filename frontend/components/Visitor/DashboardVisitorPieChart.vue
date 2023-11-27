@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 0px; width: 100%">
-    <div id="pie2" name="pie2"></div>
+    <div id="visitors" name="visitors" height="200" width="200"></div>
     <div
       v-if="totalCount == 0"
       style="
@@ -49,7 +49,6 @@ export default {
         chart: {
           width: "100%", //200 //275
           type: "donut",
-          height: "auto",
         },
         customTotalValue: 0,
         plotOptions: {
@@ -76,10 +75,9 @@ export default {
                 },
                 total: {
                   show: true,
-                  label: "Total",
+                  label: "Total Expecting",
                   color: "#373d3f",
                   formatter: function (val) {
-                    console.log("val", val);
                     return val.config.customTotalValue;
                   },
                 },
@@ -144,7 +142,10 @@ export default {
       //   (e) => (e.title = "Expected")
       // )[0].value;
 
-      new ApexCharts(document.querySelector("#pie2"), this.options).render();
+      new ApexCharts(
+        document.querySelector("#visitors"),
+        this.options
+      ).render();
     } catch (error) {}
   },
   methods: {},
