@@ -13,8 +13,9 @@ Route::post('visitor-status-update/{id}', [VisitorController::class, 'visitorSta
 
 Route::apiResource('visitor', VisitorController::class);
 Route::post('visitor-register', [VisitorController::class, "register"]);
-Route::get('visitor-search', [VisitorController::class, "search"]);
+Route::post('visitor-self-register', [VisitorController::class, "self_register"]);
 
+Route::get('visitor-search', [VisitorController::class, "search"]);
 
 Route::get('visitors_with_type', [VisitorController::class, "visitors_with_type"]);
 
