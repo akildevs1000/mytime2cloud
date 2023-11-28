@@ -1,71 +1,90 @@
 <template>
   <div>
-    <h1>Camera Example</h1>
-    <v-container>
-      <v-btn @click="capturePhoto">Capture</v-btn>
-
-      <v-row>
-        <v-col cols="6">
-          <video
-            style="border: 1px solid; width: 100%; height: 300px"
-            id="camera"
-            autoplay
-            playsinline
-            ref="camera"
-          ></video>
-          <img
-            style="width: 300px; height: 300px"
-            v-if="capturedImage"
-            :src="capturedImage"
-          />
-        </v-col>
-        <v-col cols="6"> </v-col>
-      </v-row>
-    </v-container>
+    <div class="text-center">
+      <v-avatar size="150" tile>
+        <v-img v-show="isImageBox" :src="imageSrc" />
+        <video
+          height="100%"
+          v-show="!isImageBox"
+          ref="video"
+          autoplay
+          playsinline
+        ></video>
+      </v-avatar>
+    </div>
+    <div class="text-center mt-1">
+      <v-btn
+        width="150"
+        v-if="isImageBox"
+        @click="openCamera"
+        small
+        class="primary"
+        >Open Camera</v-btn
+      >
+      <v-btn width="150" v-else @click="takePicture" small class="primary"
+        >Take Picture</v-btn
+      >
+    </div>
   </div>
 </template>
 
 <script>
 export default {
+  auth: false,
+  layout: "login",
   data() {
     return {
-      errorMessage: null,
-      capturedImage: null,
+      debug: false,
+      isImageBox: true,
+      videoStream: null,
+      imageSrc: "/no-profile-image.jpg",
     };
   },
   methods: {
-    async startCamera() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" }, // Example: using rear camera
-        });
-        this.$refs.camera.srcObject = stream;
-        this.errorMessage = null;
-      } catch (error) {
-        console.error("Error accessing camera:", error);
-        this.errorMessage = "Camera not found or access denied.";
+    async openCamera() {
+      this.isImageBox = false;
+
+      const video = this.$refs.video;
+
+      if (this.debug) {
+        video.src = "/your_video.mp4";
+        return;
       }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
+      video.srcObject = mediaStream;
+      this.videoStream = mediaStream;
     },
-    capturePhoto() {
-      const cameraElement = this.$refs.camera;
-      const canvasElement = document.createElement("canvas");
-      const canvasContext = canvasElement.getContext("2d");
+    async takePicture() {
+      this.isImageBox = true;
+      const targetWidth = 800; // Desired width for the captured image
+      const video = this.$refs.video;
 
-      canvasElement.width = cameraElement.videoWidth;
-      canvasElement.height = cameraElement.videoHeight;
-      canvasContext.drawImage(
-        cameraElement,
-        0,
-        0,
-        canvasElement.width,
-        canvasElement.height
-      );
+      // Create a canvas to capture the video frame
+      const canvas = document.createElement("canvas");
+      canvas.width = targetWidth;
+      canvas.height = (video.videoHeight / video.videoWidth) * targetWidth;
 
-      this.capturedImage = canvasElement.toDataURL("image/png");
+      // Calculate the height based on the video's aspect ratio
+
+      // Draw the resized video frame onto the canvas
+      canvas
+        .getContext("2d")
+        .drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      // Convert the canvas content to a data URL with JPEG format
+      this.imageSrc = canvas.toDataURL("image/jpeg");
+
+      // Emit the captured image source
+      this.$emit("imageSrc", this.imageSrc);
     },
   },
-  mounted() {
-    this.startCamera();
+  beforeDestroy() {
+    if (this.videoStream) {
+      this.videoStream.getTracks().forEach((track) => track.stop());
+    }
   },
 };
 </script>
