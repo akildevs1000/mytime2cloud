@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="text-center">
-      <v-avatar size="150" tile>
+      <v-avatar size="200" tile>
         <v-img v-show="isImageBox" :src="imageSrc" />
         <video
           height="100%"
@@ -14,14 +14,14 @@
     </div>
     <div class="text-center mt-1">
       <v-btn
-        width="150"
+        width="200"
         v-if="isImageBox"
         @click="openCamera"
         small
         class="primary"
         >Open Camera</v-btn
       >
-      <v-btn width="150" v-else @click="takePicture" small class="primary"
+      <v-btn width="200" v-else @click="takePicture" small class="primary"
         >Take Picture</v-btn
       >
     </div>
@@ -59,20 +59,17 @@ export default {
     },
     async takePicture() {
       this.isImageBox = true;
-      const targetWidth = 800; // Desired width for the captured image
       const video = this.$refs.video;
 
       // Create a canvas to capture the video frame
       const canvas = document.createElement("canvas");
-      canvas.width = targetWidth;
-      canvas.height = (video.videoHeight / video.videoWidth) * targetWidth;
 
       // Calculate the height based on the video's aspect ratio
 
       // Draw the resized video frame onto the canvas
       canvas
         .getContext("2d")
-        .drawImage(video, 0, 0, canvas.width, canvas.height);
+        .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
       // Convert the canvas content to a data URL with JPEG format
       this.imageSrc = canvas.toDataURL("image/jpeg");
