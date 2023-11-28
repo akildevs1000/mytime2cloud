@@ -69,7 +69,7 @@ export default {
       // Draw the resized video frame onto the canvas
       canvas
         .getContext("2d")
-        .drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+        .drawImage(video, 0, 0, canvas.videoWidth, canvas.videoHeight);
 
       // Convert the canvas content to a data URL with JPEG format
       this.imageSrc = canvas.toDataURL("image/jpeg");
