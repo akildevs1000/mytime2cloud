@@ -503,6 +503,21 @@
           <v-toolbar-title>
             <span style="color: black"> {{ Model }}s </span></v-toolbar-title
           >
+
+          <span
+            ><v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon @click="getDataFromApi()" class="mx-1 ml-2"
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
+          </span>
           <span
             ><v-btn
               dense
@@ -589,7 +604,7 @@
                     clearable
                     @click:clear="
                       filters[header.value] = '';
-                      getDataFromApi(); 
+                      getDataFromApi();
                     "
                     :hide-details="true"
                     v-if="header.filterable && !header.filterSpecial"

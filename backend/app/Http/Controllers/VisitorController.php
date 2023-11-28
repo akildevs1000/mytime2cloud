@@ -341,6 +341,8 @@ class VisitorController extends Controller
 
     public function uploadVisitorToDevice(UploadVisitor $request)
     {
+
+        return $request;
         try {
 
             $ifExist = Visitor::where("id", $request->id)->where("system_user_id", ">", 0)->first();
@@ -371,6 +373,41 @@ class VisitorController extends Controller
             throw $th;
         }
     }
+    public function updateVisitorToZone(Request $request)
+    {
+
+
+        try {
+
+            $ifExist = Visitor::where("id", $request->visitor_id)->where("system_user_id", ">", 0)->first();
+
+            if ($ifExist) {
+                return $this->response('Visiter got Device Id already.', $ifExist, false);
+            }
+
+            $visitor = Visitor::where("id", $request->visitor_id)->update([
+                "system_user_id" => $request->system_user_id,
+                "zone_id" => $request->zone_id,
+                "status_id" => 4,
+                "guard_changed_status_datetime" => date("Y-m-d H:i:s")
+
+            ]);
+            if (!$visitor) {
+                return $this->response('Visitor cannot upload.', null, false);
+            }
+
+            // $data = $request->all();
+            // $preparedJson = $this->prepareJsonForSDK($data);
+            // return $this->SDKCommand( "http://139.59.69.241:5000/Person/AddRange", $preparedJson);
+            // // env('SDK_URL');
+            // $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
+
+            return $this->response('Visitor uploaded to device.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
 
     public function visitorStatusUpdate(Request $request, $id)
     {

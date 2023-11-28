@@ -292,6 +292,14 @@ class CompanyController extends Controller
         $data["max_branches"] = $request->max_branches;
         $data["lat"] = $request->lat;
         $data["lon"] = $request->lon;
+        $data["name"] = $request->name;
+
+        if ($request->email != '') {
+            $dataUser["email"] = $request->email;
+            $user = User::find(Company::find($id)->user_id);
+            $user->update($dataUser);
+        }
+
 
         if (isset($request->logo)) {
             $file = $request->file('logo');
