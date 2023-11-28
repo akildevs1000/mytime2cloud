@@ -592,7 +592,7 @@ export default {
       per_page: 10,
     },
     purposeList: [],
-    uploadVisitorId: 0,
+    selectedVisitor: null,
   }),
   watch: {
     options: {
@@ -730,8 +730,11 @@ export default {
     },
 
     uploadVisitorInfo(item) {
-      this.uploadVisitorId = item.id;
+      this.selectedVisitor = item;
+      //this.uploadVisitorId = item.id;
       this.uploadUserToDeviceDialog = true;
+      this.payload.system_user_id = item.system_user_id;
+      this.payload.zone_id = item.zone_id;
     },
     cancel() {
       this.uploadUserToDeviceDialog = false;
@@ -743,7 +746,7 @@ export default {
         let options = {
           params: {
             company_id: this.$auth.user.company_id,
-            visitor_id: this.uploadVisitorId,
+            visitor_id: this.selectedVisitor.id,
             system_user_id: this.payload.system_user_id,
             zone_id: this.payload.zone_id,
           },
@@ -759,7 +762,8 @@ export default {
             } else {
               this.response = "Visitor Zone details are updated successfully";
               this.snackbar = true;
-
+              this.uploadUserToDeviceDialog = false;
+              this.getDataFromApi();
               return;
             }
           });

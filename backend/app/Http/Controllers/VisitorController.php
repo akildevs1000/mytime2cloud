@@ -379,10 +379,13 @@ class VisitorController extends Controller
 
         try {
 
-            $ifExist = Visitor::where("id", $request->visitor_id)->where("system_user_id", ">", 0)->first();
+            $ifExist = Visitor::where("id", "!=", $request->visitor_id)
+                ->where("system_user_id",    $request->system_user_id)
+
+                ->first();
 
             if ($ifExist) {
-                return $this->response('Visiter got Device Id already.', $ifExist, false);
+                return $this->response('Visitor  Id already exist.', $ifExist, false);
             }
 
             $visitor = Visitor::where("id", $request->visitor_id)->update([
