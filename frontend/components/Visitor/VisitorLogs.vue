@@ -331,13 +331,20 @@
                 (item.visitor?.branch && item.visitor.branch.branch_name) ||
                 "---"
               }}
+              <div class="secondary-value">
+                {{ item.visitor?.host?.floor_number || "---" }} -
+                {{ item.visitor?.host?.flat_number || "---" }}
+              </div>
             </template>
             <template v-slot:item.purpose_id="{ item }">
               {{ item.visitor?.purpose.name || "---" }}
             </template>
 
             <template v-slot:item.LogTime="{ item }">
-              {{ item.LogTime || "---" }}
+              {{ item.LogTime.split(" ")[1] || "---" }}
+              <div class="secondary-value">
+                {{ $dateFormat.format1(item.LogTime.split(" ")[0]) || "---" }}
+              </div>
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}

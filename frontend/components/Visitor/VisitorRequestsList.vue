@@ -238,9 +238,9 @@
           {{ item.purpose.name }}
         </template>
         <template v-slot:item.visit_from="{ item }">
-          {{ item.from_date_display }}
+          {{ $dateFormat.format1(item.from_date_display) }}
           <span v-if="item.to_date_display != item.from_date_display">
-            to {{ item.to_date_display }}</span
+            to {{ $dateFormat.format1(item.to_date_display) }}</span
           >
         </template>
         <template v-slot:item.time_in="{ item }">

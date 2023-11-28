@@ -33,7 +33,7 @@ class VisitorLogController extends Controller
                     ->from('visitors')
                     ->where('company_id', $request->company_id);
             })
-            ->with(["visitor", "visitor.purpose", "visitor.branch", "device"])
+            ->with(["visitor", "visitor.host", "visitor.purpose", "visitor.branch", "device"])
 
             // ->whereHas('visitor', fn (Builder $query) => $query->where('company_id', $request->company_id))
 
