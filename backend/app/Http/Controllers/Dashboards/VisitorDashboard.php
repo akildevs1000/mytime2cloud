@@ -52,6 +52,8 @@ class VisitorDashboard extends Controller
         $VisitorAttendance->when($request->filled('branch_id'), function ($q) use ($request) {
             $q->where('branch_id',   $request->branch_id);
         });;
+        $VisitorAttendance->where("date", "<=", date('Y-m-d'));
+        $VisitorAttendance->where("date", ">=", date('Y-m-d'));
         $VisitorAttendance->with(["visitor"])->get();
 
 

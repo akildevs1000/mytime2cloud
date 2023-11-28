@@ -25,5 +25,4 @@ Route::post('/visitor_test', [VisitorController::class, "store_test"]);
 Route::get('/visitor_status_list', [VisitorController::class, "getVisitorStatusList"]);
 
 Route::post('upload-visitor', [VisitorController::class, 'uploadVisitorToDevice']);
-
-
+Route::post('visitor-update-zone', [VisitorController::class, 'updateVisitorToZone']);

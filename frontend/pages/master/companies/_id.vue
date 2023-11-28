@@ -58,7 +58,6 @@
                           <v-text-field
                             dense
                             outlined
-                            readonly
                             v-model="company_payload.company_code"
                             class="form-control"
                             type=""
@@ -74,7 +73,6 @@
                           <v-text-field
                             dense
                             outlined
-                            readonly
                             v-model="company_payload.name"
                             class="form-control"
                             type=""
@@ -95,7 +93,6 @@
                           <v-text-field
                             dense
                             outlined
-                            readonly
                             v-model="user_payload.email"
                             class="form-control"
                             type=""
@@ -1046,6 +1043,8 @@ export default {
 
       payload.append("mol_id", this.company_payload.mol_id);
       payload.append("p_o_box_no", this.company_payload.p_o_box_no);
+
+      payload.append("email", this.user_payload.email);
 
       this.start_process(`/company/${this.id}/update`, payload, `Company`);
     },

@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+      {{ response }}
+    </v-snackbar>
     <v-dialog v-model="viewDialog" width="1400">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -293,7 +296,7 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="uploadUserToDeviceDialog = true">
+              <v-list-item @click="uploadVisitorInfo(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
                   Upload Visitor
@@ -318,11 +321,13 @@
           <v-card-text class="mt-2">
             <v-form ref="form" v-model="valid">
               <v-text-field
-                v-model="payload.visitor_id"
+                v-model="payload.system_user_id"
                 label="Visitor ID"
                 required
                 outlined
                 dense
+                type="number"
+                :rules="required"
               ></v-text-field>
 
               <v-select
@@ -334,9 +339,10 @@
                 outlined
                 dense
                 required
+                :rules="required"
               ></v-select>
 
-              <v-row>
+              <!-- <v-row>
                 <v-col>
                   <v-menu
                     ref="fromTimePicker"
@@ -387,7 +393,7 @@
                     ></v-time-picker>
                   </v-menu>
                 </v-col>
-              </v-row>
+              </v-row> -->
             </v-form>
           </v-card-text>
           <v-card-actions>
@@ -440,6 +446,9 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    snackbar: false,
+    response: "",
+    required: [(v) => !!v || "Required"],
     visitor_status_list: [],
     uploadUserToDeviceDialog: false,
     valid: false,
@@ -583,6 +592,7 @@ export default {
       per_page: 10,
     },
     purposeList: [],
+    selectedVisitor: null,
   }),
   watch: {
     options: {
@@ -718,13 +728,46 @@ export default {
 
       return formattedTime;
     },
+
+    uploadVisitorInfo(item) {
+      this.selectedVisitor = item;
+      //this.uploadVisitorId = item.id;
+      this.uploadUserToDeviceDialog = true;
+      this.payload.system_user_id = item.system_user_id;
+      this.payload.zone_id = item.zone_id;
+    },
     cancel() {
       this.uploadUserToDeviceDialog = false;
     },
     save() {
-      // if (this.$refs.form.validate()) {
-      //   this.uploadUserToDeviceDialog = false;
-      // }
+      if (this.$refs.form.validate()) {
+        //this.uploadUserToDeviceDialog = false;
+
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            visitor_id: this.selectedVisitor.id,
+            system_user_id: this.payload.system_user_id,
+            zone_id: this.payload.zone_id,
+          },
+        };
+        this.$axios
+          .post(`visitor-update-zone`, options.params)
+          .then(({ data }) => {
+            if (!data.status) {
+              this.response = data.message;
+              this.snackbar = true;
+
+              return;
+            } else {
+              this.response = "Visitor Zone details are updated successfully";
+              this.snackbar = true;
+              this.uploadUserToDeviceDialog = false;
+              this.getDataFromApi();
+              return;
+            }
+          });
+      }
     },
     viewInfo(item) {
       this.viewDialog = true;
