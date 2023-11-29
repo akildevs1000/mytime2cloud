@@ -488,9 +488,9 @@ class VisitorController extends Controller
             $personList["faceImage"] =  $data["logo"]; //asset('media/visitor/logo/' . $data['logo']);
         }
 
-        $personList["faceImage"] =  "https://backend.mytime2cloud.com/media/visitor/logo/1701097708.png";
+        // $personList["faceImage"] =  "https://backend.mytime2cloud.com/media/visitor/logo/1701097708.png";
 
-        $personList["faceImage"] =   str_replace("http://127.0.0.1:8000/", "https://backend.mytime2cloud.com/", $data["logo"]);
+        // $personList["faceImage"] =   str_replace("http://127.0.0.1:8000/", "https://backend.mytime2cloud.com/", $data["logo"]);
 
 
         $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
