@@ -13,6 +13,7 @@ use App\Models\Notification;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -416,7 +417,10 @@ class VisitorController extends Controller
             // }';
 
             (new SDKController)->PersonAddRangeWithData($preparedJson);
-            //(new SDKController)->processSDKRequestJob('', $preparedJson);
+            try {
+                (new SDKController)->processSDKRequestJob('', $preparedJson);
+            } catch (\Throwable $th) {
+            }
             if (!$visitor) {
                 return $this->response('Visitor cannot upload.', null, false);
             }
