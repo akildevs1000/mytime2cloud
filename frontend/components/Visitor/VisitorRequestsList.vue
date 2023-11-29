@@ -775,14 +775,16 @@ export default {
 
               return;
             } else {
-              this.overlay = false;
-              this.valid = true;
-              this.uploadUserToDeviceDialog = false;
+              setTimeout(() => {
+                this.overlay = false;
+                this.valid = true;
+                this.uploadUserToDeviceDialog = false;
 
-              this.response = "Visitor Zone details are updated successfully";
-              this.snackbar = true;
+                this.response = "Visitor Zone details are updated successfully";
+                this.snackbar = true;
 
-              this.getDataFromApi();
+                this.getDataFromApi();
+              }, 5000);
 
               return;
             }

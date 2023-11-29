@@ -57,7 +57,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
+        $returnMsg = Http::timeout(3000)->withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($this->url, $data);
         if ($returnMsg && $returnMsg['data']) {
