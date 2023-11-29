@@ -35,21 +35,21 @@ class TimezonePhotoUploadJob implements ShouldQueue
      */
 
 
+    // public function handle()
+    // {
+    //     try {
+    //         return Http::timeout(60)->withoutVerifying()->withHeaders([
+    //             'Content-Type' => 'application/json',
+    //         ])->post($this->url, $this->data);
+    //     } catch (\Exception $e) {
+    //         return [
+    //             "status" => 102,
+    //             "message" => $e->getMessage(),
+    //         ];
+    //         // You can log the error or perform any other necessary actions here
+    //     }
+    // }
     public function handle()
-    {
-        try {
-            return Http::timeout(60)->withoutVerifying()->withHeaders([
-                'Content-Type' => 'application/json',
-            ])->post($this->url, $this->data);
-        } catch (\Exception $e) {
-            return [
-                "status" => 102,
-                "message" => $e->getMessage(),
-            ];
-            // You can log the error or perform any other necessary actions here
-        }
-    }
-    public function handle2()
     {
 
         $data = $this->data;
@@ -69,12 +69,14 @@ class TimezonePhotoUploadJob implements ShouldQueue
         }
 
         $returnContent = [
-            "data" => $returnFinalMessage, "status" => 200,
+            "data" =>  $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0
+            "transactionType" => 0,
+            "request" => $data
+
         ];
 
-        Log::channel('jobs')->info('TimezonePhotoUpload ' . json_encode($returnContent, true));
+        Log::channel('jobs')->info('TimezonePhotoUpload '   . json_encode($returnContent, true));
 
         return $returnContent;
     }
