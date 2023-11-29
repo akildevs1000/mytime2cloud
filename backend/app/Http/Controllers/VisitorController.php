@@ -401,31 +401,19 @@ class VisitorController extends Controller
             $visitorData = Visitor::where("id", $request->visitor_id)->get();
 
             $preparedJson = $this->prepareJsonForSDK($visitorData[0]);
+            $sdkResponse = '';
 
-            // $preparedJson = '{
-            //     "snList": [
-            //         "FC-8300T20094123" 
-            //     ],
-            //     "personList": [
-            //         {
-            //             "name": "Visitor1 1111",
-            //             "userCode": "90001",
-            //             "timeGroup": 1,
-            //             "faceImage": "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg"
-            //         }
-            //     ]
-            // }';
+            // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
+            try {
 
-            (new SDKController)->PersonAddRangeWithData($preparedJson);
-            // try {
-            //     (new SDKController)->processSDKRequestJob('', $preparedJson);
-            // } catch (\Throwable $th) {
-            // }
+                (new SDKController)->processSDKRequestJobJson('', $preparedJson);
+            } catch (\Throwable $th) {
+            }
 
 
 
             if (!$visitor) {
-                return $this->response('Visitor cannot upload.', null, false);
+                return $this->response('Visitor cannot upload.' . $sdkResponse, null, false);
             }
 
             // $data = $request->all();
@@ -434,7 +422,7 @@ class VisitorController extends Controller
             // // env('SDK_URL');
             // $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
 
-            return $this->response('Visitor uploaded to device.', null, true);
+            return $this->response('Visitor uploaded to device.' . $sdkResponse, null, true);
         } catch (\Throwable $th) {
             throw $th;
         }

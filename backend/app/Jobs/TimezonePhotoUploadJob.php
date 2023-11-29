@@ -33,7 +33,23 @@ class TimezonePhotoUploadJob implements ShouldQueue
      *
      * @return void
      */
+
+
     public function handle()
+    {
+        try {
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post($this->url, $this->data);
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+            // You can log the error or perform any other necessary actions here
+        }
+    }
+    public function handle2()
     {
 
         $data = $this->data;
@@ -52,9 +68,11 @@ class TimezonePhotoUploadJob implements ShouldQueue
             $returnFinalMessage[] = $returnMsg;
         }
 
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+        $returnContent = [
+            "data" => $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0];
+            "transactionType" => 0
+        ];
 
         Log::channel('jobs')->info('TimezonePhotoUpload ' . json_encode($returnContent, true));
 
@@ -139,9 +157,11 @@ class TimezonePhotoUploadJob implements ShouldQueue
             }
         }
         //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+        $returnContent = [
+            "data" => $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0];
+            "transactionType" => 0
+        ];
         // print_r($returnContent);
         //echo json_encode($returnContent, true);
 

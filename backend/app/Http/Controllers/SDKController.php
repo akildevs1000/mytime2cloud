@@ -104,6 +104,11 @@ class SDKController extends Controller
 
         return $this->processSDKRequestBulk($url, $data);
     }
+    public function processSDKRequestJobJson($url, $json)
+    {
+        $url = env('SDK_URL') . "/Person/AddRange";
+        $return = TimezonePhotoUploadJob::dispatch($json, $url);
+    }
     public function processSDKRequestJob($url, $data)
     {
 
@@ -178,7 +183,7 @@ class SDKController extends Controller
     {
 
         try {
-            return Http::timeout(30)->withoutVerifying()->withHeaders([
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {
@@ -256,7 +261,7 @@ class SDKController extends Controller
     {
         // http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
         try {
-            return Http::timeout(30)->withoutVerifying()->withHeaders([
+            return Http::timeout(60)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post("http://139.59.69.241:5000/$id/$command");
         } catch (\Exception $e) {
