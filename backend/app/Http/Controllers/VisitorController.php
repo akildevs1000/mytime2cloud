@@ -417,10 +417,13 @@ class VisitorController extends Controller
             // }';
 
             (new SDKController)->PersonAddRangeWithData($preparedJson);
-            try {
-                (new SDKController)->processSDKRequestJob('', $preparedJson);
-            } catch (\Throwable $th) {
-            }
+            // try {
+            //     (new SDKController)->processSDKRequestJob('', $preparedJson);
+            // } catch (\Throwable $th) {
+            // }
+
+
+
             if (!$visitor) {
                 return $this->response('Visitor cannot upload.', null, false);
             }
@@ -482,8 +485,13 @@ class VisitorController extends Controller
         if (env("APP_ENV") == "local") {
             $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg"; // "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg";
         } else {
-            $personList["faceImage"] =  asset('media/visitor/logo/' . $data['logo']);
+            $personList["faceImage"] =  $data["logo"]; //asset('media/visitor/logo/' . $data['logo']);
         }
+
+        $personList["faceImage"] =  "https://backend.mytime2cloud.com/media/visitor/logo/1701097708.png";
+
+        $personList["faceImage"] =   str_replace("http://127.0.0.1:8000/", "https://backend.mytime2cloud.com/", $data["logo"]);
+
 
         $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
 
