@@ -108,6 +108,8 @@ class VisitorAttendanceRenderController extends Controller
                 // "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
                 // "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
+                "total_hrs" => '---',
+                "over_stay" => '---',
             ];
 
 
