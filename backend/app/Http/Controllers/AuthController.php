@@ -206,6 +206,29 @@ class AuthController extends Controller
                 $user->branch_name = $branchesArray->branch_name;
                 $user->branch_logo = $branchesArray->logo;
                 $user->branch_id = $branchesArray->id; //$user->id;
+
+                $user->load(["employee" => function ($q) {
+                    // :id,employee_id,system_user_id,user_id"
+
+                    $q->select(
+                        "id",
+                        "first_name",
+                        "last_name",
+                        "profile_picture",
+                        "employee_id",
+                        "system_user_id",
+                        "joining_date",
+                        "user_id",
+                        "overtime",
+                        "display_name",
+                        "display_name",
+                        "branch_id",
+                        "leave_group_id",
+                        "reporting_manager_id",
+                    );
+
+                    $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
+                }]);
                 return "branch";
             };
 
