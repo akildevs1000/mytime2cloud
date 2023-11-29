@@ -30,7 +30,7 @@ class SyncAutoShift extends Command
     public function handle()
     {
         try {
-            echo (new RenderController)->renderAutoCron();
+            echo (new RenderController)->renderAutoCron(2);
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: SyncAuto. Error Details: ' . $th);
             echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAuto. Error occurred while inserting logs.\n";

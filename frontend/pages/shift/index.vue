@@ -18,6 +18,16 @@
         </v-card-title>
         <v-card-text>
           <v-row class="pa-1">
+            <v-col cols="12">
+              <v-checkbox
+                hide-details
+                small
+                color="primary"
+                v-model="payload.isAutoShift"
+                label="Auto Shift"
+              >
+              </v-checkbox>
+            </v-col>
             <v-col v-if="isCompany" md="3" sm="12" cols="12">
               <label>Branch <span class="error--text">*</span></label>
               <v-select
@@ -235,6 +245,11 @@
             -
             {{ item.on_duty_time1 }} to {{ item.off_duty_time1 }}
           </span>
+        </template>
+
+        <template v-slot:item.isAutoShift="{ item, index }">
+          <v-icon v-if="item.isAutoShift" color="green">mdi-check</v-icon>
+          <v-icon v-else color="red">mdi-close</v-icon>
         </template>
 
         <template v-slot:item.actions="{ item }">

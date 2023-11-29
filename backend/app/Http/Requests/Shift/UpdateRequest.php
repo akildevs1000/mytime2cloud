@@ -67,6 +67,9 @@ class UpdateRequest extends FormRequest
             'monthly_flexi_holidays' => 'nullable',
 
             'branch_id' => 'required',
+
+            'isAutoShift' => "nullable",
+
         ];
     }
 }
