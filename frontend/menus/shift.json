@@ -55,6 +55,15 @@
     "filterSpecial": false
   },
   {
+    "text": "Auto Shift",
+    "align": "left",
+    "sortable": true,
+    "key": "isAutoShift",
+    "value": "isAutoShift",
+    "filterable": false,
+    "filterSpecial": false
+  },
+  {
     "text": "Actions",
     "align": "left",
     "sortable": false,
