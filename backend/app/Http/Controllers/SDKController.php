@@ -112,12 +112,12 @@ class SDKController extends Controller
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        $sdk_url = '';
-        if (env("APP_ENV") == "production") {
-            $sdk_url = env("SDK_PRODUCTION_COMM_URL");
-        } else {
-            $sdk_url = env("SDK_STAGING_COMM_URL");
-        }
+        $sdk_url = env("SDK_URL");
+        // if (env("APP_ENV") == "production") {
+        //     $sdk_url = env("SDK_PRODUCTION_COMM_URL");
+        // } else {
+        //     $sdk_url = env("SDK_STAGING_COMM_URL");
+        // }
 
         if ($sdk_url == '') {
             return false;

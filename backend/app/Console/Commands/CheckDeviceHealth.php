@@ -33,7 +33,7 @@ class CheckDeviceHealth extends Command
      */
     public function handle()
     {
-        $devices = Device::get(["company_id", "device_id"]);
+        $devices = Device::where("device_type", "!=", "Mobile")->get(["company_id", "device_id"]);
 
 
 
@@ -44,11 +44,11 @@ class CheckDeviceHealth extends Command
         $sdk_url = '';
 
         if ($sdk_url == '') {
-            $sdk_url = "http://139.59.69.241:5000";
+            $sdk_url = env("SDK_URL"); // "http://139.59.69.241:5000";
         }
-        if (env("APP_ENV") != "production") {
-            $sdk_url = env("SDK_STAGING_COMM_URL");
-        }
+        // if (env("APP_ENV") != "production") {
+        //     $sdk_url = env("SDK_STAGING_COMM_URL");
+        // }
 
         if (checkSDKServerStatus($sdk_url) === 0) {
             $date = date("Y-m-d H:i:s");

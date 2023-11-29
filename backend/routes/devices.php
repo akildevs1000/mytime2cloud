@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DeviceStatusController;
+use App\Models\Device;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Device
@@ -28,3 +30,6 @@ Route::post('device_status/delete/selected', [DeviceStatusController::class, 'de
 
 Route::post('update_devices_active_settings/{key}', [DeviceController::class, 'updateActiveTimeSettings']);
 Route::get('get_device_active_settings/{key}', [DeviceController::class, 'getActiveTimeSettings']);
+
+
+Route::get('/check_device_health', [DeviceController::class, 'checkDeviceHealth']);

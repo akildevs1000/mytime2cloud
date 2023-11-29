@@ -395,6 +395,28 @@ class VisitorController extends Controller
                 "guard_changed_status_datetime" => date("Y-m-d H:i:s")
 
             ]);
+            //upload photo 
+
+            $visitorData = Visitor::where("id", $request->visitor_id)->get();
+
+            $preparedJson = $this->prepareJsonForSDK($visitorData[0]);
+
+            // $preparedJson = '{
+            //     "snList": [
+            //         "FC-8300T20094123" 
+            //     ],
+            //     "personList": [
+            //         {
+            //             "name": "Visitor1 1111",
+            //             "userCode": "90001",
+            //             "timeGroup": 1,
+            //             "faceImage": "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg"
+            //         }
+            //     ]
+            // }';
+
+            (new SDKController)->PersonAddRangeWithData($preparedJson);
+            //(new SDKController)->processSDKRequestJob('', $preparedJson);
             if (!$visitor) {
                 return $this->response('Visitor cannot upload.', null, false);
             }
@@ -444,15 +466,17 @@ class VisitorController extends Controller
 
     public function prepareJsonForSDK($data)
     {
+
+
         $personList = [];
 
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
-        $personList["timeGroup"] = $data["timezone_id"];
+        $personList["timeGroup"] = 1;
 
 
         if (env("APP_ENV") == "local") {
-            $personList["faceImage"] =  "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330253.jpg";
+            $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg"; // "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg";
         } else {
             $personList["faceImage"] =  asset('media/visitor/logo/' . $data['logo']);
         }
