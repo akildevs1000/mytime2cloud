@@ -100,7 +100,7 @@ class VisitorAttendanceRenderController extends Controller
                 "date" => $params["date"],
                 "date_in" => $params["date"],
 
-                "branch_id" => $logs[0]['visitor']["branch_id"],
+                "branch_id" => $logs[0]['visitor']["branch_id"] ?? 0,
 
                 "company_id" => $params["company_id"],
                 "visitor_id" => $logs[0]['visitor']['id'],

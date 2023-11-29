@@ -283,6 +283,9 @@
             <div style="color: red">
               {{ verifyOverstay(item) }}
             </div>
+            <div class="secondary-value" v-if="item.status_id == 4">
+              {{ item.system_user_id }}
+            </div>
           </span>
         </template>
         <template v-slot:item.options="{ item }">
@@ -772,7 +775,8 @@ export default {
             if (!data.status) {
               this.response = data.message;
               this.snackbar = true;
-
+              this.overlay = false;
+              this.valid = true;
               return;
             } else {
               setTimeout(() => {
