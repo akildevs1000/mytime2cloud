@@ -288,7 +288,6 @@ class AttendanceLog extends Model
                     ->from('visitors');
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
-            ->distinct("UserID", "company_id")
             ->get()->groupBy("UserID");
     }
     public function getVisitorIdsForNewLogsToRender($params)
