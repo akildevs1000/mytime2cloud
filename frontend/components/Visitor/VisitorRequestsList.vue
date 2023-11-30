@@ -448,7 +448,7 @@
       <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
         <v-card :loading="loadingDeviceData">
           <v-card-actions>
-            <span class="headline">Uploaded Visitor DevicesList</span>
+            <span>Uploaded Visitor DevicesList</span>
             <v-spacer></v-spacer>
 
             <v-icon outlined @click="uploadedUserInfoDialog = false"
@@ -491,12 +491,12 @@
                     <v-simple-table>
                       <tr>
                         <td>Name</td>
-                        <td>:{{ visitor.SDKresponseData.data.name }}</td>
+                        <td>: {{ visitor.SDKresponseData.data.name }}</td>
                       </tr>
 
                       <tr>
                         <td>System User Id</td>
-                        <td>:{{ visitor.SDKresponseData.data.userCode }}</td>
+                        <td>: {{ visitor.SDKresponseData.data.userCode }}</td>
                       </tr>
 
                       <tr>
@@ -506,7 +506,7 @@
 
                       <tr>
                         <td>timeGroup</td>
-                        <td>:{{ visitor.SDKresponseData.data.timeGroup }}</td>
+                        <td>: {{ visitor.SDKresponseData.data.timeGroup }}</td>
                       </tr>
                     </v-simple-table>
                   </v-col>

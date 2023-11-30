@@ -190,7 +190,9 @@ class VisitorAttendanceRenderController extends Controller
             ->get();
 
         foreach ($visitorsList as $key => $visitor) {
-
+            if ($visitor['zone_id'] == 0) {
+                continue;
+            }
             $zoneDevices = Zone::with(["devices"])->find($visitor['zone_id']);
 
             foreach ($zoneDevices->devices as $key => $device) {
