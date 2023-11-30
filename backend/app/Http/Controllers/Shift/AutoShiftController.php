@@ -313,14 +313,14 @@ class AutoShiftController extends Controller
 
         $items = [];
 
-        foreach ($data as $UserID => $data) {
+        foreach ($data as $UserID => $row) {
 
-            if (!$data) {
+            if (!$row) {
                 $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID has no Log(s).\n";
                 continue;
             }
 
-            $nearestShift = $this->findClosest($shifts, count($shifts), $data[0]["show_log_time"], $date);
+            $nearestShift = $this->findClosest($shifts, count($shifts), $row[0]["show_log_time"], $date);
 
             $arr = [];
             $arr["company_id"] = $params["company_id"];
@@ -329,11 +329,10 @@ class AutoShiftController extends Controller
             $arr["shift_type_id"] = $nearestShift["shift_type_id"];
             $arr["shift_id"] = $nearestShift["id"];
 
-            $arr["data"] = $data;
-            $arr["nearestShift"] = $nearestShift;
-
-
-            $items[] = $arr;
+            // $arr["data"] = $row;
+            // $arr["nearestShift"] = $nearestShift;
+            // $arr["shifts"] = $shifts;
+            // return $items[] = $arr;
 
             ScheduleEmployee::where("company_id", $params['company_id'])
                 ->where("employee_id", $UserID)
@@ -345,6 +344,10 @@ class AutoShiftController extends Controller
                 ]);
 
             $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
+
+            if (!$params["custom_render"]) {
+                AttendanceLog::where("company_id", $id)->where("UserID", $UserID)->update(["checked" => true]);
+            }
 
             $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
         }
