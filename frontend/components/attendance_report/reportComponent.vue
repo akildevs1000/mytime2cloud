@@ -151,7 +151,11 @@
                 }}</strong
               >
               <div class="secondary-value">
-                {{ item.employee.employee_id }}
+                {{
+                  item.employee.employee_id
+                    ? item.employee.employee_id
+                    : item?.employee_id
+                }}
               </div>
             </v-col>
           </v-row>
