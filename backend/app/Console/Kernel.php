@@ -171,6 +171,13 @@ class Kernel extends ConsoleKernel
 
                 ->appendOutputTo(storage_path("logs/$monthYear-visitor-set-expire-date-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
+                ->command("task:sync_visitor_delete_expired_dates $companyId")
+
+                ->dailyAt('08:00')
+                ->appendOutputTo(storage_path("logs/$monthYear-visitor-delete-expired-dates-$companyId.log"))
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             // $schedule
             //     ->command("task:sync_off_by_day_week1 $companyId")
             //     // ->everyMinute()

@@ -35,6 +35,9 @@ class SyncVisitorExpireDates extends Command
 
 
         try {
+
+            echo (new VisitorAttendanceRenderController())->setVisitorExpireDates($id);
+
             echo  "\n";
         } catch (\Throwable $th) {
             //throw $th;
