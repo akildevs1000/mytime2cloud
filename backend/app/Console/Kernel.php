@@ -54,6 +54,14 @@ class Kernel extends ConsoleKernel
             }
 
             $schedule
+                ->command("task:sync_auto {$companyId} " . date("Y-m-d"))
+                // ->hourly()
+                ->everyMinute()
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+            $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
                 ->everyMinute()
                 ->between('06:00', '23:59')
