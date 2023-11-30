@@ -11,6 +11,22 @@ use Illuminate\Support\Facades\Http;
 
 class SDKController extends Controller
 {
+
+
+    protected $SDKResponseArray;
+
+    public function __construct()
+    {
+        $this->SDKResponseArray = [];
+        $this->SDKResponseArray['设备未连接到服务器或者未注册'] = 'The device is not connected to the server or not registered';
+        $this->SDKResponseArray['查询成功"翻译成英语是'] = 'Query successful';
+        $this->SDKResponseArray['没有找到编号为'] = 'The device is not connected to the server or visitor id not registered';
+        $this->SDKResponseArray['设备未连接到服务器或者未注册'] = 'The personnel information with ID number  is was not found';
+
+        $this->SDKResponseArray['100'] = 'Timeout. The device is not connected to the server. Try again';
+        $this->SDKResponseArray['102'] = 'The device is offline or not connected to the server or not registered';
+        $this->SDKResponseArray['200'] = 'Query successful';
+    }
     public function processTimeGroup(Request $request, $id)
     {
         // (new TimezoneController)->storeTimezoneDefaultJson();
@@ -179,11 +195,50 @@ class SDKController extends Controller
         }
         return $mergedList;
     }
+    public function getPersonDetails($device_id, $user_code)
+    {
+
+        // $device_id = $request->device_id;
+        // $user_code = $request->user_code;
+        if ($device_id != '' && $user_code != '') {
+
+
+            $url = env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail";
+            $data =   ["usercode" => $user_code];
+
+
+            // return [$url, $data];
+            try {
+                $return = Http::timeout(360)->withoutVerifying()->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($url, $data);
+
+                $return = json_decode($return, true);
+                if (array_key_exists($return['status'], $this->SDKResponseArray)) {
+                    $return['message'] =  $this->SDKResponseArray[$return['status']];
+                }
+
+                return json_encode($return);
+            } catch (\Exception $e) {
+                return [
+                    "status" => 102,
+                    "message" => $e->getMessage(),
+                ];
+            }
+        } else {
+            return [
+                "status" => 102,
+                "message" => "Invalid Details",
+            ];
+        }
+        // You can log the error or perform any other necessary actions here
+
+    }
     public function processSDKRequestBulk($url, $data)
     {
 
         try {
-            return Http::timeout(60)->withoutVerifying()->withHeaders([
+            return Http::timeout(360)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {
@@ -261,7 +316,7 @@ class SDKController extends Controller
     {
         // http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
         try {
-            return Http::timeout(60)->withoutVerifying()->withHeaders([
+            return Http::timeout(360)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post("http://139.59.69.241:5000/$id/$command");
         } catch (\Exception $e) {

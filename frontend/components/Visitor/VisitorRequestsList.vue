@@ -308,6 +308,12 @@
                   Upload Visitor
                 </v-list-item-title>
               </v-list-item>
+              <v-list-item @click="viewUploadedVisitorInfo(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="purple" small> mdi-eye </v-icon>
+                  View Uploded info
+                </v-list-item-title>
+              </v-list-item>
               <!-- <v-list-item @click="updateStatus(item.id, 3)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-cancel</v-icon>
@@ -439,6 +445,78 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
+        <v-card :loading="loadingDeviceData">
+          <v-card-actions>
+            <span class="headline">Uploaded Visitor DevicesList</span>
+            <v-spacer></v-spacer>
+
+            <v-icon outlined @click="uploadedUserInfoDialog = false"
+              >mdi-close-circle</v-icon
+            >
+          </v-card-actions>
+
+          <v-card-text class="mt-2">
+            <v-card v-for="(visitor, index) in visitorUploadedDevicesInfo">
+              <v-card-title
+                >{{ ++index }}: Device: {{ visitor.deviceName }}
+              </v-card-title>
+              <v-card-text class="mt-2">
+                <v-row
+                  class="100%"
+                  style="margin: auto; line-height: 36px"
+                  v-if="visitor.SDKresponseData.data"
+                >
+                  <v-col cols="4" style="padding: 0px">
+                    <v-img
+                      style="
+                        border-radius: 10%;
+                        width: 100px;
+                        max-width: 95%;
+
+                        height: auto;
+                        border: 1px solid #ddd;
+                      "
+                      :src="
+                        visitor.SDKresponseData.data.faceImage
+                          ? 'data:image/jpeg;base64, ' +
+                            visitor.SDKresponseData.data.faceImage
+                          : '/no-profile-image.jpg'
+                      "
+                    >
+                    </v-img>
+                  </v-col>
+
+                  <v-col cols="8" style="padding: 0px">
+                    <v-simple-table>
+                      <tr>
+                        <td>Name</td>
+                        <td>:{{ visitor.SDKresponseData.data.name }}</td>
+                      </tr>
+
+                      <tr>
+                        <td>System User Id</td>
+                        <td>:{{ visitor.SDKresponseData.data.userCode }}</td>
+                      </tr>
+
+                      <tr>
+                        <td>Expiry Date</td>
+                        <td>: {{ visitor.SDKresponseData.data.expiry }}</td>
+                      </tr>
+
+                      <tr>
+                        <td>timeGroup</td>
+                        <td>:{{ visitor.SDKresponseData.data.timeGroup }}</td>
+                      </tr>
+                    </v-simple-table>
+                  </v-col>
+                </v-row>
+                <div v-else>{{ visitor.SDKresponseData.message }}</div>
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -455,12 +533,14 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    loadingDeviceData: false,
     overlay: false,
     snackbar: false,
     response: "",
     required: [(v) => !!v || "Required"],
     visitor_status_list: [],
     uploadUserToDeviceDialog: false,
+    uploadedUserInfoDialog: false,
     valid: false,
     fromTimePicker: false,
     toTimePicker: false,
@@ -603,6 +683,7 @@ export default {
     },
     purposeList: [],
     selectedVisitor: null,
+    visitorUploadedDevicesInfo: [],
   }),
   watch: {
     options: {
@@ -738,7 +819,43 @@ export default {
 
       return formattedTime;
     },
+    async viewUploadedVisitorInfo(item) {
+      this.uploadedUserInfoDialog = true;
+      console.log(item);
+      this.visitorUploadedDevicesInfo = [];
+      this.loadingDeviceData = true;
+      let counter = 1;
+      await item.zone.devices.forEach((element) => {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            visitor_id: item.id,
+            system_user_id: item.system_user_id,
+            zone_id: item.zone_id,
+            device_id: element.device_id,
+          },
+        };
+        this.loadingDeviceData = true;
+        this.$axios
+          .get(`get-visitor-device-details`, options)
+          .then(({ data }) => {
+            if (item.zone.devices.length == counter) {
+              this.loadingDeviceData = false;
+            }
+            counter++;
+            if (!data.deviceName) {
+              this.response = data.message;
+              this.snackbar = true;
 
+              return;
+            } else {
+              this.visitorUploadedDevicesInfo.push(data);
+
+              return;
+            }
+          });
+      });
+    },
     uploadVisitorInfo(item) {
       this.response = "";
       this.selectedVisitor = item;

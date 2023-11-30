@@ -26,3 +26,5 @@ Route::get('/visitor_status_list', [VisitorController::class, "getVisitorStatusL
 
 Route::post('upload-visitor', [VisitorController::class, 'uploadVisitorToDevice']);
 Route::post('visitor-update-zone', [VisitorController::class, 'updateVisitorToZone']);
+
+Route::get('get-visitor-device-details', [VisitorController::class, 'getDevicePersonDetails']);

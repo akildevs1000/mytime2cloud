@@ -8,11 +8,16 @@ use App\Http\Requests\Visitor\Update;
 use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
 use App\Models\Company;
+use App\Models\Device;
+use App\Models\Employee;
 use App\Models\HostCompany;
 use App\Models\Notification;
 use App\Models\Visitor;
 use App\Models\Zone;
+use App\Models\ZoneDevices;
 use Carbon\Carbon;
+use DateTime;
+use DateTimeZone;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -58,7 +63,7 @@ class VisitorController extends Controller
     {
         $model = (new Visitor)->filters($request);
 
-        $model->with(["branch", "zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
+        $model->with(["branch", "zone", "zone.devices",  "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"]);
 
         return $model->paginate($request->input("per_page", 100));
     }
@@ -216,10 +221,10 @@ class VisitorController extends Controller
                 return $this->response('Visitor cannot add.', null, false);
             }
 
-            $preparedJson = $this->prepareJsonForSDK($data);
+            // $preparedJson = $this->prepareJsonForSDK($data);
 
-            // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
-            ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            // // $this->SDKCommand(env('SDK_URL') . "/Person/AddRange", $preparedJson);
+            // ProcessSDKCommand::dispatch(env('SDK_URL') . "/Person/AddRange", $preparedJson);
 
             return $this->response('Visitor successfully created.', null, true);
         } catch (\Throwable $th) {
@@ -374,19 +379,49 @@ class VisitorController extends Controller
             throw $th;
         }
     }
+    public function getDevicePersonDetails(Request $request)
+    {
+        $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
+
+        $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+
+        return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName];
+    }
+    public function getDevicePersonDetailsZone(Request $request)
+    {
+        $system_user_id = $request->system_user_id;;
+
+        $zoneDevices = ZoneDevices::with("devices")->where("zone_id", $request->zone_id)->get();
+
+        $returnArray = [];
+        foreach ($zoneDevices as $key => $devices) {
+
+
+
+            $returnArray[] = (new SDKController())->getPersonDetails($devices['devices']['device_id'], $system_user_id);
+        }
+
+        return $returnArray;
+    }
     public function updateVisitorToZone(Request $request)
     {
 
 
         try {
 
-            $ifExist = Visitor::where("id", "!=", $request->visitor_id)
+            $ifVisitorExist = Visitor::where("id", "!=", $request->visitor_id)
                 ->where("system_user_id",    $request->system_user_id)
-
+                ->where("company_id",    $request->company_id)
                 ->first();
 
-            if ($ifExist) {
-                return $this->response('Visitor  Id already exist.', $ifExist, false);
+            $ifEmployeeExist = Employee::where("system_user_id",    $request->system_user_id)
+                ->where("company_id",    $request->company_id)
+                ->first();
+
+            if ($ifVisitorExist) {
+                return $this->response('Visitor  Id already exist in Visitors List.', $ifVisitorExist, false);
+            } else if ($ifEmployeeExist) {
+                return $this->response('Visitor  Id already exist in Employee List.', $ifEmployeeExist, false);
             }
 
             $visitor = Visitor::where("id", $request->visitor_id)->update([
@@ -400,15 +435,21 @@ class VisitorController extends Controller
 
             $visitorData = Visitor::where("id", $request->visitor_id)->get();
 
-            $preparedJson = $this->prepareJsonForSDK($visitorData[0]);
-            $sdkResponse = '';
+            $zoneDevices = Zone::with(["devices"])->find($visitorData[0]['zone_id']);
 
-            // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
-            try {
+            foreach ($zoneDevices->devices as $key => $device) {
+                $preparedJson = '';
+                $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
+                $sdkResponse = '';
 
-                (new SDKController)->processSDKRequestJobJson('', $preparedJson);
-            } catch (\Throwable $th) {
+                // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
+                try {
+
+                    (new SDKController)->processSDKRequestJobJson('', $preparedJson);
+                } catch (\Throwable $th) {
+                }
             }
+
 
 
 
@@ -459,15 +500,19 @@ class VisitorController extends Controller
         }
     }
 
-    public function prepareJsonForSDK($data)
+    public function prepareJsonForSDK($data, $device_id, $utc_time_zone)
     {
 
+
+        $date  = new DateTime("now", new DateTimeZone($utc_time_zone != '' ? $utc_time_zone : 'Asia/Dubai'));
+        $currentDateTime = $date->format('Y-m-d H:i:00');
 
         $personList = [];
 
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
+        $personList["expiry"] = date('Y-01-01 00:00:00');
 
 
         if (env("APP_ENV") == "local") {
@@ -476,17 +521,32 @@ class VisitorController extends Controller
             $personList["faceImage"] =  $data["logo"]; //asset('media/visitor/logo/' . $data['logo']);
         }
 
-        // $personList["faceImage"] =  "https://backend.mytime2cloud.com/media/visitor/logo/1701097708.png";
 
-        // $personList["faceImage"] =   str_replace("http://127.0.0.1:8000/", "https://backend.mytime2cloud.com/", $data["logo"]);
+        if (
+            strtotime($currentDateTime) >= strtotime($data["visit_from"] . ' ' . $data["time_in"])
+            && strtotime($currentDateTime) <= strtotime(
+                $data["visit_from"] . ' ' . $data["time_out"]
+            )
+        ) {
+            $personList["expiry"] = $data["visit_from"] . ' ' . $data["time_out"];
+        }
 
-
-        $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
 
         return [
-            "snList" => collect($zoneDevices->devices)->pluck("device_id"),
+            "snList" => [$device_id],
             "personList" => [$personList],
         ];
+
+
+        //$personList["expiry"] = date('Y-m-d H:00:00');
+
+
+
+        // $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
+        //         return [
+        //             "snList" => collect($zoneDevices->devices)->pluck("device_id"),
+        //             "personList" => [$personList],
+        //         ];
     }
 
     /**
