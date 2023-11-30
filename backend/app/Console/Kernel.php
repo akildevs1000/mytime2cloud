@@ -57,7 +57,7 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_auto {$companyId} " . date("Y-m-d"))
                 // ->hourly()
                 ->everyMinute()
-                ->runInBackground()
+                ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
