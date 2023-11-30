@@ -25,6 +25,14 @@
           >
 
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
+            <v-col md="12">
+              <v-checkbox
+                :readonly="!isEdit"
+                v-model="item.isAutoShift"
+                hide-details
+                label="Auto Shift"
+              ></v-checkbox>
+            </v-col>
             <v-col md="3">
               <div class="">Shift Name</div>
 
@@ -42,7 +50,7 @@
                 :items="shifts_branch_wise"
                 item-value="shift_id"
                 item-text="name"
-                :disabled="!isEdit"
+                :disabled="!isEdit || item.isAutoShift"
               ></v-autocomplete>
             </v-col>
             <v-col md="3">
@@ -129,7 +137,7 @@
             </v-col>
             <v-col md="2">
               <div>
-                Overtime Allowed
+                Ot Allowed
                 <v-checkbox
                   :readonly="!isEdit"
                   style="margin-top: -8px"
@@ -1269,14 +1277,16 @@ export default {
         },
       };
       this.$axios.get("shift", options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
-          shift_id: e.id,
-          name: e.name,
-          shift_type_id: e.shift_type_id,
-          from_date: e.from_date,
-          to_date: e.to_date,
-          branch_id: e.branch_id,
-        }));
+        this.shifts = data.data
+          .filter((e) => e.isAutoShift == false)
+          .map((e) => ({
+            shift_id: e.id,
+            name: e.name,
+            shift_type_id: e.shift_type_id,
+            from_date: e.from_date,
+            to_date: e.to_date,
+            branch_id: e.branch_id,
+          }));
       });
       // if (this.shift_type_id == 3) {
       //   this.shift_id = 0;
