@@ -82,7 +82,7 @@ class AttendanceLog extends Model
 
         $model->where("company_id", $request->company_id);
 
-        $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance", "Mobile"]));
+        $model->whereHas('device', fn ($q) => $q->whereIn('device_type', request("include_device_types") ?? ["all", "Attendance", "Mobile", "Manual"]));
 
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
@@ -272,6 +272,24 @@ class AttendanceLog extends Model
             ->distinct("UserID", "company_id")
             ->pluck('UserID');
     }
+
+    public function getEmployeeIdsForNewLogsToRenderAuto($params)
+    {
+        return self::where("company_id", $params["company_id"])
+            ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
+            ->when(count($params["UserIds"]) > 0, fn ($q) => $q->whereIn("UserID", $params["UserIds"]))
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+            ->whereNotIn('UserID', function ($query) {
+                $query->select('system_user_id')
+                    ->where('visit_from', "<=", date('Y-m-d'))
+                    ->where('visit_to', ">=", date('Y-m-d'))
+                    ->from('visitors');
+            })
+            ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
+            ->distinct("UserID", "company_id")
+            ->get()->groupBy("UserID");
+    }
     public function getVisitorIdsForNewLogsToRender($params)
     {
         return self::where("company_id", $params["company_id"])
@@ -313,14 +331,9 @@ class AttendanceLog extends Model
 
     public function getLogsWithInRangeNew($params)
     {
-
-
-        $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
-        $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
-
-
         return AttendanceLog::where("company_id", $params["company_id"])
-            ->whereBetween("LogTime", [$params["start"], $params["end"]])
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
             ->distinct("LogTime", "UserID", "company_id")
             ->whereHas("schedule", function ($q) use ($params) {
                 $q->where("shift_type_id", $params["shift_type_id"]);

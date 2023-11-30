@@ -62,4 +62,37 @@ class Shift extends Model
         return strtotime($this->on_duty_time);
         return date("Y-m-d H:i", strtotime($this->on_duty_time));
     }
+
+    /**
+     * Get the user that owns the Shift
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function employee_schedule()
+    {
+        return $this->belongsTo(ScheduleEmployee::class, 'shift_id');
+    }
+
+    public function getAutoShiftsAll($companyId)
+    {
+        // Auto Shift
+        return self::orderBy("on_duty_time")
+            ->where("company_id", $companyId)
+            ->where("isAutoShift", 1)
+            ->withOut("shift_type")
+            ->with("employee_schedule")
+            ->get(
+                [
+                    "id",
+                    "name",
+                    "on_duty_time",
+                    "off_duty_time",
+                    "working_hours",
+                    "overtime_interval",
+                    "early_time",
+                    "shift_type_id"
+                ]
+
+            )->toArray();
+    }
 }
