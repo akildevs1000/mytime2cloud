@@ -13,6 +13,7 @@ use App\Models\Notification;
 use App\Models\Visitor;
 use App\Models\Zone;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -395,8 +396,24 @@ class VisitorController extends Controller
                 "guard_changed_status_datetime" => date("Y-m-d H:i:s")
 
             ]);
+            //upload photo 
+
+            $visitorData = Visitor::where("id", $request->visitor_id)->get();
+
+            $preparedJson = $this->prepareJsonForSDK($visitorData[0]);
+            $sdkResponse = '';
+
+            // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
+            try {
+
+                (new SDKController)->processSDKRequestJobJson('', $preparedJson);
+            } catch (\Throwable $th) {
+            }
+
+
+
             if (!$visitor) {
-                return $this->response('Visitor cannot upload.', null, false);
+                return $this->response('Visitor cannot upload.' . $sdkResponse, null, false);
             }
 
             // $data = $request->all();
@@ -405,7 +422,7 @@ class VisitorController extends Controller
             // // env('SDK_URL');
             // $data['url'] = env("APP_URL") . "/media/visitor/logo/" . $data['logo'];
 
-            return $this->response('Visitor uploaded to device.', null, true);
+            return $this->response('Visitor uploaded to device.' . $sdkResponse, null, true);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -444,18 +461,25 @@ class VisitorController extends Controller
 
     public function prepareJsonForSDK($data)
     {
+
+
         $personList = [];
 
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
-        $personList["timeGroup"] = $data["timezone_id"];
+        $personList["timeGroup"] = 1;
 
 
         if (env("APP_ENV") == "local") {
-            $personList["faceImage"] =  "https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686330253.jpg";
+            $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg"; // "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg";
         } else {
-            $personList["faceImage"] =  asset('media/visitor/logo/' . $data['logo']);
+            $personList["faceImage"] =  $data["logo"]; //asset('media/visitor/logo/' . $data['logo']);
         }
+
+        // $personList["faceImage"] =  "https://backend.mytime2cloud.com/media/visitor/logo/1701097708.png";
+
+        // $personList["faceImage"] =   str_replace("http://127.0.0.1:8000/", "https://backend.mytime2cloud.com/", $data["logo"]);
+
 
         $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
 

@@ -27,6 +27,7 @@ class AuthController extends Controller
             ]);
         }
 
+
         $user = User::with('company', 'company.contact', 'employee')->where('email', $request->email)
             ->with("company:id,user_id,name,location,logo,company_code,expiry,contact_number,enable_whatsapp_otp")
             ->select()
@@ -38,7 +39,7 @@ class AuthController extends Controller
             return Response::json([
                 'enable_whatsapp_otp' => 0,
                 'user_id' => "",
-                'message' => 'Invalid Login details',
+                'message' => 'Invalid Login details1',
                 'status' => true
             ], 200);
         }
@@ -73,7 +74,7 @@ class AuthController extends Controller
             return Response::json([
                 'enable_whatsapp_otp' => 0,
                 'user_id' => $user->id,
-                'message' => 'Invalid Login Details',
+                'message' => 'Invalid Login Details2',
                 'status' => true
             ], 200);
         }

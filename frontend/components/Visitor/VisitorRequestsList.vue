@@ -3,6 +3,9 @@
     <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
       {{ response }}
     </v-snackbar>
+    <v-overlay :value="overlay">
+      <v-progress-circular indeterminate size="64"></v-progress-circular>
+    </v-overlay>
     <v-dialog v-model="viewDialog" width="1400">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -280,6 +283,9 @@
             <div style="color: red">
               {{ verifyOverstay(item) }}
             </div>
+            <div class="secondary-value" v-if="item.status_id == 4">
+              {{ item.system_user_id }}
+            </div>
           </span>
         </template>
         <template v-slot:item.options="{ item }">
@@ -396,6 +402,9 @@
               </v-row> -->
             </v-form>
           </v-card-text>
+          <div style="font-size: 14px" class="pa-5">
+            {{ response }}
+          </div>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
@@ -446,6 +455,7 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    overlay: false,
     snackbar: false,
     response: "",
     required: [(v) => !!v || "Required"],
@@ -730,6 +740,7 @@ export default {
     },
 
     uploadVisitorInfo(item) {
+      this.response = "";
       this.selectedVisitor = item;
       //this.uploadVisitorId = item.id;
       this.uploadUserToDeviceDialog = true;
@@ -751,22 +762,41 @@ export default {
             zone_id: this.payload.zone_id,
           },
         };
+
+        this.response =
+          "Visitor Profile picture is uploading to Device. Please wait for 5 to 10 seconds";
+        this.snackbar = true;
+        this.valid = false;
+
+        this.overlay = true;
         this.$axios
           .post(`visitor-update-zone`, options.params)
           .then(({ data }) => {
             if (!data.status) {
               this.response = data.message;
               this.snackbar = true;
-
+              this.overlay = false;
+              this.valid = true;
               return;
             } else {
-              this.response = "Visitor Zone details are updated successfully";
-              this.snackbar = true;
-              this.uploadUserToDeviceDialog = false;
-              this.getDataFromApi();
+              setTimeout(() => {
+                this.overlay = false;
+                this.valid = true;
+                this.uploadUserToDeviceDialog = false;
+
+                this.response = "Visitor Zone details are updated successfully";
+                this.snackbar = true;
+
+                this.getDataFromApi();
+              }, 5000);
+
               return;
             }
           });
+
+        // setTimeout(() => {
+
+        // }, 3000);
       }
     },
     viewInfo(item) {

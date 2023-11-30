@@ -418,6 +418,61 @@ class DeviceController extends Controller
 
         return $return_araay;
     }
+
+    public function checkDeviceHealth(Request $request)
+    {
+        $devices = Device::where("company_id", $request->company_id ?? 0)->where("device_type", "!=", "Mobile")->pluck("device_id");
+
+        $total_iterations = 0;
+        $online_devices_count = 0;
+        $offline_devices_count = 0;
+
+        $sdk_url = env("SDK_URL");
+
+        if (checkSDKServerStatus($sdk_url) === 0) {
+            return "Failed to connect to the SDK Server: $sdk_url";
+        }
+
+        foreach ($devices as $device_id) {
+            $curl = curl_init();
+
+            if (!$sdk_url) {
+                return "sdk url not defined.";
+            }
+
+            curl_setopt_array($curl, array(
+
+                // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
+                // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+                CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+            $status = json_decode($response);
+
+            if ($status && $status->status == 200) {
+                $online_devices_count++;
+            } else {
+                $offline_devices_count++;
+            }
+
+            Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
+
+            $total_iterations++;
+        }
+
+        return "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+    }
     public function updateActiveTimeSettings(Request $request, $device_id)
     {
 

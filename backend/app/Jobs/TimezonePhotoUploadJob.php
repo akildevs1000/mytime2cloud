@@ -33,6 +33,22 @@ class TimezonePhotoUploadJob implements ShouldQueue
      *
      * @return void
      */
+
+
+    // public function handle()
+    // {
+    //     try {
+    //         return Http::timeout(60)->withoutVerifying()->withHeaders([
+    //             'Content-Type' => 'application/json',
+    //         ])->post($this->url, $this->data);
+    //     } catch (\Exception $e) {
+    //         return [
+    //             "status" => 102,
+    //             "message" => $e->getMessage(),
+    //         ];
+    //         // You can log the error or perform any other necessary actions here
+    //     }
+    // }
     public function handle()
     {
 
@@ -41,7 +57,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
         $returnFinalMessage = [];
         $devicePersonsArray = [];
 
-        $returnMsg = Http::timeout(60)->withoutVerifying()->withHeaders([
+        $returnMsg = Http::timeout(3000)->withoutVerifying()->withHeaders([
             'Content-Type' => 'application/json',
         ])->post($this->url, $data);
         if ($returnMsg && $returnMsg['data']) {
@@ -52,11 +68,15 @@ class TimezonePhotoUploadJob implements ShouldQueue
             $returnFinalMessage[] = $returnMsg;
         }
 
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+        $returnContent = [
+            "data" =>  $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0];
+            "transactionType" => 0,
+            "request" => $data
 
-        Log::channel('jobs')->info('TimezonePhotoUpload ' . json_encode($returnContent, true));
+        ];
+
+        Log::channel('jobs')->info('TimezonePhotoUpload '   . json_encode($returnContent, true));
 
         return $returnContent;
     }
@@ -139,9 +159,11 @@ class TimezonePhotoUploadJob implements ShouldQueue
             }
         }
         //$returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
-        $returnContent = ["data" => $returnFinalMessage, "status" => 200,
+        $returnContent = [
+            "data" => $returnFinalMessage, "status" => 200,
             "message" => "",
-            "transactionType" => 0];
+            "transactionType" => 0
+        ];
         // print_r($returnContent);
         //echo json_encode($returnContent, true);
 
