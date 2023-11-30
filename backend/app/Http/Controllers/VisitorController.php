@@ -512,25 +512,32 @@ class VisitorController extends Controller
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
-        $personList["expiry"] = date('Y-01-01 00:00:00');
+        $personList["expiry"] = date('2023-01-01 00:00:00');
 
 
         if (env("APP_ENV") == "local") {
-            $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg"; // "https://celarwater.com/wp-content/uploads/2019/01/person3.jpg";
+            $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
         } else {
-            $personList["faceImage"] =  $data["logo"]; //asset('media/visitor/logo/' . $data['logo']);
+            $personList["faceImage"] =  $data["logo"];
         }
 
+        $currentDate  = $date->format('Y-m-d');
 
         if (
-            strtotime($currentDateTime) >= strtotime($data["visit_from"] . ' ' . $data["time_in"])
-            && strtotime($currentDateTime) <= strtotime(
-                $data["visit_from"] . ' ' . $data["time_out"]
-            )
+            strtotime($currentDate) >= strtotime($data["visit_from"])
+            && strtotime($currentDate) <= strtotime($data["visit_to"])
         ) {
-            $personList["expiry"] = $data["visit_from"] . ' ' . $data["time_out"];
+            if (
+                strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $data["time_in"])
+                && strtotime($currentDateTime) <= strtotime($currentDate . ' ' . $data["time_out"])
+            ) {
+                $personList["expiry"] = $currentDate . ' ' . $data["time_out"];
+            }
         }
 
+
+
+        Visitor::where("id", $data["id"])->update(["sdk_expiry_datetime" => $personList["expiry"]]);
 
         return [
             "snList" => [$device_id],

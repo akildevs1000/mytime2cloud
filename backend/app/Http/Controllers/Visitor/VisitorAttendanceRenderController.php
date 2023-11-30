@@ -6,8 +6,13 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SDKController;
 use App\Models\Device;
+use App\Models\Visitor;
 use App\Models\VisitorAttendance;
+use App\Models\Zone;
+use DateTime;
+use DateTimeZone;
 
 class VisitorAttendanceRenderController extends Controller
 {
@@ -163,5 +168,81 @@ class VisitorAttendanceRenderController extends Controller
 
         $this->devLog("visitor-attenadnce-log", $message);
         return ($message);
+    }
+
+    public function setVisitorExpireDates($company_id)
+    {
+        $currentDate = date('Y-m-d');
+
+        $visitorsList = Visitor::with(["zone", "zone.devices"])
+            ->where('company_id', $company_id)
+            ->where('visit_from', "<=", $currentDate)
+            ->where('visit_to', ">=", $currentDate)
+
+            ->where(
+                fn ($query) => $query
+                    ->where('sdk_expiry_datetime', '2023-01-01 00:00:00')
+                    ->orwhereColumn("visit_from", "!=", "visit_to")
+
+            )
+
+
+            ->get();
+
+        foreach ($visitorsList as $key => $visitor) {
+
+            $zoneDevices = Zone::with(["devices"])->find($visitor['zone_id']);
+
+            foreach ($zoneDevices->devices as $key => $device) {
+                $preparedJson = '';
+
+                $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
+                $currentDateTime = $date->format('Y-m-d H:i:00');
+
+                if ($visitor['sdk_expiry_datetime'] != '') {
+                    if (strtotime($currentDateTime) <= strtotime($visitor['sdk_expiry_datetime'])) {
+
+                        continue;
+                    }
+                }
+
+
+                $currentDate  = $date->format('Y-m-d');
+
+                $personList = [];
+
+                //$personList["expiry"] = $currentDateTime;
+                $personList["userCode"] = $visitor["system_user_id"];
+
+
+                if (
+                    strtotime($currentDate) >= strtotime($visitor["visit_from"])
+                    && strtotime($currentDate) <= strtotime($visitor["visit_to"])
+                ) {
+                    if (
+                        strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $visitor["time_in"])
+                        && strtotime($currentDateTime) <= strtotime($currentDate . ' ' . $visitor["time_out"])
+                    ) {
+                        $personList["expiry"] = $currentDate . ' ' . $visitor["time_out"];
+                    }
+                }
+
+
+                if (isset($personList["expiry"])) {
+                    Visitor::where("id", $visitor["id"])->update(["sdk_expiry_datetime" => $personList["expiry"]]);
+
+                    $preparedJson = [
+                        "snList" => [$device['device_id']],
+                        "personList" => [$personList],
+                    ];
+
+                    try {
+
+                        (new SDKController)->processSDKRequestJobJson('', $preparedJson);
+                    } catch (\Throwable $th) {
+                    }
+                }
+            }
+        }
     }
 }
