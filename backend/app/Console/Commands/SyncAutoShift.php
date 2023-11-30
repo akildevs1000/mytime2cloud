@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Shift\RenderController;
+use App\Http\Controllers\Shift\AutoShiftController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log as Logger;
 
@@ -13,7 +13,7 @@ class SyncAutoShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_auto';
+    protected $signature = 'task:sync_auto  {company_id} {date}';
 
     /**
      * The console command description.
@@ -29,11 +29,18 @@ class SyncAutoShift extends Command
      */
     public function handle()
     {
+
+        $id = $this->argument("company_id");
+
+        $date = $this->argument("date");
+
         try {
-            echo (new RenderController)->renderAutoCron(2);
+            echo (new AutoShiftController)->render($id, $date, [], false) . "\n";
         } catch (\Throwable $th) {
-            Logger::channel("custom")->error('Cron: SyncAuto. Error Details: ' . $th);
-            echo "[" . date("Y-m-d H:i:s") . "] Cron: SyncAuto. Error occurred while inserting logs.\n";
+            //throw $th;
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
+            Logger::channel("custom")->error($error_message);
+            echo $error_message;
         }
     }
 }

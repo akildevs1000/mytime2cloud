@@ -30,7 +30,7 @@ class StoreRequest extends FormRequest
             'schedules' => ["required", "array", "min:1"],
             'employee_ids' => ["required", "array", "min:1"],
             'company_id' => ["required"],
-            'branch_id' => ["required"],
+            'branch_id' => ["nullable"],
         ];
     }
 }

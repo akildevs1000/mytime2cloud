@@ -82,14 +82,15 @@ class ScheduleEmployeeController extends Controller
             if ($item) {
                 foreach ($data["schedules"] as $shift) {
                     $value = [
-                        "shift_id" => $shift["shift_id"] ?? 0,
+                        "isAutoShift" => $shift["isAutoShift"] ? 1 : 0,
+                        "shift_id" => $shift["isAutoShift"] ? 0 :  $shift["shift_id"],
+                        "shift_type_id" => $shift["isAutoShift"] ? 0 : $shift["shift_type_id"],
                         "isOverTime" => $shift["is_over_time"],
                         "employee_id" => $item,
-                        "shift_type_id" => $shift["shift_type_id"],
                         "from_date" => $shift["from_date"],
                         "to_date" => $shift["to_date"],
                         "company_id" => $data["company_id"],
-                        "branch_id" => $data["branch_id"],
+                        "branch_id" => $data["branch_id"] ?? 0,
                     ];
                     $arr[] = $value;
                 }
@@ -105,7 +106,7 @@ class ScheduleEmployeeController extends Controller
             if ($request->replace_schedules) {
                 $model = ScheduleEmployee::query();
                 $model->where("company_id", $data["company_id"]);
-                $model->where("branch_id", $data["branch_id"]);
+                $model->where("branch_id", $data["branch_id"] ?? 0);
                 $model->whereIn("employee_id", array_column($arr, "employee_id"));
                 // $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
                 // $model->whereIn("shift_id", array_column($arr, "shift_id"));
@@ -507,7 +508,7 @@ class ScheduleEmployeeController extends Controller
                 return $data->paginate($request->per_page ?? 10);
             } else {
 
-                return   $data->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date'])
+                return   $data->get(['id', 'employee_id', 'isOverTime as is_over_time', 'shift_type_id', 'shift_id', 'branch_id', 'from_date', 'to_date', "isAutoShift"])
                     ->makeHidden(['employee_id', 'show_from_date', 'show_to_date']);
             }
         } catch (\Throwable $th) {

@@ -5,6 +5,7 @@ use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\FlexibleOffController;
 use App\Http\Controllers\MonthlyFlexibleHolidaysController;
 use App\Http\Controllers\OffByDayController;
+use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\MultiShiftController;
@@ -46,3 +47,7 @@ Route::post('renderMultiRequest', [MultiShiftController::class, 'renderRequest']
 
 
 Route::get('access_control_report', [AccessControlController::class, 'index']);
+
+
+Route::post('renderAutoRequest', [AutoShiftController::class, 'renderRequest']);
+
