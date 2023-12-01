@@ -308,7 +308,10 @@
                   Upload Visitor
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="viewUploadedVisitorInfo(item)">
+              <v-list-item
+                v-if="item.system_user_id > 0"
+                @click="viewUploadedVisitorInfo(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-eye </v-icon>
                   View Uploded info
