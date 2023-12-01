@@ -448,7 +448,7 @@
       <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
         <v-card :loading="loadingDeviceData">
           <v-card-actions>
-            <span>Uploaded Visitor DevicesList</span>
+            <span>Reading Visitor info from Devices</span>
             <v-spacer></v-spacer>
 
             <v-icon outlined @click="uploadedUserInfoDialog = false"
@@ -505,13 +505,28 @@
                       </tr>
 
                       <tr>
-                        <td>timeGroup</td>
+                        <td>Timezone Group Id</td>
                         <td>: {{ visitor.SDKresponseData.data.timeGroup }}</td>
                       </tr>
                     </v-simple-table>
                   </v-col>
                 </v-row>
+
                 <div v-else>{{ visitor.SDKresponseData.message }}</div>
+
+                <v-row>
+                  <v-col cols="12">
+                    <v-btn
+                      class="align-right"
+                      style="float: right; color: #fff"
+                      dense
+                      small
+                      color="red"
+                      @click="deleteFromDevice(visitor)"
+                      >Delete</v-btn
+                    >
+                  </v-col>
+                </v-row>
               </v-card-text>
             </v-card>
           </v-card-text>
@@ -752,6 +767,29 @@ export default {
     }
   },
   methods: {
+    deleteFromDevice(item) {
+      if (confirm("Are you sure want to Delete From This Device?")) {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            visitor_id: item.visitor_id,
+            system_user_id: item.system_user_id,
+
+            device_id: item.device_id,
+          },
+        };
+        this.$axios
+          .post(`delete-visitor-from-devices`, options.params)
+          .then(({ data }) => {
+            this.response = data.message;
+            this.snackbar = true;
+
+            if (data.status) {
+              this.uploadedUserInfoDialog = false;
+            }
+          });
+      }
+    },
     getbranchesList() {
       this.payloadOptions = {
         params: {
@@ -821,7 +859,7 @@ export default {
     },
     async viewUploadedVisitorInfo(item) {
       this.uploadedUserInfoDialog = true;
-      console.log(item);
+
       this.visitorUploadedDevicesInfo = [];
       this.loadingDeviceData = true;
       let counter = 1;
@@ -849,6 +887,10 @@ export default {
 
               return;
             } else {
+              data.system_user_id = item.system_user_id;
+              data.device_id = element.device_id;
+              data.visitor_id = item.id;
+
               this.visitorUploadedDevicesInfo.push(data);
 
               return;
@@ -932,7 +974,6 @@ export default {
       this.applyFilters();
     },
     applyFilters() {
-      console.log("filters", this.filters);
       this.getDataFromApi();
       this.$emit("changeBranch", this.filters["branch_id"]);
     },

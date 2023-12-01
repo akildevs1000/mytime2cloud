@@ -32,3 +32,5 @@ Route::get('get-visitor-device-details', [VisitorController::class, 'getDevicePe
 
 
 Route::get('setVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'setVisitorExpireDates']);
+Route::get('deleteVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'deleteVisitorExpireDates']);
+Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::class, 'deleteVisitorFromDevice']);

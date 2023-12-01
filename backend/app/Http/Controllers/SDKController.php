@@ -24,7 +24,7 @@ class SDKController extends Controller
         $this->SDKResponseArray['设备未连接到服务器或者未注册'] = 'The personnel information with ID number  is was not found';
 
         $this->SDKResponseArray['100'] = 'Timeout. The device is not connected to the server. Try again';
-        $this->SDKResponseArray['102'] = 'The device is offline or not connected to the server or not registered';
+        $this->SDKResponseArray['102'] = 'No personnel information found with the ID number or The device is offline or not connected to the server or not registered';
         $this->SDKResponseArray['200'] = 'Query successful';
     }
     public function processTimeGroup(Request $request, $id)
@@ -120,9 +120,14 @@ class SDKController extends Controller
 
         return $this->processSDKRequestBulk($url, $data);
     }
-    public function processSDKRequestJobJson($url, $json)
+    public function processSDKRequestPersonAddJobJson($url, $json)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
+        $return = TimezonePhotoUploadJob::dispatch($json, $url);
+    }
+    public function processSDKRequestJobDeletePersonJson($device_id, $json)
+    {
+        $url = env('SDK_URL') . "/" . $device_id . "/DeletePerson";
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestJob($url, $data)
@@ -209,7 +214,7 @@ class SDKController extends Controller
 
             // return [$url, $data];
             try {
-                $return = Http::timeout(360)->withoutVerifying()->withHeaders([
+                $return = Http::timeout(3600)->withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
                 ])->post($url, $data);
 
@@ -238,7 +243,7 @@ class SDKController extends Controller
     {
 
         try {
-            return Http::timeout(360)->withoutVerifying()->withHeaders([
+            return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {
@@ -316,7 +321,7 @@ class SDKController extends Controller
     {
         // http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
         try {
-            return Http::timeout(360)->withoutVerifying()->withHeaders([
+            return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post("http://139.59.69.241:5000/$id/$command");
         } catch (\Exception $e) {

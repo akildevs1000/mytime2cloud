@@ -385,7 +385,7 @@ class VisitorController extends Controller
 
         $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
 
-        return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName];
+        return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
     }
     public function getDevicePersonDetailsZone(Request $request)
     {
@@ -424,7 +424,9 @@ class VisitorController extends Controller
                 return $this->response('Visitor  Id already exist in Employee List.', $ifEmployeeExist, false);
             }
 
-            $visitor = Visitor::where("id", $request->visitor_id)->update([
+            $visitor = Visitor::where("id", $request->visitor_id);
+
+            $visitor->clone()->update([
                 "system_user_id" => $request->system_user_id,
                 "zone_id" => $request->zone_id,
                 "status_id" => 4,
@@ -432,30 +434,39 @@ class VisitorController extends Controller
 
             ]);
             //upload photo 
-
-            $visitorData = Visitor::where("id", $request->visitor_id)->get();
+            if (!$visitor) {
+                return $this->response('Visitor cannot upload.', null, false);
+            }
+            $visitorData = $visitor->clone()->get();; // Visitor::where("id", $request->visitor_id)->get();
 
             $zoneDevices = Zone::with(["devices"])->find($visitorData[0]['zone_id']);
 
             foreach ($zoneDevices->devices as $key => $device) {
                 $preparedJson = '';
-                $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
-                $sdkResponse = '';
 
-                // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
-                try {
+                $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
+                $currentDateTime = $date->format('Y-m-d H:i:00');
+                if (strtotime($currentDateTime) < strtotime($visitorData[0]["visit_to"] . ' ' . $visitorData[0]["time_out"])) {
 
-                    (new SDKController)->processSDKRequestJobJson('', $preparedJson);
-                } catch (\Throwable $th) {
+                    $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
+                    $sdkResponse = '';
+
+                    // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
+                    try {
+
+                        (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
+                    } catch (\Throwable $th) {
+                    }
+                } else {
+
+                    return $this->response('Visitor cannot upload.' . "Visting OutTime  is out of the date ", null, false);
                 }
             }
 
 
 
 
-            if (!$visitor) {
-                return $this->response('Visitor cannot upload.' . $sdkResponse, null, false);
-            }
+
 
             // $data = $request->all();
             // $preparedJson = $this->prepareJsonForSDK($data);
@@ -512,7 +523,7 @@ class VisitorController extends Controller
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
-        $personList["expiry"] = date('2023-01-01 00:00:00');
+        $personList["expiry"] =  '2023-01-01 00:00:00';
 
 
         if (env("APP_ENV") == "local") {
@@ -537,23 +548,14 @@ class VisitorController extends Controller
 
 
 
+
+
         Visitor::where("id", $data["id"])->update(["sdk_expiry_datetime" => $personList["expiry"]]);
 
         return [
             "snList" => [$device_id],
             "personList" => [$personList],
         ];
-
-
-        //$personList["expiry"] = date('Y-m-d H:00:00');
-
-
-
-        // $zoneDevices = Zone::with(["devices"])->find($data['zone_id']);
-        //         return [
-        //             "snList" => collect($zoneDevices->devices)->pluck("device_id"),
-        //             "personList" => [$personList],
-        //         ];
     }
 
     /**
