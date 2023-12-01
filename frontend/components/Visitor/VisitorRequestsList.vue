@@ -283,7 +283,7 @@
             <div style="color: red">
               {{ verifyOverstay(item) }}
             </div>
-            <div class="secondary-value" v-if="item.status_id == 4">
+            <div class="secondary-value" v-if="item.status_id >= 4">
               {{ item.system_user_id }}
             </div>
           </span>
