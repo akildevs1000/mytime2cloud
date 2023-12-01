@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Dashboards\VisitorDashboard;
 use App\Http\Controllers\Reports\VisitorMonthlyController;
+use App\Http\Controllers\Visitor\VisitorAttendanceRenderController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VisitorMappingController;
 use Illuminate\Support\Facades\Route;
@@ -26,3 +27,10 @@ Route::get('/visitor_status_list', [VisitorController::class, "getVisitorStatusL
 
 Route::post('upload-visitor', [VisitorController::class, 'uploadVisitorToDevice']);
 Route::post('visitor-update-zone', [VisitorController::class, 'updateVisitorToZone']);
+
+Route::get('get-visitor-device-details', [VisitorController::class, 'getDevicePersonDetails']);
+
+
+Route::get('setVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'setVisitorExpireDates']);
+Route::get('deleteVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'deleteVisitorExpireDates']);
+Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::class, 'deleteVisitorFromDevice']);

@@ -6,8 +6,13 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SDKController;
 use App\Models\Device;
+use App\Models\Visitor;
 use App\Models\VisitorAttendance;
+use App\Models\Zone;
+use DateTime;
+use DateTimeZone;
 
 class VisitorAttendanceRenderController extends Controller
 {
@@ -163,5 +168,172 @@ class VisitorAttendanceRenderController extends Controller
 
         $this->devLog("visitor-attenadnce-log", $message);
         return ($message);
+    }
+    public function deleteVisitorExpireDates($company_id)
+    {
+        $currentDate = date('Y-m-d');
+
+        $visitorsList = Visitor::with(["zone", "zone.devices"])
+            ->where('company_id', $company_id)
+            ->where('visit_to',  $currentDate)
+            ->where('sdk_deleted_visitor_date_time',  null)
+            ->get();
+
+        if (count($visitorsList) == 0) {
+            $this->devLog("cron-visitor-setVisitorExpireDates-log", "{Visitor count is 0}");
+            return "Visitor count is 0";
+        }
+        //echo  "Visitor Count is  " . count($visitorsList);
+
+
+        foreach ($visitorsList as $key => $visitor) {
+
+            if ($visitor['zone_id'] == 0) {
+                continue;
+            }
+            $zoneDevices = Zone::with(["devices"])->find($visitor['zone_id']);
+
+            foreach ($zoneDevices->devices as $key => $device) {
+
+
+                $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
+                $currentDateTime = $date->format('Y-m-d H:i:00');
+                $currentDate  = $date->format('Y-m-d');
+
+
+                echo '<br/>' . $visitor['sdk_expiry_datetime'] . '-' . $currentDateTime . '<br/>';
+
+                if (
+                    strtotime($visitor['sdk_expiry_datetime']) >= strtotime($currentDateTime)
+                    || strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $visitor["time_out"])
+                ) {
+                    //if existing SDK expiration date is greater than current date
+                    $msg = "{Deleted - " . $visitor["system_user_id"] . " Current Time" . $currentDateTime . "  and SDK Exp Time " . $visitor['sdk_expiry_datetime'] . '}';
+                    echo $msg . ' <br/>';
+                    $this->devLog("cron-visitor-setVisitorExpireDates-log", $msg);
+                    $this->deleteVisitorDetailsfromDevice($visitor["system_user_id"], $device['device_id']);
+
+                    Visitor::where("id", $visitor["id"])->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s'),  "status_id" => 5]);
+                }
+            }
+        }
+    }
+    public function setVisitorExpireDates($company_id)
+    {
+        $currentDate = date('Y-m-d');
+
+        $visitorsList = Visitor::with(["zone", "zone.devices"])
+            ->where('company_id', $company_id)
+            ->where('visit_from', "<=", $currentDate)
+            ->where('visit_to', ">=", $currentDate)
+            ->where('sdk_deleted_visitor_date_time',  null)
+            ->where(
+                fn ($query) => $query
+                    ->where('sdk_expiry_datetime', '2023-01-01 00:00:00')
+                    ->orwhereColumn("visit_from", "!=", "visit_to")
+                    ->orwhereColumn("visit_from",  null)
+
+            )->get();
+
+        if (count($visitorsList) == 0) {
+            $this->devLog("cron-visitor-setVisitorExpireDates-log", "{Visitor count is 0}");
+            return "Visitor count is 0";
+        }
+        //echo  "Visitor Count is  " . count($visitorsList);
+
+
+        foreach ($visitorsList as $key => $visitor) {
+
+            if ($visitor['zone_id'] == 0) {
+                continue;
+            }
+            $zoneDevices = Zone::with(["devices"])->find($visitor['zone_id']);
+
+            foreach ($zoneDevices->devices as $key => $device) {
+
+
+                $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
+                $currentDateTime = $date->format('Y-m-d H:i:00');
+                $currentDate  = $date->format('Y-m-d');
+
+
+                echo '<br/>' . $visitor['sdk_expiry_datetime'] . '-' . $currentDateTime . '<br/>';
+                if ($visitor['sdk_expiry_datetime'] != '') {
+                    if (strtotime($visitor['sdk_expiry_datetime']) >= strtotime($currentDateTime)) {
+
+                        continue;
+                    }
+                }
+                if ($currentDate . ' ' . $visitor["time_out"] != $visitor['sdk_expiry_datetime']) {
+
+
+                    if (
+                        strtotime($currentDate) >= strtotime($visitor["visit_from"])
+                        && strtotime($currentDate) <= strtotime($visitor["visit_to"])
+                        && strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $visitor["time_in"])
+                        && strtotime($currentDateTime) <= strtotime($currentDate . ' ' . $visitor["time_out"])
+                    ) {
+
+                        $personList = [];
+                        $personList["userCode"] = $visitor["system_user_id"];
+                        $personList["expiry"] = $currentDate . ' ' . $visitor["time_out"];
+
+                        Visitor::where("id", $visitor["id"])->update(["sdk_expiry_datetime" => $personList["expiry"]]);
+
+                        $this->updateVisitorExpiryDateToDevice($personList, $device['device_id']);
+
+                        $msg = "{Updated Exptime - " . $visitor["system_user_id"] . " - SDK Exp Time " . $personList["expiry"] . '}';
+                        echo $msg . ' ';
+                        $this->devLog("cron-visitor-setVisitorExpireDates-log", $msg);
+                    } else {
+                        echo " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}";
+                    }
+                } else {
+                    echo "Expiry time is already Updated to " . $visitor["system_user_id"];
+                }
+            }
+        }
+    }
+    public function deleteVisitorFromDevice(Request $request)
+    {
+        if ($request->system_user_id != '' && $request->device_id != '') {
+            Visitor::where("id", $request->visitor_id)->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s'), "status_id" => 5]);
+            $this->deleteVisitorDetailsfromDevice($request->system_user_id, $request->device_id);
+
+            return [
+                "status" => true,
+                "message" => "Visitor deleted successfully",
+
+            ];
+        } else {
+            return [
+                "status" => false,
+                "message" => "Visitor can not delete",
+
+            ];
+        }
+    }
+    public function deleteVisitorDetailsfromDevice($system_user_id, $device_id)
+    {
+        $preparedJson = [
+            "userCodeArray" => [$system_user_id],
+        ];
+
+        try {
+            (new SDKController)->processSDKRequestJobDeletePersonJson($device_id, $preparedJson);
+        } catch (\Throwable $th) {
+        }
+    }
+    public function updateVisitorExpiryDateToDevice($personList, $device_id)
+    {
+        $preparedJson = [
+            "snList" => [$device_id],
+            "personList" => [$personList],
+        ];
+
+        try {
+            (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
+        } catch (\Throwable $th) {
+        }
     }
 }

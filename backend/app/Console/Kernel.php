@@ -102,6 +102,8 @@ class Kernel extends ConsoleKernel
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-visitor-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+
+
             $schedule
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
@@ -168,6 +170,21 @@ class Kernel extends ConsoleKernel
                 // ->everyMinute()
                 ->dailyAt('02:00')
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-off-by-day-$companyId.log"))
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+            $schedule
+                ->command("task:sync_visitor_set_expire_dates $companyId")
+                ->everyMinute()
+
+                ->appendOutputTo(storage_path("logs/$monthYear-visitor-set-expire-date-$companyId.log"))
+                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+            $schedule
+                ->command("task:sync_visitor_delete_expired_dates $companyId")
+
+                ->dailyAt('08:00')
+                ->appendOutputTo(storage_path("logs/$monthYear-visitor-delete-expired-dates-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             // $schedule
             //     ->command("task:sync_off_by_day_week1 $companyId")

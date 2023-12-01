@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class AttendanceLog extends Model
 {
@@ -329,14 +330,74 @@ class AttendanceLog extends Model
             ->groupBy(['UserID']);
     }
 
-    public function getLogsWithInRangeNew($params)
+    public function getLogsWithInRangeNew1($params)
     {
+
+
         return AttendanceLog::where("company_id", $params["company_id"])
             ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
-            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")) . ' ') // Check for logs on or before the next date
+            ->distinct("LogTime", "UserID", "company_id")
+            ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
+                return $query->whereIn('UserID', $params["UserIds"]);
+            })
+
+            ->whereHas("schedule", function ($q) use ($params) {
+                $q->where("shift_type_id", $params["shift_type_id"]);
+            })
+            ->orderBy("LogTime", 'asc')
+            ->get()
+
+            ->groupBy(['UserID']);
+    }
+
+    public function getLogsWithInRangeNew($params)
+    {
+
+
+        $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+        $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+        //->whereBetween("LogTime", [$params["start"], $params["end"]])
+
+        $return = AttendanceLog::where("company_id", $params["company_id"])
+            // ->whereBetween("LogTime", [$params["start"], $params["end"]])
+            ->where("LogTime", ">=", $params["start"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", $params["end"])
             ->distinct("LogTime", "UserID", "company_id")
             ->whereHas("schedule", function ($q) use ($params) {
                 $q->where("shift_type_id", $params["shift_type_id"]);
+            })
+            ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
+                return $query->whereIn('UserID', $params["UserIds"]);
+            })
+            ->orderBy("LogTime", 'asc')
+            ->get()
+
+            ->groupBy(['UserID']);
+
+        return $return;
+
+
+
+        //     return  $results = DB::select("
+        //     SELECT *
+        //     FROM attendance_logs
+        //     WHERE company_id = 20 
+        //         AND 'LogTime' >= '2023-11-30 08:00' 
+        //         AND 'LogTime' <= '2023-12-01 01:00' 
+
+        //     ORDER BY 'LogTime' ASC;
+        // ");
+        return AttendanceLog::where("company_id", $params["company_id"])
+
+            ->where("LogTime", ">=", $params["start"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", $params["end"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->whereHas("schedule", function ($q) use ($params) {
+                $q->where("shift_type_id", $params["shift_type_id"]);
+            })
+            ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
+                return $query->whereIn('UserID', $params["UserIds"]);
             })
             ->orderBy("LogTime", 'asc')
             ->get()

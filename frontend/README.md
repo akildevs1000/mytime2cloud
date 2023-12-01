@@ -2,7 +2,7 @@
 :error-messages="errors && errors.field_name && errors.field_name[0]"
 
 ## Versions 1.0.0
-
+"refresh": "cp -r .nuxt/* .nuxt-31/ && cp -r local-publish/* .nuxt/ && pm2 reload 19"
 Installation Guide:
 
 - clone repo

@@ -14,3 +14,4 @@ Route::post('/Person/AddRange', [SDKController::class, 'PersonAddRange']);
 Route::post('/Person/AddRange/Photos', [SDKController::class, 'PersonAddRangePhotos']);
 
 Route::post('/SDK/{id}/{command}', [SDKController::class, 'handleCommand']);
+//Route::post('/SDK/get-device-person-details', [SDKController::class, 'getPersonDetails']);

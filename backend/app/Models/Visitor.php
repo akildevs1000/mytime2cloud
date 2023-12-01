@@ -12,7 +12,7 @@ class Visitor extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display','time_in_display','time_out_display'];
+    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display', 'time_in_display', 'time_out_display'];
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
@@ -89,6 +89,7 @@ class Visitor extends Model
             ["id" => "2", "name" => "Approved"],
             ["id" => "3", "name" => "Rejected"],
             ["id" => "4", "name" => "Uploaded to Device"],
+            ["id" => "5", "name" => "Deleted from Device"],
         ];
 
         if ($id) {
