@@ -213,7 +213,7 @@ class VisitorAttendanceRenderController extends Controller
                     $this->devLog("cron-visitor-setVisitorExpireDates-log", $msg);
                     $this->deleteVisitorDetailsfromDevice($visitor["system_user_id"], $device['device_id']);
 
-                    Visitor::where("id", $visitor["id"])->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s')]);
+                    Visitor::where("id", $visitor["id"])->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s'),  "status_id" => 5]);
                 }
             }
         }
@@ -297,7 +297,7 @@ class VisitorAttendanceRenderController extends Controller
     public function deleteVisitorFromDevice(Request $request)
     {
         if ($request->system_user_id != '' && $request->device_id != '') {
-            Visitor::where("id", $request->visitor_id)->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s')]);
+            Visitor::where("id", $request->visitor_id)->update(["sdk_deleted_visitor_date_time" => date('Y-m-d H:i:s'), "status_id" => 5]);
             $this->deleteVisitorDetailsfromDevice($request->system_user_id, $request->device_id);
 
             return [
