@@ -41,6 +41,13 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
+            $schedule
+                ->command("task:sync_auto_shift {$companyId} " . date("Y-m-d"))
+                ->everyMinute()
+                ->withoutOverlapping()
+                ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
             //if ($companyId == 1) 
             {
                 $schedule
@@ -52,13 +59,6 @@ class Kernel extends ConsoleKernel
                     ->runInBackground()
                     ->appendOutputTo(storage_path("logs/$monthYear-send-notification-for-offline-devices-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
-
-            $schedule
-                ->command("task:sync_auto {$companyId} " . date("Y-m-d"))
-                // ->hourly()
-                ->everyMinute()
-                ->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
             $schedule
