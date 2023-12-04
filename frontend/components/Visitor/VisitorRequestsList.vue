@@ -464,7 +464,7 @@
               v-for="(visitor, index) in visitorUploadedDevicesInfo"
               :key="'vs' + index"
             >
-              <v-card-title
+              <v-card-title style="font-size: 14px"
                 >{{ ++index }}: Device: {{ visitor.deviceName }}
               </v-card-title>
               <v-card-text class="mt-2">
