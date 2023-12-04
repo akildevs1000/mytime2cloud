@@ -711,25 +711,27 @@ export default {
     }, 2000);
   },
   async created() {
-    if (this.$auth.user.branch_id) {
+    if (this.$auth.user.branch_id == 0) {
+      this.isCompany = true;
+      try {
+        const { data } = await this.$axios.get(`branches_list`, {
+          params: {
+            per_page: 100,
+            company_id: this.$auth.user.company_id,
+          },
+        });
+        this.branchesList = data;
+      } catch (error) {
+        // Handle the error
+        console.error("Error fetching branch list", error);
+      }
+    } else {
       this.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
-      this.filterDepartmentsByBranch(this.branch_id);
-      return;
+      console.log("this.branch_id", this.branch_id);
     }
 
-    try {
-      const { data } = await this.$axios.get(`branches_list`, {
-        params: {
-          per_page: 100,
-          company_id: this.$auth.user.company_id,
-        },
-      });
-      this.branchesList = data;
-    } catch (error) {
-      // Handle the error
-      console.error("Error fetching branch list", error);
-    }
+    this.filterDepartmentsByBranch(this.branch_id);
   },
   methods: {
     can(per) {
@@ -752,7 +754,7 @@ export default {
           company_id: this.$auth.user.company_id,
           department_id: this.departmentselected,
           branch_id: this.branch_id,
-          cols: ["id", "employee_id", "display_name"],
+          cols: ["id", "employee_id", "first_name", "last_name"],
         },
       };
       let page = 1;
@@ -1018,7 +1020,13 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
-          cols: ["id", "employee_id", "display_name", "first_name"],
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
           branch_id: branch_id,
         },
       };
@@ -1354,7 +1362,7 @@ export default {
       let personListArray = [];
       this.rightEmployees.forEach(async (item) => {
         let person = {
-          name: item.display_name,
+          name: item.first_name + " " + item.last_name,
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
@@ -1505,12 +1513,15 @@ export default {
 
       this.rightEmployees.forEach((item) => {
         let person = {
-          name: item.display_name,
+          name: item.first_name + " " + item.last_name,
 
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-          faceImage: item.profile_picture,
+          faceImage:
+            process.env.APP_ENV != "local"
+              ? item.profile_picture
+              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg",
         };
         personListArray.push(person);
       });

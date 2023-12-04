@@ -432,7 +432,7 @@ class DeviceController extends Controller
         if (checkSDKServerStatus($sdk_url) === 0) {
             return "Failed to connect to the SDK Server: $sdk_url";
         }
-
+        $return_araay = [];
         foreach ($devices as $device_id) {
             $curl = curl_init();
 
@@ -456,6 +456,8 @@ class DeviceController extends Controller
 
             $response = curl_exec($curl);
 
+
+
             curl_close($curl);
 
             $status = json_decode($response);
@@ -471,7 +473,7 @@ class DeviceController extends Controller
             $total_iterations++;
         }
 
-        return "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
     }
     public function updateActiveTimeSettings(Request $request, $device_id)
     {

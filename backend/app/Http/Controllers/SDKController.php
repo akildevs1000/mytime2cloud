@@ -159,8 +159,14 @@ class SDKController extends Controller
                     "personList" => [$valuePerson],
                     "snList" => [$device],
                 ];
-                // $newArray[] = $newArray;
-                $return = TimezonePhotoUploadJob::dispatch($newArray, $sdk_url);
+                // // $newArray[] = $newArray;
+                // $return = TimezonePhotoUploadJob::dispatch($newArray, $sdk_url);
+
+                // $url = env('SDK_URL') . "/Person/AddRange";
+                // $return = TimezonePhotoUploadJob::dispatch($json, $url);
+
+                // $returnContent[] = $newArray;
+                $return = (new SDKController)->processSDKRequestPersonAddJobJson('', $newArray);
             }
         }
         $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);

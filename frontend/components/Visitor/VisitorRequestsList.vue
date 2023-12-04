@@ -460,7 +460,10 @@
           </v-card-actions>
 
           <v-card-text class="mt-2">
-            <v-card v-for="(visitor, index) in visitorUploadedDevicesInfo">
+            <v-card
+              v-for="(visitor, index) in visitorUploadedDevicesInfo"
+              :key="'vs' + index"
+            >
               <v-card-title
                 >{{ ++index }}: Device: {{ visitor.deviceName }}
               </v-card-title>
