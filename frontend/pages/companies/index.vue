@@ -744,7 +744,7 @@ export default {
   components: { Back },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/self/`,
+    originalURL: `https://mytime2cloud.com/register/visitor/walkin/`,
     fullCompanyLink: null,
     qrCompanyCodeDataURL: null,
     show_password_confirm: false,
@@ -814,7 +814,7 @@ export default {
   async created() {
     this.getDataFromApi();
     if (process.env.ENVIRONMENT == "local") {
-      this.originalURL = `http://${process.env.LOCAL_IP}:${process.env.LOCAL_PORT}/register/visitor/self/`;
+      this.originalURL = `http://${process.env.LOCAL_IP}:${process.env.LOCAL_PORT}/register/visitor/walkin/`;
     }
     this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
     this.generateCompanyQRCode(this.fullCompanyLink);
