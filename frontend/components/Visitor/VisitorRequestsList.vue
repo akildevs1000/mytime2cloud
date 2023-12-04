@@ -248,9 +248,9 @@
           <span v-if="item.to_date_display != item.from_date_display">
             to {{ $dateFormat.format1(item.to_date_display) }}</span
           >
-        </template>
-        <template v-slot:item.time_in="{ item }">
-          {{ item.time_in }} - {{ item.time_out }}
+          <div class="secondary-value">
+            {{ item.time_in }} - {{ item.time_out }}
+          </div>
         </template>
 
         <!-- <template v-slot:item.phone_number_or_email="{ item }">
@@ -611,7 +611,7 @@ export default {
         filterable: false,
       },
       {
-        width: "250px",
+        width: "200px",
         text: "Picture",
         align: "left",
         sortable: true,
@@ -642,14 +642,14 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-      {
-        text: "Time",
-        align: "left",
-        sortable: true,
-        value: "time_in",
-        filterable: true,
-        filterSpecial: false,
-      },
+      // {
+      //   text: "Time",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "time_in",
+      //   filterable: true,
+      //   filterSpecial: false,
+      // },
       // {
       //   text: "Contact Number",
       //   align: "left",

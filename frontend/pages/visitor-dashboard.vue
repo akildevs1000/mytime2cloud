@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`visitor_access`)">
-    <v-dialog v-model="dialogInformation" max-width="1000px">
+    <v-dialog v-model="dialogInformation" max-width="1300px">
       <v-card>
         <v-card-title class="popup_background">
           <span dense> Visitors Requests - {{ statisticsFilter }} </span>
@@ -23,7 +23,7 @@
         persistent
         v-model="dialogGeneralreport"
         :fullscreen="false"
-        max-width="1200px"
+        max-width="1600px"
       >
         <iframe
           v-if="iframeDisplay"
