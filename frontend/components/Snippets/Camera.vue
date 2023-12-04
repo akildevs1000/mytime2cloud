@@ -1,30 +1,28 @@
 <template>
-  <div>
-    <div class="text-center">
-      <v-avatar size="200" style="border: 1px solid #6946dd">
-        <v-img v-show="isImageBox" :src="imageSrc" />
-        <video
-          height="100%"
-          v-show="!isImageBox"
-          ref="video"
-          autoplay
-          playsinline
-        ></video>
-      </v-avatar>
-    </div>
-    <div class="text-center mt-1">
-      <v-btn
-        width="200"
-        v-if="isImageBox"
-        @click="openCamera"
-        small
-        class="primary"
-        >Open Camera</v-btn
-      >
-      <v-btn width="200" v-else @click="takePicture" small class="primary"
-        >Take Picture</v-btn
-      >
-    </div>
+  <div
+    style="
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    "
+  >
+    <video
+      v-show="isCamera"
+      height="250"
+      ref="video"
+      autoplay
+      playsinline
+    ></video>
+    <canvas ref="canvas" style="display: none"></canvas>
+    <img
+      v-show="!isCamera"
+      src="/no-profile-image.jpg"
+      height="250"
+      ref="img"
+      alt=""
+    />
+    <v-btn class="primary mt-1" @click="takeSnapshot">Take Snapshot</v-btn>
   </div>
 </template>
 
@@ -32,52 +30,52 @@
 export default {
   auth: false,
   layout: "login",
-  data() {
-    return {
-      debug: false,
-      isImageBox: true,
-      videoStream: null,
-      imageSrc: "https://mytime2cloud.com/no-profile-image.jpg",
-    };
+
+  data: () => ({
+    isCamera: false,
+    videoStream: null,
+  }),
+
+  mounted() {
+    this.setupCamera();
   },
   methods: {
-    async openCamera() {
-      this.isImageBox = false;
-
-      const video = this.$refs.video;
-
-      if (this.debug) {
-        video.src = "/your_video.mp4";
-        return;
+    async setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        const video = this.$refs.video;
+        video.srcObject = stream;
+        this.videoStream = mediaStream;
+        video.play();
+      } catch (error) {
+        console.error("Error accessing the camera: ", error);
       }
-
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-      });
-      video.srcObject = mediaStream;
-      this.videoStream = mediaStream;
     },
-    async takePicture() {
-      this.isImageBox = true;
-
-      // Create a canvas to capture the video frame
-      const canvas = document.createElement("canvas");
-
+    takeSnapshot() {
+      this.isCamera = !this.isCamera;
       const video = this.$refs.video;
+      const canvas = this.$refs.canvas;
+      const img = this.$refs.img;
+      const context = canvas.getContext("2d");
 
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
-      canvas
-        .getContext("2d")
-        .drawImage(video, 0, 0, canvas.width, canvas.height);
-      this.imageSrc = canvas.toDataURL("image/jpeg");
-      this.$emit("imageSrc", this.imageSrc);
+
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const imageData = canvas.toDataURL("image/png");
+
+      img.src = imageData;
+
+      this.$emit("imageSrc", imageData);
     },
-  },
-  beforeDestroy() {
-    if (this.videoStream) {
-      this.videoStream.getTracks().forEach((track) => track.stop());
-    }
+    beforeDestroy() {
+      if (this.videoStream) {
+        this.videoStream.getTracks().forEach((track) => track.stop());
+      }
+    },
   },
 };
 </script>
