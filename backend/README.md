@@ -62,6 +62,8 @@ sudo systemctl restart nginx
 
 $ sudo systemctl restart nginx
 
+SDK Live IP : 139.59.69.241
+               PORT 7001
 SDK Live port : 9001
 SDK Live port : 9001
 
