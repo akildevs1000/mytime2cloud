@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('device', DeviceController::class);
 Route::get('device-list', [DeviceController::class, 'dropdownList']);
 
+
+
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
 Route::get('device-by-user/{id}', [DeviceController::class, 'getDeviceByUserId']);
 Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
@@ -33,3 +35,4 @@ Route::get('get_device_active_settings/{key}', [DeviceController::class, 'getAct
 
 
 Route::get('/check_device_health', [DeviceController::class, 'checkDeviceHealth']);
+Route::get('get-device-person-details', [DeviceController::class, 'getDevicePersonDetails']);

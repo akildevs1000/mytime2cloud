@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Dashboards\EmployeeDashboard;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\VisitorController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/employee-statistics', [EmployeeDashboard::class, 'statistics']);
@@ -27,3 +29,6 @@ Route::get('/donwload_storage_file', [EmployeeController::class, 'donwnloadStora
 
 Route::get('default-attendance-missing', [EmployeeController::class, 'defaultAttendanceForMissing']);
 Route::post('delete-employee-from-device', [EmployeeController::class, 'deleteEmployeeFromDevice']);
+
+
+Route::get('get-employee-device-details', [DeviceController::class, 'getDevicePersonDetails']);

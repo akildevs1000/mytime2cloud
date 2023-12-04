@@ -464,7 +464,7 @@
               v-for="(visitor, index) in visitorUploadedDevicesInfo"
               :key="'vs' + index"
             >
-              <v-card-title style="font-size: 14px"
+              <v-card-title style="font-size: 13px"
                 >{{ ++index }}: Device: {{ visitor.deviceName }}
               </v-card-title>
               <v-card-text class="mt-2">
@@ -881,7 +881,7 @@ export default {
         };
         this.loadingDeviceData = true;
         this.$axios
-          .get(`get-visitor-device-details`, options)
+          .get(`get-device-person-details`, options)
           .then(({ data }) => {
             if (item.zone.devices.length == counter) {
               this.loadingDeviceData = false;

@@ -447,23 +447,23 @@
               <v-tab-item>
                 <v-card :loading="loadingDeviceData">
                   <v-card-actions>
-                    <span style="font-size: 20px">Mapped Devices</span>
-                    <v-spacer></v-spacer>
+                    <!-- <span style="font-size: 20px">Mapped Devices</span>
+                    <v-spacer></v-spacer> -->
                   </v-card-actions>
 
                   <v-card-text class="mt-2">
                     <v-card
-                      v-for="(visitor, index) in visitorUploadedDevicesInfo"
+                      v-for="(employee, index) in employeeUploadedDevicesInfo"
                       :key="'vs' + index"
                     >
-                      <v-card-title
-                        >{{ ++index }}: Device: {{ visitor.deviceName }}
+                      <v-card-title style="font-size: 13px"
+                        >{{ ++index }}: Device: {{ employee.deviceName }}
                       </v-card-title>
                       <v-card-text class="mt-2">
                         <v-row
                           class="100%"
                           style="margin: auto; line-height: 36px"
-                          v-if="visitor.SDKresponseData.data"
+                          v-if="employee.SDKresponseData.data"
                         >
                           <v-col cols="4" style="padding: 0px">
                             <v-img
@@ -476,9 +476,9 @@
                                 border: 1px solid #ddd;
                               "
                               :src="
-                                visitor.SDKresponseData.data.faceImage
+                                employee.SDKresponseData.data.faceImage
                                   ? 'data:image/jpeg;base64, ' +
-                                    visitor.SDKresponseData.data.faceImage
+                                    employee.SDKresponseData.data.faceImage
                                   : '/no-profile-image.jpg'
                               "
                             >
@@ -490,35 +490,36 @@
                               <tr>
                                 <td>Name</td>
                                 <td>
-                                  : {{ visitor.SDKresponseData.data.name }}
+                                  : {{ employee.SDKresponseData.data.name }}
                                 </td>
                               </tr>
 
                               <tr>
                                 <td>System User Id</td>
                                 <td>
-                                  : {{ visitor.SDKresponseData.data.userCode }}
+                                  : {{ employee.SDKresponseData.data.userCode }}
                                 </td>
                               </tr>
 
                               <tr>
                                 <td>Expiry Date</td>
                                 <td>
-                                  : {{ visitor.SDKresponseData.data.expiry }}
+                                  : {{ employee.SDKresponseData.data.expiry }}
                                 </td>
                               </tr>
 
                               <tr>
                                 <td>Timezone Group Id</td>
                                 <td>
-                                  : {{ visitor.SDKresponseData.data.timeGroup }}
+                                  :
+                                  {{ employee.SDKresponseData.data.timeGroup }}
                                 </td>
                               </tr>
                             </v-simple-table>
                           </v-col>
                         </v-row>
 
-                        <div v-else>{{ visitor.SDKresponseData.message }}</div>
+                        <div v-else>{{ employee.SDKresponseData.message }}</div>
 
                         <v-row>
                           <v-col cols="12">
@@ -528,7 +529,7 @@
                               dense
                               small
                               color="red"
-                              @click="deleteFromDevice(visitor)"
+                              @click="deleteFromDevice(employee)"
                               >Delete</v-btn
                             >
                           </v-col>
@@ -642,7 +643,7 @@ export default {
   },
   data: () => ({
     loadingDeviceData: false,
-    visitorUploadedDevicesInfo: [],
+    employeeUploadedDevicesInfo: [],
     tab2: "",
     leave_group_name: "",
     absents: 0,
@@ -843,14 +844,14 @@ export default {
       }
     },
     loadMappedDevicesList() {
-      if (this.visitorUploadedDevicesInfo.length == 0) {
-        this.viewUploadedVisitorInfo();
+      if (this.employeeUploadedDevicesInfo.length == 0) {
+        this.viewUploadedemployeeInfo();
       }
     },
-    async viewUploadedVisitorInfo(item) {
+    async viewUploadedemployeeInfo(item) {
       this.uploadedUserInfoDialog = true;
 
-      this.visitorUploadedDevicesInfo = [];
+      this.employeeUploadedDevicesInfo = [];
       this.loadingDeviceData = true;
       let counter = 1;
       const data = await this.$store.dispatch("fetchData", {
@@ -875,7 +876,7 @@ export default {
           };
           this.loadingDeviceData = true;
           this.$axios
-            .get(`get-visitor-device-details`, options)
+            .get(`get-device-person-details`, options)
             .then(({ data }) => {
               if (devices.length == counter) {
                 this.loadingDeviceData = false;
@@ -890,7 +891,7 @@ export default {
                 data.system_user_id = this.employeeObject.system_user_id;
                 data.device_id = element.device_id;
 
-                this.visitorUploadedDevicesInfo.push(data);
+                this.employeeUploadedDevicesInfo.push(data);
 
                 return;
               }

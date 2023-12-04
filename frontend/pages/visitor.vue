@@ -1,3 +1,7 @@
 <template>
-  <VisitorRequestsList title="Visitor Requests" :isDashboard="false" />
+  <VisitorRequestsList
+    :statsFilterValue="'Pending'"
+    title="Visitor Requests"
+    :isDashboard="false"
+  />
 </template>

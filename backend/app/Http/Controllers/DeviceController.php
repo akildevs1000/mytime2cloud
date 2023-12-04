@@ -100,7 +100,18 @@ class DeviceController extends Controller
     {
         return $model->with(['status'])->where('company_id', $request->company_id)->get();
     }
+    public function getDevicePersonDetails(Request $request)
+    {
+        if ($request->system_user_id > 0) {
+            $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
 
+            $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+
+            return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
+        } else {
+            return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
+        }
+    }
     public function store(StoreRequest $request)
     {
         try {
