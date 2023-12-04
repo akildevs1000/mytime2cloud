@@ -60,23 +60,8 @@
           >
         </v-col>
         <v-col cols="12" sm="6" md="4" lg="6">
-          <div class="text-center">
-            <Camera
-              style="border: 1px solid #6946dd"
-              :isImageBox="isImageBox"
-              class="mb-5"
-              @imageSrc="(e) => (photo = e)"
-              ref="cameraComponent"
-            />
-          </div>
-          <div class="text-center">
-            <v-btn v-if="isImageBox" @click="openCamera" small class="primary"
-              >Open Camera</v-btn
-            >
-            <v-btn v-else @click="takePicture" small class="primary"
-              >Take Picture</v-btn
-            >
-          </div>
+          <SnippetsCamera @imageSrc="(e) => (photo = e)" />
+
           <div class="text-center">
             <span
               v-if="errors && errors.profile_picture"
@@ -273,49 +258,25 @@
               </v-menu>
             </v-col>
             <v-col cols="12" sm="12" md="12" lg="12">
-              <!-- <TimePickerCommon
-                class="mt-5"
-                label="Entry Time old"
-                :default_value="payload.time_in"
-                @getTime="(value) => (payload.time_in = value)"
-              />
-              <br /> -->
-
-              <TimePickerV1
+              <SnippetsTimePickerV1
                 label="Entry Time"
                 :default_value="payload.time_in"
-                @getTime="(e) => (payload.time_in = e)"
+                @getTime="
+                  (e) => {
+                    payload.time_in = e;
+                  }
+                "
               />
-              <!-- <br />
-
-              <TimePickerV2
-                class="mt-5"
-                label="Entry Time 2"
-                :default_value="payload.time_in"
-                @getTime="(e) => (payload.time_in = e)"
-              />
-
-              <br />
-
-              <TimePickerV3
-                label="Entry Time 3"
-                :default_value="payload.time_in"
-                @getTime="(e) => (payload.time_in = e)"
-              />
-
-              <br />
-
-              <TimePickerV4
-                label="Entry Time 4"
-                :default_value="payload.time_in"
-                @getTime="(e) => (payload.time_in = e)"
-              /> -->
             </v-col>
             <v-col cols="12" sm="12" md="12" lg="12">
-              <TimePickerV1
+              <SnippetsTimePickerV1
                 label="Exit Time"
                 :default_value="payload.time_out"
-                @getTime="(e) => (payload.time_out = e)"
+                @getTime="
+                  (e) => {
+                    payload.time_out = e;
+                  }
+                "
               />
             </v-col>
             <v-col cols="12" sm="6" md="4" lg="6">
@@ -344,23 +305,10 @@
 </template>
 
 <script>
-import TimePickerCommon from "../../../components/Snippets/TimePickerCommon.vue";
-import TimePickerV1 from "../../../components/Snippets/TimePickerV1.vue";
-import TimePickerV2 from "../../../components/Snippets/TimePickerV2.vue";
-import TimePickerV3 from "../../../components/Snippets/TimePickerV3.vue";
-import TimePickerV4 from "../../../components/Snippets/TimePickerV4.vue";
-
 let date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
   .toISOString()
   .substring(0, 10);
 export default {
-  components: {
-    TimePickerCommon,
-    TimePickerV1,
-    TimePickerV2,
-    TimePickerV3,
-    TimePickerV4,
-  },
   layout: "login",
   auth: false,
 
@@ -404,10 +352,8 @@ export default {
     loading: false,
     image: null,
     response: null,
-    isImageBox: true,
     snackbar: false,
     Model: "Visitor",
-    endpoint: "visitor",
     loading: false,
     data: [],
     errors: [],
@@ -446,14 +392,6 @@ export default {
             this.searchDialog = false;
           });
       }
-    },
-    openCamera() {
-      this.isImageBox = false;
-      this.$refs.cameraComponent.openCamera();
-    },
-    takePicture() {
-      this.isImageBox = true;
-      this.$refs.cameraComponent.takePicture();
     },
     close() {
       this.dialog = false;
