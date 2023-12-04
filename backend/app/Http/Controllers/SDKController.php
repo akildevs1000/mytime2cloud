@@ -24,7 +24,7 @@ class SDKController extends Controller
         $this->SDKResponseArray['设备未连接到服务器或者未注册'] = 'The personnel information with ID number  is was not found';
 
         $this->SDKResponseArray['100'] = 'Timeout. The device is not connected to the server. Try again';
-        $this->SDKResponseArray['102'] = 'No personnel information found with the ID number or The device is offline or not connected to the server or not registered';
+        $this->SDKResponseArray['102'] = 'No personnel information found with the ID number or The device is offline or not connected to the server';
         $this->SDKResponseArray['200'] = 'Query successful';
     }
     public function processTimeGroup(Request $request, $id)

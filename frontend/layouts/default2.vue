@@ -637,6 +637,11 @@ export default {
         })
         .then(({ data }) => {
           this.$store.commit("devices", data);
+
+          console.log(
+            "  console.log(this.$store.state.devices);",
+            this.$store.state.devices
+          );
         });
     },
     getEmployeeList() {

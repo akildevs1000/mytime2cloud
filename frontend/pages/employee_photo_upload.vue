@@ -601,8 +601,13 @@
       </v-col>
     </v-row>
     <v-row>
-      <!-- <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear> -->
+      <v-progress-linear
+        v-if="progressloading"
+        :active="loading"
+        :indeterminate="loading"
+        absolute
+        color="primary"
+      ></v-progress-linear>
       <v-col cols="12">
         <div class="row">
           <div class="col col-lg-6 text-center">
@@ -728,20 +733,19 @@ export default {
     } else {
       this.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
-      console.log("this.branch_id", this.branch_id);
     }
-
-    this.filterDepartmentsByBranch(this.branch_id);
+    this.progressloading = true;
+    await this.filterDepartmentsByBranch(this.branch_id);
   },
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    filterDepartmentsByBranch(branch_id) {
-      this.getDepartmentsApi(this.options, branch_id);
-      this.getDevisesDataFromApi(branch_id);
-      this.getEmployeesDataFromApi(branch_id);
-      this.getTimezonesFromApi(branch_id);
+    async filterDepartmentsByBranch(branch_id) {
+      await this.getDepartmentsApi(this.options, branch_id);
+      await this.getDevisesDataFromApi(branch_id);
+      await this.getEmployeesDataFromApi(branch_id);
+      await this.getTimezonesFromApi(branch_id);
     },
     fetch_logs() {},
     loadDepartmentemployees() {
@@ -770,7 +774,7 @@ export default {
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
-      console.log(options);
+      this.progressloading = true;
       this.$axios
         .get("departments", options)
         .then(({ data }) => {

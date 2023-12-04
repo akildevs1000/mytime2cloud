@@ -26,3 +26,4 @@ Route::get('download-employee-profile-pdf-view/{id}', [EmployeeController::class
 Route::get('/donwload_storage_file', [EmployeeController::class, 'donwnloadStorageFile']);
 
 Route::get('default-attendance-missing', [EmployeeController::class, 'defaultAttendanceForMissing']);
+Route::post('delete-employee-from-device', [EmployeeController::class, 'deleteEmployeeFromDevice']);

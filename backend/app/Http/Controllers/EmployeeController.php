@@ -922,6 +922,21 @@ class EmployeeController extends Controller
             throw $th;
         }
     }
+
+    public function deleteEmployeeFromDevice(Request $request)
+    {
+
+        if ($request->system_user_id != '' && $request->device_id) {
+            $preparedJson = [
+                "userCodeArray" => [$request->system_user_id],
+            ];
+
+            try {
+                (new SDKController)->processSDKRequestJobDeletePersonJson($request->device_id, $preparedJson);
+            } catch (\Throwable $th) {
+            }
+        }
+    }
     public function defaultAttendanceForMissing(Request $request)
     {
 
