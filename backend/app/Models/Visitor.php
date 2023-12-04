@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -155,9 +156,21 @@ class Visitor extends Model
 
         // $model->when($request->filled('branch_id'), fn ($q) => $q->Where('branch_id',   $request->input("branch_id")));
 
-        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->input("from_date")));
+        // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->input("from_date")));
 
-        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->input("to_date")));
+        // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->input("to_date")));
+        $startDate = Carbon::parse($request->from_date);
+        $endDate = Carbon::parse($request->to_date);
+
+
+        $model = $model->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('visit_from', [$startDate, $endDate])
+                ->orWhereBetween('visit_to', [$startDate, $endDate])
+                ->orWhere(function ($query) use ($startDate, $endDate) {
+                    $query->where('visit_from', '<', $startDate)
+                        ->where('visit_to', '>', $endDate);
+                });
+        });
 
         $model->when($request->filled('host_company_id'), fn ($q) => $q->Where('host_company_id',   $request->input("host_company_id")));
 

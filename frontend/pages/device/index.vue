@@ -24,6 +24,121 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
+      <v-card :loading="loadingDeviceData">
+        <v-card-actions>
+          <span>Find User ID on Device </span>
+          <v-spacer></v-spacer>
+
+          <v-icon outlined @click="uploadedUserInfoDialog = false"
+            >mdi-close-circle</v-icon
+          >
+        </v-card-actions>
+
+        <v-card-text class="mt-2">
+          <v-row>
+            <v-col cols="6">
+              <v-text-field
+                append-icon="mdi-magnify"
+                label="Employee Device ID"
+                type="number"
+                dense
+                outlined
+                v-model="inputFindDeviceUserId"
+              >
+              </v-text-field
+            ></v-col>
+            <v-col cols="6">
+              <v-btn
+                dense
+                small
+                class="primary"
+                @click="getUserInfoFromDevice()"
+                ><v-icon>mdi-magnify</v-icon>Get Details</v-btn
+              >
+            </v-col>
+          </v-row>
+
+          <v-card
+            v-for="(visitor, index) in visitorUploadedDevicesInfo"
+            :key="'vs' + index"
+          >
+            <v-card-title style="font-size: 13px"
+              >{{ ++index }}: Device: {{ visitor.deviceName }}
+            </v-card-title>
+            <v-card-text class="mt-2">
+              <v-row
+                class="100%"
+                style="margin: auto; line-height: 36px"
+                v-if="visitor.SDKresponseData.data"
+              >
+                <v-col cols="4" style="padding: 0px">
+                  <v-img
+                    style="
+                      border-radius: 10%;
+                      width: 100px;
+                      max-width: 95%;
+
+                      height: auto;
+                      border: 1px solid #ddd;
+                    "
+                    :src="
+                      visitor.SDKresponseData.data.faceImage
+                        ? 'data:image/jpeg;base64, ' +
+                          visitor.SDKresponseData.data.faceImage
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+
+                <v-col cols="8" style="padding: 0px">
+                  <v-simple-table>
+                    <tr>
+                      <td>Name</td>
+                      <td>: {{ visitor.SDKresponseData.data.name }}</td>
+                    </tr>
+
+                    <tr>
+                      <td>System User Id</td>
+                      <td>: {{ visitor.SDKresponseData.data.userCode }}</td>
+                    </tr>
+
+                    <tr>
+                      <td>Expiry Date</td>
+                      <td>: {{ visitor.SDKresponseData.data.expiry }}</td>
+                    </tr>
+
+                    <tr>
+                      <td>Timezone Group Id</td>
+                      <td>: {{ visitor.SDKresponseData.data.timeGroup }}</td>
+                    </tr>
+                  </v-simple-table>
+                </v-col>
+              </v-row>
+
+              <div v-else>{{ visitor.SDKresponseData.message }}</div>
+
+              <!-- <v-row>
+                <v-col cols="12">
+                  <v-btn
+                    class="align-right"
+                    style="float: right; color: #fff"
+                    dense
+                    small
+                    color="red"
+                    @click="deleteFromDevice(visitor)"
+                    >Delete</v-btn
+                  >
+                </v-col>
+              </v-row> -->
+            </v-card-text>
+          </v-card>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -562,6 +677,12 @@
               </div>
             </template>
             <v-list width="120" dense>
+              <v-list-item @click="findUser(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small>mdi-magnify </v-icon>
+                  Find User
+                </v-list-item-title>
+              </v-list-item>
               <v-list-item v-if="can(`device_edit`)" @click="editItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
@@ -592,6 +713,12 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    visitorUploadedDevicesInfo: [],
+    loadingDeviceData: false,
+    visitor_status_list: [],
+    inputFindDeviceUserId: "",
+    popupDeviceId: null,
+    uploadedUserInfoDialog: false,
     dialogAccessSettings: false,
     popup_device_id: "",
     editDialog: false,
@@ -824,6 +951,47 @@ export default {
   },
 
   methods: {
+    findUser(item) {
+      this.popupDeviceId = item.device_id;
+      this.uploadedUserInfoDialog = true;
+    },
+    getUserInfoFromDevice() {
+      if (this.inputFindDeviceUserId != "") {
+        this.visitorUploadedDevicesInfo = [];
+        this.loadingDeviceData = true;
+        let counter = 1;
+
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+
+            system_user_id: this.inputFindDeviceUserId,
+
+            device_id: this.popupDeviceId,
+          },
+        };
+        this.loadingDeviceData = true;
+        this.$axios
+          .get(`get-device-person-details`, options)
+          .then(({ data }) => {
+            this.loadingDeviceData = false;
+            counter++;
+            if (!data.deviceName) {
+              this.response = data.message;
+              this.snackbar = true;
+
+              return;
+            } else {
+              data.system_user_id = this.inputFindDeviceUserId;
+              data.device_id = this.popupDeviceId;
+
+              this.visitorUploadedDevicesInfo.push(data);
+
+              return;
+            }
+          });
+      }
+    },
     getTimezones() {
       return Object.keys(this.timeZones).map((key) => ({
         offset: this.timeZones[key].offset,
