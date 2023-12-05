@@ -294,6 +294,8 @@ class AutoShiftController extends Controller
 
     public function render($id, $date, $UserIds = [], $custom_render = false)
     {
+
+
         $params = [
             "company_id" => $id,
             "date" => $date,
@@ -343,6 +345,8 @@ class AutoShiftController extends Controller
                     "shift_id" => $nearestShift['id'],
                 ]);
 
+
+
             $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
 
             if (!$params["custom_render"]) {
@@ -358,9 +362,12 @@ class AutoShiftController extends Controller
 
     public function renderRelatedShiftype($shift_type_id, $UserID, $params)
     {
+
+
         $arr = [
             1 => FiloShiftController::class,
             2 => MultiShiftController::class,
+            4 => NightShiftController::class,
             5 => SplitShiftController::class,
             6 => SingleShiftController::class,
         ];

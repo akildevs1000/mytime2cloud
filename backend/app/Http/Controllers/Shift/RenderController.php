@@ -38,7 +38,8 @@ class RenderController extends Controller
             (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
             (new SplitShiftController)->renderData($request),
-            (new MultiShiftController)->renderData($request)
+            (new MultiShiftController)->renderData($request),
+            (new NightShiftController)->renderData($request)
         );
 
         // if ($shift_type_id == 5) {
