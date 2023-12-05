@@ -167,8 +167,8 @@ class Visitor extends Model
             $query->whereBetween('visit_from', [$startDate, $endDate])
                 ->orWhereBetween('visit_to', [$startDate, $endDate])
                 ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->where('visit_from', '<', $startDate)
-                        ->where('visit_to', '>', $endDate);
+                    $query->whereDate('visit_from', '<=', $startDate)
+                        ->whereDate('visit_to', '>=', $endDate);
                 });
         });
 
@@ -220,6 +220,9 @@ class Visitor extends Model
         //----------------------
 
         $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'all_approved') {
+                $q->Where('status_id', "!=", 1);
+            } else 
             if ($request->statsFilterValue == 'Expected' || $request->statsFilterValue == 'Approved') {
                 $q->WhereIn('status_id',  [2, 4]);
             } else if ($request->statsFilterValue == 'Checked In') {

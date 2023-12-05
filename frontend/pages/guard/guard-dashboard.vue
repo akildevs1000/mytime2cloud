@@ -159,12 +159,12 @@
   <NoAccess v-else />
 </template>
 <script>
-import VisitorList from "../components/Visitor/VisitorRequestsList.vue";
-import VisitorReport from "../components/Visitor/VisitorReport.vue";
-import VisitorLogs from "../components/Visitor/VisitorLogs.vue";
-import VisitorHourChart from "../components/Visitor/DashboardVisitorHourChart.vue";
-import VisitorPieChart from "../components/Visitor/DashboardVisitorPieChart.vue";
-import VisitorRequestsList from "../components/Visitor/VisitorRequestsList.vue";
+import VisitorList from "../../components/Visitor/VisitorRequestsList.vue";
+import VisitorReport from "../../components/Visitor/VisitorReport.vue";
+import VisitorLogs from "../../components/Visitor/VisitorLogs.vue";
+import VisitorHourChart from "../../components/Visitor/DashboardVisitorHourChart.vue";
+import VisitorPieChart from "../../components/Visitor/DashboardVisitorPieChart.vue";
+import VisitorRequestsList from "../../components/Visitor/VisitorRequestsList.vue";
 
 export default {
   components: {

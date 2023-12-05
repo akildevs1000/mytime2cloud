@@ -1,5 +1,10 @@
 <template>
-  <VisitorRequestsList title="Visitors" :isDashboard="false" :defaultDates="getDefaultDates" />
+  <VisitorRequestsList
+    title="Visitors"
+    :statsFilterValue="'all_approved'"
+    :isDashboard="false"
+    :defaultDates="getDefaultDates"
+  />
 </template>
 
 <script>

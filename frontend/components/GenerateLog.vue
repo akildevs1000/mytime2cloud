@@ -12,7 +12,7 @@
           placeholder="Employee Device Id"
           v-model="log_payload.user_id"
           :items="employees"
-          :item-text="`name`"
+          :item-text="`name_with_user_id`"
           item-value="system_user_id"
           dense
           outlined

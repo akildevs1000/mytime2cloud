@@ -12,7 +12,7 @@ const data = async ({ $auth, redirect }) => {
   }
 
   if (/guard/.test(roleType)) {
-    redirect("/guard/visitor-dashboard");
+    redirect("/guard/guard-dashboard");
     return;
   }
   if (/host/.test(roleType)) {

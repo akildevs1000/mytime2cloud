@@ -245,9 +245,9 @@
         </template>
         <template v-slot:item.visit_from="{ item }">
           {{ $dateFormat.format1(item.from_date_display) }}
-          <span v-if="item.to_date_display != item.from_date_display">
-            to {{ $dateFormat.format1(item.to_date_display) }}</span
-          >
+          <div v-if="item.to_date_display != item.from_date_display">
+            to {{ $dateFormat.format1(item.to_date_display) }}
+          </div>
           <div class="secondary-value">
             {{ item.time_in }} - {{ item.time_out }}
           </div>
@@ -348,7 +348,7 @@
               <v-select
                 v-model="payload.zone_id"
                 :items="zoneList"
-                label="Zone 1"
+                label="Zone"
                 item-text="name"
                 item-value="id"
                 outlined
@@ -733,12 +733,6 @@ export default {
     }
 
     this.getDataFromApi();
-    setTimeout(() => {
-      this.getPurposeList();
-      this.getHostsList();
-      this.getbranchesList();
-      this.getVisitorStatusList();
-    }, 1000);
 
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
@@ -985,6 +979,12 @@ export default {
     },
     toggleFilter() {
       this.isFilter = !this.isFilter;
+      if (this.isFilter) {
+        this.getPurposeList();
+        this.getHostsList();
+        this.getbranchesList();
+        this.getVisitorStatusList();
+      }
     },
     getPurposeList() {
       let options = {
@@ -1099,8 +1099,6 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: this.statsFilterValue,
-
-          //status_id: 2,
         },
       };
       this.$axios.get(this.endpoint, options).then(({ data }) => {
