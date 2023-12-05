@@ -83,6 +83,14 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("logs/shifts/filo/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
+                ->command("task:sync_night_shift {$companyId} " . date("Y-m-d"))
+                // ->hourly()
+                ->everyMinute()
+                ->runInBackground()
+                ->appendOutputTo(storage_path("logs/shifts/night/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+            $schedule
                 ->command("task:sync_single_shift {$companyId} " . date("Y-m-d"))
                 // ->hourly()
                 ->everyMinute()
