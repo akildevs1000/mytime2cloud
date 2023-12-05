@@ -515,7 +515,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/`,
+    originalURL: process.env.APP_URL + "/register/visitor/", // `https://mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",

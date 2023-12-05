@@ -614,7 +614,7 @@ export default {
         filterable: false,
       },
       {
-        width: "200px",
+        width: "250px",
         text: "Picture",
         align: "left",
         sortable: true,
@@ -1101,6 +1101,8 @@ export default {
           statsFilterValue: this.statsFilterValue,
         },
       };
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       this.$axios.get(this.endpoint, options).then(({ data }) => {
         this.data = data.data;
         this.pagination.current = data.current_page;

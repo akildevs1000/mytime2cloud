@@ -38,7 +38,7 @@ class Store extends FormRequest
         $validations['open_time'] = 'required';
         $validations['close_time'] = 'required';
         $validations["company_id"] = "required";
-
+        $validations["branch_id"] = "required";
         return $validations;
     }
 }

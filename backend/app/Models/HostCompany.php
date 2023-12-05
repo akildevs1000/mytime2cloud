@@ -30,6 +30,15 @@ class HostCompany extends Model
     {
         return $this->belongsTo(Employee::class)->withOut(["user", "schedule", "department", "designation", "department", "sub_department"]);
     }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id", "id");
+    }
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class, "zone_id", "id");
+    }
 
-    protected $hidden = ["branch_id","created_at","updated_at"];
+
+    protected $hidden = ["created_at", "updated_at"];
 }

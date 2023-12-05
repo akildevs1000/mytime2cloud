@@ -81,119 +81,119 @@ class VisitorController extends Controller
     }
 
 
-    // public function index_old(Request $request)
-    // {
-    //     $model = Visitor::query();
+    public function index_old(Request $request)
+    {
+        $model = Visitor::query();
 
-    //     $model->where("company_id", $request->input("company_id"));
-    //     // $model->when($request->filled('branch_id'), function ($q) use ($request) {
-    //     //     $q->Where('branch_id',   $request->branch_id);
-    //     // });
+        $model->where("company_id", $request->input("company_id"));
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->Where('branch_id',   $request->branch_id);
+        // });
 
-    //     $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
+        $fields = ['id', 'company_name', 'system_user_id', 'manager_name', 'phone', 'email', 'zone_id', 'phone_number', 'email', 'time_in'];
 
-    //     $model = $this->process_ilike_filter($model, $request, $fields);
-    //     $model->when($request->filled('first_name'), function ($q) use ($request) {
-    //         $q->where(function ($q) use ($request) {
-    //             $q->Where('first_name', 'ILIKE', "$request->first_name%");
-    //             $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
-    //         });
-    //     });
+        $model = $this->process_ilike_filter($model, $request, $fields);
+        $model->when($request->filled('first_name'), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->Where('first_name', 'ILIKE', "$request->first_name%");
+                $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+            });
+        });
 
-    //     $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
-    //     $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
-
-
-    //     // $startDate = Carbon::parse($request->from_date);
-    //     // $endDate = Carbon::parse($request->to_date);
+        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
 
 
-    //     // $model = $model->where(function ($query) use ($startDate, $endDate) {
-    //     //     $query->whereBetween('visit_from', [$startDate, $endDate])
-    //     //         ->orWhereBetween('visit_to', [$startDate, $endDate])
-    //     //         ->orWhere(function ($query) use ($startDate, $endDate) {
-    //     //             $query->where('visit_from', '<', $startDate)
-    //     //                 ->where('visit_to', '>', $endDate);
-    //     //         });
-    //     // });
-
-    //     $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
-    //     $model = $this->process_column_filter($model, $request, $fields1);
+        // $startDate = Carbon::parse($request->from_date);
+        // $endDate = Carbon::parse($request->to_date);
 
 
+        // $model = $model->where(function ($query) use ($startDate, $endDate) {
+        //     $query->whereBetween('visit_from', [$startDate, $endDate])
+        //         ->orWhereBetween('visit_to', [$startDate, $endDate])
+        //         ->orWhere(function ($query) use ($startDate, $endDate) {
+        //             $query->where('visit_from', '<', $startDate)
+        //                 ->where('visit_to', '>', $endDate);
+        //         });
+        // });
 
-    //     $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
-    //         if ($request->statsFilterValue == 'Expected')
-    //             $q->WhereIn('status_id',  [2, 4, 5]);
-
-    //         else if ($request->statsFilterValue == 'Checked In')
-    //             $q->Where('status_id', 6);
-
-    //         else  if ($request->statsFilterValue == 'Checked Out')
-    //             $q->Where('status_id', 7);
-
-    //         else  if ($request->statsFilterValue == 'Pending')
-    //             $q->Where('status_id', 1);
-    //         else  if ($request->statsFilterValue == 'Approved')
-    //             $q->WhereIn('status_id',  [2, 4, 5, 6, 7]);
-    //         else  if ($request->statsFilterValue == 'Rejected')
-    //             $q->Where('status_id', 3);
-    //     });
+        $fields1 = ['host_company_id', 'purpose_id', 'status_id'];
+        $model = $this->process_column_filter($model, $request, $fields1);
 
 
 
-    //     $model->when($request->filled('sortBy'), function ($q) use ($request) {
-    //         $sortDesc = $request->input('sortDesc');
-    //         if (strpos($request->sortBy, '.')) {
-    //         } else {
-    //             $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
-    //             }
-    //         }
-    //     });
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Expected')
+                $q->WhereIn('status_id',  [2, 4, 5]);
 
-    //     if ($request->statsFilterValue == 'Over Stayed') {
-    //         $model->whereIn("status_id", [6, 7]);
-    //     }
+            else if ($request->statsFilterValue == 'Checked In')
+                $q->Where('status_id', 6);
 
+            else  if ($request->statsFilterValue == 'Checked Out')
+                $q->Where('status_id', 7);
 
-    //     if (!$request->sortBy)
-    //         $model->orderBy("visit_from", "DESC");
-
-    //     $results = $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
-
-    //     $overstayedVisitors = [];
-    //     if ($request->statsFilterValue == 'Over Stayed') {
-
-    //         $data = $results->getCollection();;
+            else  if ($request->statsFilterValue == 'Pending')
+                $q->Where('status_id', 1);
+            else  if ($request->statsFilterValue == 'Approved')
+                $q->WhereIn('status_id',  [2, 4, 5, 6, 7]);
+            else  if ($request->statsFilterValue == 'Rejected')
+                $q->Where('status_id', 3);
+        });
 
 
-    //         foreach ($data  as $pending) {
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+            if (strpos($request->sortBy, '.')) {
+            } else {
+                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                }
+            }
+        });
+
+        if ($request->statsFilterValue == 'Over Stayed') {
+            $model->whereIn("status_id", [6, 7]);
+        }
 
 
-    //             $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
-    //             if ($pending->checked_out_datetime) {
-    //                 // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
-    //             } else {
-    //                 $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+        if (!$request->sortBy)
+            $model->orderBy("visit_from", "DESC");
 
-    //                 $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
-    //                 $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
-    //                 $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
-    //                 $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
-    //                 if ($visitorCheckoutTime > $actucalCheckOutTime) {
+        $results = $model->with(["zone", "host", "timezone:id,timezone_id,timezone_name", "purpose:id,name"])->paginate($request->input("per_page", 100));
 
-    //                     $overstayedVisitors[] = $pending;
-    //                 }
-    //             }
-    //         }
+        $overstayedVisitors = [];
+        if ($request->statsFilterValue == 'Over Stayed') {
 
-    //         $overstayedVisitors = new Collection($overstayedVisitors);
-    //         return $data = $results->setCollection($overstayedVisitors);;
-    //     } else {
+            $data = $results->getCollection();;
 
-    //         return $results;
-    //     }
-    // }
+
+            foreach ($data  as $pending) {
+
+
+                $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
+                if ($pending->checked_out_datetime) {
+                    // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
+                } else {
+                    $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
+
+                    $pending["actucalCheckOutTime"] = $actucalCheckOutTime;
+                    $pending["visitorCheckoutTime"] = $visitorCheckoutTime;
+                    $pending["over_stay"] = gmdate("H:i", $visitorCheckoutTime - $actucalCheckOutTime);
+                    $pending["over_stay"] = explode(":", $pending["over_stay"])[0] . 'h:' . explode(":", $pending["over_stay"])[1] . 'm';
+                    if ($visitorCheckoutTime > $actucalCheckOutTime) {
+
+                        $overstayedVisitors[] = $pending;
+                    }
+                }
+            }
+
+            $overstayedVisitors = new Collection($overstayedVisitors);
+            return $data = $results->setCollection($overstayedVisitors);;
+        } else {
+
+            return $results;
+        }
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -243,6 +243,7 @@ class VisitorController extends Controller
         $data['status_id'] = 1;
 
         try {
+            $data['branch_id'] = HostCompany::where("company_id", $request->company_id)->where("id", $request->host_company_id)->pluck("branch_id")[0];
 
             // $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
 

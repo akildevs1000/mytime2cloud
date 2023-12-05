@@ -47,7 +47,7 @@
                   v-model="payload.employee_id"
                   :items="employees"
                   dense
-                  item-text="first_name"
+                  item-text="full_name"
                   item-value="id"
                   :hide-details="!errors.employee_id"
                   :error-messages="
@@ -58,7 +58,7 @@
               </v-col>
 
               <v-col cols="6">
-                <v-text-field
+                <!-- <v-text-field
                   label="Zone. Number"
                   :disabled="disabled"
                   v-model="payload.zone_id"
@@ -70,7 +70,19 @@
                   :error-messages="
                     errors && errors.zone_id ? errors.zone_id[0] : ''
                   "
-                ></v-text-field>
+                ></v-text-field> -->
+                <v-select
+                  label="Zone"
+                  :hide-details="true"
+                  clearable
+                  @change="applyFilters('status', $event)"
+                  item-value="id"
+                  item-text="name"
+                  v-model="payload.zone_id"
+                  outlined
+                  dense
+                  :items="zones_list"
+                ></v-select>
               </v-col>
 
               <v-col cols="6">
@@ -340,6 +352,20 @@
                   >
                 </v-btn>
               </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter"
+                >
+                  <v-icon class="ml-2" @click="toggleFilter" dark
+                    >mdi mdi-filter</v-icon
+                  >
+                </v-btn>
+              </span>
               <v-spacer></v-spacer>
               <span>
                 <v-btn
@@ -393,11 +419,47 @@
                         dense
                         autocomplete="off"
                       ></v-text-field>
+                      <v-select
+                        v-if="
+                          header.filterSpecial && header.value == 'branch_id'
+                        "
+                        :hide-details="true"
+                        clearable
+                        @change="applyFilters('status', $event)"
+                        item-value="id"
+                        item-text="branch_name"
+                        v-model="filters[header.value]"
+                        outlined
+                        dense
+                        :items="[
+                          { branch_name: `All Branches`, id: `` },
+                          ...branchesList,
+                        ]"
+                      ></v-select>
+                      <v-select
+                        v-if="header.filterSpecial && header.value == 'zone_id'"
+                        :hide-details="true"
+                        clearable
+                        @change="applyFilters('status', $event)"
+                        item-value="id"
+                        item-text="name"
+                        v-model="filters[header.value]"
+                        outlined
+                        dense
+                        :items="[{ name: `All Zones`, id: `` }, ...zones_list]"
+                      ></v-select>
                     </v-container>
                   </td>
                 </tr>
               </template>
-
+              <template v-slot:item.sno="{ item, index }">
+                {{
+                  currentPage
+                    ? (currentPage - 1) * perPage +
+                      (cumulativeIndex + data.indexOf(item))
+                    : "-"
+                }}
+              </template>
               <template
                 v-slot:item.first_name="{ item, index }"
                 style="width: 300px"
@@ -413,10 +475,12 @@
                   >
                     <v-img
                       style="
+                        border: 1px solid #ddd;
                         border-radius: 50%;
-                        width: 60px;
-                        max-width: 60px;
-                        height: 60px;
+                        height: auto;
+                        width: 50px;
+                        max-width: 50px;
+                        height: 50px;
                       "
                       :src="
                         item.employee
@@ -445,9 +509,12 @@
                 </v-row>
               </template>
 
-              <!-- <template v-slot:item.email="{ item }">
-                {{ item?.employee?.user?.email }}
-              </template> -->
+              <template v-slot:item.branch_id="{ item }">
+                {{ item?.branch?.branch_name }}
+              </template>
+              <template v-slot:item.zone_id="{ item }">
+                {{ item?.zone?.name }}
+              </template>
 
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -499,7 +566,8 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/`,
+    zones_list: [],
+    originalURL: process.env.APP_URL + "/register/visitor/", // `https://mytime2cloud.com/register/visitor/`,
     fullCompanyLink: ``,
     encryptedID: "",
     fullLink: "",
@@ -620,12 +688,22 @@ export default {
     // "webaccess": true,
     headers: [
       {
+        text: "#",
+        align: "left",
+        sortable: true,
+        key: "sno",
+        value: "sno",
+
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
         text: "Host Name",
         align: "left",
         sortable: true,
         key: "first_name",
         value: "first_name",
-        width: "300px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -646,26 +724,26 @@ export default {
         key: "flat_number",
         value: "flat_number",
         filterable: true,
-        width: "150px",
+
         filterSpecial: false,
       },
-      {
-        text: "Floor No",
-        align: "left",
-        sortable: true,
-        key: "floor_number",
-        value: "floor_number",
-        filterable: true,
-        width: "150px",
-        filterSpecial: false,
-      },
+      // {
+      //   text: "Floor No",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "floor_number",
+      //   value: "floor_number",
+      //   filterable: true,
+      //   width: "150px",
+      //   filterSpecial: false,
+      // },
       {
         text: "Phone",
         align: "left",
         sortable: true,
         key: "number",
         value: "number",
-        width: "150px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -675,7 +753,7 @@ export default {
         sortable: true,
         key: "emergency_phone",
         value: "emergency_phone",
-        width: "150px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -685,7 +763,7 @@ export default {
         sortable: true,
         key: "open_time",
         value: "open_time",
-        filterable: false,
+        filterable: true,
         filterSpecial: false,
       },
       {
@@ -694,12 +772,12 @@ export default {
         sortable: true,
         key: "close_time",
         value: "close_time",
-        filterable: false,
+        filterable: true,
         filterSpecial: false,
       },
 
       {
-        text: "Details",
+        text: "Options",
         align: "left",
         sortable: false,
         key: "options",
@@ -707,9 +785,29 @@ export default {
       },
     ],
     formAction: "Create",
+    branchesList: [],
+
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
+    totalRowsCount: 0,
   }),
 
   async created() {
+    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "branch_id",
+          filterable: true,
+          filterName: "branch_id",
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
     this.loading = false;
     this.boilerplate = true;
 
@@ -734,6 +832,33 @@ export default {
     },
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
+    getZonesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`zone_list`, this.payloadOptions).then(({ data }) => {
+        this.zones_list = data;
+      });
+    },
+
     async initialize() {
       try {
         const options = {
@@ -747,6 +872,8 @@ export default {
           first_name: e.first_name,
           last_name: e.last_name,
           display_name: e.display_name,
+          branch_id: e.branch_id,
+          full_name: e.full_name,
         }));
       } catch (error) {
         console.error("An error occurred:", error);
@@ -798,6 +925,10 @@ export default {
     toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
+      if (this.isFilter) {
+        this.getbranchesList();
+        this.getZonesList();
+      }
     },
     clearFilters() {
       this.filters = {};
@@ -823,7 +954,8 @@ export default {
           ...this.filters,
         },
       };
-
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
         //this.server_datatable_totalItems = data.total;
@@ -840,12 +972,14 @@ export default {
       });
     },
     addItem() {
+      this.getZonesList();
       this.disabled = false;
       this.formAction = "Create";
       this.DialogBox = true;
       this.payload = {};
     },
     editItem(item) {
+      this.getZonesList();
       this.disabled = false;
       this.formAction = "Edit";
       this.DialogBox = true;
@@ -853,6 +987,7 @@ export default {
       this.previewImage = item.logo;
     },
     viewItem(item) {
+      this.getZonesList();
       this.disabled = true;
       this.formAction = "View";
       this.DialogBox = true;
@@ -949,7 +1084,14 @@ export default {
     },
 
     submit() {
-      console.log(this.payload);
+      let employeeFilter = this.employees.filter(
+        (employee) => employee.id == this.payload.employee_id
+      );
+
+      if (employeeFilter[0]?.branch_id) {
+        this.payload.branch_id = employeeFilter[0].branch_id;
+      }
+
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {
@@ -980,6 +1122,13 @@ export default {
     },
 
     update_data() {
+      let employeeFilter = this.employees.filter(
+        (employee) => employee.id == this.payload.employee_id
+      );
+
+      if (employeeFilter[0]?.branch_id) {
+        this.payload.branch_id = employeeFilter[0].branch_id;
+      }
       this.$axios
         .post(
           this.endpoint + "/" + this.payload.id,
