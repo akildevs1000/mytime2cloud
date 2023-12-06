@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`visitors_report_access`)">
+  <div>
     <v-dialog v-model="viewDialog" width="1200">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -1012,7 +1012,6 @@
       </v-dialog>
     </v-row>
   </div>
-  <NoAccess v-else />
 </template>
 <script>
 function getCurrentDate() {

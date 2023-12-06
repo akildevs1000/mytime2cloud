@@ -319,6 +319,18 @@ class PermissionSeeder extends Seeder
             ['module' => 'host', 'title' => 'Host edit', 'name' => 'host_edit'],
             ['module' => 'host', 'title' => 'Host delete', 'name' => 'host_delete'],
 
+            ['module' => 'purpose', 'title' => 'Purpose access', 'name' => 'purpose_access'],
+            ['module' => 'purpose', 'title' => 'Purpose view', 'name' => 'purpose_view'],
+            ['module' => 'purpose', 'title' => 'Purpose create', 'name' => 'purpose_create'],
+            ['module' => 'purpose', 'title' => 'Purpose edit', 'name' => 'purpose_edit'],
+            ['module' => 'purpose', 'title' => 'Purpose delete', 'name' => 'purpose_delete'],
+
+            ['module' => 'zone', 'title' => 'Zone access', 'name' => 'zone_access'],
+            ['module' => 'zone', 'title' => 'Zone view', 'name' => 'zone_view'],
+            ['module' => 'zone', 'title' => 'Zone create', 'name' => 'zone_create'],
+            ['module' => 'zone', 'title' => 'Zone edit', 'name' => 'zone_edit'],
+            ['module' => 'zone', 'title' => 'Zone delete', 'name' => 'zone_delete'],
+
 
             //['module' => 'access_control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
             //['module' => 'payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],

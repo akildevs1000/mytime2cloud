@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('host_access')">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -303,7 +303,7 @@
               </v-btn>
 
               <v-btn
-                v-if="can('host_create') && formAction == 'Create'"
+                v-if="can('employee_create') && formAction == 'Create'"
                 small
                 :loading="loading"
                 color="primary"
@@ -312,7 +312,7 @@
                 Submit
               </v-btn>
               <v-btn
-                v-else-if="can('host_edit') && formAction == 'Edit'"
+                v-else-if="can('employee_create') && formAction == 'Edit'"
                 small
                 :loading="loading"
                 color="primary"
@@ -331,7 +331,7 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <div v-if="can(`host_view`)">
+      <div v-if="can(`employee_view`)">
         <v-container>
           <v-card elevation="0">
             <v-toolbar class="mb-2" dense flat>
@@ -367,21 +367,6 @@
                 </v-btn>
               </span>
               <v-spacer></v-spacer>
-              <span>
-                <v-btn
-                  dense
-                  x-small
-                  class="ma-0 px-0"
-                  :ripple="false"
-                  text
-                  title="Add Company"
-                  @click="addItem"
-                >
-                  <v-icon right size="x-large" dark v-if="can('host_create')"
-                    >mdi-plus-circle</v-icon
-                  >
-                </v-btn>
-              </span>
             </v-toolbar>
             <v-data-table
               dense
@@ -492,12 +477,11 @@
                         item.employee
                           ? item.employee.first_name +
                             " " +
-                            item.employee.last_name
+                            item.employee.last_name +
+                            "-" +
+                            item.employee.employee_id
                           : "---"
                       }}
-                      <div class="secondary-value">
-                        {{ item.employee?.employee_id ?? "---" }}
-                      </div>
                     </strong>
                     <!-- <div>
                       {{ item.employee ? item.employee.user.email : "---" }}
@@ -521,31 +505,10 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item
-                      @click="viewItem(item)"
-                      v-if="can('host_view')"
-                    >
+                    <v-list-item @click="viewItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-eye </v-icon>
                         View
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="editItem(item)"
-                      v-if="can('host_edit')"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="deleteItem(item)"
-                      v-if="can('host_delete')"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
                       </v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -558,18 +521,16 @@
     </div>
     <Preloader v-else />
   </div>
-
-  <NoAccess v-else />
 </template>
 
 <script>
-// import "cropperjs/dist/cropper.css";
-// import VueCropper from "vue-cropperjs";
+import "cropperjs/dist/cropper.css";
+import VueCropper from "vue-cropperjs";
 
 export default {
-  // components: {
-  //   VueCropper,
-  // },
+  components: {
+    VueCropper,
+  },
 
   data: () => ({
     zones_list: [],

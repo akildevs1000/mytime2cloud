@@ -302,10 +302,13 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="uploadVisitorInfo(item)">
+              <v-list-item
+                v-if="can('host_edit')"
+                @click="uploadVisitorInfo(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
-                  Upload Visitor
+                  Upload Visitor to Device
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
@@ -523,6 +526,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-btn
+                      v-if="can('visitor_delete')"
                       class="align-right"
                       style="float: right; color: #fff"
                       dense
@@ -767,6 +771,9 @@ export default {
     }
   },
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
