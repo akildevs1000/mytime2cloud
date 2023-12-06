@@ -68,6 +68,8 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
+                      placeholder="From Date"
+                      title="From Date"
                       :hide-details="true"
                       outlined
                       dense
@@ -117,6 +119,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
+                      placeholder="To Date"
                       v-model="item.to_date"
                       readonly
                       v-bind="!isEdit || attrs"
@@ -749,7 +752,10 @@
           </template> -->
 
         <template v-slot:item.schedules_count="{ item }">
-          {{ item.schedule_all.length }}
+          {{ item.schedule?.shift?.name ?? "---" }}
+          <div class="secondary-value">
+            {{ item.schedule_all.length }}
+          </div>
         </template>
 
         <template v-slot:item.isOverTime="{ item }">
@@ -1250,8 +1256,8 @@ export default {
       let item = {
         shift_id: id,
         shift_type_id: 1,
-        from_date: new Date().toJSON().slice(0, 10),
-        to_date: new Date().toJSON().slice(0, 10),
+        from_date: "", // new Date().toJSON().slice(0, 10),
+        to_date: "", //new Date().toJSON().slice(0, 10),
         is_over_time: false,
       };
       if (this.schedules_temp_list.length < 5) {
@@ -1567,7 +1573,7 @@ export default {
       let payload = {
         company_id: this.$auth.user.company_id,
         branch_id: item.branch_id,
-        employee_id: item.employee_id,
+        employee_id: item.system_user_id,
       };
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
