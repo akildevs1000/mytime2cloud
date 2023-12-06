@@ -470,6 +470,10 @@ export default {
           elevation: 0,
           selected: "",
         },
+        community: {
+          elevation: 0,
+          selected: "",
+        },
       },
 
       topMenu_Selected: "dashboard",

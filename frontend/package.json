@@ -21,7 +21,6 @@
     "axios": "^0.27.2",
     "core-js": "^3.15.1",
     "cropperjs": "^1.5.13",
-    "dotenv": "^16.0.2",
     "marked": "^4.0.19",
     "node-cron": "^3.0.2",
     "nuxt": "^2.15.7",
@@ -32,11 +31,14 @@
     "tiptap-vuetify": "^2.24.0",
     "vue-apexcharts": "^1.6.2",
     "vue-image-crop-upload": "^3.0.3",
+    "vue2-datepicker": "^3.11.1",
     "vuetify": "^2.5.5",
     "ws": "^8.8.1"
   },
   "devDependencies": {
     "@nuxtjs/vuetify": "^1.12.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.3.1",
     "vue-cropperjs": "^4.0.0"
   }
 }

@@ -2,191 +2,198 @@
 
 namespace App\Http\Controllers\Shift;
 
-use App\Http\Controllers\Controller;
-
-use App\Models\AttendanceLog;
 use App\Models\Attendance;
-use Illuminate\Support\Facades\Log as Logger;
-
+use Illuminate\Http\Request;
+use App\Models\AttendanceLog;
+use App\Http\Controllers\Controller;
 
 class NightShiftController extends Controller
 {
-    public function render()
+    public function renderData(Request $request)
     {
-        $model = AttendanceLog::query();
-        $model->where("checked", false);
-        $model->take(1000);
-        $model->with(["schedule"]);
+        // Extract start and end dates from the JSON data
+        $startDateString = $request->dates[0];
+        //$endDateString = $request->dates[1];
+        if (isset($request->dates[1])) {
+            $endDateString = $request->dates[1];
+        } else {
+            $endDateString = $request->dates[0];
+        }
+        $company_id = $request->company_ids[0];
+        $employee_ids = $request->employee_ids;
 
-        $model->whereHas("schedule", function ($q) {
-            $q->where('shift_type_id', 4);
-        });
+        // Convert start and end dates to DateTime objects
+        $startDate = new \DateTime($startDateString);
+        $endDate = new \DateTime($endDateString);
+        $currentDate = new \DateTime();
 
-        $model->orderByDesc("LogTime");
+        $response = [];
 
-        $data = $model->get(["id", "UserID", "LogTime", "DeviceID", "company_id"])->groupBy("UserID")->toArray();
-
-        if (count($data) == 0) {
-            info("NightShift: No Data Found.");
-            return "NightShift: No Data Found.";
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 4, $employee_ids, true);
+            $startDate->modify('+1 day');
         }
 
-        $i = 0;
-        $items = [];
-
-        foreach ($data as $UserID => $row) {
-
-            foreach ($row as $log) {
-                $arr = [];
-
-                $company_id     = $log["company_id"];
-                $time     = $log["show_log_time"];
-
-                $schedule = $log["schedule"];
-                $shift    = $schedule["shift"];
-
-                if (!$schedule || !$shift) {
-                    info("NightShift: No Schedule Found.");
-                    continue;
-                }
-
-                $date = $log['edit_date'];
-                $arr["date"] = $date;
-
-                if (!array_key_exists("beginning_in", $shift)) {
-                    Logger::channel("custom")->error('Cron: SyncNightShift. Error Details: ' . json_encode($row));
-                    continue;
-                }
-
-
-                $beginning_in = $date . " " . $shift["beginning_in"];
-                $beginning_out = $date . " " . $shift["beginning_out"];
-
-                $beginning_in_parsed = strtotime($beginning_in);
-                $beginning_out_parsed = strtotime($beginning_out);
-
-                $next_day_cap = $beginning_out_parsed + 86400; // adding 24 hours
-
-                // 1 jan 20:00 to 2 jan 05:00
-                if ($time >= $beginning_in_parsed && $time < $next_day_cap) {
-
-                    $arr["date"] = $date;
-
-                    $attendance = $this->attendanceFound($date, $UserID, $company_id);
-
-                    $found = $attendance->clone()->first();
-
-                    $arr["in"] = $found && $time < strtotime($found->in) && $found->in !== '---' ? $found->in : $log["time"];
-
-                    if ($found) {
-
-                        if ($found->out !== '---') {
-                            $arr["out"] =  $found->out;
-                        }
-
-                        if (isset($arr["in"]) && isset($arr["out"])) {
-                            $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
-                            $arr["total_hrs"] = $this->calculatedHours($arr["in"], $arr["out"]);
-                            $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                        }
-                    } else {
-                        $arr["status"] = "---";
-                    }
-
-                    $arr["late_coming"] = $this->calculatedLateComing($log["time"], $shift["on_duty_time"], $shift["late_time"]);
-
-                    $arr["device_id_in"] = $log["DeviceID"];
-                }
-
-                if ($time >= $beginning_out_parsed && $time < $beginning_in_parsed) {
-
-                    $arr["date"] = date("Y-m-d", strtotime($date) - 86400);
-
-                    $attendance = $this->attendanceFound($arr["date"], $UserID, $company_id);
-
-                    $found = $attendance->clone()->first();
-
-                    $arr["out"] = $found && $time < strtotime($found->out) && $found->out !== '---' ? $found->out : $log["time"];
-
-                    if ($found) {
-
-                        if ($found->in !== '---') {
-                            $arr["in"] =  $found->in;
-                        }
-
-                        if (isset($arr["in"]) && isset($arr["out"])) {
-                            $arr["status"] = $arr["in"] !== "---" && $arr["out"] !== "---" ? "P" : "A";
-                            $arr["total_hrs"] = $this->calculatedHours($arr["in"], $arr["out"]);
-                            $arr["ot"] = !$schedule["isOverTime"] ? "NA" : $this->calculatedOT($arr["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                        }
-                    } else {
-                        $arr["status"] = "---";
-                    }
-
-                    $arr["early_going"] = $this->calculatedEarlyGoing($log["time"], $shift["off_duty_time"], $shift["early_time"]);
-
-                    $arr["device_id_out"] = $log["DeviceID"];
-                }
-
-                $arr["company_id"] = $log["company_id"];
-                $arr["employee_id"] = $UserID;
-                $arr["shift_id"] = $schedule["shift_id"];
-                $arr["shift_type_id"] = $schedule["shift_type_id"];
-
-                $attendance = $this->attendanceFound($arr["date"], $UserID, $company_id);
-
-                $found = $attendance->first();
-
-                if (($found && $found->late_coming == '00:00') || ($found && $found->early_going == '00:00')) {
-                    $arr["status"] = "P";
-                } else {
-                    $arr["status"] = "A";
-                }
-
-                $found ? $attendance->update($arr) : Attendance::create($arr);
-
-                AttendanceLog::where("id", $log["id"])->update(["checked" => true]);
-
-                $items[] = $arr;
-            }
-
-            $i++;
-        }
-        return $items;
+        return $response;
     }
 
-    public function attendanceFound($date, $id, $company_id)
+    public function renderRequest(Request $request)
     {
-        return Attendance::whereDate("date", $date)->where("company_id", $company_id)->where("employee_id", $id);
+        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true);
+    }
+
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
+    {
+        $params = [
+            "company_id" => $id,
+            "date" => $date,
+            "shift_type_id" => $shift_type_id,
+            "custom_render" => $custom_render,
+            "UserIds" => $UserIds,
+        ];
+
+        if (!$custom_render) {
+            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+        }
+
+        $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+
+        $items = [];
+        $message = "";
+        foreach ($logsEmployees as $key => $logs) {
+
+            $logs = $logs->toArray() ?? [];
+
+            $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
+
+
+            $schedule = $firstLog["schedule"] ?? false;
+            $shift = $schedule["shift"] ?? false;
+
+            if (!$schedule) {
+                $message .= ".  No schedule is mapped with combination  System User Id: $key   and Date : " . $params["date"] . " ";
+                continue;
+            }
+            if (!$firstLog["schedule"]["shift_type_id"]) {
+                $message .= "$key : None f=of the  Master shift configured on  date:" . $params["date"];
+                continue;
+            }
+
+            $beginningIn =  $params['date'] . ' ' . $shift["beginning_in"];
+            $beginningOut = $params['date'] . ' ' . $shift["beginning_out"];
+
+            if ($firstLog['LogTime'] < $beginningIn || $firstLog['LogTime'] > $beginningOut) {
+                continue;
+            }
+
+            $item = [
+                "roster_id" => 0,
+                "total_hrs" => "---",
+                "in" => $firstLog["time"] ?? "---",
+                "out" =>  "---",
+                "ot" => "---",
+                "device_id_in" =>  $firstLog["DeviceID"] ?? "---",
+                "device_id_out" => "---",
+                "date" => $params["date"],
+                "company_id" => $params["company_id"],
+                "employee_id" => $key,
+                "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
+                "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
+                "status" => "M",
+            ];
+
+            if ($shift && $item["shift_type_id"] == 4) {
+                $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
+
+                if ($item["late_coming"] != "---") {
+                    $item["status"] = "LC";
+                }
+            }
+
+            $lastLog = $this->getLogsForOutOnly(
+                $item["company_id"],
+                $key,
+                $item["date"],
+                $shift,
+                $custom_render
+            );
+
+            $lastLogSchedule = $lastLog["schedule"] ?? false;
+            $lastLogShift = $lastLogSchedule["shift"] ?? false;
+
+
+            if ($lastLog) {
+                $item["status"] = "P";
+                $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
+                $item["out"] = $lastLog["time"] ?? "---";
+
+                if ($item["out"] !== "---") {
+                    $item["total_hrs"] = $this->calculatedHours($item["in"], $item["out"]);
+                }
+
+                if ($schedule["isOverTime"] ?? false) {
+                    $item["ot"] = $this->calculatedOT($item["total_hrs"], $lastLogShift["working_hours"], $lastLogShift["overtime_interval"]);
+                }
+
+                if ($item["shift_type_id"] == 4) {
+                    $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $lastLogShift["off_duty_time"], $lastLogShift["early_time"]);
+
+                    if ($item["early_going"] != "---") {
+                        $item["status"] = "EG";
+                    }
+                }
+            }
+
+            $items[] = $item;
+        }
+
+        if (!count($items)) {
+            $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: No data found' . $message;
+            $this->devLog("render-manual-log", $message);
+            return $message;
+        }
+
+        try {
+            $UserIds = array_column($items, "employee_id");
+            $model = Attendance::query();
+            $model->where("company_id", $id);
+            $model->whereIn("employee_id", $UserIds);
+            $model->where("date", $date);
+            $model->delete();
+            $model->insert($items);
+
+            if (!$custom_render) {
+                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
+            }
+            $message = "[" . $date . " " . date("H:i:s") .  "] Night Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
+        } catch (\Throwable $e) {
+            $message = "[" . $date . " " . date("H:i:s") .  "] Night Shift. " . $e->getMessage();
+        }
+
+        $this->devLog("render-manual-log", $message);
+        return ($message);
+    }
+
+
+    public function getLogsForOutOnly($company_id, $UserId, $date, $shift, $custom_render)
+    {
+        $model = AttendanceLog::query();
+        $model->when(!$custom_render, fn ($q) => $q->where("checked", false));
+        $model->where("company_id", $company_id);
+        $model->where("UserID", $UserId);
+        $model->whereNot("log_type", "in");
+        $model->where("LogTime", ">=", date("Y-m-d", strtotime($date)) . " " . $shift["on_duty_time"]);
+        $model->where("LogTime", "<=", date("Y-m-d", strtotime($date . " +1 day")) . " " . $shift["off_duty_time"]);
+        $model->distinct("LogTime", "UserID", "company_id");
+        $model->orderBy("LogTime", "desc");
+        $model->with("schedule");
+        return $model->first();
     }
 
     public function calculatedHours($in, $out)
     {
 
         $diff = abs(((strtotime($in)) - (strtotime($out) + 86400)));
-        $h = floor($diff / 3600);
-        $m = floor(($diff % 3600) / 60);
-        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
-    }
-
-    public function calculatedOT($total_hours, $working_hours, $interval_time)
-    {
-
-        $interval_time_num = date("i", strtotime($interval_time));
-        $total_hours_num = strtotime($total_hours);
-
-        $date = new \DateTime($working_hours);
-        $date->add(new \DateInterval("PT{$interval_time_num}M"));
-        $working_hours_with_interval = $date->format('H:i');
-
-
-        $working_hours_num = strtotime($working_hours_with_interval);
-
-        if ($working_hours_num > $total_hours_num) {
-            return "00:00";
-        }
-
-        $diff = abs(((strtotime($working_hours)) - (strtotime($total_hours))));
         $h = floor($diff / 3600);
         $m = floor(($diff % 3600) / 60);
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
