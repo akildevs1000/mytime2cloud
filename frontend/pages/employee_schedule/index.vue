@@ -342,7 +342,7 @@
                 :loading="loading_dialog"
                 :options.sync="options_dialog"
                 :footer-props="{
-                  itemsPerPageOptions: [10, 50, 100, 500, 1000],
+                  itemsPerPageOptions: [20, 50, 100, 500, 1000],
                 }"
               >
               </v-data-table>
@@ -485,7 +485,7 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+          itemsPerPageOptions: [20, 50, 100, 500, 1000],
         }"
         class="elevation-1"
         :server-items-length="totalRowsCount"
@@ -752,7 +752,21 @@
           </template> -->
 
         <template v-slot:item.schedules_count="{ item }">
-          {{ item.schedule?.shift?.name ?? "---" }}
+          {{
+            item.schedule?.isAutoShift
+              ? "Auto"
+              : item.schedule.shift
+              ? item.schedule.shift.name
+              : "---"
+          }}
+          <!-- {{ item.schedule.isAutoShift ? "Auto" : "---" }}
+
+          {{
+            item.schedule.shift?.name ?? !item.schedule.isAutoShift
+              ? ""
+              : item.schedule.shift.name
+          }}
+          {{ item.schedule.isAutoShift ? "Auto" : "---" }} -->
           <div class="secondary-value">
             {{ item.schedule_all.length }}
           </div>
@@ -822,7 +836,7 @@ export default {
     filterScheduledEmp: "",
     shifts_branch_wise: [],
     cumulativeIndex: 1,
-    perPage: 10,
+    perPage: 20,
     currentPage: 1,
     branchesList: [],
     branch_id: null,
@@ -860,12 +874,12 @@ export default {
     pagination: {
       current: 1,
       total: 0,
-      per_page: 10,
+      per_page: 20,
     },
     Module: "Employee Schedule",
     shift_types: [],
     manual_shift: {},
-    options: { perPage: 10 },
+    options: { perPage: 20 },
     options_dialog: {},
     endpoint: "scheduled_employees_index",
     endpoint_dialog: "scheduled_employees_list",
@@ -1078,7 +1092,7 @@ export default {
     this.getDataFromApi();
     this.options = {
       params: {
-        per_page: 10,
+        per_page: 20,
         company_id: this.$auth.user.company_id,
       },
     };

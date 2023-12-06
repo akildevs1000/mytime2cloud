@@ -33,7 +33,7 @@ class ScheduleEmployeeController extends Controller
             $q->where("company_id", $request->company_id);
             $q->where("to_date", ">=", date('Y-m-d'));
 
-            $q->withOut("shift_type");
+
             // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
             $q->orderBy("to_date", "asc");
         }]);
