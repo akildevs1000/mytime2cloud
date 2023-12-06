@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Dashboards\EmployeeDashboard;
 use App\Http\Controllers\Dashboards\VisitorDashboard;
 use App\Http\Controllers\Reports\VisitorMonthlyController;
 use App\Http\Controllers\Visitor\VisitorAttendanceRenderController;
@@ -34,3 +35,6 @@ Route::post('visitor-update-zone', [VisitorController::class, 'updateVisitorToZo
 Route::get('setVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'setVisitorExpireDates']);
 Route::get('deleteVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'deleteVisitorExpireDates']);
 Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::class, 'deleteVisitorFromDevice']);
+
+
+Route::get('get-notifications-count', [EmployeeDashboard::class, 'getNotificationCount']);

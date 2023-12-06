@@ -691,10 +691,10 @@
           }}
         </template>
         <template v-slot:item.employee_id="{ item }">
-          <strong>{{ item.employee_id }} </strong><br /><span
-            class="secondary-value"
-            >{{ item.system_user_id }}</span
-          >
+          <strong>{{ item.employee_id }} </strong><br />
+          <span title="Employee Device ID" class="secondary-value">{{
+            item.system_user_id
+          }}</span>
         </template>
 
         <template v-slot:item.first_name="{ item, index }" style="width: 300px">
@@ -767,7 +767,7 @@
               : item.schedule.shift.name
           }}
           {{ item.schedule.isAutoShift ? "Auto" : "---" }} -->
-          <div class="secondary-value">
+          <div class="secondary-value" title="Total Assigned Shift count">
             {{ item.schedule_all.length }}
           </div>
         </template>

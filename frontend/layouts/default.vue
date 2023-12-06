@@ -223,7 +223,76 @@
         ></v-btn
       >
 
-      <label class=" ">
+      <v-menu
+        bottom
+        origin="center center"
+        offset-y
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon dark v-bind="attrs" v-on="on">
+            <v-badge
+              :color="pendingNotificationsCount > 0 ? 'red' : 'red'"
+              :content="pendingNotificationsCount"
+              style="top: 10px; left: -19px"
+            >
+              <v-icon style="top: -10px; left: 10px" class="violet--text"
+                >mdi mdi-bell-ring</v-icon
+              >
+            </v-badge>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            style="height: 30px"
+            @click="goToPage(item.click)"
+            v-for="(item, index) in notificationsMenuItems"
+            :key="index"
+          >
+            <v-list-item-icon>
+              <v-icon>{{ item.icon }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title class="black--text">{{
+                item.title
+              }}</v-list-item-title>
+            </v-list-item-content>
+            <!-- <v-list-item-title
+              style="cursor: pointer"
+              @click="goToPage(item.click)"
+              >{{ item.title }}
+            </v-list-item-title> -->
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
+      <!-- <v-menu
+        bottom
+        origin="center center"
+        offset-y
+        transition="scale-transition"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-badge
+            v-bind="attrs"
+            v-on="on"
+            :color="pendingLeavesCount > 0 ? 'red' : 'red'"
+            content="1"
+            style="top: 10px; left: -19px"
+          >
+            <v-icon style="top: -10px; left: 10px" class="violet--text"
+              >mdi mdi-bell-ring</v-icon
+            >
+          </v-badge>
+        </template>
+
+        <v-list>
+          <v-list-item v-for="(item, i) in notificationItems" :key="i">
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu> -->
+      <!-- <label class=" ">
         <v-badge
           v-if="pendingLeavesCount > 0"
           @click="navigateToLeavePage()"
@@ -241,7 +310,7 @@
             >mdi mdi-bell-ring</v-icon
           >
         </v-badge>
-      </label>
+      </label> -->
       <v-snackbar
         top="top"
         v-model="snackNotification"
@@ -410,6 +479,8 @@ import employee_top_menu from "../menus/employee_modules_top.json";
 export default {
   data() {
     return {
+      notificationsMenuItems: [],
+
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
       branch_id: "",
@@ -486,6 +557,7 @@ export default {
       company_top_menu,
       employee_top_menu,
       pendingLeavesCount: 0,
+      pendingNotificationsCount: 0,
       snackNotificationText: "",
       snackNotification: false,
       snackNotificationColor: "black",
@@ -528,6 +600,12 @@ export default {
     this.setMenus();
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
+
+    this.loadNotificationMenu();
+
+    setInterval(() => {
+      this.loadNotificationMenu();
+    }, 1000 * 60);
   },
 
   mounted() {
@@ -618,6 +696,46 @@ export default {
     },
   },
   methods: {
+    loadNotificationMenu() {
+      let options = {
+        params: {
+          company_id: this.$auth.user?.company?.id || 0,
+        },
+      };
+      this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
+        this.notificationsMenuItems = [];
+        this.pendingNotificationsCount = 0;
+
+        if (data.employee_leaves_pending_count) {
+          this.pendingNotificationsCount += data.employee_leaves_pending_count;
+          this.notificationsMenuItems.push({
+            title: "Leave (" + data.employee_leaves_pending_count + ")",
+            click: "/leaves",
+            icon: "mdi-calendar-account",
+          });
+        }
+        if (data.visitor_request_pending_count) {
+          this.pendingNotificationsCount += data.visitor_request_pending_count;
+          this.notificationsMenuItems.push({
+            title: "Visitor (" + data.visitor_request_pending_count + ")",
+            click: "/visitor/requests",
+            icon: "mdi-transit-transfer",
+          });
+        }
+        // if (this.pendingNotificationsCount > 0) {
+        //   //console.log("this.$config", this.$config);
+        //   document.title =
+        //     "Mytime2Cloud " +
+        //     " - Notifications Pending : " +
+        //     this.pendingNotificationsCount;
+        // }
+
+        // let menu1 = { title: "Leave Notifications (2)", click: "Test" };
+        // let menu2 = { title: "Visitor Notifications (2)", click: "Test" };
+        // this.notificationsMenuItems.push(menu1);
+        // this.notificationsMenuItems.push(menu2);
+      });
+    },
     getBranchName() {
       return this.$auth.user.branch_name;
     },
@@ -625,6 +743,9 @@ export default {
       if (i.module == "dashboard") {
         this.setSubLeftMenuItems(i.submenu, i.to);
       }
+    },
+    goToPage(page) {
+      this.$router.push(page);
     },
     goToSettings() {
       this.setSubLeftMenuItems("settings", "/branches");

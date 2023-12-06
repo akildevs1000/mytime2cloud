@@ -60,13 +60,6 @@ class VisitorDashboard extends Controller
 
 
 
-        // $visitorCounts = $Visitors->withCount([
-        //     'status as total_approved' => fn ($q) =>  $q->where('code', 'A'),
-        //     'status as total_pending' => fn ($q) => $q->where('code', 'P'),
-        //     'status as total_canceled' => fn ($q) => $q->where('code', 'C'),
-        //     'status as total_rejected' => fn ($q) => $q->where('code', 'R'),
-        // ])->get();
-
 
 
         $host  = HostCompany::whereCompanyId($id)
@@ -79,32 +72,13 @@ class VisitorDashboard extends Controller
 
         $opened_office = $host->where("open_time", "<=", date('H:i'))->where("close_time", ">=", date('H:i'))->count();
         $closed_office =  $host_count - $opened_office;
-        // $Visitors->clone()->where('status_id', ">=", 6)->count();
 
-        // $overStayCount = $Visitors->clone()->where('status_id', "=", 6)
-
-        //     ->where('time_out', '<', date("H:i"))
-        //     ->count();
         $overStayCount =  $VisitorAttendance->clone()
 
             ->whereHas("visitor", fn ($q) => $q->where("visitor_attendances.out", null)->where("visitors.time_out", '<', date("H:i")))
             ->count();
 
-        // $overStayCount = 0;
-        // $pendingCheckOut = $Visitors->clone()->where('status_id',   6)->get(); //pull checked in 
-        // foreach ($pendingCheckOut as $pending) {
 
-
-        //     $actucalCheckOutTime = $this->timeTOSeconds($pending->time_out);
-        //     if ($pending->checked_out_datetime) {
-        //         // $visitorCheckoutTime = $this->timeTOSeconds(date('H:i', strtotime($pending->checked_out_datetime)));
-        //     } else {
-        //         $visitorCheckoutTime = $this->timeTOSeconds(date("H:i"));
-        //         if ($visitorCheckoutTime > $actucalCheckOutTime) {
-        //             $overStayCount++;
-        //         }
-        //     }
-        // }
 
         return [
             "visitorCounts" => [

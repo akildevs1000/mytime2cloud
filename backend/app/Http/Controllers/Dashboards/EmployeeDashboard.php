@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Dashboards;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\EmployeeLeaves;
+use App\Models\Visitor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
@@ -96,6 +98,33 @@ class EmployeeDashboard extends Controller
         ];
     }
 
+    public function getNotificationCount(Request $request)
+    {
+
+        $model = EmployeeLeaves::query();
+        $model->where('company_id', $request->company_id);
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',  $request->branch_id);
+        });
+        $model->where('status', 0);
+
+        $data['employee_leaves_pending_count'] = $model->count();
+
+        //visitors pending count 
+
+        $Visitors = Visitor::query();
+        //  $Visitors->with(["attendances"]);
+        $Visitors->whereCompanyId($request->company_id);
+        $Visitors->where('status_id',   1);
+        $Visitors->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->where('branch_id',   $request->branch_id);
+        });
+
+        $data['visitor_request_pending_count'] = $Visitors->count();
+
+        return $data;
+    }
+
     public function getLink($request, $status)
     {
         $baseUrl = env("BASE_URL");
@@ -134,7 +163,7 @@ class EmployeeDashboard extends Controller
 
         $model->whereMonth('date', now()->month);
 
-        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V','ME'])->get();
+        return $model->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'ME'])->get();
 
         // working code with cache
         $cacheKey = 'employee_attendance_records:' . $request->company_id . "_" . $request->employee_id;

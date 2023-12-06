@@ -402,14 +402,13 @@ export default {
   },
 
   mounted() {
-    this.verifyLeaveNotificationsApi();
-
-    setInterval(() => {
-      if (this.socketConnectionStatus != 1) {
-        //socket connection is closed
-        this.verifyLeaveNotificationsSocket();
-      }
-    }, 1000 * 60 * 1);
+    // this.verifyLeaveNotificationsApi();
+    // setInterval(() => {
+    //   if (this.socketConnectionStatus != 1) {
+    //     //socket connection is closed
+    //     this.verifyLeaveNotificationsSocket();
+    //   }
+    // }, 1000 * 60 * 1);
   },
 
   computed: {
