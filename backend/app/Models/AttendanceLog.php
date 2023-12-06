@@ -374,7 +374,7 @@ class AttendanceLog extends Model
             })
             ->orderBy("LogTime", 'asc')
             ->get()
-
+            ->load("device")
             ->groupBy(['UserID']);
 
         return $return;
