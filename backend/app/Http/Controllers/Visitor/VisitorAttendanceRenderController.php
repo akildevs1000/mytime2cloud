@@ -74,10 +74,16 @@ class VisitorAttendanceRenderController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
+            // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
+            // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
 
+            $firstLog = collect($logs)->filter(function ($record) {
+                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all");
+            })->first();
 
-            $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
-            $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
+            $lastLog = collect($logs)->filter(function ($record) {
+                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all");
+            })->first();
 
 
             // $schedule = $firstLog["schedule"] ?? false;

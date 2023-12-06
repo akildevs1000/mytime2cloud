@@ -320,6 +320,7 @@ class AttendanceLog extends Model
             ->where("company_id", $params["company_id"])
             ->distinct("LogTime", "UserID", "company_id")
             ->get()
+            ->load("device")
             ->load(["schedule" => function ($q) use ($params) {
                 $q->where("company_id", $params["company_id"]);
                 $q->where("to_date", ">=", $params["date"]);

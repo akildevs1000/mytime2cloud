@@ -15,6 +15,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/render_logs', [RenderController::class, 'renderLogs']);
+Route::get('/render_logs_test', [RenderController::class, 'renderLogsTest']);
+
 
 Route::get('render_multi_inout_report', [RenderController::class, 'renderMultiInOut']);
 Route::get('render_general_report', [RenderController::class, 'renderGeneral']);

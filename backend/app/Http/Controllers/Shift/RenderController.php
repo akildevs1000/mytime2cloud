@@ -27,6 +27,12 @@ class RenderController extends Controller
 
     public $updated_by;
 
+
+    public function renderLogsTest(Request $request)
+    {
+        return (new NightShiftController)->renderData($request);
+    }
+
     public function renderLogs(Request $request)
     {
         // return (new ShiftRenderController)->renderData($request);
