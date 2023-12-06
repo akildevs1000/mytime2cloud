@@ -209,7 +209,7 @@ class Visitor extends Model
 
         $model->with(["host" => fn ($q) => $q->withOut(["user", "employee"])]);
 
-        $model->orderBy("visit_from", "DESC");
+        $model->orderBy("id", "DESC");
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             if (!strpos($request->sortBy, '.')) {

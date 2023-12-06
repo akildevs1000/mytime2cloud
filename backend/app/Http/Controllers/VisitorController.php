@@ -453,7 +453,7 @@ class VisitorController extends Controller
                     }
                 } else {
 
-                    return $this->response('Visitor cannot upload.' . "Visting OutTime  is out of the date ", null, false);
+                    return $this->response('ID is allocated.But, Pending to Push to Device.' . " Visting OutTime  is out of the date ", null, false);
                 }
             }
 

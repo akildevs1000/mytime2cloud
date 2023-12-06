@@ -87,6 +87,18 @@ export default ({ app }, inject) => {
 
       return { first: formattedFirstDay, last: formattedLastDay };
     },
+    time2Hm: (inputdate) => {
+      // Split the time string by ':'
+      const timeParts = inputdate.split(":");
+
+      // Extract the hour and minutes
+      const hour = timeParts[0];
+      const minutes = timeParts[1];
+
+      console.log(`Hour: ${hour}`);
+      console.log(`Minutes: ${minutes}`);
+      return `${hour}:${minutes}`;
+    },
     format_month_name_year: (inputdate) => {
       // Create a Date object with the date "2023-09-13"  Output: "23-09-13"
       const date = new Date(inputdate);
