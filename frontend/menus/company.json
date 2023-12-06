@@ -305,6 +305,34 @@
     "module": "visitors"
   },
   {
+    "icon": "mdi-account-card-details",
+    "title": "Tanent",
+    "to": "/community/tanent",
+    "menu": "community",
+    "module": "community"
+  },
+  {
+    "icon": "mdi-hotel",
+    "title": "Room",
+    "to": "/community/setup/room",
+    "menu": "community",
+    "module": "community"
+  },
+  {
+    "icon": "mdi-stairs",
+    "title": "Floor",
+    "to": "/community/setup/floor",
+    "menu": "community",
+    "module": "community"
+  },
+  {
+    "icon": "mdi-shape-square-plus",
+    "title": "Category",
+    "to": "/community/setup/room-category",
+    "menu": "community",
+    "module": "community"
+  },
+  {
     "icon": "mdi-select-group",
     "title": "Zones",
     "to": "/zone",
