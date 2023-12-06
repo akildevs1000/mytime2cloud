@@ -286,9 +286,37 @@ class AutoShiftController extends Controller
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
     }
 
+    public function renderData(Request $request)
+    {
+        // Extract start and end dates from the JSON data
+        $startDateString = $request->dates[0];
+        //$endDateString = $request->dates[1];
+        if (isset($request->dates[1])) {
+            $endDateString = $request->dates[1];
+        } else {
+            $endDateString = $request->dates[0];
+        }
+        $company_id = $request->company_ids[0];
+        $employee_ids = $request->employee_ids;
+
+        // Convert start and end dates to DateTime objects
+        $startDate = new \DateTime($startDateString);
+        $endDate = new \DateTime($endDateString);
+        $currentDate = new \DateTime();
+
+        $response = [];
+
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, true);
+            $startDate->modify('+1 day');
+        }
+
+        return $response;
+    }
+
     public function renderRequest(Request $request)
     {
-        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->UserIds, $request->custom_render);
+        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->UserIds, true);
     }
 
 
