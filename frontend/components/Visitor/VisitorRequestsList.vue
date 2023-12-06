@@ -245,9 +245,9 @@
         </template>
         <template v-slot:item.visit_from="{ item }">
           {{ $dateFormat.format1(item.from_date_display) }}
-          <span v-if="item.to_date_display != item.from_date_display">
-            to {{ $dateFormat.format1(item.to_date_display) }}</span
-          >
+          <div v-if="item.to_date_display != item.from_date_display">
+            to {{ $dateFormat.format1(item.to_date_display) }}
+          </div>
           <div class="secondary-value">
             {{ item.time_in }} - {{ item.time_out }}
           </div>
@@ -302,10 +302,13 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="uploadVisitorInfo(item)">
+              <v-list-item
+                v-if="can('host_edit')"
+                @click="uploadVisitorInfo(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="purple" small> mdi-cellphone-text </v-icon>
-                  Upload Visitor
+                  Upload Visitor to Device
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
@@ -348,7 +351,7 @@
               <v-select
                 v-model="payload.zone_id"
                 :items="zoneList"
-                label="Zone 1"
+                label="Zone"
                 item-text="name"
                 item-value="id"
                 outlined
@@ -460,8 +463,11 @@
           </v-card-actions>
 
           <v-card-text class="mt-2">
-            <v-card v-for="(visitor, index) in visitorUploadedDevicesInfo">
-              <v-card-title
+            <v-card
+              v-for="(visitor, index) in visitorUploadedDevicesInfo"
+              :key="'vs' + index"
+            >
+              <v-card-title style="font-size: 13px"
                 >{{ ++index }}: Device: {{ visitor.deviceName }}
               </v-card-title>
               <v-card-text class="mt-2">
@@ -520,6 +526,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-btn
+                      v-if="can('visitor_delete')"
                       class="align-right"
                       style="float: right; color: #fff"
                       dense
@@ -611,7 +618,7 @@ export default {
         filterable: false,
       },
       {
-        width: "200px",
+        width: "250px",
         text: "Picture",
         align: "left",
         sortable: true,
@@ -730,12 +737,6 @@ export default {
     }
 
     this.getDataFromApi();
-    setTimeout(() => {
-      this.getPurposeList();
-      this.getHostsList();
-      this.getbranchesList();
-      this.getVisitorStatusList();
-    }, 1000);
 
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
@@ -770,6 +771,9 @@ export default {
     }
   },
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
@@ -878,7 +882,7 @@ export default {
         };
         this.loadingDeviceData = true;
         this.$axios
-          .get(`get-visitor-device-details`, options)
+          .get(`get-device-person-details`, options)
           .then(({ data }) => {
             if (item.zone.devices.length == counter) {
               this.loadingDeviceData = false;
@@ -982,6 +986,12 @@ export default {
     },
     toggleFilter() {
       this.isFilter = !this.isFilter;
+      if (this.isFilter) {
+        this.getPurposeList();
+        this.getHostsList();
+        this.getbranchesList();
+        this.getVisitorStatusList();
+      }
     },
     getPurposeList() {
       let options = {
@@ -1096,10 +1106,10 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: this.statsFilterValue,
-
-          //status_id: 2,
         },
       };
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       this.$axios.get(this.endpoint, options).then(({ data }) => {
         this.data = data.data;
         this.pagination.current = data.current_page;

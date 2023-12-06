@@ -33,7 +33,7 @@ class DeviceController extends Controller
         $model->where('company_id', request('company_id'));
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
-        return $model->get(["id", "name", "location"]);
+        return $model->get(["id", "name", "location", "device_id", "device_type"]);
     }
 
     public function index(Request $request)
@@ -100,7 +100,18 @@ class DeviceController extends Controller
     {
         return $model->with(['status'])->where('company_id', $request->company_id)->get();
     }
+    public function getDevicePersonDetails(Request $request)
+    {
+        if ($request->system_user_id > 0) {
+            $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
 
+            $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+
+            return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
+        } else {
+            return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
+        }
+    }
     public function store(StoreRequest $request)
     {
         try {
@@ -432,7 +443,7 @@ class DeviceController extends Controller
         if (checkSDKServerStatus($sdk_url) === 0) {
             return "Failed to connect to the SDK Server: $sdk_url";
         }
-
+        $return_araay = [];
         foreach ($devices as $device_id) {
             $curl = curl_init();
 
@@ -456,6 +467,8 @@ class DeviceController extends Controller
 
             $response = curl_exec($curl);
 
+
+
             curl_close($curl);
 
             $status = json_decode($response);
@@ -471,7 +484,7 @@ class DeviceController extends Controller
             $total_iterations++;
         }
 
-        return "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
     }
     public function updateActiveTimeSettings(Request $request, $device_id)
     {

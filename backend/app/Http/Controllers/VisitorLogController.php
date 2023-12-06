@@ -31,6 +31,9 @@ class VisitorLogController extends Controller
                 $query->select('system_user_id')
 
                     ->from('visitors')
+                    ->when($request->filled("branch_id"), function ($query) use ($request) {
+                        return $query->where('branch_id', $request->branch_id);
+                    })
                     ->where('company_id', $request->company_id);
             })
             ->with(["visitor", "visitor.host", "visitor.purpose", "visitor.branch", "device"])

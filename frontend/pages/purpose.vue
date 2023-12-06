@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`role_access`)">
+  <div v-if="can(`purpose_access`)">
     <v-dialog v-model="dialogNewRole" width="500">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -57,7 +57,7 @@
     <v-row>
       <v-col md="12">
         <v-data-table
-          v-if="can(`role_view`)"
+          v-if="can(`purpose_view`)"
           v-model="ids"
           item-key="id"
           :headers="headers"
@@ -121,7 +121,7 @@
           </template>
           <template v-slot:item.action="{ item }">
             <v-icon
-              v-if="can(`role_edit`)"
+              v-if="can(`purpose_edit`)"
               color="secondary"
               small
               class="mr-2"
@@ -130,7 +130,7 @@
               mdi-pencil
             </v-icon>
             <v-icon
-              v-if="can(`role_delete`)"
+              v-if="can(`purpose_delete`)"
               color="error"
               small
               @click="deleteItem(item)"

@@ -6,6 +6,7 @@ use App\Http\Requests\HostCompany\Store;
 use App\Http\Requests\HostCompany\Update;
 use App\Models\Employee;
 use App\Models\HostCompany;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
 class HostController extends Controller
@@ -54,15 +55,29 @@ class HostController extends Controller
     {
         $model = HostCompany::query();
 
-        $fields = ['flat_number'];
+        $fields = ['flat_number', 'number', 'emergency_phone', 'open_time', 'close_time', 'branch_id', 'zone_id'];
 
         $model = $this->process_ilike_filter($model, $request, $fields);
+        $fields = ['branch_id', 'zone_id'];
+        $model = $this->process_column_filter($model, $request, $fields);
 
-        $model->with("employee:id,branch_id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture");
+        $model->with(["zone", "branch", "employee:id,branch_id,user_id,employee_id,system_user_id,first_name,last_name,display_name,profile_picture"]);
 
         $model->when($request->filled("employee_id"), fn ($q) => $q->where(" employee_id", $request->employee_id));
 
         $model->where("company_id", $request->input("company_id"));
+
+        $model->when($request->filled('first_name'), function ($q) use ($request) {
+
+            $q->whereHas(
+                'employee',
+                fn (Builder $query) =>
+
+                $query->where('first_name', 'ILIKE', "$request->first_name%")
+
+
+            );
+        });
 
         return $model->paginate($request->input("per_page", 100));
     }
@@ -86,6 +101,8 @@ class HostController extends Controller
         }
 
         try {
+
+
 
             $host = HostCompany::create($data);
             if (!$host) {

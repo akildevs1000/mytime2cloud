@@ -601,8 +601,13 @@
       </v-col>
     </v-row>
     <v-row>
-      <!-- <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
-          color="primary"></v-progress-linear> -->
+      <v-progress-linear
+        v-if="progressloading"
+        :active="loading"
+        :indeterminate="loading"
+        absolute
+        color="primary"
+      ></v-progress-linear>
       <v-col cols="12">
         <div class="row">
           <div class="col col-lg-6 text-center">
@@ -711,35 +716,36 @@ export default {
     }, 2000);
   },
   async created() {
-    if (this.$auth.user.branch_id) {
+    if (this.$auth.user.branch_id == 0) {
+      this.isCompany = true;
+      try {
+        const { data } = await this.$axios.get(`branches_list`, {
+          params: {
+            per_page: 100,
+            company_id: this.$auth.user.company_id,
+          },
+        });
+        this.branchesList = data;
+      } catch (error) {
+        // Handle the error
+        console.error("Error fetching branch list", error);
+      }
+    } else {
       this.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
-      this.filterDepartmentsByBranch(this.branch_id);
-      return;
     }
-
-    try {
-      const { data } = await this.$axios.get(`branches_list`, {
-        params: {
-          per_page: 100,
-          company_id: this.$auth.user.company_id,
-        },
-      });
-      this.branchesList = data;
-    } catch (error) {
-      // Handle the error
-      console.error("Error fetching branch list", error);
-    }
+    this.progressloading = true;
+    await this.filterDepartmentsByBranch(this.branch_id);
   },
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    filterDepartmentsByBranch(branch_id) {
-      this.getDepartmentsApi(this.options, branch_id);
-      this.getDevisesDataFromApi(branch_id);
-      this.getEmployeesDataFromApi(branch_id);
-      this.getTimezonesFromApi(branch_id);
+    async filterDepartmentsByBranch(branch_id) {
+      await this.getDepartmentsApi(this.options, branch_id);
+      await this.getDevisesDataFromApi(branch_id);
+      await this.getEmployeesDataFromApi(branch_id);
+      await this.getTimezonesFromApi(branch_id);
     },
     fetch_logs() {},
     loadDepartmentemployees() {
@@ -752,7 +758,7 @@ export default {
           company_id: this.$auth.user.company_id,
           department_id: this.departmentselected,
           branch_id: this.branch_id,
-          cols: ["id", "employee_id", "display_name"],
+          cols: ["id", "employee_id", "first_name", "last_name"],
         },
       };
       let page = 1;
@@ -768,7 +774,7 @@ export default {
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
-      console.log(options);
+      this.progressloading = true;
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
@@ -1018,7 +1024,13 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
-          cols: ["id", "employee_id", "display_name", "first_name"],
+          cols: [
+            "id",
+            "employee_id",
+            "display_name",
+            "first_name",
+            "last_name",
+          ],
           branch_id: branch_id,
         },
       };
@@ -1354,7 +1366,7 @@ export default {
       let personListArray = [];
       this.rightEmployees.forEach(async (item) => {
         let person = {
-          name: item.display_name,
+          name: item.first_name + " " + item.last_name,
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
@@ -1505,12 +1517,15 @@ export default {
 
       this.rightEmployees.forEach((item) => {
         let person = {
-          name: item.display_name,
+          name: item.first_name + " " + item.last_name,
 
           userCode: parseInt(item.system_user_id),
 
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-          faceImage: item.profile_picture,
+          faceImage:
+            process.env.APP_ENV != "local"
+              ? item.profile_picture
+              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg",
         };
         personListArray.push(person);
       });

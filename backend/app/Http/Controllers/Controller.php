@@ -139,6 +139,9 @@ class Controller extends BaseController
         }
         return $model;
     }
+
+
+
     public function process_column_filter($model, $request, $fields)
     {
         foreach ($fields as $field) {

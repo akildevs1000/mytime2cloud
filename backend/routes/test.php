@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
+use App\Http\Controllers\Shift\NightShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Mail\ReportNotificationMail;
@@ -488,6 +489,10 @@ Route::get('/test3', function () {
 
     return $devicesListArray->clone()->where("device_id", "=", 'OX-9662022091021')->pluck('id')[0];
     //return (new AttendanceController)->seedDefaultData(8, [1001], 2);
+});
+
+Route::get('/nightshift', function () {
+    return (new NightShiftController)->render();
 });
 Route::get('/test_attachment', function () {
     $test = new RenderController();

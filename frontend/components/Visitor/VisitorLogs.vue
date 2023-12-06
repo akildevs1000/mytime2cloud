@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`visitors_log_access`)">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -365,7 +365,6 @@
         </v-col>
       </v-row> -->
   </div>
-  <NoAccess v-else />
 </template>
 
 <script>

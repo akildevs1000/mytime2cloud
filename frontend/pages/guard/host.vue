@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('employee_access')">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -10,6 +10,13 @@
         <v-card>
           <v-toolbar class="popup_background" flat>
             {{ formAction }} Host
+
+            <v-spacer></v-spacer>
+            <span>
+              <v-icon class="ml-2" @click="DialogBox = false" dark>
+                mdi mdi-close-circle</v-icon
+              >
+            </span>
           </v-toolbar>
           <v-container>
             <v-row>
@@ -40,7 +47,7 @@
                   v-model="payload.employee_id"
                   :items="employees"
                   dense
-                  item-text="first_name"
+                  item-text="full_name"
                   item-value="id"
                   :hide-details="!errors.employee_id"
                   :error-messages="
@@ -51,7 +58,7 @@
               </v-col>
 
               <v-col cols="6">
-                <v-text-field
+                <!-- <v-text-field
                   label="Zone. Number"
                   :disabled="disabled"
                   v-model="payload.zone_id"
@@ -63,7 +70,19 @@
                   :error-messages="
                     errors && errors.zone_id ? errors.zone_id[0] : ''
                   "
-                ></v-text-field>
+                ></v-text-field> -->
+                <v-select
+                  label="Zone"
+                  :hide-details="true"
+                  clearable
+                  @change="applyFilters('status', $event)"
+                  item-value="id"
+                  item-text="name"
+                  v-model="payload.zone_id"
+                  outlined
+                  dense
+                  :items="zones_list"
+                ></v-select>
               </v-col>
 
               <v-col cols="6">
@@ -216,6 +235,7 @@
               </v-col>
 
               <v-col cols="6" v-if="disabled">
+                <div class="px-5 popup_background">Host Link</div>
                 <div>
                   <v-avatar class="ma-1" v-if="qrCodeDataURL" size="150" tile>
                     <img :src="qrCodeDataURL" alt="Avatar" />
@@ -227,6 +247,25 @@
                   </a>
                 </span>
               </v-col>
+
+              <!-- <v-col cols="6" v-if="disabled">
+                <div class="px-5 popup_background">Open Link</div>
+                <div>
+                  <v-avatar
+                    class="ma-1"
+                    v-if="qrCompanyCodeDataURL"
+                    size="150"
+                    tile
+                  >
+                    <img :src="qrCompanyCodeDataURL" alt="Avatar" />
+                  </v-avatar>
+                </div>
+                <span>
+                  <a :href="`${fullCompanyLink}`" target="_blank">
+                    {{ fullCompanyLink }}
+                  </a>
+                </span>
+              </v-col> -->
               <!-- <v-col cols="12">
                     <v-switch
                       :disabled="disabled"
@@ -299,79 +338,35 @@
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
               >
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Reload"
-              >
-                <v-icon class="ml-2" @click="clearFilters" dark
-                  >mdi mdi-reload</v-icon
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Reload"
                 >
-              </v-btn>
-              <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <!-- <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Filter"
-              >
-                <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                  >mdi mdi-filter</v-icon
+                  <v-icon class="ml-2" @click="clearFilters" dark
+                    >mdi mdi-reload</v-icon
+                  >
+                </v-btn>
+              </span>
+              <span>
+                <v-btn
+                  dense
+                  class="ma-0 px-0"
+                  x-small
+                  :ripple="false"
+                  text
+                  title="Filter"
                 >
-              </v-btn> -->
-              <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
-
+                  <v-icon class="ml-2" @click="toggleFilter" dark
+                    >mdi mdi-filter</v-icon
+                  >
+                </v-btn>
+              </span>
               <v-spacer></v-spacer>
-
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <v-btn
-                dense
-                x-small
-                class="ma-0 px-0"
-                :ripple="false"
-                text
-                title="Add Company"
-                @click="addItem"
-              >
-                <v-icon right size="x-large" dark v-if="can('employee_create')"
-                  >mdi-plus-circle</v-icon
-                >
-              </v-btn>
-              <!-- </template>
-                <span>Add Company</span>
-              </v-tooltip> -->
-              <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-              <!-- <v-btn
-                dense
-                x-small
-                class="ma-0 px-0"
-                :ripple="false"
-                text
-                title="QR Code"
-                @click="dialog = true"
-              >
-                <v-icon right size="x-large" dark v-if="can('employee_create')"
-                  >mdi-apps</v-icon
-                >
-              </v-btn> -->
-              <!-- </template>
-                <span>Test</span>
-              </v-tooltip> -->
             </v-toolbar>
             <v-data-table
               dense
@@ -405,11 +400,47 @@
                         dense
                         autocomplete="off"
                       ></v-text-field>
+                      <v-select
+                        v-if="
+                          header.filterSpecial && header.value == 'branch_id'
+                        "
+                        :hide-details="true"
+                        clearable
+                        @change="applyFilters('status', $event)"
+                        item-value="id"
+                        item-text="branch_name"
+                        v-model="filters[header.value]"
+                        outlined
+                        dense
+                        :items="[
+                          { branch_name: `All Branches`, id: `` },
+                          ...branchesList,
+                        ]"
+                      ></v-select>
+                      <v-select
+                        v-if="header.filterSpecial && header.value == 'zone_id'"
+                        :hide-details="true"
+                        clearable
+                        @change="applyFilters('status', $event)"
+                        item-value="id"
+                        item-text="name"
+                        v-model="filters[header.value]"
+                        outlined
+                        dense
+                        :items="[{ name: `All Zones`, id: `` }, ...zones_list]"
+                      ></v-select>
                     </v-container>
                   </td>
                 </tr>
               </template>
-
+              <template v-slot:item.sno="{ item, index }">
+                {{
+                  currentPage
+                    ? (currentPage - 1) * perPage +
+                      (cumulativeIndex + data.indexOf(item))
+                    : "-"
+                }}
+              </template>
               <template
                 v-slot:item.first_name="{ item, index }"
                 style="width: 300px"
@@ -425,13 +456,15 @@
                   >
                     <v-img
                       style="
+                        border: 1px solid #ddd;
                         border-radius: 50%;
                         height: auto;
                         width: 50px;
                         max-width: 50px;
+                        height: 50px;
                       "
                       :src="
-                        item.employee.profile_picture
+                        item.employee
                           ? item.employee.profile_picture
                           : '/no-profile-image.jpg'
                       "
@@ -441,7 +474,7 @@
                   <v-col style="padding: 10px">
                     <strong>
                       {{
-                        item.employee.first_name
+                        item.employee
                           ? item.employee.first_name +
                             " " +
                             item.employee.last_name +
@@ -450,19 +483,18 @@
                           : "---"
                       }}
                     </strong>
-                    <div>
-                      {{
-                        item.employee.user.email
-                          ? item.employee.user.email
-                          : "---"
-                      }}
-                    </div>
+                    <!-- <div>
+                      {{ item.employee ? item.employee.user.email : "---" }}
+                    </div> -->
                   </v-col>
                 </v-row>
               </template>
 
-              <template v-slot:item.email="{ item }">
-                {{ item?.employee?.user?.email }}
+              <template v-slot:item.branch_id="{ item }">
+                {{ item?.branch?.branch_name }}
+              </template>
+              <template v-slot:item.zone_id="{ item }">
+                {{ item?.zone?.name }}
               </template>
 
               <template v-slot:item.options="{ item }">
@@ -479,18 +511,6 @@
                         View
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="editItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
                   </v-list>
                 </v-menu>
               </template>
@@ -501,8 +521,6 @@
     </div>
     <Preloader v-else />
   </div>
-
-  <NoAccess v-else />
 </template>
 
 <script>
@@ -515,10 +533,13 @@ export default {
   },
 
   data: () => ({
+    zones_list: [],
     originalURL: process.env.APP_URL + "/register/visitor/", // `https://mytime2cloud.com/register/visitor/`,
+    fullCompanyLink: ``,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
+    qrCompanyCodeDataURL: "",
     disabled: false,
     openTimePicker: false,
     closeTimePicker: false,
@@ -634,12 +655,22 @@ export default {
     // "webaccess": true,
     headers: [
       {
+        text: "#",
+        align: "left",
+        sortable: true,
+        key: "sno",
+        value: "sno",
+
+        filterable: false,
+        filterSpecial: false,
+      },
+      {
         text: "Host Name",
         align: "left",
         sortable: true,
         key: "first_name",
         value: "first_name",
-        width: "300px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -660,26 +691,26 @@ export default {
         key: "flat_number",
         value: "flat_number",
         filterable: true,
-        width: "150px",
+
         filterSpecial: false,
       },
-      {
-        text: "Floor No",
-        align: "left",
-        sortable: true,
-        key: "floor_number",
-        value: "floor_number",
-        filterable: true,
-        width: "150px",
-        filterSpecial: false,
-      },
+      // {
+      //   text: "Floor No",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "floor_number",
+      //   value: "floor_number",
+      //   filterable: true,
+      //   width: "150px",
+      //   filterSpecial: false,
+      // },
       {
         text: "Phone",
         align: "left",
         sortable: true,
         key: "number",
         value: "number",
-        width: "150px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -689,7 +720,7 @@ export default {
         sortable: true,
         key: "emergency_phone",
         value: "emergency_phone",
-        width: "150px",
+
         filterable: true,
         filterSpecial: false,
       },
@@ -699,7 +730,7 @@ export default {
         sortable: true,
         key: "open_time",
         value: "open_time",
-        filterable: false,
+        filterable: true,
         filterSpecial: false,
       },
       {
@@ -708,12 +739,12 @@ export default {
         sortable: true,
         key: "close_time",
         value: "close_time",
-        filterable: false,
+        filterable: true,
         filterSpecial: false,
       },
 
       {
-        text: "Details",
+        text: "Options",
         align: "left",
         sortable: false,
         key: "options",
@@ -721,9 +752,30 @@ export default {
       },
     ],
     formAction: "Create",
+    branchesList: [],
+
+    cumulativeIndex: 1,
+    perPage: 10,
+    currentPage: 1,
+    totalRowsCount: 0,
   }),
 
   async created() {
+    this.originalURL = process.env.APP_URL + "/register/visitor/";
+    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
+      let branch_header = [
+        {
+          text: "Branch",
+          align: "left",
+          sortable: true,
+          value: "branch_id",
+          filterable: true,
+          filterName: "branch_id",
+          filterSpecial: true,
+        },
+      ];
+      this.headers.splice(1, 0, ...branch_header);
+    }
     this.loading = false;
     this.boilerplate = true;
 
@@ -748,6 +800,33 @@ export default {
     },
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
+    getZonesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`zone_list`, this.payloadOptions).then(({ data }) => {
+        this.zones_list = data;
+      });
+    },
+
     async initialize() {
       try {
         const options = {
@@ -761,6 +840,8 @@ export default {
           first_name: e.first_name,
           last_name: e.last_name,
           display_name: e.display_name,
+          branch_id: e.branch_id,
+          full_name: e.full_name,
         }));
       } catch (error) {
         console.error("An error occurred:", error);
@@ -812,6 +893,10 @@ export default {
     toggleFilter() {
       // this.filters = {};
       this.isFilter = !this.isFilter;
+      if (this.isFilter) {
+        this.getbranchesList();
+        this.getZonesList();
+      }
     },
     clearFilters() {
       this.filters = {};
@@ -837,7 +922,8 @@ export default {
           ...this.filters,
         },
       };
-
+      this.currentPage = page;
+      this.perPage = itemsPerPage;
       this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
         this.data = data.data;
         //this.server_datatable_totalItems = data.total;
@@ -854,12 +940,14 @@ export default {
       });
     },
     addItem() {
+      this.getZonesList();
       this.disabled = false;
       this.formAction = "Create";
       this.DialogBox = true;
       this.payload = {};
     },
     editItem(item) {
+      this.getZonesList();
       this.disabled = false;
       this.formAction = "Edit";
       this.DialogBox = true;
@@ -867,6 +955,7 @@ export default {
       this.previewImage = item.logo;
     },
     viewItem(item) {
+      this.getZonesList();
       this.disabled = true;
       this.formAction = "View";
       this.DialogBox = true;
@@ -874,7 +963,9 @@ export default {
       this.previewImage = item.logo;
       this.fullLink =
         this.originalURL + this.$auth.user.company_id + "-" + item.id;
+      this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
       this.generateQRCode(this.fullLink);
+      this.generateCompanyQRCode(this.fullCompanyLink);
     },
     deleteItem(item) {
       confirm(
@@ -952,8 +1043,23 @@ export default {
       }
     },
 
+    async generateCompanyQRCode(fullLink) {
+      try {
+        this.qrCompanyCodeDataURL = await this.$qrcode.generate(fullLink);
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    },
+
     submit() {
-      console.log(this.payload);
+      let employeeFilter = this.employees.filter(
+        (employee) => employee.id == this.payload.employee_id
+      );
+
+      if (employeeFilter[0]?.branch_id) {
+        this.payload.branch_id = employeeFilter[0].branch_id;
+      }
+
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {
@@ -984,6 +1090,13 @@ export default {
     },
 
     update_data() {
+      let employeeFilter = this.employees.filter(
+        (employee) => employee.id == this.payload.employee_id
+      );
+
+      if (employeeFilter[0]?.branch_id) {
+        this.payload.branch_id = employeeFilter[0].branch_id;
+      }
       this.$axios
         .post(
           this.endpoint + "/" + this.payload.id,

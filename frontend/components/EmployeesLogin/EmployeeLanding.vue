@@ -1,5 +1,8 @@
 <template>
   <div v-if="employeeObject">
+    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+      {{ response }}
+    </v-snackbar>
     <v-row class="pt-5">
       <v-col cols="3">
         <v-card elevation="2" style="min-height: 925px">
@@ -193,6 +196,7 @@
             <v-tab> leave Quota </v-tab>
             <v-tab> Payslips </v-tab>
             <v-tab> Profile</v-tab>
+            <v-tab @click="loadMappedDevicesList()"> Mapped Devices</v-tab>
 
             <v-tabs-slider color="violet"></v-tabs-slider>
             <v-tabs-items v-model="tabmain">
@@ -440,6 +444,101 @@
                   :employeeObject="employeeObject"
                 ></EmployeePersonal>
               </v-tab-item>
+              <v-tab-item>
+                <v-card :loading="loadingDeviceData">
+                  <v-card-actions>
+                    <!-- <span style="font-size: 20px">Mapped Devices</span>
+                    <v-spacer></v-spacer> -->
+                  </v-card-actions>
+
+                  <v-card-text class="mt-2">
+                    <v-card
+                      v-for="(employee, index) in employeeUploadedDevicesInfo"
+                      :key="'vs' + index"
+                    >
+                      <v-card-title style="font-size: 13px"
+                        >{{ ++index }}: Device: {{ employee.deviceName }}
+                      </v-card-title>
+                      <v-card-text class="mt-2">
+                        <v-row
+                          class="100%"
+                          style="margin: auto; line-height: 36px"
+                          v-if="employee.SDKresponseData.data"
+                        >
+                          <v-col cols="4" style="padding: 0px">
+                            <v-img
+                              style="
+                                border-radius: 10%;
+                                width: 100px;
+                                max-width: 95%;
+
+                                height: auto;
+                                border: 1px solid #ddd;
+                              "
+                              :src="
+                                employee.SDKresponseData.data.faceImage
+                                  ? 'data:image/jpeg;base64, ' +
+                                    employee.SDKresponseData.data.faceImage
+                                  : '/no-profile-image.jpg'
+                              "
+                            >
+                            </v-img>
+                          </v-col>
+
+                          <v-col cols="8" style="padding: 0px">
+                            <v-simple-table>
+                              <tr>
+                                <td>Name</td>
+                                <td>
+                                  : {{ employee.SDKresponseData.data.name }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <td>System User Id</td>
+                                <td>
+                                  : {{ employee.SDKresponseData.data.userCode }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <td>Expiry Date</td>
+                                <td>
+                                  : {{ employee.SDKresponseData.data.expiry }}
+                                </td>
+                              </tr>
+
+                              <tr>
+                                <td>Timezone Group Id</td>
+                                <td>
+                                  :
+                                  {{ employee.SDKresponseData.data.timeGroup }}
+                                </td>
+                              </tr>
+                            </v-simple-table>
+                          </v-col>
+                        </v-row>
+
+                        <div v-else>{{ employee.SDKresponseData.message }}</div>
+
+                        <v-row>
+                          <v-col cols="12">
+                            <v-btn
+                              class="align-right"
+                              style="float: right; color: #fff"
+                              dense
+                              small
+                              color="red"
+                              @click="deleteFromDevice(employee)"
+                              >Delete</v-btn
+                            >
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
             </v-tabs-items>
           </v-tabs>
         </v-card>
@@ -543,6 +642,8 @@ export default {
     ScheduleListVue,
   },
   data: () => ({
+    loadingDeviceData: false,
+    employeeUploadedDevicesInfo: [],
     tab2: "",
     leave_group_name: "",
     absents: 0,
@@ -723,6 +824,81 @@ export default {
     },
   },
   methods: {
+    deleteFromDevice(item) {
+      if (confirm("Are you sure want to Delete From This Device?")) {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+
+            system_user_id: item.system_user_id,
+
+            device_id: item.device_id,
+          },
+        };
+        this.$axios
+          .post(`delete-employee-from-device`, options.params)
+          .then(({ data }) => {
+            this.response = "Employee Details are deleted from device";
+            this.snackbar = true;
+          });
+      }
+    },
+    loadMappedDevicesList() {
+      if (this.employeeUploadedDevicesInfo.length == 0) {
+        this.viewUploadedemployeeInfo();
+      }
+    },
+    async viewUploadedemployeeInfo(item) {
+      this.uploadedUserInfoDialog = true;
+
+      this.employeeUploadedDevicesInfo = [];
+      this.loadingDeviceData = true;
+      let counter = 1;
+      const data = await this.$store.dispatch("fetchData", {
+        key: "devices",
+
+        refresh: true,
+        endpoint: "device-list",
+      });
+
+      let devices = data.filter((d) => d.device_type != "Mobile");
+
+      if (devices) {
+        await devices.forEach((element) => {
+          let options = {
+            params: {
+              company_id: this.$auth.user.company_id,
+
+              system_user_id: this.employeeObject.system_user_id,
+
+              device_id: element.device_id,
+            },
+          };
+          this.loadingDeviceData = true;
+          this.$axios
+            .get(`get-device-person-details`, options)
+            .then(({ data }) => {
+              if (devices.length == counter) {
+                this.loadingDeviceData = false;
+              }
+              counter++;
+              if (!data.deviceName) {
+                this.response = data.message;
+                this.snackbar = true;
+
+                return;
+              } else {
+                data.system_user_id = this.employeeObject.system_user_id;
+                data.device_id = element.device_id;
+
+                this.employeeUploadedDevicesInfo.push(data);
+
+                return;
+              }
+            });
+        });
+      }
+    },
     // getDonwloadLink(pic, employee_id) {
     //   return (
     //     process.env.BACKEND_URL + "/download-emp-pic/" + pic + "/" + employee_id

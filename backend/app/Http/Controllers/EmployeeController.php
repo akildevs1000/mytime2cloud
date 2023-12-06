@@ -42,7 +42,7 @@ class EmployeeController extends Controller
         $model->where('company_id', request('company_id'));
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->excludeRelations();
-        $model->select("id",  "first_name as name",  "system_user_id",  "employee_id", "branch_id");
+        $model->select("id",  "first_name as name",   "first_name", "last_name", "system_user_id",  "employee_id", "branch_id");
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         $model->with("schedule_all:employee_id,shift_type_id");
         $model->with("latestSchedule:employee_id,shift_type_id");
@@ -920,6 +920,21 @@ class EmployeeController extends Controller
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
+        }
+    }
+
+    public function deleteEmployeeFromDevice(Request $request)
+    {
+
+        if ($request->system_user_id != '' && $request->device_id) {
+            $preparedJson = [
+                "userCodeArray" => [$request->system_user_id],
+            ];
+
+            try {
+                (new SDKController)->processSDKRequestJobDeletePersonJson($request->device_id, $preparedJson);
+            } catch (\Throwable $th) {
+            }
         }
     }
     public function defaultAttendanceForMissing(Request $request)

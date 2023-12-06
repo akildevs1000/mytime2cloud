@@ -37,7 +37,7 @@
   {
     "icon": "mdi-bell",
     "title": "Visitors",
-    "to": "/visitor-dashboard",
+    "to": "/visitor/visitor-dashboard",
     "menu": "visitors",
     "module": "topmenu"
   },

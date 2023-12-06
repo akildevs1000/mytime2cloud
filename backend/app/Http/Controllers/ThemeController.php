@@ -334,10 +334,20 @@ class ThemeController extends Controller
             $j = $i <= 9 ? "0" . $i : $i;
 
             $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
-            $model = VisitorLog::with(["visitor"])->where('company_id', $request->company_id)
-                ->when($request->filled("branch_id"), function ($q) use ($request) {
-                    $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
+            $model = AttendanceLog::with(["visitor"])->where('company_id', $request->company_id)
+
+                ->whereIn('UserID', function ($query) use ($request) {
+                    $query->select('system_user_id')
+                        ->where('visit_from', "<=", date('Y-m-d'))
+                        ->where('visit_to', ">=", date('Y-m-d'))
+                        ->when($request->filled("branch_id"), function ($query) use ($request) {
+                            return $query->where('branch_id', $request->branch_id);
+                        })
+                        ->from('visitors');
                 })
+                // ->when($request->filled("branch_id"), function ($q) use ($request) {
+                //     $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
+                // })
                 // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')

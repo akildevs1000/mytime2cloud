@@ -268,6 +268,7 @@ class AttendanceLog extends Model
                 $query->select('system_user_id')
                     ->where('visit_from', "<=", date('Y-m-d'))
                     ->where('visit_to', ">=", date('Y-m-d'))
+
                     ->from('visitors');
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", false))

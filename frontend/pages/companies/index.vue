@@ -744,7 +744,7 @@ export default {
   components: { Back },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/walkin/`,
+    originalURL: process.env.APP_URL + "register/visitor/walkin/", //`https://mytime2cloud.com/register/visitor/walkin/`,
     fullCompanyLink: null,
     qrCompanyCodeDataURL: null,
     show_password_confirm: false,

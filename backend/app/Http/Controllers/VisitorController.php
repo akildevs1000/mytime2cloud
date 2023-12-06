@@ -243,6 +243,7 @@ class VisitorController extends Controller
         $data['status_id'] = 1;
 
         try {
+            $data['branch_id'] = HostCompany::where("company_id", $request->company_id)->where("id", $request->host_company_id)->pluck("branch_id")[0];
 
             // $existingVisitor = Visitor::where('phone_number', $data['phone_number'])->first();
 
@@ -379,18 +380,7 @@ class VisitorController extends Controller
             throw $th;
         }
     }
-    public function getDevicePersonDetails(Request $request)
-    {
-        if ($request->system_user_id > 0) {
-            $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
 
-            $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
-
-            return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
-        } else {
-            return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
-        }
-    }
     public function getDevicePersonDetailsZone(Request $request)
     {
         $system_user_id = $request->system_user_id;;

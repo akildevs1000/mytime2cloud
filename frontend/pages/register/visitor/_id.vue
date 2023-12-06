@@ -295,7 +295,13 @@
         </v-col>
 
         <v-col cols="12">
-          <v-btn block :loading="loading" color="primary" @click="submit">
+          <v-btn
+            block
+            :disabled="submitButtonDisabled"
+            :loading="loading"
+            color="primary"
+            @click="submit"
+          >
             Register
           </v-btn>
         </v-col>
@@ -313,6 +319,7 @@ export default {
   auth: false,
 
   data: () => ({
+    submitButtonDisabled: false,
     searchDialog: false,
     searchInput: null,
     time_in_menu: "",
@@ -421,7 +428,8 @@ export default {
           this.responseDialog = true;
           this.response = data.message = "Registration has been submitted.";
           this.responseStatus = "Success";
-
+          this.payload = {};
+          this.submitButtonDisabled = true;
           this.getDataFromApi();
           this.DialogBox = false;
         })
