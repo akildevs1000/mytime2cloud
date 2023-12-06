@@ -34,3 +34,6 @@ include('devices.php');
 include('realtime_location.php');
 include('clocking.php');
 include('change_request.php');
+include('room.php');
+include('floor.php');
+include('tanent.php');
