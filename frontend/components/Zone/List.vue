@@ -1,12 +1,12 @@
 <template>
-  <div v-if="can('employee_access')">
+  <div v-if="can('zone_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
     </div>
     <div v-if="!loading">
-      <div v-if="can(`employee_view`)">
+      <div v-if="can(`zone_view`)">
         <v-container>
           <v-card elevation="0">
             <v-toolbar class="mb-2" dense flat>
@@ -52,11 +52,7 @@
                   title="Add Zone"
                   @click="addItem"
                 >
-                  <v-icon
-                    right
-                    size="x-large"
-                    dark
-                    v-if="can('employee_create')"
+                  <v-icon right size="x-large" dark v-if="can('zone_create')"
                     >mdi-plus-circle</v-icon
                   >
                 </v-btn>
@@ -133,13 +129,19 @@
                         View
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="editItem(item)">
+                    <v-list-item
+                      v-if="can('zone_edit')"
+                      @click="editItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
+                    <v-list-item
+                      v-if="can('zone_delete')"
+                      @click="deleteItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="error" small> mdi-delete </v-icon>
                         Delete
@@ -315,6 +317,9 @@ export default {
     },
   },
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     getCurrentShift(item) {
       // Define an array of day names
       const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
