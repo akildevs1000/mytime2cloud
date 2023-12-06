@@ -115,6 +115,7 @@
         <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
       </span>
       <v-spacer></v-spacer>
+
       <span style="100%">
         <template
           v-if="
@@ -182,7 +183,7 @@
             </v-list-item>
             <v-list-item
               v-if="$auth.user.user_type != 'company'"
-              @click="changeLoginType"
+              @click="changeLoginType()"
             >
               <v-list-item-icon>
                 <v-icon>mdi-account-multiple-outline</v-icon>
@@ -705,6 +706,7 @@ export default {
 
             return "";
           } else {
+            console.log("Empty Username and Password");
           }
           // this.$router.push("/employees/profile");
         }

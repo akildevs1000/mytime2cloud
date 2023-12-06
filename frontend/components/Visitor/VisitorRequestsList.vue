@@ -249,7 +249,8 @@
             to {{ $dateFormat.format1(item.to_date_display) }}
           </div>
           <div class="secondary-value">
-            {{ item.time_in }} - {{ item.time_out }}
+            {{ $dateFormat.time2Hm(item.time_in) }} -
+            {{ $dateFormat.time2Hm(item.time_out) }}
           </div>
         </template>
 

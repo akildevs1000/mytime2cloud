@@ -188,7 +188,7 @@
         :loading="loading"
         :options.sync="options"
         :footer-props="{
-          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+          itemsPerPageOptions: [20, 50, 100, 500, 1000],
         }"
         class="elevation-1"
       >

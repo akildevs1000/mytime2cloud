@@ -29,6 +29,14 @@ class ScheduleEmployeeController extends Controller
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
             });
+        $model->with(["schedule" => function ($q) use ($request) {
+            $q->where("company_id", $request->company_id);
+            $q->where("to_date", ">=", date('Y-m-d'));
+
+            $q->withOut("shift_type");
+            // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+            $q->orderBy("to_date", "asc");
+        }]);
 
 
         $model->when($request->filled('first_name'), function ($q) use ($request) {
@@ -53,7 +61,7 @@ class ScheduleEmployeeController extends Controller
             }
         });
 
-
+        $model->without(["user"]);
 
 
         return   $model->paginate($request->per_page);
@@ -81,6 +89,8 @@ class ScheduleEmployeeController extends Controller
 
             if ($item) {
                 foreach ($data["schedules"] as $shift) {
+
+
                     $value = [
                         "isAutoShift" => array_key_exists("isAutoShift", $shift) && $shift["isAutoShift"] ? 1 : 0,
                         "shift_id" => array_key_exists("isAutoShift", $shift) && $shift["isAutoShift"] ? 0 :  $shift["shift_id"],

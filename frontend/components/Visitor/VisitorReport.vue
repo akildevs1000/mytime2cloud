@@ -839,7 +839,7 @@
 
             <template v-slot:item.in="{ item, index }">
               <div>
-                {{ item.in ? item.in : "---" }}
+                {{ item.in ? $dateFormat.time2Hm(item.in) : "---" }}
                 <div class="secondary-value">
                   {{ item.device_in_name ? item.device_in_name.name : "---" }}
                 </div>
@@ -847,7 +847,7 @@
             </template>
             <template v-slot:item.out="{ item, index }">
               <div>
-                {{ item.out ? item.out : "---" }}
+                {{ item.out ? $dateFormat.time2Hm(item.out) : "---" }}
                 <div class="secondary-value">
                   {{ item.device_out_name ? item.device_out_name.name : "---" }}
                 </div>
