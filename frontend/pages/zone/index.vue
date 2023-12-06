@@ -1,5 +1,7 @@
 <template>
-  <ZoneList />
+  <div>
+    <ZoneList />
+  </div>
 </template>
 <script>
 import ZoneList from "../../components/Zone/List.vue";
