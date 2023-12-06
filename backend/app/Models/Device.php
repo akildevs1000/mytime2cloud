@@ -39,6 +39,6 @@ class Device extends Model
 
     public function scopeExcludeMobile($query)
     {
-        return $query->where('name', 'not like', '%Mobile%');
+        return $query->where('name', 'not like', '%Mobile%')->where('name', 'not like', '%Manual%');
     }
 }
