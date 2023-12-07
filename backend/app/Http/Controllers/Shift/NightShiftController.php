@@ -59,6 +59,7 @@ class NightShiftController extends Controller
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
+        $keys = [];
         $message = "";
         foreach ($logsEmployees as $key => $logs) {
 
@@ -74,10 +75,12 @@ class NightShiftController extends Controller
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
+                $keys[] = $key;
                 $message .= ".  No schedule is mapped with combination  System User Id: $key   and Date : " . $params["date"] . " ";
                 continue;
             }
             if (!$firstLog["schedule"]["shift_type_id"]) {
+                $keys[] = $key;
                 $message .= "$key : None f=of the  Master shift configured on  date:" . $params["date"];
                 continue;
             }
@@ -87,6 +90,7 @@ class NightShiftController extends Controller
 
 
             if ($firstLog['LogTime'] < $beginningIn || $firstLog['LogTime'] > $beginningOut) {
+                $keys[] = $key;
                 $message .= "{$key} LogTime({$firstLog["LogTime"]}) is out of range ({$beginningIn} to {$beginningOut})";
                 $message .= " Device: {$firstLog["DeviceID"]}";
                 continue;
@@ -129,6 +133,7 @@ class NightShiftController extends Controller
                 $function = $lastLog["device"]["function"];
 
                 if (!isset($function) && ($function !== "Out" && $function !== "all")) {
+                    $keys[] = $key;
                     $message .= " $key : Wrong Punch Out(" . $lastLog["LogTime"] . ") from (" . $lastLog["DeviceID"] . ")";
                     continue;
                 }
@@ -143,6 +148,9 @@ class NightShiftController extends Controller
 
 
                 if ($lastLog['LogTime'] < $endingIn || $lastLog['LogTime'] > $endingOut) {
+                    $keys[] = $key;
+                    $message .= "{$key} LogTime({$lastLog["LogTime"]}) is out of range ({$endingIn} to {$endingOut})";
+                    $message .= " Device: {$lastLog["DeviceID"]}";
                     continue;
                 }
 
@@ -172,8 +180,14 @@ class NightShiftController extends Controller
             $items[] = $item;
         }
 
+        if (!count($keys)) {
 
-        if (!count($items)) {
+            $model = Attendance::query();
+            $model->where("company_id", $id);
+            $model->whereIn("employee_id", $keys);
+            $model->where("date", $date);
+            $model->update(["shift_id" => 0]);
+
             $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: ' . $message;
             $this->devLog("render-manual-log", $message);
             return $message;
