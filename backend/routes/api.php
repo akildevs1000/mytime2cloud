@@ -37,3 +37,4 @@ include('change_request.php');
 include('room.php');
 include('floor.php');
 include('tanent.php');
+include('member.php');

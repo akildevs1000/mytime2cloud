@@ -2,13 +2,9 @@
 
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\NightShiftController;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log as Logger;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\NotifyIfLogsDoesNotGenerate;
-
+use Illuminate\Support\Facades\Log;
 
 class SyncNightShift extends Command
 {
@@ -17,7 +13,7 @@ class SyncNightShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_night_shift';
+    protected $signature = 'task:sync_night_shift {company_id} {date}';
 
     /**
      * The console command description.
@@ -33,14 +29,18 @@ class SyncNightShift extends Command
      */
     public function handle()
     {
+        $id = $this->argument("company_id");
+        $date = $this->argument("date");
+        $shift_type_id = 4;
 
 
         try {
-            echo (new NightShiftController)->render();
+            echo (new NightShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
         } catch (\Throwable $th) {
-            Logger::channel("custom")->error('Cron: SyncNightShift. Error Details: ' . $th);
-            $date = date("Y-m-d H:i:s");
-            echo "[$date] Cron: SyncNightShift. Error occured while inserting logs.\n";
+            //throw $th;
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_night_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
+            Log::channel("custom")->error($error_message);
+            echo $error_message;
         }
     }
 }

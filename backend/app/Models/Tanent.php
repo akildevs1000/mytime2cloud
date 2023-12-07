@@ -16,6 +16,16 @@ class Tanent extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
+
+    /**
+     * Get all of the members for the Tanent
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function members()
+    {
+        return $this->hasMany(Member::class);
+    }
     public function floor()
     {
         return $this->belongsTo(Floor::class);
