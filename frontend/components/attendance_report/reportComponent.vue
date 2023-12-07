@@ -761,7 +761,7 @@
                   <b v-if="log.device.function == 'In'">{{
                     log?.device?.function
                   }}</b>
-                  <b v-else-if="log.device.function == 'On'">{{
+                  <b v-else-if="log.device.function == 'Out'">{{
                     log?.device?.function
                   }}</b>
                   <b v-else-if="log.device.function == 'all'">{{
