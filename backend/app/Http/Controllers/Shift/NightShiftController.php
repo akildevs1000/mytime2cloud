@@ -66,7 +66,7 @@ class NightShiftController extends Controller
             $logs = $logs->toArray() ?? [];
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
             })->first();
 
 
@@ -132,7 +132,7 @@ class NightShiftController extends Controller
 
                 $function = $lastLog["device"]["function"];
 
-                if (!isset($function) && ($function !== "Out" && $function !== "all")) {
+                if (!isset($function) && ($function !== "In")) {
                     $keys[] = $key;
                     $message .= " $key : Wrong Punch Out(" . $lastLog["LogTime"] . ") from (" . $lastLog["DeviceID"] . ")";
                     continue;
@@ -141,7 +141,7 @@ class NightShiftController extends Controller
 
                 $lastLogSchedule = $lastLog["schedule"] ?? false;
                 $lastLogShift = $lastLogSchedule["shift"] ?? false;
-                
+
 
                 $endingIn =  date("Y-m-d", strtotime($params['date'] . " +1 day")) . " " . $lastLogShift["ending_in"];
                 $endingOut =  date("Y-m-d", strtotime($params['date'] . " +1 day")) . " " . $lastLogShift["ending_out"];

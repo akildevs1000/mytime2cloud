@@ -740,13 +740,12 @@
             >
           </v-toolbar>
           <v-toolbar flat dense>
-              Employee Id: <b>{{ log_list?.item?.employee?.system_user_id }}</b>
-              <v-spacer></v-spacer>
-              Total logs
-              <b class="background--text">({{ log_list.length }})</b>
-            </v-toolbar>
+            Employee Id: <b>{{ log_list?.item?.employee?.system_user_id }}</b>
+            <v-spacer></v-spacer>
+            Total logs
+            <b class="background--text">({{ log_list.length }})</b>
+          </v-toolbar>
           <v-card-text>
-           
             <!-- <hr /> -->
             <table class="short-table">
               <tr>
@@ -764,7 +763,7 @@
                   <b v-else-if="log.device.function == 'Out'">{{
                     log?.device?.function
                   }}</b>
-                  <b v-else-if="log.device.function == 'all'">{{
+                  <b v-else-if="log.device.function == 'auto'">{{
                     log?.device?.function
                   }}</b>
                   <b v-else>Unkown</b>
