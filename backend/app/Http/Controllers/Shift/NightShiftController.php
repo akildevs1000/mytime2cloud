@@ -87,7 +87,8 @@ class NightShiftController extends Controller
 
 
             if ($firstLog['LogTime'] < $beginningIn || $firstLog['LogTime'] > $beginningOut) {
-                // $message .= " $key : Wrong Punch Out(" . $firstLog["LogTime"] . ") from (" . $firstLog["DeviceID"] . ")";
+                $message .= "{$key} LogTime({$firstLog["LogTime"]}) is out of range (B.In: {$beginningIn}  B.Out: {$beginningOut})";
+                $message .= "Device: {$firstLog["DeviceID"]}";
                 continue;
             }
 
