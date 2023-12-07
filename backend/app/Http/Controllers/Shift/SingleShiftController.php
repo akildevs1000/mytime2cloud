@@ -57,6 +57,8 @@ class SingleShiftController extends Controller
             // return json_encode($params["UserIds"]);
         }
 
+
+
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
@@ -77,12 +79,14 @@ class SingleShiftController extends Controller
             // })->first();
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] !== "Out");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] !== "In");
-            })->first();
+                return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+            })->last();
+
+
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
