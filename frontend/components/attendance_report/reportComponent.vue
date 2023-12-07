@@ -729,7 +729,7 @@
     </v-dialog>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="log_details" max-width="600px">
+      <v-dialog persistent v-model="log_details" max-width="800px">
         <v-card class="darken-1">
           <v-toolbar class="popup_background">
             <span class="text-h5 pa-2">Log Details</span>
@@ -739,16 +739,38 @@
               >mdi-close-circle-outline</v-icon
             >
           </v-toolbar>
+          <v-toolbar flat dense>
+              Employee Id: <b>{{ log_list?.item?.employee?.system_user_id }}</b>
+              <v-spacer></v-spacer>
+              Total logs
+              <b class="background--text">({{ log_list.length }})</b>
+            </v-toolbar>
           <v-card-text>
-            <br />
-            Total logs
-            <b class="background--text mx-1">({{ log_list.length }})</b>
-            <hr />
-            <ul v-for="(log, index) in log_list" :key="index">
-              <li>
-                {{ log.date }} - {{ log.time }} <b>{{ log.log_type }}</b>
-              </li>
-            </ul>
+           
+            <!-- <hr /> -->
+            <table class="short-table">
+              <tr>
+                <td>LogTime</td>
+                <td>Device Id</td>
+                <td>Device Function</td>
+              </tr>
+              <tr v-for="(log, index) in log_list" :key="index">
+                <td>{{ log.LogTime }}</td>
+                <td>{{ log.DeviceID }}</td>
+                <td>
+                  <b v-if="log.device.function == 'In'">{{
+                    log?.device?.function
+                  }}</b>
+                  <b v-else-if="log.device.function == 'Out'">{{
+                    log?.device?.function
+                  }}</b>
+                  <b v-else-if="log.device.function == 'all'">{{
+                    log?.device?.function
+                  }}</b>
+                  <b v-else>Unkown</b>
+                </td>
+              </tr>
+            </table>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -1485,6 +1507,7 @@ export default {
 
       this.$axios.get("attendance_single_list", options).then(({ data }) => {
         this.log_list = data.data;
+        this.log_list.item = item;
       });
 
       // this.editedIndex = this.data.indexOf(item);
@@ -1606,3 +1629,21 @@ export default {
   height: 30px !important;
 }
 </style> -->
+<style scoped>
+.short-table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+</style>

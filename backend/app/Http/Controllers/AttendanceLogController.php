@@ -201,6 +201,7 @@ class AttendanceLogController extends Controller
         return $model->where('UserID', $request->UserID)
             ->where('company_id', $request->company_id)
             ->whereDate('LogTime', $request->LogTime)
+            ->with("device")
             // ->select("LogTime")
             ->distinct("LogTime")
             ->orderBy('LogTime')

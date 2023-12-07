@@ -69,14 +69,12 @@ class FiloShiftController extends Controller
 
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] !== "Out");
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] !== "In");
             })->first();
-
-
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;

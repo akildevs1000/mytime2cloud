@@ -18,6 +18,11 @@ class AttendanceController extends Controller
 {
     public function seedDefaultData($company_id, $UserIds = [], $branch_id = '')
     {
+        // $attendance = Attendance::query();
+        // $attendance->where("company_id", $company_id);
+        // $attendance->whereMonth("date", date("m"));
+        // return $attendance->delete();
+
         $params = ["company_id" => $company_id, "date" => date("Y-m-d"), "branch_id" => $branch_id, "UserIds" => $UserIds];
 
         $employees = Employee::query();
@@ -61,8 +66,8 @@ class AttendanceController extends Controller
                 $data[] = [
                     "date" => date("Y-m-") . sprintf("%02d", date($day)),
                     "employee_id" => $employee->system_user_id,
-                    "shift_id" => $employee->schedule->shift_id,
-                    "shift_type_id" => $employee->schedule->shift_type_id,
+                    "shift_id" => 0,
+                    "shift_type_id" => 1,
                     "status" => "A",
                     "in" => "---",
                     "out" => "---",
@@ -81,14 +86,14 @@ class AttendanceController extends Controller
 
         $insertedCount = 0;
 
-        $attendance = Attendance::query();
+        // $attendance = Attendance::query();
         // $attendance->where("company_id", $company_id);
         // $attendance->whereIn("employee_id", $employees);
         // $attendance->whereMonth("date", date("m"));
         // $attendance->delete();
 
         foreach ($chunks as $chunk) {
-            $attendance->insert($chunk);
+            Attendance::insert($chunk);
             //$attendance->updateOrCreate($chunk);
             $insertedCount += count($chunk);
         }
