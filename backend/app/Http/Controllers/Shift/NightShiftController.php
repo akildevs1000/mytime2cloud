@@ -88,7 +88,7 @@ class NightShiftController extends Controller
 
             if ($firstLog['LogTime'] < $beginningIn || $firstLog['LogTime'] > $beginningOut) {
                 $message .= "{$key} LogTime({$firstLog["LogTime"]}) is out of range (B.In: {$beginningIn}  B.Out: {$beginningOut})";
-                $message .= "Device: {$firstLog["DeviceID"]}";
+                $message .= " Device: {$firstLog["DeviceID"]}";
                 continue;
             }
 
@@ -174,7 +174,7 @@ class NightShiftController extends Controller
 
 
         if (!count($items)) {
-            $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: No data found' . $message;
+            $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: ' . $message;
             $this->devLog("render-manual-log", $message);
             return $message;
         }
