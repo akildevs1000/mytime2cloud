@@ -771,21 +771,6 @@
                 </td>
               </tr>
             </table>
-            <!-- <ul v-for="(log, index) in log_list" :key="index">
-              <li>
-                {{ log.date }} - {{ log.time }}
-                <b v-if="log.device.function == 'In'"
-                  >(Device Function: {{ log?.device?.function }})</b
-                >
-                <b v-else-if="log.device.function == 'On'"
-                  >(Device Function: {{ log?.device?.function }})</b
-                >
-                <b v-else-if="log.device.function == 'all'"
-                  >(Device Function: {{ log?.device?.function }})</b
-                >
-                <b v-else>(Device Function: Unkown)</b>
-              </li>
-            </ul> -->
           </v-card-text>
         </v-card>
       </v-dialog>
