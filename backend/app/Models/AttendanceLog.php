@@ -290,6 +290,7 @@ class AttendanceLog extends Model
                     ->from('visitors');
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
+            ->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all"]))
             ->get()->groupBy("UserID");
     }
     public function getVisitorIdsForNewLogsToRender($params)
@@ -320,6 +321,7 @@ class AttendanceLog extends Model
             ->where("company_id", $params["company_id"])
             ->distinct("LogTime", "UserID", "company_id")
             ->get()
+            ->load("device")
             ->load(["schedule" => function ($q) use ($params) {
                 $q->where("company_id", $params["company_id"]);
                 $q->where("to_date", ">=", $params["date"]);
@@ -373,7 +375,7 @@ class AttendanceLog extends Model
             })
             ->orderBy("LogTime", 'asc')
             ->get()
-
+            ->load("device")
             ->groupBy(['UserID']);
 
         return $return;

@@ -27,6 +27,12 @@ class RenderController extends Controller
 
     public $updated_by;
 
+
+    public function renderLogsTest(Request $request)
+    {
+        return (new AutoShiftController)->renderData($request);
+    }
+
     public function renderLogs(Request $request)
     {
         // return (new ShiftRenderController)->renderData($request);
@@ -39,7 +45,8 @@ class RenderController extends Controller
             (new SingleShiftController)->renderData($request),
             (new SplitShiftController)->renderData($request),
             (new MultiShiftController)->renderData($request),
-            (new NightShiftController)->renderData($request)
+            (new NightShiftController)->renderData($request),
+            (new AutoShiftController)->renderData($request),
         );
 
         // if ($shift_type_id == 5) {
