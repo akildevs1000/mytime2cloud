@@ -25,6 +25,9 @@ npm install --save vue-notification
 
 npm install --save vue-cropperjs
 
+npm install data-uri-to-buffer
+npm install xml2js 
+
 
 <v-dialog v-model="dialogVisible" max-width="500px">
   <v-card flat dense class="white--text">
