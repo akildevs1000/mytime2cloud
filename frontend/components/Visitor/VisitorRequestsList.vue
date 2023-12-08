@@ -359,7 +359,7 @@
               <v-select
                 v-model="payload.zone_id"
                 :items="zoneList"
-                label="Zone"
+                label="Zone Devices"
                 item-text="name"
                 item-value="id"
                 outlined
