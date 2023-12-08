@@ -333,8 +333,6 @@ class AutoShiftController extends Controller
 
         $data = (new AttendanceLog)->getEmployeeIdsForNewLogsToRenderAuto($params);
 
-        $shifts = ((new Shift)->getAutoShiftsAll($params["company_id"]));
-
         $message = "";
 
         if (!count($data)) {
@@ -349,6 +347,8 @@ class AutoShiftController extends Controller
                 $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID has no Log(s).\n";
                 continue;
             }
+
+            $shifts = ((new Shift)->getAutoShiftsAll($params["company_id"], $row[0]["employee"]["branch_id"]));
 
             $nearestShift = $this->findClosest($shifts, count($shifts), $row[0]["show_log_time"], $date);
 
@@ -384,7 +384,6 @@ class AutoShiftController extends Controller
             $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
 
             $message .= " Nearest shift ({$nearestShift['name']})";
-
         }
 
 
@@ -393,8 +392,6 @@ class AutoShiftController extends Controller
 
     public function renderRelatedShiftype($shift_type_id, $UserID, $params)
     {
-
-
         $arr = [
             1 => FiloShiftController::class,
             2 => MultiShiftController::class,
