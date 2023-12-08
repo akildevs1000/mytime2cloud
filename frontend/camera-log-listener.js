@@ -168,7 +168,7 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
           const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
           fs.appendFileSync(logFilePath, logEntry + "\n");
 
-          logConsoleStatus(" Registered Log recorded " + logEntry);
+          logConsoleStatus("Registered Log recorded " + logEntry);
         } else {
         }
       } catch (error) {
