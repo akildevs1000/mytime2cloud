@@ -44,6 +44,8 @@ class FiloShiftController extends Controller
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
     {
+
+
         $params = [
             "company_id" => $id,
             "date" => $date,
@@ -74,7 +76,7 @@ class FiloShiftController extends Controller
 
             $lastLog = collect($logs)->filter(function ($record) {
                 return isset($record["device"]["function"]) && ($record["device"]["function"] !== "In");
-            })->first();
+            })->last();
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;

@@ -107,11 +107,11 @@ class MultiShiftController extends Controller
                 $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
                 $item["employee_id"] = $row->system_user_id;
 
-               
+
 
                 $logsJson[] =  [
-                    "in" => isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "all") ?  $currentLog['time'] : "---",
-                    "out" => $nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "all") ?  $nextLog['time'] : "---",
+                    "in" => isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] != "Out") ?  $currentLog['time'] : "---",
+                    "out" => $nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] != "In") ?  $nextLog['time'] : "---",
 
                     // "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
                     // "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",

@@ -709,7 +709,8 @@ export default {
         if (data.employee_leaves_pending_count) {
           this.pendingNotificationsCount += data.employee_leaves_pending_count;
           this.notificationsMenuItems.push({
-            title: "Leave (" + data.employee_leaves_pending_count + ")",
+            title:
+              "Leaves Pending (" + data.employee_leaves_pending_count + ")",
             click: "/leaves",
             icon: "mdi-calendar-account",
           });
@@ -717,7 +718,8 @@ export default {
         if (data.visitor_request_pending_count) {
           this.pendingNotificationsCount += data.visitor_request_pending_count;
           this.notificationsMenuItems.push({
-            title: "Visitor (" + data.visitor_request_pending_count + ")",
+            title:
+              "Visitors Pending (" + data.visitor_request_pending_count + ")",
             click: "/visitor/requests",
             icon: "mdi-transit-transfer",
           });

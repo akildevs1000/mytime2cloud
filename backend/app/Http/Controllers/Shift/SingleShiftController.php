@@ -57,6 +57,8 @@ class SingleShiftController extends Controller
             // return json_encode($params["UserIds"]);
         }
 
+
+
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
 
         $items = [];
@@ -68,13 +70,23 @@ class SingleShiftController extends Controller
             // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
             // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
 
+            // $firstLog = collect($logs)->filter(function ($record) {
+            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "auto");
+            // })->first();
+
+            // $lastLog = collect($logs)->filter(function ($record) {
+            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "auto");
+            // })->first();
+
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all");
-            })->first();
+                return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+            })->last();
+
+
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;

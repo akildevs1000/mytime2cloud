@@ -492,7 +492,19 @@ Route::get('/test3', function () {
 });
 
 Route::get('/nightshift', function () {
-    return (new NightShiftController)->render();
+    // return (new NightShiftController)->render();
+});
+Route::post('/cameratesting', function (Request $request) {
+
+    $requestData = $request->all();
+    //return $request;
+    $requstJson = json_encode($requestData);
+
+
+    DB::table('test_camera_api')
+        ->insert([
+            'json_content' => $requstJson,
+        ]);
 });
 Route::get('/test_attachment', function () {
     $test = new RenderController();

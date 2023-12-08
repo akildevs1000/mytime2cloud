@@ -30,7 +30,7 @@ class RenderController extends Controller
 
     public function renderLogsTest(Request $request)
     {
-        return (new AutoShiftController)->renderData($request);
+        return (new FiloShiftController)->renderData($request);
     }
 
     public function renderLogs(Request $request)
