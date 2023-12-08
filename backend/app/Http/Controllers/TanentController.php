@@ -16,7 +16,7 @@ class TanentController extends Controller
      */
     public function index()
     {
-        return Tanent::where("company_id", request("company_id"))->with(["floor", "room"])->paginate(request("per_page") ?? 10);
+        return Tanent::where("company_id", request("company_id"))->with(["members", "floor", "room"])->paginate(request("per_page") ?? 10);
     }
 
     /**
@@ -74,7 +74,7 @@ class TanentController extends Controller
      */
     public function tanentUpdate(UpdateRequest $request, $id)
     {
-        $Tanent = Tanent::where("id",$id)->first();
+        $Tanent = Tanent::where("id", $id)->first();
 
         $phone_number = $request->phone_number;
 

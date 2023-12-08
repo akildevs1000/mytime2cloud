@@ -180,18 +180,17 @@ class NightShiftController extends Controller
             $items[] = $item;
         }
 
-        if (!count($keys)) {
-
-            $model = Attendance::query();
-            $model->where("company_id", $id);
-            $model->whereIn("employee_id", $keys);
-            $model->where("date", $date);
-            $model->update(["shift_id" => 0]);
-
-            $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: ' . $message;
+        if (!count($logsEmployees)) {
+            $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: No data found.';
             $this->devLog("render-manual-log", $message);
             return $message;
         }
+
+        // if (count($keys)) {
+        //     $message = '[' . $date . " " . date("H:i:s") . '] Night Shift: ' . $message;
+        //     $this->devLog("render-manual-log", $message);
+        //     return $message;
+        // }
 
         try {
             $UserIds = array_column($items, "employee_id");

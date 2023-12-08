@@ -12,7 +12,7 @@
             {{ formAction }} Member
 
             <v-spacer></v-spacer>
-            <span>
+            <span v-if="formAction !== 'View'">
               <v-icon
                 class="ml-2 primary--text"
                 color="primary"
@@ -32,11 +32,14 @@
             <v-container>
               <v-row>
                 <v-col cols="6"
-                  ><strong>Member {{ index + 1 }}</strong>
+                  ><strong>Member {{ index + 1 }} </strong>
+                  <p style="display: none">
+                    {{ (member.tanent_id = payload.id) }}
+                  </p>
                 </v-col>
                 <v-col cols="6" class="text-right">
                   <v-icon
-                    v-if="index > 0"
+                    v-if="index > 0 && formAction !== 'View'"
                     right
                     color="red"
                     @click="removeMemberItem(index)"
@@ -47,7 +50,7 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Full Name"
-                    :disabled="disabled"
+                    :readonly="disabled"
                     v-model="member.full_name"
                     dense
                     class="text-center"
@@ -62,7 +65,7 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Relation"
-                    :disabled="disabled"
+                    :readonly="disabled"
                     v-model="member.relation"
                     dense
                     class="text-center"
@@ -77,7 +80,7 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Age"
-                    :disabled="disabled"
+                    :readonly="disabled"
                     v-model="member.age"
                     dense
                     class="text-center"
@@ -90,7 +93,7 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Phone Number (optional)"
-                    :disabled="disabled"
+                    :readonly="disabled"
                     v-model="member.phone_number"
                     dense
                     class="text-center"
@@ -124,18 +127,9 @@
                 small
                 :loading="loading"
                 color="primary"
-                @click="submit"
+                @click="submitMembers"
               >
-                Submit
-              </v-btn>
-              <v-btn
-                v-else-if="can('employee_create') && formAction == 'Edit'"
-                small
-                :loading="loading"
-                color="primary"
-                @click="update_data"
-              >
-                Update
+                submit
               </v-btn>
             </div>
           </v-card-actions>
@@ -159,7 +153,7 @@
               <v-col cols="6">
                 <v-text-field
                   label="Full Name"
-                  :disabled="disabled"
+                  :readonly="disabled"
                   v-model="payload.full_name"
                   dense
                   class="text-center"
@@ -175,7 +169,7 @@
               <v-col cols="6">
                 <v-text-field
                   label="Phone Number"
-                  :disabled="disabled"
+                  :readonly="disabled"
                   v-model="payload.phone_number"
                   dense
                   class="text-center"
@@ -193,7 +187,7 @@
                   @change="getRoomsByFloorId(payload.floor_id)"
                   label="Floor Number"
                   outlined
-                  :disabled="disabled"
+                  :readonly="disabled"
                   v-model="payload.floor_id"
                   :items="floors"
                   dense
@@ -211,7 +205,7 @@
                 <v-autocomplete
                   label="Room"
                   outlined
-                  :disabled="disabled"
+                  :readonly="disabled"
                   v-model="payload.room_id"
                   :items="rooms"
                   dense
@@ -235,7 +229,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      :disabled="disabled"
+                      :readonly="disabled"
                       v-model="payload.start_date"
                       label="Start Date"
                       append-icon="mdi-calendar"
@@ -264,7 +258,7 @@
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                      :disabled="disabled"
+                      :readonly="disabled"
                       v-model="payload.end_date"
                       label="End Date"
                       append-icon="mdi-calendar"
@@ -294,7 +288,6 @@
                   @change="previewImage"
                 ></v-file-input>
                 <v-card v-if="imagePreview" elevation="0">
-                  {{ payload.profile_picture }}
                   <v-avatar size="200">
                     <v-img :src="imagePreview"></v-img>
                   </v-avatar>
@@ -437,6 +430,11 @@
                 </tr>
               </template>
 
+              <template v-slot:item.members="{ item }">
+                <v-icon color="primary" class="mx-1" @click="viewMember(item)"> mdi-eye </v-icon>
+                {{ item.members.length }}
+              </template>
+
               <template
                 v-slot:item.full_name="{ item, index }"
                 style="width: 300px"
@@ -483,7 +481,7 @@
                     <v-list-item @click="addMember(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-account </v-icon>
-                        Add Member
+                        Add Member(s)
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="viewItem(item)">
@@ -536,14 +534,7 @@ export default {
     qrCompanyCodeDataURL: "",
     disabled: false,
 
-    members: [
-      {
-        full_name: null,
-        phone_number: null,
-        age: null,
-        relation: null,
-      },
-    ],
+    members: [],
 
     payload: {
       full_name: "",
@@ -670,6 +661,16 @@ export default {
         filterSpecial: false,
       },
 
+      {
+        text: "Members",
+        align: "left",
+        sortable: true,
+        key: "members",
+        value: "members",
+        filterable: true,
+        filterSpecial: false,
+      },
+
       // {
       //   text: "Phone No",
       //   align: "left",
@@ -764,6 +765,7 @@ export default {
         phone_number: null,
         age: null,
         relation: null,
+        tanent_id: this.payload.id,
       });
     },
     removeMemberItem(index) {
@@ -869,11 +871,21 @@ export default {
       this.DialogBox = true;
       this.payload = {};
     },
-    addMember() {
+    addMember(item) {
       this.disabled = false;
       this.formAction = "Create";
       this.memberDialogBox = true;
-      this.payload = {};
+      this.payload = item;
+
+      this.getExistingMembers(item.id);
+    },
+    viewMember(item) {
+      this.disabled = true;
+      this.formAction = "View";
+      this.memberDialogBox = true;
+      this.payload = item;
+
+      this.getExistingMembers(item.id);
     },
     editItem({ attachment, profile_picture, floor, room, ...payload }) {
       this.formAction = "Edit";
@@ -893,6 +905,22 @@ export default {
       this.attachmentPreview = attachment;
       this.payload = payload;
     },
+    getExistingMembers(id) {
+      this.$axios.get(`/members/${id}`).then(({ data }) => {
+        this.members = data;
+
+        if (!data.length) {
+          this.members.push({
+            full_name: null,
+            phone_number: null,
+            age: null,
+            relation: null,
+            tanent_id: id,
+          });
+        }
+      });
+    },
+
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -1006,7 +1034,33 @@ export default {
         console.error("Error generating QR code:", error);
       }
     },
+    submitMembers() {
+      this.$axios
+        .post(`/members/${this.payload.id}`, this.members)
+        .then(({ data }) => {
+          // this.encrypt(data.record.id);
+          this.errors = [];
+          this.snackbar = true;
+          this.response = "Member(s) inserted successfully";
+          this.getDataFromApi();
+          this.DialogBox = false;
+          this.dialog = true;
+        })
+        .catch(({ response }) => {
+          if (!response) {
+            return false;
+          }
+          let { status, data, statusText } = response;
 
+          if (status && status == 422) {
+            this.errors = data.errors;
+            return;
+          }
+
+          this.snackbar = true;
+          this.response = statusText;
+        });
+    },
     submit() {
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))

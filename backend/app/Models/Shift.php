@@ -73,11 +73,12 @@ class Shift extends Model
         return $this->belongsTo(ScheduleEmployee::class, 'shift_id');
     }
 
-    public function getAutoShiftsAll($companyId)
+    public function getAutoShiftsAll($companyId, $branch_id)
     {
         // Auto Shift
         return self::orderBy("on_duty_time")
             ->where("company_id", $companyId)
+            ->where("branch_id", $branch_id)
             ->where("isAutoShift", 1)
             ->withOut("shift_type")
             ->with("employee_schedule")

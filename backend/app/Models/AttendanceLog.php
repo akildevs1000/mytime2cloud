@@ -290,7 +290,12 @@ class AttendanceLog extends Model
                     ->from('visitors');
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
-            ->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all"]))
+            ->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all", "auto"]))
+            ->orderBy("LogTime", "asc")
+            ->with(["employee" => function($query) {
+                $query->withOut("schedule","department","designation","sub_department","user","branch");
+                $query->select("branch_id","employee_id","system_user_id");
+            }])
             ->get()->groupBy("UserID");
     }
     public function getVisitorIdsForNewLogsToRender($params)
