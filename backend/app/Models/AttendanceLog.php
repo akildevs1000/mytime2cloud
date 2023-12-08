@@ -291,6 +291,7 @@ class AttendanceLog extends Model
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
             ->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all"]))
+            ->orderBy("LogTime","asc")
             ->get()->groupBy("UserID");
     }
     public function getVisitorIdsForNewLogsToRender($params)
