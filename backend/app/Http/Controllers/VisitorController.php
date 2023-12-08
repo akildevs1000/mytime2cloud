@@ -423,7 +423,7 @@ class VisitorController extends Controller
 
             $visitorData = $visitor->clone()->get();; // Visitor::where("id", $request->visitor_id)->get();
 
-            $zoneDevices = Zone::with(["devices"])->find($visitorData[0]['zone_id']);
+            $zoneDevices = Zone::with(["devices"])->find($request->zone_id);
             $counter = 0;
             foreach ($zoneDevices->devices as $key => $device) {
                 $preparedJson = '';
