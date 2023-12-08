@@ -420,27 +420,38 @@ class VisitorController extends Controller
 
             $visitor = Visitor::where("id", $request->visitor_id);
 
-            $visitor->clone()->update([
-                "system_user_id" => $request->system_user_id,
-                "zone_id" => $request->zone_id,
-                "status_id" => 4,
-                "guard_changed_status_datetime" => date("Y-m-d H:i:s")
 
-            ]);
-            //upload photo 
-            if (!$visitor) {
-                return $this->response('Visitor cannot upload.', null, false);
-            }
             $visitorData = $visitor->clone()->get();; // Visitor::where("id", $request->visitor_id)->get();
 
             $zoneDevices = Zone::with(["devices"])->find($visitorData[0]['zone_id']);
-
+            $counter = 0;
             foreach ($zoneDevices->devices as $key => $device) {
                 $preparedJson = '';
 
                 $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
                 $currentDateTime = $date->format('Y-m-d H:i:00');
                 if (strtotime($currentDateTime) < strtotime($visitorData[0]["visit_to"] . ' ' . $visitorData[0]["time_out"])) {
+
+                    if ($counter == 0) {
+
+                        $visitor->clone()->update([
+                            "system_user_id" => $request->system_user_id,
+                            "zone_id" => $request->zone_id,
+                            "status_id" => 4,
+                            "card_rfid_number" => $request->card_rfid_number,
+                            "guard_changed_status_datetime" => date("Y-m-d H:i:s")
+
+                        ]);
+                        //upload photo 
+                        if (!$visitor) {
+                            return $this->response('Visitor cannot upload.', null, false);
+                        }
+
+                        $counter++;
+
+                        $visitorData = Visitor::where("id", $request->visitor_id)->get();
+                    }
+
 
                     $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
                     $sdkResponse = '';
@@ -518,6 +529,13 @@ class VisitorController extends Controller
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
         $personList["expiry"] =  '2023-01-01 00:00:00';
+
+        if ($data["card_rfid_number"] != '') {
+            $personList["cardData"] = $data["card_rfid_number"];
+            $personList["cardStatus"] = 0;
+            $personList["cardType"] = 0;
+            $personList["password"] =  '12345678';
+        }
 
 
         if (env("APP_ENV") == "local") {

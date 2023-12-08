@@ -2,7 +2,7 @@ const net = require("net");
 const fs = require("fs");
 const xml2js = require("xml2js");
 const server = net.createServer((socket) => {
-  console.log("Client connected");
+  logConsoleStatus("Client connected");
 
   const options = {
     year: "numeric",
@@ -20,6 +20,7 @@ const server = net.createServer((socket) => {
     .split(",");
   const [m, d, y] = newDate.split("/");
   const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
+  //let GlobalformattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
 
   socket.on("data", (data) => {
@@ -33,7 +34,7 @@ const server = net.createServer((socket) => {
       saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime);
     } catch (error) {
       console.error("Error processing Data: " + TodayDatetime);
-      console.log("Error" + error);
+      logConsoleStatus("Error" + error);
     }
   });
 
@@ -43,18 +44,18 @@ const server = net.createServer((socket) => {
 
 const PORT = 4802; // Port on which the server will listen
 server.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+  logConsoleStatus(`Server is listening on port ${PORT}`);
 });
 
 function saveXMlToLog(filePath, xmlData) {
   fs.appendFile(filePath, xmlData, function (err) {
     if (err) {
-      console.log("Error" + err);
+      logConsoleStatus("Error" + err);
     }
   });
 }
 function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
-  console.log(`${TodayDatetime} - Saving unregistered member`);
+  logConsoleStatus(`${TodayDatetime} - Saving unregistered member`);
 
   // Regular expression to match content between <?xml version="1.0" encoding="utf-8"?> and </DetectedFaceList>
 
@@ -77,22 +78,19 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
           const FaceId = result.DetectedFaceList.Face_0[0].FaceID[0];
           const Snapshot = result.DetectedFaceList.Face_0[0].Snapshot[0];
           const SnapshotNum = result.DetectedFaceList.Face_0[0].SnapshotNum[0];
-          console.log(
-            `${TodayDatetime} - Saving unregistered member - Face Id:  ${{
-              FaceId,
-            }}`
-          );
-          // Example: Log the extracted values
+          const Quality = result.DetectedFaceList.Face_0[0].Quality[0];
 
-          console.log("FaceId:", FaceId);
-          console.log("Device ID:", DeviceID);
+          if (Quality >= 0.9) {
+            logConsoleStatus(
+              `${TodayDatetime} - Saved unregistered member - Face Id:  ${FaceId} - Quality:${Quality}`
+            );
 
-          // Convert base64 to a Buffer
-          const buffer = Buffer.from(Snapshot, "base64");
+            // Example: Log the extracted values
 
-          // Write the Buffer content to an image file
-          fs.writeFileSync(
-            "../camera-unregsitered-faces-logs/" +
+            logConsoleStatus("FaceId:", FaceId);
+            logConsoleStatus("Device ID:", DeviceID);
+
+            let pictureName =
               DeviceID +
               "_" +
               FaceId +
@@ -100,9 +98,21 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
               SnapshotNum +
               "_" +
               TodayDatetime +
-              "_.jpg",
-            buffer
-          );
+              "_.jpg";
+            // Convert base64 to a Buffer
+            const buffer = Buffer.from(Snapshot, "base64");
+
+            // Write the Buffer content to an image file
+            fs.writeFileSync(
+              "../camera-unregsitered-faces-logs/" + pictureName,
+              buffer
+            );
+          } else {
+            logConsoleStatus(
+              "No image saved due to lessthan 90% quality",
+              Quality
+            );
+          }
         }
       });
     }
@@ -110,8 +120,27 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
 
   // } catch (error) {
   //   console.error("Error while saving image:" + TodayDatetime);
-  //   console.log("Error" + error);
+  //   logConsoleStatus("Error" + error);
   // }
+}
+
+function getDate() {
+  const options = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+    timeZone: "Asia/Dubai",
+  };
+
+  const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
+    .format(new Date())
+    .split(",");
+  const [m, d, y] = newDate.split("/");
+  return (formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`);
 }
 function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
   try {
@@ -130,7 +159,7 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
         let SN = macArray[arrayCounter];
         let RecordDate = TodayDatetime;
         if (TimeArray.length == 0) {
-          RecordDate = formatdate(TimeArray[arrayCounter]);
+          RecordDate = getTime2();
         }
 
         let RecordNumber = RegisterIdArray[arrayCounter];
@@ -139,7 +168,7 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
           const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
           fs.appendFileSync(logFilePath, logEntry + "\n");
 
-          console.log(" Registered Log recorded " + logEntry);
+          logConsoleStatus(" Registered Log recorded " + logEntry);
         } else {
         }
       } catch (error) {
@@ -158,8 +187,14 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
     });
   } catch (error) {
     console.error("Error while saveRegisteredMemberstoCSV:" + TodayDatetime);
-    console.log("Error" + error);
+    logConsoleStatus("Error" + error);
   }
+}
+
+function logConsoleStatus(message) {
+  console.log(message);
+  const logFilePath = `camera-live-status-${getDate()}.log`;
+  fs.appendFileSync(logFilePath, message + "\n");
 }
 function formatdate(originalDateTime) {
   originalDateTime = originalDateTime.replace("T", " ");
@@ -204,6 +239,34 @@ function readElementValue(inputarray, tagName) {
   }
   return returnArray;
 }
+function getTime2() {
+  let date_ob = new Date();
+
+  // current date
+  // adjust 0 before single digit date
+  let date = ("0" + date_ob.getDate()).slice(-2);
+
+  // current month
+  let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
+
+  // current year
+  let year = date_ob.getFullYear();
+
+  // current hours
+  let hours = date_ob.getHours();
+
+  // current minutes
+  let minutes = date_ob.getMinutes();
+
+  // current seconds
+  let seconds = date_ob.getSeconds();
+
+  // prints date in YYYY-MM-DD format
+  //logConsoleStatus(year + "-" + month + "-" + date);
+
+  // prints date & time in YYYY-MM-DD HH:MM:SS format
+  return year + "-" + month + "-" + date + " " + hours + ":" + minutes;
+}
 function getTime() {
   let date_ob = new Date();
 
@@ -227,7 +290,7 @@ function getTime() {
   let seconds = date_ob.getSeconds();
 
   // prints date in YYYY-MM-DD format
-  //console.log(year + "-" + month + "-" + date);
+  //logConsoleStatus(year + "-" + month + "-" + date);
 
   // prints date & time in YYYY-MM-DD HH:MM:SS format
   return (

@@ -348,7 +348,14 @@
                 type="number"
                 :rules="required"
               ></v-text-field>
-
+              <v-text-field
+                v-model="payload.card_rfid_number"
+                label="REFID Card Number"
+                required
+                outlined
+                dense
+                type="number"
+              ></v-text-field>
               <v-select
                 v-model="payload.zone_id"
                 :items="zoneList"
@@ -927,6 +934,7 @@ export default {
             visitor_id: this.selectedVisitor.id,
             system_user_id: this.payload.system_user_id,
             zone_id: this.payload.zone_id,
+            card_rfid_number: this.payload.card_rfid_number,
           },
         };
 
