@@ -15,6 +15,7 @@ class AttendanceSeeder extends Command
 
     public function handle()
     {
+        
         try {
             echo (new AttendanceController)->seedDefaultData($this->argument('company_id'));
         } catch (\Throwable $th) {
