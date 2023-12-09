@@ -362,7 +362,7 @@ class Controller extends BaseController
     public function SDKCommand($url, $data)
     {
         try {
-            return Http::timeout(30)->withoutVerifying()->withHeaders([
+            return Http::timeout(3000)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post($url, $data);
         } catch (\Exception $e) {

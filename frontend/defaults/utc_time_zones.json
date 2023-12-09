@@ -1,150 +1,150 @@
 {
   "America/New_York": {
-    "offset": "UTC-05:00",
+    "offset": "GMT-05:00",
     "time_zone": "Eastern Standard Time"
   },
   "America/Los_Angeles": {
-    "offset": "UTC-08:00",
+    "offset": "GMT-08:00",
     "time_zone": "Pacific Standard Time"
   },
   "America/Chicago": {
-    "offset": "UTC-06:00",
+    "offset": "GMT-06:00",
     "time_zone": "Central Standard Time"
   },
   "America/Denver": {
-    "offset": "UTC-07:00",
+    "offset": "GMT-07:00",
     "time_zone": "Mountain Standard Time"
   },
   "America/Anchorage": {
-    "offset": "UTC-09:00",
+    "offset": "GMT-09:00",
     "time_zone": "Alaska Standard Time"
   },
   "America/Honolulu": {
-    "offset": "UTC-10:00",
+    "offset": "GMT-10:00",
     "time_zone": "Hawaii-Aleutian Standard Time"
   },
   "Pacific/Pago_Pago": {
-    "offset": "UTC-11:00",
+    "offset": "GMT-11:00",
     "time_zone": "Niue Time, Samoa Standard Time"
   },
   "Pacific/Midway": {
-    "offset": "UTC-11:00",
+    "offset": "GMT-11:00",
     "time_zone": "Niue Time, Samoa Standard Time"
   },
   "Pacific/Wake": {
-    "offset": "UTC+12:00",
+    "offset": "GMT+12:00",
     "time_zone": "Line Islands Time"
   },
   "Pacific/Tongatapu": {
-    "offset": "UTC+13:00",
+    "offset": "GMT+13:00",
     "time_zone": "Tonga Time, Phoenix Islands Time"
   },
   "Pacific/Kiritimati": {
-    "offset": "UTC+14:00",
+    "offset": "GMT+14:00",
     "time_zone": "Line Islands Time"
   },
   "Pacific/Apia": {
-    "offset": "UTC-11:00",
+    "offset": "GMT-11:00",
     "time_zone": "Niue Time, Samoa Standard Time"
   },
   "Pacific/Niue": {
-    "offset": "UTC-11:00",
+    "offset": "GMT-11:00",
     "time_zone": "Niue Time, Samoa Standard Time"
   },
   "Pacific/Palau": {
-    "offset": "UTC+09:00",
+    "offset": "GMT+09:00",
     "time_zone": "Japan Standard Time, Korea Standard Time, Yakutsk Time"
   },
   "America/Argentina/Buenos_Aires": {
-    "offset": "UTC-03:00",
+    "offset": "GMT-03:00",
     "time_zone": "Argentina Time, Brasília Time"
   },
   "America/Sao_Paulo": {
-    "offset": "UTC-03:00",
+    "offset": "GMT-03:00",
     "time_zone": "Argentina Time, Brasília Time"
   },
   "Europe/Lisbon": {
-    "offset": "UTC±00:00",
+    "offset": "GMT±00:00",
     "time_zone": "Greenwich Mean Time (GMT), Western European Time"
   },
   "Europe/London": {
-    "offset": "UTC±00:00",
+    "offset": "GMT±00:00",
     "time_zone": "Greenwich Mean Time (GMT), Western European Time"
   },
   "Africa/Lagos": {
-    "offset": "UTC+01:00",
+    "offset": "GMT+01:00",
     "time_zone": "Central European Time, West Africa Time"
   },
   "Africa/Algiers": {
-    "offset": "UTC+01:00",
+    "offset": "GMT+01:00",
     "time_zone": "Central European Time, West Africa Time"
   },
   "Asia/Baghdad": {
-    "offset": "UTC+03:00",
+    "offset": "GMT+03:00",
     "time_zone": "Moscow Standard Time, East Africa Time"
   },
   "Asia/Tehran": {
-    "offset": "UTC+03:30",
+    "offset": "GMT+03:30",
     "time_zone": "Iran Standard Time"
   },
   "Asia/Dubai": {
-    "offset": "UTC+04:00",
+    "offset": "GMT+04:00",
     "time_zone": "Gulf Standard Time, Samara Time"
   },
   "Asia/Kabul": {
-    "offset": "UTC+04:30",
+    "offset": "GMT+04:30",
     "time_zone": "Afghanistan Time"
   },
   "Asia/Karachi": {
-    "offset": "UTC+05:00",
+    "offset": "GMT+05:00",
     "time_zone": "Pakistan Standard Time, Yekaterinburg Time"
   },
   "Asia/Kolkata": {
-    "offset": "UTC+05:30",
+    "offset": "GMT+05:30",
     "time_zone": "Indian Standard Time, Sri Lanka Time"
   },
   "Asia/Kathmandu": {
-    "offset": "UTC+05:45",
+    "offset": "GMT+05:45",
     "time_zone": "Nepal Time"
   },
   "Asia/Dhaka": {
-    "offset": "UTC+06:00",
+    "offset": "GMT+06:00",
     "time_zone": "Bangladesh Standard Time, Bhutan Time, Omsk Time"
   },
   "Indian/Cocos": {
-    "offset": "UTC+06:30",
+    "offset": "GMT+06:30",
     "time_zone": "Cocos Islands Time"
   },
   "Asia/Bangkok": {
-    "offset": "UTC+07:00",
+    "offset": "GMT+07:00",
     "time_zone": "Indochina Time, Krasnoyarsk Time"
   },
   "Asia/Shanghai": {
-    "offset": "UTC+08:00",
+    "offset": "GMT+08:00",
     "time_zone": "China Standard Time, Australian Western Standard Time, Irkutsk Time"
   },
   "Australia/Eucla": {
-    "offset": "UTC+08:45",
+    "offset": "GMT+08:45",
     "time_zone": "Australian Central Western Standard Time"
   },
   "Asia/Tokyo": {
-    "offset": "UTC+09:00",
+    "offset": "GMT+09:00",
     "time_zone": "Japan Standard Time, Korea Standard Time, Yakutsk Time"
   },
   "Australia/Adelaide": {
-    "offset": "UTC+09:30",
+    "offset": "GMT+09:30",
     "time_zone": "Australian Central Standard Time"
   },
   "Australia/Brisbane": {
-    "offset": "UTC+10:00",
+    "offset": "GMT+10:00",
     "time_zone": "Australian Eastern Standard Time, Vladivostok Time"
   },
   "Australia/Lord_Howe": {
-    "offset": "UTC+10:30",
+    "offset": "GMT+10:30",
     "time_zone": "Lord Howe Standard Time"
   },
   "Pacific/Honolulu": {
-    "offset": "UTC-10:00",
+    "offset": "GMT-10:00",
     "time_zone": "Hawaii-Aleutian Standard Time"
   }
 }

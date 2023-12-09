@@ -1023,27 +1023,35 @@ export default {
       this.loading = false;
     },
     async sync_date_time(item) {
-      try {
-        const dt = new Date();
-        const year = dt.getFullYear();
-        const month = String(dt.getMonth() + 1).padStart(2, "0");
-        const day = String(dt.getDate()).padStart(2, "0");
-        const hours = String(dt.getHours()).padStart(2, "0");
-        const minutes = String(dt.getMinutes()).padStart(2, "0");
-        const seconds = String(dt.getSeconds()).padStart(2, "0");
+      if (
+        confirm(
+          "Are you want to change the Device Time to " +
+            item.utc_time_zone +
+            "?"
+        )
+      ) {
+        try {
+          const dt = new Date();
+          const year = dt.getFullYear();
+          const month = String(dt.getMonth() + 1).padStart(2, "0");
+          const day = String(dt.getDate()).padStart(2, "0");
+          const hours = String(dt.getHours()).padStart(2, "0");
+          const minutes = String(dt.getMinutes()).padStart(2, "0");
+          const seconds = String(dt.getSeconds()).padStart(2, "0");
 
-        const apiUrl = `sync_device_date_time/${item.device_id}`;
-        const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        const { data } = await this.$axios.get(apiUrl, {
-          params: { sync_able_date_time },
-        });
+          const apiUrl = `sync_device_date_time/${item.device_id}`;
+          const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+          const { data } = await this.$axios.get(apiUrl, {
+            params: { sync_able_date_time },
+          });
 
-        this.snackbar = true;
-        this.response = data.message;
-      } catch (error) {
-        this.snackbar = true;
-        this.response = error;
-        console.error("Error syncing date and time:", error);
+          this.snackbar = true;
+          this.response = data.message;
+        } catch (error) {
+          this.snackbar = true;
+          this.response = error;
+          console.error("Error syncing date and time:", error);
+        }
       }
     },
     closepopup() {

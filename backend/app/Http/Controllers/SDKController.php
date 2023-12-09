@@ -130,6 +130,19 @@ class SDKController extends Controller
         $url = env('SDK_URL') . "/" . $device_id . "/DeletePerson";
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
+    public function processSDKRequestSettingsUpdateTime($device_id, $time)
+    {
+        $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
+
+        $data = [
+            'time' => $time
+        ];
+        $return = TimezonePhotoUploadJob::dispatch($data, $url);
+    }
+    public function processSDKRequestJobAll($json, $url)
+    {
+        $return = TimezonePhotoUploadJob::dispatch($json, $url);
+    }
     public function processSDKRequestJob($url, $data)
     {
 
