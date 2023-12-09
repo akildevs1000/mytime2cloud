@@ -139,6 +139,14 @@ class SDKController extends Controller
         ];
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
     }
+    public function processSDKRequestSettingsUpdate($device_id, $data)
+    {
+        $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
+
+
+        $return = TimezonePhotoUploadJob::dispatch($data, $url);
+        return $data;
+    }
     public function processSDKRequestJobAll($json, $url)
     {
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
@@ -218,6 +226,44 @@ class SDKController extends Controller
             ];
         }
         return $mergedList;
+    }
+
+    public function getDeviseSettingsDetails($device_id)
+    {
+
+        if ($device_id != '') {
+
+
+            $url = env('SDK_URL') . "/" . "{$device_id}/GetWorkParam";
+            $data =   null;
+
+
+            // return [$url, $data];
+            try {
+                $return = Http::timeout(3600)->withoutVerifying()->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($url, $data);
+
+                $return = json_decode($return, true);
+                if (array_key_exists($return['status'], $this->SDKResponseArray)) {
+                    $return['message'] =  $this->SDKResponseArray[$return['status']];
+                }
+
+                return json_encode($return);
+            } catch (\Exception $e) {
+                return [
+                    "status" => 102,
+                    "message" => $e->getMessage(),
+                ];
+            }
+        } else {
+            return [
+                "status" => 102,
+                "message" => "Invalid Details",
+            ];
+        }
+        // You can log the error or perform any other necessary actions here
+
     }
     public function getPersonDetails($device_id, $user_code)
     {

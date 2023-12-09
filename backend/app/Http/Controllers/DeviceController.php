@@ -228,6 +228,67 @@ class DeviceController extends Controller
 
         return $logs;
     }
+
+    public function getDeviceSettingsFromSDK(Request $request)
+    {
+
+        if ($request->device_id > 0) {
+
+
+            $responseData = (new SDKController())->getDeviseSettingsDetails($request->device_id);
+
+            return ["SDKresponseData" => json_decode($responseData),  "device_id" => $request->device_id, "status" => true];
+        } else {
+            return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
+        }
+    }
+
+    public function updateDeviceSettingsToSDK(Request $request)
+    {
+
+
+
+        if ($request->deviceSettings && $request->deviceSettings['device_id']) {
+
+            $device_settings = [];
+
+            $utc_time_zone  = Device::where('device_id', $request->deviceSettings['device_id'])->pluck("utc_time_zone")->first();;
+
+            $dateObj  = new DateTime("now", new DateTimeZone($utc_time_zone));
+            $currentDateTime = $dateObj->format('Y-m-d H:i:00');
+
+
+            $device_settings = [
+                "name" => $request->deviceSettings['name'] ?? '',
+                "door" => $request->deviceSettings['door'] ?? '1',
+
+
+                "language" => $request->deviceSettings['language'] ?? '2',
+                "volume" => $request->deviceSettings['volume'] ?? '5',
+                "menuPassword" => $request->deviceSettings['menuPassword'] ?? '',
+                "msgPush" => $request->deviceSettings['msgPush'] ?? '0',
+                "time" => $currentDateTime,
+
+
+            ];
+            if (isset($request->deviceSettings['maker_manufacturer'])) {
+
+
+                if ($request->deviceSettings['maker_manufacturer'] != '' &&  $request->deviceSettings['maker_webAddr'] != '' &&  $request->deviceSettings['maker_deliveryDate'] != '') {
+                    $device_settings["maker"] = [
+                        "manufacturer" => $request->deviceSettings['maker_manufacturer'] ?? '',
+                        "webAddr" => $request->deviceSettings['maker_webAddr'] ?? '',
+                        "deliveryDate" => $request->deviceSettings['maker_deliveryDate'] ?? ''
+                    ];
+                }
+            }
+            (new SDKController)->processSDKRequestSettingsUpdate($request->deviceSettings['device_id'], $device_settings);
+
+            return $this->response('Device settings are updated successfully.',  null, true);
+        } else {
+            return $this->response('Device ID is not found',  null, false);
+        }
+    }
     public function getLastRecordsByCount($id = 0, $count = 0, Request $request)
     {
         $model = AttendanceLog::query();

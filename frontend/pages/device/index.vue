@@ -27,14 +27,14 @@
 
     <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
       <v-card :loading="loadingDeviceData">
-        <v-card-actions>
+        <v-card-title class="popup_background">
           <span>Find User ID on Device </span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="uploadedUserInfoDialog = false"
             >mdi-close-circle</v-icon
           >
-        </v-card-actions>
+        </v-card-title>
 
         <v-card-text class="mt-2">
           <v-row>
@@ -53,9 +53,10 @@
               <v-btn
                 dense
                 small
-                class="primary"
+                class="primary mt-2"
                 @click="getUserInfoFromDevice()"
-                ><v-icon>mdi-magnify</v-icon>Get Details</v-btn
+              >
+                Get Details</v-btn
               >
             </v-col>
           </v-row>
@@ -138,6 +139,265 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="DialogDeviceSettings" max-width="800px">
+      <v-card>
+        <v-card-title class="popup_background">
+          <span> Device Settings </span>
+          <v-spacer></v-spacer>
+
+          <v-icon outlined @click="DialogDeviceSettings = false"
+            >mdi-close-circle</v-icon
+          >
+        </v-card-title>
+
+        <v-card-text class="mt-2">
+          <v-card :loading="loadingDeviceData">
+            <v-card-text class="mt-2">
+              <v-row class="100%" style="margin: auto; line-height: 36px">
+                <v-col cols="12" style="padding: 0px">
+                  <v-simple-table>
+                    <tr>
+                      <td colspan="2">
+                        <v-btn
+                          style="float: right"
+                          dense
+                          small
+                          class="primary mt-2 align-right"
+                          @click="
+                            getDeviceSettginsFromSDK(deviceSettings.device_id)
+                          "
+                        >
+                          Reload
+                        </v-btn>
+                        <div v-if="loadingDeviceData">
+                          Loading data. Please wait..
+                        </div>
+                        <br />
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Device ID</td>
+                      <td>
+                        <v-text-field
+                          :disabled="true"
+                          class="pb-0"
+                          v-model="deviceSettings.device_id"
+                          placeholder="Device ID"
+                          outlined
+                          dense
+                          label="Device ID  "
+                        ></v-text-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Device Model</td>
+                      <td>
+                        <v-text-field
+                          class="pb-0"
+                          v-model="deviceSettings.name"
+                          placeholder="Device Model"
+                          outlined
+                          dense
+                          label="Device Model  "
+                        ></v-text-field>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Door</td>
+                      <td>
+                        <v-select
+                          class="pb-0"
+                          v-model="deviceSettings.door"
+                          placeholder="Entry or exit"
+                          :items="[
+                            { name: 'Entry', value: 0 },
+                            { name: 'Exit', value: 1 },
+                          ]"
+                          item-value="value"
+                          item-text="name"
+                          outlined
+                          dense
+                          label="Entry or exit"
+                        ></v-select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maker - Manufacturer</td>
+                      <td>
+                        <v-text-field
+                          class="pb-0"
+                          v-model="deviceSettings.maker_manufacturer"
+                          placeholder="Manufacturer Name"
+                          outlined
+                          dense
+                          label="Manufacturer Name"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maker - Website Link</td>
+                      <td>
+                        <v-text-field
+                          class="pb-0"
+                          v-model="deviceSettings.maker_webAddr"
+                          placeholder="website link"
+                          outlined
+                          dense
+                          label="website link"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maker - Delivery Date</td>
+                      <td>
+                        <v-menu
+                          ref="to_menu_filter"
+                          v-model="to_menu_filter"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              outlined
+                              dense
+                              v-model="deviceSettings.maker_deliveryDate"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                              placeholder="Schedule To Date"
+                            ></v-text-field>
+                          </template>
+
+                          <v-date-picker
+                            style="height: 350px"
+                            v-model="deviceSettings.maker_deliveryDate"
+                            no-title
+                            scrollable
+                            @input="to_menu_filter = false"
+                          >
+                          </v-date-picker>
+                        </v-menu>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Language</td>
+                      <td>
+                        <v-autocomplete
+                          class="pb-0"
+                          v-model="deviceSettings.language"
+                          placeholder="language"
+                          :items="[
+                            { name: 'English', value: 2 },
+                            { name: 'Arabic', value: 12 },
+                            { name: 'Russian', value: 5 },
+                            { name: 'Italian', value: 8 },
+                            { name: 'Thai', value: 11 },
+
+                            { name: 'Korean', value: 10 },
+                            { name: 'Japanese', value: 9 },
+
+                            { name: 'Spanish', value: 7 },
+                            { name: 'Portuguese', value: 6 },
+
+                            { name: 'French', value: 4 },
+                            { name: 'Traditional Chinese', value: 3 },
+                          ]"
+                          item-value="value"
+                          item-text="name"
+                          outlined
+                          dense
+                          label="language"
+                        ></v-autocomplete>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Volume</td>
+                      <td>
+                        <v-select
+                          class="pb-0"
+                          v-model="deviceSettings.volume"
+                          placeholder="volume"
+                          :items="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
+                          outlined
+                          dense
+                          label="volume"
+                        ></v-select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Device Menu password</td>
+                      <td>
+                        <v-text-field
+                          type="number"
+                          :rules="menu_password"
+                          class="pb-0"
+                          v-model="deviceSettings.menuPassword"
+                          placeholder="Menu Password"
+                          outlined
+                          dense
+                          label="Menu Password"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Alarm Events Push(msgPush)</td>
+                      <td>
+                        <v-select
+                          class="pb-0"
+                          v-model="deviceSettings.msgPush"
+                          placeholder="Push to Live"
+                          :items="[
+                            { name: 'Enabled', value: 1 },
+                            { name: 'Disabled', value: 0 },
+                          ]"
+                          item-value="value"
+                          item-text="name"
+                          outlined
+                          dense
+                          label="Push to Live"
+                        ></v-select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Time</td>
+                      <td>
+                        <v-text-field
+                          :disabled="true"
+                          class="pb-0"
+                          v-model="deviceSettings.time"
+                          placeholder="Date Time"
+                          outlined
+                          dense
+                          label="Date Time"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td></td>
+                      <td>
+                        <v-btn
+                          dense
+                          small
+                          class="primary mt-2"
+                          @click="updateDeviceSettings()"
+                        >
+                          Update settings</v-btn
+                        >
+                      </td>
+                    </tr>
+                  </v-simple-table>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
 
     <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
@@ -169,8 +429,6 @@
       <v-row class="ma-1">
         <v-col md="12">
           <v-text-field
-            style="height: 50px"
-            class="pb-0"
             :hide-details="!payload.name"
             v-model="payload.name"
             placeholder="Device Name"
@@ -184,7 +442,6 @@
         </v-col>
         <v-col md="12">
           <v-text-field
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.short_name"
             v-model="payload.short_name"
@@ -199,7 +456,6 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.branch_id"
             v-model="payload.branch_id"
@@ -217,7 +473,6 @@
         </v-col>
         <v-col md="12">
           <v-text-field
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.location"
             v-model="payload.location"
@@ -232,7 +487,6 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.utc_time_zone"
             v-model="payload.utc_time_zone"
@@ -250,7 +504,6 @@
         </v-col>
         <v-col md="12">
           <v-text-field
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.model_number"
             v-model="payload.model_number"
@@ -265,7 +518,6 @@
         </v-col>
         <v-col md="12">
           <v-text-field
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.device_id"
             v-model="payload.device_id"
@@ -280,7 +532,6 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.function"
             v-model="payload.function"
@@ -302,7 +553,6 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.device_type"
             v-model="payload.device_type"
@@ -324,7 +574,6 @@
         </v-col>
         <v-col md="12">
           <v-autocomplete
-            style="height: 50px"
             class="pb-0"
             :hide-details="!payload.status_id"
             v-model="payload.status_id"
@@ -690,6 +939,15 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
+                v-if="can(`device_edit`)"
+                @click="showDeviceSettings(item)"
+              >
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-cog </v-icon>
+                  Device Settings
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
                 v-if="can(`device_delete`)"
                 @click="deleteItem(item)"
               >
@@ -713,6 +971,16 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    rules: [(value) => (value || "").length <= 20 || "Max 20 characters"],
+    menu_password: [
+      (value) => (value || "").length <= 6 || "Max 20 characters",
+    ],
+
+    DialogDeviceSettings: false,
+    deviceSettings: { maker: {} },
+    to_menu_filter: false,
+    to_menu_filter: "",
+    to_date_filter: "",
     visitorUploadedDevicesInfo: [],
     loadingDeviceData: false,
     visitor_status_list: [],
@@ -888,6 +1156,7 @@ export default {
 
     isCompany: true,
     timeZoneOptions: [],
+    editedItem: null,
   }),
 
   computed: {
@@ -951,9 +1220,70 @@ export default {
   },
 
   methods: {
+    updateDeviceSettings() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          deviceSettings: this.deviceSettings,
+        },
+      };
+
+      this.$axios
+        .post(`/update-device-sdk-settings`, options.params)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.response = "Try again. " + data.message;
+            this.snackbar = true;
+
+            return;
+          } else {
+            this.response = data.message;
+            this.snackbar = true;
+            return;
+          }
+        })
+        .catch((e) => console.log(e));
+    },
     findUser(item) {
       this.popupDeviceId = item.device_id;
       this.uploadedUserInfoDialog = true;
+    },
+    getDeviceSettginsFromSDK(device_id) {
+      if (device_id != "") {
+        this.deviceSettings.device_id = device_id;
+        this.loadingDeviceData = true;
+        let counter = 1;
+
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            device_id: device_id,
+          },
+        };
+        this.loadingDeviceData = true;
+        this.$axios
+          .get(`get-device-settings-from-sdk`, options)
+          .then(({ data }) => {
+            this.loadingDeviceData = false;
+
+            if (!data.SDKresponseData.data) {
+              this.response = "Try again. " + data.message;
+              this.snackbar = true;
+
+              return;
+            } else {
+              this.deviceSettings = data.SDKresponseData.data;
+              this.deviceSettings.device_id = device_id;
+
+              this.deviceSettings.time = this.deviceSettings.time.replace(
+                "T",
+                " "
+              );
+
+              return;
+            }
+          });
+      }
     },
     getUserInfoFromDevice() {
       if (this.inputFindDeviceUserId != "") {
@@ -1246,8 +1576,20 @@ export default {
       this.editedIndex = item.id;
 
       this.payload = Object.assign({}, item);
+      this.popupDeviceId = item.device_id;
 
       this.editDialog = true;
+    },
+    showDeviceSettings(item) {
+      this.errors = [];
+      this.payload = {};
+      this.editedIndex = item.id;
+
+      this.editedItem = item;
+      this.loadingDeviceData = true;
+
+      this.getDeviceSettginsFromSDK(item.device_id);
+      this.DialogDeviceSettings = true;
     },
     addItem() {
       this.payload = {};

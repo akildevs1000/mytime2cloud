@@ -36,3 +36,5 @@ Route::get('get_device_active_settings/{key}', [DeviceController::class, 'getAct
 
 Route::get('/check_device_health', [DeviceController::class, 'checkDeviceHealth']);
 Route::get('get-device-person-details', [DeviceController::class, 'getDevicePersonDetails']);
+Route::get('get-device-settings-from-sdk', [DeviceController::class, 'getDeviceSettingsFromSDK']);
+Route::post('update-device-sdk-settings', [DeviceController::class, 'updateDeviceSettingsToSDK']);
