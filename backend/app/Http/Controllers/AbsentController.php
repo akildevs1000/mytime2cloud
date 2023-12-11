@@ -52,6 +52,7 @@ class AbsentController extends Controller
                 "employee_id" => $missingEmployee->employee_id,
                 "shift_id" => $missingEmployee->schedule->shift_id,
                 "shift_type_id" => $missingEmployee->schedule->shift_type_id,
+
             ];
         }
 

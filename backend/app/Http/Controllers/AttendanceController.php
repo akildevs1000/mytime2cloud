@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log as Logger;
 
 class AttendanceController extends Controller
 {
@@ -78,6 +79,9 @@ class AttendanceController extends Controller
                     "device_id_in" => "---",
                     "device_id_out" => "---",
                     "company_id" => $company_id,
+                    "created_at"    => date('Y-m-d H:i:s'),
+                    "updated_at"    => date('Y-m-d H:i:s'),
+                    "updated_func" => "seedDefaultData"
                 ];
             }
         }
@@ -99,6 +103,8 @@ class AttendanceController extends Controller
         }
 
         $message = "Cron AttendanceSeeder: " . $insertedCount . " record has been inserted.";
+
+        Logger::channel("defaulSeeder")->info('Cron: Creating Default seeder. seedDefaultData: ' .  $message);
         return $message;
     }
     public function attendance_avg_clock(Request $request)
@@ -539,8 +545,10 @@ class AttendanceController extends Controller
                     "status"        => $this->getDynamicStatus($employee, $previousDate),
                     "company_id"    => $employee->company_id,
                     "shift_type_id"    => $employee->shift_type_id,
-                    "created_at"    => now(),
-                    "updated_at"    => now()
+
+                    "created_at"    => date('Y-m-d H:i:s'),
+                    "updated_at"    => date('Y-m-d H:i:s'),
+                    "updated_func" => "runFunc"
                 ];
                 $record[] = $arr;
 
