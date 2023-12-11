@@ -504,10 +504,52 @@ class DeviceController extends Controller
 
         return $return_araay;
     }
-
     public function checkDeviceHealth(Request $request)
     {
-        $devices = Device::where("company_id", $request->company_id ?? 0)->where("device_type", "!=", "Mobile")->pluck("device_id");
+
+        return $this->checkDevicesHealthCompanyId($request->company_id);
+    }
+
+    public function checkDevicesHealthCompanyId($company_id = '')
+    {
+        $devicesHealth = (new SDKController())->GetAllDevicesHealth();
+        $companyDevices = Device::where("device_type", "!=", "Mobile")
+            ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
+            ->where("device_type", "!=", "Manual")
+            ->where("device_id", "!=", "Manual")
+            ->get();
+        $total_iterations = count($companyDevices);
+        $online_devices_count = 0;
+        $offline_devices_count = 0;
+        $companiesIds = [];
+        foreach ($companyDevices as $key => $Device) {
+            $companyDevice_id = $Device["device_id"];
+            $companiesIds[] = $Device["company_id"];
+            $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
+                return $companyDevice_id == $device['sn'];
+            });
+
+            if (count($SDKDeviceResponce) && current($SDKDeviceResponce)["keepAliveTime"] != '') {
+                $date  = new DateTime(current($SDKDeviceResponce)["keepAliveTime"], new DateTimeZone('Asia/Dubai'));
+                $DeviceDateTime = $date->format('Y-m-d H:i:00');
+                $online_devices_count++;
+                Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
+            } else {
+                $offline_devices_count++;
+                Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
+
+
+                // info($count . "companies has been updated");
+            }
+        }
+        Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
+        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+    }
+    public function checkDeviceHealth_old(Request $request)
+    {
+        $devices = Device::where("company_id", $request->company_id ?? 0)->where("device_type", "!=", "Mobile")
+            ->where("device_type", "!=", "Manual")
+            ->pluck("device_id");
 
         $total_iterations = 0;
         $online_devices_count = 0;

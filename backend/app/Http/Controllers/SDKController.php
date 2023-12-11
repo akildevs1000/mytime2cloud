@@ -114,6 +114,14 @@ class SDKController extends Controller
         return $this->processSDKRequestBulk($url, $request->all());
     }
 
+
+
+    public function GetAllDevicesHealth()
+    {
+        $url = env('SDK_URL') . "/getDevices";
+
+        return $this->processSDKRequestBulk($url, null);
+    }
     public function PersonAddRangeWithData($data)
     {
         $url = env('SDK_URL') . "/Person/AddRange";

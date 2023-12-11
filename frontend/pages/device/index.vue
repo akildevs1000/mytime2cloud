@@ -1232,7 +1232,9 @@ export default {
         .post(`/update-device-sdk-settings`, options.params)
         .then(({ data }) => {
           if (!data.status) {
-            this.response = "Try again. " + data.message;
+            if (data.message == "undefined") {
+              this.response = "Try again. No connection available";
+            } else this.response = "Try again. " + data.message;
             this.snackbar = true;
 
             return;
