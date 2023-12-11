@@ -1,16 +1,14 @@
 import colors from "vuetify/es5/util/colors";
 
 export default {
-   buildDir: ".nuxt",
+  buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
   target: "server",
-
-  generate: {
+ generate: {
     // Interval in milliseconds between two render cycles to avoid
     // flooding a potential API with calls from the web application.
     interval: 500,
   },
-
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     titleTemplate: "",
@@ -165,7 +163,7 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify", "vue-apexchart"],
-    interval: 500,
+	interval: 500,
   },
 
   server: {
