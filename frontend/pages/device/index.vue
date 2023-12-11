@@ -169,10 +169,10 @@
                         >
                           Reload
                         </v-btn>
-                        <div v-if="loadingDeviceData">
-                          Loading data. Please wait..
-                        </div>
                         <br />
+                        <div v-if="loadingDeviceData" style="color: red">
+                          Connecting to Device. Please wait...
+                        </div>
                       </td>
                     </tr>
                     <tr>
@@ -193,6 +193,7 @@
                       <td>Device Model</td>
                       <td>
                         <v-text-field
+                          :rules="device_model"
                           class="pb-0"
                           v-model="deviceSettings.name"
                           placeholder="Device Model"
@@ -222,66 +223,7 @@
                         ></v-select>
                       </td>
                     </tr>
-                    <tr>
-                      <td>Maker - Manufacturer</td>
-                      <td>
-                        <v-text-field
-                          class="pb-0"
-                          v-model="deviceSettings.maker_manufacturer"
-                          placeholder="Manufacturer Name"
-                          outlined
-                          dense
-                          label="Manufacturer Name"
-                        ></v-text-field>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Maker - Website Link</td>
-                      <td>
-                        <v-text-field
-                          class="pb-0"
-                          v-model="deviceSettings.maker_webAddr"
-                          placeholder="website link"
-                          outlined
-                          dense
-                          label="website link"
-                        ></v-text-field>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>Maker - Delivery/Release Date</td>
-                      <td>
-                        <v-menu
-                          ref="to_menu_filter"
-                          v-model="to_menu_filter"
-                          :close-on-content-click="false"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
-                          <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              outlined
-                              dense
-                              v-model="deviceSettings.maker_deliveryDate"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              placeholder="Schedule To Date"
-                            ></v-text-field>
-                          </template>
 
-                          <v-date-picker
-                            style="height: 350px"
-                            v-model="deviceSettings.maker_deliveryDate"
-                            no-title
-                            scrollable
-                            @input="to_menu_filter = false"
-                          >
-                          </v-date-picker>
-                        </v-menu>
-                      </td>
-                    </tr>
                     <tr>
                       <td>Language</td>
                       <td>
@@ -335,7 +277,7 @@
                           :rules="menu_password"
                           class="pb-0"
                           v-model="deviceSettings.menuPassword"
-                          placeholder="Menu Password"
+                          placeholder="min 4 to  max 8 numbers"
                           outlined
                           dense
                           label="Menu Password"
@@ -376,7 +318,69 @@
                         ></v-text-field>
                       </td>
                     </tr>
+                    <tr>
+                      <td>Maker - Manufacturer</td>
+                      <td>
+                        <v-text-field
+                          :disabled="true"
+                          class="pb-0"
+                          v-model="deviceSettings.maker_manufacturer"
+                          placeholder="Manufacturer Name"
+                          outlined
+                          dense
+                          label="Manufacturer Name"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maker - Website Link</td>
+                      <td>
+                        <v-text-field
+                          :disabled="true"
+                          class="pb-0"
+                          v-model="deviceSettings.maker_webAddr"
+                          placeholder="website link"
+                          outlined
+                          dense
+                          label="website link"
+                        ></v-text-field>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>Maker - Delivery/Release Date</td>
+                      <td>
+                        <v-menu
+                          ref="to_menu_filter"
+                          v-model="to_menu_filter"
+                          :close-on-content-click="false"
+                          transition="scale-transition"
+                          offset-y
+                          min-width="auto"
+                        >
+                          <template v-slot:activator="{ on, attrs }">
+                            <v-text-field
+                              :disabled="true"
+                              outlined
+                              dense
+                              v-model="deviceSettings.maker_deliveryDate"
+                              readonly
+                              v-bind="attrs"
+                              v-on="on"
+                              placeholder="Schedule To Date"
+                            ></v-text-field>
+                          </template>
 
+                          <v-date-picker
+                            style="height: 350px"
+                            v-model="deviceSettings.maker_deliveryDate"
+                            no-title
+                            scrollable
+                            @input="to_menu_filter = false"
+                          >
+                          </v-date-picker>
+                        </v-menu>
+                      </td>
+                    </tr>
                     <tr>
                       <td></td>
                       <td>
@@ -425,172 +429,176 @@
           mdi mdi-close-circle
         </v-icon>
       </v-toolbar>
-
-      <v-row class="ma-1">
-        <v-col md="12">
-          <v-text-field
-            :hide-details="!payload.name"
-            v-model="payload.name"
-            placeholder="Device Name"
-            outlined
-            dense
-            label="Device Name *"
-          ></v-text-field>
-          <span v-if="errors && errors.name" class="error--text pa-0 ma-0"
-            >{{ errors.name[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-text-field
-            class="pb-0"
-            :hide-details="!payload.short_name"
-            v-model="payload.short_name"
-            placeholder="Short Name"
-            outlined
-            dense
-            label="Short Name *"
-          ></v-text-field>
-          <span v-if="errors && errors.short_name" class="error--text pa-0 ma-0"
-            >{{ errors.short_name[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-autocomplete
-            class="pb-0"
-            :hide-details="!payload.branch_id"
-            v-model="payload.branch_id"
-            placeholder="Branch Name"
-            outlined
-            dense
-            label="Branch Name *"
-            :items="branches"
-            item-value="id"
-            item-text="branch_name"
-          ></v-autocomplete>
-          <span v-if="errors && errors.branch_id" class="error--text pa-0 ma-0"
-            >{{ errors.branch_id[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-text-field
-            class="pb-0"
-            :hide-details="!payload.location"
-            v-model="payload.location"
-            placeholder="Device location"
-            outlined
-            dense
-            label="Device location *"
-          ></v-text-field>
-          <span v-if="errors && errors.location" class="error--text"
-            >{{ errors.location[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-autocomplete
-            class="pb-0"
-            :hide-details="!payload.utc_time_zone"
-            v-model="payload.utc_time_zone"
-            placeholder="Time Zone"
-            outlined
-            dense
-            label="Time Zone(Ex:UTC+) *"
-            :items="getTimezones()"
-            item-value="key"
-            item-text="text"
-          ></v-autocomplete>
-          <span v-if="errors && errors.utc_time_zone" class="error--text"
-            >{{ errors.utc_time_zone[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-text-field
-            class="pb-0"
-            :hide-details="!payload.model_number"
-            v-model="payload.model_number"
-            placeholder="Model Number"
-            outlined
-            dense
-            label="Model Number *"
-          ></v-text-field>
-          <span v-if="errors && errors.model_number" class="error--text"
-            >{{ errors.model_number[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-text-field
-            class="pb-0"
-            :hide-details="!payload.device_id"
-            v-model="payload.device_id"
-            placeholder="Serial Number"
-            outlined
-            dense
-            label="Serial Number *"
-          ></v-text-field>
-          <span v-if="errors && errors.device_id" class="error--text"
-            >{{ errors.device_id[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-autocomplete
-            class="pb-0"
-            :hide-details="!payload.function"
-            v-model="payload.function"
-            placeholder="Function"
-            outlined
-            dense
-            label="Function *"
-            :items="[
-              { id: 'auto', name: 'Auto' },
-              { id: 'In', name: 'In' },
-              { id: 'Out', name: 'Out' },
-            ]"
-            item-value="id"
-            item-text="name"
-          ></v-autocomplete>
-          <span v-if="errors && errors.function" class="error--text"
-            >{{ errors.function[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-autocomplete
-            class="pb-0"
-            :hide-details="!payload.device_type"
-            v-model="payload.device_type"
-            placeholder="Device Type"
-            outlined
-            dense
-            label="Device Type *"
-            :items="[
-              { id: 'all', name: 'All(Attendance and Access)' },
-              { id: 'Attendance', name: 'Attendance' },
-              { id: 'Access Control', name: 'Access Control' },
-            ]"
-            item-value="id"
-            item-text="name"
-          ></v-autocomplete>
-          <span v-if="errors && errors.device_type" class="error--text"
-            >{{ errors.device_type[0] }}
-          </span>
-        </v-col>
-        <v-col md="12">
-          <v-autocomplete
-            class="pb-0"
-            :hide-details="!payload.status_id"
-            v-model="payload.status_id"
-            placeholder="Time Zone"
-            outlined
-            dense
-            label="Device Status *"
-            :items="device_statusses"
-            item-value="id"
-            item-text="name"
-          ></v-autocomplete>
-          <span v-if="errors && errors.status_id" class="error--text"
-            >{{ errors.status_id[0] }}
-          </span>
-        </v-col>
-      </v-row>
-
+      <v-form ref="form" v-model="valid" lazy-validation>
+        <v-row class="ma-1">
+          <v-col md="12">
+            <v-text-field
+              :hide-details="!payload.name"
+              v-model="payload.name"
+              placeholder="Device Name"
+              outlined
+              dense
+              label="Device Name *"
+            ></v-text-field>
+            <span v-if="errors && errors.name" class="error--text pa-0 ma-0"
+              >{{ errors.name[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-text-field
+              class="pb-0"
+              :hide-details="!payload.short_name"
+              v-model="payload.short_name"
+              placeholder="Short Name"
+              outlined
+              dense
+              label="Short Name *"
+            ></v-text-field>
+            <span
+              v-if="errors && errors.short_name"
+              class="error--text pa-0 ma-0"
+              >{{ errors.short_name[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.branch_id"
+              v-model="payload.branch_id"
+              placeholder="Branch Name"
+              outlined
+              dense
+              label="Branch Name *"
+              :items="branches"
+              item-value="id"
+              item-text="branch_name"
+            ></v-autocomplete>
+            <span
+              v-if="errors && errors.branch_id"
+              class="error--text pa-0 ma-0"
+              >{{ errors.branch_id[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-text-field
+              class="pb-0"
+              :hide-details="!payload.location"
+              v-model="payload.location"
+              placeholder="Device location"
+              outlined
+              dense
+              label="Device location *"
+            ></v-text-field>
+            <span v-if="errors && errors.location" class="error--text"
+              >{{ errors.location[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.utc_time_zone"
+              v-model="payload.utc_time_zone"
+              placeholder="Time Zone"
+              outlined
+              dense
+              label="Time Zone(Ex:UTC+) *"
+              :items="getTimezones()"
+              item-value="key"
+              item-text="text"
+            ></v-autocomplete>
+            <span v-if="errors && errors.utc_time_zone" class="error--text"
+              >{{ errors.utc_time_zone[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-text-field
+              class="pb-0"
+              :hide-details="!payload.model_number"
+              v-model="payload.model_number"
+              placeholder="Model Number"
+              outlined
+              dense
+              label="Model Number *"
+            ></v-text-field>
+            <span v-if="errors && errors.model_number" class="error--text"
+              >{{ errors.model_number[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-text-field
+              class="pb-0"
+              :hide-details="!payload.device_id"
+              v-model="payload.device_id"
+              placeholder="Serial Number"
+              outlined
+              dense
+              label="Serial Number *"
+            ></v-text-field>
+            <span v-if="errors && errors.device_id" class="error--text"
+              >{{ errors.device_id[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.function"
+              v-model="payload.function"
+              placeholder="Function"
+              outlined
+              dense
+              label="Function *"
+              :items="[
+                { id: 'auto', name: 'Auto' },
+                { id: 'In', name: 'In' },
+                { id: 'Out', name: 'Out' },
+              ]"
+              item-value="id"
+              item-text="name"
+            ></v-autocomplete>
+            <span v-if="errors && errors.function" class="error--text"
+              >{{ errors.function[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.device_type"
+              v-model="payload.device_type"
+              placeholder="Device Type"
+              outlined
+              dense
+              label="Device Type *"
+              :items="[
+                { id: 'all', name: 'All(Attendance and Access)' },
+                { id: 'Attendance', name: 'Attendance' },
+                { id: 'Access Control', name: 'Access Control' },
+              ]"
+              item-value="id"
+              item-text="name"
+            ></v-autocomplete>
+            <span v-if="errors && errors.device_type" class="error--text"
+              >{{ errors.device_type[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.status_id"
+              v-model="payload.status_id"
+              placeholder="Time Zone"
+              outlined
+              dense
+              label="Device Status *"
+              :items="device_statusses"
+              item-value="id"
+              item-text="name"
+            ></v-autocomplete>
+            <span v-if="errors && errors.status_id" class="error--text"
+              >{{ errors.status_id[0] }}
+            </span>
+          </v-col>
+        </v-row>
+      </v-form>
       <v-row v-if="response">
         <v-col>
           <div style="color: red; font-size: 14px" class="pl-1">
@@ -632,6 +640,7 @@
             >
           </v-btn>
         </span>
+
         <span v-if="isCompany" style="width: 250px">
           <v-select
             @change="getDataFromApi()"
@@ -971,9 +980,16 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
-    rules: [(value) => (value || "").length <= 20 || "Max 20 characters"],
+    valid: false,
+    rules: [(value) => (value || "").length <= 10 || "Max 10 characters"],
+    device_model: [
+      (v) => !!v || "Device Name  is required",
+      (value) => (value || "").length <= 20 || "Max 20 characters",
+    ],
+
     menu_password: [
-      (value) => (value || "").length <= 6 || "Max 20 characters",
+      (v) => !!v || "Password is required",
+      (value) => (value || "").length <= 8 || "Max 8 characters",
     ],
 
     DialogDeviceSettings: false,
@@ -1221,30 +1237,42 @@ export default {
 
   methods: {
     updateDeviceSettings() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          deviceSettings: this.deviceSettings,
-        },
-      };
+      if (confirm("Are you want to Update Device settings  ?")) {
+        if (
+          this.$refs.form.validate() &&
+          this.deviceSettings.menuPassword != "" &&
+          this.deviceSettings.name != ""
+        ) {
+          let options = {
+            params: {
+              company_id: this.$auth.user.company_id,
+              deviceSettings: this.deviceSettings,
+            },
+          };
+          this.loading = true;
+          this.$axios
+            .post(`/update-device-sdk-settings`, options.params)
+            .then(({ data }) => {
+              if (!data.status) {
+                if (data.message == "undefined") {
+                  this.response = "Try again. No connection available";
+                } else this.response = "Try again. " + data.message;
+                this.snackbar = true;
 
-      this.$axios
-        .post(`/update-device-sdk-settings`, options.params)
-        .then(({ data }) => {
-          if (!data.status) {
-            if (data.message == "undefined") {
-              this.response = "Try again. No connection available";
-            } else this.response = "Try again. " + data.message;
-            this.snackbar = true;
+                return;
+              } else {
+                setTimeout(() => {
+                  this.loading = false;
+                  this.response = data.message;
+                  this.snackbar = true;
+                }, 2000);
 
-            return;
-          } else {
-            this.response = data.message;
-            this.snackbar = true;
-            return;
-          }
-        })
-        .catch((e) => console.log(e));
+                return;
+              }
+            })
+            .catch((e) => console.log(e));
+        }
+      }
     },
     findUser(item) {
       this.popupDeviceId = item.device_id;

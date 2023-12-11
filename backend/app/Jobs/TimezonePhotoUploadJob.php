@@ -76,7 +76,7 @@ class TimezonePhotoUploadJob implements ShouldQueue
 
         ];
 
-        Log::channel('jobs')->info('TimezonePhotoUpload '   . json_encode($returnContent, true));
+        Log::channel('jobs')->info('TimezonePhotoUpload '   . $this->url . " - Request:" . json_encode($data) . " - Response:" . json_encode($returnContent, true));
 
         return $returnContent;
     }

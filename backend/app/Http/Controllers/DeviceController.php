@@ -237,7 +237,24 @@ class DeviceController extends Controller
 
             $responseData = (new SDKController())->getDeviseSettingsDetails($request->device_id);
 
-            return ["SDKresponseData" => json_decode($responseData),  "device_id" => $request->device_id, "status" => true];
+            $responseDataArray = json_decode($responseData, true);
+
+
+
+            if (!isset($responseDataArray->data->maker['manufacturer'])) {
+                $responseDataArray['data']['maker_manufacturer'] = "OXAI";
+                $responseDataArray['data']['maker_webAddr']   = env("APP_URL");
+                $responseDataArray['data']['maker_deliveryDate']  = date("Y-01-01");
+            }
+            if (!isset($responseDataArray['data']['name'])) {
+                $responseDataArray['data']['name'] = "OXSAI866";
+            }
+
+
+
+
+
+            return ["SDKresponseData" =>  $responseDataArray,  "device_id" => $request->device_id, "status" => true];
         } else {
             return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
