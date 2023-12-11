@@ -18,10 +18,7 @@ class AttendanceController extends Controller
 {
     public function seedDefaultData($company_id, $UserIds = [], $branch_id = '')
     {
-        $attendance = Attendance::query();
-        $attendance->where("company_id", $company_id);
-        $attendance->whereMonth("date", date("m"));
-        $attendance->delete();
+
 
         $params = ["company_id" => $company_id, "date" => date("Y-m-d"), "branch_id" => $branch_id, "UserIds" => $UserIds];
 
@@ -53,7 +50,10 @@ class AttendanceController extends Controller
             info("No record found");
             return;
         }
-
+        $attendance = Attendance::query();
+        $attendance->where("company_id", $company_id);
+        $attendance->whereMonth("date", date("m"));
+        $attendance->delete();
         $daysInMonth = Carbon::now()->month(date('m'))->daysInMonth;
 
         $employees = $employees->get(["system_user_id"]);
