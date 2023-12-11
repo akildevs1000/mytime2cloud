@@ -249,7 +249,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td>Maker - Delivery Date</td>
+                      <td>Maker - Delivery/Release Date</td>
                       <td>
                         <v-menu
                           ref="to_menu_filter"

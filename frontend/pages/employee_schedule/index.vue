@@ -492,6 +492,7 @@
       >
         <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
+            <td></td>
             <td v-for="header in headers_table" :key="header.text">
               <v-container>
                 <v-text-field
