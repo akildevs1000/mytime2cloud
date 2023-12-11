@@ -484,11 +484,11 @@ Route::get('/test/whatsapp', function () {
 });
 Route::get('/test3', function () {
 
-    return 'Test';
-    $devicesListArray = Device::where("company_id", 8);
+    // return 'Test';
+    // $devicesListArray = Device::where("company_id", 8);
 
-    return $devicesListArray->clone()->where("device_id", "=", 'OX-9662022091021')->pluck('id')[0];
-    //return (new AttendanceController)->seedDefaultData(8, [1001], 2);
+    // return $devicesListArray->clone()->where("device_id", "=", 'OX-9662022091021')->pluck('id')[0];
+    // return (new AttendanceController)->seedDefaultData(20, [], '');
 });
 
 Route::get('/nightshift', function () {

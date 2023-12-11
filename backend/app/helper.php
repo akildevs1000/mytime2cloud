@@ -233,3 +233,26 @@ function defaultMailContent($id = 1)
         ],
     ];
 }
+function defaultDeviceManual($id = 1)
+{
+
+    return [
+        "company_id" => $id,
+
+        "name" => "Manual",
+        "short_name" => "Manual",
+        "branch_id" => 1,
+        "location" => "Manual",
+        "utc_time_zone" => "Asia/Dubai",
+        "model_number" => "Manual",
+        "device_id" => "Manual",
+        "function" => "auto",
+        "device_type" => "all",
+        "status_id" => 2,
+
+        "ip" => "0.0.0.0",
+        "serial_number" => "Manual",
+        "port" => "0000"
+
+    ];
+}

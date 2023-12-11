@@ -34,6 +34,7 @@ use App\Models\Employee;
 use App\Models\MailContent;
 use App\Models\Theme;
 use App\Models\VisitorLog;
+use Exception;
 use Illuminate\Support\Facades\Mail;
 
 class CompanyController extends Controller
@@ -159,11 +160,12 @@ class CompanyController extends Controller
             $company->save();
 
             $user['randPass'] = $randPass;
-
-            if (($company && $user) && env('IS_MAIL')) {
-                NotificationsController::toSend($user, new CompanyCreationNotification, $company);
+            try {
+                if (($company && $user) && env('IS_MAIL')) {
+                    NotificationsController::toSend($user, new CompanyCreationNotification, $company);
+                }
+            } catch (Exception $e) {
             }
-
             if (!$company) {
                 return $this->response('Company cannot add.', null, false);
             }
@@ -210,6 +212,8 @@ class CompanyController extends Controller
         $designations = Designation::insert(defaultDesignations($id));
         $AnnouncementsCategories = AnnouncementsCategories::insert(defaultAnnouncementCategories($id));
         $MailContent = MailContent::insert(defaultMailContent($id));
+
+        $devices = Device::insert(defaultDeviceManual($id));
 
         if ($theme && $role && $department) {
             return true;
