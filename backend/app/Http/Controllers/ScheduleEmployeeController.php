@@ -116,7 +116,7 @@ class ScheduleEmployeeController extends Controller
             if ($request->replace_schedules) {
                 $model = ScheduleEmployee::query();
                 $model->where("company_id", $data["company_id"]);
-                $model->where("branch_id", $data["branch_id"] ?? 0);
+                // $model->where("branch_id", $data["branch_id"] ?? 0);
                 $model->whereIn("employee_id", array_column($arr, "employee_id"));
                 // $model->whereIn("shift_type_id", array_column($arr, "shift_type_id"));
                 // $model->whereIn("shift_id", array_column($arr, "shift_id"));
@@ -160,7 +160,7 @@ class ScheduleEmployeeController extends Controller
 
         $record = ScheduleEmployee::where("company_id", $request->company_id)
             ->where("employee_id", $request->employee_id)
-            ->where("branch_id", $request->branch_id)
+            //->where("branch_id", $request->branch_id)
             ->delete();
 
         try {
@@ -182,7 +182,7 @@ class ScheduleEmployeeController extends Controller
 
         $record = ScheduleEmployee::where("company_id", $request->company_id)
             ->where("employee_id", $request->employee_id)
-            ->where("branch_id", $request->branch_id)
+            //->where("branch_id", $request->branch_id)
             ->delete();
 
         try {
