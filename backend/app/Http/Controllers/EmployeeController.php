@@ -803,6 +803,57 @@ class EmployeeController extends Controller
         }
     }
 
+    public function employeeRFIDUpdate(Request $request, $id)
+    {
+
+
+
+        // $validatedData = $request->validate([
+        //     'rfid_card_number' => 'required|max:15',
+
+        //     'rfid_card_password' => 'required|min:4|max:8',
+
+        // ]);
+
+        //if ($validatedData) 
+
+        // if ($request->rfid_card_number == '' ||  $request->rfid_card_password == '') {
+
+        //     return $this->response('RFID card and password are required', null, false);
+        // }
+        $data = [];
+        if ($request->rfid_card_number != '') {
+            $data['rfid_card_number'] = $request->rfid_card_number;
+        }
+        if ($request->rfid_card_password != '') {
+            $data['rfid_card_password'] = $request->rfid_card_password;
+        }
+
+
+        $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
+
+        if (count($isRFIdExist) == 0) {
+
+            try {
+
+                if (count($data)) {
+                    $user = Employee::where("id",   $request->employee_id)->update($data);
+
+                    if (!$user) {
+                        return $this->response('Employee cannot update.', null, false);
+                    }
+                } else {
+                    return $this->response('Employee successfully updated.', null, true);
+                }
+                return $this->response('Employee successfully updated.', null, true);
+            } catch (\Throwable $th) {
+                throw $th;
+            }
+        } else {
+            return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
+        }
+    }
+
     public function updateContact(Employee $model, EmployeeUpdateContact $request, $id)
     {
         // return $request->all();

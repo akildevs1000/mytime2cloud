@@ -439,6 +439,7 @@ class VisitorController extends Controller
                             "zone_id" => $request->zone_id,
                             "status_id" => 4,
                             "card_rfid_number" => $request->card_rfid_number,
+                            "card_rfid_password" => $request->card_rfid_password,
                             "guard_changed_status_datetime" => date("Y-m-d H:i:s")
 
                         ]);
@@ -534,15 +535,19 @@ class VisitorController extends Controller
             $personList["cardData"] = $data["card_rfid_number"];
             $personList["cardStatus"] = 0;
             $personList["cardType"] = 0;
-            $personList["password"] =  '12345678';
+            $personList["password"] =  $data["card_rfid_password"];
+        }
+        if ($data["logo"] != '') {
+            if (env("APP_ENV") == "local") {
+                $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
+            } else {
+                $personList["faceImage"] =  $data["logo"];
+            }
         }
 
 
-        if (env("APP_ENV") == "local") {
-            $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
-        } else {
-            $personList["faceImage"] =  $data["logo"];
-        }
+
+
 
         $currentDate  = $date->format('Y-m-d');
 

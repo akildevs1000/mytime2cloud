@@ -836,6 +836,7 @@ import Qualification from "../../components/employee/Qualification.vue";
 import Setting from "../../components/employee/Setting.vue";
 import Payroll from "../../components/employee/Payroll.vue";
 import Login from "../../components/employee/Login.vue";
+import Rfid from "../../components/employee/Rfid.vue";
 
 import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding.vue";
 
@@ -858,6 +859,7 @@ export default {
     Setting,
     Payroll,
     Login,
+    Rfid,
   },
 
   data: () => ({
@@ -946,6 +948,11 @@ export default {
         text: "Login",
         icon: "mdi-lock",
         value: 10,
+      },
+      {
+        text: "RFID",
+        icon: "mdi-lock",
+        value: 11,
       },
     ],
     tab: 0,
@@ -1161,6 +1168,7 @@ export default {
         8: "Setting",
         9: "Payroll",
         10: "Login",
+        11: "Rfid",
       };
       return componentsList[value] || "div"; // default to a div if no component found
     },

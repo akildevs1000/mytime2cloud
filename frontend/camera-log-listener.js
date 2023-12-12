@@ -22,7 +22,7 @@ const server = net.createServer((socket) => {
   const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   //let GlobalformattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
-
+  var socketData = "";
   socket.on("data", (data) => {
     try {
       let TodayDatetime = getTime();
@@ -30,8 +30,16 @@ const server = net.createServer((socket) => {
 
       xmlData = data.toString(); // Append data to the image data string
 
-      saveXMlToLog(filePath, xmlData);
       saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime);
+      saveXMlToLog(filePath, xmlData);
+      // let current = new Date().getTime();
+      // if (current - start <= 10000) {
+      //   socketData = socketData + xmlData;
+      // } else {
+      //   start = new Date().getTime();
+      //   saveXMlToLog(filePath, socketData);
+      //   saveRegisteredMemberstoCSV(socketData, logFilePath, TodayDatetime);
+      // }
     } catch (error) {
       console.error("Error processing Data: " + TodayDatetime);
       logConsoleStatus("Error" + error);
@@ -55,7 +63,7 @@ function saveXMlToLog(filePath, xmlData) {
   });
 }
 function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
-  logConsoleStatus(`${TodayDatetime} - Saving unregistered member`);
+  logConsoleStatus(`${TodayDatetime} - Reading  unregistered member`);
 
   // Regular expression to match content between <?xml version="1.0" encoding="utf-8"?> and </DetectedFaceList>
 
@@ -65,7 +73,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
   let matches;
   while ((matches = regex.exec(xmlData)) !== null) {
     const contentBetweenTags = matches[1];
-logConsoleStatus(`${TodayDatetime} - XML content reading started`);
+    logConsoleStatus(`${TodayDatetime} - XML content reading started`);
     if (contentBetweenTags) {
       let xmlString = firsttag + contentBetweenTags + endTag;
 
@@ -116,8 +124,8 @@ logConsoleStatus(`${TodayDatetime} - XML content reading started`);
           }
         }
       });
-	  
-	  logConsoleStatus(`${TodayDatetime} - XML content reading complated`);
+
+      logConsoleStatus(`${TodayDatetime} - XML content reading completed`);
     } else {
       logConsoleStatus(
         `${TodayDatetime} - Saving unregistered Filed. No Content `

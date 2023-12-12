@@ -127,7 +127,7 @@
         <v-row>
           <v-col cols="12" class="text-right">
             <v-btn
-              v-if="can('employee_create')"
+              v-if="can('employee_edit')"
               small
               :loading="loading"
               color="primary"

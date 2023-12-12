@@ -350,7 +350,15 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_number"
-                label="REFID Card Number"
+                label="RFID Card Number"
+                required
+                outlined
+                dense
+                type="number"
+              ></v-text-field>
+              <v-text-field
+                v-model="payload.card_rfid_password"
+                label="Password"
                 required
                 outlined
                 dense
@@ -425,6 +433,7 @@
           <div style="font-size: 14px" class="pa-5">
             {{ response }}
           </div>
+
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
@@ -519,6 +528,22 @@
                       <tr>
                         <td>Expiry Date</td>
                         <td>: {{ visitor.SDKresponseData.data.expiry }}</td>
+                      </tr>
+                      <tr>
+                        <td>RFID Card Number</td>
+                        <td>: {{ visitor.SDKresponseData.data.cardData }}</td>
+                      </tr>
+                      <tr>
+                        <td>Password</td>
+                        <td>
+                          :
+                          {{
+                            visitor.SDKresponseData.data.password.replaceAll(
+                              "F",
+                              ""
+                            )
+                          }}
+                        </td>
                       </tr>
 
                       <tr>
@@ -920,6 +945,8 @@ export default {
       this.uploadUserToDeviceDialog = true;
       this.payload.system_user_id = item.system_user_id;
       this.payload.zone_id = item.zone_id;
+      this.payload.card_rfid_number = item.card_rfid_number;
+      this.payload.card_rfid_password = item.card_rfid_password;
     },
     cancel() {
       this.uploadUserToDeviceDialog = false;
@@ -935,6 +962,7 @@ export default {
             system_user_id: this.payload.system_user_id,
             zone_id: this.payload.zone_id,
             card_rfid_number: this.payload.card_rfid_number,
+            card_rfid_password: this.payload.card_rfid_password,
           },
         };
 
@@ -947,6 +975,8 @@ export default {
         this.$axios
           .post(`visitor-update-zone`, options.params)
           .then(({ data }) => {
+            this.loading = false;
+            this.valid = false;
             if (!data.status) {
               this.response = data.message;
               this.snackbar = true;
@@ -963,7 +993,7 @@ export default {
                 this.snackbar = true;
 
                 this.getDataFromApi();
-              }, 5000);
+              }, 2000);
 
               return;
             }

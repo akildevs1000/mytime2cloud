@@ -83,6 +83,8 @@ class AttendanceLogCameraController extends Controller
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
+
+
             $records[] = [
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],

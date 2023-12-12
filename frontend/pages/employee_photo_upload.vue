@@ -65,7 +65,6 @@
               >
                 <v-col md="1" style="padding: 0px; margin-top: -7px">
                   <v-checkbox
-                    v-if="user.profile_picture"
                     dense
                     small
                     hideDetails
@@ -74,7 +73,7 @@
                     primary
                     hide-details
                   ></v-checkbox>
-                  <v-checkbox
+                  <!-- <v-checkbox
                     style="padding: 0px"
                     v-else
                     dense
@@ -86,7 +85,7 @@
                     :value="user.id"
                     primary
                     hide-details
-                  ></v-checkbox>
+                  ></v-checkbox> -->
                 </v-col>
 
                 <v-col md="1" style="padding: 0px">
@@ -232,7 +231,6 @@
               >
                 <v-col md="1" style="padding: 0px">
                   <v-checkbox
-                    v-if="user.profile_picture"
                     dense
                     small
                     hideDetails
@@ -241,7 +239,7 @@
                     primary
                     hide-details
                   ></v-checkbox>
-                  <v-checkbox
+                  <!-- <v-checkbox  v-if="user.profile_picture"
                     style="padding: 0px"
                     v-else
                     dense
@@ -251,7 +249,7 @@
                     :value="user.id"
                     primary
                     hide-details
-                  ></v-checkbox>
+                  ></v-checkbox> -->
                 </v-col>
 
                 <v-col md="1" style="padding: 0px">
@@ -828,175 +826,175 @@ export default {
       });
     },
 
-    onSubmit_old() {
-      this.resetErrorMessages();
+    // onSubmit_old() {
+    //   this.resetErrorMessages();
 
-      if (this.timezonesselected == "") {
-        this.response = this.response + "Timezones not selected";
-      } else if (this.rightEmployees.length == 0) {
-        this.response = this.response + " Atleast select one Employee Details";
-      } else if (this.rightDevices.length == 0) {
-        this.response = this.response + " Atleast select one Device Details";
-      }
+    //   if (this.timezonesselected == "") {
+    //     this.response = this.response + "Timezones not selected";
+    //   } else if (this.rightEmployees.length == 0) {
+    //     this.response = this.response + " Atleast select one Employee Details";
+    //   } else if (this.rightDevices.length == 0) {
+    //     this.response = this.response + " Atleast select one Device Details";
+    //   }
 
-      if (this.response != "") {
-        this.snackbar.show = true;
-        this.snackbar.message = this.response;
-        this.snackbar.color = "red";
-        setTimeout(() => {
-          this.snackbar.show = false;
-        }, 1000 * 10);
-        return false;
-      }
-      this.loading = true;
+    //   if (this.response != "") {
+    //     this.snackbar.show = true;
+    //     this.snackbar.message = this.response;
+    //     this.snackbar.color = "red";
+    //     setTimeout(() => {
+    //       this.snackbar.show = false;
+    //     }, 1000 * 10);
+    //     return false;
+    //   }
+    //   this.loading = true;
 
-      let columnsToFilter = ["systeM_user_id"];
-      let onlyUserSystemids = {};
-      // $.each(columnsToFilter, function (index, column) {
-      //   if (this.timezonesselected.hasOwnProperty(column)) {
-      //     onlyUserSystemids[column] = jsonData[column];
-      //   }
-      // });
+    //   let columnsToFilter = ["systeM_user_id"];
+    //   let onlyUserSystemids = {};
+    //   // $.each(columnsToFilter, function (index, column) {
+    //   //   if (this.timezonesselected.hasOwnProperty(column)) {
+    //   //     onlyUserSystemids[column] = jsonData[column];
+    //   //   }
+    //   // });
 
-      // Define the keys you want to select
-      let keysToSelect = ["system_user_id"];
+    //   // Define the keys you want to select
+    //   let keysToSelect = ["system_user_id"];
 
-      // Select the specified keys from each object
-      let filteredDataEmp = [];
-      this.rightEmployees.map(function (obj) {
-        let selectedObj = {};
-        keysToSelect.forEach(function (key) {
-          if (obj.hasOwnProperty(key)) {
-            // selectedObj[key] = obj[key];
-            selectedObj = obj[key];
-            filteredDataEmp.push(selectedObj);
-          }
-        });
-        return selectedObj;
-      });
-      //
-      // Define the keys you want to select
-      keysToSelect = ["device_id"];
+    //   // Select the specified keys from each object
+    //   let filteredDataEmp = [];
+    //   this.rightEmployees.map(function (obj) {
+    //     let selectedObj = {};
+    //     keysToSelect.forEach(function (key) {
+    //       if (obj.hasOwnProperty(key)) {
+    //         // selectedObj[key] = obj[key];
+    //         selectedObj = obj[key];
+    //         filteredDataEmp.push(selectedObj);
+    //       }
+    //     });
+    //     return selectedObj;
+    //   });
+    //   //
+    //   // Define the keys you want to select
+    //   keysToSelect = ["device_id"];
 
-      // Select the specified keys from each object
-      let filteredDataDevices = [];
-      this.rightDevices.map(function (obj) {
-        let selectedObj = {};
-        keysToSelect.forEach(function (key) {
-          if (obj.hasOwnProperty(key)) {
-            // selectedObj[key] = obj[key];
-            selectedObj = obj[key];
-            filteredDataDevices.push(selectedObj);
-          }
-        });
-        return selectedObj;
-      });
+    //   // Select the specified keys from each object
+    //   let filteredDataDevices = [];
+    //   this.rightDevices.map(function (obj) {
+    //     let selectedObj = {};
+    //     keysToSelect.forEach(function (key) {
+    //       if (obj.hasOwnProperty(key)) {
+    //         // selectedObj[key] = obj[key];
+    //         selectedObj = obj[key];
+    //         filteredDataDevices.push(selectedObj);
+    //       }
+    //     });
+    //     return selectedObj;
+    //   });
 
-      let options = {
-        timezone_id: this.timezonesselected,
-        employee_id: this.rightEmployees,
-        device_id: this.rightDevices,
-        company_id: this.$auth.user.company_id,
-        employee_ids: filteredDataEmp,
-        device_ids: filteredDataDevices,
-      };
+    //   let options = {
+    //     timezone_id: this.timezonesselected,
+    //     employee_id: this.rightEmployees,
+    //     device_id: this.rightDevices,
+    //     company_id: this.$auth.user.company_id,
+    //     employee_ids: filteredDataEmp,
+    //     device_ids: filteredDataDevices,
+    //   };
 
-      let url = this.endpointUpdatetimezoneStore;
+    //   let url = this.endpointUpdatetimezoneStore;
 
-      this.progressloading = true;
-      let jsrightEmployees = this.rightEmployees;
+    //   this.progressloading = true;
+    //   let jsrightEmployees = this.rightEmployees;
 
-      this.snackbar.show = true;
-      this.response = "Connecting to devices... Please wait...";
+    //   this.snackbar.show = true;
+    //   this.response = "Connecting to devices... Please wait...";
 
-      let SDKSuccessStatus = true;
-      this.$axios.post(`${url}`, options).then(({ data }) => {
-        this.displaybutton = false;
-        if (data.record.SDKResponse.data) {
-          this.loading = false;
+    //   let SDKSuccessStatus = true;
+    //   this.$axios.post(`${url}`, options).then(({ data }) => {
+    //     this.displaybutton = false;
+    //     if (data.record.SDKResponse.data) {
+    //       this.loading = false;
 
-          this.rightDevices.forEach((rightDevicesobj) => {
-            // $.each(this.rightDevices, function (index, rightDevicesobj) {
-            let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-              (e) => e.sn == rightDevicesobj.device_id
-            );
+    //       this.rightDevices.forEach((rightDevicesobj) => {
+    //         // $.each(this.rightDevices, function (index, rightDevicesobj) {
+    //         let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
+    //           (e) => e.sn == rightDevicesobj.device_id
+    //         );
 
-            let deviceStatusResponse = "";
-            let EmpStatusResponse = "";
+    //         let deviceStatusResponse = "";
+    //         let EmpStatusResponse = "";
 
-            if (SdkResponseDeviceobject.message == "") {
-              deviceStatusResponse = "Success";
-            } else if (
-              SdkResponseDeviceobject.message == "The device was not found"
-            ) {
-              deviceStatusResponse = "The device was not found or offline";
-              SDKSuccessStatus = false;
-            } else if (SdkResponseDeviceobject.message == "person info error") {
-              let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-              jsrightEmployees.forEach((element) => {
-                let systemUserid = element.system_user_id;
-                SDKSuccessStatus = false;
-                let selectedEmpobject = SDKUseridArray.find(
-                  (e) => e.userCode == systemUserid
-                );
-                EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                deviceStatusResponse = "";
+    //         if (SdkResponseDeviceobject.message == "") {
+    //           deviceStatusResponse = "Success";
+    //         } else if (
+    //           SdkResponseDeviceobject.message == "The device was not found"
+    //         ) {
+    //           deviceStatusResponse = "The device was not found or offline";
+    //           SDKSuccessStatus = false;
+    //         } else if (SdkResponseDeviceobject.message == "person info error") {
+    //           let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+    //           jsrightEmployees.forEach((element) => {
+    //             let systemUserid = element.system_user_id;
+    //             SDKSuccessStatus = false;
+    //             let selectedEmpobject = SDKUseridArray.find(
+    //               (e) => e.userCode == systemUserid
+    //             );
+    //             EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+    //             deviceStatusResponse = "";
 
-                if (EmpStatusResponse != "") {
-                  //Adding extra parameters for Employee object
-                  if (selectedEmpobject) {
-                    element.sdkEmpResponse = "person info error ";
-                    // $.extend(element, {
-                    //   sdkEmpResponse: "person info error ",
-                    // });
-                  } else {
-                    element.sdkEmpResponse = "Success ";
-                    // $.extend(element, {
-                    //   sdkEmpResponse: "Success",
-                    // });
-                  }
-                }
-              });
-            } else {
-            }
+    //             if (EmpStatusResponse != "") {
+    //               //Adding extra parameters for Employee object
+    //               if (selectedEmpobject) {
+    //                 element.sdkEmpResponse = "person info error ";
+    //                 // $.extend(element, {
+    //                 //   sdkEmpResponse: "person info error ",
+    //                 // });
+    //               } else {
+    //                 element.sdkEmpResponse = "Success ";
+    //                 // $.extend(element, {
+    //                 //   sdkEmpResponse: "Success",
+    //                 // });
+    //               }
+    //             }
+    //           });
+    //         } else {
+    //         }
 
-            //Adding extra parameters for Devices object
-            // $.extend(rightDevicesobj, {
-            //   sdkDeviceResponse:
-            //     deviceStatusResponse != "" ? deviceStatusResponse : "Success",
-            // });
+    //         //Adding extra parameters for Devices object
+    //         // $.extend(rightDevicesobj, {
+    //         //   sdkDeviceResponse:
+    //         //     deviceStatusResponse != "" ? deviceStatusResponse : "Success",
+    //         // });
 
-            rightDevicesobj.forEach((element) => {
-              element["sdkDeviceResponse"] =
-                deviceStatusResponse != "" ? deviceStatusResponse : "Success";
-            });
-            this.errors = [];
-          });
-          this.rightEmployees = jsrightEmployees;
-          this.progressloading = false;
+    //         rightDevicesobj.forEach((element) => {
+    //           element["sdkDeviceResponse"] =
+    //             deviceStatusResponse != "" ? deviceStatusResponse : "Success";
+    //         });
+    //         this.errors = [];
+    //       });
+    //       this.rightEmployees = jsrightEmployees;
+    //       this.progressloading = false;
 
-          this.loading = false;
-          if (!SDKSuccessStatus) {
-            {
-              this.errors = data.errors;
-            }
-            this.errors = [];
-            this.errors["message"] =
-              "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
+    //       this.loading = false;
+    //       if (!SDKSuccessStatus) {
+    //         {
+    //           this.errors = data.errors;
+    //         }
+    //         this.errors = [];
+    //         this.errors["message"] =
+    //           "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
-            //this.displaybutton = false;
-          } else {
-            this.$router.push("/timezonemapping/list");
-          }
-        } else {
-          this.errors = [];
-          this.progressloading = false;
+    //         //this.displaybutton = false;
+    //       } else {
+    //         this.$router.push("/timezonemapping/list");
+    //       }
+    //     } else {
+    //       this.errors = [];
+    //       this.progressloading = false;
 
-          this.errors["message"] = "Device Communication is not available";
-          return false;
-        }
-      });
-    },
+    //       this.errors["message"] = "Device Communication is not available";
+    //       return false;
+    //     }
+    //   });
+    // },
     goback() {
       this.$router.push("/timezonemapping/list");
     },
@@ -1351,156 +1349,162 @@ export default {
       this.leftSelectedDevices.pop(id);
       this.verifySubmitButton();
     },
-    onSubmit_old() {
-      this.resetErrorMessages();
-      this.displaybutton = false;
-      this.loading = true;
-      if (this.rightEmployees.length == 0) {
-        this.response = this.response + " Atleast select one Employee Details";
-      } else if (this.rightDevices.length == 0) {
-        this.response = this.response + " Atleast select one Device Details";
-      }
+    // onSubmit_old() {
+    //   this.resetErrorMessages();
+    //   this.displaybutton = false;
+    //   this.loading = true;
+    //   if (this.rightEmployees.length == 0) {
+    //     this.response = this.response + " Atleast select one Employee Details";
+    //   } else if (this.rightDevices.length == 0) {
+    //     this.response = this.response + " Atleast select one Device Details";
+    //   }
 
-      this.loading_dialog = true;
-      this.errors = [];
-      let personListArray = [];
-      this.rightEmployees.forEach(async (item) => {
-        let person = {
-          name: item.first_name + " " + item.last_name,
-          userCode: parseInt(item.system_user_id),
+    //   this.loading_dialog = true;
+    //   this.errors = [];
+    //   let personListArray = [];
+    //   this.rightEmployees.forEach(async (item) => {
+    //     let person = {
+    //       name: item.first_name + " " + item.last_name,
+    //       userCode: parseInt(item.system_user_id),
 
-          //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-          faceImage: item.profile_picture,
-        };
-        personListArray.push(person);
-      });
+    //       //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+    //       faceImage: item.profile_picture,
+    //     };
+    //     if (item.rfid_card_number != "") {
+    //       person.cardData = item.rfid_card_number;
+    //     }
+    //     if (item.rfid_card_password != "") {
+    //       person.password = item.rfid_card_password;
+    //     }
+    //     personListArray.push(person);
+    //   });
 
-      this.rightDevices.forEach(async (item) => {
-        // let person = {
-        //   name: item.display_name,
-        //   userCode: parseInt(item.system_user_id),
+    //   this.rightDevices.forEach(async (item) => {
+    //     // let person = {
+    //     //   name: item.display_name,
+    //     //   userCode: parseInt(item.system_user_id),
 
-        //   //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-        //   faceImage: item.profile_picture
-        // };
-        // personListArray.push(person);
+    //     //   //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+    //     //   faceImage: item.profile_picture
+    //     // };
+    //     // personListArray.push(person);
 
-        let payload = {
-          personList: personListArray,
-          snList: [item.device_id],
-        };
+    //     let payload = {
+    //       personList: personListArray,
+    //       snList: [item.device_id],
+    //     };
 
-        if (payload.snList && payload.snList.length === 0) {
-          alert(`Atleast one device must be selected`);
-          return false;
-        }
+    //     if (payload.snList && payload.snList.length === 0) {
+    //       alert(`Atleast one device must be selected`);
+    //       return false;
+    //     }
 
-        this.devices_dialog.forEach((e) => {
-          e.state = "---";
-          e.message = "---";
-        });
+    //     this.devices_dialog.forEach((e) => {
+    //       e.state = "---";
+    //       e.message = "---";
+    //     });
 
-        //try {
-        const { data } = await this.$axios.post(`/Person/AddRange`, payload);
+    //     //try {
+    //     const { data } = await this.$axios.post(`/Person/AddRange`, payload);
 
-        if (data.status == 200) {
-          this.loading_dialog = false;
+    //     if (data.status == 200) {
+    //       this.loading_dialog = false;
 
-          this.snackbar.show = true;
-          this.response = "Employee(s) pictures has been uploaded";
+    //       this.snackbar.show = true;
+    //       this.response = "Employee(s) pictures has been uploaded";
 
-          let jsrightEmployees = this.rightEmployees;
-          let SDKSuccessStatus = true;
-          this.rightDevices.forEach((elementDevice) => {
-            let SdkResponseDeviceobject = data.data.find(
-              (e) => e.sn == elementDevice.device_id
-            );
+    //       let jsrightEmployees = this.rightEmployees;
+    //       let SDKSuccessStatus = true;
+    //       this.rightDevices.forEach((elementDevice) => {
+    //         let SdkResponseDeviceobject = data.data.find(
+    //           (e) => e.sn == elementDevice.device_id
+    //         );
 
-            let deviceStatusResponse = "";
-            let EmpStatusResponse = "";
+    //         let deviceStatusResponse = "";
+    //         let EmpStatusResponse = "";
 
-            if (SdkResponseDeviceobject.message == "") {
-              deviceStatusResponse = "Success";
-            } else if (
-              SdkResponseDeviceobject.message == "The device was not found"
-            ) {
-              deviceStatusResponse = "The device was not found or offline";
-              SDKSuccessStatus = false;
-            } else if (SdkResponseDeviceobject.message == "person info error") {
-              let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-              jsrightEmployees.forEach((element) => {
-                let systemUserid = element.system_user_id;
-                SDKSuccessStatus = false;
+    //         if (SdkResponseDeviceobject.message == "") {
+    //           deviceStatusResponse = "Success";
+    //         } else if (
+    //           SdkResponseDeviceobject.message == "The device was not found"
+    //         ) {
+    //           deviceStatusResponse = "The device was not found or offline";
+    //           SDKSuccessStatus = false;
+    //         } else if (SdkResponseDeviceobject.message == "person info error") {
+    //           let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+    //           jsrightEmployees.forEach((element) => {
+    //             let systemUserid = element.system_user_id;
+    //             SDKSuccessStatus = false;
 
-                element["sdkEmpResponse"] = "Success";
-                let selectedEmpobject = SDKUseridArray.find(
-                  (e) => e.userCode == systemUserid
-                );
-                EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                deviceStatusResponse = "";
+    //             element["sdkEmpResponse"] = "Success";
+    //             let selectedEmpobject = SDKUseridArray.find(
+    //               (e) => e.userCode == systemUserid
+    //             );
+    //             EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+    //             deviceStatusResponse = "";
 
-                if (EmpStatusResponse != "") {
-                  //Adding extra parameters for Employee object
-                  if (selectedEmpobject) {
-                    element["sdkEmpResponse"] = "person photo error ";
-                    // $.extend(element, {
-                    //   sdkEmpResponse: "person info error ",
-                    // });
-                  } else {
-                    // $.extend(element, {
-                    //   sdkEmpResponse: " Success",
-                    // });
-                    element["sdkEmpResponse"] = " Success";
-                  }
-                }
-              });
-            } else {
-            }
+    //             if (EmpStatusResponse != "") {
+    //               //Adding extra parameters for Employee object
+    //               if (selectedEmpobject) {
+    //                 element["sdkEmpResponse"] = "person photo error ";
+    //                 // $.extend(element, {
+    //                 //   sdkEmpResponse: "person info error ",
+    //                 // });
+    //               } else {
+    //                 // $.extend(element, {
+    //                 //   sdkEmpResponse: " Success",
+    //                 // });
+    //                 element["sdkEmpResponse"] = " Success";
+    //               }
+    //             }
+    //           });
+    //         } else {
+    //         }
 
-            //Adding extra parameters for Devices object
-            // $.extend(elementDevice, {
-            //   sdkDeviceResponse:
-            //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-            // });
+    //         //Adding extra parameters for Devices object
+    //         // $.extend(elementDevice, {
+    //         //   sdkDeviceResponse:
+    //         //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
+    //         // });
 
-            elementDevice["sdkDeviceResponse"] =
-              deviceStatusResponse != "" ? deviceStatusResponse : "Success";
-            this.errors = [];
+    //         elementDevice["sdkDeviceResponse"] =
+    //           deviceStatusResponse != "" ? deviceStatusResponse : "Success";
+    //         this.errors = [];
 
-            this.loading = false;
-          });
+    //         this.loading = false;
+    //       });
 
-          // data.data.forEach((e) => {
-          //   const index = this.devices_dialog.findIndex(
-          //     (item) => item.device_id === e.sn
-          //   );
-          //   if (index !== -1) {
-          //     const updatedElement = {
-          //       ...this.devices_dialog[index],
-          //       state: e.state,
-          //       message: e.message || "Success",
-          //     };
+    //       // data.data.forEach((e) => {
+    //       //   const index = this.devices_dialog.findIndex(
+    //       //     (item) => item.device_id === e.sn
+    //       //   );
+    //       //   if (index !== -1) {
+    //       //     const updatedElement = {
+    //       //       ...this.devices_dialog[index],
+    //       //       state: e.state,
+    //       //       message: e.message || "Success",
+    //       //     };
 
-          //     this.devices_dialog.splice(index, 1, updatedElement);
-          //   }
-          // });
-        } else {
-          this.loading_dialog = false;
-          this.snackbar.show = true;
-          this.response = data.message;
+    //       //     this.devices_dialog.splice(index, 1, updatedElement);
+    //       //   }
+    //       // });
+    //     } else {
+    //       this.loading_dialog = false;
+    //       this.snackbar.show = true;
+    //       this.response = data.message;
 
-          this.loading = false;
-        }
+    //       this.loading = false;
+    //     }
 
-        this.displaybutton = true;
-        // } catch (error) {
-        //   this.loading_dialog = false;
-        //   this.snackbar = true;
-        //   this.response = error.message;
+    //     this.displaybutton = true;
+    //     // } catch (error) {
+    //     //   this.loading_dialog = false;
+    //     //   this.snackbar = true;
+    //     //   this.response = error.message;
 
-        // }
-      });
-    },
+    //     // }
+    //   });
+    // },
     async onSubmit() {
       this.displaybutton = false;
       this.loading = true;
@@ -1527,6 +1531,12 @@ export default {
               ? item.profile_picture
               : "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg",
         };
+        if (item.rfid_card_number != "") {
+          person.cardData = item.rfid_card_number;
+        }
+        if (item.rfid_card_password != "") {
+          person.password = item.rfid_card_password;
+        }
         personListArray.push(person);
       });
 
@@ -1569,6 +1579,9 @@ export default {
           this.loading = false;
         });
 
+        setTimeout(() => {
+          location.reload();
+        }, 1000);
         // data.data.forEach((e) => {
         //   const index = this.devices_dialog.findIndex(
         //     (item) => item.device_id === e.sn
