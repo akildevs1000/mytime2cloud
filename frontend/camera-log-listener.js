@@ -30,7 +30,7 @@ const server = net.createServer((socket) => {
 
       xmlData = data.toString(); // Append data to the image data string
 
-      //saveXMlToLog(filePath, xmlData);
+      saveXMlToLog(filePath, xmlData);
       saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime);
     } catch (error) {
       console.error("Error processing Data: " + TodayDatetime);
@@ -65,7 +65,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
   let matches;
   while ((matches = regex.exec(xmlData)) !== null) {
     const contentBetweenTags = matches[1];
-
+logConsoleStatus(`${TodayDatetime} - XML content reading started`);
     if (contentBetweenTags) {
       let xmlString = firsttag + contentBetweenTags + endTag;
 
@@ -116,6 +116,8 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
           }
         }
       });
+	  
+	  logConsoleStatus(`${TodayDatetime} - XML content reading complated`);
     } else {
       logConsoleStatus(
         `${TodayDatetime} - Saving unregistered Filed. No Content `
