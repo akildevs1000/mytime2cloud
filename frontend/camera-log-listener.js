@@ -73,6 +73,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
       xml2js.parseString(xmlString, (err, result) => {
         if (err) {
           console.error("Error parsing XML:", err);
+          logConsoleStatus(`${TodayDatetime} - Error parsing XML: ${err}  `);
         } else {
           const DeviceID = result.DetectedFaceList.DeviceID[0];
           const FaceId = result.DetectedFaceList.Face_0[0].FaceID[0];
@@ -80,7 +81,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
           const SnapshotNum = result.DetectedFaceList.Face_0[0].SnapshotNum[0];
           const Quality = result.DetectedFaceList.Face_0[0].Quality[0];
 
-          if (Quality >= 0.9) {
+          if (Quality >= 0.5) {
             logConsoleStatus(
               `${TodayDatetime} - Saved unregistered member - Face Id:  ${FaceId} - Quality:${Quality}`
             );
@@ -109,12 +110,16 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
             );
           } else {
             logConsoleStatus(
-              "No image saved due to lessthan 90% quality",
+              "No image saved due to lessthan 50% quality",
               Quality
             );
           }
         }
       });
+    } else {
+      logConsoleStatus(
+        `${TodayDatetime} - Saving unregistered Filed. No Content `
+      );
     }
   }
 
