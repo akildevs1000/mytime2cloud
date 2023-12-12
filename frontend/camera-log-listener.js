@@ -49,7 +49,7 @@ const server = net.createServer((socket) => {
   // When the socket connection ends
   socket.on("end", () => {});
 });
-
+console.log(getTime2());
 const PORT = 4802; // Port on which the server will listen
 server.listen(PORT, () => {
   logConsoleStatus(`Server is listening on port ${PORT}`);
@@ -173,8 +173,10 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
         let UserCode = CardNumArray[arrayCounter];
         let SN = macArray[arrayCounter];
         let RecordDate = TodayDatetime;
+        console.log("RecordDate", RecordDate);
         if (TimeArray.length == 0) {
           RecordDate = getTime2();
+          console.log("Adjusted -RecordDate", RecordDate);
         }
 
         let RecordNumber = RegisterIdArray[arrayCounter];
@@ -255,30 +257,36 @@ function readElementValue(inputarray, tagName) {
   return returnArray;
 }
 function getTime2() {
+  // Get the current UTC date and time in ISO format
+
+  // return formattedDateTime;
   let date_ob = new Date();
 
+  let utc = date_ob.getTime();
+
+  // Define the time difference in hours for GMT+4
+  let gmt_offset = 4;
+
+  // Calculate the time in milliseconds for GMT+4 by adding the offset
+  let gmt_time = utc + gmt_offset * 60 * 60 * 1000;
+
+  // Create a new Date object for GMT+4 time
+  date_ob = new Date(gmt_time);
   // current date
   // adjust 0 before single digit date
   let date = ("0" + date_ob.getDate()).slice(-2);
-
   // current month
   let month = ("0" + (date_ob.getMonth() + 1)).slice(-2);
-
   // current year
   let year = date_ob.getFullYear();
-
   // current hours
-  let hours = date_ob.getHours();
-
+  let hours = ("0" + date_ob.getHours()).slice(-2);
   // current minutes
-  let minutes = date_ob.getMinutes();
-
+  let minutes = ("0" + date_ob.getMinutes()).slice(-2);
   // current seconds
   let seconds = date_ob.getSeconds();
-
   // prints date in YYYY-MM-DD format
   //logConsoleStatus(year + "-" + month + "-" + date);
-
   // prints date & time in YYYY-MM-DD HH:MM:SS format
   return year + "-" + month + "-" + date + " " + hours + ":" + minutes;
 }
