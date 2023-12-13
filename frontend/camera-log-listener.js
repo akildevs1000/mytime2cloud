@@ -165,7 +165,8 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
     let TimeArray = checkMultipleOccurrences(xmlData, "Time");
     let arrayCounter = 0;
 
-    if (CardNumArray.length == 0) {
+    // if (CardNumArray.length == 0)
+    {
       saveUNRegisteredMemberstoImage(xmlData, TodayDatetime);
     }
     CardNumArray.forEach((element) => {
