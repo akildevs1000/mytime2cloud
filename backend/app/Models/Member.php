@@ -10,4 +10,10 @@ class Member extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    public function getProfilePictureAttribute($value)
+    {
+        if (!$value) return null;
+        return asset('community/profile_picture/' . $value);
+    }
 }

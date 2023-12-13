@@ -11,6 +11,11 @@ class Tanent extends Model
 
     protected $guarded = [];
 
+    protected $casts = [
+        "floor_id" => "integer",
+        "room_id" => "integer",
+    ];
+
     /**
      * Get the user that owns the Room
      *
@@ -45,6 +50,6 @@ class Tanent extends Model
     public function getAttachmentAttribute($value)
     {
         if (!$value) return null;
-        return asset('community/attachment/' . $value);
+        return asset('community/others_doc/' . $value);
     }
 }

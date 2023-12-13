@@ -312,23 +312,16 @@
     "module": "community"
   },
   {
-    "icon": "mdi-hotel",
-    "title": "Room",
-    "to": "/community/setup/room",
-    "menu": "community",
-    "module": "community"
-  },
-  {
-    "icon": "mdi-stairs",
-    "title": "Floor",
-    "to": "/community/setup/floor",
+    "icon": "mdi-camera-account",
+    "title": "Tanent Upload",
+    "to": "/community/tanent/tanent_upload",
     "menu": "community",
     "module": "community"
   },
   {
     "icon": "mdi-shape-square-plus",
-    "title": "Category",
-    "to": "/community/setup/room-category",
+    "title": "Setup",
+    "to": "/community/setup",
     "menu": "community",
     "module": "community"
   },

@@ -43,6 +43,13 @@
   },
   {
     "icon": "mdi-bell",
+    "title": "Community",
+    "to": "/community/tanent",
+    "menu": "community",
+    "module": "topmenu"
+  },
+  {
+    "icon": "mdi-bell",
     "title": "Reports",
     "to": "/attendance_report",
     "menu": "reports",

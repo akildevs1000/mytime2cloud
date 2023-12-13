@@ -6,13 +6,126 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
+      <v-dialog persistent v-model="viewMemberDialogBox" width="800">
+        <v-card>
+          <v-toolbar dense class="popup_background" flat>
+            {{ formAction }} Member
+
+            <v-spacer></v-spacer>
+          </v-toolbar>
+
+          <v-card
+            elevation="0"
+            class="ma-2"
+            v-for="(member, index) in payload.members"
+            :key="index"
+          >
+            <v-container>
+              <v-row>
+                <v-col cols="3">
+                  <v-card v-if="member.profile_picture" elevation="0">
+                    <v-avatar size="175">
+                      <v-img :src="member.profile_picture"></v-img>
+                    </v-avatar>
+                  </v-card>
+                </v-col>
+                <v-col cols="9">
+                  <v-row class="mt-8">
+                    <v-col cols="6">
+                      <v-text-field
+                        label="Full Name"
+                        :readonly="disabled"
+                        v-model="member.full_name"
+                        dense
+                        class="text-center"
+                        outlined
+                        :hide-details="!errors.full_name"
+                        :error-messages="
+                          errors && errors.full_name ? errors.full_name[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field
+                        label="Relation"
+                        :readonly="disabled"
+                        v-model="member.relation"
+                        dense
+                        class="text-center"
+                        outlined
+                        :hide-details="!errors.relation"
+                        :error-messages="
+                          errors && errors.relation ? errors.relation[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field
+                        label="Age"
+                        :readonly="disabled"
+                        v-model="member.age"
+                        dense
+                        class="text-center"
+                        outlined
+                        :hide-details="!errors.age"
+                        :error-messages="
+                          errors && errors.age ? errors.age[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col cols="6">
+                      <v-text-field
+                        label="Phone Number (optional)"
+                        :readonly="disabled"
+                        v-model="member.phone_number"
+                        dense
+                        class="text-center"
+                        outlined
+                        :hide-details="!errors.phone_number"
+                        :error-messages="
+                          errors && errors.phone_number
+                            ? errors.phone_number[0]
+                            : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <div class="text-right">
+              <v-btn
+                small
+                color="grey white--text"
+                @click="viewMemberDialogBox = false"
+              >
+                Close
+              </v-btn>
+
+              <v-btn
+                v-if="can('employee_create') && formAction == 'Create'"
+                small
+                :loading="loading"
+                color="primary"
+                @click="submitMembers"
+              >
+                submit
+              </v-btn>
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
       <v-dialog persistent v-model="memberDialogBox" width="900">
         <v-card>
           <v-toolbar dense class="popup_background" flat>
             {{ formAction }} Member
 
             <v-spacer></v-spacer>
-            <span v-if="formAction !== 'View'">
+            <!-- <span v-if="formAction !== 'View'">
               <v-icon
                 class="ml-2 primary--text"
                 color="primary"
@@ -20,24 +133,14 @@
               >
                 mdi mdi-plus-circle</v-icon
               >
-            </span>
+            </span> -->
           </v-toolbar>
 
-          <v-card
-            elevation="0"
-            class="ma-2"
-            v-for="(member, index) in members"
-            :key="index"
-          >
+          <v-card elevation="0" class="ma-2">
             <v-container>
               <v-row>
-                <v-col cols="6"
-                  ><strong>Member {{ index + 1 }} </strong>
-                  <p style="display: none">
-                    {{ (member.tanent_id = payload.id) }}
-                  </p>
-                </v-col>
-                <v-col cols="6" class="text-right">
+                <!-- <v-col cols="12"><strong>Member </strong> </v-col> -->
+                <!-- <v-col cols="6" class="text-right">
                   <v-icon
                     v-if="index > 0 && formAction !== 'View'"
                     right
@@ -46,7 +149,7 @@
                   >
                     mdi mdi-delete</v-icon
                   >
-                </v-col>
+                </v-col> -->
                 <v-col cols="6">
                   <v-text-field
                     label="Full Name"
@@ -56,7 +159,6 @@
                     class="text-center"
                     outlined
                     :hide-details="!errors.full_name"
-                    :error="errors.full_name"
                     :error-messages="
                       errors && errors.full_name ? errors.full_name[0] : ''
                     "
@@ -71,7 +173,6 @@
                     class="text-center"
                     outlined
                     :hide-details="!errors.relation"
-                    :error="errors.relation"
                     :error-messages="
                       errors && errors.relation ? errors.relation[0] : ''
                     "
@@ -86,7 +187,6 @@
                     class="text-center"
                     outlined
                     :hide-details="!errors.age"
-                    :error="errors.age"
                     :error-messages="errors && errors.age ? errors.age[0] : ''"
                   ></v-text-field>
                 </v-col>
@@ -99,13 +199,29 @@
                     class="text-center"
                     outlined
                     :hide-details="!errors.phone_number"
-                    :error="errors.phone_number"
                     :error-messages="
                       errors && errors.phone_number
                         ? errors.phone_number[0]
                         : ''
                     "
                   ></v-text-field>
+                </v-col>
+                <v-col cols="6">
+                  <v-file-input
+                    v-if="!disabled"
+                    v-model="member.profile_picture"
+                    dense
+                    outlined
+                    prepend-icon=""
+                    append-icon="mdi-camera"
+                    label="Upload Photo"
+                    @change="previewMemberImage"
+                  ></v-file-input>
+                  <v-card v-if="imageMemberPreview" elevation="0">
+                    <v-avatar size="200">
+                      <v-img :src="imageMemberPreview"></v-img>
+                    </v-avatar>
+                  </v-card>
                 </v-col>
               </v-row>
             </v-container>
@@ -137,8 +253,7 @@
       </v-dialog>
 
       <v-dialog persistent v-model="DialogBox" width="900">
-        <v-card>
-          <v-toolbar class="popup_background" flat>
+        <!-- <v-toolbar class="popup_background" flat>
             {{ formAction }} Tanent
 
             <v-spacer></v-spacer>
@@ -147,202 +262,472 @@
                 mdi mdi-close-circle</v-icon
               >
             </span>
-          </v-toolbar>
-          <v-container>
+          </v-toolbar> -->
+        <v-stepper v-model="step" horizontal>
+          <v-stepper-header>
+            <v-stepper-step :complete="step > 1" step="1" editable>
+              Basic Info {{payload.id}}
+            </v-stepper-step>
+            <v-divider></v-divider>
+            <v-stepper-step :complete="step > 2" step="2" editable>
+              Documentation
+            </v-stepper-step>
+          </v-stepper-header>
+
+          <v-stepper-content step="1">
+            <!-- Step 1 Content -->
+            <v-row>
+              <v-col cols="3">
+                <div class="text-center">
+                  <SnippetsUploadAttachment :defaultImage="setImagePreview" @uploaded="handleAttachment" />
+
+                  <span v-if="errors && errors.logo" class="text-danger mt-2">{{
+                    errors.logo[0]
+                  }}</span>
+                </div>
+              </v-col>
+              <v-col cols="9">
+                <v-row class="mt-1">
+                  <v-col cols="6">
+                    <v-autocomplete
+                      @change="getRoomsByFloorId(payload.floor_id)"
+                      label="Floor Number"
+                      outlined
+                      :readonly="disabled"
+                      v-model="payload.floor_id"
+                      :items="floors"
+                      dense
+                      item-text="floor_number"
+                      item-value="id"
+                      :hide-details="!errors.floor_id"
+                      :error-messages="
+                        errors && errors.floor_id ? errors.floor_id[0] : ''
+                      "
+                    >
+                    </v-autocomplete>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-autocomplete
+                      label="Room"
+                      outlined
+                      :readonly="disabled"
+                      v-model="payload.room_id"
+                      :items="rooms"
+                      dense
+                      item-text="room_number"
+                      item-value="id"
+                      :hide-details="!errors.room_id"
+                      :error-messages="
+                        errors && errors.room_id ? errors.room_id[0] : ''
+                      "
+                    >
+                    </v-autocomplete>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="First Name"
+                      :readonly="disabled"
+                      v-model="payload.first_name"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.first_name"
+                      :error-messages="
+                        errors && errors.first_name ? errors.first_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Last Name"
+                      :readonly="disabled"
+                      v-model="payload.last_name"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.last_name"
+                      :error-messages="
+                        errors && errors.last_name ? errors.last_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Email"
+                      :readonly="disabled"
+                      v-model="payload.email"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.email"
+                      :error-messages="
+                        errors && errors.email ? errors.email[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-menu
+                      v-model="menu3"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="payload.date_of_birth"
+                          label="Date of Birth"
+                          append-icon="mdi-calendar"
+                          outlined
+                          dense
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          :hide-details="!errors.date_of_birth"
+                          :error-messages="
+                            errors && errors.date_of_birth
+                              ? errors.date_of_birth[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="payload.date_of_birth"
+                        @input="menu3 = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Phone Number"
+                      :readonly="disabled"
+                      v-model="payload.phone_number"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.phone_number"
+                      :error-messages="
+                        errors && errors.phone_number
+                          ? errors.phone_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Whatsapp Number (optional)"
+                      :readonly="disabled"
+                      v-model="payload.whatsapp_number"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.whatsapp_number"
+                      :error-messages="
+                        errors && errors.whatsapp_number
+                          ? errors.whatsapp_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Car Number"
+                      :readonly="disabled"
+                      v-model="payload.car_number"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.car_number"
+                      :error-messages="
+                        errors && errors.car_number ? errors.car_number[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Parking Number"
+                      :readonly="disabled"
+                      v-model="payload.parking_number"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.parking_number"
+                      :error-messages="
+                        errors && errors.parking_number
+                          ? errors.parking_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="RFID"
+                      :readonly="disabled"
+                      v-model="payload.rfid"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.rfid"
+                      :error-messages="
+                        errors && errors.rfid ? errors.rfid[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="PIN"
+                      :readonly="disabled"
+                      v-model="payload.pin"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.pin"
+                      :error-messages="
+                        errors && errors.pin ? errors.pin[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Nationality"
+                      :readonly="disabled"
+                      v-model="payload.nationality"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.nationality"
+                      :error-messages="
+                        errors && errors.nationality
+                          ? errors.nationality[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Address"
+                      :readonly="disabled"
+                      v-model="payload.address"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.address"
+                      :error-messages="
+                        errors && errors.address ? errors.address[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-menu
+                      v-model="menu"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="payload.start_date"
+                          label="Start Date"
+                          append-icon="mdi-calendar"
+                          outlined
+                          dense
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          :hide-details="!errors.start_date"
+                          :error-messages="
+                            errors && errors.start_date
+                              ? errors.start_date[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="payload.start_date"
+                        @input="menu = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-menu
+                      v-model="menu2"
+                      :close-on-content-click="false"
+                      :nudge-right="40"
+                      transition="scale-transition"
+                      offset-y
+                      min-width="auto"
+                    >
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-text-field
+                          v-model="payload.end_date"
+                          label="End Date"
+                          append-icon="mdi-calendar"
+                          outlined
+                          dense
+                          readonly
+                          v-bind="attrs"
+                          v-on="on"
+                          :hide-details="!errors.end_date"
+                          :error-messages="
+                            errors && errors.end_date ? errors.end_date[0] : ''
+                          "
+                        ></v-text-field>
+                      </template>
+                      <v-date-picker
+                        v-model="payload.end_date"
+                        @input="menu2 = false"
+                      ></v-date-picker>
+                    </v-menu>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <v-switch
+                      style="margin-top: 5px"
+                      label="Web Access"
+                      outlined
+                      :readonly="disabled"
+                      v-model="payload.web_access"
+                      dense
+                      :hide-details="!errors.web_access"
+                      :error-messages="
+                        errors && errors.web_access ? errors.web_access[0] : ''
+                      "
+                    >
+                    </v-switch>
+                  </v-col>
+
+                  <v-col cols="12" class="text-right my-1">
+                    <v-btn @click="DialogBox = false">Close</v-btn>
+                    <v-btn
+                      v-if="formAction == 'Create'"
+                      class="primary"
+                      @click="tanentValidate"
+                      >Next</v-btn
+                    >
+                    <v-btn
+                      v-else-if="formAction == 'Edit'"
+                      class="primary"
+                      @click="tanentUpdateValidate"
+                      >Next</v-btn
+                    >
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-stepper-content>
+
+          <v-stepper-content step="2">
+            <!-- Step 2 Content -->
             <v-row>
               <v-col cols="6">
-                <v-text-field
-                  label="Full Name"
-                  :readonly="disabled"
-                  v-model="payload.full_name"
-                  dense
-                  class="text-center"
-                  outlined
-                  :hide-details="!errors.full_name"
-                  :error="errors.full_name"
-                  :error-messages="
-                    errors && errors.full_name ? errors.full_name[0] : ''
-                  "
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="6">
-                <v-text-field
-                  label="Phone Number"
-                  :readonly="disabled"
-                  v-model="payload.phone_number"
-                  dense
-                  class="text-center"
-                  outlined
-                  :hide-details="!errors.phone_number"
-                  :error="errors.phone_number"
-                  :error-messages="
-                    errors && errors.phone_number ? errors.phone_number[0] : ''
-                  "
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="6">
-                <v-autocomplete
-                  @change="getRoomsByFloorId(payload.floor_id)"
-                  label="Floor Number"
-                  outlined
-                  :readonly="disabled"
-                  v-model="payload.floor_id"
-                  :items="floors"
-                  dense
-                  item-text="floor_number"
-                  item-value="id"
-                  :hide-details="!errors.floor_id"
-                  :error-messages="
-                    errors && errors.floor_id ? errors.floor_id[0] : ''
-                  "
-                >
-                </v-autocomplete>
-              </v-col>
-
-              <v-col cols="6">
-                <v-autocomplete
-                  label="Room"
-                  outlined
-                  :readonly="disabled"
-                  v-model="payload.room_id"
-                  :items="rooms"
-                  dense
-                  item-text="room_number"
-                  item-value="id"
-                  :hide-details="!errors.room_id"
-                  :error-messages="
-                    errors && errors.room_id ? errors.room_id[0] : ''
-                  "
-                >
-                </v-autocomplete>
-              </v-col>
-              <v-col cols="6">
-                <v-menu
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :readonly="disabled"
-                      v-model="payload.start_date"
-                      label="Start Date"
-                      append-icon="mdi-calendar"
-                      hide-details
-                      outlined
-                      dense
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="payload.start_date"
-                    @input="menu = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="6">
-                <v-menu
-                  v-model="menu2"
-                  :close-on-content-click="false"
-                  :nudge-right="40"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      :readonly="disabled"
-                      v-model="payload.end_date"
-                      label="End Date"
-                      append-icon="mdi-calendar"
-                      hide-details
-                      outlined
-                      dense
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker
-                    v-model="payload.end_date"
-                    @input="menu2 = false"
-                  ></v-date-picker>
-                </v-menu>
-              </v-col>
-              <v-col cols="6">
                 <v-file-input
+                  hide-details
                   v-if="!disabled"
-                  v-model="payload.profile_picture"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-camera"
-                  label="Upload Photo"
-                  @change="previewImage"
-                ></v-file-input>
-                <v-card v-if="imagePreview" elevation="0">
-                  <v-avatar size="200">
-                    <v-img :src="imagePreview"></v-img>
-                  </v-avatar>
-                </v-card>
-              </v-col>
-              <v-col cols="6">
-                <v-file-input
-                  v-if="!disabled"
-                  v-model="payload.attachment"
+                  v-model="payload.passport_doc"
                   dense
                   outlined
                   prepend-icon=""
                   append-icon="mdi-file"
-                  label="Upload Attachment (optional)"
-                  @change="previewAttachment"
+                  label="Passport"
                 ></v-file-input>
-                <v-card
-                  v-if="attachmentPreview"
+              </v-col>
+
+              <v-col cols="6">
+                <v-file-input
+                  hide-details
+                  v-if="!disabled"
+                  v-model="payload.id_doc"
+                  dense
                   outlined
-                  style="width: 100%; height: 250px; overflow: scroll"
+                  prepend-icon=""
+                  append-icon="mdi-file"
+                  label="ID"
+                ></v-file-input>
+              </v-col>
+
+              <v-col cols="6">
+                <v-file-input
+                  hide-details
+                  v-if="!disabled"
+                  v-model="payload.contract_doc"
+                  dense
+                  outlined
+                  prepend-icon=""
+                  append-icon="mdi-file"
+                  label="Contract"
+                ></v-file-input>
+              </v-col>
+
+              <v-col cols="6">
+                <v-file-input
+                  hide-details
+                  v-if="!disabled"
+                  v-model="payload.ejari_doc"
+                  dense
+                  outlined
+                  prepend-icon=""
+                  append-icon="mdi-file"
+                  label="Ejari"
+                ></v-file-input>
+              </v-col>
+
+              <v-col cols="6">
+                <v-file-input
+                  hide-details
+                  v-if="!disabled"
+                  v-model="payload.license_doc"
+                  dense
+                  outlined
+                  prepend-icon=""
+                  append-icon="mdi-file"
+                  label="License"
+                ></v-file-input>
+              </v-col>
+              <v-col cols="6">
+                <v-file-input
+                  hide-details
+                  v-if="!disabled"
+                  v-model="payload.others_doc"
+                  dense
+                  outlined
+                  prepend-icon=""
+                  append-icon="mdi-file"
+                  label="Upload Other Doc"
+                ></v-file-input>
+              </v-col>
+              <v-col cols="12" class="text-right my-1">
+                <v-btn @click="prevStep">Back</v-btn>
+                <v-btn
+                  v-if="formAction == 'Create'"
+                  class="primary"
+                  @click="submit"
+                  >Submit</v-btn
                 >
-                  <v-img style="width: 100%" :src="attachmentPreview"></v-img>
-                </v-card>
+                <v-btn
+                  v-else-if="formAction == 'Edit'"
+                  class="primary"
+                  @click="update_data"
+                  >Update</v-btn
+                >
               </v-col>
             </v-row>
-          </v-container>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <div class="text-right">
-              <v-btn small color="grey white--text" @click="DialogBox = false">
-                Close
-              </v-btn>
-
-              <v-btn
-                v-if="can('employee_create') && formAction == 'Create'"
-                small
-                :loading="loading"
-                color="primary"
-                @click="submit"
-              >
-                Submit
-              </v-btn>
-              <v-btn
-                v-else-if="can('employee_create') && formAction == 'Edit'"
-                small
-                :loading="loading"
-                color="primary"
-                @click="update_data"
-              >
-                Update
-              </v-btn>
-            </div>
-          </v-card-actions>
-        </v-card>
+          </v-stepper-content>
+        </v-stepper>
       </v-dialog>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -380,7 +765,7 @@
                   class="ma-0 px-0"
                   :ripple="false"
                   text
-                  title="Add Company"
+                  title="Add Tanent"
                   @click="addItem"
                 >
                   <v-icon
@@ -431,7 +816,9 @@
               </template>
 
               <template v-slot:item.members="{ item }">
-                <v-icon color="primary" class="mx-1" @click="viewMember(item)"> mdi-eye </v-icon>
+                <v-icon color="primary" class="mx-1" @click="viewMember(item)">
+                  mdi-eye
+                </v-icon>
                 {{ item.members.length }}
               </template>
 
@@ -484,12 +871,12 @@
                         Add Member(s)
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="viewItem(item)">
+                    <!-- <v-list-item @click="viewItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-eye </v-icon>
                         View
                       </v-list-item-title>
-                    </v-list-item>
+                    </v-list-item> -->
                     <v-list-item @click="editItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
@@ -533,6 +920,7 @@ export default {
     qrCodeDataURL: "",
     qrCompanyCodeDataURL: "",
     disabled: false,
+    step: 1,
 
     members: [],
 
@@ -544,8 +932,9 @@ export default {
       start_date: "",
       end_date: "",
     },
-    imagePreview: null,
-    attachmentPreview: null,
+    imagePreview: "/no-profile-image.jpg",
+    setImagePreview:null,
+    imageMemberPreview: null,
 
     tab: null,
 
@@ -576,6 +965,7 @@ export default {
     selectedFile: "",
     DialogBox: false,
     memberDialogBox: false,
+    viewMemberDialogBox: false,
     m: false,
     expand: false,
     expand2: false,
@@ -736,9 +1126,17 @@ export default {
       .substr(0, 10),
     menu: false,
     menu2: false,
+    menu3: false,
 
     floors: [],
     rooms: [],
+    member: {
+      full_name: null,
+      phone_number: null,
+      age: null,
+      relation: null,
+      tanent_id: 0,
+    },
   }),
 
   async created() {
@@ -759,6 +1157,15 @@ export default {
     },
   },
   methods: {
+    handleAttachment(e) {
+      this.payload.profile_picture = e;
+    },
+    nextStep() {
+      this.step++;
+    },
+    prevStep() {
+      this.step--;
+    },
     addMemberItem() {
       this.members.push({
         full_name: null,
@@ -803,7 +1210,7 @@ export default {
     },
     closePopup() {
       //croppingimagestep5
-      this.$refs.attachment_input.value = null;
+      this.$refs.otherDoc_input.value = null;
       this.dialogCropping = false;
     },
     close() {
@@ -870,39 +1277,41 @@ export default {
       this.formAction = "Create";
       this.DialogBox = true;
       this.payload = {};
+      this.setImagePreview = "/no-profile-image.jpg";
     },
     addMember(item) {
       this.disabled = false;
       this.formAction = "Create";
       this.memberDialogBox = true;
       this.payload = item;
+      this.member.tanent_id = item.id;
 
       this.getExistingMembers(item.id);
     },
     viewMember(item) {
       this.disabled = true;
       this.formAction = "View";
-      this.memberDialogBox = true;
+      this.viewMemberDialogBox = true;
       this.payload = item;
 
       this.getExistingMembers(item.id);
     },
-    editItem({ attachment, profile_picture, floor, room, ...payload }) {
+    editItem({ profile_picture,passport_doc,id_doc,contract_doc,ejari_doc, license_doc,others_doc, floor, room, ...payload }) {
       this.formAction = "Edit";
       this.disabled = false;
       this.DialogBox = true;
 
-      this.imagePreview = profile_picture;
-      this.attachmentPreview = attachment;
+      this.setImagePreview = profile_picture;
       this.payload = payload;
+
+      this.getRoomsByFloorId(payload.floor_id)
     },
-    viewItem({ attachment, profile_picture, ...payload }) {
+    viewItem({ profile_picture, ...payload }) {
       this.formAction = "View";
       this.disabled = true;
       this.DialogBox = true;
 
       this.imagePreview = profile_picture;
-      this.attachmentPreview = attachment;
       this.payload = payload;
     },
     getExistingMembers(id) {
@@ -956,28 +1365,24 @@ export default {
       }
     },
 
-    previewAttachment(event) {
-      const file = this.payload.attachment;
+    previewMemberImage(event) {
+      const file = this.member.profile_picture;
 
       if (file) {
         // Read the selected file and create a preview
         const reader = new FileReader();
         reader.onload = (e) => {
-          this.attachmentPreview = e.target.result;
+          this.imageMemberPreview = e.target.result;
         };
         reader.readAsDataURL(file);
       } else {
-        this.attachmentPreview = null;
+        this.imageMemberPreview = null;
       }
     },
-
-    onpick_attachment() {
-      this.$refs.attachment_input.click();
-    },
-    attachment(e) {
+    others_doc(e) {
       this.upload.name = e.target.files[0] || "";
 
-      let input = this.$refs.attachment_input;
+      let input = this.$refs.otherDoc_input;
       let file = input.files;
 
       if (file[0].size > 1024 * 1024) {
@@ -1011,7 +1416,7 @@ export default {
         formData.append(x, obj[x]);
       }
       if (this.payload.profile_picture) {
-        formData.append("profile_picture", this.payload.profile_picture);
+        formData.append("profile_picture", this.upload.name);
       }
 
       formData.append("company_id", this.$auth.user.company_id);
@@ -1036,61 +1441,63 @@ export default {
     },
     submitMembers() {
       this.$axios
-        .post(`/members/${this.payload.id}`, this.members)
+        .post(
+          `/members/${this.payload.id}`,
+          this.mapper(Object.assign(this.member))
+        )
         .then(({ data }) => {
-          // this.encrypt(data.record.id);
-          this.errors = [];
-          this.snackbar = true;
-          this.response = "Member(s) inserted successfully";
-          this.getDataFromApi();
-          this.DialogBox = false;
-          this.dialog = true;
+          this.handleSuccessResponse("Member(s) inserted successfully");
         })
         .catch(({ response }) => {
-          if (!response) {
-            return false;
-          }
-          let { status, data, statusText } = response;
-
-          if (status && status == 422) {
-            this.errors = data.errors;
-            return;
-          }
-
-          this.snackbar = true;
-          this.response = statusText;
+          this.handleErrorResponse(response);
         });
     },
-    submit() {
+    tanentValidate() {
       this.$axios
-        .post(this.endpoint, this.mapper(Object.assign(this.payload)))
+        .post(
+          this.endpoint + "-validate",
+          this.mapper(Object.assign(this.payload))
+        )
         .then(({ data }) => {
-          // this.encrypt(data.record.id);
           this.errors = [];
-          this.snackbar = true;
-          this.response = "Tanent inserted successfully";
-          this.getDataFromApi();
-          this.DialogBox = false;
-          this.dialog = true;
+          this.nextStep();
         })
         .catch(({ response }) => {
-          if (!response) {
-            return false;
-          }
-          let { status, data, statusText } = response;
-
-          if (status && status == 422) {
-            this.errors = data.errors;
-            return;
-          }
-
-          this.snackbar = true;
-          this.response = statusText;
+          this.handleErrorResponse(response);
         });
 
       // }
     },
 
+    tanentUpdateValidate() {
+      this.$axios
+        .post(
+          this.endpoint + "-update-validate/" + this.payload.id,
+          this.mapper(Object.assign(this.payload))
+        )
+        .then(({ data }) => {
+          this.errors = [];
+          this.nextStep();
+        })
+        .catch(({ response }) => {
+          this.handleErrorResponse(response);
+        });
+
+      // }
+    },
+
+    submit() {
+      this.$axios
+        .post(this.endpoint, this.mapper(Object.assign(this.payload)))
+        .then(({ data }) => {
+          this.handleSuccessResponse("Tanent inserted successfully");
+        })
+        .catch(({ response }) => {
+          this.handleErrorResponse(response);
+        });
+
+      // }
+    },
     update_data() {
       this.$axios
         .post(
@@ -1098,37 +1505,39 @@ export default {
           this.mapper(Object.assign(this.payload))
         )
         .then(({ data }) => {
-          this.errors = [];
-          this.snackbar = true;
-          this.response = "Tanent updated successfully";
-          this.getDataFromApi();
-          this.DialogBox = false;
+          this.handleSuccessResponse("Tanent updated successfully");
         })
         .catch(({ response }) => {
-          if (!response) {
-            return false;
-          }
-          let { status, data, statusText } = response;
-
-          if (status && status == 422) {
-            this.errors = data.errors;
-            return;
-          }
-
-          this.snackbar = true;
-          this.response = statusText;
+          this.handleErrorResponse(response);
         });
 
       // }
     },
-    // processImage(file) {
-    //   const canvas = this.$refs.cropper.getCroppedCanvas();
-    //   this.cropedImage = canvas.toDataURL();
+    handleSuccessResponse(message) {
+      this.errors = [];
+      this.snackbar = true;
+      this.response = message;
+      this.memberDialogBox = false;
+      // this.DialogBox = false;
+      this.dialog = true;
+      // this.getDataFromApi();
+    },
+    handleErrorResponse(response) {
+      if (!response) {
+        this.snackbar = true;
+        this.response = "An unexpected error occurred.";
+        return;
+      }
+      let { status, data, statusText } = response;
 
-    //   canvas.toBlob((blob) => {
-    //     return { value: blob, file };
-    //   }, "image/jpeg");
-    // },
+      if (status && status == 422) {
+        this.errors = data.errors;
+        return;
+      }
+
+      this.snackbar = true;
+      this.response = statusText;
+    },
   },
 };
 </script>
