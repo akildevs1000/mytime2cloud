@@ -82,10 +82,10 @@ class DeviceCameraController extends Controller
             if ($xml->StatusCode == 200) {
 
                 $FeatureCode = $xml->FeatureCode;
-                Log::channel("camerasdk")->info($name . ' - ' . $system_user_id . ' - ' . $xml->StatusString);
+                Log::channel("camerasdk")->info($name . ' - ' . $system_user_id . ' - ' . $xml->StatusString . ' - Successfully Uploaded');
                 return  $xml->StatusString;
             } else {
-                Log::channel("camerasdk")->error($name . ' - ' . $system_user_id . ' - ' . $xml->StatusString);
+                Log::channel("camerasdk")->error($name . ' - ' . $system_user_id . ' - ' . $xml->StatusString . ' - Failed: ');
                 return  $xml->StatusString;
             }
         } else {

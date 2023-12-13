@@ -453,15 +453,41 @@ class VisitorController extends Controller
                         $visitorData = Visitor::where("id", $request->visitor_id)->get();
                     }
 
+                    $isCameraDevice = $device['device_category_name'] == "CAMERA" ? true : false;
 
-                    $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
-                    $sdkResponse = '';
 
-                    // $sdkResponse =  (new SDKController)->PersonAddRangeWithData($preparedJson);
-                    try {
+                    if ($isCameraDevice) {
 
-                        (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
-                    } catch (\Throwable $th) {
+
+
+                        try {
+                            if (env("APP_ENV") == "local") {
+                                $visitorData[0]["logo"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
+
+                                $imageData = file_get_contents("https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg");
+                            } else {
+                                $imageData = file_get_contents($visitorData[0]["logo"]);
+                            }
+
+
+                            $md5string = base64_encode($imageData);;
+
+
+                            $message[] = (new DeviceCameraController($device['camera_sdk_url']))->pushUserToCameraDevice($visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"],  $visitorData[0]['system_user_id'], $md5string);
+                        } catch (\Throwable $th) {
+                        }
+                    } else {
+
+
+                        $preparedJson = $this->prepareJsonForSDK($visitorData[0], $device['device_id'], $device['utc_time_zone']);
+                        $sdkResponse = '';
+
+
+                        try {
+
+                            (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
+                        } catch (\Throwable $th) {
+                        }
                     }
                 } else {
 
