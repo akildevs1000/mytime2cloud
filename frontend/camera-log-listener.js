@@ -29,9 +29,8 @@ const server = net.createServer((socket) => {
       const filePath = "../camera-xml-logs/camera-log" + TodayDatetime + ".txt";
 
       xmlData = data.toString(); // Append data to the image data string
+      saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime);
 
-      saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime);
-      saveXMlToLog(filePath, xmlData);
       // let current = new Date().getTime();
       // if (current - start <= 10000) {
       //   socketData = socketData + xmlData;
@@ -55,10 +54,12 @@ server.listen(PORT, () => {
   logConsoleStatus(`Server is listening on port ${PORT}`);
 });
 
-function saveXMlToLog(filePath, xmlData) {
+function saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime) {
   fs.appendFile(filePath, xmlData, function (err) {
     if (err) {
       logConsoleStatus("Error" + err);
+    } else {
+      saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime, filePath);
     }
   });
 }
@@ -89,7 +90,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
           const SnapshotNum = result.DetectedFaceList.Face_0[0].SnapshotNum[0];
           const Quality = result.DetectedFaceList.Face_0[0].Quality[0];
 
-          if (Quality >= 0.5) {
+          if (Quality >= 0.9) {
             logConsoleStatus(
               `${TodayDatetime} - Saved unregistered member - Face Id:  ${FaceId} - Quality:${Quality}`
             );
@@ -118,7 +119,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
             );
           } else {
             logConsoleStatus(
-              "No image saved due to lessthan 50% quality",
+              "No image saved due to lessthan 90% quality",
               Quality
             );
           }
@@ -157,27 +158,37 @@ function getDate() {
   const [m, d, y] = newDate.split("/");
   return (formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`);
 }
-function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
+function saveRegisteredMemberstoCSV(
+  xmlData,
+  logFilePath,
+  TodayDatetime,
+  filePath
+) {
   try {
+    const xmlData = fs.readFileSync(filePath, "utf8");
+
     let RegisterIdArray = checkMultipleOccurrences(xmlData, "RegisteredID");
     let macArray = checkMultipleOccurrences(xmlData, "MACAddress");
     let CardNumArray = checkMultipleOccurrences(xmlData, "CardNum");
     let TimeArray = checkMultipleOccurrences(xmlData, "Time");
     let arrayCounter = 0;
 
-    // if (CardNumArray.length == 0)
-    {
+    if (CardNumArray.length == 0) {
       saveUNRegisteredMemberstoImage(xmlData, TodayDatetime);
     }
     CardNumArray.forEach((element) => {
       try {
         let UserCode = CardNumArray[arrayCounter];
         let SN = macArray[arrayCounter];
-        let RecordDate = TodayDatetime;
-        console.log("RecordDate", RecordDate);
+        let RecordDate = getTime2();
+
         if (TimeArray.length == 0) {
-          RecordDate = getTime2();
-          console.log("Adjusted -RecordDate", RecordDate);
+          logConsoleStatus("Adjusted -RecordDate", RecordDate);
+        } else {
+          RecordDate = TimeArray[arrayCounter];
+
+          RecordDate = formatdate(RecordDate);
+          logConsoleStatus("RecordDate", RecordDate);
         }
 
         let RecordNumber = RegisterIdArray[arrayCounter];
@@ -211,7 +222,7 @@ function saveRegisteredMemberstoCSV(xmlData, logFilePath, TodayDatetime) {
 
 function logConsoleStatus(message) {
   console.log(message);
-  const logFilePath = `camera-live-status-${getDate()}.log`;
+  const logFilePath = `../backend/storage/camera-live-status-${getDate()}.log`;
   fs.appendFileSync(logFilePath, message + "\n");
 }
 function formatdate(originalDateTime) {
@@ -294,6 +305,16 @@ function getTime2() {
 function getTime() {
   let date_ob = new Date();
 
+  let utc = date_ob.getTime();
+
+  // Define the time difference in hours for GMT+4
+  let gmt_offset = 4;
+
+  // Calculate the time in milliseconds for GMT+4 by adding the offset
+  let gmt_time = utc + gmt_offset * 60 * 60 * 1000;
+
+  // Create a new Date object for GMT+4 time
+  date_ob = new Date(gmt_time);
   // current date
   // adjust 0 before single digit date
   let date = ("0" + date_ob.getDate()).slice(-2);
