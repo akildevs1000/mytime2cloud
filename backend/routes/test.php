@@ -494,7 +494,7 @@ Route::get('/testAttendance', function () {
 Route::get('/getActiveSessionId', function () {
 
     //return (new DeviceCameraController())->getActiveSessionId();
-    return (new DeviceCameraController())->getActiveSessionId();
+    return (new DeviceCameraController(''))->getActiveSessionId();
 });
 Route::get('/pushUserToCameraDevice', function () {
 
@@ -505,10 +505,14 @@ Route::get('/pushUserToCameraDevice', function () {
     if ($imageData !== false) {
         // Convert the image data to base64 format
         $imageData = base64_encode($imageData);
-        return (new DeviceCameraController())->pushUserToCameraDevice("Venu1",  "9191",  $imageData);
+        return (new DeviceCameraController(''))->pushUserToCameraDevice("Venu1",  "9191",  $imageData);
     }
 });
+Route::get('/updateCameraDeviceLiveStatus', function () {
 
+    //return (new DeviceCameraController())->getActiveSessionId();
+    return (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+});
 
 
 

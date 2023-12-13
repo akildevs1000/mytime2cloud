@@ -13,30 +13,43 @@ use SimpleXMLElement;
 
 class DeviceCameraController extends Controller
 {
+    public  $camera_sdk_url = '';
 
+    public function __construct($camera_sdk_url)
+    {
+        $this->camera_sdk_url = $camera_sdk_url;
+    }
     public function updateCameraDeviceLiveStatus()
     {
 
-        Device::where('device_category_name', "CAMERA")->update(["status_id" => 2]);
+        $devices = Device::where('device_category_name', "CAMERA");
 
-        $sessionResponse = $this->getActiveSessionId();
-        if ($sessionResponse['status']) {
-            $sessionId = $sessionResponse['message'];
+        $devices->clone()->update(["status_id" => 2]);
 
-            $devicesInfo = $this->curlPost('/ISAPI/DeviceInfo?ID=' . $sessionId, ' ');
-
-            $xml = simplexml_load_string($devicesInfo);
-            $MACAddress = (string) $xml->MACAddress;
-            if ($MACAddress != '') {
-
-                Device::where("device_id", $MACAddress)->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+        foreach ($devices->get() as $device) {
 
 
-                Log::channel("camerasdk")->info($MACAddress . " - Live status updated");
-                return $MACAddress . " - Live status updated";
+            $this->camera_sdk_url = $device->camera_sdk_url;
+
+            $sessionResponse = $this->getActiveSessionId();
+            if ($sessionResponse['status']) {
+                $sessionId = $sessionResponse['message'];
+
+                $devicesInfo = $this->curlPost('/ISAPI/DeviceInfo?ID=' . $sessionId, ' ');
+
+                $xml = simplexml_load_string($devicesInfo);
+                $MACAddress = (string) $xml->MACAddress;
+                if ($MACAddress != '') {
+
+                    Device::where("device_id", $MACAddress)->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+
+
+                    Log::channel("camerasdk")->info($MACAddress . " - Live status updated");
+                    return $MACAddress . " - Live status updated";
+                }
+            } else {
+                return $sessionResponse['message'];
             }
-        } else {
-            return $sessionResponse['message'];
         }
     }
 
@@ -89,6 +102,9 @@ class DeviceCameraController extends Controller
         $post_data = ' ';
         $response = $this->curlPost('/ISAPI/Security/Login', $post_data);
         $xml = simplexml_load_string($response);
+        if ($xml == '') {
+            return ["message" => "SessionID is not generated.", "status" => false];
+        }
         $sessionId = (string) $xml->SessionId;
 
 
@@ -133,25 +149,34 @@ class DeviceCameraController extends Controller
 
 
 
-        $url = env('CAMERA_SDK_URL') .   $url;
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
+        // $url = env('CAMERA_SDK_URL') .   $url;
+        if ($this->camera_sdk_url != '') {
 
 
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => $post_data,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: text/plain'
-            ),
-        ));
+            $url = $this->camera_sdk_url .   $url;
 
-        $response = curl_exec($curl);
-        curl_close($curl);
 
-        return $response;
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => $url,
+                CURLOPT_RETURNTRANSFER => true,
+
+
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $post_data,
+                CURLOPT_HTTPHEADER => array(
+                    'Content-Type: text/plain'
+                ),
+            ));
+
+            $response = curl_exec($curl);
+            curl_close($curl);
+            Log::channel("camerasdk")->info('CURL ' . $url . '-');
+            return $response;
+        } else {
+            Log::channel("camerasdk")->info('CURL ' .  $url . '- EMPTY SDK URL in DB Devices Table');
+        }
     }
 
     // public function curlPostImage($url, $post_data)

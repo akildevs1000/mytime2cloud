@@ -142,7 +142,7 @@ class SDKController extends Controller
                     if ($personProfilePic != '') {
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraController())->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
+                        $message[] = (new DeviceCameraController($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
                     }
                 }
             }

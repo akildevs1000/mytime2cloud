@@ -565,7 +565,7 @@ class DeviceController extends Controller
             }
         }
         //update camera devices status 
-        (new DeviceCameraController())->updateCameraDeviceLiveStatus();
+        (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
 
 
 
