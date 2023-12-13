@@ -114,7 +114,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
 
             // Write the Buffer content to an image file
             fs.writeFileSync(
-              "../camera-unregsitered-faces-logs/" + pictureName,
+              "../backend/public/camera-unregsitered-faces-logs/" + pictureName,
               buffer
             );
           } else {
@@ -174,7 +174,7 @@ function saveRegisteredMemberstoCSV(
     let arrayCounter = 0;
 
     if (CardNumArray.length == 0) {
-      saveUNRegisteredMemberstoImage(xmlData, TodayDatetime);
+      //saveUNRegisteredMemberstoImage(xmlData, TodayDatetime);
     }
     CardNumArray.forEach((element) => {
       try {
