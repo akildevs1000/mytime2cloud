@@ -534,6 +534,11 @@ class DeviceController extends Controller
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
+
+            ->Where(function ($q) {
+                $q->where('device_category_name', "!=", "CAMERA");
+                $q->orWhere('device_category_name', null);
+            })
             ->get();
         $total_iterations = count($companyDevices);
         $online_devices_count = 0;
@@ -559,6 +564,11 @@ class DeviceController extends Controller
                 // info($count . "companies has been updated");
             }
         }
+        //update camera devices status 
+        (new DeviceCameraController())->updateCameraDeviceLiveStatus();
+
+
+
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
         return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
     }

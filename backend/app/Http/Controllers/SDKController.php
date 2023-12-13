@@ -8,6 +8,7 @@ use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class SDKController extends Controller
 {
@@ -105,16 +106,50 @@ class SDKController extends Controller
     {
         $url = env('SDK_URL') . "/Person/AddRange";
 
-        return $this->processSDKRequestJob($url, $request->all());
+        $cameraResponse = $this->filterCameraDevices($request);
+
+        $deviceResponse = $this->processSDKRequestJob($url, $request->all());
+
+        Log::channel("camerasdk")->error(json_encode(["cameraResponse" => $cameraResponse, "deviceResponse" => $deviceResponse]));
+
+        return ["cameraResponse" => $cameraResponse, "deviceResponse" => $deviceResponse];
     }
-    public function PersonAddRange(Request $request)
+    // public function PersonAddRange(Request $request)
+    // {
+    //     $url = env('SDK_URL') . "/Person/AddRange";
+
+    //     return $this->processSDKRequestBulk($url, $request->all());
+    // }
+
+    public function filterCameraDevices($request)
     {
-        $url = env('SDK_URL') . "/Person/AddRange";
+        $snList = $request->snList;
+        $Devices = Device::where('device_category_name', "CAMERA")->get()->all();
 
-        return $this->processSDKRequestBulk($url, $request->all());
+
+
+
+        $filteredCameraArray = array_filter($Devices, function ($item) use ($snList) {
+            return in_array($item['device_id'], $snList);
+        });
+        $message = [];
+        foreach ($filteredCameraArray as  $value) {
+
+            foreach ($request->personList as  $persons) {
+                if (isset($persons['faceImage'])) {
+
+                    $personProfilePic = $persons['faceImage'];
+                    if ($personProfilePic != '') {
+                        $imageData = file_get_contents($personProfilePic);
+                        $md5string = base64_encode($imageData);;
+                        $message[] = (new DeviceCameraController())->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
+                    }
+                }
+            }
+        }
+
+        return  $message;
     }
-
-
 
     public function GetAllDevicesHealth()
     {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
+use App\Http\Controllers\DeviceCameraController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\Shift\AutoShiftController;
@@ -482,7 +483,7 @@ Route::get('/test/whatsapp', function () {
     curl_close($curl);
     echo $response;
 });
-Route::get('/test3', function () {
+Route::get('/testAttendance', function () {
 
     // return 'Test';
     // $devicesListArray = Device::where("company_id", 8);
@@ -490,6 +491,26 @@ Route::get('/test3', function () {
     // return $devicesListArray->clone()->where("device_id", "=", 'OX-9662022091021')->pluck('id')[0];
     // return (new AttendanceController)->seedDefaultData(20, [], '');
 });
+Route::get('/getActiveSessionId', function () {
+
+    //return (new DeviceCameraController())->getActiveSessionId();
+    return (new DeviceCameraController())->getActiveSessionId();
+});
+Route::get('/pushUserToCameraDevice', function () {
+
+    //return (new DeviceCameraController())->getActiveSessionId();
+    // Get the image data from the URL
+    $imageData = file_get_contents("https://backend.mytime2cloud.com/media/employee/profile_picture/1696868606.jpg");
+
+    if ($imageData !== false) {
+        // Convert the image data to base64 format
+        $imageData = base64_encode($imageData);
+        return (new DeviceCameraController())->pushUserToCameraDevice("Venu1",  "9191",  $imageData);
+    }
+});
+
+
+
 
 Route::get('/nightshift', function () {
     // return (new NightShiftController)->render();

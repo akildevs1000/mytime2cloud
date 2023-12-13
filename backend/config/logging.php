@@ -56,6 +56,11 @@ return [
             'channels' => ['single'],
             'ignore_exceptions' => false,
         ],
+        'camerasdk' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/camerasdk.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+        ],
         'jobs' => [
             'driver' => 'single',
             'path' => storage_path('logs/jobs.log'),
