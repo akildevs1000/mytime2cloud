@@ -1562,7 +1562,7 @@ export default {
         payload
       );
 
-      if (data.status == 200) {
+      if (data.deviceResponse.status == 200) {
         this.loading_dialog = false;
 
         this.snackbar.show = true;
