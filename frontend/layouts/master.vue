@@ -95,7 +95,7 @@
           </label>
 
           <v-btn icon color="yellow" v-bind="attrs" v-on="on">
-            <v-avatar>
+            <v-avatar size="40">
               <img :src="`https://via.placeholder.com/40x40?text=${getLogo}`" />
             </v-avatar>
           </v-btn>
@@ -197,6 +197,12 @@ export default {
           permission: this.can("company_access"),
         },
         {
+          icon: "mdi-account-multiple",
+          title: "Communities",
+          to: "/master/communities",
+          permission: this.can("company_access"),
+        },
+        {
           icon: "mdi-login-variant",
           title: "Logs",
           to: "/master/web_login_logs",
@@ -290,8 +296,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.primary {
-  background: #5fafa3 !important;
-}
-</style>

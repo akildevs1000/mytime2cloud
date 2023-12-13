@@ -90,14 +90,14 @@ export default {
         let { companies, employees } = data;
         this.total_items = [
           {
-            title: "TOTAL COMPANIES",
+            title: "TOTAL Companies",
             value: companies,
-            icon: "mdi-apps",
+            icon: "mdi-domain",
           },
           {
-            title: "TOTAL EMPLOYEES",
+            title: "TOTAL Communities",
             value: employees,
-            icon: "mdi-account-tie",
+            icon: "mdi-account-multiple",
           },
           {
             title: "TOTAL UNPAID",
