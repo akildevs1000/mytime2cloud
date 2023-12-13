@@ -16,7 +16,7 @@ class RoomCategoryController extends Controller
      */
     public function index()
     {
-        return RoomCategory::paginate(request("per_page") ?? 10);
+        return RoomCategory::where("company_id",request("company_id") ?? 0)->paginate(request("per_page") ?? 10);
     }
 
     /**

@@ -25,8 +25,28 @@ class TanentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    public function validateTanent(StoreRequest $request)
+    {
+        try {
+            $exists = Tanent::where("company_id", $request->company_id)->where('phone_number', $request->phone_number)->exists();
+
+            // Check if the Tanent number already exists
+            if ($exists) {
+                return $this->response('Tanent already exists.', null, true);
+            }
+
+            return $this->response('Tanent Successfully created.', $request->validated(), true);
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+
+
+
     public function store(StoreRequest $request)
     {
+
         try {
             $exists = Tanent::where("company_id", $request->company_id)->where('phone_number', $request->phone_number)->exists();
 
@@ -37,20 +57,21 @@ class TanentController extends Controller
 
             $data = $request->validated();
 
+            $data["full_name"] = "{$data["first_name"]} {$data["last_name"]}";
+
+            $communityId = $request->floor_id ?? 1001;
+            $shortYear = date("y");
+            $floor_id = $request->floor_id;
+            $tanentId = Tanent::max('id') + 1;
+    
+            $data["system_user_id"] = "{$communityId}{$shortYear}{$floor_id}{$tanentId}";
+
             if (isset($request->profile_picture)) {
                 $file = $request->file('profile_picture');
                 $ext = $file->getClientOriginalExtension();
                 $fileName = time() . '.' . $ext;
                 $request->file('profile_picture')->move(public_path('/community/profile_picture'), $fileName);
                 $data['profile_picture'] = $fileName;
-            }
-
-            if (isset($request->attachment)) {
-                $file = $request->file('attachment');
-                $ext = $file->getClientOriginalExtension();
-                $fileName = time() . '.' . $ext;
-                $request->file('attachment')->move(public_path('/community/attachment'), $fileName);
-                $data['attachment'] = $fileName;
             }
 
             $record = Tanent::create($data);
@@ -65,6 +86,17 @@ class TanentController extends Controller
         }
     }
 
+    public function processTanentFile($name)
+    {
+        if (request($name)) {
+            $file = request()->file($name);
+            $ext = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $ext;
+            $file->move(public_path("/community/$name"), $fileName);
+            $data[$name] = $fileName;
+        }
+    }
+
     /**
      * Update the specified resource in storage.
      *
@@ -72,6 +104,26 @@ class TanentController extends Controller
      * @param  \App\Models\Tanent  $Tanent
      * @return \Illuminate\Http\Response
      */
+
+    public function validateUpdateTanent(UpdateRequest $request, $id)
+    {
+        $Tanent = Tanent::where("id", $id)->first();
+
+        $phone_number = $request->phone_number;
+
+        if ($Tanent->phone_number != $phone_number) {
+            $exists = Tanent::where("company_id", $request->company_id)->where('phone_number', $phone_number)->exists();
+
+            // Check if the Tanent number already exists
+            if ($exists) {
+                return $this->response('Tanent already exists.', null, true);
+            }
+        }
+
+        return $this->response('Tanent successfully updated.', null, true);
+    }
+
+
     public function tanentUpdate(UpdateRequest $request, $id)
     {
         $Tanent = Tanent::where("id", $id)->first();
@@ -91,7 +143,9 @@ class TanentController extends Controller
 
             $data = $request->validated();
 
-            if ($request->hasFile('profile_picture')) {
+            $data["full_name"] = "{$data["first_name"]} {$data["last_name"]}";
+
+            if (isset($request->profile_picture)) {
                 $file = $request->file('profile_picture');
                 $ext = $file->getClientOriginalExtension();
                 $fileName = time() . '.' . $ext;
@@ -99,15 +153,62 @@ class TanentController extends Controller
                 $data['profile_picture'] = $fileName;
             }
 
-            if ($request->hasFile('attachment')) {
-                $file = $request->file('attachment');
+            if (isset($request->profile_picture)) {
+                $file = $request->file('profile_picture');
                 $ext = $file->getClientOriginalExtension();
                 $fileName = time() . '.' . $ext;
-                $request->file('attachment')->move(public_path('/community/attachment'), $fileName);
-                $data['attachment'] = $fileName;
+                $request->file('profile_picture')->move(public_path('/community/profile_picture'), $fileName);
+                $data['profile_picture'] = $fileName;
             }
-
-            // If the Tanent number is the same or it's unique, update the Tanent
+    
+            if (isset($request->passport_doc)) {
+                $file = $request->file('passport_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('passport_doc')->move(public_path('/community/passport_doc'), $fileName);
+                $data['passport_doc'] = $fileName;
+            }
+    
+            if (isset($request->id_doc)) {
+                $file = $request->file('id_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('id_doc')->move(public_path('/community/id_doc'), $fileName);
+                $data['id_doc'] = $fileName;
+            }
+    
+            if (isset($request->contract_doc)) {
+                $file = $request->file('contract_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('contract_doc')->move(public_path('/community/contract_doc'), $fileName);
+                $data['contract_doc'] = $fileName;
+            }
+    
+            if (isset($request->ejari_doc)) {
+                $file = $request->file('ejari_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('ejari_doc')->move(public_path('/community/ejari_doc'), $fileName);
+                $data['ejari_doc'] = $fileName;
+            }
+    
+            if (isset($request->license_doc)) {
+                $file = $request->file('license_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('license_doc')->move(public_path('/community/license_doc'), $fileName);
+                $data['license_doc'] = $fileName;
+            }
+    
+            if (isset($request->others_doc)) {
+                $file = $request->file('others_doc');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('others_doc')->move(public_path('/community/others_doc'), $fileName);
+                $data['others_doc'] = $fileName;
+            }
+            
             $record = $Tanent->update($data);
 
             return $this->response('Tanent successfully updated.', $record, true);

@@ -66,7 +66,7 @@ class CompanyController extends Controller
 
     public function index(Company $model, Request $request)
     {
-        return $model->with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->paginate($request->per_page);
+        return $model->where("account_type", "company")->with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->paginate($request->per_page);
     }
 
     public function getMasterDashboardCounts()
@@ -294,8 +294,8 @@ class CompanyController extends Controller
         }
         $data["no_branch"] = $request->no_branch ? 1 : 0;
         $data["max_branches"] = $request->max_branches;
-        $data["lat"] = $request->lat;
-        $data["lon"] = $request->lon;
+        // $data["lat"] = $request->lat;
+        // $data["lon"] = $request->lon;
         $data["name"] = $request->name;
 
         if ($request->email != '') {

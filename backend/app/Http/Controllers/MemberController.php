@@ -27,11 +27,19 @@ class MemberController extends Controller
     public function store(StoreRequest $request, $id)
     {
         try {
-            $member = Member::query();
-            $member->where("tanent_id", $id);
-            $member->delete();
-            $member->insert($request->validated());
-            return $this->response('Member successfully updated.', $member, true);
+
+            $data = $request->validated();
+
+            if (isset($request->profile_picture)) {
+                $file = $request->file('profile_picture');
+                $ext = $file->getClientOriginalExtension();
+                $fileName = time() . '.' . $ext;
+                $request->file('profile_picture')->move(public_path('/community/profile_picture'), $fileName);
+                $data['profile_picture'] = $fileName;
+            }
+
+            Member::create($data);
+            return $this->response('Member successfully updated.', null, true);
         } catch (\Throwable $th) {
             throw $th;
         }
