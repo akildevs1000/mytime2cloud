@@ -244,6 +244,8 @@ class AttendanceLogController extends Controller
             } else {
                 $this->writeLastAttendanceLogTime($columns[1] . '-' . $columns[0], substr(str_replace("T", " ", $columns[2]), 0, 19));
             }
+        } else {
+            $this->writeLastAttendanceLogTime($columns[1] . '-' . $columns[0], substr(str_replace("T", " ", $columns[2]), 0, 19));
         }
 
 
