@@ -50,7 +50,6 @@
     <ComonPreloader icon="face-scan" v-if="loading" />
 
     <v-data-table
-      style="overflow-y: scroll"
       dense
       :headers="headers_table"
       :items="logs"
@@ -60,7 +59,7 @@
       :footer-props="{
         itemsPerPageOptions: [5, 10],
       }"
-      class="elevation-0"
+      class="elevation-0 logtable"
       :server-items-length="totalRowsCount"
     >
       <template v-slot:item.sno="{ item, index }">
@@ -371,19 +370,19 @@ export default {
 
       this.currentPage = page;
       this.perPage = itemsPerPage;
-      if (page == 1 && !socket) {
-        if (this.$store.state.dashboard.recent_logs) {
-          this.loading = false;
-          this.tableloading = false;
-          this.logs = this.$store.state.dashboard.recent_logs;
+      // if (page == 1 && !socket) {
+      //   if (this.$store.state.dashboard.recent_logs) {
+      //     this.loading = false;
+      //     this.tableloading = false;
+      //     this.logs = this.$store.state.dashboard.recent_logs;
 
-          this.pagination.current = this.logs.current_page;
-          this.pagination.total = this.logs.last_page;
+      //     this.pagination.current = this.logs.current_page;
+      //     this.pagination.total = this.logs.last_page;
 
-          this.totalRowsCount = this.logs.total;
-          return;
-        }
-      }
+      //     this.totalRowsCount = this.logs.total;
+      //     return;
+      //   }
+      // }
       this.$axios
         .get(
           `device/getLastRecordsHistory/${this.$auth.user.company_id}/10`,
