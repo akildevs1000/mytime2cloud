@@ -397,6 +397,31 @@ class VisitorController extends Controller
 
         return $returnArray;
     }
+
+    public function getUnknownVisitorsList()
+    {
+        $currentDate = Carbon::now();
+
+        $date = date('Y-m-d') . ' ' . date('H');
+
+        $retunFiles = [];
+        $directory = '../public/camera-unregsitered-faces-logs/'; // Replace this with your folder path
+
+        $files = scandir($directory);
+
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..') {
+                $position = strpos($file, $date);
+
+                if ($position !== false) {
+                    $retunFiles[] = ["url" => asset("camera-unregsitered-faces-logs/" . $file), "name" => $file];;
+                } else {
+                }
+            }
+        }
+
+        return $retunFiles;
+    }
     public function updateVisitorToZone(Request $request)
     {
 

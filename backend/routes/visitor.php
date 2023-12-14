@@ -38,3 +38,4 @@ Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::c
 
 
 Route::get('get-notifications-count', [EmployeeDashboard::class, 'getNotificationCount']);
+Route::get('get-unknown-visitors-list', [VisitorController::class, 'getUnknownVisitorsList']);

@@ -261,6 +261,7 @@ export default {
         total: 0,
         per_page: 10,
       },
+      devices_list: [],
     };
   },
   watch: {
@@ -285,7 +286,17 @@ export default {
 
     //this.getRecords();
   },
-  created() {},
+  created() {
+    let payload = {
+      params: {
+        company_id: this.$auth.user.company_id,
+      },
+    };
+    //this.devices_list = this.$store.dispatch("devices_list", options);
+    this.$axios.get(`device-list`, payload).then(({ data }) => {
+      this.devices_list = data;
+    });
+  },
   computed: {
     employees() {
       return this.$store.state.employeeList.map((e) => ({
@@ -298,6 +309,14 @@ export default {
     devices() {
       if (this.$store.state.devices)
         return this.$store.state.devices.map((e) => e.device_id);
+      else {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+          },
+        };
+        return this.$store.dispatch("devices_list", options);
+      }
     },
   },
   methods: {
@@ -319,7 +338,8 @@ export default {
         return str.includes(`Mobile`) ? "Mobile" : str;
       }
     },
-    getRecords() {
+    getRecords(socket = false) {
+      console.log("Records");
       this.tableloading = true;
       this.loading = true;
 
@@ -340,7 +360,7 @@ export default {
 
       this.currentPage = page;
       this.perPage = itemsPerPage;
-      if (page == 1) {
+      if (page == 1 && !socket) {
         if (this.$store.state.dashboard.recent_logs) {
           this.loading = false;
           this.tableloading = false;
@@ -370,41 +390,65 @@ export default {
           this.totalRowsCount = data.total;
         });
     },
-    socketConnection() {
-      this.socket = new WebSocket(this.url);
+    // socketConnection_old() {
+    //   this.socket = new WebSocket(this.url);
 
-      this.socket.onmessage = ({ data }) => {
-        let json = JSON.parse(data);
+    //   this.socket.onmessage = ({ data }) => {
+    //     let json = JSON.parse(data);
+    //     console.log("json.Data.UserCode", data);
+    //     if (json.Status == 200 && json.Data.UserCode > 0) {
+    //       this.getDetails(json.Data);
+    //     }
+    //   };
+    // },
+    // getDetails_old2(item) {
+    //   item.company_id = this.$auth.user.company_id;
 
-        if (json.Status == 200 && json.Data.UserCode > 0) {
-          this.getDetails(json.Data);
-        }
-      };
-    },
+    //   this.$axios.post(`/device/details`, item).then(({ data }) => {
+    //     console.log(data);
+    //     if (
+    //       data.device &&
+    //       this.$auth.user &&
+    //       data.device.company_id == this.$auth.user.company_id
+    //     ) {
+    //       this.logs.data.unshift(data);
+    //     }
+    //   });
+    // },
+
     getDetails(item) {
-      item.company_id = this.$auth.user.company_id;
+      console.log("item", item);
+      let DeviceId = item.SN;
 
-      this.$axios.post(`/device/details`, item).then(({ data }) => {
-        if (
-          data.device &&
-          this.$auth.user &&
-          data.device.company_id == this.$auth.user.company_id
-        ) {
-          this.logs.data.unshift(data);
-        }
-      });
+      console.log("DeviceId", DeviceId, this.devices_list);
+      if (DeviceId != "") {
+        let isCompanyDevice = this.devices_list.filter(
+          (e) => e.device_id == DeviceId
+        );
+
+        console.log("isCompanyDevice", isCompanyDevice, isCompanyDevice.length);
+
+        if (isCompanyDevice.length > 0) this.getRecords(true);
+      }
     },
+
     socketConnection() {
       this.socket = new WebSocket(this.url);
-
+      //console.log("this.$store.state.devices", this.devices);
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data).Data;
-        if (json && json.UserCode > 0) {
+
+        console.log("data", data);
+        const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
+
+        console.log("UserCode", UserCode);
+        if (UserCode > 0) {
+          console.log("getDetails", json);
           this.getDetails(json);
         }
       };
     },
-    getDetails({ SN, RecordImage, UserCode, RecordDate }) {
+    getDetails_Old({ SN, RecordImage, UserCode, RecordDate }) {
       if (this.devices)
         if (this.devices.includes(SN)) {
           let employee = this.employees.find(

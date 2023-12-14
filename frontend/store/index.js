@@ -109,7 +109,9 @@ export const mutations = {
   timezone_list(state, value) {
     state.timezone_list = value;
   },
-
+  devices_list(state, value) {
+    state.devices_list = value;
+  },
   designation_list(state, value) {
     state.designation_list = value;
   },
@@ -267,7 +269,22 @@ export const actions = {
       return error;
     }
   },
+  async devices_list({ commit, state }) {
+    if (state.devices_list) return state.devices_list;
 
+    try {
+      const { data } = await this.$axios.get("device-list", {
+        params: {
+          order_by: "name",
+          company_id: this.$auth.user.company_id,
+        },
+      });
+      commit("devices_list", data);
+      return data;
+    } catch (error) {
+      return error;
+    }
+  },
   async department_list({ commit, state }, options) {
     try {
       if (state.department_list && options.isFilter == false)
