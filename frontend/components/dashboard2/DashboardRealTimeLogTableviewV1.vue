@@ -340,7 +340,6 @@ export default {
       this.dialogEmployeeAttendance = true;
       this.componentKey = this.componentKey + 1;
       this.system_user_id = system_user_id;
-      console.log(this.system_user_id, this.componentKey);
     },
     caps(str) {
       if (str == "" || str == null) {
@@ -352,7 +351,6 @@ export default {
       }
     },
     getRecords(socket = false) {
-      console.log("Records");
       this.tableloading = true;
       if (!socket) this.loading = true;
 
@@ -430,16 +428,12 @@ export default {
     // },
 
     getDetails(item) {
-      console.log("item", item);
       let DeviceId = item.SN;
 
-      console.log("DeviceId", DeviceId, this.devices_list);
       if (DeviceId != "") {
         let isCompanyDevice = this.devices_list.filter(
           (e) => e.device_id == DeviceId
         );
-
-        console.log("isCompanyDevice", isCompanyDevice, isCompanyDevice.length);
 
         if (isCompanyDevice.length > 0) {
           this.tableloading = true;
@@ -447,7 +441,7 @@ export default {
           try {
             this.pushSocketEmployeeToTable(item);
           } catch (e) {
-            console.log(e);
+            //console.log(e);
           }
 
           this.tableloading = false;
@@ -455,7 +449,7 @@ export default {
       }
     },
     pushSocketEmployeeToTable(item) {
-      console.log("pushSocketEmployee", item);
+      //console.log("pushSocketEmployee", item);
       //--------------------------
       let UserCode1 = item.UserCode;
       let SN1 = item.SN;
@@ -463,7 +457,7 @@ export default {
         (e) => e.employee.system_user_id == UserCode1
       );
       let device = this.devices_list.find((e) => e.device_id == SN1);
-      console.log("employee", employee.employee, device);
+
       let itemTable = {
         employee: employee.employee,
         device: { location: device.location, name: device.name },
@@ -482,7 +476,6 @@ export default {
         const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
 
         if (UserCode > 0) {
-          console.log("getDetails", json);
           this.getDetails(json);
         }
       };
