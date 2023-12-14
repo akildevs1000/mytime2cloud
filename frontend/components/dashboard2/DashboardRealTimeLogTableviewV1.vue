@@ -444,29 +444,32 @@ export default {
         if (isCompanyDevice.length > 0) {
           this.tableloading = true;
           //this.getRecords(true);
-          this.pushSocketEmployee(item);
+          try {
+            this.pushSocketEmployeeToTable(item);
+          } catch (e) {
+            console.log(e);
+          }
+
           this.tableloading = false;
         }
       }
     },
-    pushSocketEmployee(item) {
+    pushSocketEmployeeToTable(item) {
       console.log("pushSocketEmployee", item);
       //--------------------------
       let UserCode1 = item.UserCode;
-
-      console.log("employee", this.employees[0]);
+      let SN1 = item.SN;
       let employee = this.employees.find(
         (e) => e.employee.system_user_id == UserCode1
       );
-
-      console.log("employee", employee.employee);
+      let device = this.devices_list.find((e) => e.device_id == SN1);
+      console.log("employee", employee.employee, device);
       let itemTable = {
         employee: employee.employee,
-        device: { location: "device", device_name: "device_name" },
+        device: { location: device.location, name: device.name },
         LogTime: this.setTime(item.RecordDate),
       };
 
-      console.log("employee", employee);
       this.logs = [...this.logs, itemTable];
       this.logs.unshift(itemTable);
     },
@@ -476,30 +479,8 @@ export default {
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data).Data;
 
-        console.log("data", data);
         const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
-        // //--------------------------
-        // let UserCode1 = 1001;
 
-        // console.log("employee", this.employees[0]);
-        // let employee = this.employees.find(
-        //   (e) => e.employee.system_user_id == UserCode1
-        // );
-
-        // console.log("employee", employee.employee);
-        // let item = {
-        //   employee: employee.employee,
-        //   device: { location: "device", device_name: "device_name" },
-        //   LogTime: this.setTime(RecordDate),
-        // };
-
-        // console.log("employee", employee);
-        // this.logs = [...this.logs, item];
-        // this.logs.unshift(item);
-
-        // //---------------------------
-
-        console.log("UserCode", UserCode);
         if (UserCode > 0) {
           console.log("getDetails", json);
           this.getDetails(json);
@@ -528,10 +509,14 @@ export default {
     //     }
     // },
     setTime(dateTimeString) {
-      const dateTime = new Date(dateTimeString);
-      const hours = dateTime.getHours().toString().padStart(2, "0");
-      const minutes = dateTime.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
+      try {
+        const dateTime = new Date(dateTimeString);
+        const hours = dateTime.getHours().toString().padStart(2, "0");
+        const minutes = dateTime.getMinutes().toString().padStart(2, "0");
+        return `${hours}:${minutes}`;
+      } catch (e) {
+        return "--:--";
+      }
     },
   },
 };
