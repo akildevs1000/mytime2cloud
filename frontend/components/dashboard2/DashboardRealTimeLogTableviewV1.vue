@@ -53,7 +53,7 @@
       style="overflow-y: scroll"
       dense
       :headers="headers_table"
-      :items="logs.data"
+      :items="logs"
       model-value="data.id"
       :loading="tableloading"
       :options.sync="options"
@@ -67,7 +67,7 @@
         {{
           currentPage
             ? (currentPage - 1) * perPage +
-              (cumulativeIndex + logs.data.indexOf(item))
+              (cumulativeIndex + logs.indexOf(item))
             : ""
         }}
       </template>
@@ -299,11 +299,24 @@ export default {
   },
   computed: {
     employees() {
+      // return this.$store.state.employeeList.map((e) => ({
+      //   system_user_id: e.system_user_id,
+      //   first_name: e.first_name,
+      //   last_name: e.last_name,
+      //   display_name: e.display_name,
+      // }));
       return this.$store.state.employeeList.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
+        employee: {
+          profile_picture: e.profile_picture,
+          first_name: e.first_name,
+          last_name: e.last_name,
+          designation: e.designation,
+          department: e.department,
+          sub_department: e.sub_department,
+          UserID: e.user_id,
+          employee_id: e.employee_id,
+          system_user_id: e.system_user_id,
+        },
       }));
     },
     devices() {
@@ -379,7 +392,7 @@ export default {
           options
         )
         .then(({ data }) => {
-          this.logs = data;
+          this.logs = data.data;
           this.$store.commit("dashboard/recent_logs", data);
           this.loading = false;
           this.tableloading = false;
@@ -430,11 +443,33 @@ export default {
 
         if (isCompanyDevice.length > 0) {
           this.tableloading = true;
-          this.getRecords(true);
+          //this.getRecords(true);
+          this.pushSocketEmployee(item);
+          this.tableloading = false;
         }
       }
     },
+    pushSocketEmployee(item) {
+      console.log("pushSocketEmployee", item);
+      //--------------------------
+      let UserCode1 = item.UserCode;
 
+      console.log("employee", this.employees[0]);
+      let employee = this.employees.find(
+        (e) => e.employee.system_user_id == UserCode1
+      );
+
+      console.log("employee", employee.employee);
+      let itemTable = {
+        employee: employee.employee,
+        device: { location: "device", device_name: "device_name" },
+        LogTime: this.setTime(item.RecordDate),
+      };
+
+      console.log("employee", employee);
+      this.logs = [...this.logs, itemTable];
+      this.logs.unshift(itemTable);
+    },
     socketConnection() {
       this.socket = new WebSocket(this.url);
       //console.log("this.$store.state.devices", this.devices);
@@ -443,6 +478,26 @@ export default {
 
         console.log("data", data);
         const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
+        // //--------------------------
+        // let UserCode1 = 1001;
+
+        // console.log("employee", this.employees[0]);
+        // let employee = this.employees.find(
+        //   (e) => e.employee.system_user_id == UserCode1
+        // );
+
+        // console.log("employee", employee.employee);
+        // let item = {
+        //   employee: employee.employee,
+        //   device: { location: "device", device_name: "device_name" },
+        //   LogTime: this.setTime(RecordDate),
+        // };
+
+        // console.log("employee", employee);
+        // this.logs = [...this.logs, item];
+        // this.logs.unshift(item);
+
+        // //---------------------------
 
         console.log("UserCode", UserCode);
         if (UserCode > 0) {
@@ -451,27 +506,27 @@ export default {
         }
       };
     },
-    getDetails_Old({ SN, RecordImage, UserCode, RecordDate }) {
-      if (this.devices)
-        if (this.devices.includes(SN)) {
-          let employee = this.employees.find(
-            (e) => e.system_user_id == UserCode && e.first_name !== null
-          );
+    // getDetails_Old({ SN, RecordImage, UserCode, RecordDate }) {
+    //   if (this.devices)
+    //     if (this.devices.includes(SN)) {
+    //       let employee = this.employees.find(
+    //         (e) => e.system_user_id == UserCode && e.first_name !== null
+    //       );
 
-          let item = {
-            UserCode,
-            image:
-              "data:image;base64," + RecordImage || "/no-profile-image.jpg",
-            time: this.setTime(RecordDate),
-            name:
-              employee &&
-              (employee.display_name ||
-                employee.first_name ||
-                employee.last_name),
-          };
-          this.logs.unshift(item);
-        }
-    },
+    //       let item = {
+    //         UserCode,
+    //         image:
+    //           "data:image;base64," + RecordImage || "/no-profile-image.jpg",
+    //         time: this.setTime(RecordDate),
+    //         name:
+    //           employee &&
+    //           (employee.display_name ||
+    //             employee.first_name ||
+    //             employee.last_name),
+    //       };
+    //       this.logs.unshift(item);
+    //     }
+    // },
     setTime(dateTimeString) {
       const dateTime = new Date(dateTimeString);
       const hours = dateTime.getHours().toString().padStart(2, "0");
