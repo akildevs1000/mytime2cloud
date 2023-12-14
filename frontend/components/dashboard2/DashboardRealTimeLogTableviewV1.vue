@@ -341,7 +341,7 @@ export default {
     getRecords(socket = false) {
       console.log("Records");
       this.tableloading = true;
-      this.loading = true;
+      if (!socket) this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -428,7 +428,10 @@ export default {
 
         console.log("isCompanyDevice", isCompanyDevice, isCompanyDevice.length);
 
-        if (isCompanyDevice.length > 0) this.getRecords(true);
+        if (isCompanyDevice.length > 0) {
+          this.tableloading = true;
+          this.getRecords(true);
+        }
       }
     },
 
