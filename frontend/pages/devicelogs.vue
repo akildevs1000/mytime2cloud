@@ -308,7 +308,21 @@
               {{ item.device ? caps(item.device.name) : "---" }}
             </template>
             <template v-slot:item.gps_location="{ item }">
-              {{ item.gps_location || "---" }}
+              <!-- {{ item.gps_location || "---" }} -->
+
+              <div v-if="item.device.device_type == 'Mobile'">
+                <div>GPS</div>
+                <div class="secondary-value">
+                  {{ item.gps_location ? "GPS:" + item.gps_location : "---" }}
+                </div>
+              </div>
+              <div v-else>
+                {{
+                  item.device && item.device.location
+                    ? item.device.location
+                    : "---"
+                }}
+              </div>
             </template>
           </v-data-table>
         </v-card>
@@ -470,7 +484,7 @@ export default {
         filterSpecial: true,
       },
       {
-        text: "Gps Location",
+        text: "Location",
         align: "left",
         sortable: true,
         key: "gps_location",

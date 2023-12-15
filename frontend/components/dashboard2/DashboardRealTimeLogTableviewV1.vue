@@ -141,7 +141,14 @@
       <template v-slot:item.device.device_name="{ item }">
         <div>
           {{ item.device ? caps(item.device.name) : "---" }} <br />
-          <div class="secondary-value">
+
+          <div
+            class="secondary-value"
+            v-if="item.device.device_type == 'Mobile'"
+          >
+            {{ item.gps_location ? item.gps_location : "---" }}
+          </div>
+          <div v-else class="secondary-value">
             {{
               item.device && item.device.location ? item.device.location : "---"
             }}
