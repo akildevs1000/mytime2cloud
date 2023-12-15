@@ -153,7 +153,33 @@ class AttendanceLogController extends Controller
 
         ];
     }
+    public function readLastAttendanceLogTime($employee_id)
+    {
 
+
+        // Reading the serialized data from the file
+        $infotxt = file_get_contents(storage_path('app') . '' . '/attendance-last-logtime-employeeid.txt');
+
+        // Unserializing data back into an array
+        $info = unserialize($infotxt);
+
+        return  isset($info[$employee_id]) ? $info[$employee_id] : '';
+    }
+    public function writeLastAttendanceLogTime($employee_id, $date)
+    {
+
+        $infotxt = file_get_contents(storage_path('app') . '' . '/attendance-last-logtime-employeeid.txt');
+
+        // Unserializing data back into an array
+        $store = unserialize($infotxt);
+
+        $store[$employee_id] = $date; // Default value for 'name'
+
+        // Writing serialized array to file
+        $fp = fopen(storage_path('app') . '' . '/attendance-last-logtime-employeeid.txt', 'w');
+        fwrite($fp, serialize($store));
+        fclose($fp);
+    }
     public function store()
     {
         $result = $this->handleFile();
@@ -169,13 +195,19 @@ class AttendanceLogController extends Controller
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
-            $records[] = [
-                "UserID" => $columns[0],
-                "DeviceID" => $columns[1],
-                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                "SerialNumber" => $columns[3]
-            ];
+            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+
+            if (!$isDuplicateLogTime) {
+                $records[] = [
+                    "UserID" => $columns[0],
+                    "DeviceID" => $columns[1],
+                    "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
+                    "SerialNumber" => $columns[3]
+                ];;
+            }
         }
+
+
 
         try {
             AttendanceLog::insert($records);
@@ -194,6 +226,30 @@ class AttendanceLogController extends Controller
             // ];
             // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
         }
+    }
+
+    public function verifyDuplicateLog($columns)
+    {
+        $timeDiff = 30;
+        if (env("LOGTIME_DUPLICATE_THRESHHOLD") != null) {
+            $timeDiff = env("LOGTIME_DUPLICATE_THRESHHOLD");
+        }
+        $isDuplicateLogTime = false;
+        $currentLogTime =  (substr(str_replace("T", " ", $columns[2]), 0, 19));
+        $previousLogTime = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);
+        if ($previousLogTime != '') {
+            strtotime($currentLogTime) - strtotime($previousLogTime);
+            if (strtotime($currentLogTime) - strtotime($previousLogTime) <= $timeDiff) {
+                $isDuplicateLogTime = true;
+            } else {
+                $this->writeLastAttendanceLogTime($columns[1] . '-' . $columns[0], substr(str_replace("T", " ", $columns[2]), 0, 19));
+            }
+        } else {
+            $this->writeLastAttendanceLogTime($columns[1] . '-' . $columns[0], substr(str_replace("T", " ", $columns[2]), 0, 19));
+        }
+
+
+        return $isDuplicateLogTime;
     }
 
     public function singleView(AttendanceLog $model, Request $request)

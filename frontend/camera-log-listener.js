@@ -239,7 +239,9 @@ function formatdate(originalDateTime) {
     " " +
     String(date.getHours()).padStart(2, "0") +
     ":" +
-    String(date.getMinutes()).padStart(2, "0");
+    String(date.getMinutes()).padStart(2, "0") +
+    ":" +
+    String(date.getSeconds()).padStart(2, "0");
 
   return formattedDateTime;
 }
@@ -300,7 +302,19 @@ function getTime2() {
   // prints date in YYYY-MM-DD format
   //logConsoleStatus(year + "-" + month + "-" + date);
   // prints date & time in YYYY-MM-DD HH:MM:SS format
-  return year + "-" + month + "-" + date + " " + hours + ":" + minutes;
+  return (
+    year +
+    "-" +
+    month +
+    "-" +
+    date +
+    " " +
+    hours +
+    ":" +
+    minutes +
+    ":" +
+    seconds
+  );
 }
 function getTime() {
   let date_ob = new Date();

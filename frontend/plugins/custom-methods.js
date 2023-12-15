@@ -95,8 +95,8 @@ export default ({ app }, inject) => {
       const hour = timeParts[0];
       const minutes = timeParts[1];
 
-      console.log(`Hour: ${hour}`);
-      console.log(`Minutes: ${minutes}`);
+      // console.log(`Hour: ${hour}`);
+      // console.log(`Minutes: ${minutes}`);
       return `${hour}:${minutes}`;
     },
     format_month_name_year: (inputdate) => {

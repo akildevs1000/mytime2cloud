@@ -50,24 +50,23 @@
     <ComonPreloader icon="face-scan" v-if="loading" />
 
     <v-data-table
-      style="overflow-y: scroll"
       dense
       :headers="headers_table"
-      :items="logs.data"
+      :items="logs"
       model-value="data.id"
       :loading="tableloading"
       :options.sync="options"
       :footer-props="{
         itemsPerPageOptions: [5, 10],
       }"
-      class="elevation-0"
+      class="elevation-0 logtable"
       :server-items-length="totalRowsCount"
     >
       <template v-slot:item.sno="{ item, index }">
         {{
           currentPage
             ? (currentPage - 1) * perPage +
-              (cumulativeIndex + logs.data.indexOf(item))
+              (cumulativeIndex + logs.indexOf(item))
             : ""
         }}
       </template>
@@ -142,7 +141,14 @@
       <template v-slot:item.device.device_name="{ item }">
         <div>
           {{ item.device ? caps(item.device.name) : "---" }} <br />
-          <div class="secondary-value">
+
+          <div
+            class="secondary-value"
+            v-if="item.device.device_type == 'Mobile'"
+          >
+            {{ item.gps_location ? item.gps_location : "---" }}
+          </div>
+          <div v-else class="secondary-value">
             {{
               item.device && item.device.location ? item.device.location : "---"
             }}
@@ -261,6 +267,7 @@ export default {
         total: 0,
         per_page: 10,
       },
+      devices_list: [],
     };
   },
   watch: {
@@ -285,19 +292,50 @@ export default {
 
     //this.getRecords();
   },
-  created() {},
+  created() {
+    let payload = {
+      params: {
+        company_id: this.$auth.user.company_id,
+      },
+    };
+    //this.devices_list = this.$store.dispatch("devices_list", options);
+    this.$axios.get(`device-list`, payload).then(({ data }) => {
+      this.devices_list = data;
+    });
+  },
   computed: {
     employees() {
+      // return this.$store.state.employeeList.map((e) => ({
+      //   system_user_id: e.system_user_id,
+      //   first_name: e.first_name,
+      //   last_name: e.last_name,
+      //   display_name: e.display_name,
+      // }));
       return this.$store.state.employeeList.map((e) => ({
-        system_user_id: e.system_user_id,
-        first_name: e.first_name,
-        last_name: e.last_name,
-        display_name: e.display_name,
+        employee: {
+          profile_picture: e.profile_picture,
+          first_name: e.first_name,
+          last_name: e.last_name,
+          designation: e.designation,
+          department: e.department,
+          sub_department: e.sub_department,
+          UserID: e.user_id,
+          employee_id: e.employee_id,
+          system_user_id: e.system_user_id,
+        },
       }));
     },
     devices() {
       if (this.$store.state.devices)
         return this.$store.state.devices.map((e) => e.device_id);
+      else {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+          },
+        };
+        return this.$store.dispatch("devices_list", options);
+      }
     },
   },
   methods: {
@@ -308,7 +346,6 @@ export default {
       this.dialogEmployeeAttendance = true;
       this.componentKey = this.componentKey + 1;
       this.system_user_id = system_user_id;
-      console.log(this.system_user_id, this.componentKey);
     },
     caps(str) {
       if (str == "" || str == null) {
@@ -319,9 +356,9 @@ export default {
         return str.includes(`Mobile`) ? "Mobile" : str;
       }
     },
-    getRecords() {
+    getRecords(socket = false) {
       this.tableloading = true;
-      this.loading = true;
+      if (!socket) this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
@@ -340,26 +377,26 @@ export default {
 
       this.currentPage = page;
       this.perPage = itemsPerPage;
-      if (page == 1) {
-        if (this.$store.state.dashboard.recent_logs) {
-          this.loading = false;
-          this.tableloading = false;
-          this.logs = this.$store.state.dashboard.recent_logs;
+      // if (page == 1 && !socket) {
+      //   if (this.$store.state.dashboard.recent_logs) {
+      //     this.loading = false;
+      //     this.tableloading = false;
+      //     this.logs = this.$store.state.dashboard.recent_logs;
 
-          this.pagination.current = this.logs.current_page;
-          this.pagination.total = this.logs.last_page;
+      //     this.pagination.current = this.logs.current_page;
+      //     this.pagination.total = this.logs.last_page;
 
-          this.totalRowsCount = this.logs.total;
-          return;
-        }
-      }
+      //     this.totalRowsCount = this.logs.total;
+      //     return;
+      //   }
+      // }
       this.$axios
         .get(
           `device/getLastRecordsHistory/${this.$auth.user.company_id}/10`,
           options
         )
         .then(({ data }) => {
-          this.logs = data;
+          this.logs = data.data;
           this.$store.commit("dashboard/recent_logs", data);
           this.loading = false;
           this.tableloading = false;
@@ -370,66 +407,115 @@ export default {
           this.totalRowsCount = data.total;
         });
     },
-    socketConnection() {
-      this.socket = new WebSocket(this.url);
+    // socketConnection_old() {
+    //   this.socket = new WebSocket(this.url);
 
-      this.socket.onmessage = ({ data }) => {
-        let json = JSON.parse(data);
+    //   this.socket.onmessage = ({ data }) => {
+    //     let json = JSON.parse(data);
+    //     console.log("json.Data.UserCode", data);
+    //     if (json.Status == 200 && json.Data.UserCode > 0) {
+    //       this.getDetails(json.Data);
+    //     }
+    //   };
+    // },
+    // getDetails_old2(item) {
+    //   item.company_id = this.$auth.user.company_id;
 
-        if (json.Status == 200 && json.Data.UserCode > 0) {
-          this.getDetails(json.Data);
-        }
-      };
-    },
+    //   this.$axios.post(`/device/details`, item).then(({ data }) => {
+    //     console.log(data);
+    //     if (
+    //       data.device &&
+    //       this.$auth.user &&
+    //       data.device.company_id == this.$auth.user.company_id
+    //     ) {
+    //       this.logs.data.unshift(data);
+    //     }
+    //   });
+    // },
+
     getDetails(item) {
-      item.company_id = this.$auth.user.company_id;
+      let DeviceId = item.SN;
 
-      this.$axios.post(`/device/details`, item).then(({ data }) => {
-        if (
-          data.device &&
-          this.$auth.user &&
-          data.device.company_id == this.$auth.user.company_id
-        ) {
-          this.logs.data.unshift(data);
+      if (DeviceId != "") {
+        let isCompanyDevice = this.devices_list.filter(
+          (e) => e.device_id == DeviceId
+        );
+
+        if (isCompanyDevice.length > 0) {
+          this.tableloading = true;
+          //this.getRecords(true);
+          try {
+            this.pushSocketEmployeeToTable(item);
+          } catch (e) {
+            //console.log(e);
+          }
+
+          this.tableloading = false;
         }
-      });
+      }
+    },
+    pushSocketEmployeeToTable(item) {
+      //console.log("pushSocketEmployee", item);
+      //--------------------------
+      let UserCode1 = item.UserCode;
+      let SN1 = item.SN;
+      let employee = this.employees.find(
+        (e) => e.employee.system_user_id == UserCode1
+      );
+      let device = this.devices_list.find((e) => e.device_id == SN1);
+
+      let itemTable = {
+        employee: employee.employee,
+        device: { location: device.location, name: device.name },
+        LogTime: this.setTime(item.RecordDate),
+      };
+
+      this.logs = [...this.logs, itemTable];
+      this.logs.unshift(itemTable);
     },
     socketConnection() {
       this.socket = new WebSocket(this.url);
-
+      //console.log("this.$store.state.devices", this.devices);
       this.socket.onmessage = ({ data }) => {
         let json = JSON.parse(data).Data;
-        if (json && json.UserCode > 0) {
+
+        const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
+
+        if (UserCode > 0) {
           this.getDetails(json);
         }
       };
     },
-    getDetails({ SN, RecordImage, UserCode, RecordDate }) {
-      if (this.devices)
-        if (this.devices.includes(SN)) {
-          let employee = this.employees.find(
-            (e) => e.system_user_id == UserCode && e.first_name !== null
-          );
+    // getDetails_Old({ SN, RecordImage, UserCode, RecordDate }) {
+    //   if (this.devices)
+    //     if (this.devices.includes(SN)) {
+    //       let employee = this.employees.find(
+    //         (e) => e.system_user_id == UserCode && e.first_name !== null
+    //       );
 
-          let item = {
-            UserCode,
-            image:
-              "data:image;base64," + RecordImage || "/no-profile-image.jpg",
-            time: this.setTime(RecordDate),
-            name:
-              employee &&
-              (employee.display_name ||
-                employee.first_name ||
-                employee.last_name),
-          };
-          this.logs.unshift(item);
-        }
-    },
+    //       let item = {
+    //         UserCode,
+    //         image:
+    //           "data:image;base64," + RecordImage || "/no-profile-image.jpg",
+    //         time: this.setTime(RecordDate),
+    //         name:
+    //           employee &&
+    //           (employee.display_name ||
+    //             employee.first_name ||
+    //             employee.last_name),
+    //       };
+    //       this.logs.unshift(item);
+    //     }
+    // },
     setTime(dateTimeString) {
-      const dateTime = new Date(dateTimeString);
-      const hours = dateTime.getHours().toString().padStart(2, "0");
-      const minutes = dateTime.getMinutes().toString().padStart(2, "0");
-      return `${hours}:${minutes}`;
+      try {
+        const dateTime = new Date(dateTimeString);
+        const hours = dateTime.getHours().toString().padStart(2, "0");
+        const minutes = dateTime.getMinutes().toString().padStart(2, "0");
+        return `${hours}:${minutes}`;
+      } catch (e) {
+        return "--:--";
+      }
     },
   },
 };

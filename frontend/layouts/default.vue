@@ -1369,6 +1369,11 @@ button {
 /* .no-border:before {
   border-color: #fff !important;
 } */
+
+.logtable .v-data-table__wrapper {
+  height: 670px;
+  overflow-y: scroll;
+}
 </style>
 <!-- <style>
 body {
