@@ -514,6 +514,12 @@ Route::get('/updateCameraDeviceLiveStatus', function () {
     return (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
 });
 
+Route::get('/writeLastAttendanceLogTime', function () {
+    return (new AttendanceLogController)->writeLastAttendanceLogTime('', '');
+});
+Route::get('/verifyDuplicate', function () {
+    return (new AttendanceLogController)->store();
+});
 
 
 Route::get('/nightshift', function () {

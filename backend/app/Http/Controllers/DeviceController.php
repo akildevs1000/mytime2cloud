@@ -147,7 +147,7 @@ class DeviceController extends Controller
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
             $record = $model->create($data);
-
+            $this->updateDevicesJson();
             if ($record) {
                 return $this->response('Device successfully added.', $record, true);
             } else {
@@ -362,6 +362,10 @@ class DeviceController extends Controller
         try {
             $record = $Device->update($request->validated());
 
+
+
+            $this->updateDevicesJson();
+
             if ($record) {
                 return $this->response('Device successfully updated.', $record, true);
             } else {
@@ -370,6 +374,16 @@ class DeviceController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function updateDevicesJson()
+    {
+        $devices = Device::where("device_category_name", "CAMERA")->get();
+
+        $filePath = storage_path('app') . '' . '/devices_list.json';
+
+
+        file_put_contents($filePath, json_encode($devices));
     }
 
     public function destroy(Device $device)
@@ -564,8 +578,10 @@ class DeviceController extends Controller
                 // info($count . "companies has been updated");
             }
         }
-        //update camera devices status 
+
         (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+        //update camera devices status 
+        $online_devices_count = $online_devices_count + (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
 
 
 

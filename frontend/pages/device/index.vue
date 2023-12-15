@@ -600,6 +600,26 @@
               >{{ errors.status_id[0] }}
             </span>
           </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
+              :hide-details="!payload.camera_save_images"
+              v-model="payload.camera_save_images"
+              placeholder="Camera Unregistred Images"
+              outlined
+              dense
+              label="Camera Unregistred Images"
+              :items="[
+                { id: false, name: 'No' },
+                { id: true, name: 'Yes' },
+              ]"
+              item-value="id"
+              item-text="name"
+            ></v-autocomplete>
+            <span v-if="errors && errors.camera_save_images" class="error--text"
+              >{{ errors.camera_save_images[0] }}
+            </span>
+          </v-col>
         </v-row>
       </v-form>
       <v-row v-if="response">
@@ -1034,6 +1054,7 @@ export default {
       short_name: "",
       ip: "",
       port: "",
+      camera_save_images: false,
     },
     Model: "Device",
     pagination: {
@@ -1614,6 +1635,7 @@ export default {
       this.editedIndex = item.id;
 
       this.payload = Object.assign({}, item);
+
       this.popupDeviceId = item.device_id;
 
       this.editDialog = true;

@@ -399,11 +399,13 @@ class VisitorController extends Controller
         return $returnArray;
     }
 
-    public function getUnknownVisitorsList()
+    public function getUnknownVisitorsList(Request $request)
     {
-        $currentDate = Carbon::now();
+        $devicesList = Device::where('company_id', $request->company_id)->where("device_category_name", "CAMERA")->get()->all();
 
-        $date = date('Y-m-d') . ' ' . date('H');
+        $date = date('Y-m-d'); //. ' ' . date('H');
+
+        if ($request->filled('from_date'))  $date = $request->from_date;
 
         $retunFiles = [];
         $directory = '../public/camera-unregsitered-faces-logs/'; // Replace this with your folder path
@@ -415,13 +417,47 @@ class VisitorController extends Controller
                 $position = strpos($file, $date);
 
                 if ($position !== false) {
-                    $retunFiles[] = ["url" => asset("camera-unregsitered-faces-logs/" . $file), "name" => $file];;
+
+                    $fileArray = explode("_", $file);
+
+                    $deviceName = $this->getDeviceName($devicesList, $fileArray[0]);
+                    $retunFiles[] = [
+                        "url" => asset("camera-unregsitered-faces-logs/" . $file),
+                        "device_id" => $fileArray[0],
+                        "device_name" => isset($deviceName[0]) ? $deviceName[0]['name'] : '',
+                        "time" => $fileArray[3],
+                        "name" => $file,
+                    ];;
                 } else {
                 }
             }
         }
 
         return $retunFiles;
+    }
+
+    public function getDeviceName($data, $device_id)
+    {
+
+
+        $filteredData = array_filter($data, function ($item) use ($device_id) {
+            // Define the key-value pairs to filter
+            $filterCriteria = array(
+                'device_id' => $device_id,
+
+            );
+
+            // Check if all the filter criteria match in the nested array
+            foreach ($filterCriteria as $key => $value) {
+                if (!isset($item[$key]) || $item[$key] !== $value) {
+                    return false;
+                }
+            }
+
+            return true; // All filter criteria matched
+        });
+
+        return $filteredData;
     }
     public function updateVisitorToZone(Request $request)
     {

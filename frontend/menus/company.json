@@ -347,6 +347,13 @@
     "module": "visitors"
   },
   {
+    "icon": "mdi-account-question-outline",
+    "title": "Unknown",
+    "to": "/visitor/unknown",
+    "menu": "visitors_access",
+    "module": "visitors"
+  },
+  {
     "icon": "mdi-clock-time-four-outline",
     "title": "Attendance",
     "to": "/attendance_report",

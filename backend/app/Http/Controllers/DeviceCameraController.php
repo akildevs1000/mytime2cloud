@@ -21,7 +21,7 @@ class DeviceCameraController extends Controller
     }
     public function updateCameraDeviceLiveStatus()
     {
-
+        $online_devices_count = 0;
         $devices = Device::where('device_category_name', "CAMERA");
 
         $devices->clone()->update(["status_id" => 2]);
@@ -38,19 +38,21 @@ class DeviceCameraController extends Controller
                 $devicesInfo = $this->curlPost('/ISAPI/DeviceInfo?ID=' . $sessionId, ' ');
 
                 $xml = simplexml_load_string($devicesInfo);
-                $MACAddress = (string) $xml->MACAddress;
-                if ($MACAddress != '') {
+                $DeviceID = (string) $xml->DeviceID;
+                if ($DeviceID != '') {
 
-                    Device::where("device_id", $MACAddress)->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+                    Device::where("device_id", $DeviceID)->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
 
-
-                    Log::channel("camerasdk")->info($MACAddress . " - Live status updated");
-                    return $MACAddress . " - Live status updated";
+                    $online_devices_count++;
+                    Log::channel("camerasdk")->info($DeviceID . " - Live status updated");
+                    //return $MACAddress . " - Live status updated";
                 }
             } else {
-                return $sessionResponse['message'];
+                //return $sessionResponse['message'];
             }
         }
+
+        return  $online_devices_count;
     }
 
     public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)

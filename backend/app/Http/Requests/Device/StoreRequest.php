@@ -54,6 +54,7 @@ class StoreRequest extends FormRequest
             'function' => 'required',
             'utc_time_zone' => 'required',
             'branch_id' => 'required',
+            'camera_save_images' => 'required'
 
         ];
     }

@@ -22,23 +22,14 @@ const server = net.createServer((socket) => {
   const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   //let GlobalformattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
-  var socketData = "";
+
   socket.on("data", (data) => {
+    let TodayDatetime = getTime();
     try {
-      let TodayDatetime = getTime();
       const filePath = "../camera-xml-logs/camera-log" + TodayDatetime + ".txt";
 
       xmlData = data.toString(); // Append data to the image data string
       saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime);
-
-      // let current = new Date().getTime();
-      // if (current - start <= 10000) {
-      //   socketData = socketData + xmlData;
-      // } else {
-      //   start = new Date().getTime();
-      //   saveXMlToLog(filePath, socketData);
-      //   saveRegisteredMemberstoCSV(socketData, logFilePath, TodayDatetime);
-      // }
     } catch (error) {
       console.error("Error processing Data: " + TodayDatetime);
       logConsoleStatus("Error" + error);
@@ -52,6 +43,25 @@ console.log(getTime2());
 const PORT = 4802; // Port on which the server will listen
 server.listen(PORT, () => {
   logConsoleStatus(`Server is listening on port ${PORT}`);
+
+  // //tsting
+  // const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
+
+  // let filePath = "../camera-xml-logs/camera-log2023-12-14 23-59-30.txt";
+  // let TodayDatetime = getTime();
+  // fs.readFile(filePath, "utf8", (err, data) => {
+  //   try {
+  //     const filePath = "../camera-xml-logs/camera-log" + TodayDatetime + ".txt";
+
+  //     xmlData = data.toString(); // Append data to the image data string
+  //     saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime);
+  //   } catch (error) {
+  //     console.error("Error processing Data: " + TodayDatetime);
+  //     logConsoleStatus("Error" + error);
+  //   }
+  // });
+
+  // //  tester
 });
 
 function saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime) {
@@ -63,81 +73,103 @@ function saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime) {
     }
   });
 }
-function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime) {
+function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
   logConsoleStatus(`${TodayDatetime} - Reading  unregistered member`);
 
-  // Regular expression to match content between <?xml version="1.0" encoding="utf-8"?> and </DetectedFaceList>
+  let StoragePermission = getPicStoragePermission(deviceId);
 
-  let firsttag = `<?xml version="1.0" encoding="utf-8"?><DetectedFaceList>`;
-  let endTag = `</DetectedFaceList>`;
-  let regex = /<DetectedFaceList>([\s\S]*?)<\/DetectedFaceList>/g;
-  let matches;
-  while ((matches = regex.exec(xmlData)) !== null) {
-    const contentBetweenTags = matches[1];
-    logConsoleStatus(`${TodayDatetime} - XML content reading started`);
-    if (contentBetweenTags) {
-      let xmlString = firsttag + contentBetweenTags + endTag;
+  if (StoragePermission) {
+    // Regular expression to match content between <?xml version="1.0" encoding="utf-8"?> and </DetectedFaceList>
 
-      // Parsing the XML string
-      xml2js.parseString(xmlString, (err, result) => {
-        if (err) {
-          console.error("Error parsing XML:", err);
-          logConsoleStatus(`${TodayDatetime} - Error parsing XML: ${err}  `);
-        } else {
-          const DeviceID = result.DetectedFaceList.DeviceID[0];
-          const FaceId = result.DetectedFaceList.Face_0[0].FaceID[0];
-          const Snapshot = result.DetectedFaceList.Face_0[0].Snapshot[0];
-          const SnapshotNum = result.DetectedFaceList.Face_0[0].SnapshotNum[0];
-          const Quality = result.DetectedFaceList.Face_0[0].Quality[0];
+    let firsttag = `<?xml version="1.0" encoding="utf-8"?><DetectedFaceList>`;
+    let endTag = `</DetectedFaceList>`;
+    let regex = /<DetectedFaceList>([\s\S]*?)<\/DetectedFaceList>/g;
+    let matches;
+    while ((matches = regex.exec(xmlData)) !== null) {
+      const contentBetweenTags = matches[1];
+      logConsoleStatus(`${TodayDatetime} - XML content reading started`);
+      if (contentBetweenTags) {
+        let xmlString = firsttag + contentBetweenTags + endTag;
 
-          if (Quality >= 0.9) {
-            logConsoleStatus(
-              `${TodayDatetime} - Saved unregistered member - Face Id:  ${FaceId} - Quality:${Quality}`
-            );
-
-            // Example: Log the extracted values
-
-            logConsoleStatus("FaceId:", FaceId);
-            logConsoleStatus("Device ID:", DeviceID);
-
-            let pictureName =
-              DeviceID +
-              "_" +
-              FaceId +
-              "_" +
-              SnapshotNum +
-              "_" +
-              TodayDatetime +
-              "_.jpg";
-            // Convert base64 to a Buffer
-            const buffer = Buffer.from(Snapshot, "base64");
-
-            // Write the Buffer content to an image file
-            fs.writeFileSync(
-              "../backend/public/camera-unregsitered-faces-logs/" + pictureName,
-              buffer
-            );
+        // Parsing the XML string
+        xml2js.parseString(xmlString, (err, result) => {
+          if (err) {
+            console.error("Error parsing XML:", err);
+            logConsoleStatus(`${TodayDatetime} - Error parsing XML: ${err}  `);
           } else {
-            logConsoleStatus(
-              "No image saved due to lessthan 90% quality",
-              Quality
-            );
-          }
-        }
-      });
+            const DeviceID = result.DetectedFaceList.DeviceID[0];
+            const FaceId = result.DetectedFaceList.Face_0[0].FaceID[0];
+            const Snapshot = result.DetectedFaceList.Face_0[0].Snapshot[0];
+            const SnapshotNum =
+              result.DetectedFaceList.Face_0[0].SnapshotNum[0];
+            const Quality = result.DetectedFaceList.Face_0[0].Quality[0];
 
-      logConsoleStatus(`${TodayDatetime} - XML content reading completed`);
-    } else {
-      logConsoleStatus(
-        `${TodayDatetime} - Saving unregistered Filed. No Content `
-      );
-    }
+            if (Quality >= 0.9) {
+              logConsoleStatus(
+                `${TodayDatetime} - Saved unregistered member - Face Id:  ${FaceId} - Quality:${Quality}`
+              );
+
+              // Example: Log the extracted values
+
+              logConsoleStatus("FaceId:", FaceId);
+              logConsoleStatus("Device ID:", DeviceID);
+
+              let pictureName =
+                DeviceID +
+                "_" +
+                FaceId +
+                "_" +
+                SnapshotNum +
+                "_" +
+                TodayDatetime +
+                "_.jpg";
+              // Convert base64 to a Buffer
+              const buffer = Buffer.from(Snapshot, "base64");
+
+              // Write the Buffer content to an image file
+              fs.writeFileSync(
+                "../backend/public/camera-unregsitered-faces-logs/" +
+                  pictureName,
+                buffer
+              );
+            } else {
+              logConsoleStatus(
+                "No image saved due to lessthan 90% quality",
+                Quality
+              );
+            }
+          }
+        });
+
+        logConsoleStatus(`${TodayDatetime} - XML content reading completed`);
+      } else {
+        logConsoleStatus(
+          `${TodayDatetime} - Saving unregistered Filed. No Content `
+        );
+      }
+    } //whilre
+  } else {
+    logConsoleStatus(`${TodayDatetime} - No permission to save unregistered`);
   }
 
   // } catch (error) {
   //   console.error("Error while saving image:" + TodayDatetime);
   //   logConsoleStatus("Error" + error);
   // }
+}
+
+async function getPicStoragePermission(device_id) {
+  // Example usage
+
+  const content = fs.readFileSync(
+    "../backend/storage/app/devices_list.json",
+    "utf8"
+  );
+
+  let data1 = JSON.parse(content);
+  let specificValue = data1.find((e) => e.device_id == device_id);
+
+  return specificValue ? specificValue.camera_save_images : false;
 }
 
 function getDate() {
@@ -169,17 +201,19 @@ function saveRegisteredMemberstoCSV(
 
     let RegisterIdArray = checkMultipleOccurrences(xmlData, "RegisteredID");
     let macArray = checkMultipleOccurrences(xmlData, "MACAddress");
+    let DeviceIDArray = checkMultipleOccurrences(xmlData, "DeviceID");
     let CardNumArray = checkMultipleOccurrences(xmlData, "CardNum");
     let TimeArray = checkMultipleOccurrences(xmlData, "Time");
     let arrayCounter = 0;
 
     if (CardNumArray.length == 0) {
-      //saveUNRegisteredMemberstoImage(xmlData, TodayDatetime);
+      saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, DeviceIDArray[0]);
     }
     CardNumArray.forEach((element) => {
       try {
         let UserCode = CardNumArray[arrayCounter];
         let SN = macArray[arrayCounter];
+        let DeviceID = DeviceIDArray[arrayCounter];
         let RecordDate = getTime2();
 
         if (TimeArray.length == 0) {
@@ -194,7 +228,7 @@ function saveRegisteredMemberstoCSV(
         let RecordNumber = RegisterIdArray[arrayCounter];
 
         if (UserCode > 0) {
-          const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber}`;
+          const logEntry = `${UserCode},${DeviceID},${RecordDate},${RecordNumber}`;
           fs.appendFileSync(logFilePath, logEntry + "\n");
 
           logConsoleStatus("Registered Log recorded " + logEntry);

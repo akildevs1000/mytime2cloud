@@ -42,7 +42,8 @@ class UpdateRequest extends FormRequest
             'function' => 'required',
             'utc_time_zone' => 'required',
             'branch_id' => 'required',
-            'serial_number' => 'required'
+            'serial_number' => 'required',
+            'camera_save_images' => 'required'
         ];
     }
 }
