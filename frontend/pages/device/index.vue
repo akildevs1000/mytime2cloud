@@ -173,6 +173,9 @@
                         <div v-if="loadingDeviceData" style="color: red">
                           Connecting to Device. Please wait...
                         </div>
+                        <div style="color: green">
+                          {{ sdk_message }}
+                        </div>
                       </td>
                     </tr>
                     <tr>
@@ -948,12 +951,14 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="can(`device_edit`)"
+                v-if="
+                  can(`device_edit`) && item.device_category_name != 'CAMERA'
+                "
                 @click="showDeviceSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
-                  Device Settings
+                  Settings
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
@@ -991,7 +996,7 @@ export default {
       (v) => !!v || "Password is required",
       (value) => (value || "").length <= 8 || "Max 8 characters",
     ],
-
+    sdk_message: "",
     DialogDeviceSettings: false,
     deviceSettings: { maker: {} },
     to_menu_filter: false,
@@ -1280,6 +1285,8 @@ export default {
     },
     getDeviceSettginsFromSDK(device_id) {
       if (device_id != "") {
+        this.sdk_message = "";
+        this.deviceSettings = {};
         this.deviceSettings.device_id = device_id;
         this.loadingDeviceData = true;
         let counter = 1;
@@ -1296,6 +1303,7 @@ export default {
           .then(({ data }) => {
             this.loadingDeviceData = false;
 
+            this.sdk_message = data.SDKresponseData.message;
             if (!data.SDKresponseData.data) {
               this.response = "Try again. " + data.message;
               this.snackbar = true;
