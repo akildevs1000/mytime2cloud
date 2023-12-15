@@ -74,8 +74,7 @@
           </v-col> -->
   
           <v-col cols="12" sm="12" md="4" lg="6">
-            <SnippetsCameraV1
-              :defaultImage="`/no-profile-image.jpg`"
+            <SnippetsCamera
               @imageSrc="(e) => (photo = e)"
             />
             <div class="text-center">
