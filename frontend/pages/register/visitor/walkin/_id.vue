@@ -65,7 +65,7 @@
           <div class="text-center">
             <SnippetsCamera
               :defaultImage="`/no-profile-image.jpg`"
-              @imageSrc="(e) => (logo = e)"
+              @imageSrc="(e) => (photo = e)"
             />
             <span v-if="errors && errors.logo" class="text-danger mt-2">{{
               errors.logo[0]
