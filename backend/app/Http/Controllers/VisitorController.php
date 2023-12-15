@@ -319,7 +319,7 @@ class VisitorController extends Controller
         $data['id_copy'] = $this->processImage("media/visitor/id_copy");
         $data['date'] = date("Y-m-d");
         $data['visitor_filled_datetime'] = date("Y-m-d H:i:s");
-        $data['id_copy'] = 'jpg';
+        // $data['id_copy'] = 'jpg';
         $data['status_id'] = 1;
         $data['host_company_id'] = 0;
 
