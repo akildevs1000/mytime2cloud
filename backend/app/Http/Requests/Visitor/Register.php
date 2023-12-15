@@ -42,14 +42,14 @@ class Register extends FormRequest
         $validations['phone_number'] = 'required|string|max:255';
         $validations['email'] = 'nullable|email|max:255';
         $validations['visitor_company_name'] = 'required|string|max:255';
-        $validations['id_type'] = 'required';
-        $validations['id_number'] = 'required|string|max:255';
-        $validations['id_copy'] = 'nullable';
+        $validations['id_type'] = 'nullable';
+        $validations['id_number'] = 'nullable|string|max:255';
         $validations['host_company_id'] = 'nullable';
         $validations['company_id'] = 'required';
         $validations['status_id'] = 'nullable';
 
         $validations['logo'] = 'required';
+        $validations['id_copy'] = 'nullable';
         $validations['date'] = 'required|date';
 
         $validations["time_in"] = "required";
