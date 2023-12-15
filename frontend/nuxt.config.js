@@ -4,7 +4,7 @@ export default {
   buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
   target: "server",
- generate: {
+  generate: {
     // Interval in milliseconds between two render cycles to avoid
     // flooding a potential API with calls from the web application.
     interval: 500,
@@ -124,6 +124,21 @@ export default {
   // serverMiddleware: ['~middleware/verify.js'],
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
+  // pwa: {
+  //   manifest: {
+  //     name: 'MyTime 2 Cloud',
+  //     lang: 'en',
+  //     icons: [
+  //       {
+  //         src: '/icon-512x512.png',
+  //         sizes: '512x512',
+  //         type: 'image/png',
+  //       },
+  //       // Add other sizes and formats as needed
+  //     ],
+  //   },
+  // },
+
   pwa: {
     manifest: {
       name: "MyTime 2 Cloud",
@@ -131,7 +146,7 @@ export default {
       lang: "en",
     },
     icon: {
-      source: "static/icon.png", // Path to your app icon
+      source: "icon-515x512.png", // Path to your app icon
     },
   },
 
@@ -163,7 +178,7 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify", "vue-apexchart"],
-	interval: 500,
+    interval: 500,
   },
 
   server: {
