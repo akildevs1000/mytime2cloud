@@ -313,7 +313,7 @@
               <div v-if="item.device.device_type == 'Mobile'">
                 <div>GPS</div>
                 <div class="secondary-value">
-                  {{ item.gps_location ? "GPS:" + item.gps_location : "---" }}
+                  {{ item.gps_location ? item.gps_location : "---" }}
                 </div>
               </div>
               <div v-else>
