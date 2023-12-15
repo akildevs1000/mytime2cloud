@@ -63,12 +63,14 @@ class AttendanceController extends Controller
 
         foreach ($employees as $employee) {
 
-            foreach (range(1, $daysInMonth) as $day) {
+
+
+            foreach (range(16, $daysInMonth) as $day) {
                 $data[] = [
                     "date" => date("Y-m-") . sprintf("%02d", date($day)),
                     "employee_id" => $employee->system_user_id,
-                    "shift_id" => 0,
-                    "shift_type_id" => 1,
+                    "shift_id" => $employee->schedule ? $employee->schedule->shift_id : 0,
+                    "shift_type_id" => $employee->schedule ? $employee->schedule->shift_type_id : 0,
                     "status" => "A",
                     "in" => "---",
                     "out" => "---",
@@ -85,7 +87,7 @@ class AttendanceController extends Controller
                 ];
             }
         }
-
+        return $data;
         $chunks = array_chunk($data, 100);
 
         $insertedCount = 0;

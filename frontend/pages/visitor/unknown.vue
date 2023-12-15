@@ -138,7 +138,7 @@
                 >
                   <v-img
                     style="
-                      border-radius: 50%;
+                      border-radius: 10%;
                       height: auto;
                       width: 100px;
                       max-width: 100px;
@@ -307,6 +307,10 @@ export default {
     this.from_date = `${y}-${m}-${dt.getDate()}`;
     this.to_date = `${y}-${m}-${dt.getDate()}`;
     this.getDataFromApi();
+
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 10);
   },
 
   methods: {

@@ -149,7 +149,9 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
       }
     } //whilre
   } else {
-    logConsoleStatus(`${TodayDatetime} - No permission to save unregistered`);
+    logConsoleStatus(
+      `${TodayDatetime} - -------- No permission to save unregistered`
+    );
   }
 
   // } catch (error) {
@@ -158,7 +160,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
   // }
 }
 
-async function getPicStoragePermission(device_id) {
+function getPicStoragePermission(device_id) {
   // Example usage
 
   const content = fs.readFileSync(
