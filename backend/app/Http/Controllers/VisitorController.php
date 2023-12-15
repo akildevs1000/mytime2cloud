@@ -411,8 +411,17 @@ class VisitorController extends Controller
         $directory = '../public/camera-unregsitered-faces-logs/'; // Replace this with your folder path
 
         $files = scandir($directory);
-
+        $fileTimes = [];
         foreach ($files as $file) {
+            $filePath = $directory . '/' . $file;
+            $fileTimes[$file] = filemtime($filePath); // Use filectime() for file creation time
+        }
+
+        // Sort the files based on their modification times
+        arsort($fileTimes);
+
+
+        foreach ($fileTimes as $file => $key) {
             if ($file !== '.' && $file !== '..') {
                 $position = strpos($file, $date);
 
