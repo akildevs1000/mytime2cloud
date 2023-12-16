@@ -268,18 +268,13 @@ class PayslipController extends Controller
     {
         // return $this->generateWithEmployeeids($request);
         //code...
-        $Payroll = Payroll::where([
-            "employee_id" => $id,
-            "company_id" => $request->company_id,
-            "branch_id" => $request->branch_id,
-        ])
-            ->with(["payroll_formula", "company"])
+
+        $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "payroll_formula"])
             ->with(["employee" => function ($q) {
-                $q->withOut("user");
+                $q->withOut(["user","schedule"]);
             }])
             ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
-            
-        $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y") ?? "---";
+        $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
 
         $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
 
