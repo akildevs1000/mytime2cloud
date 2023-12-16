@@ -84,11 +84,11 @@
                 </tr>
                 <tr>
                     <td>Department</td>
-                    <td style="text-align: right;">{{ $data->department->name ?? '---' }}</td>
+                    <td style="text-align: right;">{{ $data->employee->department->name ?? '---' }}</td>
                 </tr>
                 <tr>
                     <td style="">Designation</td>
-                    <td style="text-align: right; ;">{{ $data->designation->name ?? '---' }}</td>
+                    <td style="text-align: right; ;">{{ $data->employee->designation->name ?? '---' }}</td>
                 </tr>
             </table>
         </div>
@@ -118,6 +118,11 @@
                 <tr>
                     <td style="">Absent</td>
                     <td style="text-align: right; ">{{ $data->absent }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="">Missing</td>
+                    <td style="text-align: right; ">{{ $data->missing }}
                     </td>
                 </tr>
             </table>
