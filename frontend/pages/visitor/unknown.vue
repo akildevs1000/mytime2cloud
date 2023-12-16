@@ -49,9 +49,7 @@
             <!-- <v-tooltip top color="primary">
                   <template v-slot:activator="{ on, attrs }"> -->
 
-            <v-spacer></v-spacer>
-
-            <span class="mt-14">
+            <span class="mt-8 ml-5">
               <v-menu
                 width="80px!important"
                 ref="from_menu_filter"
@@ -105,6 +103,8 @@
                 :height="'28px '"
               /> -->
             </span>
+
+            <v-spacer></v-spacer>
           </v-toolbar>
 
           <v-data-table
