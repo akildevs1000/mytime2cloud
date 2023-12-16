@@ -701,7 +701,8 @@ export default {
   },
   methods: {
     gotoHomePage() {
-      location.href = process.env.APP_URL + "/dashboard2";
+      //location.href = process.env.APP_URL + "/dashboard2";
+      location.href = location.href; // process.env.APP_URL + "/dashboard2";
     },
     loadNotificationMenu() {
       let options = {
