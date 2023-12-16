@@ -86,7 +86,7 @@
                     Department
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    {{ (data.department && data.department.name) || "---" }}
+                    {{ (employee.department && employee.department.name) || "---" }}
                   </td>
                 </tr>
                 <tr>
@@ -94,7 +94,7 @@
                     Designation
                   </th>
                   <td style="text-align: right; border-bottom: 1px solid #ccc">
-                    {{ (data.designation && data.designation.name) || "---" }}
+                    {{ (employee.designation && employee.designation.name) || "---" }}
                   </td>
                 </tr>
               </table>
