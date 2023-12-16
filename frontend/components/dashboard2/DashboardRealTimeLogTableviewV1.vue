@@ -358,6 +358,7 @@ export default {
     },
     getRecords(socket = false) {
       this.tableloading = true;
+      this.loading = true;
       if (!socket) this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
