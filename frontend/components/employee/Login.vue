@@ -52,89 +52,94 @@
         </v-dialog>
         <v-row>
           <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label"
+            <v-row
+              ><v-col cols="12">
+                <!-- <label class="col-form-label"
               >Employee Roll(Admin App Access)
-            </label>
-            <v-autocomplete
-              :items="[{ name: 'No Access', id: 0 }, ...roles]"
-              item-text="name"
-              item-value="id"
-              placeholder="Select"
-              v-model="employee.employee_role_id"
-              :hide-details="!errors.employee_role_id"
-              :error="errors.employee_role_id"
-              :error-messages="
-                errors && errors.employee_role_id
-                  ? errors.employee_role_id[0]
-                  : ''
-              "
-              dense
-              outlined
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label"
-              >Email<span class="text-danger">*</span></label
-            >
-            <v-text-field
-              dense
-              outlined
-              :hide-details="!errors.email"
-              type="text"
-              v-model="employee.email"
-              :error="errors.email"
-              :error-messages="errors && errors.email ? errors.email[0] : ''"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col md="6" sm="6" cols="6" dense>
-            <label class="col-form-label">Password</label>
-            <v-text-field
-              dense
-              outlined
-              :hide-details="!errors.password"
-              type="text"
-              v-model="employee.password"
-              :error="errors.password"
-              :error-messages="
-                errors && errors.password ? errors.password[0] : ''
-              "
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col md="6" sm="6" cols="4" dense>
-            <label class="col-form-label">Confirm Password</label>
-            <v-text-field
-              dense
-              outlined
-              :hide-details="!errors.password_confirmation"
-              type="text"
-              v-model="employee.password_confirmation"
-              :error="errors.password_confirmation"
-              :error-messages="
-                errors && errors.password_confirmation
-                  ? errors.password_confirmation[0]
-                  : ''
-              "
-            ></v-text-field>
-          </v-col>
-        </v-row>
+            </label> -->
+                <v-autocomplete
+                  label="Employee Roll(Admin Application Access)"
+                  :items="[{ name: 'No Access', id: 0 }, ...roles]"
+                  item-text="name"
+                  item-value="id"
+                  placeholder="Select"
+                  v-model="employee.employee_role_id"
+                  :hide-details="!errors.employee_role_id"
+                  :error="errors.employee_role_id"
+                  :error-messages="
+                    errors && errors.employee_role_id
+                      ? errors.employee_role_id[0]
+                      : ''
+                  "
+                  dense
+                  outlined
+                ></v-autocomplete>
+              </v-col>
 
-        <v-row>
-          <v-col cols="12" class="text-right">
-            <v-btn
-              v-if="can('employee_edit')"
-              small
-              :loading="loading"
-              color="primary"
-              @click="submit"
-            >
-              Submit
-            </v-btn>
+              <v-col md="12" sm="12" cols="12" dense>
+                <!-- <label class="col-form-label"
+              >Email<span class="text-danger">*</span></label
+            > -->
+                <v-text-field
+                  label="Email"
+                  dense
+                  outlined
+                  :hide-details="!errors.email"
+                  type="text"
+                  v-model="employee.email"
+                  :error="errors.email"
+                  :error-messages="
+                    errors && errors.email ? errors.email[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col md="12" sm="12" cols="12" dense>
+                <!-- <label class="col-form-label">Password</label> -->
+                <v-text-field
+                  label="Password"
+                  dense
+                  outlined
+                  :hide-details="!errors.password"
+                  type="text"
+                  v-model="employee.password"
+                  :error="errors.password"
+                  :error-messages="
+                    errors && errors.password ? errors.password[0] : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col md="12" sm="12" cols="12" dense>
+                <!-- <label class="col-form-label">Confirm Password</label> -->
+                <v-text-field
+                  label="Confirm Password"
+                  dense
+                  outlined
+                  :hide-details="!errors.password_confirmation"
+                  type="text"
+                  v-model="employee.password_confirmation"
+                  :error="errors.password_confirmation"
+                  :error-messages="
+                    errors && errors.password_confirmation
+                      ? errors.password_confirmation[0]
+                      : ''
+                  "
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  v-if="can('employee_edit')"
+                  small
+                  :loading="loading"
+                  color="primary"
+                  @click="submit"
+                >
+                  Submit
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-card-text>

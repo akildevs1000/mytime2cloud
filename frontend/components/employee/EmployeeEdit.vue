@@ -49,10 +49,11 @@
           <v-col md="6" sm="12" cols="12" dense>
             <v-row>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >Title <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-select
+                  label="Title"
                   v-model="employee.title"
                   :items="titleItems"
                   :hide-details="!errors.title"
@@ -65,10 +66,11 @@
                 ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >Display Name <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-text-field
+                  label="Display Name"
                   dense
                   outlined
                   :hide-details="!errors.display_name"
@@ -80,10 +82,11 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >First Name <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-text-field
+                  label="First Name "
                   dense
                   outlined
                   :hide-details="!errors.first_name"
@@ -96,10 +99,11 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" sm="12" cols="12" dense>
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >Last Name <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-text-field
+                  label="Last Name"
                   dense
                   outlined
                   :hide-details="!errors.last_name"
@@ -112,10 +116,11 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" cols="12" sm="12" dense>
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >Employee ID <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-text-field
+                  label="Employee ID"
                   dense
                   outlined
                   type="text"
@@ -128,10 +133,11 @@
                 ></v-text-field>
               </v-col>
               <v-col md="6" cols="12" sm="12" dense>
-                <label class="col-form-label"
+                <!-- <label class="col-form-label"
                   >Employee Device Id <span class="text-danger">*</span></label
-                >
+                > -->
                 <v-text-field
+                  label="Employee Device Id"
                   dense
                   outlined
                   type="text"
@@ -146,15 +152,14 @@
                 ></v-text-field>
               </v-col>
               <v-col v-if="isCompany" md="6" sm="12" cols="12">
-                <label class="col-form-label">Branch </label>
+                <!-- <label class="col-form-label">Branch </label> -->
                 <v-select
+                  label="Branch"
                   @change="filterDepartmentsByBranch($event)"
                   v-model="employee.branch_id"
                   :hide-details="!errors.branch_id"
                   :error-messages="
-                    errors && errors.branch_id
-                      ? errors.branch_id[0]
-                      : ''
+                    errors && errors.branch_id ? errors.branch_id[0] : ''
                   "
                   :items="branchesList"
                   dense
@@ -166,8 +171,9 @@
                 </v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Department</label>
+                <!-- <label class="col-form-label">Department</label> -->
                 <v-select
+                  label="Department"
                   @change="filterSubDepartmentsByDepartment($event)"
                   :items="departments"
                   item-text="name"
@@ -185,8 +191,9 @@
                 ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Sub Department </label>
+                <!-- <label class="col-form-label">Sub Department </label> -->
                 <v-select
+                  label="Sub Department "
                   :items="sub_departments"
                   item-text="name"
                   item-value="id"
@@ -204,8 +211,9 @@
                 ></v-select>
               </v-col>
               <v-col md="6" sm="12" cols="12">
-                <label class="col-form-label">Designation </label>
+                <!-- <label class="col-form-label">Designation </label> -->
                 <v-autocomplete
+                  label="Designation "
                   :items="designations"
                   item-text="name"
                   item-value="id"

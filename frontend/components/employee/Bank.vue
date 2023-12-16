@@ -8,141 +8,156 @@
     <v-container>
       <v-row>
         <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">Bank Name</label>
-            <v-text-field
-              dense
-              small
-              outlined
-              type="text"
-              v-model="data.bank_name"
-              class="form-control"
-            ></v-text-field>
-            <span v-if="errors && errors.bank_name" class="text-danger mt-2">{{
-              errors.bank_name[0]
+          <v-row>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Bank Name</label> -->
+                <v-text-field
+                  label="Bank Name"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.bank_name"
+                  class="form-control"
+                ></v-text-field>
+                <span
+                  v-if="errors && errors.bank_name"
+                  class="text-danger mt-2"
+                  >{{ errors.bank_name[0] }}</span
+                >
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Bank Address</label> -->
+                <v-text-field
+                  label="Bank Address"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.address"
+                  class="form-control"
+                ></v-text-field>
+                <span
+                  v-if="errors && errors.address"
+                  class="text-danger mt-2"
+                  >{{ errors.address[0] }}</span
+                >
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Account No</label> -->
+                <v-text-field
+                  label="Account Number"
+                  dense
+                  small
+                  outlined
+                  v-model="data.account_no"
+                  class="form-control"
+                ></v-text-field>
+                <span
+                  type="text"
+                  v-if="errors && errors.account_no"
+                  class="text-danger mt-2"
+                  >{{ errors.account_no[0] }}</span
+                >
+              </div>
+            </v-col>
+
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Account Name</label> -->
+                <v-text-field
+                  label="Account Name"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.account_title"
+                  class="form-control"
+                ></v-text-field>
+                <span
+                  v-if="errors && errors.account_title"
+                  class="text-danger mt-2"
+                  >{{ errors.account_title[0] }}</span
+                >
+              </div>
+            </v-col>
+
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label> IBAN</label> -->
+                <v-text-field
+                  label="IBAN"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.iban"
+                  class="form-control"
+                ></v-text-field>
+                <span v-if="errors && errors.iban" class="text-danger mt-2">{{
+                  errors.iban[0]
+                }}</span>
+              </div>
+            </v-col>
+
+            <!-- <v-col cols="12">
+              <a href="#" @click="add_other_bank_info = !add_other_bank_info">{{
+                `${add_other_bank_info ? "hide" : "show"} Other Field`
+              }}</a>
+            </v-col> -->
+            <v-col cols="6"> </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Other Text</label> -->
+                <v-text-field
+                  label="Extra Text"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.other_text"
+                  class="form-control"
+                ></v-text-field>
+                <span v-if="errors && errors.other_text" class="text-danger">{{
+                  errors.other_text[0]
+                }}</span>
+              </div>
+            </v-col>
+
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">Other Value</label> -->
+                <v-text-field
+                  label="Extra Value"
+                  dense
+                  small
+                  outlined
+                  type="text"
+                  v-model="data.other_value"
+                  class="form-control"
+                ></v-text-field>
+                <span
+                  v-if="errors && errors.other_value"
+                  class="text-danger mt-2"
+                  >{{ errors.other_value[0] }}</span
+                >
+              </div>
+            </v-col>
+
+            <span v-if="errors && errors.length" class="error--text">{{
+              errors
             }}</span>
-          </div>
-        </v-col>
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">Bank Address</label>
-            <v-text-field
-              dense
-              small
-              outlined
-              type="text"
-              v-model="data.address"
-              class="form-control"
-            ></v-text-field>
-            <span v-if="errors && errors.address" class="text-danger mt-2">{{
-              errors.address[0]
-            }}</span>
-          </div>
-        </v-col>
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">Account No</label>
-            <v-text-field
-              dense
-              small
-              outlined
-              v-model="data.account_no"
-              class="form-control"
-            ></v-text-field>
-            <span
-              type="text"
-              v-if="errors && errors.account_no"
-              class="text-danger mt-2"
-              >{{ errors.account_no[0] }}</span
-            >
-          </div>
-        </v-col>
-
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">Account Name</label>
-            <v-text-field
-              dense
-              small
-              outlined
-              type="text"
-              v-model="data.account_title"
-              class="form-control"
-            ></v-text-field>
-            <span
-              v-if="errors && errors.account_title"
-              class="text-danger mt-2"
-              >{{ errors.account_title[0] }}</span
-            >
-          </div>
-        </v-col>
-
-        <v-col cols="6">
-          <div class="form-group">
-            <label> IBAN</label>
-            <v-text-field
-              dense
-              small
-              outlined
-              type="text"
-              v-model="data.iban"
-              class="form-control"
-            ></v-text-field>
-            <span v-if="errors && errors.iban" class="text-danger mt-2">{{
-              errors.iban[0]
-            }}</span>
-          </div>
-        </v-col>
-
-        <v-col cols="12">
-          <a href="#" @click="add_other_bank_info = !add_other_bank_info">{{
-            `${add_other_bank_info ? "hide" : "show"} Other Field`
-          }}</a>
-        </v-col>
-        <v-row v-if="add_other_bank_info">
-          <v-col cols="6">
-            <div class="form-group">
-              <label class="col-form-label">Other Text</label>
-              <v-text-field
-                dense
-                small
-                outlined
-                type="text"
-                v-model="data.other_text"
-                class="form-control"
-              ></v-text-field>
-              <span v-if="errors && errors.other_text" class="text-danger">{{
-                errors.other_text[0]
-              }}</span>
-            </div>
-          </v-col>
-
-          <v-col cols="6">
-            <div class="form-group">
-              <label class="col-form-label">Other Value</label>
-              <v-text-field
-                dense
-                small
-                outlined
-                type="text"
-                v-model="data.other_value"
-                class="form-control"
-              ></v-text-field>
-              <span
-                v-if="errors && errors.other_value"
-                class="text-danger mt-2"
-                >{{ errors.other_value[0] }}</span
-              >
-            </div>
-          </v-col>
-        </v-row>
-        <span v-if="errors && errors.length" class="error--text">{{
-          errors
-        }}</span>
-      </v-row>
-      <v-row>
-        <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_bank_info">Save</v-btn>
+          </v-row>
+          <v-row>
+            <v-col cols="12" class="text-right">
+              <v-btn class="primary" small @click="save_bank_info">Save</v-btn>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -233,7 +248,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<!-- <style scoped>
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -249,4 +264,4 @@ th {
 tr:nth-child(even) {
   background-color: #fbfdff;
 }
-</style>
+</style> -->

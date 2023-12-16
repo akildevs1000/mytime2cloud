@@ -362,7 +362,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="editDialog" width="1250" :key="employeeId">
+    <v-dialog persistent v-model="editDialog" width="1400" :key="employeeId">
       <v-card>
         <v-tabs
           v-model="tab"
