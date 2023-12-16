@@ -268,11 +268,20 @@ class PayslipController extends Controller
     {
         // return $this->generateWithEmployeeids($request);
         //code...
+        $Payroll = Payroll::where([
+            "employee_id" => $id,
+            "company_id" => $request->company_id,
+            "branch_id" => $request->branch_id,
+        ])
+            ->with(["payroll_formula", "company"])
+            ->with(["employee" => function ($q) {
+                $q->withOut("user");
+            }])
+            ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
+            
+        $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y") ?? "---";
 
-        $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "employee:id,employee_id,system_user_id,display_name,first_name,last_name"])->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
-        $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
-
-        $salary_type = $Payroll->payroll_formula->salary_type;
+        $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
 
         $Payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
         $Payroll->date = date('j F Y');
