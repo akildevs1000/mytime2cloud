@@ -255,12 +255,12 @@
                   text
                   title="Reload"
                 >
-                  <v-icon class="ml-2" @click="clearFilters" dark
+                  <v-icon class="ml-2" @click="clearFilters()" dark
                     >mdi mdi-reload</v-icon
                   >
                 </v-btn>
               </span>
-              <span>
+              <!-- <span>
                 <v-btn
                   v-show="can(`payroll_payslip_generate_access`)"
                   dense
@@ -274,7 +274,7 @@
                     >mdi-filter-multiple
                   </v-icon>
                 </v-btn>
-              </span>
+              </span> -->
               <span>
                 <v-btn
                   dense
@@ -308,7 +308,47 @@
 
               <v-spacer></v-spacer>
 
-              <v-col cols="4" class="text-right">
+              <span cols="3" class="mt-8" style="max-width: 180px">
+                <v-autocomplete
+                  placeholder="Department"
+                  outlined
+                  dense
+                  @change="getDataFromApi(`employee`)"
+                  v-model="department_id"
+                  x-small
+                  :items="departments"
+                  item-value="id"
+                  item-text="name"
+                ></v-autocomplete>
+              </span>
+              <span cols="2" class="mr-3 ml-3 mt-8" style="max-width: 100px">
+                <v-autocomplete
+                  outlined
+                  dense
+                  @change="handleFilters"
+                  x-small
+                  item-value="id"
+                  item-text="name"
+                  v-model="payslip_year"
+                  :items="dataYears"
+                  placeholder="Year"
+                ></v-autocomplete>
+              </span>
+              <span cols="2" class="mt-8" style="max-width: 130px">
+                <v-autocomplete
+                  outlined
+                  dense
+                  @change="handleFilters"
+                  x-small
+                  v-model="payslip_month"
+                  :items="fitleredMonthNames()"
+                  item-text="label"
+                  item-value="value"
+                  placeholder="Month"
+                ></v-autocomplete>
+              </span>
+
+              <span>
                 <v-btn
                   v-show="can(`payroll_payslip_generate_access`)"
                   dense
@@ -335,11 +375,84 @@
                   small
                   title="Download All Payslips"
                 >
-                  <v-icon @click="showFilters = !showFilters" class="mx-1"
-                    >mdi mdi-download</v-icon
-                  >
+                  <v-icon class="mx-1">mdi mdi-download</v-icon>
                 </v-btn>
-              </v-col>
+              </span>
+
+              <!-- <v-col cols="12" class="text-right">
+                <v-col cols="2">
+                  <v-autocomplete
+                    placeholder="Department"
+                    outlined
+                    dense
+                    @change="getDataFromApi(`employee`)"
+                    v-model="department_id"
+                    x-small
+                    :items="departments"
+                    item-value="id"
+                    item-text="name"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="2">
+                  <v-autocomplete
+                    outlined
+                    dense
+                    @change="handleFilters"
+                    x-small
+                    item-value="id"
+                    item-text="name"
+                    v-model="payslip_year"
+                    :items="dataYears"
+                    placeholder="Year"
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="2">
+                  <v-autocomplete
+                    outlined
+                    dense
+                    @change="handleFilters"
+                    x-small
+                    v-model="payslip_month"
+                    :items="fitleredMonthNames()"
+                    item-text="label"
+                    item-value="value"
+                    placeholder="Month"
+                  ></v-autocomplete>
+                </v-col>
+
+                <v-col cols="4" class="text-right">
+                  <v-btn
+                    v-show="can(`payroll_payslip_generate_access`)"
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    title="Generate Payslips by Department"
+                  >
+                    <v-icon @click="openPayslipDialog" class="mx-1"
+                      >mdi-briefcase-outline</v-icon
+                    >
+                  </v-btn>
+
+                  <v-btn
+                    dense
+                    class="ma-0 px-0"
+                    x-small
+                    :ripple="false"
+                    text
+                    v-show="downloadAllDisplayStatus"
+                    download
+                    :href="payslipsDownloadAllURL"
+                    small
+                    title="Download All Payslips"
+                  >
+                    <v-icon @click="showFilters = !showFilters" class="mx-1"
+                      >mdi mdi-download</v-icon
+                    >
+                  </v-btn>
+                </v-col>
+              </v-col> -->
             </v-toolbar>
             <!-- <v-toolbar class="mb-2" dense flat>
               <v-toolbar-title style="color: black"

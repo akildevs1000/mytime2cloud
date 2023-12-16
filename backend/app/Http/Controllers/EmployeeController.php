@@ -760,6 +760,20 @@ class EmployeeController extends Controller
             abort(404);
         }
     }
+    public function downloadEmployeeDocuments(Request $request, $employee_id, $file_name)
+    {
+        // Define the path to the file in the public folder
+        $filePath = public_path("documents/" . $employee_id) .  '/' . $file_name;
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $file_name);
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            abort(404);
+        }
+    }
     public function downloadEmployeeProfilepdfView(Request $request, $id)
     {
 

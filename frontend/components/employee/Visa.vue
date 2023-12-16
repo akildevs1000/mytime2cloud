@@ -8,158 +8,173 @@
     <v-container>
       <v-row>
         <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("Visa no") }}</label>
-            <v-text-field
-              :hide-details="!errors.visa_no"
-              :error-messages="errors.visa_no && errors.visa_no[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.visa_no"
-              type="text"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("note") }}</label>
-            <v-text-field
-              :hide-details="!errors.note"
-              :error-messages="errors.note && errors.note[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.note"
-              type="text"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("place of issues") }}</label>
-            <v-text-field
-              :hide-details="!errors.place_of_issues"
-              :error-messages="
-                errors.place_of_issues && errors.place_of_issues[0]
-              "
-              dense
-              small
-              outlined
-              v-model="visaItem.place_of_issues"
-              type="text"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
+          <v-row>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("Visa no") }}</label> -->
+                <v-text-field
+                  label="Visa no"
+                  :hide-details="!errors.visa_no"
+                  :error-messages="errors.visa_no && errors.visa_no[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.visa_no"
+                  type="text"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("note") }}</label> -->
+                <v-text-field
+                  label="Note"
+                  :hide-details="!errors.note"
+                  :error-messages="errors.note && errors.note[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.note"
+                  type="text"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{
+                  caps("place of issues")
+                }}</label> -->
+                <v-text-field
+                  label="Place of issues"
+                  :hide-details="!errors.place_of_issues"
+                  :error-messages="
+                    errors.place_of_issues && errors.place_of_issues[0]
+                  "
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.place_of_issues"
+                  type="text"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
 
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("country") }}</label>
-            <v-text-field
-              :hide-details="!errors.country"
-              :error-messages="errors.country && errors.country[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.country"
-              class="form-control"
-              type="text"
-            ></v-text-field>
-          </div>
-        </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("country") }}</label> -->
+                <v-text-field
+                  label="Country"
+                  :hide-details="!errors.country"
+                  :error-messages="errors.country && errors.country[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.country"
+                  class="form-control"
+                  type="text"
+                ></v-text-field>
+              </div>
+            </v-col>
 
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("issue date") }}</label>
-            <v-text-field
-              :hide-details="!errors.issue_date"
-              :error-messages="errors.issue_date && errors.issue_date[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.issue_date"
-              type="date"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("issue date") }}</label> -->
+                <v-text-field
+                  label="Issue Date"
+                  :hide-details="!errors.issue_date"
+                  :error-messages="errors.issue_date && errors.issue_date[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.issue_date"
+                  type="date"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
 
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("expiry date") }}</label>
-            <v-text-field
-              :hide-details="!errors.expiry_date"
-              :error-messages="errors.expiry_date && errors.expiry_date[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.expiry_date"
-              type="date"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("expiry date") }}</label> -->
+                <v-text-field
+                  label="Expiry Date"
+                  :hide-details="!errors.expiry_date"
+                  :error-messages="errors.expiry_date && errors.expiry_date[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.expiry_date"
+                  type="date"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
 
-        <v-col cols="4">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("labour no") }}</label>
-            <v-text-field
-              :hide-details="!errors.labour_no"
-              :error-messages="errors.labour_no && errors.labour_no[0]"
-              dense
-              small
-              outlined
-              v-model="visaItem.labour_no"
-              type="text"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
-        <v-col cols="4">
-          <div class="form-group">
-            <label class="col-form-label">{{
-              caps("labour issue date")
-            }}</label>
-            <v-text-field
-              :hide-details="!errors.labour_issue_date"
-              :error-messages="
-                errors.labour_issue_date && errors.labour_issue_date[0]
-              "
-              dense
-              small
-              outlined
-              v-model="visaItem.labour_issue_date"
-              type="date"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
-        <v-col cols="4">
-          <div class="form-group">
-            <label class="col-form-label">{{
-              caps("labour expiry date")
-            }}</label>
-            <v-text-field
-              :hide-details="!errors.labour_expiry_date"
-              :error-messages="
-                errors.labour_expiry_date && errors.labour_expiry_date[0]
-              "
-              dense
-              small
-              outlined
-              v-model="visaItem.labour_expiry_date"
-              type="date"
-              class="form-control"
-            ></v-text-field>
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_visa_info">Save</v-btn>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("labour no") }}</label> -->
+                <v-text-field
+                  label="Labour No"
+                  :hide-details="!errors.labour_no"
+                  :error-messages="errors.labour_no && errors.labour_no[0]"
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.labour_no"
+                  type="text"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{
+                  caps("labour issue date")
+                }}</label> -->
+                <v-text-field
+                  label="Labour Issue Date"
+                  :hide-details="!errors.labour_issue_date"
+                  :error-messages="
+                    errors.labour_issue_date && errors.labour_issue_date[0]
+                  "
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.labour_issue_date"
+                  type="date"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{
+                  caps("labour expiry date")
+                }}</label> -->
+                <v-text-field
+                  label="Labour Expiry Date"
+                  :hide-details="!errors.labour_expiry_date"
+                  :error-messages="
+                    errors.labour_expiry_date && errors.labour_expiry_date[0]
+                  "
+                  dense
+                  small
+                  outlined
+                  v-model="visaItem.labour_expiry_date"
+                  type="date"
+                  class="form-control"
+                ></v-text-field>
+              </div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12" class="text-right">
+              <v-btn class="primary" small @click="save_visa_info">Save</v-btn>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -237,21 +252,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #fbfdff;
-}
-</style>

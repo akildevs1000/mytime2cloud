@@ -15,10 +15,11 @@
 
       <v-col cols="6" xs="6" sm="12" md="6" lg="6" xl="6">
         <v-col md="12" sm="12" cols="12">
-          <label class="col-form-label">
+          <!-- <label class="col-form-label">
             <strong>Leave Group Name</strong></label
-          >
+          > -->
           <v-autocomplete
+            label="Leave Group  "
             :items="leave_groups"
             item-text="group_name"
             item-value="id"
@@ -34,10 +35,11 @@
           ></v-autocomplete>
         </v-col>
         <v-col md="12" sm="12" sx="12" xl="12" cols="12" outlined>
-          <label class="col-form-label"
+          <!-- <label class="col-form-label"
             ><strong>Leave Manager/Reporting Manger</strong>
-          </label>
+          </label> -->
           <v-autocomplete
+            label="Leave Manager/Reporting Manger"
             :items="leave_managers"
             :item-text="getEmployeeName"
             item-value="id"

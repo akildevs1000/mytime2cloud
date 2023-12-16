@@ -13,39 +13,42 @@
       ></v-progress-linear>
       <v-card-text>
         <v-row>
-          <v-col md="4" sm="4" cols="4" dense>
-            <label class="col-form-label">RFID Card Number </label>
-            <v-text-field
-              type="number"
-              dense
-              outlined
-              v-model="employee.rfid_card_number"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col md="4" sm="4" cols="4" dense>
-            <label class="col-form-label">Password(4 to 8 Digits)</label>
-            <v-text-field
-              dense
-              type="number"
-              outlined
-              v-model="employee.rfid_card_password"
-            ></v-text-field>
-          </v-col>
-        </v-row>
+          <v-col cols="6"
+            ><v-row>
+              <v-col md="12" sm="12" cols="12" dense>
+                <!-- <label class="col-form-label">RFID Card Number </label> -->
+                <v-text-field
+                  label="RFID Card Number"
+                  type="number"
+                  dense
+                  outlined
+                  v-model="employee.rfid_card_number"
+                ></v-text-field>
+              </v-col>
 
-        <v-row>
-          <v-col cols="12" class="text-right">
-            <v-btn
-              v-if="can('employee_edit')"
-              small
-              :loading="loading"
-              color="primary"
-              @click="submit"
-            >
-              Submit
-            </v-btn>
+              <v-col md="12" sm="12" cols="12" dense>
+                <!-- <label class="col-form-label">Password(4 to 8 Digits)</label> -->
+                <v-text-field
+                  label="Password(min 4 to 8 Digits)"
+                  dense
+                  type="number"
+                  outlined
+                  v-model="employee.rfid_card_password"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" class="text-right">
+                <v-btn
+                  v-if="can('employee_edit')"
+                  small
+                  :loading="loading"
+                  color="primary"
+                  @click="submit"
+                >
+                  Submit
+                </v-btn>
+              </v-col>
+            </v-row>
           </v-col>
         </v-row>
       </v-card-text>

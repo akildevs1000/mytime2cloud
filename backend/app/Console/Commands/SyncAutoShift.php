@@ -38,7 +38,7 @@ class SyncAutoShift extends Command
             echo (new AutoShiftController)->render($id, $date, [], false) . "\n";
         } catch (\Throwable $th) {
             //throw $th;
-            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
             Logger::channel("custom")->error($error_message);
             echo $error_message;
         }

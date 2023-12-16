@@ -8,152 +8,164 @@
     <v-container>
       <v-row>
         <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("emirate id") }}</label>
-            <v-text-field
-              :hide-details="!errors.emirate_id"
-              :error-messages="errors.emirate_id && errors.emirate_id[0]"
-              dense
-              outlined
-              v-model="emirateItems.emirate_id"
-            ></v-text-field>
-          </div>
-        </v-col>
-        <v-col cols="6">
-          <div class="form-group">
-            <label class="col-form-label">{{ caps("nationality") }}</label>
-            <v-text-field
-              :hide-details="!errors.nationality"
-              :error-messages="errors.nationality && errors.nationality[0]"
-              dense
-              outlined
-              v-model="emirateItems.nationality"
-            ></v-text-field>
-          </div>
-        </v-col>
+          <v-row>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("emirate id") }}</label> -->
+                <v-text-field
+                  label="Emirate ID"
+                  :hide-details="!errors.emirate_id"
+                  :error-messages="errors.emirate_id && errors.emirate_id[0]"
+                  dense
+                  outlined
+                  v-model="emirateItems.emirate_id"
+                ></v-text-field>
+              </div>
+            </v-col>
+            <v-col cols="6">
+              <div class="form-group">
+                <!-- <label class="col-form-label">{{ caps("nationality") }}</label> -->
+                <v-text-field
+                  label="Nationality"
+                  :hide-details="!errors.nationality"
+                  :error-messages="errors.nationality && errors.nationality[0]"
+                  dense
+                  outlined
+                  v-model="emirateItems.nationality"
+                ></v-text-field>
+              </div>
+            </v-col>
 
-        <v-col cols="4">
-          <label class="col-form-label"
+            <v-col cols="6">
+              <!-- <label class="col-form-label"
             >Issue Date <span class="text-danger">*</span></label
-          >
-          <div>
-            <v-menu
-              v-model="issueDateMenuOpen"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="auto"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  :hide-details="!errors.issue"
-                  :error-messages="errors.issue && errors.issue[0]"
-                  v-model="emirateItems.issue"
-                  persistent-hint
-                  append-icon="mdi-calendar"
-                  readonly
-                  outlined
-                  dense
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                style="min-height: 320px"
-                v-model="emirateItems.issue"
-                no-title
-                @input="issueDateMenuOpen = false"
-              ></v-date-picker>
-            </v-menu>
-          </div>
-        </v-col>
+          > -->
+              <div>
+                <v-menu
+                  v-model="issueDateMenuOpen"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      label="Issue Date"
+                      :hide-details="!errors.issue"
+                      :error-messages="errors.issue && errors.issue[0]"
+                      v-model="emirateItems.issue"
+                      persistent-hint
+                      append-icon="mdi-calendar"
+                      readonly
+                      outlined
+                      dense
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    style="min-height: 320px"
+                    v-model="emirateItems.issue"
+                    no-title
+                    @input="issueDateMenuOpen = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
 
-        <v-col cols="4">
-          <label class="col-form-label"
+            <v-col cols="6">
+              <!-- <label class="col-form-label"
             >Expiry Date <span class="text-danger">*</span></label
-          >
-          <div>
-            <v-menu
-              v-model="expiryDateMenuOpen"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="auto"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  :hide-details="!errors.expiry"
-                  :error-messages="errors.expiry && errors.expiry[0]"
-                  v-model="emirateItems.expiry"
-                  persistent-hint
-                  append-icon="mdi-calendar"
-                  readonly
-                  outlined
-                  dense
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                style="min-height: 320px"
-                v-model="emirateItems.expiry"
-                no-title
-                @input="expiryDateMenuOpen = false"
-              ></v-date-picker>
-            </v-menu>
-          </div>
-        </v-col>
+          > -->
+              <div>
+                <v-menu
+                  v-model="expiryDateMenuOpen"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      label="Expiry Date"
+                      :hide-details="!errors.expiry"
+                      :error-messages="errors.expiry && errors.expiry[0]"
+                      v-model="emirateItems.expiry"
+                      persistent-hint
+                      append-icon="mdi-calendar"
+                      readonly
+                      outlined
+                      dense
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    style="min-height: 320px"
+                    v-model="emirateItems.expiry"
+                    no-title
+                    @input="expiryDateMenuOpen = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
 
-        <v-col cols="4">
-          <label class="col-form-label"
+            <v-col cols="6">
+              <!-- <label class="col-form-label"
             >Date of Birth <span class="text-danger">*</span></label
-          >
-          <div>
-            <v-menu
-              v-model="dobDateMenuOpen"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              max-width="290px"
-              min-width="auto"
-            >
-              <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  :hide-details="!errors.date_of_birth"
-                  :error-messages="
-                    errors.date_of_birth && errors.date_of_birth[0]
-                  "
-                  v-model="emirateItems.date_of_birth"
-                  persistent-hint
-                  append-icon="mdi-calendar"
-                  readonly
-                  outlined
-                  dense
-                  v-bind="attrs"
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
-                style="min-height: 320px"
-                v-model="emirateItems.date_of_birth"
-                no-title
-                @input="dobDateMenuOpen = false"
-              ></v-date-picker>
-            </v-menu>
-          </div>
-        </v-col>
+          > -->
+              <div>
+                <v-menu
+                  v-model="dobDateMenuOpen"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  max-width="290px"
+                  min-width="auto"
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                      label="Date of Birth"
+                      :hide-details="!errors.date_of_birth"
+                      :error-messages="
+                        errors.date_of_birth && errors.date_of_birth[0]
+                      "
+                      v-model="emirateItems.date_of_birth"
+                      persistent-hint
+                      append-icon="mdi-calendar"
+                      readonly
+                      outlined
+                      dense
+                      v-bind="attrs"
+                      v-on="on"
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                    style="min-height: 320px"
+                    v-model="emirateItems.date_of_birth"
+                    no-title
+                    @input="dobDateMenuOpen = false"
+                  ></v-date-picker>
+                </v-menu>
+              </div>
+            </v-col>
 
-        <v-col cols="12">
-          <span v-if="errors && errors.length" class="error--text">{{
-            errors
-          }}</span>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" class="text-right">
-          <v-btn class="primary" small @click="save_emirate_info">Save</v-btn>
+            <v-col cols="12">
+              <span v-if="errors && errors.length" class="error--text">{{
+                errors
+              }}</span>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="12" class="text-right">
+              <v-btn class="primary" small @click="save_emirate_info"
+                >Save</v-btn
+              >
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
     </v-container>
@@ -236,7 +248,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<!-- <style scoped>
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -252,4 +264,4 @@ th {
 tr:nth-child(even) {
   background-color: #fbfdff;
 }
-</style>
+</style> -->

@@ -12,13 +12,16 @@ class DocumentInfo extends Model
 
     protected $guarded = [];
 
-    public function getAttachmentAttribute($value)
-    {
-        if(!$value){
-            return null;
-        }
-        return asset('documents/' . $this->employee_id . "/" . $value);
-    }
+    // public function getAttachmentAttribute($value)
+    // {
+    //     if (!$value) {
+    //         return null;
+    //     }
+    //     return asset('documents/' . $this->employee_id . "/" . $value);
+    // }
+
+
+
 
     protected $casts = [
         'created_at' => 'datetime:d-M-y',

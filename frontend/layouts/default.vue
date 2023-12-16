@@ -111,7 +111,11 @@
       :style="$nuxt.$route.name == 'index' ? 'z-index: 100000' : ''"
     >
       <v-app-bar-nav-icon @click.stop="drawer = !drawer" />
-      <span class="text-overflow">
+      <span
+        class="text-overflow"
+        style="cursor: pointer"
+        @click="gotoHomePage()"
+      >
         <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
       </span>
       <v-spacer></v-spacer>
@@ -696,6 +700,10 @@ export default {
     },
   },
   methods: {
+    gotoHomePage() {
+      //location.href = process.env.APP_URL + "/dashboard2";
+      location.href = location.href; // process.env.APP_URL + "/dashboard2";
+    },
     loadNotificationMenu() {
       let options = {
         params: {
