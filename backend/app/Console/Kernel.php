@@ -10,6 +10,7 @@ use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
@@ -243,6 +244,12 @@ class Kernel extends ConsoleKernel
             $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
             info($count . "companies has been updated");
         })->dailyAt('00:00');
+
+
+        $schedule->call(function () {
+            Artisan::call('cache:clear');
+            info("Cache cleared successfully at " . date("d-M-y H:i:s"));
+        })->daily();
 
         // $schedule
         //     ->command('task:sync_multiinout')
