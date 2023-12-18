@@ -439,4 +439,30 @@ class SDKController extends Controller
             ];
         }
     }
+
+    public function setSDKUserExpiry(Request $request, $id)
+    {
+        $data = [
+            'personList' => [
+                [
+                    'name' => $request->name,
+                    'userCode' => $request->userCode,
+                    'timeGroup' => 1,
+                    'expiry' => $request->lockDevice ? '2023-01-01 00:00:00' : '2089-01-01 00:00:00'
+                ]
+            ],
+            'snList' =>  Device::where('company_id', $id)->pluck('device_id') ?? []
+        ];
+
+        try {
+            return Http::timeout(3600)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post("https://sdk.mytime2cloud.com/Person/AddRange", $data);
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+        }
+    }
 }
