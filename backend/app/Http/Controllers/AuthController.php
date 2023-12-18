@@ -27,6 +27,7 @@ class AuthController extends Controller
             ]);
         }
 
+
         try {
             $user = User::with('company', 'company.contact', 'employee')->where('email', $request->email)
             ->with("company:id,user_id,name,location,logo,company_code,expiry,contact_number,enable_whatsapp_otp")
@@ -79,9 +80,8 @@ class AuthController extends Controller
             ], 200);
         }
         } catch (\Throwable $th) {
-           return "francis"
+           return "francis";
         }
-        
     }
     public function generateOTP($mobile_number, $user)
     {
