@@ -1176,7 +1176,7 @@ class EmployeeController extends Controller
     }
     public function employeeUpdateSetting(Request $request)
     {
-        $data = $request->only(['overtime', 'status', 'leave_group_id', 'reporting_manager_id']);
+        $data = $request->only(['overtime', 'status', 'lockDevice', 'leave_group_id', 'reporting_manager_id']);
 
         $model = Employee::where('employee_id', $request->employee_id)
             ->where('company_id', $request->company_id)

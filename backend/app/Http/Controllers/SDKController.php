@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
+use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Illuminate\Http\Request;
@@ -440,8 +441,13 @@ class SDKController extends Controller
         }
     }
 
-    public function setSDKUserExpiry(Request $request, $id)
+    public function setUserExpiry(Request $request, $id)
     {
+        // Employee::where([
+        //     "company_id" => $id,
+        //     "system_user_id" => $request->userCode
+        // ])->update(["lockDevice" => $request->lockDevice]);
+
         $data = [
             'personList' => [
                 [
@@ -455,9 +461,11 @@ class SDKController extends Controller
         ];
 
         try {
-            return Http::timeout(3600)->withoutVerifying()->withHeaders([
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post("https://sdk.mytime2cloud.com/Person/AddRange", $data);
+
+            return $response->json();
         } catch (\Exception $e) {
             return [
                 "status" => 102,

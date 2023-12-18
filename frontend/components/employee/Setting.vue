@@ -19,7 +19,7 @@
             <strong>Leave Group Name</strong></label
           > -->
           <v-autocomplete
-            label="Leave Group  "
+            label="Leave Group"
             :items="leave_groups"
             item-text="group_name"
             item-value="id"
@@ -76,6 +76,7 @@
                 color="success"
                 class="mt-0 ml-2"
                 v-model="setting.status"
+                @change="isStatusChanged = true"
               ></v-switch>
             </td>
           </tr>
@@ -161,6 +162,7 @@ export default {
       leave_groups: [],
       errors: [],
       loading: false,
+      isStatusChanged: false,
     };
   },
   created() {
@@ -197,10 +199,12 @@ export default {
     getEmployeeName(item) {
       return item.first_name ? item.first_name + " " + item.last_name : "---";
     },
+
     getInfo(id) {
       this.loading = true;
       this.$axios.get(`employee/${id}`).then(({ data }) => {
         this.employeeId = data.id;
+
         this.setting = {
           ...data,
         };
@@ -220,8 +224,8 @@ export default {
         company_id: this.$auth?.user?.company?.id,
         employee_id: this.setting.employee_id,
         status: this.setting.status,
+        lockDevice: !this.setting.status ? 1 : 0,
         overtime: this.setting.overtime,
-
         leave_group_id: this.setting.leave_group_id,
         reporting_manager_id: this.setting.reporting_manager_id,
         user_id: this.setting.user_id,
@@ -234,7 +238,7 @@ export default {
       // return;
       this.$axios
         .post(`employee/update/setting`, payload)
-        .then(({ data }) => {
+        .then(async ({ data }) => {
           this.loading = false;
 
           if (!data.status) {
@@ -243,10 +247,21 @@ export default {
             this.errors = [];
             this.snackbar = true;
             this.response = "Settings has been successfully updated";
-            this.$emit("close-popup");
+            await this.handleExpiry();
+            setTimeout(() => this.$emit("close-popup"), 3000);
           }
         })
         .catch((e) => console.log(e));
+    },
+
+    async handleExpiry() {
+      this.$axios
+        .post(`setUserExpiry/${this.$auth?.user?.company?.id}`, {
+          name: this.setting.first_name + " " + this.setting.last_name,
+          userCode: this.setting.system_user_id,
+          lockDevice: !this.setting.status ? 1 : 0,
+        })
+        .then(({ data }) => {});
     },
   },
 };

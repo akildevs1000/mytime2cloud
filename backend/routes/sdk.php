@@ -4,7 +4,7 @@ use App\Http\Controllers\RecordController;
 use App\Http\Controllers\SDKController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/setSDKUserExpiry/{id}', [SDKController::class, 'setSDKUserExpiry']);
+Route::post('/setUserExpiry/{id}', [SDKController::class, 'setUserExpiry']);
 
 Route::get('/get_devices', [RecordController::class, 'get_devices']);
 
