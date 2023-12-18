@@ -31,7 +31,7 @@ class Register extends FormRequest
             $validations['host_name'] = 'nullable';
             $validations['host_phone_number'] = 'nullable';
             $validations['host_email'] = 'nullable';
-            $validations['host_note'] = 'nullable';
+            $validations['note'] = 'nullable';
         }
 
         $validations['visit_from'] = 'required|date';
