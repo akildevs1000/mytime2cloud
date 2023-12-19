@@ -36,7 +36,7 @@
       <v-row
         v-for="(item, index, i) in departments"
         :key="'department' + i"
-        style="font-size: 14px"
+        style="font-size: 10px"
       >
         <v-col md="2" class="text-center">
           <v-avatar
