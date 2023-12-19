@@ -471,8 +471,8 @@ export default {
         LogTime: this.setTime(item.RecordDate),
       };
 
-      this.logs = [...this.logs, itemTable];
-      this.logs.unshift(itemTable);
+      this.logs = [itemTable, ...this.logs];
+      //this.logs.unshift(itemTable);
     },
     socketConnection() {
       this.socket = new WebSocket(this.url);
