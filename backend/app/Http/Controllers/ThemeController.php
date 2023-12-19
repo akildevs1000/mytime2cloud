@@ -97,7 +97,7 @@ class ThemeController extends Controller
     {
         $model = Attendance::with(['employee:id,employee_id,status,system_user_id,department_id'])->where('company_id', $request->company_id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
-            ->whereDate('date', date("2023-10-31"))
+            ->whereDate('date', date('Y-m-d'))
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
             })

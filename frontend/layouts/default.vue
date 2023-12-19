@@ -609,7 +609,7 @@ export default {
 
     setInterval(() => {
       this.loadNotificationMenu();
-    }, 1000 * 60);
+    }, 1000 * 60*2);
   },
 
   mounted() {
