@@ -228,19 +228,21 @@ class Attendance extends Model
 
         // $model->whereBetween("date", [$request->from_date, $request->to_date]);
 
-        // $model->whereHas('employee', function ($q) use ($request) {
-        //     $q->where('company_id', $request->company_id);
-        //     $q->where('status', 1);
-        //     $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
-        //     $q->with(['department', 'branch']);
-        // });
-
-        $model->with('employee', function ($q) use ($request) {
+        $model->whereHas('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
             $q->where('status', 1);
             $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
             $q->with(['department', 'branch']);
         });
+
+        $model->with([
+            'employee' => function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+                $q->where('status', 1);
+                $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+                $q->with(['department', 'branch']);
+            }
+        ]);
 
         $model->with('device_in', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
@@ -278,7 +280,7 @@ class Attendance extends Model
         $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));
         $model->whereDoesntHave('device_out', fn ($q) => $q->where('device_type', 'Access Control'));
 
-       
+
 
         return $model;
     }
