@@ -180,7 +180,7 @@ die();
                     </div>
                 </td>
                 <td style="text-align: right;vertical-align:top;width: 300px; border :none; padding:15px;   backgrozund-color: red">
-                    <div style=" ">
+                    <div style=" height:85px;  ">
                         <!-- Template2 Report -->
                         @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">

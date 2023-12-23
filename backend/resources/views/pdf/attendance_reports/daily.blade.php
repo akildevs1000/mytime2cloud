@@ -50,15 +50,15 @@
                 </div>
             </td>
             <td style="text-align: left;width: 333px; border :none; padding:15px; backgrozusnd-color:blue">
-                <div class="col-12" style="text-align:center">
+                <div class="col-12" style="text-align:center;height:85px;  ">
 
                     @if (env('APP_ENV') !== 'local')
                     <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                     @else
-                    <img src="https://mytime2cloud.com/_nuxt/img/logo22.b9566d9.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                    <img src="https://backend.mytime2cloud.com/upload/1697819664.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                     @endif
                 </div>
-                <div>
+                <div style="clear:both">
                     <table style="text-align: left; border :none;  ">
                         <tr style="text-align: left; border :none;">
                             <td style="text-align: center; border :none">

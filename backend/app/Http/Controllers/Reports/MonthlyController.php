@@ -21,13 +21,25 @@ class MonthlyController extends Controller
 {
     public function monthly(Request $request)
     {
-        return $this->processPDF($request)->stream();
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+
+        return $this->processPDF($request)->stream($file_name);
     }
 
     public function monthly_download_pdf(Request $request)
     {
+
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
         $report = $this->processPDF($request);
-        return $report->download();
+        return $report->download($file_name);
     }
 
     public function custom_request_general($id, $status, $shift_type_id)
@@ -93,14 +105,24 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_download_pdf(Request $request)
     {
-        return $this->processPDF($request)->download();
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+        return $this->processPDF($request)->download($file_name);
     }
 
     public function multi_in_out_monthly_pdf(Request $request)
     {
         // $report = $this->processPDF($request);
         $report = $this->processPDF($request);
-        return $report->stream();
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+        return $report->stream($file_name);
     }
 
     public function monthly_download_csv(Request $request)
@@ -108,11 +130,16 @@ class MonthlyController extends Controller
 
         $data = (new Attendance)->processAttendanceModel($request)->get();
 
-        $fileName = 'report.csv';
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.csv';
+
 
         $headers = array(
             "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
+            "Content-Disposition" => "attachment; filename=$file_name",
             "Pragma" => "no-cache",
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0",
@@ -176,11 +203,15 @@ class MonthlyController extends Controller
             }
         }
 
-        $fileName = 'report.csv';
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.csv';
 
         $headers = array(
             "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
+            "Content-Disposition" => "attachment; filename=$file_name",
             "Pragma" => "no-cache",
             "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
             "Expires" => "0",

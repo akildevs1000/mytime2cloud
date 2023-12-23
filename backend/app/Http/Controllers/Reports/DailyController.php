@@ -66,11 +66,22 @@ class DailyController extends Controller
 
     public function daily(Request $request)
     {
-        return $this->processPDF($request)->stream();
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+        return $this->processPDF($request)->stream($file_name);
     }
     public function daily_download_pdf(Request $request)
     {
-        return $this->processPDF($request)->download();
+
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+        return $this->processPDF($request)->download($file_name);
     }
 
     public function custom_request_general_old($id, $status, $shift_type_id)
@@ -587,13 +598,18 @@ class DailyController extends Controller
 
     public function mimo_daily_pdf(Request $request)
     {
-        return  $this->mimo_daily_process($request)->stream();
+        return  $this->mimo_daily_process($request)->stream("Attendance Report");
     }
 
 
     public function mimo_daily_download(Request $request)
     {
-        return  $this->mimo_daily_process($request)->download();
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+        return  $this->mimo_daily_process($request)->download($file_name);
     }
 
 
