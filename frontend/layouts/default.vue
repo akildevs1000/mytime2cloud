@@ -483,7 +483,18 @@ import employee_top_menu from "../menus/employee_modules_top.json";
 export default {
   data() {
     return {
-      notificationsMenuItems: [],
+      notificationsMenuItems: [
+        {
+          title: "Leaves Pending (0)",
+          click: "/leaves",
+          icon: "mdi-calendar-account",
+        },
+        {
+          title: "Visitors Pending (0)",
+          click: "/visitor/requests",
+          icon: "mdi-transit-transfer",
+        },
+      ],
 
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
@@ -609,7 +620,7 @@ export default {
 
     setInterval(() => {
       this.loadNotificationMenu();
-    }, 1000 * 60*2);
+    }, 1000 * 60 * 2);
   },
 
   mounted() {
@@ -711,7 +722,18 @@ export default {
         },
       };
       this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
-        this.notificationsMenuItems = [];
+        this.notificationsMenuItems = [
+          {
+            title: "Leaves Pending (0)",
+            click: "/leaves",
+            icon: "mdi-calendar-account",
+          },
+          {
+            title: "Visitors Pending (0)",
+            click: "/visitor/requests",
+            icon: "mdi-transit-transfer",
+          },
+        ];
         this.pendingNotificationsCount = 0;
 
         if (data.employee_leaves_pending_count) {
