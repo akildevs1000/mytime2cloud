@@ -119,7 +119,7 @@
                     </div>
                 </td>
                 <td style="border: nonse" colspan="6">
-                    <div class="col-12" style="text-align:center;height:85px;  ">1
+                    <div class="col-12" style="text-align:center;height:85px;  ">
                         @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @else
@@ -257,7 +257,7 @@
         @else
         @if($pageBreak=='true' ) <tr style="text-align: left;font-weight:bold;margin-top:20px;  width:100%;">
             <td colspan="1" style="text-align: left;"> # </td>
-            <td colspan="1" style="text-align: center;"> Date {{ $pageBreak}} </td>
+            <td colspan="1" style="text-align: center;"> Date </td>
             @if($interval->format('%a')<=$pageBreakDaysDifference) <td colspan="3" style="text-align: center;"> Employee </td>
                 @endif
                 <td colspan="2" style="text-align: center;"> Shift </td>
