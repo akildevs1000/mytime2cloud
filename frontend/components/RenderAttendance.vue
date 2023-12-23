@@ -19,7 +19,7 @@
                   placeholder="Employee Device Id"
                   v-model="editItems.UserIDs"
                   :items="employees"
-                  :item-text="`name`"
+                  :item-text="`name_with_user_id`"
                   item-value="system_user_id"
                   dense
                   outlined
@@ -49,9 +49,9 @@
                     </v-list-item>
                   </template>
                   <template v-slot:selection="{ item, index }">
-                    <span v-if="index === 0 && editItems.UserIDs.length == 1"
-                      >{{ item.name }}</span
-                    >
+                    <span v-if="index === 0 && editItems.UserIDs.length == 1">{{
+                      item.name
+                    }}</span>
                     <span
                       v-else-if="
                         index === 1 &&
