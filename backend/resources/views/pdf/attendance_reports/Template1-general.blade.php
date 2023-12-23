@@ -119,8 +119,7 @@
                     </div>
                 </td>
                 <td style="border: nonse" colspan="6">
-                    <div class="col-12" style="text-align:center;height:85px;  ">
-
+                    <div class="col-12" style="text-align:center;height:85px;  ">1
                         @if (env('APP_ENV') !== 'local')
                         <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @else
