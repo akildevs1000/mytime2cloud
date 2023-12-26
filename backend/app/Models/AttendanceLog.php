@@ -366,8 +366,13 @@ class AttendanceLog extends Model
     {
 
 
-        $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
-        $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+        if ($params["shift"]->off_duty_time < $params["shift"]->on_duty_time) {
+            $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+            $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+        } else {
+            $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+            $params["end"] = date("Y-m-d", strtotime($params["date"])) . " " . $params["shift"]->off_duty_time;
+        }
         //->whereBetween("LogTime", [$params["start"], $params["end"]])
 
         $return = AttendanceLog::where("company_id", $params["company_id"])

@@ -127,14 +127,17 @@ class MultiShiftController extends Controller
                         $parsed_in = strtotime($currentLog['time'] ?? 0);
 
                         if ($parsed_in > $parsed_out) {
+                            $item["extra"] = $nextLog['time'];
                             $parsed_out += 86400;
                         }
 
                         $diff = $parsed_out - $parsed_in;
 
-                        $minutes = floor($diff / 60);
+                        $minutes =  ($diff / 60);
 
-                        $totalMinutes += $minutes > 0 ? $minutes : 0;
+                        //$totalMinutes += $minutes > 0 ? $minutes : 0;
+
+                        $totalMinutes += $minutes;
                     }
                 }
                 $logsJson[] =  [
@@ -163,6 +166,8 @@ class MultiShiftController extends Controller
 
             $items[] = $item;
         }
+
+        return $items;
 
         $UserIds = array_column($items, "employee_id");
 
