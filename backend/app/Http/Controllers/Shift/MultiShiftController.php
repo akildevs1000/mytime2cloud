@@ -109,6 +109,34 @@ class MultiShiftController extends Controller
 
 
 
+                $minutes = 0;
+
+                if (
+                    isset($currentLog["device"]["function"]) &&
+                    (strtolower($currentLog["device"]["function"]) != "out")
+                    && $nextLog
+                    && isset($nextLog["device"]["function"])
+                    && (strtolower($nextLog["device"]["function"]) != "in")
+                ) {
+
+
+                    if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+
+
+                        $parsed_out = strtotime($nextLog['time'] ?? 0);
+                        $parsed_in = strtotime($currentLog['time'] ?? 0);
+
+                        if ($parsed_in > $parsed_out) {
+                            $parsed_out += 86400;
+                        }
+
+                        $diff = $parsed_out - $parsed_in;
+
+                        $minutes = floor($diff / 60);
+
+                        $totalMinutes += $minutes > 0 ? $minutes : 0;
+                    }
+                }
                 $logsJson[] =  [
                     "in" => isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] != "Out") ?  $currentLog['time'] : "---",
                     "out" => $nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] != "In") ?  $nextLog['time'] : "---",
@@ -119,23 +147,8 @@ class MultiShiftController extends Controller
                     // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
                     "device_in" => $currentLog['device']['short_name'] ?? $currentLog['device']['name'] ??  "---",
                     "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
+                    "total_minutes" =>  $this->minutesToHours($minutes),
                 ];
-
-                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
-
-                    $parsed_out = strtotime($nextLog['time'] ?? 0);
-                    $parsed_in = strtotime($currentLog['time'] ?? 0);
-
-                    if ($parsed_in > $parsed_out) {
-                        $parsed_out += 86400;
-                    }
-
-                    $diff = $parsed_out - $parsed_in;
-
-                    $minutes = floor($diff / 60);
-
-                    $totalMinutes += $minutes > 0 ? $minutes : 0;
-                }
 
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);
 
