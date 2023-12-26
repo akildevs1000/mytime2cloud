@@ -1363,15 +1363,16 @@ export default {
     },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (!this.payload.from_date) return false;
+
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
       let sortedBy = sortBy ? sortBy[0] : "";
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
-      if (this.filters) {
-        page = 1;
-      }
+      // if (this.filters) {
+      //   page = 1;
+      // }
       let options = {
         params: {
           page: page,
