@@ -56,7 +56,14 @@ class ReportController extends Controller
 
         $perPage == 0 ? 50 : $perPage;
 
-        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+        $resultArray = [];
+
+        foreach ($items->forPage($page, $perPage) as $object) {
+            $resultArray[] =   $object;
+        }
+
+        return new LengthAwarePaginator($resultArray, $items->count(), $perPage, $page, $options);
+        //return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
     public function general_download_csv(Request $request)
