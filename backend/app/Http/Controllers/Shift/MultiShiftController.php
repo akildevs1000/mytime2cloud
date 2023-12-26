@@ -167,7 +167,7 @@ class MultiShiftController extends Controller
             $items[] = $item;
         }
 
-        return $items;
+
 
         $UserIds = array_column($items, "employee_id");
 
