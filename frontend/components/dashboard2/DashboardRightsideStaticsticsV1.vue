@@ -220,9 +220,9 @@
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
-                      <v-list-item @click="viewLogs()">
+                      <v-list-item @click="viewDevices()">
                         <v-list-item-title style="cursor: pointer">
-                          View Logs
+                          View Devices
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -333,6 +333,9 @@ export default {
     },
     viewLogs() {
       this.$router.push("/attendance_report");
+    },
+    viewDevices() {
+      this.$router.push("/device");
     },
     getDataFromApi() {
       let { attendance_count, off_devices_count, leaves_request_count } =
