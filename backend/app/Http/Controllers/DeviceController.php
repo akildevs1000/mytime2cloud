@@ -486,6 +486,7 @@ class DeviceController extends Controller
         // Use query builder to build the queries more fluently
         $statusCounts = Device::where('company_id', $company_id)
             ->whereIn('status_id', [1, 2])
+            ->where('device_id', "!=", "Manual")
             ->selectRaw('status_id, COUNT(*) as count')
             ->groupBy('status_id')
             ->get();
