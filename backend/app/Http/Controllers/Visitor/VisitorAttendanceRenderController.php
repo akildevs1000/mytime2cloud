@@ -237,7 +237,8 @@ class VisitorAttendanceRenderController extends Controller
                 fn ($query) => $query
                     ->where('sdk_expiry_datetime', '2023-01-01 00:00:00')
                     ->orwhereColumn("visit_from", "!=", "visit_to")
-                    ->orwhereColumn("visit_from",  null)
+                    //->orwhereColumn("visit_from",  null)
+                    ->orWhereNull("visit_from")
 
             )->get();
 
