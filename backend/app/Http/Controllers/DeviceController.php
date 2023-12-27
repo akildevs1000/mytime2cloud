@@ -483,7 +483,6 @@ class DeviceController extends Controller
 
     public function devcieCountByStatus($company_id)
     {
-        // Use query builder to build the queries more fluently
         $statusCounts = Device::where('company_id', $company_id)
             ->whereIn('status_id', [1, 2])
             ->where('device_id', "!=", "Manual")

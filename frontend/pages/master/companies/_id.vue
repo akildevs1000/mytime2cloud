@@ -285,8 +285,15 @@
                               <v-icon right dark>mdi-cloud-upload</v-icon>
                             </v-btn>
                           </v-card>
-
-                          <v-text-field
+                          <input
+                            required
+                            type="file"
+                            @change="attachment"
+                            style="display: none"
+                            accept="image/*"
+                            ref="attachment_input"
+                          />
+                          <!-- <v-text-field
                             dense
                             outlined
                             required
@@ -296,7 +303,7 @@
                             accept="image/*"
                             ref="attachment_input"
                           >
-                          </v-text-field>
+                          </v-text-field> -->
 
                           <span
                             v-if="errors && errors.logo"
