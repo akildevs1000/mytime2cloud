@@ -264,7 +264,7 @@ class VisitorAttendanceRenderController extends Controller
                 $currentDate  = $date->format('Y-m-d');
 
 
-                echo '<br/>' . $visitor['sdk_expiry_datetime'] . '-' . $currentDateTime . '<br/>';
+                //echo '<br/>' . $visitor['sdk_expiry_datetime'] . '-' . $currentDateTime . '<br/>';
                 if ($visitor['sdk_expiry_datetime'] != '') {
                     if (strtotime($visitor['sdk_expiry_datetime']) >= strtotime($currentDateTime)) {
 
@@ -290,13 +290,13 @@ class VisitorAttendanceRenderController extends Controller
                         $this->updateVisitorExpiryDateToDevice($personList, $device['device_id']);
 
                         $msg = "{Updated Exptime - " . $visitor["system_user_id"] . " - SDK Exp Time " . $personList["expiry"] . '}';
-                        echo $msg . ' ';
+                        // echo $msg . ' ';
                         $this->devLog("cron-visitor-setVisitorExpireDates-log", $msg);
                     } else {
-                        echo " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}";
+                        //echo " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}";
                     }
                 } else {
-                    echo "Expiry time is already Updated to " . $visitor["system_user_id"];
+                    // echo "Expiry time is already Updated to " . $visitor["system_user_id"];
                 }
             }
         }
