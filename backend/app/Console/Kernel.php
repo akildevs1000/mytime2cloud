@@ -231,18 +231,18 @@ class Kernel extends ConsoleKernel
         })->dailyAt('00:00');
 
 
-        $schedule->call(function () {
-            exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
+        // $schedule->call(function () {
+        //     exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
 
-            //Artisan::call('cache:clear');
-            info("Cache cleared successfully at " . date("d-M-y H:i:s"));
-        })->everyThirtyMinutes();
-        $schedule->call(function () {
+        //     Artisan::call('cache:clear');
+        //     info("Cache cleared successfully at " . date("d-M-y H:i:s"));
+        // })->everyThirtyMinutes();
+        // $schedule->call(function () {
 
-            exec('php artisan cache:clear');
-            //Artisan::call('cache:clear');
-            info("Cache cleared successfully at " . date("d-M-y H:i:s"));
-        })->everyFifteenMinutes();
+        //     exec('php artisan cache:clear');
+        //     //Artisan::call('cache:clear');
+        //     info("Cache cleared successfully at " . date("d-M-y H:i:s"));
+        // })->everyFifteenMinutes();
 
 
         $schedule
