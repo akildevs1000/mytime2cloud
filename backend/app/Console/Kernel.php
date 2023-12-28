@@ -233,7 +233,8 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
-            Artisan::call('cache:clear');
+            exec('php artisan cache:clear');
+            //Artisan::call('cache:clear');
             info("Cache cleared successfully at " . date("d-M-y H:i:s"));
         })->everyThirtyMinutes();
 
