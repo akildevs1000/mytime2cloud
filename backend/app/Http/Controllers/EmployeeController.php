@@ -1260,4 +1260,32 @@ class EmployeeController extends Controller
     //     DB::table('employee_report')->where('employee_id', $id)->delete();
     //     return response()->json(['status' => true, 'message' => 'Reporter successfully Deleted']);
     // }
+
+    public function dumpEmployeesData()
+    {
+        $fullPath = storage_path("app/mycsv.csv");
+
+        if (!file_exists($fullPath)) {
+            return ["error" => true, "message" => 'File doest not exist.'];
+        }
+
+        $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+        $records = [];
+
+        foreach ($data  as $row) {
+            $columns = explode(',', $row);
+            $records[] = [
+                "title" => $columns[0],
+                "first_name" => $columns[1],
+                "last_name" => $columns[2],
+                "display_name" => $columns[3],
+                "employee_id" => $columns[4],
+                "system_user_id" => $columns[5],
+                "company_id" => 22
+            ];
+        }
+
+        Employee::insert($records);
+    }
 }
