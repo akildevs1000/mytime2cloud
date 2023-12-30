@@ -40,3 +40,5 @@ include('tanent.php');
 include('member.php');
 include('community.php');
 include('csv.php');
+include('other.php');
+
