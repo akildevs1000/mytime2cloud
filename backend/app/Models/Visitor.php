@@ -219,29 +219,29 @@ class Visitor extends Model
 
         //----------------------
 
-        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
-            if ($request->statsFilterValue == 'all_approved') {
-                $q->Where('status_id', "!=", 1);
-            } else 
-            if ($request->statsFilterValue == 'Expected' || $request->statsFilterValue == 'Approved') {
-                $q->WhereIn('status_id',  [2, 4]);
-            } else if ($request->statsFilterValue == 'Checked In') {
+        // $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+        //     if ($request->statsFilterValue == 'all_approved') {
+        //         $q->Where('status_id', "!=", 1);
+        //     } else 
+        //     if ($request->statsFilterValue == 'Expected' || $request->statsFilterValue == 'Approved') {
+        //         $q->WhereIn('status_id',  [2, 4]);
+        //     } else if ($request->statsFilterValue == 'Checked In') {
 
-                $q->whereHas('attendances', fn (Builder $q) => $q->where('in', '!=', null));
-            } else  if ($request->statsFilterValue == 'Checked Out') {
+        //         $q->whereHas('attendances', fn (Builder $q) => $q->where('in', '!=', null));
+        //     } else  if ($request->statsFilterValue == 'Checked Out') {
 
-                $q->whereHas('attendances', fn (Builder $q) => $q->where('out', '!=', null));
-            } else if ($request->statsFilterValue == 'Over Stayed') {
+        //         $q->whereHas('attendances', fn (Builder $q) => $q->where('out', '!=', null));
+        //     } else if ($request->statsFilterValue == 'Over Stayed') {
 
-                $q->whereHas('attendances', fn (Builder $q) => $q->where("visitor_attendances.out", null)->where("visitors.time_out", '<', date("H:i")));
-            } else if ($request->statsFilterValue == 'Pending') {
+        //         $q->whereHas('attendances', fn (Builder $q) => $q->where("visitor_attendances.out", null)->where("visitors.time_out", '<', date("H:i")));
+        //     } else if ($request->statsFilterValue == 'Pending') {
 
-                $q->Where('status_id',  1);
-            } else if ($request->statsFilterValue == 'Rejected') {
+        //         $q->Where('status_id',  1);
+        //     } else if ($request->statsFilterValue == 'Rejected') {
 
-                $q->Where('status_id',  3);
-            }
-        });
+        //         $q->Where('status_id',  3);
+        //     }
+        // });
 
 
 
