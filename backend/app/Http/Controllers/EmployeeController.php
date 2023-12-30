@@ -13,6 +13,7 @@ use App\Http\Requests\Employee\StoreRequest;
 use App\Http\Requests\Employee\UpdateRequest;
 use App\Models\Attendance;
 use App\Models\Company;
+use App\Models\CompanyBranch;
 use App\Models\CompanyContact;
 use App\Models\Department;
 use App\Models\Designation;
@@ -1287,5 +1288,21 @@ class EmployeeController extends Controller
         }
 
         Employee::insert($records);
+    }
+
+    public function mapEmployeesData(Request $request)
+    {
+        $count = 0;
+        foreach ($request->all() as $json) {
+            $count += Employee::where('company_id', $json["company_id"])
+                ->where('system_user_id', $json["system_user_id"])
+                ->update(["branch_id" => $json["branch_id"]]);
+        }
+
+        return $count;
+
+        // 92 + 95 + 88 + 151
+
+        // Employee::update($records);
     }
 }
