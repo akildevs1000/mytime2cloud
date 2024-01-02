@@ -32,6 +32,7 @@ class Employee extends Model
             // ->where('from_date', '<=', date('Y-m-d'))
             // ->where('to_date', '>=', date('Y-m-d'))
             // ->orderBy('from_date', 'desc')
+
             ->withDefault([
                 "shift_type_id" => "---",
                 "shift_type" => [
