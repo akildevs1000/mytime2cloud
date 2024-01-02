@@ -32,7 +32,6 @@ class Employee extends Model
             // ->where('from_date', '<=', date('Y-m-d'))
             // ->where('to_date', '>=', date('Y-m-d'))
             // ->orderBy('from_date', 'desc')
-
             ->withDefault([
                 "shift_type_id" => "---",
                 "shift_type" => [
@@ -43,8 +42,7 @@ class Employee extends Model
 
     public function schedule_all()
     {
-        return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id")
-            ->where('company_id', $this->company_id);
+        return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id");
     }
 
     public function latestSchedule()
