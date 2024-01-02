@@ -195,7 +195,7 @@
                 </span>
                 <v-btn
                   :loading="loading"
-                  @click="loginWithOTP()"
+                  @click="login()"
                   class="btn primary btn-black btn-block mt-1 mb-3 p-4 btntext"
                   style="width: 100%; height: 48px"
                 >

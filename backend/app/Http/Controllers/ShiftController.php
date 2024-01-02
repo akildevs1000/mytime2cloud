@@ -6,6 +6,7 @@ use App\Http\Requests\Shift\StoreRequest;
 use App\Http\Requests\Shift\UpdateRequest;
 use App\Http\Requests\Shift\UpdateSingleShiftRequest;
 use App\Models\AutoShift;
+use App\Models\CompanyBranch;
 use App\Models\Shift;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -188,5 +189,105 @@ class ShiftController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+    public function shiftBurkInsert($id)
+    {
+        // "branch_id": 54, //dynamic
+
+        $shift = Shift::withOut("shift_type")->select(
+            "name",
+            "shift_type_id",
+            "working_hours",
+            "overtime_interval",
+            "on_duty_time",
+            "off_duty_time",
+            "company_id",
+            "branch_id",
+            "from_date",
+            "to_date",
+            "weekend1",
+            "weekend2",
+            "monthly_flexi_holidays",
+            "isAutoShift",
+            "days",
+
+        )->find($id);
+
+        $branchIds = [
+            31,
+            27,
+            28,
+            29,
+            30,
+            32,
+            33,
+            34,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            35,
+            36,
+            37,
+            38,
+            39,
+            40,
+            41,
+            42,
+            43,
+            44,
+            45,
+            46,
+            47,
+            48,
+            49,
+            50,
+            51,
+            52,
+            53,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            63,
+            64,
+            65,
+            66
+        ];
+        $records = [];
+        foreach ($branchIds as $branchId) {
+            $records[] = [
+                "branch_id" => $branchId,
+                "name" => $shift->name,
+                "shift_type_id" => $shift->shift_type_id,
+                "working_hours" => $shift->working_hours,
+                "overtime_interval" => $shift->overtime_interval,
+                "on_duty_time" => $shift->on_duty_time,
+                "off_duty_time" => $shift->off_duty_time,
+                "company_id" => $shift->company_id,
+                "from_date" => $shift->from_date,
+                "to_date" => $shift->to_date,
+                "weekend1" => $shift->weekend1,
+                "weekend2" => $shift->weekend2,
+                "monthly_flexi_holidays" => $shift->monthly_flexi_holidays,
+                "isAutoShift" => $shift->isAutoShift,
+                "days" => json_encode($shift->days),
+            ];
+        }
+
+        Shift::insert($records);
+
+        return Shift::where('company_id',22)->count();
     }
 }
