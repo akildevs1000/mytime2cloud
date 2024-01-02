@@ -1460,7 +1460,6 @@ export default {
       this.getDataFromApi(this.endpoint, filter_column, filter_value);
     },
     applyFilters(name, value) {
-      if (value && value.length < 3) return false;
       this.getDataFromApi();
     },
     toggleFilter() {
