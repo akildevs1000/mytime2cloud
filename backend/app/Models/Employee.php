@@ -42,7 +42,8 @@ class Employee extends Model
 
     public function schedule_all()
     {
-        return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id");
+        return $this->hasMany(ScheduleEmployee::class, "employee_id", "system_user_id")
+            ->where('company_id', $this->company_id);
     }
 
     public function latestSchedule()
