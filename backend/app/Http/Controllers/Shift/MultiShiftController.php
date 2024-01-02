@@ -127,7 +127,7 @@ class MultiShiftController extends Controller
                         $parsed_in = strtotime($currentLog['time'] ?? 0);
 
                         if ($parsed_in > $parsed_out) {
-                            $item["extra"] = $nextLog['time'];
+                            //$item["extra"] = $nextLog['time'];
                             $parsed_out += 86400;
                         }
 
