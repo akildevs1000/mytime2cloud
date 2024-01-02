@@ -53,8 +53,14 @@ class ScheduleEmployeeController extends Controller
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
 
-            $q->where('employee_id', 'ILIKE', "$request->employee_id%");
-            $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
+            //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
+            //$q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
+
+            //$q->where('system_user_id', 'ILIKE', "$request->employee_id%");
+            $q->Where(function ($q) use ($request) {
+                $q->where('employee_id', 'ILIKE', "$request->employee_id%");
+                $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
+            });
         });
         $model->when($request->filled('schedules_count'), function ($q) use ($request) {
 
