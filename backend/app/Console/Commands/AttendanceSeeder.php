@@ -15,13 +15,13 @@ class AttendanceSeeder extends Command
 
     public function handle()
     {
-        
+
         try {
-            echo (new AttendanceController)->seedDefaultData($this->argument('company_id'));
+            (new AttendanceController)->seedDefaultData($this->argument('company_id'));
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: Default Attendance Seeder. Error Details: ' . $th);
             $date = date("Y-m-d H:i:s");
-            echo "[$date] Cron: Default Attendance Seeder. Error occured while inserting logs.\n";
+            echo "[$date] Cron: Default Attendance Seeder. Error occured while inserting logs.\n" . $th;
         }
     }
 }

@@ -65,7 +65,7 @@ class AttendanceController extends Controller
 
 
 
-            foreach (range(16, $daysInMonth) as $day) {
+            foreach (range(1, $daysInMonth) as $day) {
                 $data[] = [
                     "date" => date("Y-m-") . sprintf("%02d", date($day)),
                     "employee_id" => $employee->system_user_id,
@@ -87,7 +87,7 @@ class AttendanceController extends Controller
                 ];
             }
         }
-        return $data;
+
         $chunks = array_chunk($data, 100);
 
         $insertedCount = 0;
