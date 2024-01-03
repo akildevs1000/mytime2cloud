@@ -100,7 +100,7 @@ class DeviceController extends Controller
 
     public function getDeviceList(Device $model, Request $request)
     {
-        return $model->with(['status'])->where('company_id', $request->company_id)->get();
+        return $model->with(['status'])->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
     }
     public function getDevicePersonDetails(Request $request)
     {

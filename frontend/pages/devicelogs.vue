@@ -563,8 +563,8 @@ export default {
           //department_ids: this.$auth.user.assignedDepartments,
         },
       };
-      this.$axios.get(`departments`, options).then(({ data }) => {
-        this.departments = data.data;
+      this.$axios.get(`department-list`, options).then(({ data }) => {
+        this.departments = data;
         this.departments.unshift({ name: "All Departments", id: "" });
       });
     },

@@ -34,7 +34,21 @@ class ScheduleEmployeeController extends Controller
 
         $model->with(["schedule_all" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
+            // Check if schedules_count is provided in the request
+            // if ($request->has('schedules_count')) {
+            //     if ($request->schedules_count == 0) {
+            //         $q->havingRaw('COUNT(*) = 0');
+            //     } elseif ($request->schedules_count == 1) {
+            //         $q->havingRaw('COUNT(*) > 0');
+            //     }
+            // }
         }]);
+
+
+
+
+        //$model->whereRaw('schedules_all_count IS NOT NULL');
+
         $model->with(["schedule" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
             $q->where("to_date", ">=", date('Y-m-d'));
@@ -62,16 +76,7 @@ class ScheduleEmployeeController extends Controller
                 $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
             });
         });
-        $model->when($request->filled('schedules_count'), function ($q) use ($request) {
 
-            if ($request->schedules_count == 0) {
-                $q->has('schedule_all', '=', 0);
-            }
-
-            if ($request->schedules_count == 1) {
-                $q->has('schedule_all', '>', 0);
-            }
-        });
 
         $model->without(["user"]);
 

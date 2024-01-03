@@ -1505,6 +1505,18 @@ export default {
           //   return false;
           // }
           this.employees = data.data;
+
+          if (this.filters["schedules_count"] != "") {
+            if (this.filters["schedules_count"] == 0) {
+              this.employees = this.employees.filter(
+                (item) => item.schedule_all.length == 0
+              );
+            } else if (this.filters["schedules_count"] == 1) {
+              this.employees = this.employees.filter(
+                (item) => item.schedule_all.length > 0
+              );
+            }
+          }
           this.pagination.current = data.current_page;
           this.pagination.total = data.last_page;
           this.loading = false;
@@ -1513,7 +1525,7 @@ export default {
             this.displayNoRecords = true;
           }
 
-          this.totalRowsCount = data.total;
+          this.totalRowsCount = this.employees.length; //data.total;
         });
 
       //this.loading = false;
