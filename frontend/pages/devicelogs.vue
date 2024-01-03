@@ -190,7 +190,7 @@
                       column="date_range"
                       @selected-dates="handleDatesFilter"
                     />
-                    <v-select
+                    <v-autocomplete
                       :id="header.key"
                       :hide-details="true"
                       v-if="
@@ -212,7 +212,7 @@
                       solo
                       flat
                       @change="applyFilters(header.key, id)"
-                    ></v-select>
+                    ></v-autocomplete>
                     <v-select
                       :id="header.key"
                       :hide-details="true"
