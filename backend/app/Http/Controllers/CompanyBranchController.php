@@ -53,7 +53,7 @@ class CompanyBranchController extends Controller
         $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->filter_branch_id);
         });
-        return $model->get();
+        return $model->orderBy('branch_name', 'asc')->get();
     }
     public function store(CompanyBranch $model, StoreRequest $request)
     {
