@@ -1190,6 +1190,7 @@ export default {
       await this.handleChangeEvent();
     },
     async filterDepartmentsByBranch(filterBranchId) {
+      this.isFilter = true;
       await this.getDepartments(filterBranchId);
       await this.getTimezone(filterBranchId);
     },
