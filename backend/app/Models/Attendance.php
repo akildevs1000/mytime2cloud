@@ -256,7 +256,11 @@ class Attendance extends Model
             $q->where('company_id', $request->company_id);
         });
 
-        $model->with('schedule');
+        $model->with('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        //$model->with('schedule');
 
         $model->when($request->filled('date'), function ($q) use ($request) {
             $q->whereDate('date', '=', $request->date);
@@ -271,7 +275,7 @@ class Attendance extends Model
         $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
 
             if ($request->from_date == $request->to_date) {
-                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id"),   'asc');
+                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id")->limit(0, 1),   'asc');
             } else {
                 $q->orderBy('date', 'asc');
             }
