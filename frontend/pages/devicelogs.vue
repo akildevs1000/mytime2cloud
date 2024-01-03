@@ -144,7 +144,7 @@
                       flat
                       @change="applyFilters(header.key, id)"
                     ></v-select>
-                    <v-select
+                    <v-autocomplete
                       :id="header.key"
                       :hide-details="true"
                       v-if="
@@ -166,7 +166,7 @@
                       solo
                       flat
                       @change="applyFilters(header.key, id)"
-                    ></v-select>
+                    ></v-autocomplete>
                     <!-- <v-menu v-if="header.filterSpecial && header.value == 'LogTime'" ref="from_menu_filter"
                     v-model="from_menu_filter" :close-on-content-click="false" transition="scale-transition" offset-y
                     min-width="auto">
