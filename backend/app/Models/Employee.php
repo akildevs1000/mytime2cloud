@@ -225,6 +225,11 @@ class Employee extends Model
     {
         return $this->belongsTo(CompanyBranch::class, "branch_id", "id");
     }
+
+    public function branch_test()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id", "id")->with("departments");
+    }
     /**
      * The roles that belong to the Employee
      *

@@ -18,20 +18,15 @@ class UpdateRequest extends FormRequest
         return true;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, mixed>
-     */
     public function rules()
     {
         return [
             'company_id' => ['required'],
             'employee_id' => ['required'],
             'system_user_id' => ['required', 'regex:/^[1-9][0-9]*$/'],
-            'display_name' => ['required', 'min:3', 'max:10'],
-            'first_name' => ['required', 'min:3', 'max:10'],
-            'last_name' => ['required', 'min:3', 'max:10'],
+            'display_name' => ['required', 'min:3', 'max:50'],
+            'first_name' => ['required', 'min:3', 'max:50'],
+            'last_name' => ['required', 'min:3', 'max:50'],
             'title' => ['required'],
             'status' => ['nullable'],
             'department_id' => ['required'],

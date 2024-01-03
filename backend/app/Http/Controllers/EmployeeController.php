@@ -1305,4 +1305,17 @@ class EmployeeController extends Controller
 
         // Employee::update($records);
     }
+
+    public function employeesShortList(Request $request)
+    {
+        $model = Employee::query();
+        $model->where('company_id', $request->company_id);
+        $model->when(request()->filled("department_id"), function ($q) {
+            $q->where('department_id', request()->filled("department_id"));
+        });
+        $model->with("branch_test");
+        $model->withOut(["branch","department", "schedule", "designation", "sub_department","user"]);
+        $result = $model->get(["title", "display_name", "first_name", "last_name", "employee_id", "system_user_id", "department_id","branch_id"])->toArray();
+        return ($result);
+    }
 }
