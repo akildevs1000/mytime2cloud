@@ -75,13 +75,14 @@
         </v-card-title>
         <v-card-text>
           <v-row>
-            <v-col md="6" sm="12" cols="12" dense>
+            <v-col md="6" sm="12" cols="12" class="mt-5" dense>
               <v-row>
                 <v-col md="6" sm="12" cols="12">
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Title <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-select
+                    label="Title"
                     v-model="employee.title"
                     :items="titleItems"
                     :hide-details="!errors.title"
@@ -94,9 +95,9 @@
                   ></v-select>
                 </v-col>
                 <v-col md="6" sm="12" cols="12">
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Joining Date <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <div>
                     <v-menu
                       v-model="joiningDateMenuOpen"
@@ -108,6 +109,7 @@
                     >
                       <template v-slot:activator="{ on, attrs }">
                         <v-text-field
+                          label="Joining Date"
                           :hide-details="!errors.joining_date"
                           :error-messages="
                             errors && errors.joining_date
@@ -134,10 +136,11 @@
                   </div>
                 </v-col>
                 <v-col md="12" sm="12" cols="12" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Display Name <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="Display Name"
                     dense
                     outlined
                     :hide-details="!errors.display_name"
@@ -152,10 +155,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col md="6" sm="12" cols="12" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >First Name <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="First Name"
                     dense
                     outlined
                     :hide-details="!errors.first_name"
@@ -168,10 +172,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col md="6" sm="12" cols="12" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Last Name <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="Last Name"
                     dense
                     outlined
                     :hide-details="!errors.last_name"
@@ -184,10 +189,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col md="6" cols="6" sm="6" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Employee ID <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="Employee ID"
                     dense
                     outlined
                     type="text"
@@ -200,10 +206,11 @@
                   ></v-text-field>
                 </v-col>
                 <v-col md="6" cols="6" sm="6" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Employee Device Id<span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="Employee Device Id"
                     dense
                     outlined
                     type="text"
@@ -219,10 +226,11 @@
                 </v-col>
 
                 <v-col md="6" cols="6" sm="6" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Mobile Number <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-text-field
+                    label="Mobile Numberd"
                     dense
                     outlined
                     type="number"
@@ -237,11 +245,13 @@
                   ></v-text-field>
                 </v-col>
                 <v-col md="6" cols="6" sm="6" dense>
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Whatsapp <span class="text-danger">*</span> ( ex:
                     971XXXX)</label
-                  >
+                  > -->
                   <v-text-field
+                    label="Whatsapp ( ex:
+                    971XXXX)"
                     dense
                     outlined
                     type="number"
@@ -256,11 +266,12 @@
                   ></v-text-field>
                 </v-col>
                 <v-col v-if="isCompany" cols="6">
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Branch <span class="text-danger">*</span></label
-                  >
+                  > -->
 
                   <v-select
+                    label="Branch"
                     @change="filterDepartmentsByBranch(employee.branch_id)"
                     v-model="employee.branch_id"
                     :items="branchList"
@@ -278,10 +289,11 @@
                 </v-col>
 
                 <v-col cols="6">
-                  <label class="col-form-label"
+                  <!-- <label class="col-form-label"
                     >Department <span class="text-danger">*</span></label
-                  >
+                  > -->
                   <v-autocomplete
+                    label="Department"
                     :items="departments"
                     item-text="name"
                     item-value="id"
@@ -1199,15 +1211,22 @@ export default {
       await this.getTimezone(filterBranchId);
     },
     async getDepartments(filterBranchId) {
-      let options = {
-        endpoint: "department-list",
-        isFilter: this.isFilter,
-        params: {
-          company_id: this.$auth.user.company_id,
-          branch_id: filterBranchId,
-        },
-      };
-      this.departments = await this.$store.dispatch("department_list", options);
+      if (filterBranchId > 0) {
+        let options = {
+          endpoint: "department-list",
+          isFilter: this.isFilter,
+          params: {
+            company_id: this.$auth.user.company_id,
+            branch_id: filterBranchId,
+          },
+        };
+        this.departments = await this.$store.dispatch(
+          "department_list",
+          options
+        );
+      } else {
+        this.departments = [];
+      }
     },
 
     async getTimezone(filterBranchId) {

@@ -716,9 +716,14 @@ export default {
       location.href = location.href; // process.env.APP_URL + "/dashboard2";
     },
     loadNotificationMenu() {
+      let company_id = this.$auth.user?.company?.id || 0;
+      console.log("company_id", company_id);
+      if (company_id == 0) {
+        return false;
+      }
       let options = {
         params: {
-          company_id: this.$auth.user?.company?.id || 0,
+          company_id: company_id,
         },
       };
       this.$axios.get(`get-notifications-count`, options).then(({ data }) => {

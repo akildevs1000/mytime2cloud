@@ -68,6 +68,8 @@ export const mutations = {
       email: "",
       password: "",
     });
+
+    //console.log("all mutations cleared", state);
   },
   login_token(state, value) {
     state.login_token = value;

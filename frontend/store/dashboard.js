@@ -24,6 +24,8 @@ export const mutations = {
     Object.keys(state).forEach((key) => {
       state[key] = null;
     });
+
+    //  console.log("all mutations cleared", state);
   },
   setDashboardData(state, data) {
     state.dashboardData = data;
