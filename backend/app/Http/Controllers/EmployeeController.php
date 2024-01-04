@@ -806,7 +806,11 @@ class EmployeeController extends Controller
 
 
         if (count($isEmailExist) > 0) {
-            return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name . ' ' . $isEmailExist[0]->employee->last_name, null, false);
+            if ($isEmailExist[0]->employeeData) {
+                return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employeeData->first_name ?? '' . ' ' . $isEmailExist[0]->employeeData->last_name ?? '', null, false);
+            } else {
+                return $this->response('Employee Email is already exist ', null, false);
+            }
         }
         if ($request->password != '') {
             $arr['password'] = Hash::make($request->password ?? "secret");
