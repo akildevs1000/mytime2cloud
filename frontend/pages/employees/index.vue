@@ -396,7 +396,7 @@
               <component
                 :is="getComponent(item.value)"
                 :employeeId="employeeId"
-                @close-popup="editDialog = false"
+                @close-popup="closePopup2"
                 @eventFromChild="handleEventFromChild"
                 v-if="tab == item.value"
               />
@@ -1149,6 +1149,10 @@ export default {
     },
   },
   methods: {
+    closePopup2() {
+      this.editDialog = false;
+      this.getDataFromApi();
+    },
     async handleChangeEvent() {
       this.branchList = await this.$store.dispatch("fetchDropDowns", {
         key: "branchList",

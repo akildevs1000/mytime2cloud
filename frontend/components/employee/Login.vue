@@ -272,10 +272,7 @@ export default {
     submit() {
       this.loading = true;
       this.$axios
-        .post(
-          `/employee-login-update/${this.employee.user_id || 0}`,
-          this.employee
-        )
+        .post(`/employee-login-update/${this.employee.id || 0}`, this.employee)
         .then(({ data }) => {
           this.loading = false;
 
@@ -287,6 +284,7 @@ export default {
             this.response = "Employees Updated successfully";
             this.employee.id = data.record; //updating new User created ID
             this.$emit("eventFromchild");
+
             this.$emit("close-popup");
           }
         })
