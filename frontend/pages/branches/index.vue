@@ -83,13 +83,12 @@
                       <label v-if="formTitle == 'Update'"
                         >Manager( Role=manager)</label
                       >
-
                       <v-autocomplete
                         v-if="formTitle == 'Update'"
                         :disabled="disabled"
                         v-model="branch.user_id"
                         :items="managers"
-                        item-text="full_name"
+                        item-text="first_name"
                         item-value="user_id"
                         hide-details
                         dense
