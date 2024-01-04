@@ -66,7 +66,7 @@
               </v-list-item-title>
             </v-list-item>
             <v-list-item
-              v-if="can(`attendance_report_create`)"
+              v-if="can(`attendance_report_manual_entry_access`)"
               @click="generateLogsDialog = true"
             >
               <v-list-item-title style="cursor: pointer">
@@ -373,7 +373,13 @@
         </template>
 
         <template v-slot:item.actions="{ item }">
-          <v-icon @click="editItem(item)" x-small color="primary" class="mr-2">
+          <v-icon
+            @click="editItem(item)"
+            x-small
+            color="primary"
+            class="mr-2"
+            v-if="can(`attendance_report_manual_entry_access`)"
+          >
             mdi-pencil
           </v-icon>
           <v-icon

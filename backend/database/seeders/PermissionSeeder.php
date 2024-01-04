@@ -211,6 +211,7 @@ class PermissionSeeder extends Seeder
             ['module' => 'attendance_report', 'title' => 'Attendance report delete', 'name' => 'attendance_report_delete'],
 
             ['module' => 'attendance_report_regeneration', 'title' => 'Attendance report Re-Generate Log', 'name' => 'attendance_report_re_generate_access'],
+            ['module' => 'attendance_report_manual_entry', 'title' => 'Attendance report Manual entry', 'name' => 'attendance_report_manual_entry_access'],
 
             ['module' => 'timezone', 'title' => 'Timezone access', 'name' => 'timezone_access'],
             ['module' => 'timezone', 'title' => 'Timezone view', 'name' => 'timezone_view'],
