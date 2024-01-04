@@ -49,7 +49,7 @@ class StoreRequest extends FormRequest
             'title' => ['required'],
             'joining_date' => ['required'],
             'phone_number' =>  ['required', 'min:10', 'max:13'],
-            'whatsapp_number' => ['required', 'min:10', 'max:13'],
+            'whatsapp_number' => ['nullable', 'min:10', 'max:13'],
             'status' => ['nullable'],
             'branch_id' => ['required'],
             'email' => 'nullable|min:3|max:191|unique:users',

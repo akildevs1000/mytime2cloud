@@ -1328,4 +1328,40 @@ class EmployeeController extends Controller
         $result = $model->get(["title", "display_name", "first_name", "last_name", "employee_id", "system_user_id", "department_id", "branch_id"])->toArray();
         return ($result);
     }
+
+    public function employeesDepartmentMapping(Request $request, $id)
+    {
+        // return $request->all();
+        // Define an associative array of system_user_id => department_id pairs
+
+        // $userDepartments = [];
+
+        // foreach ($request->all() as $item) {
+        //     $userDepartments[$item['system_user_id']] = (string) $item['department_id'];
+        // }
+
+        $userDepartments =  $request->all();
+
+        // return $userDepartments;
+
+        // Define the chunk size for batch processing
+        $chunkSize = 50;
+        $resultCount = 0;
+
+        // Chunk the array into smaller parts for batch processing
+        $chunks = array_chunk($userDepartments, $chunkSize, true);
+
+        foreach ($chunks as $chunk) {
+            foreach ($chunk as $row) {
+                Employee::where("company_id", $id)
+                    ->where('system_user_id', $row['system_user_id'])
+                    ->update(["department_id" => $row['department_id']]);
+            }
+
+            $resultCount += $chunkSize;
+        }
+
+        // Optionally, you can return or do something after the update loop
+        return "$resultCount records has been updated";
+    }
 }
