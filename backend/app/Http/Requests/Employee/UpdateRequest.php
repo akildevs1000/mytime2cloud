@@ -24,6 +24,7 @@ class UpdateRequest extends FormRequest
             'company_id' => ['required'],
             'employee_id' => ['required'],
             'system_user_id' => ['required', 'regex:/^[1-9][0-9]*$/'],
+            'full_name' => ['required', 'min:3', 'max:100'],
             'display_name' => ['required', 'min:3', 'max:50'],
             'first_name' => ['required', 'min:3', 'max:50'],
             'last_name' => ['required', 'min:3', 'max:50'],

@@ -29,6 +29,7 @@ class EmployeeRequest extends FormRequest
             'employee_id' => ['required'],
             'system_user_id' => ['required'],
             'first_name' => ['required', 'min:3', 'max:100'],
+            'full_name' => ['required', 'min:3', 'max:100'],
             'display_name' => ['required', 'min:3', 'max:10'],
             'title' => ['required'],
             'last_name' => ['required', 'min:3', 'max:100'],
