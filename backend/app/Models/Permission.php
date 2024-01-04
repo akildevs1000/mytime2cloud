@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Permission extends Model
 {
@@ -16,5 +17,13 @@ class Permission extends Model
     public function getTitleAttribute()
     {
         return Str::replace('_', ' ', $this->name);
+    }
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('order', function (Builder $builder) {
+            $builder->orderBy('name', 'asc');
+        });
     }
 }
