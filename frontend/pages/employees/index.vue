@@ -140,6 +140,26 @@
                     >Display Name <span class="text-danger">*</span></label
                   > -->
                   <v-text-field
+                    label="Full Name"
+                    dense
+                    outlined
+                    :hide-details="!errors.full_name"
+                    type="text"
+                    v-model="employee.full_name"
+                    :error="errors.full_name"
+                    :error-messages="
+                      errors && errors.full_name
+                        ? errors.full_name[0]
+                        : ''
+                    "
+                  ></v-text-field>
+                </v-col>
+
+                <v-col md="12" sm="12" cols="12" dense>
+                  <!-- <label class="col-form-label"
+                    >Display Name <span class="text-danger">*</span></label
+                  > -->
+                  <v-text-field
                     label="Display Name"
                     dense
                     outlined
