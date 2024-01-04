@@ -193,7 +193,7 @@ export const actions = {
       }
 
       const { data } = await this.$axios.get(endpoint, configs);
-      console.log(`Fetching ${key}:`, data);
+      //console.log(`Fetching ${key}:`, data);
 
       commit(key, data);
       return data;

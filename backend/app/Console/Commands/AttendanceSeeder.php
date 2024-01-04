@@ -17,7 +17,7 @@ class AttendanceSeeder extends Command
     {
 
         try {
-            (new AttendanceController)->seedDefaultData($this->argument('company_id'));
+            echo (new AttendanceController)->seedDefaultData($this->argument('company_id'));
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Cron: Default Attendance Seeder. Error Details: ' . $th);
             $date = date("Y-m-d H:i:s");

@@ -801,6 +801,13 @@ class EmployeeController extends Controller
         $arr["employee_role_id"] = $request->employee_role_id;
         $arr["role_id"] = $request->employee_role_id ?? 0;
 
+
+        $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
+
+
+        if (count($isEmailExist) > 0) {
+            return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name . ' ' . $isEmailExist[0]->employee->last_name, null, false);
+        }
         if ($request->password != '') {
             $arr['password'] = Hash::make($request->password ?? "secret");
         }
@@ -813,7 +820,7 @@ class EmployeeController extends Controller
                 return $this->response('Employee cannot update.', null, false);
             }
 
-            return $this->response('Employee successfully updated.', null, true);
+            return $this->response('Employee successfully updated.', $user->id, true);
         } catch (\Throwable $th) {
             throw $th;
         }
@@ -1031,10 +1038,9 @@ class EmployeeController extends Controller
             //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date'); 
 
 
-            foreach (range(1, $daysInMonth) as $day) {
-
-
-                $date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
+            // foreach (range(1, $daysInMonth) as $day)
+            {
+                //$date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
                 $attendance = Attendance::where("company_id", $company_id);
                 $count = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->count();
 
@@ -1314,8 +1320,8 @@ class EmployeeController extends Controller
             $q->where('department_id', request()->filled("department_id"));
         });
         $model->with("branch_test");
-        $model->withOut(["branch","department", "schedule", "designation", "sub_department","user"]);
-        $result = $model->get(["title", "display_name", "first_name", "last_name", "employee_id", "system_user_id", "department_id","branch_id"])->toArray();
+        $model->withOut(["branch", "department", "schedule", "designation", "sub_department", "user"]);
+        $result = $model->get(["title", "display_name", "first_name", "last_name", "employee_id", "system_user_id", "department_id", "branch_id"])->toArray();
         return ($result);
     }
 }
