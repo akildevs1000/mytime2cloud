@@ -24,7 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'full_name', 'name_with_user_id'];
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id'];
 
     public function schedule()
     {
@@ -178,10 +178,10 @@ class Employee extends Model
     //     return $this->first_name ?? "";
     // }
 
-    public function getFullNameAttribute(): string
-    {
-        return $this->first_name . " " . $this->last_name ?? "---";
-    }
+    // public function getFullNameAttribute(): string
+    // {
+    //     return $this->first_name . " " . $this->last_name ?? "---";
+    // }
 
     public function getNameWithUserIDAttribute()
     {
