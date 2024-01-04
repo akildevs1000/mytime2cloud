@@ -140,7 +140,7 @@
                 <td style="border: nosne;text-align:right" colspan="8">
 
 
-                    @if ($empFullName)
+                    {{-- @if ($empFullName)
                         <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
                             <tr class="summary-header" style="border: none;background-color:#eeeeee">
                                 <td style="border :none; padding:10px">
@@ -150,7 +150,7 @@
 
                             </tr>
                         </table>
-                    @endif
+                    @endif --}}
 
 
                     <table class="summary-table" style="backgroudnd-color:red; margin-top:10px">
