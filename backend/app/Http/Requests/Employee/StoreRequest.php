@@ -43,7 +43,7 @@ class StoreRequest extends FormRequest
             'company_id' => ['required'],
             'employee_id' => ['required', $controller->uniqueRecord("employees", $employee)],
             'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice), 'regex:/^[1-9][0-9]*$/'],
-            'full_name' => ['required', 'min:3', 'max:100'],
+            'full_name' => ['nullable', 'min:3', 'max:100'],
             'display_name' => ['required', 'min:3', 'max:20'],
             'first_name' => ['required', 'min:3', 'max:20'],
             'last_name' => ['required', 'min:3', 'max:20'],
