@@ -146,7 +146,8 @@ class CompanyBranchController extends Controller
         });
         $model->when($request->filled("manager_mobile"), function ($q) use ($request) {
 
-            //$q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', 'ILIKE',   $request->manager_mobile));
+            // $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile));
+            // $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile));
             $q->where(function ($q) use ($request) {
                 $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile));
                 $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile));
