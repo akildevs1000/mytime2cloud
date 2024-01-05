@@ -139,9 +139,10 @@ class CompanyBranchController extends Controller
         // });
 
         $model->when($request->filled("location_address"), function ($q) use ($request) {
+
             $q->where(function ($q) use ($request) {
-                $q->where("location", "ILIKE", $request->location_address);
-                $q->orWhere("address", "ILIKE", $request->location_address);
+                $q->where("location", "ILIKE", $request->location_address . '%');
+                $q->orWhere("address", "ILIKE", $request->location_address . '%');
             });
         });
         $model->when($request->filled("manager_mobile"), function ($q) use ($request) {
@@ -149,8 +150,8 @@ class CompanyBranchController extends Controller
             // $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile));
             // $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile));
             $q->where(function ($q) use ($request) {
-                $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile));
-                $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile));
+                $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile . '%'));
+                $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile . '%'));
             });
         });
 
