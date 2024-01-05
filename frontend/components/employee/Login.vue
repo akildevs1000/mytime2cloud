@@ -277,6 +277,8 @@ export default {
         .then(({ data }) => {
           this.loading = false;
 
+          console.log("employee", this.employee);
+
           if (!data.status) {
             this.errors = data.errors;
           } else {
