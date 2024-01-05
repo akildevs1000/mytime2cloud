@@ -133,6 +133,18 @@ class CompanyBranchController extends Controller
             return $q->where("id", $request->filter_branch_id);
         });
 
+        // $model->when($request->filled("location_address"), function ($q) use ($request) {
+        //     return $q->where("location_address", "ILIKE", $request->location_address);
+        // });
+
+        $model->when($request->filled("location_address"), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->where("location", "ILIKE", $request->location_address);
+                $q->orWhere("address", "ILIKE", $request->location_address);
+            });
+        });
+
+
         $model->with("user.employee")->withCount(["employees", "devices", "departments"]);
 
         return $model->orderBy("id", "desc")->paginate($request->per_page ?? 100);

@@ -3,11 +3,11 @@
     "text": "Branch",
     "align": "left",
     "sortable": true,
-    "key": "branch",
-    "value": "branch",
+    "key": "branch_id",
+    "value": "branch_id",
     "width": "300px",
     "filterable": true,
-    "filterSpecial": false
+    "filterSpecial": true
   },
   {
     "text": "Location / Address",
@@ -33,38 +33,38 @@
   {
     "text": "No. EMP",
     "align": "left",
-    "sortable": true,
+    "sortable": false,
     "key": "employees_count",
     "value": "employees_count",
     "width": "150px",
-    "filterable": true,
+    "filterable": false,
     "filterSpecial": false
   },
   {
     "text": "No. Device",
     "align": "left",
-    "sortable": true,
+    "sortable": false,
     "key": "devices_count",
     "value": "devices_count",
-    "filterable": true,
+    "filterable": false,
     "filterSpecial": false
   },
   {
     "text": "No. Depatment",
     "align": "left",
-    "sortable": true,
+    "sortable": false,
     "key": "departments_count",
     "value": "departments_count",
-    "filterable": true,
+    "filterable": false,
     "filterSpecial": false
   },
   {
     "text": "Since",
     "align": "left",
-    "sortable": true,
+    "sortable": false,
     "key": "timezone",
     "value": "created_date",
-    "filterable": true,
+    "filterable": false,
     "filterSpecial": true
   },
   {

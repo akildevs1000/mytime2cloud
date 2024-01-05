@@ -324,7 +324,87 @@
             class="elevation-1"
             :server-items-length="totalRowsCount"
           >
-            <template v-slot:item.branch="{ item, index }" style="width: 300px">
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
+
+                    <v-autocomplete
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'branch_id'"
+                      clearable
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="branch_name"
+                      item-value="id"
+                      :items="[
+                        { branch_name: `All Branches`, id: `` },
+                        ...branchesList,
+                      ]"
+                      placeholder="Branch"
+                      @change="applyFilters(header.key, $event)"
+                    ></v-autocomplete>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'frequency'"
+                      clearable
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[
+                        { name: `All`, id: `` },
+                        { name: `Daily`, id: `Daily` },
+                        { name: `Weekly`, id: `Weekly` },
+                        { name: `Monthly`, id: `Monthly` },
+                      ]"
+                      placeholder="Report Type"
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                    <v-select
+                      :id="header.key"
+                      :hide-details="true"
+                      v-if="header.filterSpecial && header.value == 'medium'"
+                      clearable
+                      outlined
+                      dense
+                      small
+                      v-model="filters[header.key]"
+                      item-text="name"
+                      item-value="id"
+                      :items="[
+                        { name: `All`, id: `` },
+                        { name: `Email`, id: `Email` },
+                        { name: `Whatsapp`, id: `Whatsapp` },
+                      ]"
+                      placeholder="Medium"
+                      @change="applyFilters(header.key, id)"
+                    ></v-select>
+                  </v-container>
+                </td>
+              </tr>
+            </template>
+            <template
+              v-slot:item.branch_id="{ item, index }"
+              style="width: 300px"
+            >
               <v-row no-gutters>
                 <v-col
                   style="
@@ -491,6 +571,7 @@ export default {
     tab: "0",
     branchId: 0,
     branchObject: {},
+    branchesList: [],
     attrs: [],
     dialog: false,
     editDialog: false,
@@ -578,6 +659,7 @@ export default {
     this.getDataFromApi();
     //this.getManagers(options);
     //this.getDepartments(options);
+    this.getbranchesList();
   },
   mounted() {
     //this.getDataFromApi();
@@ -607,6 +689,17 @@ export default {
     },
   },
   methods: {
+    getbranchesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+
+      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
+        this.branchesList = data;
+      });
+    },
     getManagers(options) {
       //
       // this.$axios.get(`assigned-employee-list`, options).then(({ data }) => {
