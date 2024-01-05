@@ -802,12 +802,12 @@ class EmployeeController extends Controller
         $arr["role_id"] = $request->employee_role_id ?? 0;
 
 
-        return  $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
+        $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
 
 
         if (count($isEmailExist) > 0) {
 
-            return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name ?? '' . ' ' . $isEmailExist[0]->employee->last_name ?? '']]];
+            return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             if ($isEmailExist[0]->employeeData) {
 
                 return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name ?? '' . ' ' . $isEmailExist[0]->employee->last_name ?? '']]];
