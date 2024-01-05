@@ -236,8 +236,12 @@
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon dark v-bind="attrs" v-on="on">
             <v-badge
-              :color="pendingNotificationsCount > 0 ? 'red' : 'red'"
-              :content="pendingNotificationsCount"
+              :color="pendingNotificationsCount > 0 ? 'red' : 'green'"
+              :content="
+                pendingNotificationsCount == ''
+                  ? '0'
+                  : pendingNotificationsCount
+              "
               style="top: 10px; left: -19px"
             >
               <v-icon style="top: -10px; left: 10px" class="violet--text"
@@ -615,7 +619,7 @@ export default {
     this.setMenus();
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
-
+    this.pendingNotificationsCount = 0;
     this.loadNotificationMenu();
 
     setInterval(() => {
@@ -726,6 +730,8 @@ export default {
           company_id: company_id,
         },
       };
+      //this.pendingNotificationsCount = 0;
+      let pendingcount = 0;
       this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
         this.notificationsMenuItems = [
           {
@@ -739,10 +745,10 @@ export default {
             icon: "mdi-transit-transfer",
           },
         ];
-        this.pendingNotificationsCount = 0;
+        pendingcount = 0;
 
         if (data.employee_leaves_pending_count) {
-          this.pendingNotificationsCount += data.employee_leaves_pending_count;
+          pendingcount += data.employee_leaves_pending_count;
           this.notificationsMenuItems.push({
             title:
               "Leaves Pending (" + data.employee_leaves_pending_count + ")",
@@ -751,7 +757,7 @@ export default {
           });
         }
         if (data.visitor_request_pending_count) {
-          this.pendingNotificationsCount += data.visitor_request_pending_count;
+          pendingcount += data.visitor_request_pending_count;
           this.notificationsMenuItems.push({
             title:
               "Visitors Pending (" + data.visitor_request_pending_count + ")",
@@ -759,6 +765,19 @@ export default {
             icon: "mdi-transit-transfer",
           });
         }
+        this.pendingNotificationsCount = pendingcount;
+        // console.log("pendingcount", pendingcount);
+        // if (pendingcount == 0) {
+        //   this.pendingNotificationsCount = 0;
+        // } else this.pendingNotificationsCount = pendingcount;
+        // console.log(
+        //   "pendingcount",
+        //   pendingcount,
+        //   this.pendingNotificationsCount
+        // );
+        // if (this.pendingNotificationsCount == "") {
+        //   this.pendingNotificationsCount = 0;
+        // }
         // if (this.pendingNotificationsCount > 0) {
         //   //console.log("this.$config", this.$config);
         //   document.title =

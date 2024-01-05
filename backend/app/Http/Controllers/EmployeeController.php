@@ -826,6 +826,7 @@ class EmployeeController extends Controller
 
             return $this->response('Employee successfully updated.', $user->id, true);
         } catch (\Throwable $th) {
+            return $this->response('Employee cannot update.', $th, false);
             throw $th;
         }
     }
