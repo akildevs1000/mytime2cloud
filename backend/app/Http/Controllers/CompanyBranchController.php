@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Builder;
 use App\Http\Requests\CompanyBranch\StoreRequest;
 use App\Models\Company;
 use App\Models\CompanyBranch;
@@ -141,6 +142,14 @@ class CompanyBranchController extends Controller
             $q->where(function ($q) use ($request) {
                 $q->where("location", "ILIKE", $request->location_address);
                 $q->orWhere("address", "ILIKE", $request->location_address);
+            });
+        });
+        $model->when($request->filled("manager_mobile"), function ($q) use ($request) {
+
+            //$q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', 'ILIKE',   $request->manager_mobile));
+            $q->where(function ($q) use ($request) {
+                $q->whereHas('user.employee', fn (Builder $query) => $query->where('first_name', "ILIKE",   $request->manager_mobile));
+                $q->orwhereHas('user.employee', fn (Builder $query) => $query->where('phone_number', "ILIKE",   $request->manager_mobile));
             });
         });
 

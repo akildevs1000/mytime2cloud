@@ -27,7 +27,7 @@
     "value": "manager_mobile",
     "width": "200px",
     "filterable": true,
-    "filterSpecial": true
+    "filterSpecial": false
   },
 
   {
