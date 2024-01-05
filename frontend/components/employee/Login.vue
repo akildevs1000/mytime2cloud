@@ -199,6 +199,7 @@ export default {
     max_employee: 0,
     employee: {
       email: "",
+      employee_role_id: "",
     },
     upload: {
       name: "",
