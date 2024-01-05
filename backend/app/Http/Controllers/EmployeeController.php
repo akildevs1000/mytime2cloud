@@ -802,12 +802,17 @@ class EmployeeController extends Controller
         $arr["role_id"] = $request->employee_role_id ?? 0;
 
 
-        $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
+        return  $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
 
 
         if (count($isEmailExist) > 0) {
+
+            return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name ?? '' . ' ' . $isEmailExist[0]->employee->last_name ?? '']]];
             if ($isEmailExist[0]->employeeData) {
-                return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employeeData->first_name ?? '' . ' ' . $isEmailExist[0]->employeeData->last_name ?? '', null, false);
+
+                return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name ?? '' . ' ' . $isEmailExist[0]->employee->last_name ?? '']]];
+
+                //return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employeeData->first_name ?? '' . ' ' . $isEmailExist[0]->employeeData->last_name ?? '', null, false);
             } else {
                 return $this->response('Employee Email is already exist ', null, false);
             }

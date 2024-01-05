@@ -65,7 +65,6 @@
                   placeholder="Select"
                   v-model="employee.employee_role_id"
                   :hide-details="!errors.employee_role_id"
-                  :error="errors.employee_role_id"
                   :error-messages="
                     errors && errors.employee_role_id
                       ? errors.employee_role_id[0]
