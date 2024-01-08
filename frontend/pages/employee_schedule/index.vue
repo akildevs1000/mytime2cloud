@@ -1493,7 +1493,7 @@ export default {
       };
 
       //if (filter_value != "") options.params[filter_column] = filter_value;
-
+      this.currentPage = page;
       this.$axios
         .get("employees_with_schedule_count", options)
         .then(({ data }) => {
@@ -1525,7 +1525,7 @@ export default {
             this.displayNoRecords = true;
           }
 
-          this.totalRowsCount = this.employees.length; //data.total;
+          this.totalRowsCount = data.total;
         });
 
       //this.loading = false;
