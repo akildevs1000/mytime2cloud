@@ -61,8 +61,12 @@ class ScheduleEmployeeController extends Controller
 
         $model->when($request->filled('first_name'), function ($q) use ($request) {
 
-            $q->where('first_name', 'ILIKE', "$request->first_name%");
-            $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+            // $q->where('first_name', 'ILIKE', "$request->first_name%");
+            // $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+            $q->Where(function ($q) use ($request) {
+                $q->where('first_name', 'ILIKE', "$request->first_name%");
+                $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+            });
         });
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
