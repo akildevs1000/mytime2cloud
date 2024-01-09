@@ -126,7 +126,7 @@
             </td>
           </tr>
           <tr>
-            <td><strong>Location Tracking </strong></td>
+            <td><strong>Location Tracking(Mobile Login) </strong></td>
             <td>
               <div class="text-overline mb-1">
                 <v-switch

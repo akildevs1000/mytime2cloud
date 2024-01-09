@@ -492,11 +492,13 @@ export default {
           title: "Leaves Pending (0)",
           click: "/leaves",
           icon: "mdi-calendar-account",
+          key: "leaves",
         },
         {
           title: "Visitors Pending (0)",
           click: "/visitor/requests",
           icon: "mdi-transit-transfer",
+          key: "visitors",
         },
       ],
 
@@ -738,33 +740,34 @@ export default {
             title: "Leaves Pending (0)",
             click: "/leaves",
             icon: "mdi-calendar-account",
+            key: "leaves",
           },
           {
             title: "Visitors Pending (0)",
             click: "/visitor/requests",
             icon: "mdi-transit-transfer",
+            key: "visitors",
           },
         ];
         pendingcount = 0;
 
         if (data.employee_leaves_pending_count) {
           pendingcount += data.employee_leaves_pending_count;
-          this.notificationsMenuItems.push({
-            title:
-              "Leaves Pending (" + data.employee_leaves_pending_count + ")",
-            click: "/leaves",
-            icon: "mdi-calendar-account",
-          });
+          let leaves = this.notificationsMenuItems.find(
+            (e) => e.key == "leaves"
+          );
+          leaves.title =
+            "Leaves Pending (" + data.employee_leaves_pending_count + ")";
         }
         if (data.visitor_request_pending_count) {
           pendingcount += data.visitor_request_pending_count;
-          this.notificationsMenuItems.push({
-            title:
-              "Visitors Pending (" + data.visitor_request_pending_count + ")",
-            click: "/visitor/requests",
-            icon: "mdi-transit-transfer",
-          });
+          let leaves = this.notificationsMenuItems.find(
+            (e) => e.key == "visitors"
+          );
+          leaves.title =
+            "Visitors Pending (" + data.visitor_request_pending_count + ")";
         }
+
         this.pendingNotificationsCount = pendingcount;
         // console.log("pendingcount", pendingcount);
         // if (pendingcount == 0) {
