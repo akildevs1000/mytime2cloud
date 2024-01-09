@@ -99,10 +99,10 @@ class AttendanceLog extends Model
 
         $model->with("device");
 
-        $model->whereHas("employee", function ($q) use ($request) {
-            $q->where("company_id", $request->company_id);
-            $q->where('status', 1);
-        });
+        // $model->whereHas("employee", function ($q) use ($request) {
+        //     $q->where("company_id", $request->company_id);
+        //     $q->where('status', 1);
+        // });
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
