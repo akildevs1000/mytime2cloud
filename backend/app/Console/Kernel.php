@@ -248,7 +248,7 @@ class Kernel extends ConsoleKernel
             ->command('task:check_device_health')
             ->hourly()
             ->between('7:00', '23:59')
-            ->withoutOverlapping()
+            // ->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$monthYear-devices-health.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 

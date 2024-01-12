@@ -807,8 +807,8 @@ class EmployeeController extends Controller
 
         if (count($isEmailExist) > 0) {
 
-            return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
-            if ($isEmailExist[0]->employeeData) {
+            //return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
+            if ($isEmailExist[0]->employee) {
 
                 return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $isEmailExist[0]->employee->first_name ?? '' . ' ' . $isEmailExist[0]->employee->last_name ?? '']]];
 
@@ -883,7 +883,8 @@ class EmployeeController extends Controller
                 throw $th;
             }
         } else {
-            return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
+            if ($request->rfid_card_number != '')
+                return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
         }
     }
 
