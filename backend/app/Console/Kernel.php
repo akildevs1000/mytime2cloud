@@ -26,7 +26,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyMinute()
+            //->everyMinute()
+            ->everyFifteenSeconds()
             //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
