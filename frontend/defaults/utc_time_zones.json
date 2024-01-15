@@ -75,9 +75,9 @@
     "offset": "GMT+01:00",
     "time_zone": "Central European Time, West Africa Time"
   },
-  "Africa/Algiers": {
-    "offset": "GMT+01:00",
-    "time_zone": "Central European Time, West Africa Time"
+  "Africa/Zimbabwe": {
+    "offset": "GMT+02:00",
+    "time_zone": "Central Africa Time"
   },
   "Asia/Baghdad": {
     "offset": "GMT+03:00",
