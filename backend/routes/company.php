@@ -298,5 +298,3 @@ Route::apiResource('leave_count', LeaveCountController::class);
 Route::apiResource('leave_groups', LeaveGroupsController::class);
 Route::get('leave_groups/{id}', [LeaveGroupsController::class, 'show']);
 Route::get('leave-group-list', [LeaveGroupsController::class, 'dropdownList']);
-
-
