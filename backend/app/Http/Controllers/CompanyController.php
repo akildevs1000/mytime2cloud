@@ -28,6 +28,7 @@ use App\Http\Requests\Company\CompanyUpdateRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
 use App\Models\AnnouncementsCategories;
+use App\Models\CompanyBranch;
 use App\Models\Department;
 use App\Models\Designation;
 use App\Models\Employee;
@@ -208,12 +209,15 @@ class CompanyController extends Controller
 
         $theme = Theme::create($cardData);
         $role = Role::insert(defaultRoles($id));
-        $department = Department::insert(defaultDepartments($id));
+
         $designations = Designation::insert(defaultDesignations($id));
         $AnnouncementsCategories = AnnouncementsCategories::insert(defaultAnnouncementCategories($id));
         $MailContent = MailContent::insert(defaultMailContent($id));
 
         $devices = Device::insert(defaultDeviceManual($id));
+        $branches = CompanyBranch::create(defaultBranch($id));
+        $department = Department::insert(defaultDepartments($id, $branches->id));
+
 
         if ($theme && $role && $department) {
             return true;

@@ -148,9 +148,7 @@
                     v-model="employee.full_name"
                     :error="errors.full_name"
                     :error-messages="
-                      errors && errors.full_name
-                        ? errors.full_name[0]
-                        : ''
+                      errors && errors.full_name ? errors.full_name[0] : ''
                     "
                   ></v-text-field>
                 </v-col>
@@ -250,7 +248,7 @@
                     >Mobile Number <span class="text-danger">*</span></label
                   > -->
                   <v-text-field
-                    label="Mobile Numberd"
+                    label="Mobile Numbers"
                     dense
                     outlined
                     type="number"

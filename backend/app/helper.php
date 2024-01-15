@@ -112,7 +112,16 @@ function defaultCards($id = 1)
     ];
 }
 
-
+function defaultBranch($id = 1)
+{
+    return
+        [
+            "branch_code" => "BRN1",
+            "branch_name" => "Branch1",
+            "user_id" => 0,
+            "company_id" => $id,
+        ];
+}
 function defaultRoles($id = 1)
 {
     return [
@@ -130,29 +139,29 @@ function defaultRoles($id = 1)
 }
 
 
-function defaultDepartments($id = 1)
+function defaultDepartments($id = 1, $branch_id = 1)
 {
 
     return [
         [
             "name" => "Accounts",
             "company_id" => $id,
-            "branch_id" => 1,
+            "branch_id" => $branch_id,
         ],
         [
             "name" => "Admin",
             "company_id" => $id,
-            "branch_id" => 1,
+            "branch_id" => $branch_id,
         ],
         [
             "name" => "It Dep",
             "company_id" => $id,
-            "branch_id" => 1,
+            "branch_id" => $branch_id,
         ],
         [
             "name" => "Sales",
             "company_id" => $id,
-            "branch_id" => 1,
+            "branch_id" => $branch_id,
         ]
     ];
 }
