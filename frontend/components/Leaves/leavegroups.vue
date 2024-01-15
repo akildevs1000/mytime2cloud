@@ -55,7 +55,7 @@
               </v-col>
             </v-row>
 
-            <v-row v-for="(item,index) in leaveTypes" :key="index">
+            <v-row v-for="(item, index) in leaveTypes" :key="index">
               <v-col cols="6">
                 {{ item.name }}
               </v-col>
@@ -433,11 +433,12 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     async getLeaveTypes() {
+      console.log("this.editedItem ", this.editedItem);
       let options = {
         params: {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
-          branch_id: this.$auth.user.branch_id,
+          branch_id: this.editedItem.branch_id,
         },
       };
       await this.$axios.get(`leave_type`, options).then(({ data }) => {
@@ -478,7 +479,7 @@ export default {
       });
     },
     async createNew() {
-       this.getLeaveTypes();
+      this.getLeaveTypes();
 
       if (!this.isCompany) {
         this.editedItem.branch_id = this.branch_id;
@@ -489,11 +490,13 @@ export default {
       this.dialog = true;
       this.error = [];
     },
-    editItem(item) {
+    async editItem(item) {
       this.formTitle = "Edit Group Details";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
 
+      this.editedItem.branch_id = item.branch_id;
+      await this.getLeaveTypes();
       this.leaveTypes.forEach((element) => {
         element.leave_type_count = this.editedItem.leave_count.filter(
           (e) => e.leave_type_id == element.id
