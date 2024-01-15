@@ -28,38 +28,6 @@
               >
               </v-checkbox>
             </v-col>
-            <v-col v-if="isCompany" md="3" sm="12" cols="12">
-              <label>Branch <span class="error--text">*</span></label>
-              <v-select
-                clearable
-                :hide-details="true"
-                outlined
-                dense
-                small
-                v-model="payload.branch_id"
-                item-text="name"
-                item-value="id"
-                :items="branchList"
-                placeholder="Branch"
-                solo
-                flat
-              ></v-select>
-              <span v-if="errors && errors.branch_id" class="text-danger">{{
-                errors.branch_id[0]
-              }}</span>
-            </v-col>
-            <v-col md="3" sm="12" cols="12">
-              <label>Name of Schedule<span class="error--text">*</span></label>
-              <v-text-field
-                v-model="payload.name"
-                :hide-details="true"
-                dense
-                outlined
-              ></v-text-field>
-              <span v-if="errors && errors.name" class="text-danger">{{
-                errors.name[0]
-              }}</span>
-            </v-col>
             <v-col md="3" sm="12" cols="12">
               <label>Type of Schedule <span class="error--text">*</span></label>
               <v-select
@@ -82,6 +50,40 @@
                 errors.shift_type_id[0]
               }}</span>
             </v-col>
+            <v-col v-if="isCompany" md="3" sm="12" cols="12">
+              <label>Branch <span class="error--text">*</span></label>
+              <v-select
+                clearable
+                :hide-details="true"
+                outlined
+                dense
+                small
+                v-model="payload.branch_id"
+                item-text="name"
+                item-value="id"
+                :items="branchList"
+                placeholder="Branch"
+                solo
+                flat
+              ></v-select>
+              <span v-if="errors && errors.branch_id" class="text-danger">{{
+                errors.branch_id[0]
+              }}</span>
+            </v-col>
+
+            <v-col md="3" sm="12" cols="12">
+              <label>Name of Schedule<span class="error--text">*</span></label>
+              <v-text-field
+                v-model="payload.name"
+                :hide-details="true"
+                dense
+                outlined
+              ></v-text-field>
+              <span v-if="errors && errors.name" class="text-danger">{{
+                errors.name[0]
+              }}</span>
+            </v-col>
+
             <v-col cols="12">
               <SplitShift
                 v-if="payload.shift_type_id == 5"
