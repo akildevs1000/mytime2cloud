@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Leavetype\StoreRequest;
-use App\Http\Requests\Leavetype\UpdateRequest;
+use App\Http\Requests\LeaveType\StoreRequest;
+use App\Http\Requests\LeaveType\UpdateRequest;
 use App\Models\LeaveType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,7 +27,8 @@ class LeaveTypesController extends Controller
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
-    function list(Request $request) {
+    function list(Request $request)
+    {
         return $this->getDefaultModelSettings($request)->paginate($request->per_page ?? 100);
     }
 
@@ -105,5 +106,4 @@ class LeaveTypesController extends Controller
             return $this->response('LeaveType cannot delete.', null, false);
         }
     }
-
 }

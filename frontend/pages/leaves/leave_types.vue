@@ -3,7 +3,7 @@
     <v-tabs right>
       <v-tab> Leave Types </v-tab>
       <v-tab> Groups </v-tab>
-      <v-tab-slider color="violet"></v-tab-slider>
+      <v-tab-slider key="1" color="violet"></v-tab-slider>
       <v-tab-item>
         <Leavetype />
       </v-tab-item>

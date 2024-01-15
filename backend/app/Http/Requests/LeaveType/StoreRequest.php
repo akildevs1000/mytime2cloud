@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Leavetype;
+namespace App\Http\Requests\LeaveType;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
