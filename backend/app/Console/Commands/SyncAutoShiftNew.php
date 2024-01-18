@@ -35,7 +35,8 @@ class SyncAutoShiftNew extends Command
         $date = $this->argument("date");
 
         try {
-            echo (new AutoShiftController)->render($id, $date, [], false) . "\n";
+            //echo (new AutoShiftController)->render($id, $date, [], false) . "\n";
+            echo (new AutoShiftController)->renderStep1($id, $date, [], false) . "\n";
         } catch (\Throwable $th) {
             //throw $th;
             $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;

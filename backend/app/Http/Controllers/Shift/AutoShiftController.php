@@ -318,7 +318,39 @@ class AutoShiftController extends Controller
     {
         return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->UserIds, true);
     }
+    public function renderStep1($id, $date, $UserIds = [], $custom_render = false)
+    {
 
+        // Extract start and end dates from the JSON data
+        $startDateString = $date;
+
+        $endDateString = $date;
+
+        $company_id = $id;
+
+        $params = [
+            "company_id" => $id,
+            "date" => $date,
+            "custom_render" => $custom_render,
+            "UserIds" => $UserIds,
+        ];
+
+        $employee_ids = (new AttendanceLog)->getEmployeeIdsForNewLogsToRenderAuto($params);
+
+        // Convert start and end dates to DateTime objects
+        $startDate = new \DateTime($startDateString);
+        $endDate = new \DateTime($endDateString);
+        $currentDate = new \DateTime();
+
+        $response = [];
+
+        while ($startDate <= $currentDate && $startDate <= $endDate) {
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, true);
+            $startDate->modify('+1 day');
+        }
+
+        return $response;
+    }
 
     public function render($id, $date, $UserIds = [], $custom_render = false)
     {
