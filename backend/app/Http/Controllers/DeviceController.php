@@ -483,29 +483,38 @@ class DeviceController extends Controller
 
     public function devcieCountByStatus($company_id)
     {
-        $statusCounts = Device::where('company_id', $company_id)
-            ->whereIn('status_id', [1, 2])
-            ->where('device_id', "!=", "Manual")
-            ->selectRaw('status_id, COUNT(*) as count')
-            ->groupBy('status_id')
-            ->get();
 
-        $onlineDevices = 0;
-        $offlineDevices = 0;
+        if ($company_id > 0) {
+            $statusCounts = Device::where('company_id', $company_id)
+                ->whereIn('status_id', [1, 2])
+                ->where('device_id', "!=", "Manual")
+                ->selectRaw('status_id, COUNT(*) as count')
+                ->groupBy('status_id')
+                ->get();
 
-        foreach ($statusCounts as $statusCount) {
-            if ($statusCount->status_id == 1) {
-                $onlineDevices = $statusCount->count;
-            } elseif ($statusCount->status_id == 2) {
-                $offlineDevices = $statusCount->count;
+            $onlineDevices = 0;
+            $offlineDevices = 0;
+
+            foreach ($statusCounts as $statusCount) {
+                if ($statusCount->status_id == 1) {
+                    $onlineDevices = $statusCount->count;
+                } elseif ($statusCount->status_id == 2) {
+                    $offlineDevices = $statusCount->count;
+                }
             }
-        }
 
-        return [
-            "total" => $onlineDevices + $offlineDevices,
-            "labels" => ["Online", "Offline"],
-            "series" => [$onlineDevices, $offlineDevices],
-        ];
+            return [
+                "total" => $onlineDevices + $offlineDevices,
+                "labels" => ["Online", "Offline"],
+                "series" => [$onlineDevices, $offlineDevices],
+            ];
+        } else {
+            return [
+                "total" => 0,
+                "labels" => ["Online", "Offline"],
+                "series" => [0, 0]
+            ];
+        }
     }
     public function getActiveTimeSettings(Request $request, $key_id)
     {
