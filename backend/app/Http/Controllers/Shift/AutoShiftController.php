@@ -307,7 +307,9 @@ class AutoShiftController extends Controller
         $response = [];
 
         while ($startDate <= $currentDate && $startDate <= $endDate) {
-            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, true);
+            //$response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, true);
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, $request->filled("auto_render") ? false : true);
+
             $startDate->modify('+1 day');
         }
 
@@ -362,6 +364,8 @@ class AutoShiftController extends Controller
             "custom_render" => $custom_render,
             "UserIds" => $UserIds,
         ];
+
+
 
         $data = (new AttendanceLog)->getEmployeeIdsForNewLogsToRenderAuto($params);
 

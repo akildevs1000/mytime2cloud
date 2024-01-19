@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
             }
 
 
-            $schedule
+            /*   $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
                 ->everyMinute()
                 ->between('06:00', '23:59')
@@ -117,6 +117,8 @@ class Kernel extends ConsoleKernel
                 ->runInBackground()
                 //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-split-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                */
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
                 ->everyMinute()
