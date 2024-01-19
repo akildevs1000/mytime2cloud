@@ -760,6 +760,13 @@
               ? item.schedule.shift.name
               : "---"
           }}
+          <!-- {{
+            item.schedule_active?.isAutoShift
+              ? "Auto"
+              : item.schedule_active.shift
+              ? item.schedule_active.shift.name
+              : "---"
+          }} -->
           <!-- {{ item.schedule.isAutoShift ? "Auto" : "---" }}
 
           {{

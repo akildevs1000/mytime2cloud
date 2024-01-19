@@ -30,7 +30,9 @@ class ScheduleEmployeeController extends Controller
                 $q->where('branch_id', $request->branch_id);
             });
 
-
+        $model->with(["schedule_active" => function ($q) use ($request) {
+            $q->where("company_id", $request->company_id);
+        }]);
 
         $model->with(["schedule_all" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
