@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
   const [m, d, y] = newDate.split("/");
   const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   //let GlobalformattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
-  const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
+  const logFilePath = `../backend/storage/app/camera/camera-logs-${formattedDate}.csv`;
 
   socket.on("data", (data) => {
     let TodayDatetime = getTime();

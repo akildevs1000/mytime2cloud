@@ -28,7 +28,7 @@ class AttendanceLogCameraController extends Controller
     {
         $date = date("d-m-Y", strtotime("yesterday"));
 
-        $csvPath = "app/camera-logs-$date.csv"; // The path to the file relative to the "Storage" folder
+        $csvPath = "app/camera/camera-logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
         $fullPath = storage_path($csvPath);
 
@@ -116,7 +116,7 @@ class AttendanceLogCameraController extends Controller
     {
         $date = date("d-m-Y");
 
-        $csvPath = "app/camera-logs-$date.csv"; // The path to the file relative to the "Storage" folder
+        $csvPath = "app/camera/camera-logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
         $fullPath = storage_path($csvPath);
 
