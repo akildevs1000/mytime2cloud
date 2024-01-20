@@ -278,7 +278,24 @@ class AttendanceLog extends Model
             ->distinct("UserID", "company_id")
             ->pluck('UserID');
     }
+    public function getEmployeeIdsForNewLogsNightToRender($params)
+    {
+        return self::where("company_id", $params["company_id"])
+            ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
+            ->where("company_id", $params["company_id"])
+            ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +2 day"))) // Check for logs on or before the next date
+            ->whereNotIn('UserID', function ($query) {
+                $query->select('system_user_id')
+                    ->where('visit_from', "<=", date('Y-m-d'))
+                    ->where('visit_to', ">=", date('Y-m-d'))
 
+                    ->from('visitors');
+            })
+            ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", false))
+            ->distinct("UserID", "company_id")
+            ->pluck('UserID');
+    }
     public function getEmployeeIdsForNewLogsToRenderAuto($params)
     {
         return self::where("company_id", $params["company_id"])
