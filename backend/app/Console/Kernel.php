@@ -148,12 +148,12 @@ class Kernel extends ConsoleKernel
                     ->appendOutputTo(storage_path("logs/$monthYear-generate_daily_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
-                    ->command("task:generate_weeky_report {$companyId} {$status}")
+                    ->command("task:generate_weekly_report {$companyId} {$status}")
                     // ->everyMinute()
                     ->dailyAt('04:00')
                     // ->runInBackground()
                     ->withoutOverlapping()
-                    ->appendOutputTo(storage_path("logs/$monthYear-generate_weeky_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                    ->appendOutputTo(storage_path("logs/$monthYear-generate_weekly_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
                     ->command("task:generate_monthly_report {$companyId} {$status}")
