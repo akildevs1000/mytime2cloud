@@ -21,7 +21,7 @@ const server = net.createServer((socket) => {
   const [m, d, y] = newDate.split("/");
   const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
   //let GlobalformattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
-  const logFilePath = `../backend/storage/camera/camera-logs-${formattedDate}.csv`;
+  const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
 
   socket.on("data", (data) => {
     let TodayDatetime = getTime();
@@ -128,7 +128,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
 
               // Write the Buffer content to an image file
               fs.writeFileSync(
-                "../backend/public/camera/camera-unregsitered-faces-logs/" +
+                "../backend/public/camera-unregsitered-faces-logs/" +
                   pictureName,
                 buffer
               );
@@ -257,7 +257,7 @@ function saveRegisteredMemberstoCSV(
 
 function logConsoleStatus(message) {
   console.log(message);
-  const logFilePath = `../backend/storage/camera/camera-live-status-${getDate()}.log`;
+  const logFilePath = `../backend/storage/camera-live-status-${getDate()}.log`;
   fs.appendFileSync(logFilePath, message + "\n");
 }
 function formatdate(originalDateTime) {
