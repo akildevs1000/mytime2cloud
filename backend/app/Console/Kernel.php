@@ -68,13 +68,13 @@ class Kernel extends ConsoleKernel
                     ->appendOutputTo(storage_path("logs/$monthYear-send-notification-for-offline-devices-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
-            // $schedule
-            //     ->command("task:sync_multi_shift_night {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-            //     ->hourly()
-            //     ->between('00:00', '05:59')
-            //     ->runInBackground()
-            //     //->withoutOverlapping()
-            //     ->appendOutputTo(storage_path("logs/shifts/multi/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $schedule
+                ->command("task:sync_multi_shift_night {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->hourly()
+                ->between('00:00', '05:59')
+                ->runInBackground()
+                //->withoutOverlapping()
+                ->appendOutputTo(storage_path("logs/shifts/multi/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             /*   $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
