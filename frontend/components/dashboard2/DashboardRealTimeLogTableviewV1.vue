@@ -138,7 +138,26 @@
         >
         <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
       </template>
+
+      <template v-slot:item.branch="{ item }">
+        {{ item?.employee?.branch?.branch_name }} <br />
+        {{ item?.employee?.department?.name }}
+      </template>
+
       <template v-slot:item.device.device_name="{ item }">
+        <div class="secondary-value" v-if="item.DeviceID.includes(`Mobile`)">
+          Mobile <br />
+          {{ item.gps_location }}
+        </div>
+        <div class="secondary-value" v-else>
+          {{ item.device ? caps(item.device.name) : "---" }} <br />
+          {{
+            item.device && item.device.location ? item.device.location : "---"
+          }}
+        </div>
+      </template>
+
+      <!-- <template v-slot:item.device.device_name="{ item }">
         <div>
           {{ item.device ? caps(item.device.name) : "---" }} <br />
 
@@ -154,7 +173,7 @@
             }}
           </div>
         </div>
-      </template>
+      </template> -->
       <!-- <template v-slot:item.log="{ item }">
         <v-btn @click="viewLog(item.UserID)">View Log</v-btn>
       </template> -->
@@ -221,14 +240,12 @@ export default {
           value: "employee.first_name",
         },
         {
-          text: "Department",
+          text: "Branch/Department",
           align: "left",
           sortable: false,
           filterable: true,
-
-          value: "employee.department",
+          value: "branch",
         },
-
         {
           text: "Time",
           align: "left",
