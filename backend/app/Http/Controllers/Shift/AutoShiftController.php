@@ -416,7 +416,7 @@ class AutoShiftController extends Controller
                 $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
 
                 if (!$params["custom_render"]) {
-                    AttendanceLog::where("company_id", $id)->where("UserID", $UserID)->update(["checked" => true]);
+                    AttendanceLog::where("company_id", $id)->where("UserID", $UserID)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
                 }
 
                 $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";

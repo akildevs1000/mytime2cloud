@@ -191,9 +191,9 @@ class MultiShiftController extends Controller
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
             }
-            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift Night.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
-            $message = $this->getMeta("Multi Shift", $e->getMessage());
+            $message = $this->getMeta("Multi Shift ", $e->getMessage());
         }
 
         $this->devLog("render-manual-log", $message);

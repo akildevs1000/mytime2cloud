@@ -74,7 +74,7 @@ class Kernel extends ConsoleKernel
                 ->between('00:00', '05:59')
                 ->runInBackground()
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("logs/shifts/multi/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("logs/shifts/multi_night/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             /*   $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
