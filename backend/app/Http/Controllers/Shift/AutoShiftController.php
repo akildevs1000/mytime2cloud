@@ -406,7 +406,9 @@ class AutoShiftController extends Controller
                     ->where("employee_id", $UserID)
                     ->update([
                         "from_date" => $params['date'],
-                        "to_date" => $params['date'],
+                        //"to_date" => $params['date'],
+                        "to_date" =>  strtotime(date("Y-m-d") . " +1 day"),
+
                         "shift_type_id" => $nearestShift['shift_type_id'],
                         "shift_id" => $nearestShift['id'],
                     ]);
