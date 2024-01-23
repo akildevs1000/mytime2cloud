@@ -61,7 +61,6 @@
                   ref="from_menu"
                   v-model="from_menu[i]"
                   :close-on-content-click="false"
-                  :return-value.sync="item.from_date"
                   transition="scale-transition"
                   offset-y
                   min-width="auto"
@@ -85,8 +84,9 @@
                     v-model="item.from_date"
                     no-title
                     scrollable
+                    @input="from_menu[i] = false"
                   >
-                    <v-spacer></v-spacer>
+                    <!-- <v-spacer></v-spacer>
                     <v-btn text color="primary" @click="from_menu[i] = false">
                       Cancel
                     </v-btn>
@@ -100,7 +100,7 @@
                       "
                     >
                       OK
-                    </v-btn>
+                    </v-btn> -->
                   </v-date-picker>
                 </v-menu>
               </div>

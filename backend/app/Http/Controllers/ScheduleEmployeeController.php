@@ -167,7 +167,10 @@ class ScheduleEmployeeController extends Controller
     public function update(UpdateRequest $request, $id)
     {
         try {
-            $record = ScheduleEmployee::where('employee_id', $id)->update($request->validated());
+
+            $data = $request->validated();
+            $data['updated_at'] = date('Y-m-d H:i:s');
+            $record = ScheduleEmployee::where('employee_id', $id)->update($request->validated($data));
             if ($record) {
                 return response()->json(['status' => true, 'message' => 'Schedule Employee successfully updated']);
             } else {
