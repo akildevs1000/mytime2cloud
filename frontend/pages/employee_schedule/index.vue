@@ -131,6 +131,7 @@
                     ></v-text-field>
                   </template>
                   <v-date-picker
+                    no-title
                     :readonly="!isEdit"
                     v-model="item.to_date"
                     @input="to_menu[i] = false"
