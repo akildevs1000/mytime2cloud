@@ -330,7 +330,7 @@ class AccessControlController extends Controller
 
         $data = $model->get()->toArray();
 
-        if ($request->debug) return $data; 
+        if ($request->debug) return $data;
 
         return Pdf::loadView("pdf.access_control_reports.custom", [
             "data" => $data,
