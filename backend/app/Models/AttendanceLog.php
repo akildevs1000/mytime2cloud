@@ -315,6 +315,7 @@ class AttendanceLog extends Model
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
             //->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all", "auto"]))
+            ->whereHas('device', fn ($q) => $q->where('device_type', '!=', 'Access Control'))
             ->orderBy("LogTime", "asc")
             ->with(["employee" => function ($query) {
                 $query->withOut("schedule", "department", "designation", "sub_department", "user", "branch");
@@ -382,7 +383,48 @@ class AttendanceLog extends Model
 
             ->groupBy(['UserID']);
     }
+    public function getLogsWithInRangeNightShiftTimings($params)
+    {
 
+
+        if ($params["shift"]->off_duty_time < $params["shift"]->on_duty_time) {
+            $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+            $params["end"] = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+        } else {
+            $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+            $params["end"] = date("Y-m-d", strtotime($params["date"])) . " " . $params["shift"]->off_duty_time;
+        }
+        //->whereBetween("LogTime", [$params["start"], $params["end"]])
+
+
+
+        $return = AttendanceLog::where("company_id", $params["company_id"])
+            // ->whereBetween("LogTime", [$params["start"], $params["end"]])
+            ->where("LogTime", ">=", $params["start"]) // Check for logs on or after the current date
+            ->where("LogTime", "<=", $params["end"])
+            ->distinct("LogTime", "UserID", "company_id")
+            ->whereHas("schedule", function ($q) use ($params) {
+                $q->where("shift_type_id", $params["shift_type_id"]);
+            })
+            ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
+                return $query->whereIn('UserID', $params["UserIds"]);
+            })
+
+            ->orderBy("LogTime", 'asc')
+            ->get()
+            ->load("device")
+            ->load(["schedule" => function ($q) use ($params) {
+                $q->where("company_id", $params["company_id"]);
+                $q->where("to_date", ">=", $params["date"]);
+                $q->where("shift_type_id", $params["shift_type_id"]);
+                $q->withOut("shift_type");
+                // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+                $q->orderBy("to_date", "asc");
+            }])
+            ->groupBy(['UserID']);
+
+        return $return;
+    }
     public function getLogsWithInRangeNew($params)
     {
 

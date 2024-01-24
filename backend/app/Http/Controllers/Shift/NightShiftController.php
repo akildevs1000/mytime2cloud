@@ -227,7 +227,7 @@ class NightShiftController extends Controller
         $model->where("LogTime", "<=", date("Y-m-d", strtotime($date . " +1 day")) . " " . $shift["ending_out"]);
         $model->distinct("LogTime", "UserID", "company_id");
         $model->orderBy("LogTime", "desc");
-        // $model->whereHas("device", fn ($q) => $q->whereIn("function", ["Out", "all"]));
+        $model->whereHas("device", fn ($q) => $q->whereIn("function", ["Out", "all"]));
         $model->with(["schedule", "device"]);
         return $model->first();
     }
