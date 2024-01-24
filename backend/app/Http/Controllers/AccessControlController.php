@@ -23,12 +23,16 @@ class AccessControlController extends Controller
 
         $model->where("company_id", $request->company_id);
 
+        $model->whereDate('LogTime', '>=', $request->from_date ?? date("Y-m-d"));
+        $model->whereDate('LogTime', '<=', $request->to_date ?? date("Y-m-d"));
+
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', ["all", "Access Control"]));
+
+        $model->whereHas('employee', fn ($q) => $q->where("company_id", $request->company_id));
 
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
         });
-
 
         $model->when(request()->filled("DeviceID"), function ($query) use ($request) {
             return $query->where('DeviceID', $request->DeviceID);
@@ -37,10 +41,7 @@ class AccessControlController extends Controller
 
         $model->with("device");
 
-        $model->whereHas("employee", function ($q) use ($request) {
-            $q->where("company_id", $request->company_id);
-            // $q->where('status', 1);
-        });
+
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
@@ -64,26 +65,6 @@ class AccessControlController extends Controller
 
             ->with('device', function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
-            })
-            ->when($request->from_date, function ($query) use ($request) {
-                return $query->where('LogTime', '>=', $request->from_date);
-            })
-            ->when($request->to_date, function ($query) use ($request) {
-                return $query->where('LogTime', '<=', $request->to_date);
-            })
-
-            ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
-                $q->where(function ($query) use ($request) {
-                    $query->where('LogTime', '>=', $request->dates[0])
-                        ->where('LogTime', '<=',   date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
-                });
-            })
-
-            ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
-                $q->where(function ($query) use ($request) {
-                    $query->where('LogTime', '>=', $request->dates[0])
-                        ->where('LogTime', '<=',   date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
-                });
             })
 
 
