@@ -95,7 +95,25 @@
             <v-toolbar-title> </v-toolbar-title>
 
             <v-spacer></v-spacer>
-            <v-menu bottom right>
+            <span style="padding-left: 15px"
+              ><img
+                title="Print"
+                style="cursor: pointer"
+                @click="process_file('print_pdf')"
+                src="/icons/icon_print.png"
+                class="iconsize"
+            /></span>
+            <span style="padding-left: 15px"
+              ><img
+                title="Download Pdf"
+                style="cursor: pointer"
+                @click="process_file('download_pdf')"
+                src="/icons/icon_pdf.png"
+                class="iconsize"
+            /></span>
+           
+            
+            <!-- <v-menu bottom right>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn dark-2 icon v-bind="attrs" v-on="on">
                   <v-icon color="violet">mdi-dots-vertical</v-icon>
@@ -114,15 +132,8 @@
                     PDF
                   </v-list-item-title>
                 </v-list-item>
-
-                <!-- <v-list-item @click="process_file(report_type + '_download_csv')">
-              <v-list-item-title style="cursor: pointer">
-                <img src="/icons/icon_excel.png" class="iconsize" />
-                EXCEL
-              </v-list-item-title>
-            </v-list-item> -->
               </v-list>
-            </v-menu>
+            </v-menu> -->
           </v-toolbar>
 
           <v-data-table
