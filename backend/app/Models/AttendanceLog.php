@@ -280,6 +280,8 @@ class AttendanceLog extends Model
     }
     public function getEmployeeIdsForNewLogsNightToRender($params)
     {
+
+
         return self::where("company_id", $params["company_id"])
             ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
             ->where("company_id", $params["company_id"])
@@ -298,6 +300,8 @@ class AttendanceLog extends Model
     }
     public function getEmployeeIdsForNewLogsToRenderAuto($params)
     {
+
+
         return self::where("company_id", $params["company_id"])
             ->when(!$params["custom_render"], fn ($q) => $q->where("checked", false))
             ->when(count($params["UserIds"]) > 0, fn ($q) => $q->whereIn("UserID", $params["UserIds"]))
@@ -310,7 +314,7 @@ class AttendanceLog extends Model
                     ->from('visitors');
             })
             ->whereHas("schedule", fn ($q) => $q->where("isAutoShift", true))
-            ->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all", "auto"]))
+            //->whereHas("device", fn ($q) => $q->whereIn("function", ["In", "all", "auto"]))
             ->orderBy("LogTime", "asc")
             ->with(["employee" => function ($query) {
                 $query->withOut("schedule", "department", "designation", "sub_department", "user", "branch");

@@ -810,11 +810,15 @@ class EmployeeController extends Controller
             //return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             if ($isEmailExist[0]->employee) {
                 $name = $isEmailExist[0]->employee->first_name  . ' ' . $isEmailExist[0]->employee->last_name;
-                return ["status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $name]]];
+                return [
+                    "status" => false, "errors" => ["email" => ['Employee Email is already exist with Name:' . $name]]
+
+                ];
 
                 //return $this->response('Employee Email is already exist with Name:' . $isEmailExist[0]->employeeData->first_name ?? '' . ' ' . $isEmailExist[0]->employeeData->last_name ?? '', null, false);
             } else {
-                return $this->response('Employee Email is already exist ', null, false);
+                //   return $this->response('Employee Email is already exist ', null, false);
+                return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             }
         }
         if ($request->password != '') {
