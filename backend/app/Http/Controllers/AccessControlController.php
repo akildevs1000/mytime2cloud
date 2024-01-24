@@ -64,10 +64,7 @@ class AccessControlController extends Controller
 
                 $q->whereHas('employee', fn (Builder $query) => $query->where('department_id', $request->department));
             })
-            ->when($request->filled('LogTime'), function ($q) use ($request) {
-
-                $q->where('LogTime', 'LIKE', "$request->LogTime%");
-            })
+          
             ->when($request->filled('device'), function ($q) use ($request) {
                 $q->where('DeviceID', $request->device);
             })
