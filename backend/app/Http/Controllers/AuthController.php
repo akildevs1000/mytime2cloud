@@ -174,6 +174,14 @@ class AuthController extends Controller
 
         $user->user_type = $this->getUserType($user);
 
+        if ($user->branch_id == 0 &&  $user->is_master === false) {
+            throw ValidationException::withMessages([
+                'email' => ["You do not have permission to Access this Page"],
+            ]);
+        }
+
+
+
         unset($user->company);
         unset($user->employee);
         unset($user->assigned_permissions);

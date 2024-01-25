@@ -330,6 +330,7 @@ export default {
     credentials: {
       email: "",
       password: "",
+      source: "admin",
     },
   }),
   created() {
@@ -453,6 +454,19 @@ export default {
         this.$auth
           .loginWith("local", { data: this.credentials })
           .then(({ data }) => {
+            //console.log(data.user.branch_id, data.user.is_master);
+
+            if (data.user.branch_id == 0 && data.user.is_master == false) {
+              this.snackbar = true;
+              this.snackbarMessage =
+                "You do not have Permission to access this page";
+              this.msg = "You do not have Permission to access this page";
+
+              // window.location.href = process.env.EMPLOYEE_APP_URL;
+              // this.$router.push("/login");
+              return false;
+            }
+
             if (
               this.$auth.user.role_id == 0 &&
               this.$auth.user.user_type == "employee"

@@ -126,8 +126,8 @@
             getLoginType == 'company' ||
             getLoginType == 'branch' ||
             (getLoginType == 'employee' &&
-              $auth.user.role.role_type.toLowerCase() != 'guard' &&
-              $auth.user.role.role_type.toLowerCase() != 'host')
+              $auth.user.role?.role_type.toLowerCase() != 'guard' &&
+              $auth.user.role?.role_type.toLowerCase() != 'host')
           "
         >
           <v-row align="center" justify="space-around" class="">
