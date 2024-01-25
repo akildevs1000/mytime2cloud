@@ -192,7 +192,7 @@
                     </td>
                     <td class="text-center border-none col-4 uppercase">
                         <div>
-                            <b>{{ $params['report_type'] }} Control Report</b>
+                            <b>{{ $params['report_type'] ?? "Access " }} Control Report</b>
                             <div class="border-top border-bottom">
                                 {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
                                 {{ date('d-M-Y', strtotime($params['to_date'])) }}
