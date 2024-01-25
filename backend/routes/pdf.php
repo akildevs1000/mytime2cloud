@@ -115,7 +115,3 @@ Route::get('/document_expiry_print_pdf', [EmployeeController::class, 'document_e
 Route::get('/testPDF', [PDFController::class, 'testPDF']);
 Route::get('/accessControlReport_print_pdf', [PDFController::class, 'accessControlReportPrint']);
 Route::get('/accessControlReport_download_pdf', [PDFController::class, 'accessControlReportDownload']);
-
-
-
-
