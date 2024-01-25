@@ -192,9 +192,11 @@
                     </td>
                     <td class="text-center border-none col-4 uppercase">
                         <div>
-                            <b>Access Denied Control Report</b>
+                            <b>{{ $params['report_type'] }} Control Report</b>
                             <div class="border-top border-bottom">
-                                01 JAN 2024 TO 05 JAN 2024
+                                {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
+                                {{ date('d-M-Y', strtotime($params['to_date'])) }}
+
                             </div>
                         </div>
                     </td>
