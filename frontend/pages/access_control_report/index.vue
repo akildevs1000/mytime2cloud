@@ -450,6 +450,14 @@ export default {
 
     async getDataFromApi() {
       if (!this.payload.from_date) return false;
+
+      if (this.payload.from_date) {
+        this.payload.from_date = this.payload.from_date;
+      }
+
+      if (this.payload.to_date) {
+        this.payload.to_date = this.payload.to_date;
+      }
       this.loading = true;
       const { data, total } = await this.$store.dispatch("fetchData", {
         key: "access_control_report",
@@ -489,6 +497,14 @@ export default {
           report_type: this.payload.report_type,
           user_type: this.payload.user_type,
         };
+
+        if (this.payload.from_date) {
+          queryParams.from_date = this.payload.from_date;
+        }
+
+        if (this.payload.to_date) {
+          queryParams.to_date = this.payload.to_date;
+        }
 
         const queryString = Object.keys(queryParams)
           .map(

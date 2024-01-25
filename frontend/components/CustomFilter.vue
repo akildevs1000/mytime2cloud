@@ -164,6 +164,15 @@ export default {
     this.to_date = today.toISOString().slice(0, 10);
 
     this.time3 = [this.from_date, this.to_date];
+
+    let data = {
+      from: this.from_date,
+      to: this.to_date,
+      type: 1,
+      search: "this.search",
+    };
+
+    this.$emit("filter-attr", data);
   },
   methods: {
     commonMethod() {
