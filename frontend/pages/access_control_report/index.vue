@@ -150,28 +150,6 @@
                 src="/icons/icon_pdf.png"
                 class="iconsize"
             /></span>
-
-            <!-- <v-menu bottom right>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon color="violet">mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list width="200" dense>
-                <v-list-item @click="process_file('print_pdf')">
-                  <v-list-item-title style="cursor: pointer">
-                    <img src="/icons/icon_print.png" class="iconsize" />
-                    Print
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="process_file('download_pdf')">
-                  <v-list-item-title style="cursor: pointer">
-                    <img src="/icons/icon_pdf.png" class="iconsize" />
-                    PDF
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu> -->
           </v-toolbar>
 
           <v-data-table
