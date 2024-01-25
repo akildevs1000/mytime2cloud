@@ -60,11 +60,11 @@
           <v-col md="2" sm="2">
             User Type
             <v-select
-              placeholder="Report Type"
+              placeholder="User Type"
               class="mt-2"
               outlined
               dense
-              v-model="payload.report_type"
+              v-model="payload.user_type"
               x-small
               :items="[
                 { id: `Employee`, name: `Employee` },
@@ -255,6 +255,7 @@ export default {
     total: 0,
 
     payload: {
+      report_type:"Date Wise Report",
       from_date: null,
       to_date: null,
       daily_date: null,
