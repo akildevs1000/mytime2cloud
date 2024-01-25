@@ -257,7 +257,7 @@ function saveRegisteredMemberstoCSV(
 
 function logConsoleStatus(message) {
   console.log(message);
-  const logFilePath = `../backend/storage/camera-live-status-${getDate()}.log`;
+  const logFilePath = `../backend/storage/app/camera/camera-live-status-${getDate()}.log`;
   fs.appendFileSync(logFilePath, message + "\n");
 }
 function formatdate(originalDateTime) {
