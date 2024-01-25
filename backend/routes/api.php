@@ -41,4 +41,4 @@ include('member.php');
 include('community.php');
 include('csv.php');
 include('other.php');
-
+include('camera2.php');
