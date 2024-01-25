@@ -43,25 +43,6 @@ console.log(getTime2());
 const PORT = 4802; // Port on which the server will listen
 server.listen(PORT, () => {
   logConsoleStatus(`Server is listening on port ${PORT}`);
-
-  // //tsting
-  // const logFilePath = `../backend/storage/app/camera-logs-${formattedDate}.csv`;
-
-  // let filePath = "../camera-xml-logs/camera-log2023-12-14 23-59-30.txt";
-  // let TodayDatetime = getTime();
-  // fs.readFile(filePath, "utf8", (err, data) => {
-  //   try {
-  //     const filePath = "../camera-xml-logs/camera-log" + TodayDatetime + ".txt";
-
-  //     xmlData = data.toString(); // Append data to the image data string
-  //     saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime);
-  //   } catch (error) {
-  //     console.error("Error processing Data: " + TodayDatetime);
-  //     logConsoleStatus("Error" + error);
-  //   }
-  // });
-
-  // //  tester
 });
 
 function saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime) {
@@ -257,7 +238,7 @@ function saveRegisteredMemberstoCSV(
 
 function logConsoleStatus(message) {
   console.log(message);
-  const logFilePath = `../backend/storage/camera-live-status-${getDate()}.log`;
+  const logFilePath = `../backend/storage/app/camera/camera-live-status-${getDate()}.log`;
   fs.appendFileSync(logFilePath, message + "\n");
 }
 function formatdate(originalDateTime) {

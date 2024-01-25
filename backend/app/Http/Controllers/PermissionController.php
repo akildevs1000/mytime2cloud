@@ -19,7 +19,7 @@ class PermissionController extends Controller
 
     public function dropDownList(Permission $model, Request $request)
     {
-        $data  = $model->get()->groupBy('module');
+        $data  = $model->orderBy("id", "asc")->get()->groupBy('module');
         return  response()->json(["data" => $data]);
     }
 

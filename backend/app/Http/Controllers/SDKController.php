@@ -105,15 +105,20 @@ class SDKController extends Controller
     }
     public function PersonAddRangePhotos(Request $request)
     {
+
+
+
         $url = env('SDK_URL') . "/Person/AddRange";
-
-        $cameraResponse = $this->filterCameraDevices($request);
-
+        try {
+            $cameraResponse1 = $this->filterCameraModel1Devices($request);
+            $cameraResponse2 = $this->filterCameraModel2Devices($request);
+        } catch (\Exception $e) {
+        }
         $deviceResponse = $this->processSDKRequestJob($url, $request->all());
 
-        Log::channel("camerasdk")->error(json_encode(["cameraResponse" => $cameraResponse, "deviceResponse" => $deviceResponse]));
+        Log::channel("camerasdk")->error(json_encode(["cameraResponse2" => $cameraResponse2, "cameraResponse1" => $cameraResponse1, "deviceResponse" => $deviceResponse]));
 
-        return ["cameraResponse" => $cameraResponse, "deviceResponse" => $deviceResponse];
+        return ["cameraResponse" => $cameraResponse1, "cameraResponse2" => $cameraResponse2, "deviceResponse" => $deviceResponse];
     }
     // public function PersonAddRange(Request $request)
     // {
@@ -122,11 +127,11 @@ class SDKController extends Controller
     //     return $this->processSDKRequestBulk($url, $request->all());
     // }
 
-    public function filterCameraDevices($request)
+    public function filterCameraModel1Devices($request)
     {
         $snList = $request->snList;
-        $Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-
+        //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
+        $Devices = Device::where('model_number', "CAMERA1")->get()->all();
 
 
 
@@ -151,6 +156,37 @@ class SDKController extends Controller
 
         return  $message;
     }
+    public function filterCameraModel2Devices($request)
+    {
+        $snList = $request->snList;
+        //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
+        $Devices = Device::where('model_number', "MEGEYE")->get()->all();
+
+
+
+        $filteredCameraArray = array_filter($Devices, function ($item) use ($snList) {
+            return in_array($item['device_id'], $snList);
+        });
+        $message = [];
+        foreach ($filteredCameraArray as  $value) {
+
+            foreach ($request->personList as  $persons) {
+                if (isset($persons['faceImage'])) {
+
+                    $personProfilePic = $persons['faceImage'];
+                    if ($personProfilePic != '') {
+                        $imageData = file_get_contents($personProfilePic);
+                        $md5string = base64_encode($imageData);;
+                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
+                    }
+                }
+            }
+        }
+
+        return  $message;
+    }
+
+
 
     public function GetAllDevicesHealth()
     {

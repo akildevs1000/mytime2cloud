@@ -1529,7 +1529,7 @@ export default {
           faceImage:
             process.env.APP_ENV != "local"
               ? item.profile_picture
-              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg",
+              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1706172456.jpg",
         };
         if (item.rfid_card_number != "") {
           person.cardData = item.rfid_card_number;

@@ -7,7 +7,7 @@ BETWEEN '2023-10-01' and '2023-10-05' and "UserID" = '53' and company_id = '8' O
 
 // run this command to seed the data => php artisan db:seed --class=StatusSeeder
 
-php artisan serve --host 192.168.2.174
+php artisan serve --host 192.168.2.17
 
 sqlite3 extension for ubunut
 
