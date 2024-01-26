@@ -619,16 +619,16 @@ class DeviceController extends Controller
             }
         }
         try {
-            $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+            // $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
 
 
-            //update camera devices status 
-            $online_devices_count = $online_devices_count +  $count;
+
+            // $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
         }
         try {
             $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus();
-            //update camera devices status 
+
             $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
         }
