@@ -587,11 +587,12 @@ class DeviceController extends Controller
                 // info($count . "companies has been updated");
             }
         }
-
-        (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
-        //update camera devices status 
-        $online_devices_count = $online_devices_count + (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
-
+        try {
+            (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+            //update camera devices status 
+            $online_devices_count = $online_devices_count + (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+        } catch (\Exception $e) {
+        }
 
 
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
