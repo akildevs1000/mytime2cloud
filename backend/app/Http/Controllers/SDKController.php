@@ -129,6 +129,7 @@ class SDKController extends Controller
 
     public function filterCameraModel1Devices($request)
     {
+
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
         $Devices = Device::where('model_number', "CAMERA1")->get()->all();
@@ -171,10 +172,12 @@ class SDKController extends Controller
         foreach ($filteredCameraArray as  $value) {
 
             foreach ($request->personList as  $persons) {
-                if (isset($persons['faceImage'])) {
+                if (isset($persons['profile_picture_raw'])) {
 
-                    $personProfilePic = $persons['faceImage'];
+                    //$personProfilePic = $persons['faceImage'];
+                    $personProfilePic = public_path('media/employee/profile_picture/' . $persons['profile_picture_raw']);
                     if ($personProfilePic != '') {
+                        //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
                         $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);

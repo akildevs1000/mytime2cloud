@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
@@ -170,15 +171,21 @@ class AttendanceLogCameraController extends Controller
 
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
-            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
+            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+            $isDuplicateLogTime = false;
             if (!$isDuplicateLogTime) {
-                $records[] = [
-                    "UserID" => $columns[0],
-                    "DeviceID" => $columns[1],
-                    "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                    "SerialNumber" => $columns[3]
-                ];
+                $datetime = substr(str_replace("T", " ", $columns[2]), 0, 16);
+
+
+                if ($datetime != 'undefined') {
+                    $records[] = [
+                        "UserID" => $columns[0],
+                        "DeviceID" => $columns[1],
+                        "LogTime" =>  $datetime,
+                        "SerialNumber" => $columns[3]
+                    ];
+                }
             }
         }
 
@@ -207,7 +214,7 @@ class AttendanceLogCameraController extends Controller
         // if (env("LOGTIME_DUPLICATE_THRESHHOLD") != null) {
         //     $timeDiff = env("LOGTIME_DUPLICATE_THRESHHOLD");
         // }
-        $timeDiff = 300;
+        $timeDiff = 60 * 1;
         $isDuplicateLogTime = false;
         $currentLogTime =  (substr(str_replace("T", " ", $columns[2]), 0, 19));
         $previousLogTime = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);

@@ -500,6 +500,10 @@ export default {
     window.addEventListener("resize", () => {
       this.tableHeight = window.innerHeight - 270;
     });
+
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 60);
   },
   created() {
     if (this.$auth.user.branch_id == null) {
