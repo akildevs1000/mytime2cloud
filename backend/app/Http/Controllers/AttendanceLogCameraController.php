@@ -173,7 +173,7 @@ class AttendanceLogCameraController extends Controller
             $columns = explode(',', $row);
 
             $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
-            $isDuplicateLogTime = false;
+            //$isDuplicateLogTime = false;
             if (!$isDuplicateLogTime) {
                 $datetime = substr(str_replace("T", " ", $columns[2]), 0, 16);
 
