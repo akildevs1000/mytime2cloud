@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
-
+use DateTime;
+use DateTimeZone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +15,9 @@ use SimpleXMLElement;
 class DeviceCameraModel2Controller extends Controller
 {
     public  $camera_sdk_url = '';
+    public  $sxdmToken = '7VOarATI4IfbqFWLF38VdWoAbHUYlpAY';
+    public  $sxdmSn = 'M014200892105001731';
+
 
     public function __construct($camera_sdk_url)
     {
@@ -24,19 +28,12 @@ class DeviceCameraModel2Controller extends Controller
     public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
     {
 
-
-
-
         try {
-            //code...
-
-            $sessionIdArr = $this->getActiveSessionId();
-
-            $sessionIdArr = json_decode($sessionIdArr, true);
-            if (isset($sessionIdArr['session_id'])) {
 
 
-                $sessionId = $sessionIdArr['session_id'];
+            $sessionId = $this->getActiveSessionId();
+            if ($sessionId != '') {
+
                 $curl = curl_init();
 
                 curl_setopt_array($curl, array(
@@ -73,8 +70,8 @@ class DeviceCameraModel2Controller extends Controller
                     CURLOPT_HTTPHEADER => array(
                         'Content-Type: application/json',
                         'Cookie: sessionID=' . $sessionId,
-                        'sxdmToken: 7VOarATI4IfbqFWLF38VdWoAbHUYlpAY', //get from Device manufacturer
-                        'sxdmSn: M014200892105001731' //get from Device serial number
+                        'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                        'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
                     ),
                 ));
 
@@ -93,6 +90,130 @@ class DeviceCameraModel2Controller extends Controller
             $this->devLog("camera-megeye-error", "Exception - Unable to Generate session" . $th);
         }
     }
+    public function updateTimeZone($device)
+
+    {
+        $this->sxdmSn = $device->device_id;
+
+        $utc_time_zone  = $device->utc_time_zone;
+        if ($utc_time_zone != '') {
+
+            $timezone = new DateTimeZone($utc_time_zone);
+            $utcOffset = $timezone->getOffset(new DateTime());
+            $offsetHours = $utcOffset / 3600;
+            $offsetMinutes = abs(($utcOffset % 3600) / 60);
+            $utcOffsetString = sprintf('GMT%+03d:%02d:00', $offsetHours, $offsetMinutes);
+
+            //
+            $dateObj = new DateTime("now", $timezone);
+            $output_time_zone = new DateTimeZone($utc_time_zone);
+
+            $dateObj->setTimezone($output_time_zone);
+            $output_format = 'Y-m-d\TH:i:sP'; // "2024-01-26T11:59:00+04:00"
+            $currentTime = $dateObj->format($output_format);
+        }
+
+
+        $json = '{
+            "local_time": "' . $currentTime . '",
+            "ntp": {
+                "mode": false,
+                "time_zone": "' . $utcOffsetString . '",
+                "server_port": 123,
+                "sync_interval": 60,
+                "server_address": "cn.pool.ntp.org"
+            }
+        }';
+
+
+        return   $response = $this->putCURL('/api/devices/time', $json);
+
+        // if (isset($response["serial_no"])) {
+
+        //     Device::where("device_id", $response["serial_no"])->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+        // }
+    }
+    public function getCameraDeviceLiveStatus()
+    {
+        $online_devices_count = 0;
+        $devices = Device::where('model_number', "MEGEYE");
+
+        $devices->clone()->update(["status_id" => 2]);
+
+        foreach ($devices->get() as $device) {
+
+            $this->sxdmSn = $device->device_id;
+            $this->camera_sdk_url = $device->camera_sdk_url;
+
+
+            $response = $this->getCURL('/api/devices/status');
+
+            if (isset($response["serial_no"])) {
+
+                Device::where("device_id", $response["serial_no"])->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+                $online_devices_count++;
+            }
+        }
+
+        return  $online_devices_count;
+    }
+
+    public function getCURL($serviceCall)
+    {
+        $sessionId = $this->getActiveSessionId();
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Cookie: sessionID=' . $sessionId,
+                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return  $response = json_decode($response, true);
+    }
+    public function putCURL($serviceCall, $post_json)
+    {
+
+
+        $sessionId = $this->getActiveSessionId();
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS =>  $post_json,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Cookie: sessionID=' . $sessionId,
+                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return  $response = json_decode($response, true);
+    }
 
     public function getActiveSessionId()
     {
@@ -109,14 +230,20 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => array(
-                'sxdmToken: 7VOarATI4IfbqFWLF38VdWoAbHUYlpAY', //get from Device manufacturer
-                'sxdmSn: M014200892105001731' //get from Device serial number
+                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
             ),
         ));
 
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return  $response;
+
+        $response = json_decode($response, true);
+        if (isset($response["session_id"])) {
+            return $response["session_id"];
+        } else {
+            return '';
+        }
     }
 }

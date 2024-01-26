@@ -22,7 +22,7 @@ Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected'
 Route::get('device_list', [DeviceController::class, 'getDeviceList']);
 Route::get('devcie_count_Status/{company_id}', [DeviceController::class, 'devcieCountByStatus']);
 
-Route::get('sync_device_date_time/{device_id}', [DeviceController::class, "sync_device_date_time"]);
+Route::get('sync_device_date_time/{device_id}/{company_id}', [DeviceController::class, "sync_device_date_time"]);
 
 //  Device Status
 Route::apiResource('device_status', DeviceStatusController::class);

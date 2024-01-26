@@ -1220,6 +1220,9 @@ export default {
       this.search = "";
     },
   },
+  mounted() {
+    this.updateDevicesHealth();
+  },
   async created() {
     this.loading = true;
 
@@ -1428,7 +1431,7 @@ export default {
           const minutes = String(dt.getMinutes()).padStart(2, "0");
           const seconds = String(dt.getSeconds()).padStart(2, "0");
 
-          const apiUrl = `sync_device_date_time/${item.device_id}`;
+          const apiUrl = `sync_device_date_time/${item.device_id}/${this.$auth.user.company_id}`;
           const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
           const { data } = await this.$axios.get(apiUrl, {
             params: { sync_able_date_time },
