@@ -34,7 +34,7 @@
                 @change="getRelatedShiftComponent"
                 v-model="payload.shift_type_id"
                 :items="[
-                  { id: 1, name: `Flexi` },
+                  { id: 1, name: `Flexible` },
                   { id: 4, name: `Night` },
                   { id: 6, name: `Single` },
                   { id: 5, name: `Dual` },
@@ -50,7 +50,7 @@
                 errors.shift_type_id[0]
               }}</span>
             </v-col>
-            <v-col v-if="isCompany" md="3" sm="12" cols="12">
+            <!-- <v-col v-if="isCompany" md="3" sm="12" cols="12">
               <label>Branch <span class="error--text">*</span></label>
               <v-select
                 clearable
@@ -69,7 +69,7 @@
               <span v-if="errors && errors.branch_id" class="text-danger">{{
                 errors.branch_id[0]
               }}</span>
-            </v-col>
+            </v-col> -->
 
             <v-col md="3" sm="12" cols="12">
               <label>Name of Schedule<span class="error--text">*</span></label>
@@ -335,7 +335,7 @@ export default {
     data: [],
     errors: [],
     renderComponent: 0,
-    branch_id: null,
+    branch_id: 0,
     isCompany: true,
     comp: "",
   }),
@@ -357,26 +357,26 @@ export default {
       return;
     }
 
-    let branch_header = [
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id",
-        value: "branch.branch_name",
-        filterable: true,
-        filterSpecial: true,
-      },
-    ];
+    // let branch_header = [
+    //   {
+    //     text: "Branch",
+    //     align: "left",
+    //     sortable: true,
+    //     key: "branch_id",
+    //     value: "branch.branch_name",
+    //     filterable: true,
+    //     filterSpecial: true,
+    //   },
+    // ];
 
-    const headerExists = this.headers.some(
-      (header) => header.text === "Branch"
-    );
+    // const headerExists = this.headers.some(
+    //   (header) => header.text === "Branch"
+    // );
 
-    if (!headerExists) {
-      // Insert the "Branch" header if it doesn't already exist
-      this.headers.splice(1, 0, ...branch_header);
-    }
+    // if (!headerExists) {
+    //   // Insert the "Branch" header if it doesn't already exist
+    //   this.headers.splice(1, 0, ...branch_header);
+    // }
 
     this.getComponent();
   },
@@ -392,7 +392,7 @@ export default {
       this.payload = {
         shift_type_id: this.payload.shift_type_id,
         ...this.defaults[this.payload.shift_type_id],
-        branch_id: this.branch_id,
+        // branch_id: this.branch_id,
       };
       this.renderComponent = Math.random() * (1000 - 1) + 1;
       this.getComponent();
