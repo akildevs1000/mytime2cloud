@@ -49,6 +49,7 @@ class AccessControlController extends Controller
                 "system_user_id",
                 "display_name",
                 "timezone_id",
+                "department_id",
             );
         })
             // ->distinct("LogTime", "UserID", "company_id")
