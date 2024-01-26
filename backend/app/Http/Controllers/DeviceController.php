@@ -839,4 +839,14 @@ class DeviceController extends Controller
 
         return "Cron DeviceSeeder: " . count($data) . " record has been inserted.";
     }
+
+    public function modes()
+    {
+        return [
+            "Face",
+            "RFID",
+            "Finger Print",
+            "Password"
+        ];
+    }
 }
