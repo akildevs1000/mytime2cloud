@@ -38,7 +38,7 @@ class AccessControlController extends Controller
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->withOut(["schedule", "department", "sub_department", "designation", "user"]);
+            $q->withOut(["schedule", "sub_department", "designation", "user"]);
 
             $q->select(
                 "first_name",
