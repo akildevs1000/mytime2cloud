@@ -433,51 +433,54 @@ class DeviceController extends Controller
         }
     }
 
-    public function sync_device_date_time(Request $request, $device_id)
+    public function sync_device_date_time(Request $request, $device_id, $company_id)
     {
-        // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
-        $url = env('SDK_URL') . "/$device_id/SetWorkParam";
 
-
-        $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
-        if ($utc_time_zone != '') {
-
-
-
-            $dateObj  = new DateTime("now", new DateTimeZone($utc_time_zone));
-            $currentDateTime = $dateObj->format('Y-m-d H:i:00');
-
-
-            // return ["url" => $url, "data" => $data];
-
-            // $response = $this->SDKCommand($url, $data);
-
-            // $result = json_decode($response);
-
-            (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
-            $result = (object)["status" => 200];
-
-            if ($result && $result->status == 200) {
-                try {
-                    $record = Device::where("device_id", $device_id)->update([
-                        "sync_date_time" => $currentDateTime,
-                    ]);
-
-                    if ($record) {
-                        return $this->response('Time has been synced to the Device.', Device::with(['status', 'company'])->where("device_id", $device_id)->first(), true);
-                    } else {
-                        return $this->response('Time cannot synced to the Device.', null, false);
-                    }
-                } catch (\Throwable $th) {
-                    return $this->response('Time cannot synced to the Device.', null, false);
+        $device = Device::where("company_id", $company_id)->where("device_id", $device_id)->first();
+        if ($device) {
+            if ($device->device_category_name == 'CAMERA') {
+                if ($device->model_number == 'CAMERA1') {
+                    //(new DeviceCameraController())->updateTimeZone();
+                } else  if ($device->model_number == 'MEGEYE') {
+                    return (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
                 }
-            } else if ($result && $result->status == 102) {
-                return $this->response("The device is not connected to the server or is not registered", $result, false);
-            }
+            } else {
+                // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
+                $url = env('SDK_URL') . "/$device_id/SetWorkParam";
 
-            return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
-        } else {
-            return $this->response("The device details are not exist", null, false);
+
+                $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
+                if ($utc_time_zone != '') {
+
+                    $dateObj  = new DateTime("now", new DateTimeZone($utc_time_zone));
+                    $currentDateTime = $dateObj->format('Y-m-d H:i:00');
+
+                    (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
+                    $result = (object)["status" => 200];
+
+                    if ($result && $result->status == 200) {
+                        try {
+                            $record = Device::where("device_id", $device_id)->update([
+                                "sync_date_time" => $currentDateTime,
+                            ]);
+
+                            if ($record) {
+                                return $this->response('Time has been synced to the Device.', Device::with(['status', 'company'])->where("device_id", $device_id)->first(), true);
+                            } else {
+                                return $this->response('Time cannot synced to the Device.', null, false);
+                            }
+                        } catch (\Throwable $th) {
+                            return $this->response('Time cannot synced to the Device.', null, false);
+                        }
+                    } else if ($result && $result->status == 102) {
+                        return $this->response("The device is not connected to the server or is not registered", $result, false);
+                    }
+
+                    return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
+                } else {
+                    return $this->response("The device details are not exist", null, false);
+                }
+            }
         }
     }
 
@@ -552,7 +555,35 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = '')
     {
+
+
+
+        $total_devices_count = Device::where("device_type", "!=", "Mobile")
+            ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
+            ->where("device_type", "!=", "Manual")
+            ->where("device_id", "!=", "Manual")
+
+
+            ->get()->count();;
+
+
+
+
+
+
+
+
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
+
+
+
+
+
+
+
+
+
+
         $companyDevices = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -580,7 +611,7 @@ class DeviceController extends Controller
                 $online_devices_count++;
                 Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
             } else {
-                $offline_devices_count++;
+                // $offline_devices_count++;
                 Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
 
 
@@ -588,15 +619,24 @@ class DeviceController extends Controller
             }
         }
         try {
-            (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
-            //update camera devices status 
-            $online_devices_count = $online_devices_count + (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+            // $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
+
+
+
+            // $online_devices_count = $online_devices_count +  $count;
+        } catch (\Exception $e) {
+        }
+        try {
+            $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus();
+
+            $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
         }
 
+        $offline_devices_count = $total_devices_count - $online_devices_count;
 
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
-        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_devices_count records found.";
     }
     public function checkDeviceHealth_old(Request $request)
     {
