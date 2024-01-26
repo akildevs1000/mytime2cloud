@@ -439,10 +439,18 @@ class DeviceController extends Controller
         $device = Device::where("company_id", $company_id)->where("device_id", $device_id)->first();
         if ($device) {
             if ($device->device_category_name == 'CAMERA') {
-                if ($device->model_number == 'CAMERA1') {
-                    //(new DeviceCameraController())->updateTimeZone();
-                } else  if ($device->model_number == 'MEGEYE') {
-                    return (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+
+                try {
+                    if ($device->model_number == 'CAMERA1') {
+                        //(new DeviceCameraController())->updateTimeZone();
+                    } else  if ($device->model_number == 'MEGEYE') {
+                        (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+
+
+                        return $this->response('Time has been synced to the Device.',  null, true);
+                    }
+                } catch (\Exception $e) {
+                    return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
                 }
             } else {
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
