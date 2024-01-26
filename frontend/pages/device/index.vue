@@ -1238,7 +1238,9 @@ export default {
     },
   },
   mounted() {
-    this.updateDevicesHealth();
+    setTimeout(() => {
+      this.updateDevicesHealth();
+    }, 1000 * 5);
   },
   async created() {
     this.loading = true;
@@ -1410,13 +1412,11 @@ export default {
         text: key + " - " + this.timeZones[key].offset,
       }));
     },
-    getModes(){
-      this.$axios
-        .get(`device-mode-list`)
-        .then(({ data }) => {
-          console.log(this.modes = data);
-          console.log(`getting modes`, this.modes);
-        });
+    getModes() {
+      this.$axios.get(`device-mode-list`).then(({ data }) => {
+        console.log((this.modes = data));
+        console.log(`getting modes`, this.modes);
+      });
     },
     getBranches() {
       this.$axios
