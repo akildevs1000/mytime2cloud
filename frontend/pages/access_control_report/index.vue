@@ -7,6 +7,27 @@
 
       <v-card-text class="py-3">
         <v-row>
+          <v-col md="2" sm="2">
+            Report Type
+            <v-select
+              placeholder="Report Type"
+              class="mt-2"
+              outlined
+              dense
+              v-model="payload.report_type"
+              x-small
+              :items="[
+                { id: `Date Wise Report`, name: `Date Wise Report` },
+                { id: `Door Wise Report`, name: `Door Wise Report` },
+                { id: `Branch Wise Report`, name: `Branch Wise Report` },
+                { id: `Access Granted Report`, name: `Access Granted Report` },
+                { id: `Access Denied Report`, name: `Access Denied Report` },
+              ]"
+              item-value="id"
+              item-text="name"
+              :hide-details="true"
+            ></v-select>
+          </v-col>
           <v-col md="2" sm="2" v-if="isCompany">
             Branch
             <v-select
@@ -23,7 +44,39 @@
             ></v-select>
           </v-col>
           <v-col md="2" sm="4">
-            Employee ID
+            Door
+            <v-select
+              class="mt-2"
+              outlined
+              dense
+              v-model="payload.DeviceID"
+              x-small
+              :items="[{ device_id: ``, name: `Select All` }, ...devices]"
+              item-value="device_id"
+              item-text="name"
+              :hide-details="true"
+            ></v-select>
+          </v-col>
+          <v-col md="2" sm="2">
+            User Type
+            <v-select
+              placeholder="User Type"
+              class="mt-2"
+              outlined
+              dense
+              v-model="payload.user_type"
+              x-small
+              :items="[
+                { id: `Employee`, name: `Employee` },
+                { id: `Visitor`, name: `Visitor` },
+              ]"
+              item-value="id"
+              item-text="name"
+              :hide-details="true"
+            ></v-select>
+          </v-col>
+          <v-col md="2" sm="4">
+            User ID
             <v-autocomplete
               density="comfortable"
               class="mt-2"
@@ -39,20 +92,6 @@
               item-text="name_with_user_id"
               :hide-details="true"
             ></v-autocomplete>
-          </v-col>
-          <v-col md="2" sm="4">
-            Devices
-            <v-select
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.DeviceID"
-              x-small
-              :items="[{ device_id: ``, name: `Select All` }, ...devices]"
-              item-value="device_id"
-              item-text="name"
-              :hide-details="true"
-            ></v-select>
           </v-col>
           <v-col md="2" sm="5">
             <div class="mb-2">Date</div>
@@ -111,29 +150,6 @@
                 src="/icons/icon_pdf.png"
                 class="iconsize"
             /></span>
-           
-            
-            <!-- <v-menu bottom right>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon color="violet">mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list width="200" dense>
-                <v-list-item @click="process_file('print_pdf')">
-                  <v-list-item-title style="cursor: pointer">
-                    <img src="/icons/icon_print.png" class="iconsize" />
-                    Print
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="process_file('download_pdf')">
-                  <v-list-item-title style="cursor: pointer">
-                    <img src="/icons/icon_pdf.png" class="iconsize" />
-                    PDF
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu> -->
           </v-toolbar>
 
           <v-data-table
@@ -206,7 +222,6 @@ export default {
     employee_id: "",
     daily_date: "",
     to_date: "",
-    report_type: "Monthly",
 
     isFilter: false,
     totalRowsCount: 0,
@@ -240,6 +255,7 @@ export default {
     total: 0,
 
     payload: {
+      report_type:"Date Wise Report",
       from_date: null,
       to_date: null,
       daily_date: null,
@@ -435,6 +451,14 @@ export default {
 
     async getDataFromApi() {
       if (!this.payload.from_date) return false;
+
+      if (this.payload.from_date) {
+        this.payload.from_date = this.payload.from_date;
+      }
+
+      if (this.payload.to_date) {
+        this.payload.to_date = this.payload.to_date;
+      }
       this.loading = true;
       const { data, total } = await this.$store.dispatch("fetchData", {
         key: "access_control_report",
@@ -446,42 +470,6 @@ export default {
       this.data = data;
       this.totalRowsCount = total;
       this.loading = false;
-      return;
-
-      if (!this.payload.from_date) return false;
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
-      url = "access_control_report";
-      this.loading = true;
-      let options = {
-        params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          ...this.payload,
-        },
-      };
-
-      if (filter_column != "") options.params[filter_column] = filter_value;
-
-      this.$axios.get(url, options).then(({ data }) => {
-        if (filter_column != "" && data.data.length == 0) {
-          this.snack = true;
-          this.snackColor = "error";
-          this.snackText = "No Results Found";
-          this.loading = false;
-          return false;
-        }
-
-        this.data = data.data;
-        this.total = data.total;
-        this.loading = false;
-        this.totalRowsCount = data.total;
-      });
     },
 
     pdfDownload() {
@@ -507,7 +495,17 @@ export default {
           DeviceID: this.payload.DeviceID,
           from_date: this.payload.from_date,
           to_date: this.payload.to_date,
+          report_type: this.payload.report_type,
+          user_type: this.payload.user_type,
         };
+
+        if (this.payload.from_date) {
+          queryParams.from_date = this.payload.from_date;
+        }
+
+        if (this.payload.to_date) {
+          queryParams.to_date = this.payload.to_date;
+        }
 
         const queryString = Object.keys(queryParams)
           .map(
@@ -518,7 +516,7 @@ export default {
           )
           .join("&");
 
-        const reportUrl = `${backendUrl}/access_control_report_${type.toLowerCase()}?${queryString}&include_device_types[]=all&include_device_types[]=Access Control`;
+        const reportUrl = `${backendUrl}/accessControlReport_${type.toLowerCase()}?${queryString}&include_device_types[]=all&include_device_types[]=Access Control`;
 
         const report = document.createElement("a");
         report.setAttribute("href", reportUrl);
