@@ -43,6 +43,7 @@ class AccessControlController extends Controller
             $q->select(
                 "first_name",
                 "last_name",
+                "phone_number",
                 "profile_picture",
                 "employee_id",
                 "branch_id",
