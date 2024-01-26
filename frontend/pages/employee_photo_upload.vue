@@ -1524,7 +1524,7 @@ export default {
           name: item.first_name + " " + item.last_name,
 
           userCode: parseInt(item.system_user_id),
-
+          profile_picture_raw: item.profile_picture_raw,
           //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
           faceImage:
             process.env.APP_ENV != "local"

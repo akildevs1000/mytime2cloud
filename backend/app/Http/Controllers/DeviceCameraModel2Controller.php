@@ -24,6 +24,9 @@ class DeviceCameraModel2Controller extends Controller
     public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
     {
 
+
+
+
         try {
             //code...
 

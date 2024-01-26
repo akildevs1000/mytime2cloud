@@ -170,6 +170,7 @@ class AttendanceLogCameraController extends Controller
 
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
+            $isDuplicateLogTime = false;
             $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
             if (!$isDuplicateLogTime) {
@@ -207,7 +208,7 @@ class AttendanceLogCameraController extends Controller
         // if (env("LOGTIME_DUPLICATE_THRESHHOLD") != null) {
         //     $timeDiff = env("LOGTIME_DUPLICATE_THRESHHOLD");
         // }
-        $timeDiff = 300;
+        $timeDiff = 60 * 5;
         $isDuplicateLogTime = false;
         $currentLogTime =  (substr(str_replace("T", " ", $columns[2]), 0, 19));
         $previousLogTime = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);
