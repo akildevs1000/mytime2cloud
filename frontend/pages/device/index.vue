@@ -406,6 +406,21 @@
       </v-card>
     </v-dialog>
 
+    <v-dialog v-model="DialogDeviceMegviiSettings" max-width="800px">
+      <v-card>
+        <v-card-title class="popup_background">
+          <span>Camera Device MEGVII Settings </span>
+          <v-spacer></v-spacer>
+
+          <v-icon outlined @click="DialogDeviceMegviiSettings = false"
+            >mdi-close-circle</v-icon
+          >
+        </v-card-title>
+
+        <v-card-text class="mt-2">Hello </v-card-text>
+      </v-card>
+    </v-dialog>
+
     <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -1022,6 +1037,7 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    DialogDeviceMegviiSettings: false,
     valid: false,
     rules: [(value) => (value || "").length <= 10 || "Max 10 characters"],
     device_model: [

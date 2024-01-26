@@ -443,7 +443,7 @@ class DeviceController extends Controller
                 try {
                     if ($device->model_number == 'CAMERA1') {
                         //(new DeviceCameraController())->updateTimeZone();
-                    } else  if ($device->model_number == 'MEGEYE') {
+                    } else  if ($device->model_number == 'MEGVII') {
                         (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
 
 
