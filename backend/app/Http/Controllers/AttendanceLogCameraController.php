@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
@@ -174,12 +175,17 @@ class AttendanceLogCameraController extends Controller
             $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
             $isDuplicateLogTime = false;
             if (!$isDuplicateLogTime) {
-                $records[] = [
-                    "UserID" => $columns[0],
-                    "DeviceID" => $columns[1],
-                    "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                    "SerialNumber" => $columns[3]
-                ];
+                $datetime = substr(str_replace("T", " ", $columns[2]), 0, 16);
+
+
+                if ($datetime != 'undefined') {
+                    $records[] = [
+                        "UserID" => $columns[0],
+                        "DeviceID" => $columns[1],
+                        "LogTime" =>  $datetime,
+                        "SerialNumber" => $columns[3]
+                    ];
+                }
             }
         }
 
