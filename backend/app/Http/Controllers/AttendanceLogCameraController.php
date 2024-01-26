@@ -170,9 +170,9 @@ class AttendanceLogCameraController extends Controller
 
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
-            $isDuplicateLogTime = false;
-            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
+            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+            $isDuplicateLogTime = false;
             if (!$isDuplicateLogTime) {
                 $records[] = [
                     "UserID" => $columns[0],
