@@ -17,11 +17,26 @@
               v-model="payload.report_type"
               x-small
               :items="[
-                { id: `Date Wise Access Control Report`, name: `Date Wise Report` },
-                { id: `Door Wise Access Control Report`, name: `Door Wise Report` },
-                { id: `Branch Wise Access Control Report`, name: `Branch Wise Report` },
-                { id: `Access Granted Access Control Report`, name: `Access Granted Report` },
-                { id: `Access Denied Access Control Report`, name: `Access Denied Report` },
+                {
+                  id: `Date Wise Access Control Report`,
+                  name: `Date Wise Access Control Report`,
+                },
+                {
+                  id: `Door Wise Access Control Report`,
+                  name: `Door Wise Access Control Report`,
+                },
+                {
+                  id: `Branch Wise Access Control Report`,
+                  name: `Branch Wise Access Control Report`,
+                },
+                {
+                  id: `Allowed`,
+                  name: `Access Granted Access Control Report`,
+                },
+                {
+                  id: `Denied`,
+                  name: `Access Denied Access Control Report`,
+                },
               ]"
               item-value="id"
               item-text="name"
@@ -167,7 +182,34 @@
             fixed-header
             :height="tableHeight"
           >
-            <template v-slot:item.UserID="{ item }" style="padding: 0px">
+            <template v-slot:item.id="{ item, index }">
+              {{ index + 1 }}
+            </template>
+
+            <template v-slot:item.dateTime="{ item, index }">
+              {{ item.date }} {{ item.time }}
+            </template>
+
+            <template v-slot:item.branch="{ item, index }">
+              <span>
+                <b>{{
+                  item.employee ? item.employee?.branch?.branch_name : "---"
+                }}</b
+                ><br />
+                {{ item.employee ? item.employee?.department?.name : "---" }}
+              </span>
+            </template>
+            <template v-slot:item.in="{ item, index }">
+              {{ item.device.function !== "out" || item.device.function !== "Out" ? "In" : "---" }}
+            </template>
+            <template v-slot:item.out="{ item, index }">
+              {{ item.device.function == "out" || item.device.function == "Out" ? "Out" : "---" }}
+            </template>
+            <template v-slot:item.user_type="{ item, index }">
+              Employee
+            </template>
+            
+            <template v-slot:item.user="{ item }" style="padding: 0px">
               <v-row no-gutters>
                 <v-col
                   md="2"
@@ -195,10 +237,11 @@
                 </v-col>
                 <v-col style="padding: 3px" md="8">
                   <strong>
-                    {{ item.employee ? item.employee.full_name : "---" }}
+                    {{ item.employee ? item.employee.first_name : "---" }}
+                    {{ item.employee ? item.employee.last_name : "---" }}
                   </strong>
                   <div class="secondary-value">
-                    {{ item.employee ? item.employee.employee_id : "---" }}
+                    {{ item.UserID }}
                   </div>
                 </v-col>
               </v-row>
@@ -255,7 +298,7 @@ export default {
     total: 0,
 
     payload: {
-      report_type:"Date Wise Report",
+      report_type: "Date Wise Report",
       from_date: null,
       to_date: null,
       daily_date: null,
@@ -273,34 +316,78 @@ export default {
     report_template: "Template1",
     headers: [
       {
-        text: "User Id /Emp.Id ",
+        text: "S.NO",
         align: "left",
         sortable: true,
-        key: "UserID",
-        value: "UserID",
-        width: "150px",
+        key: "id",
+        value: "id",
+        width: "50px",
       },
       {
-        text: "Date Range",
-        align: "left",
-        sortable: false,
-        key: "date_range",
-        value: "LogTime",
-        fieldType: "date_range_picker",
-      },
-      {
-        text: "Device Name",
+        text: "Name",
         align: "left",
         sortable: true,
-        key: "device",
-        value: "device.name",
+        key: "user",
+        value: "user",
+        width: "300px",
       },
       {
-        text: "Device Location",
+        text: "Phone",
+        align: "left",
+        sortable: true,
+        key: "employee.phone_number",
+        value: "employee.phone_number",
+        width: "300px",
+      },
+      {
+        text: "Door",
         align: "left",
         sortable: true,
         key: "device",
         value: "device.location",
+      },
+      {
+        text: "DateTime",
+        align: "left",
+        sortable: false,
+        key: "dateTime",
+        value: "dateTime",
+        fieldType: "date_range_picker",
+      },
+      {
+        text: "In",
+        align: "left",
+        sortable: false,
+        key: "in",
+        value: "in",
+      },
+      {
+        text: "Out",
+        align: "left",
+        sortable: false,
+        key: "out",
+        value: "out",
+      },
+      {
+        text: "Mode",
+        align: "left",
+        sortable: false,
+        key: "device.name",
+        value: "device.name",
+      },
+      {
+        text: "Status",
+        align: "left",
+        sortable: false,
+        key: "status",
+        value: "status",
+      },
+      {
+        text: "User Type",
+        align: "left",
+        sortable: false,
+        key: "user_type",
+        value: "user_type",
       },
     ],
     max_date: null,
@@ -326,17 +413,17 @@ export default {
   created() {
     let branch_header = [
       {
-        text: "Branch",
+        text: "Branch/Department",
         align: "left",
         sortable: true,
         key: "branch_id", //sorting
-        value: "employee.branch.branch_name", //edit purpose
+        value: "branch", //edit purpose
 
         filterable: true,
         filterSpecial: true,
       },
     ];
-    this.headers.splice(1, 0, ...branch_header);
+    this.headers.splice(2, 0, ...branch_header);
     this.setFromDate();
     this.getBranches();
     this.getScheduledEmployees();
