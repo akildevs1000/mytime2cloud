@@ -17,11 +17,11 @@
               v-model="payload.report_type"
               x-small
               :items="[
-                { id: `Date Wise Report`, name: `Date Wise Report` },
-                { id: `Door Wise Report`, name: `Door Wise Report` },
-                { id: `Branch Wise Report`, name: `Branch Wise Report` },
-                { id: `Access Granted Report`, name: `Access Granted Report` },
-                { id: `Access Denied Report`, name: `Access Denied Report` },
+                { id: `Date Wise Access Control Report`, name: `Date Wise Report` },
+                { id: `Door Wise Access Control Report`, name: `Door Wise Report` },
+                { id: `Branch Wise Access Control Report`, name: `Branch Wise Report` },
+                { id: `Access Granted Access Control Report`, name: `Access Granted Report` },
+                { id: `Access Denied Access Control Report`, name: `Access Denied Report` },
               ]"
               item-value="id"
               item-text="name"

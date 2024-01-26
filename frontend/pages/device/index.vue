@@ -586,6 +586,23 @@
           <v-col md="12">
             <v-autocomplete
               class="pb-0"
+              :hide-details="!payload.mode"
+              v-model="payload.mode"
+              placeholder="Mode"
+              outlined
+              dense
+              label="Mode"
+              :items="modes"
+              item-value="id"
+              item-text="name"
+            ></v-autocomplete>
+            <span v-if="errors && errors.mode" class="error--text"
+              >{{ errors.mode[0] }}
+            </span>
+          </v-col>
+          <v-col md="12">
+            <v-autocomplete
+              class="pb-0"
               :hide-details="!payload.status_id"
               v-model="payload.status_id"
               placeholder="Time Zone"
@@ -1195,7 +1212,7 @@ export default {
     device_statusses: [],
     branches: [],
     branchesList: [],
-
+    modes: [],
     isCompany: true,
     timeZoneOptions: [],
     editedItem: null,
@@ -1262,6 +1279,7 @@ export default {
     this.getDataFromApi();
     this.getBranches();
     this.getDeviceStatus();
+    this.getModes();
   },
 
   methods: {
@@ -1391,6 +1409,14 @@ export default {
         key: key,
         text: key + " - " + this.timeZones[key].offset,
       }));
+    },
+    getModes(){
+      this.$axios
+        .get(`device-mode-list`)
+        .then(({ data }) => {
+          console.log(this.modes = data);
+          console.log(`getting modes`, this.modes);
+        });
     },
     getBranches() {
       this.$axios

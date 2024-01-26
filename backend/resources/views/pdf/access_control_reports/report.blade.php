@@ -15,7 +15,7 @@
         }
 
         body {
-            margin: 50px 25px;
+            margin: 25px 25px 0 25px;
         }
 
         table {
@@ -192,7 +192,7 @@
                     </td>
                     <td class="text-center border-none col-4 uppercase">
                         <div>
-                            <b>{{ $params['report_type'] ?? "Access " }} Control Report</b>
+                            <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
                             <div class="border-top border-bottom">
                                 {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
                                 {{ date('d-M-Y', strtotime($params['to_date'])) }}
@@ -213,6 +213,7 @@
                 <tr>
                     <th>S.NO</th>
                     <th>Name</th>
+                    <th>Branch/Department</th>
                     <th>Phone</th>
                     <th>Door</th>
                     <th>DateTime</th>
@@ -240,7 +241,7 @@
                                 <tr>
                                     <td style="width:20px;" class="border-none">
                                         <img alt="{{ $pic }}"
-                                            style="border-radius: 50%;width:50px;padding-top:5px;"src="{{ $pic }}" />
+                                            style="border-radius: 50%;width:40px;padding-top:5px;"src="{{ $pic }}" />
                                     </td>
                                     <td class="border-none">
                                         <b style="margin-left:5px; padding-top:-30px;">
@@ -251,27 +252,34 @@
                                         <small
                                             style="margin-left:5px;">EID:{{ $data['employee']['employee_id'] ?? '---' }}</small>
 
-                                        <br>
+                                        {{-- <br>
                                         <small style="margin-left:5px;">Branch:
                                             {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
                                         <br>
                                         <small style="margin-left:5px;">Department:
-                                            {{ $data['employee']['department']['name'] ?? '---' }}</small>
+                                            {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
                                     </td>
                                 </tr>
                             </table>
                         </td>
 
-
+                        <td>
+                           <b> {{ $data['employee']['branch']['branch_name'] ?? '---' }}</b>
+                            <br>
+                            {{ $data['employee']['department']['name'] ?? '---' }}
+                        </td>
                         <td>{{ $data['employee']['phone_number'] ?? '---' }}</td>
                         <td>{{ $data['device']['location'] ?? '---' }}</td>
                         <td>{{ $data['date'] }} {{ $data['time'] }}</td>
-                        {{-- <td>{{ $data['time'] }}</td>
-                        <td>{{ $data['time'] }}</td> --}}
-                        <td>---</td>
-                        <td>---</td>
-                        <td>---</td>
-                        <td>---</td>
+                        <td>
+                            {{ strtolower($data['device']['function']) !== 'out' ? 'In' : '---' }}
+                        </td>
+                        <td>
+                            {{ strtolower($data['device']['function']) == 'out' ? 'Out' : '---' }}
+                        </td>
+                        </td>
+                        <td>{{ $data['device']['mode'] ?? '---' }}</td>
+                        <td>{{ $data['status'] }}</td>
                         <td>Employee</td>
                     </tr>
                 @endforeach

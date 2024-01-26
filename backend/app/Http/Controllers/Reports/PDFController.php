@@ -174,7 +174,7 @@ class PDFController extends Controller
 
         if ($request->debug) return $data;
 
-        $chunks = array_chunk($data, 7);
+        $chunks = array_chunk($data, 10);
 
         return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
             "chunks" => $chunks,
@@ -276,7 +276,7 @@ class PDFController extends Controller
 
         if ($request->debug) return $data;
 
-        $chunks = array_chunk($data, 7);
+        $chunks = array_chunk($data, 10);
 
         return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
             "chunks" => $chunks,

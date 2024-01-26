@@ -37,6 +37,8 @@ class UpdateRequest extends FormRequest
             'model_number' => ['nullable', 'min:6', 'max:50'],
             'device_type' =>  'required',
 
+            'mode' => ['nullable'],
+
             'ip' => 'required|ip',
             'port' => 'required',
             'function' => 'required',

@@ -50,6 +50,8 @@ class StoreRequest extends FormRequest
             'model_number' => ['nullable', 'min:4', 'max:20'],
             'device_type' => ['required'],
 
+            'mode' => ['nullable'],
+
             'ip' => 'required|ip',
             'function' => 'required',
             'utc_time_zone' => 'required',
