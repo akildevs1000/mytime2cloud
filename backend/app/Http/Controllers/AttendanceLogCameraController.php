@@ -208,7 +208,7 @@ class AttendanceLogCameraController extends Controller
         // if (env("LOGTIME_DUPLICATE_THRESHHOLD") != null) {
         //     $timeDiff = env("LOGTIME_DUPLICATE_THRESHHOLD");
         // }
-        $timeDiff = 60 * 5;
+        $timeDiff = 60 * 1;
         $isDuplicateLogTime = false;
         $currentLogTime =  (substr(str_replace("T", " ", $columns[2]), 0, 19));
         $previousLogTime = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);
