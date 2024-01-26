@@ -26,6 +26,22 @@ class AccessControlController extends Controller
 
         $model->whereHas('employee', fn ($q) => $q->where("company_id", $request->company_id));
 
+        $model->when(request()->filled("report_type"), function ($query) use ($request) {
+            if ($request->report_type == "Allowed") {
+                return $query->where('status', $request->report_type);
+            } else if ($request->report_type == "Denied") {
+                return $query->where('status', $request->report_type);
+            }
+        });
+
+        // $model->when(request()->filled("user_type"), function ($query) use ($request) {
+        //     if ($request->user_type == "Employee") {
+        //         return $query->where('status', $request->user_type);
+        //     } else if ($request->user_type == "Visitor") {
+        //         return $query->where('status', $request->user_type);
+        //     }
+        // });
+
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
         });
@@ -73,6 +89,12 @@ class AccessControlController extends Controller
             })
             ->when($request->filled('system_user_id'), function ($q) use ($request) {
                 $q->where('UserID', $request->system_user_id);
+            })
+            ->when($request->filled('mode'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('mode', $request->mode));
+            })
+            ->when($request->filled('function'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('function', $request->function));
             })
             ->when($request->filled('devicelocation'), function ($q) use ($request) {
                 if ($request->devicelocation != 'All Locations') {
@@ -128,6 +150,14 @@ class AccessControlController extends Controller
 
         $model->whereHas('employee', fn ($q) => $q->where("company_id", $request->company_id));
 
+        $model->when(request()->filled("report_type"), function ($query) use ($request) {
+            if ($request->report_type == "Allowed") {
+                return $query->where('status', $request->report_type);
+            } else if ($request->report_type == "Denied") {
+                return $query->where('status', $request->report_type);
+            }
+        });
+
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
         });
@@ -138,8 +168,6 @@ class AccessControlController extends Controller
 
 
         $model->with("device");
-
-
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
@@ -179,6 +207,12 @@ class AccessControlController extends Controller
             })
             ->when($request->filled('system_user_id'), function ($q) use ($request) {
                 $q->where('UserID', $request->system_user_id);
+            })
+            ->when($request->filled('mode'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('mode', $request->mode));
+            })
+            ->when($request->filled('function'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('function', $request->function));
             })
             ->when($request->filled('devicelocation'), function ($q) use ($request) {
                 if ($request->devicelocation != 'All Locations') {
@@ -242,6 +276,14 @@ class AccessControlController extends Controller
 
         $model->whereHas('employee', fn ($q) => $q->where("company_id", $request->company_id));
 
+        $model->when(request()->filled("report_type"), function ($query) use ($request) {
+            if ($request->report_type == "Allowed") {
+                return $query->where('status', $request->report_type);
+            } else if ($request->report_type == "Denied") {
+                return $query->where('status', $request->report_type);
+            }
+        });
+
         $model->when(request()->filled("UserID"), function ($query) use ($request) {
             return $query->where('UserID', $request->UserID);
         });
@@ -293,6 +335,12 @@ class AccessControlController extends Controller
             })
             ->when($request->filled('system_user_id'), function ($q) use ($request) {
                 $q->where('UserID', $request->system_user_id);
+            })
+            ->when($request->filled('mode'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('mode', $request->mode));
+            })
+            ->when($request->filled('function'), function ($q) use ($request) {
+                $q->whereHas('device', fn (Builder $query) => $query->where('function', $request->function));
             })
             ->when($request->filled('devicelocation'), function ($q) use ($request) {
                 if ($request->devicelocation != 'All Locations') {
