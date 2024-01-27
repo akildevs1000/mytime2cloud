@@ -17,7 +17,7 @@
           </v-icon>
         </v-card-title>
         <v-card-text>
-          <v-row class="pa-1">
+          <v-row>
             <v-col cols="12">
               <v-checkbox
                 hide-details

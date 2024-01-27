@@ -8,10 +8,8 @@
     min-width="auto"
   >
     <template v-slot:activator="{ on, attrs }">
-      <div>
-        {{ label }}
-      </div>
       <v-text-field
+        :label="label"
         v-model="date"
         append-icon="mdi-calendar"
         readonly

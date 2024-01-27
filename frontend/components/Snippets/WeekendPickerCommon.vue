@@ -1,18 +1,15 @@
 <template>
-  <div>
-    <span>{{ label }} </span>
-    <v-select
-      class="mt-1"
-      @change="setWeekend"
-      v-model="weekend"
-      :items="items"
-      item-value="id"
-      item-text="name"
-      dense
-      outlined
-      :hide-details="true"
-    ></v-select>
-  </div>
+  <v-select
+    :label="label"
+    @change="setWeekend"
+    v-model="weekend"
+    :items="items"
+    item-value="id"
+    item-text="name"
+    dense
+    outlined
+    :hide-details="true"
+  ></v-select>
 </template>
 <script>
 export default {
