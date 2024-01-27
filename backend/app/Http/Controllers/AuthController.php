@@ -174,7 +174,7 @@ class AuthController extends Controller
 
         $user->user_type = $this->getUserType($user);
 
-        if ($user->branch_id == 0 &&  $user->is_master === false) {
+        if ($user->branch_id == 0 &&  $user->is_master === false && $request->filled("source")) {
             throw ValidationException::withMessages([
                 'email' => ["You do not have permission to Access this Page"],
             ]);
