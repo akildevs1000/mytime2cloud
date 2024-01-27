@@ -441,37 +441,6 @@ export default {
       this.handleChangeEvent();
       // this.$router.push(`/shift/create`);
     },
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-      //this.datatable_search_textbox = '';
-    },
-    getDataForToolTip(item) {
-      if (item && !item.time_table) {
-        return {};
-      }
-
-      let time_table = item.time_table;
-
-      return {
-        on_duty_time: time_table.on_duty_time || "---",
-        off_duty_time: time_table.off_duty_time || "---",
-        late_time: time_table.late_time || "---",
-        early_time: time_table.early_time || "---",
-        beginning_in: time_table.beginning_in || "---",
-        ending_in: time_table.ending_in || "---",
-        beginning_out: time_table.beginning_out || "---",
-        ending_out: time_table.ending_out || "---",
-        absent_min_in: time_table.absent_min_in || "---",
-        absent_min_out: time_table.absent_min_out || "---",
-      };
-    },
-
     caps(str) {
       return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
@@ -590,6 +559,7 @@ export default {
       if (!this.payload.to_date) {
         this.payload.to_date = this.nextYearDate;
       }
+
       this.loading = true;
       this.$axios
         .post(`/shift`, this.payload)

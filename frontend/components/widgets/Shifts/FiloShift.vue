@@ -101,7 +101,7 @@
         :default_value="payload.halfday_working_hours"
         @getTime="
           (value) => {
-            payload.on_duty_time = value;
+            payload.halfday_working_hours = value;
           }
         "
       />
