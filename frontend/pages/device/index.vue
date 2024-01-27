@@ -498,19 +498,7 @@
                     ></v-text-field> -->
                   </td>
                 </tr>
-                <tr>
-                  <td>Device Wifi</td>
-                  <td>
-                    <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.wifi_ip"
-                      placeholder="Device Time"
-                      outlined
-                      dense
-                    ></v-text-field>
-                  </td>
-                </tr>
+
                 <tr>
                   <td>Device Wifi IP</td>
                   <td>
