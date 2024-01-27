@@ -73,6 +73,9 @@ class StoreRequest extends FormRequest
             'monthly_flexi_holidays' => 'nullable',
             'branch_id' => 'required',
 
+            'halfday'               => 'nullable',
+            'halfday_working_hours' => 'nullable',
+
             'isAutoShift' => "nullable",
 
         ];
