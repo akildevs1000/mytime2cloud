@@ -66,7 +66,7 @@ class UpdateRequest extends FormRequest
             'weekend2' => 'nullable',
             'monthly_flexi_holidays' => 'nullable',
 
-            'branch_id' => 'required',
+            'branch_id' => 'nullable',
 
             'halfday'               => 'nullable',
             'halfday_working_hours' => 'nullable',
