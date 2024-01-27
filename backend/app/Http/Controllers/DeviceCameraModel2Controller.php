@@ -51,7 +51,7 @@ class DeviceCameraModel2Controller extends Controller
                 "door_open_stat": "none"                 
             
         }';
-        $response = $this->postCURL('/api/devices/door', $json);
+        $response = $this->putCURL('/api/devices/door', $json);
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
@@ -69,7 +69,7 @@ class DeviceCameraModel2Controller extends Controller
                 "door_open_stat": "open"                 
             
         }';
-        $response = $this->postCURL('/api/devices/door', $json);
+        $response = $this->putCURL('/api/devices/door', $json);
     }
     public function updateSettings($request)
     {
