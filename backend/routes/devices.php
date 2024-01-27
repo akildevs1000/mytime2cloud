@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DeviceCameraModel2Controller;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\DeviceStatusController;
 use App\Models\Device;
@@ -41,6 +42,11 @@ Route::get('get-device-person-details', [DeviceController::class, 'getDevicePers
 Route::get('get-device-settings-from-sdk', [DeviceController::class, 'getDeviceSettingsFromSDK']);
 Route::post('update-device-sdk-settings', [DeviceController::class, 'updateDeviceSettingsToSDK']);
 
+Route::get('get-device-camvii-settings-from-sdk',  [DeviceController::class, 'getDevicecamviiSettingsFromSDK']);
+Route::post('update-device-camvii-sdk-settings', [DeviceController::class, 'updateDeviceCamVIISettingsToSDK']);
+
+
+
 
 Route::get('/open_door', [DeviceController::class, 'openDoor']);
 Route::get('/close_door', [DeviceController::class, 'closeDoor']);
@@ -75,32 +81,32 @@ Route::get('/open_door_always', [DeviceController::class, 'openDoorAlways']);
 // });
 
 
-Route::get('/open_door_always_old', function (Request $request) {
+// Route::get('/open_door_always_old', function (Request $request) {
 
-    $curl = curl_init();
+//     $curl = curl_init();
 
-    $device_id = $request->device_id;
+//     $device_id = $request->device_id;
 
-    // $device_id = 'OX-8862021010076';
+//     // $device_id = 'OX-8862021010076';
 
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "http://139.59.69.241:5000/$device_id/HoldDoor",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-    ));
+//     curl_setopt_array($curl, array(
+//         CURLOPT_URL => "http://139.59.69.241:5000/$device_id/HoldDoor",
+//         CURLOPT_RETURNTRANSFER => true,
+//         CURLOPT_ENCODING => '',
+//         CURLOPT_MAXREDIRS => 10,
+//         CURLOPT_TIMEOUT => 0,
+//         CURLOPT_FOLLOWLOCATION => true,
+//         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//         CURLOPT_CUSTOMREQUEST => 'POST',
+//     ));
 
-    $response = curl_exec($curl);
+//     $response = curl_exec($curl);
 
-    curl_close($curl);
-    echo $response;
+//     curl_close($curl);
+//     echo $response;
 
-    // return "Awesome APIs";
-});
+//     // return "Awesome APIs";
+// });
 
 // Route::get('/close_door_old', function (Request $request) {
 

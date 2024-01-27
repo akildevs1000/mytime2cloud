@@ -16,9 +16,10 @@ class ChangeRequestController extends Controller
     public function index(Request $request)
     {
         $model = ChangeRequest::query();
-        
+
         $model->where("company_id", $request->company_id);
         $model->when($request->filled("employee_device_id"), fn ($q) => $q->where('employee_device_id', $request->employee_device_id));
+        $model->when($request->filled("UserID"), fn ($q) => $q->where('employee_device_id', $request->employee_device_id));
         $model->when($request->filled("request_type"), fn ($q) => $q->where('request_type', $request->request_type));
         $model->when($request->filled("status"), fn ($q) => $q->where('status', $request->status));
 
@@ -27,7 +28,7 @@ class ChangeRequestController extends Controller
         });
 
         $model->with(["branch", "employee"]);
-        
+
         $model->orderBy("id", "desc");
 
         return $model->paginate($request->per_page ?? 100);

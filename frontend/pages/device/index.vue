@@ -417,7 +417,181 @@
           >
         </v-card-title>
 
-        <v-card-text class="mt-2">Hello </v-card-text>
+        <v-card-text class="mt-2">
+          <v-row class="100%" style="margin: auto; line-height: 36px">
+            <v-col cols="12" style="padding: 0px">
+              <v-simple-table>
+                <tr>
+                  <td colspan="2">
+                    <v-btn
+                      style="float: right"
+                      dense
+                      small
+                      class="primary mt-2 align-right"
+                      @click="
+                        getDeviceCAMVIISettginsFromSDK(
+                          deviceCAMVIISettings.device_id
+                        )
+                      "
+                    >
+                      Reload
+                    </v-btn>
+                    <br />
+                    <div v-if="loadingDeviceData" style="color: red">
+                      Connecting to Device. Please wait...
+                    </div>
+                    <div style="color: green">
+                      {{ sdk_message }}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Model</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.model_spec"
+                      placeholder="Device Model"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Device Time</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.local_time"
+                      placeholder="Device Time"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Always Open Status</td>
+                  <td>
+                    <v-switch
+                      :disabled="true"
+                      v-model="deviceCAMVIISettings.door_open_stat"
+                      :label="
+                        deviceCAMVIISettings.door_open_stat == 'none'
+                          ? 'OFF'
+                          : deviceCAMVIISettings.door_open_stat
+                      "
+                      color="green"
+                      value="green"
+                      hide-details
+                    ></v-switch>
+                    <!-- <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.door_open_stat"
+                      placeholder="Device Always Open Status"
+                      outlined
+                      dense
+                      label="Device Always Open Status  "
+                    ></v-text-field> -->
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Wifi</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.wifi_ip"
+                      placeholder="Device Time"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Wifi IP</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.wifi_ip"
+                      placeholder="Device Wifi IP"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device LAN IP</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.lan_ip"
+                      placeholder="Device LAN IP "
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Server IP address</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.ipaddr"
+                      placeholder="Device Server IP address"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Device Volume</td>
+                  <td>
+                    <v-progress-linear
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      height="25"
+                    >
+                      <strong
+                        >{{
+                          Math.ceil(deviceCAMVIISettings.voice_volume)
+                        }}%</strong
+                      >
+                    </v-progress-linear>
+                    <!-- <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      placeholder="Device Volume"
+                      outlined
+                      dense
+                      label="Device Volume  "
+                    ></v-text-field> -->
+                  </td>
+                </tr>
+
+                <tr>
+                  <td></td>
+                  <td>
+                    <v-btn
+                      dense
+                      small
+                      class="primary mt-2"
+                      @click="updateDeviceCAMMIISettings()"
+                    >
+                      Update settings</v-btn
+                    >
+                  </td>
+                </tr>
+              </v-simple-table>
+            </v-col>
+          </v-row>
+        </v-card-text>
       </v-card>
     </v-dialog>
 
@@ -895,7 +1069,7 @@
         <template v-slot:item.always_open="{ item }">
           <img
             style="cursor: pointer"
-            title="Click to Always Open  "
+            title="Click to Always Open"
             @click="open_door_always(item.id)"
             src="/icons/always_open.png"
             class="iconsize30"
@@ -1004,10 +1178,8 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="
-                  can(`device_edit`) && item.device_category_name != 'CAMERA'
-                "
-                @click="showDeviceSettings(item)"
+                v-if="can(`device_edit`) && item.model_number == 'CAMERA1'"
+                @click="showDeviceCameraSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
@@ -1015,9 +1187,15 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="can(`device_edit`) && item.model_number == 'MEGVII'"
+                v-else-if="can(`device_edit`) && item.model_number == 'MEGVII'"
                 @click="showDeviceMegviiSettings(item)"
               >
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-cog </v-icon>
+                  Settings
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item v-else @click="showDeviceSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
@@ -1047,6 +1225,7 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    deviceCAMVIISettings: {},
     DialogDeviceMegviiSettings: false,
     valid: false,
     rules: [(value) => (value || "").length <= 10 || "Max 10 characters"],
@@ -1311,8 +1490,57 @@ export default {
   },
 
   methods: {
-    showDeviceMegviiSettings(device) {
+    showDeviceMegviiSettings(item) {
+      this.errors = [];
+      this.payload = {};
+      this.editedIndex = item.id;
+
+      this.editedItem = item;
+      this.loadingDeviceData = true;
+
+      this.getDeviceCAMVIISettginsFromSDK(item.device_id);
       this.DialogDeviceMegviiSettings = true;
+    },
+    showDeviceCameraSettings(device) {
+      return false;
+    },
+
+    updateDeviceCAMMIISettings() {
+      if (confirm("Are you want to Update Device settings  ?")) {
+        {
+          this.deviceCAMVIISettings.voice_volume = Math.ceil(
+            this.deviceCAMVIISettings.voice_volume
+          );
+          let options = {
+            params: {
+              company_id: this.$auth.user.company_id,
+              deviceSettings: this.deviceCAMVIISettings,
+            },
+          };
+          this.loading = true;
+          this.$axios
+            .post(`/update-device-camvii-sdk-settings`, options.params)
+            .then(({ data }) => {
+              if (!data.status) {
+                if (data.message == "undefined") {
+                  this.response = "Try again. No connection available";
+                } else this.response = "Try again. " + data.message;
+                this.snackbar = true;
+
+                return;
+              } else {
+                setTimeout(() => {
+                  this.loading = false;
+                  this.response = data.message;
+                  this.snackbar = true;
+                }, 2000);
+
+                return;
+              }
+            })
+            .catch((e) => console.log(e));
+        }
+      }
     },
     updateDeviceSettings() {
       if (confirm("Are you want to Update Device settings  ?")) {
@@ -1355,6 +1583,42 @@ export default {
     findUser(item) {
       this.popupDeviceId = item.device_id;
       this.uploadedUserInfoDialog = true;
+    },
+
+    getDeviceCAMVIISettginsFromSDK(device_id) {
+      if (device_id != "") {
+        this.sdk_message = "";
+        this.deviceSettings = {};
+        this.deviceSettings.device_id = device_id;
+        this.loadingDeviceData = true;
+        let counter = 1;
+
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            device_id: device_id,
+          },
+        };
+        this.loadingDeviceData = true;
+        this.$axios
+          .get(`get-device-camvii-settings-from-sdk`, options)
+          .then(({ data }) => {
+            this.loadingDeviceData = false;
+
+            this.sdk_message = data.SDKresponseData.message;
+            if (!data.SDKresponseData.data) {
+              this.response = "Try again. " + data.message;
+              this.snackbar = true;
+
+              return;
+            } else {
+              this.deviceCAMVIISettings = data.SDKresponseData.data;
+              this.deviceCAMVIISettings.device_id = device_id;
+
+              return;
+            }
+          });
+      }
     },
     getDeviceSettginsFromSDK(device_id) {
       if (device_id != "") {
