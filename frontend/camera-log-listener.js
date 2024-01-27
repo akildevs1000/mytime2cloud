@@ -211,10 +211,15 @@ function saveRegisteredMemberstoCSV(
 
         if (UserCode > 0) {
           const logEntry = `${UserCode},${DeviceID},${RecordDate},${RecordNumber}`;
-          fs.chmodSync(logFilePath, 0o666);
-          fs.appendFileSync(logFilePath, logEntry + "\n");
+          //fs.appendFileSync(logFilePath, logEntry + "\n");
 
-          logConsoleStatus("Registered Log recorded " + logEntry);
+          //logConsoleStatus("Registered Log recorded " + logEntry);
+
+          fs.chmod(logFilePath, 0o666, () => {
+            fs.appendFileSync(logFilePath, logEntry + "\n");
+
+            logConsoleStatus("Registered Log recorded " + logEntry);
+          });
         } else {
         }
       } catch (error) {

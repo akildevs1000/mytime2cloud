@@ -891,10 +891,11 @@
             class="iconsize30"
           />
         </template>
+
         <template v-slot:item.always_open="{ item }">
           <img
             style="cursor: pointer"
-            title="Click to Always Open settings"
+            title="Click to Always Open  "
             @click="open_door_always(item.id)"
             src="/icons/always_open.png"
             class="iconsize30"
@@ -1007,6 +1008,15 @@
                   can(`device_edit`) && item.device_category_name != 'CAMERA'
                 "
                 @click="showDeviceSettings(item)"
+              >
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-cog </v-icon>
+                  Settings
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                v-if="can(`device_edit`) && item.model_number == 'MEGVII'"
+                @click="showDeviceMegviiSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
@@ -1301,6 +1311,9 @@ export default {
   },
 
   methods: {
+    showDeviceMegviiSettings(device) {
+      this.DialogDeviceMegviiSettings = true;
+    },
     updateDeviceSettings() {
       if (confirm("Are you want to Update Device settings  ?")) {
         if (
@@ -1533,7 +1546,7 @@ export default {
       confirm("Are you sure want to open the Door?") &&
         this.$axios.get(`open_door`, options).then(({ data }) => {
           this.snackbar = true;
-          this.response = data;
+          this.response = data.message;
           // this.getDataFromApi();
         });
     },

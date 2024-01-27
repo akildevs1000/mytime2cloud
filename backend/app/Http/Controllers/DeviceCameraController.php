@@ -19,10 +19,10 @@ class DeviceCameraController extends Controller
     {
         $this->camera_sdk_url = $camera_sdk_url;
     }
-    public function updateCameraDeviceLiveStatus()
+    public function updateCameraDeviceLiveStatus($company_id)
     {
-        $online_devices_count = 0;
-        $devices = Device::where('model_number', "CAMERA1");
+        return  $online_devices_count = 0;
+        $devices = Device::where('company_id', $company_id)->where('model_number', "CAMERA1");
 
         $devices->clone()->update(["status_id" => 2]);
 

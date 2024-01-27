@@ -433,6 +433,104 @@ class DeviceController extends Controller
         }
     }
 
+    public function openDoor(Request $request)
+    {
+
+
+        $device = Device::where("device_id", $request->device_id)->first();
+        if ($device->status_id == 2) {
+            return $this->response("Device is offline. Please Test Device Online status.", null, false);
+        }
+        try {
+
+            if ($device->device_category_name == 'CAMERA') {
+
+                if ($device->model_number == 'CAMERA1') {
+                    //(new DeviceCameraController())->updateTimeZone();
+                }
+            } else  if ($device->model_number == 'MEGVII') {
+                (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoor($device);
+                return $this->response('Open Door Command Successfull',  null, true);
+            } else {
+
+                $url = env('SDK_URL') . "$request->device_id/OpenDoor";
+                $response = $this->callCURL($url);
+                if ($response->status == 200)
+                    return $this->response('Open Door Command Successfull',  null, true);
+                else
+                    return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+            }
+        } catch (\Exception $e) {
+            return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+        }
+    }
+    public function closeDoor(Request $request)
+    {
+
+
+        $device = Device::where("device_id", $request->device_id)->first();
+        if ($device->status_id == 2) {
+            return $this->response("Device is offline. Please Test Device Online status.", null, false);
+        }
+        try {
+
+            if ($device->device_category_name == 'CAMERA') {
+
+                if ($device->model_number == 'CAMERA1') {
+                    //(new DeviceCameraController())->updateTimeZone();
+                }
+            } else  if ($device->model_number == 'MEGVII') {
+                (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
+                return $this->response('Close Door Command Successfull',  null, true);
+            } else {
+
+
+                $url = env('SDK_URL') . "$request->device_id/CloseDoor";
+                $response = $this->callCURL($url);
+
+
+                $response = json_decode($response, true);
+                if ($response->status == 200)
+                    return $this->response('Close Door Command Successfull',  null, true);
+                else
+                    return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+            }
+        } catch (\Exception $e) {
+            return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+        }
+    }
+    public function openDoorAlways(Request $request)
+    {
+
+
+        $device = Device::where("device_id", $request->device_id)->first();
+        // if ($device->status_id == 2) {
+        //     return $this->response("Device is offline. Please Test Device Online status.", null, false);
+        // }
+        try {
+
+            if ($device->device_category_name == 'CAMERA') {
+
+                if ($device->model_number == 'CAMERA1') {
+                    //(new DeviceCameraController())->updateTimeZone();
+                }
+            } else  if ($device->model_number == 'MEGVII') {
+                (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoorAlways($device);
+                return $this->response('Always Open  Command is Successfull',  null, true);
+            } else {
+                $url = env('SDK_URL') . "$request->device_id/HoldDoor";
+                $response = $this->callCURL($url);
+                if ($response->status == 200)
+                    return $this->response('Always Open  Door Command is Successfull',  null, true);
+                else
+                    return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+            }
+        } catch (\Exception $e) {
+            return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+        }
+    }
+
+
     public function sync_device_date_time(Request $request, $device_id, $company_id)
     {
 
@@ -443,15 +541,15 @@ class DeviceController extends Controller
                 try {
                     if ($device->model_number == 'CAMERA1') {
                         //(new DeviceCameraController())->updateTimeZone();
-                    } else  if ($device->model_number == 'MEGVII') {
-                        (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
-
-
-                        return $this->response('Time has been synced to the Device.',  null, true);
                     }
                 } catch (\Exception $e) {
                     return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
                 }
+            } else  if ($device->model_number == 'MEGVII') {
+                (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+
+
+                return $this->response('Time has been synced to the Device.',  null, true);
             } else {
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
                 $url = env('SDK_URL') . "/$device_id/SetWorkParam";
@@ -574,22 +672,7 @@ class DeviceController extends Controller
 
             ->get()->count();;
 
-
-
-
-
-
-
-
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
-
-
-
-
-
-
-
-
 
 
         $companyDevices = Device::where("device_type", "!=", "Mobile")
@@ -622,20 +705,18 @@ class DeviceController extends Controller
                 // $offline_devices_count++;
                 Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
 
-
                 // info($count . "companies has been updated");
             }
         }
         try {
-            // $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus();
 
-
-
-            // $online_devices_count = $online_devices_count +  $count;
+            $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus($company_id);
+            $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
         }
         try {
-            $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus();
+
+            $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
 
             $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
@@ -646,63 +727,86 @@ class DeviceController extends Controller
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
         return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_devices_count records found.";
     }
-    public function checkDeviceHealth_old(Request $request)
+    // public function checkDeviceHealth_old(Request $request)
+    // {
+    //     $devices = Device::where("company_id", $request->company_id ?? 0)->where("device_type", "!=", "Mobile")
+    //         ->where("device_type", "!=", "Manual")
+    //         ->pluck("device_id");
+
+    //     $total_iterations = 0;
+    //     $online_devices_count = 0;
+    //     $offline_devices_count = 0;
+
+    //     $sdk_url = env("SDK_URL");
+
+    //     if (checkSDKServerStatus($sdk_url) === 0) {
+    //         return "Failed to connect to the SDK Server: $sdk_url";
+    //     }
+    //     $return_araay = [];
+    //     foreach ($devices as $device_id) {
+    //         $curl = curl_init();
+
+    //         if (!$sdk_url) {
+    //             return "sdk url not defined.";
+    //         }
+
+    //         curl_setopt_array($curl, array(
+
+    //             // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
+    //             // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
+    //             CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
+    //             CURLOPT_RETURNTRANSFER => true,
+    //             CURLOPT_ENCODING => '',
+    //             CURLOPT_MAXREDIRS => 10,
+    //             CURLOPT_TIMEOUT => 0,
+    //             CURLOPT_FOLLOWLOCATION => true,
+    //             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //             CURLOPT_CUSTOMREQUEST => 'POST',
+    //         ));
+
+    //         $response = curl_exec($curl);
+
+
+
+    //         curl_close($curl);
+
+    //         $status = json_decode($response);
+
+    //         if ($status && $status->status == 200) {
+    //             $online_devices_count++;
+    //         } else {
+    //             $offline_devices_count++;
+    //         }
+
+    //         Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
+
+    //         $total_iterations++;
+    //     }
+
+    //     return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+    // }
+
+    public function callCURL($url)
     {
-        $devices = Device::where("company_id", $request->company_id ?? 0)->where("device_type", "!=", "Mobile")
-            ->where("device_type", "!=", "Manual")
-            ->pluck("device_id");
+        $curl = curl_init();
+        //$device_id = $request->device_id;
+        //$url = env('SDK_URL') . "$device_id/CloseDoor";
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+        ));
 
-        $total_iterations = 0;
-        $online_devices_count = 0;
-        $offline_devices_count = 0;
+        $response = curl_exec($curl);
 
-        $sdk_url = env("SDK_URL");
-
-        if (checkSDKServerStatus($sdk_url) === 0) {
-            return "Failed to connect to the SDK Server: $sdk_url";
-        }
-        $return_araay = [];
-        foreach ($devices as $device_id) {
-            $curl = curl_init();
-
-            if (!$sdk_url) {
-                return "sdk url not defined.";
-            }
-
-            curl_setopt_array($curl, array(
-
-                // CURLOPT_URL => "https://sdk.ideahrms.com/CheckDeviceHealth/$device_id",
-                // CURLOPT_URL => "http://139.59.69.241:5000/CheckDeviceHealth/$device_id",
-                CURLOPT_URL => "$sdk_url/CheckDeviceHealth/$device_id",
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-            ));
-
-            $response = curl_exec($curl);
-
-
-
-            curl_close($curl);
-
-            $status = json_decode($response);
-
-            if ($status && $status->status == 200) {
-                $online_devices_count++;
-            } else {
-                $offline_devices_count++;
-            }
-
-            Device::where("device_id", $device_id)->update(["status_id" => $status->status == 200 ? 1 : 2]);
-
-            $total_iterations++;
-        }
-
-        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_iterations records found.";
+        curl_close($curl);
+        //echo $response;
+        return  $response = json_decode($response, true);
     }
     public function updateActiveTimeSettings(Request $request, $device_id)
     {

@@ -23,7 +23,46 @@ class DeviceCameraModel2Controller extends Controller
     {
         $this->camera_sdk_url = $camera_sdk_url;
     }
+    public function openDoor($device)
+    {
+        $this->sxdmSn = $device->device_id;
+        $json = '{
+            "tips": {
+                "text": "welcome",
+                "person_type": "staff"
+            }
+        }';
+        $response = $this->postCURL('/api/devices/io', $json);
+    }
+    public function closeDoor($device)
+    {
 
+        //reset the always open door settings and then close the door automatically after 1 sec 
+        $this->sxdmSn = $device->device_id;
+        $json = '{             
+                "door_open_stat": "none"                 
+            
+        }';
+        $response = $this->postCURL('/api/devices/door', $json);
+        $this->sxdmSn = $device->device_id;
+        $json = '{
+            "tips": {
+                "text": "welcome",
+                "person_type": "staff"
+            }
+        }';
+        $response = $this->postCURL('/api/devices/io', $json);
+    }
+
+    public function openDoorAlways($device)
+    {
+        $this->sxdmSn = $device->device_id;
+        $json = '{             
+                "door_open_stat": "open"                 
+            
+        }';
+        $response = $this->postCURL('/api/devices/door', $json);
+    }
 
     public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
     {
@@ -127,16 +166,11 @@ class DeviceCameraModel2Controller extends Controller
 
 
         return   $response = $this->putCURL('/api/devices/time', $json);
-
-        // if (isset($response["serial_no"])) {
-
-        //     Device::where("device_id", $response["serial_no"])->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
-        // }
     }
-    public function getCameraDeviceLiveStatus()
+    public function getCameraDeviceLiveStatus($company_id)
     {
         $online_devices_count = 0;
-        $devices = Device::where('model_number', "MEGVII");
+        $devices = Device::where('company_id', $company_id)->where('model_number', "MEGVII");
 
         $devices->clone()->update(["status_id" => 2]);
 
@@ -150,7 +184,7 @@ class DeviceCameraModel2Controller extends Controller
 
             if (isset($response["serial_no"])) {
 
-                Device::where("device_id", $response["serial_no"])->where('device_category_name', "CAMERA")->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+                Device::where("device_id", $response["serial_no"])->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
                 $online_devices_count++;
             }
         }
@@ -200,6 +234,36 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'PUT',
+            CURLOPT_POSTFIELDS =>  $post_json,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Cookie: sessionID=' . $sessionId,
+                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return  $response = json_decode($response, true);
+    }
+    public function postCURL($serviceCall, $post_json)
+    {
+
+
+        $sessionId = $this->getActiveSessionId();
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POSTFIELDS =>  $post_json,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
