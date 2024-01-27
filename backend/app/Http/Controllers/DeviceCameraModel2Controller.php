@@ -23,6 +23,14 @@ class DeviceCameraModel2Controller extends Controller
     {
         $this->camera_sdk_url = $camera_sdk_url;
     }
+
+
+
+
+
+
+
+
     public function openDoor($device)
     {
         $this->sxdmSn = $device->device_id;
@@ -43,7 +51,7 @@ class DeviceCameraModel2Controller extends Controller
                 "door_open_stat": "none"                 
             
         }';
-        $response = $this->postCURL('/api/devices/door', $json);
+        $response = $this->putCURL('/api/devices/door', $json);
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
@@ -61,7 +69,46 @@ class DeviceCameraModel2Controller extends Controller
                 "door_open_stat": "open"                 
             
         }';
-        $response = $this->postCURL('/api/devices/door', $json);
+        $response = $this->putCURL('/api/devices/door', $json);
+    }
+    public function updateSettings($request)
+    {
+        $this->sxdmSn = $request->deviceSettings['device_id'];
+        $json = '{             
+                "voice_volume": ' . round($request->deviceSettings['voice_volume']) . '              
+            
+        }';
+        $response = $this->putCURL('/api/devices/profile', $json);
+    }
+    public function getSettings($device)
+    {
+        $row = [];
+        try {
+            $this->sxdmSn = $device->device_id;
+            $status = $this->getCURL('/api/devices/status');
+            $profile = $this->getCURL('/api/devices/profile');
+            $time = $this->getCURL('/api/devices/time');
+            $door = $this->getCURL('/api/devices/door');
+            $network = $this->getCURL('/api/devices/network');
+            $server = $this->getCURL('/api/devices/server');
+
+            $row['model_spec'] = $status['model_spec'];
+            $row['voice_volume'] = $profile['voice_volume'];
+            $row['local_time'] = $time['local_time'];
+            $row['door_open_stat'] = $door['door_open_stat'];
+            $row['wifi_ip'] = $network['wifi']['ip'];
+            $row['lan_ip'] = $network['lan']['ip'];
+            $row['ipaddr'] = $server['ipaddr'];
+
+
+
+            $inputDateString = $row['local_time'];
+            $inputDateTime = new DateTime($inputDateString);
+            $row['local_time'] = $inputDateTime->format("Y-m-d H:i P");
+        } catch (\Exception $e) {
+        }
+
+        return  $row;
     }
 
     public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
@@ -195,6 +242,8 @@ class DeviceCameraModel2Controller extends Controller
     public function getCURL($serviceCall)
     {
         $sessionId = $this->getActiveSessionId();
+
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(

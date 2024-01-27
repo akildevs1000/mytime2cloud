@@ -14,6 +14,7 @@ use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Mail\ReportNotificationMail;
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\ReportNotification;
@@ -65,6 +66,59 @@ Route::get('/donwloadpdffile', function (Request $request) {
     //     return 'File not exist';
     //  }
 });
+
+Route::get('/testAttendanceRender111test', function (Request $request) {
+
+    Logger::channel('custom')->info(json_encode($request->request->all()));
+});
+Route::post('/testAttendanceRender111test', function (Request $request) {
+
+    Logger::channel('custom')->info(json_encode($request->request->all()));
+
+    $base64Data = $request->request->all()['photo'];
+    // Extract the image extension (e.g., 'jpeg', 'png') from the base64 data
+
+
+
+    // Generate a unique filename
+    $filename = 'image_' . time() .   '.jpg';
+
+    // Decode the base64 data
+    $decodedData = base64_decode($base64Data);
+
+    // Save the decoded data to a file
+    file_put_contents($filename, $decodedData);
+
+    echo 'Image saved as ' . $filename;
+    Logger::channel('custom')->info($filename);
+});
+
+Route::get('/testAttendanceRender111', function (Request $request) {
+
+
+
+
+    $id = 13;
+    $date = '2024-01-23';
+    $requestArray = array(
+        'date' => '',
+        'UserID' => '',
+        'updated_by' => 26,
+        'company_ids' => array($id),
+        'manual_entry' => true,
+        'reason' => '',
+        'employee_ids' => [],
+        'dates' => array($date, $date),
+        'shift_type_id' => 1,
+        'auto_render' => false
+    );
+
+    //calling manual render method to pull all 
+    $renderRequest = Request::create('/render_logs', 'get', $requestArray);
+
+    return ((new RenderController())->renderLogs($renderRequest));
+});
+
 Route::get("/testemployee", function (Request $request) {
 
     return Storage::url('8_3_8_2023_payslip.pdf');
@@ -207,7 +261,7 @@ Route::get('/test/test/3', function (Request $request) {
     // return "Awesome APIs";
 });
 
-Route::get('/open_door', function (Request $request) {
+Route::get('/open_door_old', function (Request $request) {
 
     $curl = curl_init();
 
@@ -270,7 +324,7 @@ Route::post('/upload-users', function (Request $request) {
     return $request->all();
 });
 
-Route::get('/open_door_always', function (Request $request) {
+Route::get('/open_door_always_old', function (Request $request) {
 
     $curl = curl_init();
 
@@ -361,32 +415,32 @@ Route::get('/checkSDKServerStatus/{url}', function ($url) {
     return checkSDKServerStatus($url) ? "Server is running" : "Server is down";
 });
 
-Route::get('/close_door', function (Request $request) {
+// Route::get('/close_door_old', function (Request $request) {
 
-    $curl = curl_init();
+//     $curl = curl_init();
 
-    $device_id = $request->device_id;
+//     $device_id = $request->device_id;
 
-    // $device_id = 'OX-8862021010076';
+//     // $device_id = 'OX-8862021010076';
 
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => "http://139.59.69.241:5000/$device_id/CloseDoor",
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-    ));
+//     curl_setopt_array($curl, array(
+//         CURLOPT_URL => "http://139.59.69.241:5000/$device_id/CloseDoor",
+//         CURLOPT_RETURNTRANSFER => true,
+//         CURLOPT_ENCODING => '',
+//         CURLOPT_MAXREDIRS => 10,
+//         CURLOPT_TIMEOUT => 0,
+//         CURLOPT_FOLLOWLOCATION => true,
+//         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+//         CURLOPT_CUSTOMREQUEST => 'POST',
+//     ));
 
-    $response = curl_exec($curl);
+//     $response = curl_exec($curl);
 
-    curl_close($curl);
-    echo $response;
+//     curl_close($curl);
+//     echo $response;
 
-    // return "Awesome APIs";
-});
+//     // return "Awesome APIs";
+// });
 
 // Route::post('/generate_log', [AttendanceLogController::class, 'GenerateLog']);
 Route::get('/cameraevents', [CameraController::class, 'readLog']);
@@ -485,11 +539,9 @@ Route::get('/test/whatsapp', function () {
 });
 Route::get('/testAttendance', function () {
 
-    // return 'Test';
-    // $devicesListArray = Device::where("company_id", 8);
 
     // return $devicesListArray->clone()->where("device_id", "=", 'OX-9662022091021')->pluck('id')[0];
-    // return (new AttendanceController)->seedDefaultData(20, [], '');
+    // return (new AttendanceController)->seedDefaultData(20, [218], '');
 });
 Route::get('/getActiveSessionId', function () {
 
@@ -507,6 +559,12 @@ Route::get('/pushUserToCameraDevice', function () {
         $imageData = base64_encode($imageData);
         return (new DeviceCameraController(''))->pushUserToCameraDevice("Venu1",  "9191",  $imageData);
     }
+});
+Route::get('/testGetDevices', function () {
+
+    // return Device::where("company_id", 1)->get();
+
+    // return AttendanceLog::with(["device"])->where("company_id", 1)->where("LogTime", ">=", '2024-01-15 00:00:00')->distinct("DeviceID")->get()->pluck("DeviceID");
 });
 Route::get('/updateCameraDeviceLiveStatus', function () {
 
@@ -562,4 +620,17 @@ Route::get('/test_attachment', function () {
         }
     }
     return "done";
+});
+
+Route::post('/ardino_testing', function (Request $request) {
+
+    $requestData = $request->all();
+    //return $request;
+    $requstJson = json_encode($requestData);
+
+
+    DB::table('test_camera_api')
+        ->insert([
+            'json_content' => $requstJson,
+        ]);
 });

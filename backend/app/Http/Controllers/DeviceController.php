@@ -228,33 +228,29 @@ class DeviceController extends Controller
 
         return $logs;
     }
+    public function updateDeviceCamVIISettingsToSDK(Request $request)
+    {
+        if ($request->deviceSettings['device_id'] > 0) {
 
-    public function getDeviceSettingsFromSDK(Request $request)
+            $device = Device::where("device_id", $request->deviceSettings['device_id'])->first();
+            $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateSettings($request);
+
+
+            return ["SDKresponseData" =>  $responseData, "message" => " Settings Updated Successfully", "device_id" => $request->deviceSettings['device_id'], "status" => true];
+        } else {
+            return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
+        }
+    }
+    public function getDevicecamviiSettingsFromSDK(Request $request)
     {
 
         if ($request->device_id > 0) {
 
-
-            $responseData = (new SDKController())->getDeviseSettingsDetails($request->device_id);
-
-            $responseDataArray = json_decode($responseData, true);
+            $device = Device::where("device_id", $request->device_id)->first();
+            $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
 
 
-
-            if (!isset($responseDataArray->data->maker['manufacturer'])) {
-                $responseDataArray['data']['maker_manufacturer'] = "OXAI";
-                $responseDataArray['data']['maker_webAddr']   = env("APP_URL");
-                $responseDataArray['data']['maker_deliveryDate']  = date("Y-01-01");
-            }
-            if (!isset($responseDataArray['data']['name'])) {
-                $responseDataArray['data']['name'] = "OXSAI866";
-            }
-
-
-
-
-
-            return ["SDKresponseData" =>  $responseDataArray,  "device_id" => $request->device_id, "status" => true];
+            return ["SDKresponseData" =>  $responseData,  "device_id" => $request->device_id, "status" => true];
         } else {
             return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
@@ -304,6 +300,34 @@ class DeviceController extends Controller
             return $this->response('Device settings are updated successfully.',  null, true);
         } else {
             return $this->response('Device ID is not found',  null, false);
+        }
+    }
+    public function getDeviceSettingsFromSDK(Request $request)
+    {
+
+        if ($request->device_id > 0) {
+
+
+            $responseData = (new SDKController())->getDeviseSettingsDetails($request->device_id);
+
+            $responseDataArray = json_decode($responseData, true);
+
+            if (!isset($responseDataArray->data->maker['manufacturer'])) {
+                $responseDataArray['data']['maker_manufacturer'] = "OXAI";
+                $responseDataArray['data']['maker_webAddr']   = env("APP_URL");
+                $responseDataArray['data']['maker_deliveryDate']  = date("Y-01-01");
+            }
+            if (!isset($responseDataArray['data']['name'])) {
+                $responseDataArray['data']['name'] = "OXSAI866";
+            }
+
+
+
+
+
+            return ["SDKresponseData" =>  $responseDataArray,  "device_id" => $request->device_id, "status" => true];
+        } else {
+            return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
     }
     public function getLastRecordsByCount($id = 0, $count = 0, Request $request)
@@ -504,6 +528,7 @@ class DeviceController extends Controller
 
 
         $device = Device::where("device_id", $request->device_id)->first();
+
         // if ($device->status_id == 2) {
         //     return $this->response("Device is offline. Please Test Device Online status.", null, false);
         // }
