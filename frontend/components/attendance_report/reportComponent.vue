@@ -191,7 +191,9 @@
           </div>
           <div class="secondary-value">
             {{ (item.shift && item.shift.name) || "---" }}
-            {{ checkHalfday(item || "---") }}
+            <span v-if="checkHalfday(item || `---`)">
+              {{ `(Half Day ${item.shift.halfday_working_hours} hrs)` }}
+            </span>
           </div>
           <!-- <v-tooltip v-if="item && item.shift" top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -1083,9 +1085,7 @@ export default {
         weekday: "long",
       });
 
-      if (item.shift && currentDay === item.shift.halfday) {
-        return `(Half Day ${item.shift.halfday_working_hours} hrs)`;
-      } 
+      return item.shift && currentDay === item.shift.halfday;
     },
     changeReportType(report_type) {
       this.setFromDate();
@@ -1617,7 +1617,10 @@ export default {
           [hours, minutes] = employeeHours.split(":").map(Number);
           employeeHours = hours * 60 + minutes;
 
-          if (employeeHours < shiftWorkingHours) {
+          if (
+            employeeHours < shiftWorkingHours &&
+            !this.checkHalfday(item || `---`)
+          ) {
             return "Short Shift";
           }
         }

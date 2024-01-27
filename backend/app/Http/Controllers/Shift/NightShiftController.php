@@ -172,6 +172,15 @@ class NightShiftController extends Controller
                 }
 
                 if ($item["shift_type_id"] == 4) {
+                    
+
+                    if ($shift["halfday"] == date("l")) {
+
+                        $time2 = $lastLogShift["on_duty_time"];
+                        $time1 = $lastLogShift["halfday_working_hours"];
+                        $lastLogShift["off_duty_time"] = gmdate("H:i", (strtotime($time1) - strtotime('00:00')) + strtotime($time2) - strtotime('00:00'));
+                    }
+
                     $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $lastLogShift["off_duty_time"], $lastLogShift["early_time"]);
 
                     if ($item["early_going"] != "---") {
