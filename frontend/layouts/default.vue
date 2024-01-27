@@ -613,6 +613,8 @@ export default {
         label: "Logout",
       },
       viewing_page_name: "",
+
+      inactivityTimeout: null,
     };
   },
   created() {
@@ -660,9 +662,11 @@ export default {
         );
       }
     }
-    setTimeout(() => {
-      this.$router.push(`/dashboard2`);
-    }, 1000 * 60 * 15); //15 minutes
+    this.setupInactivityDetection();
+
+    // setTimeout(() => {
+    //   this.$router.push(`/dashboard2`);
+    // }, 1000 * 60 * 15); //15 minutes
   },
   watch: {},
   computed: {
@@ -717,6 +721,36 @@ export default {
     },
   },
   methods: {
+    handleActivity() {
+      this.resetTimer();
+    },
+    resetTimer() {
+      // Time in milliseconds after which the user is considered inactive
+      const INACTIVITY_TIME = 1000 * 60 * 30; // 5 minutes
+      clearTimeout(this.inactivityTimeout);
+      this.inactivityTimeout = setTimeout(
+        this.handleInactivity,
+        INACTIVITY_TIME
+      );
+    },
+    setupInactivityDetection() {
+
+      // Handle inactivity
+      this.handleInactivity = () => {
+        // Perform actions when the user is inactive
+        this.$router.push(`/dashboard2`);
+        // For example, you could redirect the user, show a message, etc.
+      };
+
+      // Attach event listeners
+      window.addEventListener("mousemove", this.handleActivity);
+      window.addEventListener("mousedown", this.handleActivity);
+      window.addEventListener("keypress", this.handleActivity);
+      window.addEventListener("touchmove", this.handleActivity);
+
+      // Initialize the timer
+      this.resetTimer();
+    },
     gotoHomePage() {
       //location.href = process.env.APP_URL + "/dashboard2";
       location.href = location.href; // process.env.APP_URL + "/dashboard2";
@@ -970,6 +1004,14 @@ export default {
         this.$auth.logout();
       });
     },
+  },
+  beforeDestroy() {
+    // Cleanup: Remove event listeners
+    window.removeEventListener("mousemove", this.handleActivity);
+    window.removeEventListener("mousedown", this.handleActivity);
+    window.removeEventListener("keypress", this.handleActivity);
+    window.removeEventListener("touchmove", this.handleActivity);
+    clearTimeout(this.inactivityTimeout);
   },
 };
 </script>

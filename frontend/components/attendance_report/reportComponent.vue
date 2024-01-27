@@ -191,6 +191,7 @@
           </div>
           <div class="secondary-value">
             {{ (item.shift && item.shift.name) || "---" }}
+            {{ checkHalfday(item || "---") }}
           </div>
           <!-- <v-tooltip v-if="item && item.shift" top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -1077,6 +1078,15 @@ export default {
   },
 
   methods: {
+    checkHalfday(item) {
+      let currentDay = new Date().toLocaleString("en-US", {
+        weekday: "long",
+      });
+
+      if (item.shift && currentDay === item.shift.halfday) {
+        return `(Half Day ${item.shift.halfday_working_hours} hrs)`;
+      } 
+    },
     changeReportType(report_type) {
       this.setFromDate();
 
