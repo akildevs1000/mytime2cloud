@@ -25,32 +25,34 @@
           >
 
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
-            <v-col md="12">
+            <!-- <v-col md="12">
               <v-checkbox
                 :readonly="!isEdit"
                 v-model="item.isAutoShift"
                 hide-details
                 label="Auto Shift"
               ></v-checkbox>
-            </v-col>
+            </v-col> -->
             <v-col md="3">
               <div class="">Shift Name</div>
-
               <v-autocomplete
                 placeholder="Shift Name"
                 :error="errors && errors.shift_id"
                 :error-messages="
                   errors && errors.shift_id ? errors.shift_id[0] : ''
                 "
-                @change="runShiftFunction(item.shift_type_id)"
+                @change="runShiftFunctionWithAuto(item)"
                 outlined
                 dense
                 v-model="item.shift_id"
                 x-small
-                :items="shifts_branch_wise"
+                :items="[
+                  { shift_id: `AutoShift`, name: `Auto Shift` },
+                  ...shifts_branch_wise,
+                ]"
                 item-value="shift_id"
                 item-text="name"
-                :disabled="!isEdit || item.isAutoShift"
+                :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
             <v-col md="3">
@@ -240,7 +242,7 @@
                     :error-messages="
                       errors && errors.shift_id ? errors.shift_id[0] : ''
                     "
-                    @change="runShiftFunction(item.shift_type_id)"
+                    @change="runShiftFunction"
                     outlined
                     dense
                     v-model="shift_id"
@@ -397,7 +399,6 @@
         </span>
         <span>
           <v-btn
-            v-if="employeesSelected.length > 0"
             dense
             class="ma-2 px-1 primary"
             fill
@@ -761,21 +762,6 @@
               ? item.schedule.shift.name
               : "---"
           }}
-          <!-- {{
-            item.schedule_active?.isAutoShift
-              ? "Auto"
-              : item.schedule_active.shift
-              ? item.schedule_active.shift.name
-              : "---"
-          }} -->
-          <!-- {{ item.schedule.isAutoShift ? "Auto" : "---" }}
-
-          {{
-            item.schedule.shift?.name ?? !item.schedule.isAutoShift
-              ? ""
-              : item.schedule.shift.name
-          }}
-          {{ item.schedule.isAutoShift ? "Auto" : "---" }} -->
           <div class="secondary-value" title="Total Assigned Shift count">
             {{ item.schedule_all.length }}
           </div>
@@ -1369,7 +1355,17 @@ export default {
         .catch((err) => console.log(err));
     },
 
-    runShiftFunction(shift_type_id) {
+    runShiftFunction() {
+      this.shifts = this.shifts.filter((e) => e.id !== "---");
+    },
+
+    runShiftFunctionWithAuto(item) {
+      if (item.shift_id == "AutoShift") {
+        item.isAutoShift = true;
+      } else {
+        item.isAutoShift = false;
+      }
+
       this.shifts = this.shifts.filter((e) => e.id !== "---");
     },
 

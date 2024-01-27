@@ -131,6 +131,45 @@
       }}</span>
     </v-col>
     <v-col cols="12" md="4">
+      <v-select
+        label="Half Day"
+        v-model="payload.halfday"
+        :items="[
+          { id: `Not Applicable`, name: `Not Applicable` },
+          { id: `Monday`, name: `Monday` },
+          { id: `Tuesday`, name: `Tuesday` },
+          { id: `Wednesday`, name: `Wednesday` },
+          { id: `Thursday`, name: `Thursday` },
+          { id: `Friday`, name: `Friday` },
+          { id: `Saturday`, name: `Saturday` },
+          { id: `Sunday`, name: `Sunday` },
+        ]"
+        item-value="id"
+        item-text="name"
+        dense
+        outlined
+        :hide-details="true"
+      ></v-select>
+      <span v-if="errors && errors.halfday" class="text-danger">{{
+        errors.halfday[0]
+      }}</span>
+    </v-col>
+    <v-col cols="12" md="4">
+      <TimePickerCommon
+        label="Number of working hours"
+        :default_value="payload.halfday_working_hours"
+        @getTime="
+          (value) => {
+            payload.halfday_working_hours = value;
+          }
+        "
+      />
+      <span v-if="errors && errors.off_duty_time" class="text-danger">{{
+        errors.off_duty_time[0]
+      }}</span>
+    </v-col>
+    <v-col cols="12" md="4"> </v-col>
+    <v-col cols="12" md="4">
       <WeekendPickerCommon
         label="Weekend 1"
         :default_value="payload.weekend1"

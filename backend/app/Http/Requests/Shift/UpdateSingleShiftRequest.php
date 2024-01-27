@@ -49,6 +49,9 @@ class UpdateSingleShiftRequest extends FormRequest
             'gap_in' => 'nullable',
             'gap_out' => 'nullable',
             'branch_id' => 'required',
+
+            'halfday'               => 'nullable',
+            'halfday_working_hours' => 'nullable',
         ];
     }
 }

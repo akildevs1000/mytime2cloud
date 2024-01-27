@@ -68,6 +68,9 @@ class UpdateRequest extends FormRequest
 
             'branch_id' => 'required',
 
+            'halfday'               => 'nullable',
+            'halfday_working_hours' => 'nullable',
+
             'isAutoShift' => "nullable",
 
         ];

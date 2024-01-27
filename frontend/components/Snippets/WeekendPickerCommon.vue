@@ -1,18 +1,15 @@
 <template>
-  <div>
-    <span>{{ label }} </span>
-    <v-select
-      class="mt-1"
-      @change="setWeekend"
-      v-model="weekend"
-      :items="items"
-      item-value="id"
-      item-text="name"
-      dense
-      outlined
-      :hide-details="true"
-    ></v-select>
-  </div>
+  <v-select
+    :label="label"
+    @change="setWeekend"
+    v-model="weekend"
+    :items="items"
+    item-value="id"
+    item-text="name"
+    dense
+    outlined
+    :hide-details="true"
+  ></v-select>
 </template>
 <script>
 export default {
@@ -24,7 +21,7 @@ export default {
       weekend: `Not Applicable`,
       items: [
         { id: `Not Applicable`, name: `Not Applicable` },
-        { id: `Flexi`, name: `Flexi` },
+        { id: `Flexi`, name: `Flexible` },
         //{ id: `Half Day`, name: `Half Day` },
         { id: `Monday`, name: `Monday` },
         { id: `Tuesday`, name: `Tuesday` },

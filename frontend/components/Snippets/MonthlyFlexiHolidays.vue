@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <span>{{ label }} </span>
-    <v-select
-      class="mt-1"
+<v-select
+      :label="label"
       @change="setMonthlyHolidays"
       v-model="weekend"
       :items="items"
@@ -12,7 +10,6 @@
       outlined
       :hide-details="true"
     ></v-select>
-  </div>
 </template>
 <script>
 export default {
