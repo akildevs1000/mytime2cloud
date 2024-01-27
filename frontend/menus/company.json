@@ -65,6 +65,13 @@
     "module": "settings"
   },
   {
+    "icon": "mdi-chair-rolling",
+    "title": "Departments",
+    "to": "/department",
+    "menu": "department_access",
+    "module": "settings"
+  },
+  {
     "icon": "mdi-email",
     "title": "Automation",
     "to": "/automation",
@@ -86,14 +93,6 @@
     "class": "submenutitle",
     "module": "settings"
   },
-
-  {
-    "icon": "mdi-chair-rolling",
-    "title": "Departments",
-    "to": "/department",
-    "menu": "department_access",
-    "module": "settings"
-  },
   {
     "icon": "mdi-account-supervisor-circle",
     "title": "Roles",
@@ -108,7 +107,6 @@
     "menu": "device_access",
     "module": "settings"
   },
-
   {
     "icon": "mdi mdi-calendar-star-four-points",
     "title": "Holidays",

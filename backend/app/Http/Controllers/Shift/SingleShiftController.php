@@ -93,6 +93,7 @@ class SingleShiftController extends Controller
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
 
+
             if (!$schedule) continue;
 
             $item = [
@@ -134,6 +135,15 @@ class SingleShiftController extends Controller
                 }
 
                 if ($item["shift_type_id"] == 6) {
+                    
+
+                    if ($shift["halfday"] == date("l")) {
+
+                        $time2 = $shift["on_duty_time"];
+                        $time1 = $shift["halfday_working_hours"];
+                        $shift["off_duty_time"] = gmdate("H:i", (strtotime($time1) - strtotime('00:00')) + strtotime($time2) - strtotime('00:00'));
+                    }
+
                     $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
 
                     if ($item["early_going"] != "---") {

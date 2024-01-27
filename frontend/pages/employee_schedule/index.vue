@@ -48,7 +48,7 @@
                 x-small
                 :items="[
                   { shift_id: `AutoShift`, name: `Auto Shift` },
-                  ...shifts_branch_wise,
+                  ...shifts,
                 ]"
                 item-value="shift_id"
                 item-text="name"
@@ -1161,11 +1161,11 @@ export default {
     },
     openScheduleDialog() {
       this.empId = null;
-      if (this.branch_id == 0) {
-        alert("Select the Branch");
+      // if (this.branch_id == 0) {
+      //   alert("Select the Branch");
 
-        return false;
-      }
+      //   return false;
+      // }
       this.shifts_branch_wise = this.shifts.filter(
         (e) => e.branch_id == this.branch_id
       );
