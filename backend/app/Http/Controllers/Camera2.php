@@ -21,9 +21,9 @@ class Camera2 extends Controller
     public function camera2PushEvents(Request $request)
     {
 
-        $file_name = "camera/camera-logs-raw" . date("d-m-Y") . ".csv";
+        // $file_name = "camera/camera-logs-raw" . date("d-m-Y") . ".csv";
 
-        Storage::append($file_name, json_encode($request->all()));
+        // Storage::append($file_name, json_encode($request->all()));
 
         //try {
         $device_sn = $request->device_sn;
