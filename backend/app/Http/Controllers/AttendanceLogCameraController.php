@@ -134,6 +134,11 @@ class AttendanceLogCameraController extends Controller
         }
 
         $previoulyAddedLineNumbers = Storage::get("camera-logs-count-$date.txt") ?? 0;
+        $previoulyAddedLineNumbers = explode("\n", $previoulyAddedLineNumbers)[0];
+        if (is_array($previoulyAddedLineNumbers)) {
+            $previoulyAddedLineNumbers = $previoulyAddedLineNumbers[0];
+        }
+
 
         // return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
 
