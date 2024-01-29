@@ -21,9 +21,9 @@ class Camera2 extends Controller
     public function camera2PushEvents(Request $request)
     {
 
-        // $file_name = "camera/camera-logs-raw" . date("d-m-Y") . ".csv";
+        $file_name = "camera/camera-logs-raw" . date("d-m-Y") . ".csv";
 
-        // Storage::append($file_name, json_encode($request->all()));
+        Storage::append($file_name, json_encode($request->all()));
 
         //try {
         $device_sn = $request->device_sn;
@@ -48,7 +48,7 @@ class Camera2 extends Controller
         if ($card_number > 0 && $device_sn != '') {
             $file_name = "camera/camera-logs-" . date("d-m-Y") . ".csv";
             $message = $card_number . "," . $device_sn . "," . $dateTime->format('Y-m-d H:i:s') . "," . $recognition_score;
-            chmod($file_name, 666);
+            //chmod($file_name, 666);
             Storage::append($file_name, $message);
         } else {
             $file_name = "camera/camera2-error-logs-" . date("d-m-Y") . ".log";
