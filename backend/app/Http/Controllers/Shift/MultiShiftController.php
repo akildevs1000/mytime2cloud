@@ -67,6 +67,28 @@ class MultiShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
+
+        //update shift ID for No logs 
+        if (count($employees) == 0) {
+            $employees = (new Employee)->GetShiftEmployeeForMultiRender($params);
+
+            foreach ($employees as $key => $value) {
+
+
+                if ($value->schedule->shift) {
+                    $data1 = [
+                        "shift_id" => $value->schedule->shift["id"] ?? 0,
+                        "shift_type_id" => $value->schedule->shift["shift_type_id"]  ?? 0
+                    ];
+                    $model1 = Attendance::query();
+                    $model1->whereIn("employee_id", $UserIds);
+                    $model1->where("date", $params["date"]);
+                    $model1->where("company_id", $params["company_id"]);
+                    $model1->update($data1);
+                }
+            }
+        }
+
         $items = [];
         $message = "";
 
@@ -77,8 +99,23 @@ class MultiShiftController extends Controller
 
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
+
+
             $data = $logs[$row->system_user_id] ?? [];
             if (!count($data)) {
+
+
+                if ($row->schedule->shift) {
+                    $data1 = [
+                        "shift_id" => $row->schedule->shift["id"] ?? 0,
+                        "shift_type_id" => $row->schedule->shift["shift_type_id"]  ?? 0
+                    ];
+                    $model1 = Attendance::query();
+                    $model1->where("employee_id", $row->system_user_id);
+                    $model1->where("date", $params["date"]);
+                    $model1->where("company_id", $params["company_id"]);
+                    $model1->update($data1);
+                }
                 $message .= "{$row->system_user_id}   has No Logs to render";
                 continue;
             }
