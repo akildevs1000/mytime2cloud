@@ -19,6 +19,7 @@ const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
 const [m, d, y] = newDate.split("/");
 const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
 const logFilePath = `../backend/storage/app/logs-${formattedDate}.csv`;
+const logFilePathRawData = `../backend/storage/app/logs-raw-${formattedDate}.text`;
 
 console.log(`Current Date: ${formattedDate}`);
 console.log(`Current Time: ${newTime.trim()}`);
@@ -48,7 +49,13 @@ socket.onclose = (event) => {
 
 socket.onmessage = ({ data }) => {
   try {
+    fs.appendFileSync(logFilePathRawData, logEntry + "\n");
+  } catch (error) {
+    console.error("Error processing message:", error.message);
+  }
+  try {
     const jsonData = JSON.parse(data).Data;
+
     const { UserCode, SN, RecordDate, RecordNumber } = jsonData;
 
     if (UserCode > 0) {
