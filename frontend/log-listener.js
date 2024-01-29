@@ -49,7 +49,7 @@ socket.onclose = (event) => {
 
 socket.onmessage = ({ data }) => {
   try {
-    fs.appendFileSync(logFilePathRawData, logEntry + "\n");
+    fs.appendFileSync(logFilePathRawData, data + "\n");
   } catch (error) {
     console.error("Error processing message:", error.message);
   }
