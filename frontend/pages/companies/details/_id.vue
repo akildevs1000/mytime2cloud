@@ -308,7 +308,7 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
+
     getDataFromApi() {
       this.$axios
         .get(`company/${this.$route.params.id}/branches`)

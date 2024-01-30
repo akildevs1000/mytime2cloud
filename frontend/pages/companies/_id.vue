@@ -50,7 +50,10 @@
                 <v-icon left> mdi-whatsapp </v-icon>
                 <span>Whatsapp Settings</span>
               </v-tab>
-
+              <v-tab>
+                <v-icon left> mdi mdi-api </v-icon>
+                <span> Settings</span>
+              </v-tab>
               <v-tab-item>
                 <v-card flat>
                   <v-card-text>
@@ -767,6 +770,35 @@
                         </v-btn>
                       </div>
                     </v-col>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                    <v-row>
+                      <v-col cols="4">
+                        <v-list-item-title class="text-h7 mb-1">
+                          API Access Token
+                        </v-list-item-title>
+                      </v-col>
+                      <v-col cols="8">
+                        {{ company_payload.api_access_token || "---" }}
+                      </v-col>
+
+                      <v-col cols="4">
+                        <v-list-item-title class="text-h7 mb-1">
+                          POSTMAN
+                        </v-list-item-title>
+                      </v-col>
+                      <v-col cols="8">
+                        <a
+                          href="https://documenter.getpostman.com/view/32601784/2s9YysDhbd"
+                          target="_blank"
+                          >POSTMAN Document</a
+                        >
+                      </v-col>
+                    </v-row>
                   </v-card-text>
                 </v-card>
               </v-tab-item>
