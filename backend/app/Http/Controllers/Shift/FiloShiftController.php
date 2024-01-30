@@ -154,6 +154,11 @@ class FiloShiftController extends Controller
             $model->whereIn("employee_id", $UserIds);
             $model->where("date", $date);
             $model->delete();
+            // $chunks = array_chunk($items, 100);
+
+            // foreach ($chunks as $chunk) {
+            //     $model->insert($chunk);
+            // }
             $model->insert($items);
 
             if (!$custom_render) {

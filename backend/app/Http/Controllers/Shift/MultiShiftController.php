@@ -75,10 +75,10 @@ class MultiShiftController extends Controller
             foreach ($employees as $key => $value) {
 
 
-                if ($value->schedule->shift) {
+                if ($value->schedule->shift && $value->schedule->shift["id"] > 0) {
                     $data1 = [
-                        "shift_id" => $value->schedule->shift["id"] ?? 0,
-                        "shift_type_id" => $value->schedule->shift["shift_type_id"]  ?? 0
+                        "shift_id" => $value->schedule->shift["id"],
+                        "shift_type_id" => $value->schedule->shift["shift_type_id"]
                     ];
                     $model1 = Attendance::query();
                     $model1->whereIn("employee_id", $UserIds);
@@ -105,10 +105,10 @@ class MultiShiftController extends Controller
             if (!count($data)) {
 
 
-                if ($row->schedule->shift) {
+                if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
-                        "shift_id" => $row->schedule->shift["id"] ?? 0,
-                        "shift_type_id" => $row->schedule->shift["shift_type_id"]  ?? 0
+                        "shift_id" => $row->schedule->shift["id"],
+                        "shift_type_id" => $row->schedule->shift["shift_type_id"]
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
