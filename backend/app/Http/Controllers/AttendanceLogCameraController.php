@@ -45,7 +45,7 @@ class AttendanceLogCameraController extends Controller
             return ["error" => true, "message" => 'File is empty.'];
         }
 
-        $previoulyAddedLineNumbers = Storage::get("camera-logs-count-$date.txt") ?? 0;
+        $previoulyAddedLineNumbers = Storage::get("camera/camera-logs-count-$date.txt") ?? 0;
 
         // return $this->getMeta("Sync Attenance Logs", $previoulyAddedLineNumbers . "\n");
 
@@ -97,7 +97,7 @@ class AttendanceLogCameraController extends Controller
         try {
             AttendanceLog::insert($records);
             // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            Storage::put("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Camera Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
@@ -133,7 +133,7 @@ class AttendanceLogCameraController extends Controller
             return ["error" => true, "message" => 'File is empty.'];
         }
 
-        $previoulyAddedLineNumbers = Storage::get("camera-logs-count-$date.txt") ?? 0;
+        $previoulyAddedLineNumbers = Storage::get("camera/camera-logs-count-$date.txt") ?? 0;
         $previoulyAddedLineNumbers = explode("\n", $previoulyAddedLineNumbers)[0];
         if (is_array($previoulyAddedLineNumbers)) {
             $previoulyAddedLineNumbers = $previoulyAddedLineNumbers[0];
@@ -204,8 +204,8 @@ class AttendanceLogCameraController extends Controller
         try {
             AttendanceLog::insert($records);
             // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            Storage::put("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
-            ///Storage::append("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            Storage::put("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            ///Storage::append("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Camera Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
