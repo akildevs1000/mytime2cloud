@@ -52,7 +52,7 @@
               </v-tab>
               <v-tab>
                 <v-icon left> mdi mdi-api </v-icon>
-                <span> Settings</span>
+                <span>Developer Settings</span>
               </v-tab>
               <v-tab-item>
                 <v-card flat>
@@ -798,6 +798,16 @@
                           >POSTMAN Document</a
                         >
                       </v-col>
+                      <v-col cols="4">
+                        <v-list-item-title class="text-h7 mb-1">
+                          Sample JSON File
+                        </v-list-item-title>
+                      </v-col>
+                      <v-col cols="8">
+                        <a :href="getDonwloadLink()"
+                          >Download Sample Example - POSTMAN Json File</a
+                        >
+                      </v-col>
                     </v-row>
                   </v-card-text>
                 </v-card>
@@ -886,6 +896,9 @@ export default {
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    getDonwloadLink() {
+      return process.env.BACKEND_URL + "/download_postman_json";
     },
 
     update_setting() {

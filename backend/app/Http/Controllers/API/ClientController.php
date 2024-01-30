@@ -15,6 +15,23 @@ use Illuminate\Support\Facades\Response;
 class ClientController extends Controller
 {
 
+
+
+
+    public function downloadPostmanJson(Request $request)
+    {
+        // Define the path to the file in the public folder
+        $filePath = public_path("mytime2cloud-client-api-V1.postman_collection.json");
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath,   "mytime2cloud-client-api-V1.postman_collection.json");
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            abort(404);
+        }
+    }
     public function getAttendanceLogs(Request $request)
     {
         try {
