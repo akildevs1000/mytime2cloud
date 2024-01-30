@@ -11,6 +11,7 @@ use App\Models\ScheduleEmployee;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Schedule;
 use App\Models\Shift;
 
@@ -347,6 +348,15 @@ class AutoShiftController extends Controller
         $response = [];
 
         while ($startDate <= $currentDate && $startDate <= $endDate) {
+
+
+
+
+
+
+
+
+
             $response[] = $this->render($company_id, $startDate->format("Y-m-d"), $employee_ids, true);
             $startDate->modify('+1 day');
         }
@@ -369,9 +379,14 @@ class AutoShiftController extends Controller
 
         $data = (new AttendanceLog)->getEmployeeIdsForNewLogsToRenderAuto($params);
 
+
+
+
+
         $message = "";
 
         if (!count($data)) {
+
             return "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto No data found.\n";
         }
 

@@ -629,7 +629,7 @@ class Employee extends Model
 
         return $employees->get(["system_user_id"]);
     }
-    public function GetShiftEmployeeForMultiRender($params)
+    public function GetEmployeeWithShiftDetails($params)
     {
 
 

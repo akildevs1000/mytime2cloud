@@ -70,7 +70,7 @@ class MultiShiftController extends Controller
 
         //update shift ID for No logs 
         if (count($employees) == 0) {
-            $employees = (new Employee)->GetShiftEmployeeForMultiRender($params);
+            $employees = (new Employee)->GetEmployeeWithShiftDetails($params);
 
             foreach ($employees as $key => $value) {
 
