@@ -205,6 +205,29 @@
                   >mdi mdi-refresh-circle</v-icon
                 >
               </v-col>
+
+              <v-col cols="4">
+                <v-list-item-title class="text-h7 mb-1">
+                  POSTMAN
+                </v-list-item-title>
+              </v-col>
+              <v-col cols="8">
+                <a
+                  href="https://documenter.getpostman.com/view/32601784/2s9YysDhbd"
+                  target="_blank"
+                  >POSTMAN Document</a
+                >
+              </v-col>
+              <v-col cols="4">
+                <v-list-item-title class="text-h7 mb-1">
+                  Sample JSON File
+                </v-list-item-title>
+              </v-col>
+              <v-col cols="8">
+                <a :href="getDonwloadLink()"
+                  >Download Sample Example - POSTMAN Json File</a
+                >
+              </v-col>
             </v-row>
           </v-col>
         </v-row>
@@ -421,6 +444,9 @@ export default {
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    getDonwloadLink() {
+      return process.env.BACKEND_URL + "/download_postman_json";
     },
     regenerateToken() {
       this.loading_bar = true;
