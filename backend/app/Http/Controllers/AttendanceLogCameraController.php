@@ -201,8 +201,8 @@ class AttendanceLogCameraController extends Controller
         try {
             AttendanceLog::insert($records);
             // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
-            //Storage::put("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
-            Storage::append("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            Storage::put("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+            ///Storage::append("camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Camera Logs", count($records) . " new logs has been inserted." . "\n");
         } catch (\Throwable $th) {
 
