@@ -148,22 +148,25 @@ class AttendanceLogCameraController extends Controller
 
         if ($previoulyAddedLineNumbers == $totalLines) {
             return ["error" => true, "message" => 'No new data found.'];
-        } else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
+            //} else if ($previoulyAddedLineNumbers > 0 && $totalLines > 0) {
+        } else if ($totalLines > 0) {
             $currentLength = $previoulyAddedLineNumbers;
         }
 
         fclose($file);
 
-        if ($currentLength > 0) {
-            return [
-                "date" => $date,
-                "totalLines" => $totalLines,
-                "data" => array_slice($data, $currentLength)
 
-            ];
-        } else {
-            return ["error" => true, "message" => 'Data Reading Failed.'];
-        }
+
+        // if ($currentLength > 0) {
+        return [
+            "date" => $date,
+            "totalLines" => $totalLines,
+            "data" => array_slice($data, $currentLength)
+
+        ];
+        // } else {
+        //     return ["error" => true, "message" => 'Data Reading Failed.'];
+        // }
     }
 
     public function store()
