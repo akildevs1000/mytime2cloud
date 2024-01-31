@@ -41,6 +41,10 @@ Route::get('/check_device_health', [DeviceController::class, 'checkDeviceHealth'
 Route::get('get-device-person-details', [DeviceController::class, 'getDevicePersonDetails']);
 Route::get('get-device-settings-from-sdk', [DeviceController::class, 'getDeviceSettingsFromSDK']);
 Route::post('update-device-sdk-settings', [DeviceController::class, 'updateDeviceSettingsToSDK']);
+Route::post('update-device-alarm-status', [DeviceController::class, 'updateDeviceAlarmToSDK']);
+
+
+
 
 Route::get('get-device-camvii-settings-from-sdk',  [DeviceController::class, 'getDevicecamviiSettingsFromSDK']);
 Route::post('update-device-camvii-sdk-settings', [DeviceController::class, 'updateDeviceCamVIISettingsToSDK']);

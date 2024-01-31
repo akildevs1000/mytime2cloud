@@ -734,7 +734,6 @@ export default {
       );
     },
     setupInactivityDetection() {
-
       // Handle inactivity
       this.handleInactivity = () => {
         // Perform actions when the user is inactive
@@ -1472,6 +1471,38 @@ button {
 .logtable .v-data-table__wrapper {
   height: 670px;
   overflow-y: scroll;
+}
+
+.alarm {
+  animation: changeBackgroundColor 1s infinite;
+}
+
+@keyframes changeBackgroundColor {
+  0% {
+    color: #000000;
+  }
+  10% {
+    color: #f73030;
+  }
+  20% {
+    color: #000000;
+  }
+
+  40% {
+    color: #f73030;
+  }
+  60% {
+    color: #000000;
+  }
+  80% {
+    color: #fc0000;
+  }
+  90% {
+    color: #000000;
+  }
+  100% {
+    color: #fc0000;
+  }
 }
 </style>
 <!-- <style>

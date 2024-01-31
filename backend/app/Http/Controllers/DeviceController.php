@@ -258,10 +258,40 @@ class DeviceController extends Controller
             return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
     }
-
-    public function updateDeviceSettingsToSDK(Request $request)
+    public function updateDeviceAlarmToSDK(Request $request)
     {
 
+
+        if ($request->filled('serial_number')) {
+
+            $device_settings = [];
+
+
+            $data = [
+                "IllegalVerificationAlarm" => true,
+                "PasswordAlarm" => true,
+                "DoorMagneticAlarm" => true,
+                "BlacklistAlarm" => true,
+                "FireAlarm" => true,
+                "OpenDoorTimeoutAlarm" => true,
+                "AntiDisassemblyAlarm" => true,
+            ];
+            if ($request->status == 0) {
+                (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+
+                $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
+                Device::where("serial_number", $request->serial_number)->update($data);
+
+                return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
+            }
+
+            return $this->response('Device settings are updated successfully.',  null, true);
+        } else {
+            return $this->response('Device ID is not found',  null, false);
+        }
+    }
+    public function updateDeviceSettingsToSDK(Request $request)
+    {
 
 
         if ($request->deviceSettings && $request->deviceSettings['device_id']) {
@@ -275,7 +305,8 @@ class DeviceController extends Controller
 
 
             $device_settings = [
-                "name" => $request->deviceSettings['name'] ?? '',
+                // "name" => $request->deviceSettings['name'] ?? '',
+                "name" =>  '',
                 "door" => $request->deviceSettings['door'] ?? '1',
 
 
