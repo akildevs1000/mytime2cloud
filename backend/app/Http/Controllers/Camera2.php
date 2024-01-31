@@ -48,7 +48,7 @@ class Camera2 extends Controller
         if ($card_number > 0 && $device_sn != '') {
             $file_name = "camera/camera-logs-" . date("d-m-Y") . ".csv";
             $message = $card_number . "," . $device_sn . "," . $dateTime->format('Y-m-d H:i:s') . "," . $recognition_score;
-            chmod($file_name, 666);
+            //chmod($file_name, 666); 
             Storage::append($file_name, $message);
         } else {
             $file_name = "camera/camera2-error-logs-" . date("d-m-Y") . ".log";
