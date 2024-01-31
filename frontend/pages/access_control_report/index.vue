@@ -372,8 +372,8 @@ export default {
         text: "Mode",
         align: "left",
         sortable: false,
-        key: "device.name",
-        value: "device.name",
+        key: "mode",
+        value: "mode",
       },
       {
         text: "Status",
