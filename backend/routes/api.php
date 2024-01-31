@@ -42,3 +42,4 @@ include('community.php');
 include('csv.php');
 include('other.php');
 include('camera2.php');
+include('client_support_api.php');

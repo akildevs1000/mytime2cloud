@@ -6,6 +6,7 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use App\Models\Employee;
 
 class FiloShiftController extends Controller
 {
@@ -61,6 +62,24 @@ class FiloShiftController extends Controller
         }
 
         $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+
+        //update atendance table with shift ID if shift with employee not found 
+        if (count($logsEmployees) == 0) {
+            $employees = (new Employee())->GetEmployeeWithShiftDetails($params);
+            foreach ($employees as $key => $value) {
+                if ($value->schedule->shift && $value->schedule->shift["id"] > 0) {
+                    $data1 = [
+                        "shift_id" => $value->schedule->shift["id"],
+                        "shift_type_id" => $value->schedule->shift["shift_type_id"]
+                    ];
+                    $model1 = Attendance::query();
+                    $model1->whereIn("employee_id", $UserIds);
+                    $model1->where("date", $params["date"]);
+                    $model1->where("company_id", $params["company_id"]);
+                    $model1->update($data1);
+                }
+            }
+        }
 
         $items = [];
         $message = "";
@@ -154,6 +173,11 @@ class FiloShiftController extends Controller
             $model->whereIn("employee_id", $UserIds);
             $model->where("date", $date);
             $model->delete();
+            // $chunks = array_chunk($items, 100);
+
+            // foreach ($chunks as $chunk) {
+            //     $model->insert($chunk);
+            // }
             $model->insert($items);
 
             if (!$custom_render) {

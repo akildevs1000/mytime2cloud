@@ -855,6 +855,9 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
+    getDonwloadLink() {
+      return process.env.BACKEND_URL + "/download_postman_json";
+    },
 
     update_setting() {
       this.$axios

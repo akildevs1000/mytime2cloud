@@ -604,6 +604,8 @@ class Employee extends Model
 
     public function attendanceEmployeeForMultiRender($params)
     {
+
+
         $employees = Employee::query();
         $employees->where("company_id", $params["company_id"]);
         $employees->whereIn("system_user_id", $params["UserIds"] ?? []);
@@ -612,9 +614,30 @@ class Employee extends Model
             $q->where("company_id", $params["company_id"]);
             $q->whereDate("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
             $q->whereDate("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
-            // $q->where("checked", false);
+            // // $q->where("checked", false);
             // $q->where("UserID",707);
         });
+
+        $employees->with(["schedule" => function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->where("to_date", ">=", $params["date"]);
+            $q->where("shift_type_id", $params["shift_type_id"]);
+            $q->withOut("shift_type");
+            // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+            $q->orderBy("to_date", "asc");
+        }]);
+
+        return $employees->get(["system_user_id"]);
+    }
+    public function GetEmployeeWithShiftDetails($params)
+    {
+
+
+        $employees = Employee::query();
+        $employees->where("company_id", $params["company_id"]);
+        $employees->whereIn("system_user_id", $params["UserIds"] ?? []);
+        $employees->withOut(["department", "sub_department", "designation"]);
+
 
         $employees->with(["schedule" => function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);

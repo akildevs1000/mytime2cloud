@@ -119,7 +119,10 @@ class DeviceController extends Controller
         try {
 
             $maxDevices = Company::find($request->company_id)->max_devices;
-            $totalAvailable = Device::where("company_id", $request->company_id)->count();
+            $totalAvailable = Device::where("company_id", $request->company_id)
+                ->where("model_number", "!=", "Manual")
+                ->where("model_number",  'not like', "%Mobile%")
+                ->count();
 
 
 

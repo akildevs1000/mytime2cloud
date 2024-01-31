@@ -6,8 +6,17 @@
           <h3>Company</h3>
         </v-col>
       </v-row>
-
-      <v-card elevation="2">
+      <div class="text-center ma-2">
+        <v-snackbar
+          v-model="snackbar"
+          top="top"
+          color="secondary"
+          elevation="24"
+        >
+          {{ snackbar_response }}
+        </v-snackbar>
+      </div>
+      <v-card elevation="2" :loading="loading_bar">
         <v-row>
           <v-col cols="6" style="border-right: 1px dashed #808080">
             <v-list-item>
@@ -182,6 +191,42 @@
               </v-col>
               <v-col cols="8">
                 {{ company_payload.created_at }}
+              </v-col>
+
+              <v-col cols="4">
+                <v-list-item-title class="text-h7 mb-1">
+                  API Access Token
+                </v-list-item-title>
+              </v-col>
+              <v-col cols="8">
+                {{ company_payload.api_access_token || "---" }}
+
+                <v-icon color="primary" @click="regenerateToken()"
+                  >mdi mdi-refresh-circle</v-icon
+                >
+              </v-col>
+
+              <v-col cols="4">
+                <v-list-item-title class="text-h7 mb-1">
+                  POSTMAN
+                </v-list-item-title>
+              </v-col>
+              <v-col cols="8">
+                <a
+                  href="https://documenter.getpostman.com/view/32601784/2s9YysDhbd"
+                  target="_blank"
+                  >POSTMAN Document</a
+                >
+              </v-col>
+              <v-col cols="4">
+                <v-list-item-title class="text-h7 mb-1">
+                  Sample JSON File
+                </v-list-item-title>
+              </v-col>
+              <v-col cols="8">
+                <a :href="getDonwloadLink()"
+                  >Download Sample Example - POSTMAN Json File</a
+                >
               </v-col>
             </v-row>
           </v-col>
@@ -358,6 +403,9 @@ export default {
     }
   },
   data: () => ({
+    loading_bar: false,
+    snackbar: false,
+    snackbar_response: "",
     loading: true,
     company_payload: {
       name: "",
@@ -396,6 +444,21 @@ export default {
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    getDonwloadLink() {
+      return process.env.BACKEND_URL + "/download_postman_json";
+    },
+    regenerateToken() {
+      this.loading_bar = true;
+      this.$axios
+        .post(`company/${this.$route.params.id}/regnerate_access_token`)
+        .then(({ data }) => {
+          this.getCompanyDetails();
+
+          this.snackbar = true;
+          this.snackbar_response = data.message;
+          this.loading_bar = false;
+        });
     },
 
     createBranch() {
