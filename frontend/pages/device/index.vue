@@ -2014,7 +2014,7 @@ export default {
     },
     store_device() {
       let id = this.editedIndex;
-      let company_id = console.log(this.payload);
+      //let company_id = console.log(this.payload);
       let payload = this.payload;
 
       this.payload.company_id = this.$auth.user.company_id;
