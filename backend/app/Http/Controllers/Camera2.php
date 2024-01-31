@@ -28,12 +28,12 @@ class Camera2 extends Controller
         $timestamp = $request->timestamp;
         $recognition_score = $request->recognition_score;
 
-        //------------
+        //----Raw--------
         $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";
-        $message = $card_number . "," . $device_sn . "," . date("Y-m-d H:i:s", $timestamp / 1000) . "," . $recognition_score;
+        $message = $card_number . "," . $device_sn . "," . date("Y-m-d H:i:s", (($timestamp) / 1000)  + (60 * 60 * 4)) . "," . $recognition_score;
         Storage::append($file_name_raw, json_encode($message));
 
-        //-------------
+        //------Raw Data-------
 
 
         $timeZone = 'Asia/Dubai';
