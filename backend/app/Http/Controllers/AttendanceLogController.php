@@ -202,12 +202,12 @@ class AttendanceLogController extends Controller
                     "UserID" => $columns[0],
                     "DeviceID" => $columns[1],
                     "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                    "SerialNumber" => $columns[3]
-                ];;
+                    "SerialNumber" => $columns[3],
+                    "status" => $columns[4] ?? "Allowed",
+                    "mode" => $columns[5] ?? "Face",
+                ];
             }
         }
-
-
 
         try {
             AttendanceLog::insert($records);
