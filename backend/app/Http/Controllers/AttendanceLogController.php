@@ -203,8 +203,8 @@ class AttendanceLogController extends Controller
                     "DeviceID" => $columns[1],
                     "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
                     "SerialNumber" => $columns[3],
-                    "status" => $columns[4],
-                    "mode" => $columns[5],
+                    "status" => $columns[4] ?? "Allowed",
+                    "mode" => $columns[5] ?? "Face",
                 ];
             }
         }
