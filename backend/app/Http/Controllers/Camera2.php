@@ -21,9 +21,6 @@ class Camera2 extends Controller
     public function camera2PushEvents(Request $request)
     {
 
-        // $file_name = "camera/camera-logs-raw" . date("d-m-Y") . ".csv";
-
-        // Storage::append($file_name, json_encode($request->all()));
 
         //try {
         $device_sn = $request->device_sn;
@@ -31,6 +28,12 @@ class Camera2 extends Controller
         $timestamp = $request->timestamp;
         $recognition_score = $request->recognition_score;
 
+        //------------
+        $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";
+        $message = $card_number . "," . $device_sn . "," . date("Y-m-d H:i:s", $timestamp / 1000) . "," . $recognition_score;
+        Storage::append($file_name_raw, json_encode($message));
+
+        //-------------
 
 
         $timeZone = 'Asia/Dubai';
