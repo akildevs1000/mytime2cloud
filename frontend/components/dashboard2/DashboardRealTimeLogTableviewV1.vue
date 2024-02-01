@@ -159,7 +159,7 @@
       </template>
 
       <template v-slot:item.device.device_name="{ item }">
-        <div class="secondary-value" v-if="item.DeviceID.includes(`Mobile`)">
+        <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
           Mobile <br />
           {{ item.gps_location }}
         </div>
@@ -382,9 +382,9 @@ export default {
       this.system_user_id = system_user_id;
     },
     caps(str) {
-      if (str == "" || str == null) {
+      if (str == "" || (str == null && str == undefined)) {
         return "---";
-      } else {
+      } else if (str) {
         let res = str.toString();
         res.replace(/\b\w/g, (c) => c.toUpperCase());
         return str.includes(`Mobile`) ? "Mobile" : str;
@@ -482,7 +482,7 @@ export default {
           try {
             this.pushSocketEmployeeToTable(item);
           } catch (e) {
-            //console.log(e);
+            console.log(e);
           }
 
           this.tableloading = false;
@@ -490,7 +490,7 @@ export default {
       }
     },
     pushSocketEmployeeToTable(item) {
-      //console.log("pushSocketEmployee", item);
+      console.log("pushSocketEmployee", item);
       //--------------------------
       let UserCode1 = item.UserCode;
       let SN1 = item.SN;
@@ -515,7 +515,7 @@ export default {
         let json = JSON.parse(data).Data;
 
         const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
-
+        console.log("socket UserCode", UserCode);
         if (UserCode > 0) {
           this.getDetails(json);
         }
