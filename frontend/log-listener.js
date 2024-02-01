@@ -14,22 +14,36 @@ const options = {
 };
 
 const verification_methods = {
-  1: "Card",
-  2: "Fing",
-  3: "Face",
-  4: "Fing + Card",
-  5: "Face + Fing",
-  6: "Face + Card",
-  7: "Card + Pin",
-  8: "Face + Pin",
-  9: "Fing + Pin",
-  10: "Manual",
-  11: "Fing + Card + Pin",
-  12: "Face + Card + Pin",
-  13: "Face + Fing + Pin",
-  14: "Face + Fing + Card",
-  15: "Repeated",
+  "1": "Card",
+  "2": "Fing",
+  "3": "Face",
+  "4": "Fing + Card",
+  "5": "Face + Fing",
+  "6": "Face + Card",
+  "7": "Card + Pin",
+  "8": "Face + Pin",
+  "9": "Fing + Pin",
+  "10": "Manual",
+  "11": "Fing + Card + Pin",
+  "12": "Face + Card + Pin",
+  "13": "Face + Fing + Pin",
+  "14": "Face + Fing + Card",
+  "15": "Repeated",
 };
+
+
+const reasons = {
+  "16": "Date Expire",
+  "17": "Timezone Expire",
+  "18": "Holiday",
+  "19": "Unregistered",
+  "20": "Detection lock",
+  "23": "Loss Card",
+  "24": "Blacklisted",
+  "25": "Without Verification",
+  "26": "No Card Verification",
+  "27": "No Fingerprint",
+}
 
 const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
   .format(new Date())
@@ -59,8 +73,7 @@ socket.onerror = (error) => {
 // Handle WebSocket close event
 socket.onclose = (event) => {
   console.error(
-    `WebSocket connection closed with code ${
-      event.code
+    `WebSocket connection closed with code ${event.code
     } at ${formattedDate} ${newTime.trim()}`
   );
 };
@@ -81,7 +94,10 @@ socket.onmessage = ({ data }) => {
 
       let mode = verification_methods[RecordCode] ?? "---";
 
-      const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode}`;
+      let reason = reasons[RecordCode] ?? "---";
+
+
+      const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
       fs.appendFileSync(logFilePath, logEntry + "\n");
       console.log(logEntry);
     } else {

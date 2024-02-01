@@ -111,15 +111,7 @@
             </v-img>
           </v-col>
           <v-col style="padding: 10px">
-            {{ item.employee ? item.employee.first_name : "---" }}
-            {{ item.employee ? item.employee.last_name : "---" }}
-            <div class="secondary-value">
-              {{
-                item.employee && item.employee.designation
-                  ? caps(item.employee.designation.name)
-                  : "---"
-              }}
-            </div>
+            <EmployeeShortView :item="item" />
           </v-col>
         </v-row>
       </template>
