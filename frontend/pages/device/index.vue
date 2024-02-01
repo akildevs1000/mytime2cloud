@@ -1059,7 +1059,7 @@
           </div>
 
           <v-icon v-else-if="item.alarm_status == 0" title="Now Alaram is OFF"
-            >mdi mdi-alarm-light-off-outline</v-icon
+            >mdi mdi-alarm-light-outline</v-icon
           >
         </template>
 

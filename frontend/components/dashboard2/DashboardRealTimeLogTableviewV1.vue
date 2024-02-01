@@ -2,7 +2,21 @@
   <div>
     <v-row>
       <v-col md="10" sm="10" xs="10" class="pl-5">
-        <h4>Live Employee Logs on Devices</h4>
+        <span style="float: left"> <h4>Live Employee Logs on Devices</h4></span>
+        <span title="Click to Reload Logs"
+          ><v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
+          >
+            <v-icon class="ml-2" @click="getRecords(true)" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn></span
+        >
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -307,6 +321,9 @@ export default {
       this.socketConnection();
     }, 1000 * 10);
 
+    setInterval(() => {
+      if (this.$auth.user) this.getRecords(true);
+    }, 1000 * 60);
     //this.getRecords();
   },
   created() {
@@ -375,7 +392,7 @@ export default {
     },
     getRecords(socket = false) {
       this.tableloading = true;
-      this.loading = true;
+      // this.loading = true;
       if (!socket) this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;

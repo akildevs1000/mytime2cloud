@@ -37,6 +37,13 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
+            ->command('task:sync_alarm_logs')
+            ->everyMinute()
+            //->withoutOverlapping()
+            ->appendOutputTo(storage_path("logs/alarm/" . date("d-M-y") . "-alarm-logs-laravel.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+        $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
             ->everyMinute()
