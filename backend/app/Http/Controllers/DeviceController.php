@@ -268,13 +268,13 @@ class DeviceController extends Controller
 
 
             $data = [
-                "IllegalVerificationAlarm" => true,
-                "PasswordAlarm" => true,
-                "DoorMagneticAlarm" => true,
-                "BlacklistAlarm" => true,
+                "IllegalVerificationAlarm" => false,
+                "PasswordAlarm" => false,
+                "DoorMagneticAlarm" => false,
+                "BlacklistAlarm" => false,
                 "FireAlarm" => true,
-                "OpenDoorTimeoutAlarm" => true,
-                "AntiDisassemblyAlarm" => true,
+                "OpenDoorTimeoutAlarm" => false,
+                "AntiDisassemblyAlarm" => false,
             ];
             if ($request->status == 0) {
                 (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
