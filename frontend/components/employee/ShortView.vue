@@ -1,226 +1,267 @@
 <template>
-  <div v-if="item">
-    <v-dialog v-model="dialog" width="700">
+  <div v-if="item && item.id">
+    <v-dialog v-model="dialog" width="650">
       <template v-slot:activator="{ on, attrs }">
         <span class="ml-2 primary--text" small v-bind="attrs" v-on="on">
-          {{ item.employee ? item.employee.first_name : "---" }}
-          {{ item.employee ? item.employee.last_name : "---" }}
+          {{ item.employee.first_name ?? "---" }}
+          {{ item.employee.last_name ?? "---" }}
         </span>
         <div class="secondary-value ml-2">
-          {{
-            item.employee && item.employee.designation
-              ? item.employee.designation.name
-              : "---"
-          }}
+          {{ item.employee?.designation?.name }}
         </div>
       </template>
 
       <v-card>
-        <v-toolbar dense flat class="grey lighten-2">
+        <v-toolbar flat dense class="text-h6"
+          ><b><small>
+            Employee Details
+          </small></b>
           <v-spacer></v-spacer>
-          <v-icon color="primary" @click="dialog = false"
-            >mdi-close-circle-outline</v-icon
-          >
-        </v-toolbar>
-
-        <v-card-text class="pa-5">
+          <v-icon color="primary" @click="dialog = false">
+            mdi-close-circle-outline
+          </v-icon>
+          </v-toolbar
+        >
+        <v-divider></v-divider>
+        <v-container>
           <v-row no-gutters>
-            <v-col cols="4">
-              <v-row no-gutters>
-                <v-col cols="12" class="text-center">
-                  <v-avatar size="150">
-                    <img
-                      style="width: 100%"
-                      :src="
-                        item.employee && item.employee.profile_picture
-                          ? item.employee.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                      alt="Avatar"
-                    />
-                  </v-avatar>
+            <v-col cols="5">
+              <v-row class="mx-1" style="border-right: 1px solid #dddddd">
+                <v-col cols="12" class="mt-1">
+                  <v-row class="pa-1">
+                    <v-col cols="12" class="text-center">
+                      {{ item.employee.profile_pictrue }}
+                      <v-avatar size="120">
+                        <img
+                          style="width: 100%"
+                          :src="
+                            item.employee && item.employee.profile_picture
+                              ? item.employee.profile_picture
+                              : '/no-profile-image.jpg'
+                          "
+                          alt="Avatar"
+                        />
+                      </v-avatar>
+                    </v-col>
+                    <v-col cols="12" class="text-center">
+                      <div>
+                        <b>EID: {{ item.employee.system_user_id ?? "---" }}</b>
+                        <br />
+                        {{ item.employee.first_name ?? "---" }}
+                        {{ item.employee.last_name ?? "---" }}
+                      </div>
+                    </v-col>
+                  </v-row>
                 </v-col>
                 <v-col cols="12">
-                  <div class="text-center mt-2">
-                    <span class="pt-2"
-                      ><b>EID: {{ item.employee.system_user_id }}</b></span
-                    >
-                    <br />
-                    <b
-                      >{{ item.employee.first_name }}
-                      {{ item.employee.last_name ?? "---" }}</b
-                    >
-                    <br />
-                    <span
-                      >Dept: <b>{{ item.employee.department.name }}</b></span
-                    >
-                    <br />
-                    <span
-                      >Desg: <b>{{ item.employee.designation.name }}</b></span
-                    >
-                  </div>
+                  <v-divider></v-divider>
+                  <v-row
+                    no-gutters
+                    v-for="(item, index) in employee_stats"
+                    :key="index"
+                  >
+                    <v-col cols="6">
+                      <small> {{ item.title }}</small>
+                    </v-col>
+                    <v-col cols="6" class="text-right">
+                      <small> {{ item.value }}</small>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
             </v-col>
-            <v-col cols="8">
-              <v-row v-if="todayAttendance">
+
+            <v-col cols="7">
+              <v-row no-gutters class="mb-2">
                 <v-col
                   cols="4"
                   class="text-center"
                   style="
-                    border-left: 1px solid #b8a9eb;
-                    border-top: 1px solid #b8a9eb;
-                    border-bottom: 1px solid #b8a9eb;
+                    border-top: 1px solid #dddddd;
+                    border-bottom: 1px solid #dddddd;
+                    border-right: 1px solid #dddddd;
                   "
                 >
-                  <v-sheet class="text-h6">
-                    {{ todayAttendance && todayAttendance.total_hrs }}
-                  </v-sheet>
-                  <div>Work Time</div>
-                </v-col>
-                <v-col
-                  cols="4"
-                  class="text-center"
-                  style="border: 1px solid #b8a9eb"
-                >
-                  <v-sheet class="text-h6">
-                    {{ remainingTime }}
-                  </v-sheet>
-                  <div>Remaing Hours</div>
-                </v-col>
-                <v-col cols="12">
-                  <v-tabs >
-                    <v-tab >
-                        <div>dsdffsdf</div>
-                        <div>dsdffsdf</div>
-                    </v-tab>
-                    <v-tab >
-                     dsdffsdf
-                    </v-tab>
-                    <v-tab >
-                     dsdffsdf
-                    </v-tab>
-                  </v-tabs>
-                  <v-tabs-items >
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-text>
-                          sdsfsdf
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-text>
-                          sdsfsdf
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                    <v-tab-item>
-                      <v-card>
-                        <v-card-text>
-                          sdsfsdf
-                        </v-card-text>
-                      </v-card>
-                    </v-tab-item>
-                  </v-tabs-items>
+                  <b>
+                    <small>{{
+                      todayAttendance && todayAttendance.total_hrs
+                    }}</small>
+                  </b>
+                  <div>
+                    <small>Work Time</small>
+                  </div>
                 </v-col>
                 <v-col
                   cols="4"
                   class="text-center"
                   style="
-                    border-top: 1px solid #b8a9eb;
-                    border-bottom: 1px solid #b8a9eb;
-                    border-right: 1px solid #b8a9eb;
+                    border-top: 1px solid #dddddd;
+                    border-bottom: 1px solid #dddddd;
                   "
                 >
-                  <v-sheet class="text-h6">
-                    {{ todayAttendance && todayAttendance.ot }}
-                  </v-sheet>
-                  <div>OverTime</div>
+                  <b>
+                    <small>{{ remainingTime }}</small>
+                  </b>
+                  <div>
+                    <small> Remaing Hours </small>
+                  </div>
+                </v-col>
+                <v-col
+                  cols="4"
+                  class="text-center"
+                  style="
+                    border-top: 1px solid #dddddd;
+                    border-bottom: 1px solid #dddddd;
+                    border-left: 1px solid #dddddd;
+                  "
+                >
+                  <b>
+                    <small>
+                      {{ todayAttendance && todayAttendance.ot }}
+                    </small>
+                  </b>
+                  <div>
+                    <small> OverTime </small>
+                  </div>
+                </v-col>
+                <v-col cols="12" class="mt-3 px-1 grey lighten-2" >
+                  last 10 Logs
                 </v-col>
                 <v-col cols="12">
                   <v-data-table
                     dense
-                    :headers="headers_table"
-                    :items="logs"
-                    class="elevation-0 logtable"
-                    :server-items-length="totalRowsCount"
+                    :headers="log_headers"
+                    :items="logs_data"
+                    hide-default-footer
                   >
-                    <template v-slot:item.LogTime="{ item }">
-                      {{ item.LogTime }}
+                    <!-- <template v-slot:top>
+      <div class="px-2"><b>Today Logs</b></div>
+    </template> -->
+                    <template v-slot:item.id="{ item, index }">
+                      {{ index + 1 }}
                     </template>
-
-                    <template v-slot:item.device.device_name="{ item }">
-                      <div
-                        class="secondary-value"
-                        v-if="item.DeviceID.includes(`Mobile`)"
-                      >
-                        Mobile <br />
-                        {{ item.gps_location }}
-                      </div>
-                      <div class="secondary-value" v-else>
-                        {{ item.device ? caps(item.device.name) : "---" }}
-                        <br />
-                        {{
-                          item.device && item.device.location
-                            ? item.device.location
-                            : "---"
-                        }}
-                      </div>
+                    <template v-slot:item.LogTime="{ item }">
+                      {{ item.date }} {{ item.time }}
+                    </template>
+                    <template v-slot:item.gps_location="{ item }">
+                      {{ item.gps_location || "---" }}
                     </template>
                   </v-data-table>
                 </v-col>
               </v-row>
             </v-col>
           </v-row>
-        </v-card-text>
+        </v-container>
       </v-card>
     </v-dialog>
   </div>
 </template>
+
 <script>
 export default {
   props: ["item"],
-  data() {
-    return {
-      dialog: false,
-      todayAttendance: null,
-      employee_stats: [],
-      remainingTime: "00:00",
-    };
-  },
+  data: () => ({
+    logs_data: [],
+    log_endpoint: "attendance_logs",
+    log_headers: [
+      {
+        text: "#",
+        align: "left",
+        sortable: false,
+        key: "id",
+        value: "id",
+        width: "10px",
+      },
+      {
+        text: "DateTime",
+        align: "left",
+        sortable: false,
+        key: "date_range",
+        value: "LogTime",
+        fieldType: "date_range_picker",
+      },
+
+      {
+        text: "Location",
+        align: "left",
+        sortable: true,
+        key: "gps_location",
+        value: "gps_location",
+        filterable: true,
+        filterSpecial: true,
+      },
+    ],
+
+    employee_stats_header: [{ value: "value" }],
+
+    dialog: false,
+    sinceDate: null,
+    UserID: null,
+    profile_pictrue: "no-profile-image.jpg",
+    logsCount: null,
+    company_id: 0,
+    lastLog: null,
+    employee_stats: [],
+    todayAttendance: null,
+    remainingTime: "00:00",
+
+    headers: [
+      { text: "LogTime", value: "LogTime" },
+      { text: "Device", value: "DeviceID" },
+    ],
+    attendanceLogs: [],
+    log_type: "",
+    puching_image: "",
+    response_image: "/sucess.png",
+    uniqueDeviceId: null,
+    device_id: null,
+    isButtonDisabled: false,
+    message: "",
+    response: "",
+    dialog: false,
+    buttonLocked: false,
+    locationError: null,
+    intervalId: 0,
+    locationData: null,
+    initialPunch: true,
+    shift_type_id: 0,
+  }),
+
   async created() {
+    this.company_id = this.item.employee.company_id;
+
     await this.getEmployeeStats();
     await this.getTodayAttendance();
+    await this.getLogs();
   },
   methods: {
-    async getEmployeeStats() {
+    getDate() {
+      const date = new Date();
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const day = date.getDate().toString().padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    },
+    async getLogs() {
       this.$axios
-        .get(`employee-statistics`, {
+        .get(this.log_endpoint, {
           params: {
-            company_id: this.item.employee.company_id,
-            employee_id: this.item.employee.system_user_id,
+            per_page: 10,
+            company_id: this.company_id,
+            UserID: this.item.employee.system_user_id,
+            from_date: this.getDate(),
+            to_date: this.getDate(),
           },
         })
         .then(({ data }) => {
-          this.employee_stats = data;
+          this.logs_data = data.data;
         });
-    },
-    caps(str) {
-      if (str == "" || str == null) {
-        return "---";
-      } else {
-        let res = str.toString();
-        res.replace(/\b\w/g, (c) => c.toUpperCase());
-        return str.includes(`Mobile`) ? "Mobile" : str;
-      }
     },
     async getTodayAttendance() {
       this.$axios
         .get(`report`, {
           params: {
-            company_id: this.item.employee.company_id,
+            company_id: this.company_id,
             employee_id: this.item.employee.system_user_id,
             from_date: this.getFormattedDate(),
             to_date: this.getFormattedDate(),
@@ -249,6 +290,21 @@ export default {
             this.timeHandler(total_hrs),
             this.timeHandler(shift.working_hours)
           );
+        });
+    },
+    timeHandler(value) {
+      return value === "---" ? "00:00" : value;
+    },
+    async getEmployeeStats() {
+      this.$axios
+        .get(`employee-statistics`, {
+          params: {
+            company_id: this.company_id,
+            employee_id: this.item.employee.system_user_id,
+          },
+        })
+        .then(({ data }) => {
+          this.employee_stats = data;
         });
     },
     getFormattedDate() {
@@ -280,9 +336,6 @@ export default {
           "0"
         )}:${String(remainingMinutesPart).padStart(2, "0")}`;
       }
-    },
-    timeHandler(value) {
-      return value === "---" ? "00:00" : value;
     },
   },
 };
