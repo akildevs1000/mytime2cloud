@@ -29,7 +29,7 @@ class AccessControlController extends Controller
         $model->when(request()->filled("report_type"), function ($query) use ($request) {
             if ($request->report_type == "Allowed") {
                 return $query->where('status', $request->report_type);
-            } else if ($request->report_type == "Denied") {
+            } else if ($request->report_type == "Access Denied") {
                 return $query->where('status', $request->report_type);
             }
         });
@@ -279,7 +279,7 @@ class AccessControlController extends Controller
         $model->when(request()->filled("report_type"), function ($query) use ($request) {
             if ($request->report_type == "Allowed") {
                 return $query->where('status', $request->report_type);
-            } else if ($request->report_type == "Denied") {
+            } else if ($request->report_type == "Access Denied") {
                 return $query->where('status', $request->report_type);
             }
         });
