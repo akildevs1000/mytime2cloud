@@ -13,15 +13,12 @@
 
       <v-card>
         <v-toolbar flat dense class="text-h6"
-          ><b><small>
-            Employee Details
-          </small></b>
+          ><b><small> Employee Details </small></b>
           <v-spacer></v-spacer>
           <v-icon color="primary" @click="dialog = false">
             mdi-close-circle-outline
           </v-icon>
-          </v-toolbar
-        >
+        </v-toolbar>
         <v-divider></v-divider>
         <v-container>
           <v-row no-gutters>
@@ -47,8 +44,14 @@
                       <div>
                         <b>EID: {{ item.employee.system_user_id ?? "---" }}</b>
                         <br />
-                        {{ item.employee.first_name ?? "---" }}
-                        {{ item.employee.last_name ?? "---" }}
+                        <small>
+                          {{ item.employee.first_name ?? "---" }}
+                        </small>
+                        <small>{{ item.employee.last_name ?? "---" }}</small>
+                        <br />
+                        <small>
+                          {{ item.employee.phone_number ?? "---" }}
+                        </small>
                       </div>
                     </v-col>
                   </v-row>
@@ -124,7 +127,7 @@
                     <small> OverTime </small>
                   </div>
                 </v-col>
-                <v-col cols="12" class="mt-3 px-1 grey lighten-2" >
+                <v-col cols="12" class="mt-3 px-1 grey lighten-2">
                   last 10 Logs
                 </v-col>
                 <v-col cols="12">
@@ -134,17 +137,16 @@
                     :items="logs_data"
                     hide-default-footer
                   >
-                    <!-- <template v-slot:top>
-      <div class="px-2"><b>Today Logs</b></div>
-    </template> -->
                     <template v-slot:item.id="{ item, index }">
-                      {{ index + 1 }}
+                      <small>
+                        {{ index + 1 }}
+                      </small>
                     </template>
                     <template v-slot:item.LogTime="{ item }">
-                      {{ item.date }} {{ item.time }}
+                      <small> {{ item.date }} {{ item.time }}</small>
                     </template>
                     <template v-slot:item.gps_location="{ item }">
-                      {{ item.gps_location || "---" }}
+                      <small>{{ item.gps_location || "---" }}</small>
                     </template>
                   </v-data-table>
                 </v-col>
