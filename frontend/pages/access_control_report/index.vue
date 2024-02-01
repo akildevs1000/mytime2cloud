@@ -18,6 +18,10 @@
               x-small
               :items="[
                 {
+                  id: ``,
+                  name: `Select All`,
+                },
+                {
                   id: `Date Wise Access Control Report`,
                   name: `Date Wise Access Control Report`,
                 },
@@ -34,7 +38,7 @@
                   name: `Access Granted Access Control Report`,
                 },
                 {
-                  id: `Denied`,
+                  id: `Access Denied`,
                   name: `Access Denied Access Control Report`,
                 },
               ]"
@@ -208,6 +212,10 @@
             <template v-slot:item.user_type="{ item, index }">
               Employee
             </template>
+
+            <template v-slot:item.door="{ item, index }">
+              {{item.device.short_name}}
+            </template>
             
             <template v-slot:item.user="{ item }" style="padding: 0px">
               <v-row no-gutters>
@@ -344,7 +352,7 @@ export default {
         align: "left",
         sortable: true,
         key: "device",
-        value: "device.location",
+        value: "door",
       },
       {
         text: "DateTime",
