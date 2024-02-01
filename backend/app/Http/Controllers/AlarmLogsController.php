@@ -111,6 +111,7 @@ class AlarmLogsController extends Controller
                     "device_id" => $columns[0],
                     "log_time" =>  $datetime,
 
+
                 ];
 
                 $data = ["alarm_status" => 1, "alarm_start_datetime" => $datetime];
