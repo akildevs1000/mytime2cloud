@@ -205,6 +205,7 @@ class AttendanceLogController extends Controller
                     "SerialNumber" => $columns[3],
                     "status" => $columns[4] ?? "Allowed",
                     "mode" => $columns[5] ?? "Face",
+                    "reason" => $columns[6] ?? "---",
                 ];
             }
         }
