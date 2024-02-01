@@ -97,7 +97,7 @@ class AlarmLogsController extends Controller
         $result["data"] = array_values(array_unique($result["data"]));
 
         $records = [];
-
+        $device_ids = [];
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
@@ -107,17 +107,29 @@ class AlarmLogsController extends Controller
 
             if ($datetime != 'undefined') {
                 $records[] = [
-
                     "device_id" => $columns[0],
                     "log_time" =>  $datetime,
 
-
                 ];
-
                 $data = ["alarm_status" => 1, "alarm_start_datetime" => $datetime];
-
+                $device_ids[] = $columns[0];
                 Device::where("device_id", $columns[0])->update($data);
             }
+        }
+
+
+        try {
+
+            $company_ids = Device::wherein("device_id", $device_ids)->pluck('company_id');
+            $devices_to_call = Device::wherein("company_id", $company_ids)->get();
+            $return = [];
+            foreach ($devices_to_call as $key => $device) {
+                try {
+                    $return[] =  (new DeviceController())->CallAlwaysOpenDoor($device->serial_number);
+                } catch (\Exception $e) {
+                }
+            }
+        } catch (\PDOException $e) {
         }
 
         try {

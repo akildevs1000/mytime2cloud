@@ -497,7 +497,7 @@ class DeviceController extends Controller
 
         $device = Device::where("device_id", $request->device_id)->first();
         if ($device->status_id == 2) {
-            return $this->response("Device is offline. Please Test Device Online status.", null, false);
+            return $this->response("Device is offline. Please Check Device Online status.", null, false);
         }
         try {
 
@@ -511,9 +511,11 @@ class DeviceController extends Controller
                 return $this->response('Open Door Command Successfull',  null, true);
             } else {
 
-                $url = env('SDK_URL') . "$request->device_id/OpenDoor";
+                $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
                 $response = $this->callCURL($url);
-                if ($response->status == 200)
+
+
+                if ($response['status'] == 200)
                     return $this->response('Open Door Command Successfull',  null, true);
                 else
                     return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
@@ -543,12 +545,12 @@ class DeviceController extends Controller
             } else {
 
 
-                $url = env('SDK_URL') . "$request->device_id/CloseDoor";
+                $url = env('SDK_URL') . "/$request->device_id/CloseDoor";
                 $response = $this->callCURL($url);
 
 
-                $response = json_decode($response, true);
-                if ($response->status == 200)
+
+                if ($response['status']  == 200)
                     return $this->response('Close Door Command Successfull',  null, true);
                 else
                     return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
@@ -559,9 +561,15 @@ class DeviceController extends Controller
     }
     public function openDoorAlways(Request $request)
     {
+        if ($request->filled("device_id"))
+            return  $this->CallAlwaysOpenDoor($request->device_id);
+    }
 
+    public function CallAlwaysOpenDoor($device_id)
+    {
 
-        $device = Device::where("device_id", $request->device_id)->first();
+        if ($device_id == null || $device_id == '') return "";
+        $device = Device::where("device_id", $device_id)->first();
 
         // if ($device->status_id == 2) {
         //     return $this->response("Device is offline. Please Test Device Online status.", null, false);
@@ -577,9 +585,10 @@ class DeviceController extends Controller
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoorAlways($device);
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
-                $url = env('SDK_URL') . "$request->device_id/HoldDoor";
+                $url = env('SDK_URL') . "/$device_id/HoldDoor";
                 $response = $this->callCURL($url);
-                if ($response->status == 200)
+
+                if ($response['status']  == 200)
                     return $this->response('Always Open  Door Command is Successfull',  null, true);
                 else
                     return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);

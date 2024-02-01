@@ -30,7 +30,9 @@ class SyncAlarmLogs extends Command
     public function handle()
     {
         echo (new AlarmLogsController)->store();
-        sleep(30);
+        sleep(20);
+        echo (new AlarmLogsController)->store();
+        sleep(20);
         echo (new AlarmLogsController)->store();
     }
 }
