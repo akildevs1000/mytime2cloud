@@ -98,7 +98,7 @@ socket.onmessage = ({ data }) => {
 
 
       const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
-      // fs.appendFileSync(logFilePath, logEntry + "\n");
+      fs.appendFileSync(logFilePath, logEntry + "\n");
       console.log(logEntry);
     } else {
       // console.log(data);
