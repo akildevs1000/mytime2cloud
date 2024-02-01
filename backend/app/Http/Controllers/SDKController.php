@@ -230,6 +230,15 @@ class SDKController extends Controller
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
         return $data;
     }
+    public function processSDKRequestCloseAlarm($device_id, $data)
+    {
+        $url = env('SDK_URL') . "/" . $device_id . "/CloseAlarm";
+
+
+        $return = TimezonePhotoUploadJob::dispatch($data, $url);
+        return $data;
+    }
+
     public function processSDKRequestJobAll($json, $url)
     {
         $return = TimezonePhotoUploadJob::dispatch($json, $url);

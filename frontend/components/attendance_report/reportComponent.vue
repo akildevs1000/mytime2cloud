@@ -107,6 +107,7 @@
         :options.sync="options"
         :footer-props="{
           itemsPerPageOptions: [31, 30, 50, 100, 500, 1000],
+          page: true,
         }"
         class="elevation-1"
         model-value="data.id"
@@ -808,6 +809,7 @@ export default {
   ],
 
   data: () => ({
+    currentPage: "",
     tableHeight: 750,
     status: "",
     department_ids: "",
@@ -833,7 +835,7 @@ export default {
     time_table_dialog: false,
     log_details: false,
     overtime: false,
-    options: {},
+    options: { page: 1 },
     date: null,
     menu: false,
     loading: false,
@@ -947,6 +949,7 @@ export default {
     ],
     max_date: null,
     originalTableHeaders: [],
+    clearPagenumber: false,
   }),
 
   computed: {
@@ -1017,7 +1020,7 @@ export default {
         this.payload.to_date = this.payload.daily_date;
       }
       this.originalTableHeaders = this.headers;
-
+      this.clearPagenumber = true;
       this.getDataFromApi();
     },
 
@@ -1386,8 +1389,10 @@ export default {
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
-      // if (this.filters) {
+      // if (this.clearPagenumber) {
+      //   console.log("this.options", this.options);
       //   page = 1;
+      //   this.options.page = 1;
       // }
       let options = {
         params: {
@@ -1429,6 +1434,11 @@ export default {
         this.total = data.total;
         this.loading = false;
         this.totalRowsCount = data.total;
+
+        if (this.clearPagenumber) {
+          this.options.page = 1;
+          this.clearPagenumber = false;
+        }
 
         //this.getAverageTimeCalculation(data);
 

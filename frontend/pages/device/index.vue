@@ -192,10 +192,11 @@
                         ></v-text-field>
                       </td>
                     </tr>
-                    <tr>
-                      <td>Device Model</td>
+                    <!-- <tr>
+                      <td>Device Model Name</td>
                       <td>
                         <v-text-field
+                          :disabled="true"
                           :rules="device_model"
                           class="pb-0"
                           v-model="deviceSettings.name"
@@ -205,7 +206,7 @@
                           label="Device Model  "
                         ></v-text-field>
                       </td>
-                    </tr>
+                    </tr> -->
 
                     <tr>
                       <td>Door</td>
@@ -777,7 +778,7 @@
               >{{ errors.status_id[0] }}
             </span>
           </v-col>
-          <v-col md="12">
+          <!-- <v-col md="12">
             <v-autocomplete
               class="pb-0"
               :hide-details="!payload.camera_save_images"
@@ -796,13 +797,13 @@
             <span v-if="errors && errors.camera_save_images" class="error--text"
               >{{ errors.camera_save_images[0] }}
             </span>
-          </v-col>
+          </v-col> -->
         </v-row>
       </v-form>
-      <v-row v-if="response">
+      <v-row v-if="deviceResponse">
         <v-col>
           <div style="color: red; font-size: 14px" class="pl-1">
-            {{ response }}
+            {{ deviceResponse }}
           </div>
         </v-col>
       </v-row>
@@ -967,15 +968,15 @@
         </template>
         <template v-slot:item.name="{ item }">
           {{ caps(item.name) }}
+          <div class="secondary-value">{{ item.short_name }}</div>
         </template>
-        <template v-slot:item.short_name="{ item }">
-          {{ caps(item.short_name) }}
-        </template>
+
         <template v-slot:item.location="{ item }">
           {{ caps(item.location) }}
         </template>
         <template v-slot:item.device_id="{ item }">
           {{ item.device_id }}
+          <div class="secondary-value">{{ item.model_number }}</div>
         </template>
         <template v-slot:item.function="{ item }">
           <img
@@ -1045,6 +1046,21 @@
             src="/icons/always_open.png"
             class="iconsize30"
           />
+        </template>
+        <template v-slot:item.alarm="{ item }">
+          <div v-if="item.alarm_status == 1">
+            <v-icon
+              class="alarm"
+              @click="UpdateAlarmStatus(item, 0)"
+              title="Click to Turn OFF Alarm "
+              >mdi mdi-alarm-light</v-icon
+            >
+            <div class="secondary-value">{{ item.alarm_start_datetime }}</div>
+          </div>
+
+          <v-icon v-else-if="item.alarm_status == 0" title="Now Alaram is OFF"
+            >mdi mdi-alarm-light-off-outline</v-icon
+          >
         </template>
 
         <template v-slot:item.sync_date_time="{ item }">
@@ -1263,6 +1279,7 @@ export default {
     data: [],
     loading: false,
     total: 0,
+    deviceResponse: "",
     headers: [
       {
         text: "Sno",
@@ -1278,13 +1295,13 @@ export default {
         value: "name",
         filterable: false,
       },
-      {
-        text: "Short Name",
-        align: "left",
-        sortable: false,
-        value: "short_name",
-        filterable: false,
-      },
+      // {
+      //   text: "Short Name",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "short_name",
+      //   filterable: false,
+      // },
       // {
       //   text: "Branch",
       //   align: "left",
@@ -1307,13 +1324,13 @@ export default {
         value: "utc_time_zone",
         filterable: false,
       },
-      {
-        text: "Model Number",
-        align: "left",
-        sortable: false,
-        value: "model_number",
-        filterable: false,
-      },
+      // {
+      //   text: "Model Number",
+      //   align: "left",
+      //   sortable: false,
+      //   value: "model_number",
+      //   filterable: false,
+      // },
 
       {
         text: "Device Serial Number",
@@ -1357,6 +1374,15 @@ export default {
         value: "always_open",
         filterable: false,
       },
+      {
+        text: "Alarm",
+        align: "center",
+        width: "100px",
+        sortable: false,
+        value: "alarm",
+        filterable: false,
+      },
+
       {
         text: "Time Sync",
         align: "left",
@@ -1459,6 +1485,42 @@ export default {
   },
 
   methods: {
+    UpdateAlarmStatus(item, status) {
+      if (status == 0) {
+        if (confirm("Are you sure you want to TURN OFF the Alarm")) {
+          let options = {
+            params: {
+              company_id: this.$auth.user.company_id,
+              serial_number: item.serial_number,
+              status: status,
+            },
+          };
+          this.loading = true;
+          this.$axios
+            .post(`/update-device-alarm-status`, options.params)
+            .then(({ data }) => {
+              this.getDataFromApi();
+              if (!data.status) {
+                if (data.message == "undefined") {
+                  this.response = "Try again. No connection available";
+                } else this.response = "Try again. " + data.message;
+                this.snackbar = true;
+
+                return;
+              } else {
+                setTimeout(() => {
+                  this.loading = false;
+                  this.response = data.message;
+                  this.snackbar = true;
+                }, 2000);
+
+                return;
+              }
+            })
+            .catch((e) => console.log(e));
+        }
+      }
+    },
     showDeviceMegviiSettings(item) {
       this.errors = [];
       this.payload = {};
@@ -1515,8 +1577,8 @@ export default {
       if (confirm("Are you want to Update Device settings  ?")) {
         if (
           this.$refs.form.validate() &&
-          this.deviceSettings.menuPassword != "" &&
-          this.deviceSettings.name != ""
+          this.deviceSettings.menuPassword != ""
+          // &&          this.deviceSettings.name != ""
         ) {
           let options = {
             params: {
@@ -1924,6 +1986,8 @@ export default {
       this.popupDeviceId = item.device_id;
 
       this.editDialog = true;
+
+      this.deviceResponse = "";
     },
     showDeviceSettings(item) {
       this.errors = [];
@@ -1945,10 +2009,12 @@ export default {
 
       this.editedIndex = -1;
       this.editDialog = true;
+
+      this.deviceResponse = "";
     },
     store_device() {
       let id = this.editedIndex;
-      let company_id = console.log(this.payload);
+      //let company_id = console.log(this.payload);
       let payload = this.payload;
 
       this.payload.company_id = this.$auth.user.company_id;
@@ -1972,13 +2038,18 @@ export default {
               if (data.errors) this.errors = data.errors;
 
               this.snackbar = true;
+              this.deviceResponse = data.message;
               this.response = data.message;
             } else if (data.status == "device_api_error") {
               this.errors = [];
               this.snackbar = true;
+              this.deviceResponse =
+                "Check the Device information. There are errors.";
+
               this.response = "Check the Device information. There are errors.";
             } else {
               this.snackbar = true;
+              this.deviceResponse = "Device details are  Created successfully";
               this.response = "Device details are  Created successfully";
               this.getDataFromApi();
               this.editDialog = false;
@@ -1995,10 +2066,13 @@ export default {
             } else if (data.status == "device_api_error") {
               this.errors = [];
               this.snackbar = true;
+              this.deviceResponse =
+                "Check the Device information. There are errors.";
               this.response = "Check the Device information. There are errors.";
             } else {
               this.snackbar = true;
-              this.response = "Device details are  updated successfully";
+              this.deviceResponse = "Device details are  updated successfully";
+              this.response = "Device details are updated successfully";
               this.getDataFromApi();
               this.editDialog = false;
             }
