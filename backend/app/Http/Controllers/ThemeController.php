@@ -128,7 +128,7 @@ class ThemeController extends Controller
     {
         $dates = [];
 
-        for ($i = 14; $i >= 7; $i--) {
+        for ($i = 13; $i >= 7; $i--) {
             $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
             $dates[] = $date;
         }

@@ -106,7 +106,9 @@
       </v-row>
       <v-row no-gutters class="pa-3 mt-2">
         <v-col cols="12">
+          <ComonPreloader icon="face-scan" v-if="!logs_data.length" />
           <v-data-table
+            v-else
             dense
             :headers="log_headers"
             :items="logs_data"
