@@ -62,8 +62,23 @@
       </v-card>
     </v-dialog>
     <ComonPreloader icon="face-scan" v-if="loading" />
-
+    <v-dialog v-model="dialog" max-width="600">
+      <v-card>
+        <v-toolbar flat dense class="text-h6"
+            ><b><small> Employee Details </small></b>
+            <v-spacer></v-spacer>
+            <v-icon color="primary" @click="dialog = false">
+              mdi-close-circle-outline
+            </v-icon>
+          </v-toolbar>
+          <v-divider></v-divider>
+         <v-container>
+          <EmployeeShortView :item="selectedItem" />
+         </v-container>
+      </v-card>
+    </v-dialog>
     <v-data-table
+      @click:row="showDialog"
       dense
       :headers="headers_table"
       :items="logs"
@@ -111,7 +126,13 @@
             </v-img>
           </v-col>
           <v-col style="padding: 10px">
-            <EmployeeShortView :item="item" />
+            <span class="ml-2" small>
+              {{ item.employee.first_name ?? "---" }}
+              {{ item.employee.last_name ?? "---" }}
+            </span>
+            <div class="secondary-value ml-2">
+              {{ item.employee?.designation?.name }}
+            </div>
           </v-col>
         </v-row>
       </template>
@@ -192,6 +213,8 @@ export default {
   props: ["system_user_id", "branch_id"],
   data() {
     return {
+      dialog: false,
+      selectedItem: {},
       totalRowsCount: 0,
       perPage: 10,
       cumulativeIndex: 1,
@@ -365,6 +388,10 @@ export default {
     },
   },
   methods: {
+    showDialog(item) {
+      this.selectedItem = item;
+      this.dialog = true;
+    },
     viewLogs() {
       this.$router.push("/devicelogs");
     },
@@ -547,7 +574,7 @@ export default {
   },
 };
 </script>
-<style scoped>
+<!-- <style scoped>
 .theme--light.v-data-table .v-data-footer {
   float: right !important;
 }
@@ -558,4 +585,4 @@ export default {
   align-items: center;
   justify-content: center;
 }
-</style>
+</style> -->

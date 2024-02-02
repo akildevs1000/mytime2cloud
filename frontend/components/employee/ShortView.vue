@@ -1,161 +1,133 @@
 <template>
-  <div v-if="item && item.id">
-    <v-dialog v-model="dialog" width="650">
-      <template v-slot:activator="{ on, attrs }">
-        <span class="ml-2" small v-bind="attrs" v-on="on">
-          {{ item.employee.first_name ?? "---" }}
-          {{ item.employee.last_name ?? "---" }}
-        </span>
-        <div class="secondary-value ml-2">
-          {{ item.employee?.designation?.name }}
-        </div>
-      </template>
-
-      <v-card>
-        <v-toolbar flat dense class="text-h6"
-          ><b><small> Employee Details </small></b>
-          <v-spacer></v-spacer>
-          <v-icon color="primary" @click="dialog = false">
-            mdi-close-circle-outline
-          </v-icon>
-        </v-toolbar>
-        <v-divider></v-divider>
-        <v-container>
-          <v-row no-gutters>
-            <v-col cols="5">
-              <v-row class="mx-1" style="border-right: 1px solid #dddddd">
-                <v-col cols="12" class="mt-1">
-                  <v-row class="pa-1">
-                    <v-col cols="12" class="text-center">
-                      {{ item.employee.profile_pictrue }}
-                      <v-avatar size="120">
-                        <img
-                          style="width: 100%"
-                          :src="
-                            item.employee && item.employee.profile_picture
-                              ? item.employee.profile_picture
-                              : '/no-profile-image.jpg'
-                          "
-                          alt="Avatar"
-                        />
-                      </v-avatar>
-                    </v-col>
-                    <v-col cols="12" class="text-center">
-                      <div>
-                        <b>EID: {{ item.employee.system_user_id ?? "---" }}</b>
-                        <br />
-                        <small>
-                          {{ item.employee.first_name ?? "---" }}
-                        </small>
-                        <small>{{ item.employee.last_name ?? "---" }}</small>
-                        <br />
-                        <small>
-                          {{ item.employee.phone_number ?? "---" }}
-                        </small>
-                      </div>
-                    </v-col>
-                  </v-row>
-                </v-col>
-                <v-col cols="12">
-                  <v-divider></v-divider>
-                  <v-row
-                    no-gutters
-                    v-for="(item, index) in employee_stats"
-                    :key="index"
-                  >
-                    <v-col cols="6">
-                      <small> {{ item.title }}</small>
-                    </v-col>
-                    <v-col cols="6" class="text-right">
-                      <small> {{ item.value }}</small>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
+  <v-row no-gutters v-if="item && item.id">
+    <v-col cols="5">
+      <v-row class="mx-1" style="border-right: 1px solid #dddddd">
+        <v-col cols="12" class="mt-1">
+          <v-row class="pa-1">
+            <v-col cols="12" class="text-center">
+              {{ item.employee.profile_pictrue }}
+              <v-avatar size="120">
+                <img
+                  style="width: 100%"
+                  :src="
+                    item.employee && item.employee.profile_picture
+                      ? item.employee.profile_picture
+                      : '/no-profile-image.jpg'
+                  "
+                  alt="Avatar"
+                />
+              </v-avatar>
             </v-col>
-
-            <v-col cols="7">
-              <v-row no-gutters class="pa-3">
-                <v-col
-                  cols="4"
-                  class="text-center"
-                  style="
-                    border-top: 1px solid #dddddd;
-                    border-bottom: 1px solid #dddddd;
-                    border-right: 1px solid #dddddd;
-                  "
-                >
-                  <b>
-                    <small>{{
-                      todayAttendance && todayAttendance.total_hrs
-                    }}</small>
-                  </b>
-                  <div>
-                    <small>Work Time</small>
-                  </div>
-                </v-col>
-                <v-col
-                  cols="4"
-                  class="text-center"
-                  style="
-                    border-top: 1px solid #dddddd;
-                    border-bottom: 1px solid #dddddd;
-                  "
-                >
-                  <b>
-                    <small>{{ remainingTime }}</small>
-                  </b>
-                  <div>
-                    <small> Remaing Hours </small>
-                  </div>
-                </v-col>
-                <v-col
-                  cols="4"
-                  class="text-center"
-                  style="
-                    border-top: 1px solid #dddddd;
-                    border-bottom: 1px solid #dddddd;
-                    border-left: 1px solid #dddddd;
-                  "
-                >
-                  <b>
-                    <small>
-                      {{ todayAttendance && todayAttendance.ot }}
-                    </small>
-                  </b>
-                  <div>
-                    <small> OverTime </small>
-                  </div>
-                </v-col>
-              </v-row>
-              <v-row no-gutters class="pa-3">
-                <v-col cols="12">
-                  <v-data-table
-                    dense
-                    :headers="log_headers"
-                    :items="logs_data"
-                    hide-default-footer
-                  >
-                    <template v-slot:item.id="{ item, index }">
-                      <small>
-                        {{ index + 1 }}
-                      </small>
-                    </template>
-                    <template v-slot:item.LogTime="{ item }">
-                      <small> {{ item.date }} {{ item.time }}</small>
-                    </template>
-                    <template v-slot:item.device="{ item }">
-                      <small>{{ item.device.name || "---" }}</small>
-                    </template>
-                  </v-data-table>
-                </v-col>
-              </v-row>
+            <v-col cols="12" class="text-center">
+              <div>
+                <b>EID: {{ item.employee.system_user_id ?? "---" }}</b>
+                <br />
+                <small>
+                  {{ item.employee.first_name ?? "---" }}
+                </small>
+                <small>{{ item.employee.last_name ?? "---" }}</small>
+                <br />
+                <small>
+                  {{ item.employee.phone_number ?? "---" }}
+                </small>
+              </div>
             </v-col>
           </v-row>
-        </v-container>
-      </v-card>
-    </v-dialog>
-  </div>
+        </v-col>
+        <v-col cols="12">
+          <v-divider></v-divider>
+          <v-row
+            no-gutters
+            v-for="(item, index) in employee_stats"
+            :key="index"
+          >
+            <v-col cols="6">
+              <small> {{ item.title }}</small>
+            </v-col>
+            <v-col cols="6" class="text-right">
+              <small> {{ item.value }}</small>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+    </v-col>
+
+    <v-col cols="7">
+      <v-row no-gutters class="pa-3">
+        <v-col
+          cols="4"
+          class="text-center"
+          style="
+            border-top: 1px solid #dddddd;
+            border-bottom: 1px solid #dddddd;
+            border-right: 1px solid #dddddd;
+          "
+        >
+          <b>
+            <small>{{ todayAttendance && todayAttendance.total_hrs }}</small>
+          </b>
+          <div>
+            <small>Work Time</small>
+          </div>
+        </v-col>
+        <v-col
+          cols="4"
+          class="text-center"
+          style="
+            border-top: 1px solid #dddddd;
+            border-bottom: 1px solid #dddddd;
+          "
+        >
+          <b>
+            <small>{{ remainingTime }}</small>
+          </b>
+          <div>
+            <small> Remaing Hours </small>
+          </div>
+        </v-col>
+        <v-col
+          cols="4"
+          class="text-center"
+          style="
+            border-top: 1px solid #dddddd;
+            border-bottom: 1px solid #dddddd;
+            border-left: 1px solid #dddddd;
+          "
+        >
+          <b>
+            <small>
+              {{ todayAttendance && todayAttendance.ot }}
+            </small>
+          </b>
+          <div>
+            <small> OverTime </small>
+          </div>
+        </v-col>
+      </v-row>
+      <v-row no-gutters class="pa-3 mt-2">
+        <v-col cols="12">
+          <v-data-table
+            dense
+            :headers="log_headers"
+            :items="logs_data"
+            hide-default-footer
+          >
+            <template v-slot:item.id="{ item, index }">
+              <small>
+                {{ index + 1 }}
+              </small>
+            </template>
+            <template v-slot:item.LogTime="{ item }">
+              <small> {{ item.date }} {{ item.time }}</small>
+            </template>
+            <template v-slot:item.device="{ item }">
+              <small>{{ item.device.name || "---" }}</small>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </v-col>
+  </v-row>
 </template>
 
 <script>
@@ -183,7 +155,7 @@ export default {
       },
 
       {
-        text: "Location",
+        text: "Device",
         align: "left",
         sortable: true,
         key: "device",
@@ -193,39 +165,13 @@ export default {
       },
     ],
 
-    employee_stats_header: [{ value: "value" }],
-
     dialog: false,
-    sinceDate: null,
     UserID: null,
     profile_pictrue: "no-profile-image.jpg",
-    logsCount: null,
     company_id: 0,
-    lastLog: null,
     employee_stats: [],
     todayAttendance: null,
     remainingTime: "00:00",
-
-    headers: [
-      { text: "LogTime", value: "LogTime" },
-      { text: "Device", value: "DeviceID" },
-    ],
-    attendanceLogs: [],
-    log_type: "",
-    puching_image: "",
-    response_image: "/sucess.png",
-    uniqueDeviceId: null,
-    device_id: null,
-    isButtonDisabled: false,
-    message: "",
-    response: "",
-    dialog: false,
-    buttonLocked: false,
-    locationError: null,
-    intervalId: 0,
-    locationData: null,
-    initialPunch: true,
-    shift_type_id: 0,
   }),
 
   async created() {
@@ -315,7 +261,6 @@ export default {
         "0"
       )}-${String(now.getDate()).padStart(2, "0")}`;
     },
-
     getRemainingTime(totalHours, performedHours) {
       const [totalHoursStr, totalMinutesStr] = totalHours
         .split(":")
