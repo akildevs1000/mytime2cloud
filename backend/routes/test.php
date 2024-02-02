@@ -72,7 +72,7 @@ Route::get('/test/resetLogCount', function (Request $request) {
     $response = curl_exec($curl);
 
     curl_close($curl);
-    echo $response;
+    return  json_decode($response, true);
 });
 Route::get('/alarmtest', function (Request $request) {
 
