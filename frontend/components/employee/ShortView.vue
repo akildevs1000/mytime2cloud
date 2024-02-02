@@ -2,7 +2,7 @@
   <div v-if="item && item.id">
     <v-dialog v-model="dialog" width="650">
       <template v-slot:activator="{ on, attrs }">
-        <span class="ml-2 primary--text" small v-bind="attrs" v-on="on">
+        <span class="ml-2" small v-bind="attrs" v-on="on">
           {{ item.employee.first_name ?? "---" }}
           {{ item.employee.last_name ?? "---" }}
         </span>

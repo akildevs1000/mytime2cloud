@@ -85,7 +85,7 @@ export default {
       this.$auth
         .loginWith("local", { data: credentials })
         .then(({ data }) => {
-          this.$router.push(`/dashboard2`);
+          this.$router.push(`/dashboard`);
 
           return false;
         })
