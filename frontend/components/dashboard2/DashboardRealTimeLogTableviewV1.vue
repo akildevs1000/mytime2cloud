@@ -534,7 +534,7 @@ export default {
         let json = JSON.parse(data).Data;
 
         const { UserCode, SN, RecordDate, RecordNumber, RecordImage } = json;
-        console.log("socket UserCode", UserCode);
+        // console.log("socket UserCode", UserCode);
         if (UserCode > 0) {
           this.getDetails(json);
         }
