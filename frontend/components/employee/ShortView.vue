@@ -75,7 +75,7 @@
             </v-col>
 
             <v-col cols="7">
-              <v-row no-gutters class="mb-2">
+              <v-row no-gutters class="pa-3">
                 <v-col
                   cols="4"
                   class="text-center"
@@ -127,9 +127,8 @@
                     <small> OverTime </small>
                   </div>
                 </v-col>
-                <v-col cols="12" class="mt-3 px-1 grey lighten-2">
-                  last 10 Logs
-                </v-col>
+              </v-row>
+              <v-row no-gutters class="pa-3">
                 <v-col cols="12">
                   <v-data-table
                     dense
@@ -145,8 +144,8 @@
                     <template v-slot:item.LogTime="{ item }">
                       <small> {{ item.date }} {{ item.time }}</small>
                     </template>
-                    <template v-slot:item.gps_location="{ item }">
-                      <small>{{ item.gps_location || "---" }}</small>
+                    <template v-slot:item.device="{ item }">
+                      <small>{{ item.device.name || "---" }}</small>
                     </template>
                   </v-data-table>
                 </v-col>
@@ -187,8 +186,8 @@ export default {
         text: "Location",
         align: "left",
         sortable: true,
-        key: "gps_location",
-        value: "gps_location",
+        key: "device",
+        value: "device",
         filterable: true,
         filterSpecial: true,
       },
