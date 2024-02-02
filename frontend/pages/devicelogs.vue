@@ -503,7 +503,7 @@ export default {
 
     setInterval(() => {
       this.getDataFromApi();
-    }, 1000 * 60);
+    }, 1000 * 60 * 5);
   },
   created() {
     if (this.$auth.user.branch_id == null) {
