@@ -8,7 +8,7 @@
       <v-col md="6">
         <CustomFilter
           style="float: right"
-          @filter-attr="filterAttr"
+           @filter-attr="() => filterAttr"
           :default_date_from="date_from"
           :default_date_to="date_to"
           :defaultFilterType="1"

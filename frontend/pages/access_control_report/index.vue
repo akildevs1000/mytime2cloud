@@ -213,6 +213,12 @@
               Employee
             </template>
 
+            <template v-slot:item.status="{ item, index }">
+              {{ item.status }}
+              <br>
+              <small>{{item.reason ?? ""}}</small>
+            </template>
+
             <template v-slot:item.door="{ item, index }">
               {{item.device.short_name}}
             </template>
