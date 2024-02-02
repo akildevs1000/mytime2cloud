@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlarmLogsController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
@@ -27,8 +28,59 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log as Logger;
 
+Route::get('/test/getLogs', function (Request $request) {
+    $curl = curl_init();
 
+
+
+    $device_id = $request->device_id;
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://sdk.mytime2cloud.com/$device_id/GetRecord",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    return  json_decode($response, true);
+});
+Route::get('/test/resetLogCount', function (Request $request) {
+    $curl = curl_init();
+
+
+
+    $device_id = $request->device_id;
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => "https://sdk.mytime2cloud.com/$device_id/ResetRecord",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    echo $response;
+});
+Route::get('/alarmtest', function (Request $request) {
+
+    return (new AlarmLogsController())->store();
+});
 Route::get('/syncLogsScript', function (Request $request) {
+
+    return time();
 
     // return [
     //     (new FiloShiftController)->render(),
