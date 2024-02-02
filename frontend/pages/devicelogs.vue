@@ -502,8 +502,10 @@ export default {
     });
 
     setInterval(() => {
-      this.getDataFromApi();
-    }, 1000 * 60 * 5);
+      if (this.$route.name == "devicelogs") {
+        this.getDataFromApi();
+      }
+    }, 1000 * 60 * 2);
   },
   created() {
     if (this.$auth.user.branch_id == null) {

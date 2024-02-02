@@ -309,8 +309,10 @@ export default {
     this.getDataFromApi();
 
     setInterval(() => {
-      this.getDataFromApi();
-    }, 1000 * 10);
+      if (this.$route.name == "visitor-unknown") {
+        this.getDataFromApi();
+      }
+    }, 1000 * 60);
   },
 
   methods: {

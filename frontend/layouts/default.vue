@@ -334,6 +334,70 @@
           </v-btn>
         </template>
       </v-snackbar>
+      <v-dialog
+        persistent
+        v-model="alarmNotificationStatus"
+        transition="dialog-top-transition"
+        max-width="800"
+      >
+        <!-- <template v-slot:activator="{ on, attrs }">
+          <v-btn color="primary" v-bind="attrs" v-on="on">From the top</v-btn>
+        </template> -->
+        <template v-slot:default="dialog">
+          <v-card>
+            <v-toolbar
+              color="error"
+              style="
+                text-align: center;
+                padding-left: 35%;
+                color: #fff !important;
+              "
+              >Attention :Fire Alarm Notification
+            </v-toolbar>
+            <v-card-text>
+              <v-row v-for="device in notificationAlarmDevices">
+                <v-col cols="2"
+                  ><img src="../static/fire2.png" width="50px"
+                /></v-col>
+                <v-col cols="10" class="pl-4">
+                  <div class="pa-3" style="font-size: 20px; font-weight: bold">
+                    Fire Alarm Triggered at :
+                    {{ $dateFormat.format5(device.alarm_start_datetime) }}
+                  </div>
+                  <div class="bold pa-1">Device Name :{{ device.name }}</div>
+                  <div class="bold pa-1">
+                    Branch Name :{{ device.branch.branch_name }}
+                  </div>
+                  <div class="bold pa-1">
+                    Device Location :{{ device.branch.location }}
+                  </div>
+                </v-col>
+              </v-row>
+
+              <div></div>
+              <div>
+                <div style="color: green">
+                  <strong>Note: </strong>All Branch Level Doors are Opened
+                </div>
+                <br />
+                Check Devices list and Turn off Alarm to Close this popup.
+
+                <v-btn
+                  color="error"
+                  @click="
+                    goToPage('/device');
+                    alarmNotificationStatus = false;
+                  "
+                  >View Devices</v-btn
+                >
+              </div>
+            </v-card-text>
+            <!-- <v-card-actions class="justify-end">
+              <v-btn text @click="alarmNotificationStatus = false">Close</v-btn>
+            </v-card-actions> -->
+          </v-card>
+        </template>
+      </v-dialog>
     </v-app-bar>
 
     <v-main
@@ -501,7 +565,7 @@ export default {
           key: "visitors",
         },
       ],
-
+      notificationAlarmDevices: {},
       selectedBranchName: "All Branches",
       seelctedBranchId: "",
       branch_id: "",
@@ -615,6 +679,7 @@ export default {
       viewing_page_name: "",
 
       inactivityTimeout: null,
+      alarmNotificationStatus: false,
     };
   },
   created() {
@@ -625,10 +690,13 @@ export default {
     this.logo_src = require("@/static/logo22.png");
     this.pendingNotificationsCount = 0;
     this.loadNotificationMenu();
+    this.verifyAlarmStatus();
 
     setInterval(() => {
       this.loadNotificationMenu();
-    }, 1000 * 60 * 2);
+
+      this.verifyAlarmStatus();
+    }, 1000 * 60);
   },
 
   mounted() {
@@ -828,6 +896,30 @@ export default {
         // this.notificationsMenuItems.push(menu2);
       });
     },
+    verifyAlarmStatus() {
+      let company_id = this.$auth.user?.company?.id || 0;
+      //console.log("company_id", company_id);
+      if (company_id == 0) {
+        return false;
+      }
+      let options = {
+        params: {
+          company_id: company_id,
+        },
+      };
+      //this.pendingNotificationsCount = 0;
+      let pendingcount = 0;
+      this.$axios.get(`get_notifications_alarm`, options).then(({ data }) => {
+        if (data.length > 0) {
+          this.notificationAlarmDevices = data;
+
+          this.alarmNotificationStatus = true;
+        } else {
+          this.alarmNotificationStatus = false;
+        }
+      });
+    },
+
     getBranchName() {
       return this.$auth.user.branch_name;
     },

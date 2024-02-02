@@ -65,16 +65,16 @@
     <v-dialog v-model="dialog" max-width="600">
       <v-card>
         <v-toolbar flat dense class="text-h6"
-            ><b><small> Employee Details </small></b>
-            <v-spacer></v-spacer>
-            <v-icon color="primary" @click="dialog = false">
-              mdi-close-circle-outline
-            </v-icon>
-          </v-toolbar>
-          <v-divider></v-divider>
-         <v-container>
+          ><b><small> Employee Details </small></b>
+          <v-spacer></v-spacer>
+          <v-icon color="primary" @click="dialog = false">
+            mdi-close-circle-outline
+          </v-icon>
+        </v-toolbar>
+        <v-divider></v-divider>
+        <v-container>
           <EmployeeShortView :item="selectedItem" />
-         </v-container>
+        </v-container>
       </v-card>
     </v-dialog>
     <v-data-table
@@ -337,7 +337,9 @@ export default {
     }, 1000 * 10);
 
     setInterval(() => {
-      if (this.$auth.user) this.getRecords(true);
+      if (this.$route.name == "dashboard") {
+        if (this.$auth.user) this.getRecords(true);
+      }
     }, 1000 * 60);
     //this.getRecords();
   },

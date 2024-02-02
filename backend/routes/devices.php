@@ -55,6 +55,11 @@ Route::post('update-device-camvii-sdk-settings', [DeviceController::class, 'upda
 Route::get('/open_door', [DeviceController::class, 'openDoor']);
 Route::get('/close_door', [DeviceController::class, 'closeDoor']);
 Route::get('/open_door_always', [DeviceController::class, 'openDoorAlways']);
+Route::get('/get_notifications_alarm', [DeviceController::class, 'getAlarmNotification']);
+
+
+
+
 
 
 // Route::get('/open_door', function (Request $request) {

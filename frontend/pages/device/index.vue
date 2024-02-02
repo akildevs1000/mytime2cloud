@@ -1442,6 +1442,12 @@ export default {
     setTimeout(() => {
       this.updateDevicesHealth();
     }, 1000 * 5);
+
+    setInterval(() => {
+      if (this.$route.name == "device") {
+        this.getDataFromApi();
+      }
+    }, 1000 * 60);
   },
   async created() {
     this.loading = true;

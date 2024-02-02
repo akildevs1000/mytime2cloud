@@ -6,6 +6,7 @@ use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Mail\EmailNotificationForOfflineDevices;
 use App\Mail\SendEmailNotificationForOfflineDevices;
+use App\Models\AlarmLogs;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Device;
@@ -267,23 +268,49 @@ class DeviceController extends Controller
             $device_settings = [];
 
 
-            $data = [
-                "IllegalVerificationAlarm" => false,
-                "PasswordAlarm" => false,
-                "DoorMagneticAlarm" => false,
-                "BlacklistAlarm" => false,
-                "FireAlarm" => true,
-                "OpenDoorTimeoutAlarm" => false,
-                "AntiDisassemblyAlarm" => false,
-            ];
-            if ($request->status == 0) {
-                (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
 
-                $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
-                Device::where("serial_number", $request->serial_number)->update($data);
 
-                return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
+            $device = Device::where("serial_number", $request->serial_number)->first();
+            if ($device->status_id == 2) {
+                return $this->response("Device is offline. Please Check Device Online status.", null, false);
             }
+            try {
+
+                if ($device->device_category_name == 'CAMERA') {
+
+                    if ($device->model_number == 'CAMERA1') {
+                        //(new DeviceCameraController())->updateTimeZone();
+                    }
+                } else  if ($device->model_number == 'MEGVII') {
+                } else {
+
+                    $data = [
+                        "IllegalVerificationAlarm" => false,
+                        "PasswordAlarm" => false,
+                        "DoorMagneticAlarm" => false,
+                        "BlacklistAlarm" => false,
+                        "FireAlarm" => true,
+                        "OpenDoorTimeoutAlarm" => false,
+                        "AntiDisassemblyAlarm" => false,
+                    ];
+                    if ($request->status == 0) {
+                        (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+
+                        $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
+                        Device::where("serial_number", $request->serial_number)->update($data);
+
+                        $data = ["status" => 0, "device_id" => $request->serial_number, "log_time" => date('Y-m-d H:i:s')];
+                        AlarmLogs::create($data);
+
+                        return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
+                    }
+                }
+            } catch (\Exception $e) {
+                return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
+            }
+
+
+
 
             return $this->response('Device settings are updated successfully.',  null, true);
         } else {
@@ -558,6 +585,11 @@ class DeviceController extends Controller
         } catch (\Exception $e) {
             return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
         }
+    }
+
+    public function getAlarmNotification(Request $request)
+    {
+        return  $devices = Device::with(["branch", "zone"])->where("company_id", $request->company_id)->where("alarm_status", 1)->get();
     }
     public function openDoorAlways(Request $request)
     {
