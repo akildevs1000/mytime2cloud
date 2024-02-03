@@ -186,8 +186,12 @@
                 <tr>
                     <td class="text-left border-none col-4">
                         <div class="logo pt">
-                            <img style="width: 100%" src="https://amc.mytime2cloud.com/mail-logo.png"
-                                alt="Company Logo" />
+                            @if (env('APP_ENV') == 'local')
+                                <img style="width: 100%" src="https://amc.mytime2cloud.com/mail-logo.png"
+                                    alt="Company Logo" />
+                            @else
+                                <img style="width: 100%" src="{{ $company->logo }}" alt="Company Logo" />
+                            @endif
                         </div>
                     </td>
                     <td class="text-center border-none col-4 uppercase">
@@ -202,9 +206,9 @@
                     </td>
                     <td class="text-right border-none col-4">
                         <div class="company-info">
-                            <h3>AKIL SECURITY AND ALARM SYSTEMS</h3>
-                            <p>DUBAI - UNITED ARAB EMIRATES</p>
-                            <p>+971 4 3939 562, INFO@AKILGROUP.COM</p>
+                            <h3>{{ $company->name ?? '---' }}</h3>
+                            <p>{{ $company->location ?? '---' }} - UNITED ARAB EMIRATES</p>
+                            <p>{{ $company->contact->number ?? '---' }}, {{ $company->user->email ?? '---' }}</p>
                         </div>
                     </td>
                 </tr>
@@ -264,7 +268,7 @@
                         </td>
 
                         <td>
-                           <b> {{ $data['employee']['branch']['branch_name'] ?? '---' }}</b>
+                            <b> {{ $data['employee']['branch']['branch_name'] ?? '---' }}</b>
                             <br>
                             {{ $data['employee']['department']['name'] ?? '---' }}
                         </td>

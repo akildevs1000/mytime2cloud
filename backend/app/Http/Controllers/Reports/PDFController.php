@@ -178,7 +178,7 @@ class PDFController extends Controller
 
         return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
             "chunks" => $chunks,
-            "company" => Company::whereId(request("company_id") ?? 0)->first(),
+            "company" => Company::with(["user:id,email","contact"])->whereId(request("company_id") ?? 0)->first(),
             "params" => $request->all(),
 
         ])->stream();
@@ -280,7 +280,7 @@ class PDFController extends Controller
 
         return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
             "chunks" => $chunks,
-            "company" => Company::whereId(request("company_id") ?? 0)->first(),
+            "company" => Company::with(["user:id,email","contact"])->whereId(request("company_id") ?? 0)->first(),
             "params" => $request->all(),
 
         ])->download();
