@@ -207,7 +207,7 @@
                     <td class="text-right border-none col-4">
                         <div class="company-info">
                             <h3>{{ $company->name ?? '---' }}</h3>
-                            <p>{{ $company->location ?? '---' }} - UNITED ARAB EMIRATES</p>
+                            <p>{{ $company->location ?? '---' }}</p>
                             <p>{{ $company->contact->number ?? '---' }}, {{ $company->user->email ?? '---' }}</p>
                         </div>
                     </td>
