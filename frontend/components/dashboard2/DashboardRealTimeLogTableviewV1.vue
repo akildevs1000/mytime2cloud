@@ -337,7 +337,9 @@ export default {
     }, 1000 * 10);
 
     setInterval(() => {
-      if (this.$auth.user) this.getRecords(true);
+      if (this.$route.name == "dashboard") {
+        if (this.$auth.user) this.getRecords(true);
+      }
     }, 1000 * 60);
     //this.getRecords();
   },
@@ -509,13 +511,14 @@ export default {
       }
     },
     pushSocketEmployeeToTable(item) {
-      console.log("pushSocketEmployee", item);
+      //  console.log("pushSocketEmployee", item);
       //--------------------------
       let UserCode1 = item.UserCode;
       let SN1 = item.SN;
       let employee = this.employees.find(
         (e) => e.employee.system_user_id == UserCode1
       );
+      //  console.log("pushSocketEmployee employee", employee);
       let device = this.devices_list.find((e) => e.device_id == SN1);
 
       let itemTable = {

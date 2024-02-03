@@ -109,6 +109,8 @@ class AlarmLogsController extends Controller
                 $records[] = [
                     "device_id" => $columns[0],
                     "log_time" =>  $datetime,
+                    "status" =>  1,
+
 
                 ];
                 $data = ["alarm_status" => 1, "alarm_start_datetime" => $datetime];
@@ -121,7 +123,8 @@ class AlarmLogsController extends Controller
         try {
 
             $company_ids = Device::wherein("device_id", $device_ids)->pluck('company_id');
-            $devices_to_call = Device::wherein("company_id", $company_ids)->get();
+            $branch_ids = Device::wherein("device_id", $device_ids)->pluck('branch_id');
+            $devices_to_call = Device::wherein("company_id", $company_ids)->wherein("branch_id", $branch_ids)->get();
             $return = [];
             foreach ($devices_to_call as $key => $device) {
                 try {
