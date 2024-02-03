@@ -1,12 +1,14 @@
 <template>
   <v-row no-gutters v-if="item && item.id">
-    <v-col cols="5">
-      <v-row class="mx-1" style="border-right: 1px solid #dddddd">
-        <v-col cols="12" class="mt-1">
-          <v-row class="pa-1">
+    
+    <v-col cols="4" style="border-right: 1px solid #dddddd">
+      <v-divider></v-divider>
+      <v-row class="pa-0 ma-0">
+        <v-col cols="12">
+          <v-row no-gutters>
             <v-col cols="12" class="text-center">
               {{ item.employee.profile_pictrue }}
-              <v-avatar size="120">
+              <v-avatar size="100">
                 <img
                   style="width: 100%"
                   :src="
@@ -19,15 +21,18 @@
               </v-avatar>
             </v-col>
             <v-col cols="12" class="text-center">
-              <div>
-                <b>EID: {{ item.employee.system_user_id ?? "---" }}</b>
-                <br />
+              <div style="height: 15px; font-size: 12px" class="mt-1">
+                {{ item.employee.first_name ?? "---" }}
+                {{ item.employee.last_name ?? "---" }}
+              </div>
+              <div style="height: 15px; font-size: 12px">
                 <small>
-                  {{ item.employee.first_name ?? "---" }}
+                  {{ item?.employee?.designation?.name ?? "---" }}
                 </small>
-                <small>{{ item.employee.last_name ?? "---" }}</small>
-                <br />
-                <small>
+              </div>
+
+              <div style="font-size: 12px">
+                <small >
                   {{ item.employee.phone_number ?? "---" }}
                 </small>
               </div>
@@ -38,8 +43,9 @@
           <v-divider></v-divider>
           <v-row
             no-gutters
-            v-for="(item, index) in employee_stats"
+            v-for="(item, index) in employee_stats.slice(0, 6)"
             :key="index"
+            style="font-size: 15px;height:20px;"
           >
             <v-col cols="6">
               <small> {{ item.title }}</small>
@@ -52,63 +58,86 @@
       </v-row>
     </v-col>
 
-    <v-col cols="7">
-      <v-row no-gutters class="pa-3">
+    <v-col cols="8">
+      <v-divider></v-divider>
+      <v-row no-gutters class="mx-2">
         <v-col
           cols="4"
           class="text-center"
           style="
-            border-top: 1px solid #dddddd;
             border-bottom: 1px solid #dddddd;
             border-right: 1px solid #dddddd;
           "
         >
-          <b>
+          <b style="display: block; height: 20px">
             <small>{{ todayAttendance && todayAttendance.total_hrs }}</small>
           </b>
-          <div>
-            <small>Work Time</small>
-          </div>
+          <div style="font-size: 12px">Work Time</div>
         </v-col>
         <v-col
           cols="4"
           class="text-center"
           style="
-            border-top: 1px solid #dddddd;
             border-bottom: 1px solid #dddddd;
           "
         >
-          <b>
+          <b style="display: block; height: 20px">
             <small>{{ remainingTime }}</small>
           </b>
-          <div>
-            <small> Remaing Hours </small>
-          </div>
+          <div style="font-size: 12px">Remaing Hours</div>
         </v-col>
         <v-col
           cols="4"
           class="text-center"
           style="
-            border-top: 1px solid #dddddd;
             border-bottom: 1px solid #dddddd;
             border-left: 1px solid #dddddd;
           "
         >
-          <b>
+          <b style="display: block; height: 20px">
             <small>
               {{ todayAttendance && todayAttendance.ot }}
             </small>
           </b>
-          <div>
-            <small> OverTime </small>
-          </div>
+          <div style="font-size: 12px">OverTime</div>
         </v-col>
       </v-row>
-      <v-row no-gutters class="pa-3 mt-2">
+      <v-row no-gutters class="px-3">
         <v-col cols="12">
           <ComonPreloader icon="face-scan" v-if="!logs_data.length" />
-          <v-data-table
-            v-else
+          <table v-else class="mt-4" style="width:100%;">
+            <tr>
+              <td style="font-size: 12px">
+                <small style="">
+                  <b>#</b>
+                </small>
+              </td>
+              <td style="font-size: 12px">
+                <small style="">
+                  <b>Date Time</b>
+                </small>
+              </td>
+              <td style="font-size: 12px">
+                <small><b>Device</b></small>
+              </td>
+            
+            </tr>
+            <tr
+              v-for="(item, index) in logs_data"
+              :key="item.id"
+            >
+              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+                <small>{{ index + 1 }}</small>
+              </td>
+              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+                <small>{{ item.date }} {{ item.time }}</small>
+              </td>
+              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+                <small>{{ item.device ? item.device.name : "---" }}</small>
+              </td>
+            </tr>
+          </table>
+          <!-- <v-data-table
             dense
             :headers="log_headers"
             :items="logs_data"
@@ -125,7 +154,7 @@
             <template v-slot:item.device="{ item }">
               <small>{{ item.device.name || "---" }}</small>
             </template>
-          </v-data-table>
+          </v-data-table> -->
         </v-col>
       </v-row>
     </v-col>

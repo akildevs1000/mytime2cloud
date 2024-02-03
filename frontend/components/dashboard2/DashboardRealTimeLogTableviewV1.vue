@@ -62,19 +62,19 @@
       </v-card>
     </v-dialog>
     <ComonPreloader icon="face-scan" v-if="loading" />
-    <v-dialog v-model="dialog" max-width="600">
+    <v-dialog v-model="dialog" max-width="550">
       <v-card>
-        <v-toolbar flat dense class="text-h6"
-            ><b><small> Employee Details </small></b>
-            <v-spacer></v-spacer>
-            <v-icon color="primary" @click="dialog = false">
-              mdi-close-circle-outline
-            </v-icon>
-          </v-toolbar>
-          <v-divider></v-divider>
-         <v-container>
+        <v-container>
+          <v-row no-gutters class="pa-0 ma-0">
+            <v-col class="text-right">
+              <v-icon color="primary" @click="dialog = false">
+                mdi-close-circle-outline
+              </v-icon>
+            </v-col>
+          </v-row>
+
           <EmployeeShortView :item="selectedItem" />
-         </v-container>
+        </v-container>
       </v-card>
     </v-dialog>
     <v-data-table
