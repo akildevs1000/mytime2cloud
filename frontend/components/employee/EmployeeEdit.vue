@@ -431,6 +431,7 @@ export default {
           this.employee = {
             title: data.title,
             display_name: data.display_name,
+            full_name: data.full_name,
             first_name: data.first_name,
             last_name: data.last_name,
             employee_id: data.employee_id,
