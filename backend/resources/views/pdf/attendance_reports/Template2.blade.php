@@ -234,7 +234,7 @@ die();
                 </td>
             </tr>
         </table>
-        <table style="margin-top: 5px !important; margin-bottom: 15px !important; ">
+        <table style="margin-top: 5px !important; margin-bottom:20px !important; ">
             <tr style="background-colors: #A6A6A6;">
 
 
