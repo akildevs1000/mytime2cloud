@@ -184,11 +184,18 @@
                       </v-btn>
                     </v-date-picker>
                   </v-menu> -->
-                    <DateRangePicker
+                    <!-- <DateRangePicker
                       :disabled="false"
                       :header="header"
                       column="date_range"
                       @selected-dates="handleDatesFilter"
+                    /> -->
+                    <CustomFilter
+                      v-if="header.filterSpecial && header.value == 'LogTime'"
+                      @filter-attr="handleDatesFilter"
+                      :defaultFilterType="1"
+                      :height="'40px'"
+                      style="margin-top: -7px; width: 100%"
                     />
                     <v-autocomplete
                       :id="header.key"
@@ -342,10 +349,12 @@
 
 <script>
 import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
+import CustomFilter from "../components/CustomFilter.vue";
 
 export default {
   components: {
     DateRangePicker,
+    CustomFilter,
   },
   data: () => ({
     branchesList: [],
@@ -463,6 +472,8 @@ export default {
         sortable: false,
         key: "date_range",
         value: "LogTime",
+        filterable: true,
+        filterSpecial: true,
         fieldType: "date_range_picker",
       },
       // {
@@ -550,12 +561,14 @@ export default {
       });
     },
     handleDatesFilter(dates) {
-      if (dates.length > 1) {
-        this.payload.from_date = dates[0];
-        this.payload.to_date = dates[1];
-        this.payload.from_date_txt = dates[0];
-        this.payload.to_date_txt = dates[1];
-        this.getDataFromApi(this.endpoint, "dates", dates);
+      //console.log(dates);
+      //if (dates.length > 1)
+      {
+        this.payload.from_date = dates.from; // dates[0];
+        this.payload.to_date = dates.to; // dates[1];
+        this.payload.from_date_txt = dates.from; //dates[0];
+        this.payload.to_date_txt = dates.to; //dates[1];
+        this.getDataFromApi(this.endpoint, "dates", [dates.from, dates.to]);
 
         // this.payloadOptions.params["from_date"] = filter_value[0];
         // this.payloadOptions.params["to_date"] = filter_value[1];

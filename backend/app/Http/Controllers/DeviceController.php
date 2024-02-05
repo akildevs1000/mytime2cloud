@@ -295,6 +295,8 @@ class DeviceController extends Controller
                     ];
                     if ($request->status == 0) {
                         (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+                        //always open the door till close manually
+                        $this->CallAlwaysOpenDoor($request->serial_number);
 
                         $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
                         Device::where("serial_number", $request->serial_number)->update($data);

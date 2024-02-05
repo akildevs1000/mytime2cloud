@@ -693,10 +693,11 @@ export default {
     this.verifyAlarmStatus();
 
     setInterval(() => {
-      this.loadNotificationMenu();
-
       this.verifyAlarmStatus();
-    }, 1000 * 60);
+    }, 1000 * 65);
+    setInterval(() => {
+      this.loadNotificationMenu();
+    }, 1000 * 45 * 3);
   },
 
   mounted() {
