@@ -103,6 +103,11 @@ class DeviceController extends Controller
     {
         return $model->with(['status'])->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
     }
+    public function getDeviceListNotManul(Device $model, Request $request)
+    {
+        return $model->with(['status'])->where('company_id', $request->company_id)->where("model_number", "!=", "Manual")
+            ->where("model_number",  'not like', "%Mobile%")->orderBy("name", "asc")->get();
+    }
     public function getDevicePersonDetails(Request $request)
     {
         if ($request->system_user_id > 0) {

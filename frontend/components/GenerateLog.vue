@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <v-row>
-      <v-col md="4">
+      <v-col md="3">
         <v-autocomplete
           class="mt-5"
           placeholder="Employee Device Id"
@@ -23,7 +23,7 @@
           errors.user_id[0]
         }}</span>
       </v-col>
-      <v-col md="4">
+      <v-col md="3">
         <v-menu
           ref="menu"
           v-model="menu"
@@ -58,7 +58,7 @@
           </v-date-picker>
         </v-menu>
       </v-col>
-      <v-col md="4">
+      <v-col md="3">
         <v-menu
           ref="time_menu_ref"
           v-model="time_menu"
@@ -103,6 +103,23 @@
         </v-menu>
         <span v-if="errors && errors.time" class="text-danger mt-2">{{
           errors.time[0]
+        }}</span>
+      </v-col>
+      <v-col md="3">
+        <v-autocomplete
+          class="mt-5"
+          placeholder="Device Name"
+          v-model="log_payload.device_id"
+          :items="devices"
+          item-text="name"
+          item-value="device_id"
+          dense
+          outlined
+          @change="handleChangeEvent(log_payload.user_id)"
+        >
+        </v-autocomplete>
+        <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
+          errors.user_id[0]
         }}</span>
       </v-col>
       <v-col cols="12">
@@ -169,6 +186,9 @@ export default {
     response: "",
     snackbar: false,
   }),
+  mounted() {
+    this.getDeviceList();
+  },
   async created() {
     try {
       this.log_payload.user_id = this.system_user_id;
@@ -183,6 +203,16 @@ export default {
     }
   },
   methods: {
+    getDeviceList() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      this.$axios.get(`/device_list_not_manual`, options).then(({ data }) => {
+        this.devices = data;
+      });
+    },
     async getLastLog(UserID) {
       this.$axios
         .get(`attendance_logs`, {
@@ -211,13 +241,14 @@ export default {
     },
     async submit() {
       await this.getLastLog(this.log_payload.user_id);
-      let { user_id, date, time, branch_id } = this.log_payload;
+      let { user_id, date, time, branch_id, device_id } = this.log_payload;
 
       let log_payload = {
         branch_id,
         UserID: user_id,
         LogTime: date + " " + time,
-        DeviceID: "Manual",
+        //DeviceID: "Manual",
+        DeviceID: device_id,
         company_id: this.$auth.user.company_id,
         log_type: this.log_payload.log_type,
       };

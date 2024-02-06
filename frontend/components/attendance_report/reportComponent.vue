@@ -425,7 +425,7 @@
       <v-dialog persistent v-model="dialog" max-width="300px">
         <v-card>
           <v-card-title class="popup_background">
-            <span class="headline"> Manual Log </span>
+            <span class="headline"> Employee Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark>
               mdi mdi-close-circle
@@ -567,10 +567,10 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
+      <v-dialog persistent v-model="generateLogsDialog" max-width="800px">
         <v-card>
           <v-card-title class="popup_background">
-            <span class="headline">Manual Log </span>
+            <span class="headline">Employee Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
               >mdi-close-box</v-icon

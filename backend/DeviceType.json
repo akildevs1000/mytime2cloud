@@ -45,6 +45,8 @@
         "FC-8190H": "IFingerprintCommand",
         "FC-8200H": "IFingerprintCommand",
         "OX-88620": "IFingerprintCommand",
-        "OX-86620": "IFingerprintCommand"
+        "OX-86620": "IFingerprintCommand",
+        "OX-96620": "IFingerprintCommand",
+        "OX-96622": "IFingerprintCommand"
     }
 }
