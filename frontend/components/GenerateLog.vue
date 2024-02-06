@@ -8,6 +8,7 @@
     <v-row>
       <v-col md="3">
         <v-autocomplete
+          label="Employee ID"
           class="mt-5"
           placeholder="Employee Device Id"
           v-model="log_payload.user_id"
@@ -35,6 +36,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
+              label="Date"
               class="mt-5"
               dense
               outlined
@@ -72,6 +74,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
+              label="Time"
               v-model="log_payload.time"
               class="mt-5"
               dense
@@ -108,6 +111,7 @@
       <v-col md="3">
         <v-autocomplete
           class="mt-5"
+          label="Device Name"
           placeholder="Device Name"
           v-model="log_payload.device_id"
           :items="devices"
