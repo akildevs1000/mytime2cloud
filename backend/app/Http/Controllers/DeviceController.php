@@ -105,8 +105,9 @@ class DeviceController extends Controller
     }
     public function getDeviceListNotManul(Device $model, Request $request)
     {
-        return $model->with(['status'])->where('company_id', $request->company_id)->where("model_number", "!=", "Manual")
-            ->where("model_number",  'not like', "%Mobile%")->orderBy("name", "asc")->get();
+        return $model->with(['status'])->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        // return $model->with(['status'])->where('company_id', $request->company_id)->where("model_number", "!=", "Manual")
+        //     ->where("model_number",  'not like', "%Mobile%")->orderBy("name", "asc")->get();
     }
     public function getDevicePersonDetails(Request $request)
     {
