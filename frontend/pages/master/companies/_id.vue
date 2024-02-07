@@ -18,7 +18,7 @@
         </v-col>
         <v-col cols="2">
           <div class="display-1 pa-2 text-right">
-            <v-btn small class="primary" :to="`/companies`">
+            <v-btn small class="primary" :to="`/master/companies`">
               <v-icon small>mdi-arrow-left</v-icon>&nbsp;Back
             </v-btn>
           </div>

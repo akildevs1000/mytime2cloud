@@ -76,6 +76,17 @@
                 Manual Log
               </v-list-item-title>
             </v-list-item>
+            <!-- <v-list-item
+              v-if="can(`attendance_report_manual_entry_access`)"
+              @click="generateMultiLogsDialog = true"
+            >
+              <v-list-item-title style="cursor: pointer">
+                <v-icon color="secondary" small>
+                  mdi-plus-circle-outline
+                </v-icon>
+                Manual Multi Log
+              </v-list-item-title>
+            </v-list-item> -->
             <v-list-item @click="process_file(report_type)">
               <v-list-item-title style="cursor: pointer">
                 <img src="/icons/icon_print.png" class="iconsize" />
@@ -591,6 +602,30 @@
           </v-card-text>
         </v-card>
       </v-dialog>
+      <v-dialog persistent v-model="generateMultiLogsDialog" max-width="800px">
+        <v-card>
+          <v-card-title class="popup_background">
+            <span class="headline">Employee Manual Multi Log </span>
+            <v-spacer></v-spacer>
+            <v-icon dark @click="generateLogsDialog = false"
+              >mdi-close-box</v-icon
+            >
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <GenerateLogMulti
+                  @close-popup="generateLogsDialog = false"
+                  :endpoint="render_endpoint"
+                  :system_user_id="system_user_id"
+                  :shift_type_id="shift_type_id"
+                  @update-data-table="getDataFromApi()"
+                />
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
     </v-row>
 
     <v-dialog persistent v-model="add_manual_log" width="700">
@@ -809,6 +844,7 @@ export default {
   ],
 
   data: () => ({
+    generateMultiLogsDialog: false,
     currentPage: "",
     tableHeight: 750,
     status: "",
