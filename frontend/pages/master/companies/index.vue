@@ -33,7 +33,7 @@
         </v-col>
       </v-row>
       <v-row v-if="can('master')">
-        <v-col md="3" v-for="(item, index) in data" :key="index">
+        <v-col md="2" v-for="(item, index) in data" :key="index">
           <v-card style="min-height: 209px">
             <v-card-title>
               <v-spacer></v-spacer>
@@ -158,7 +158,7 @@ export default {
     next_page_url: "",
     prev_page_url: "",
     current_page: 1,
-    per_page: 10,
+    per_page: 50,
   }),
   async created() {
     this.getDataFromApi();
