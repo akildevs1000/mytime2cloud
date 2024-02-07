@@ -87,7 +87,52 @@ class ClientController extends Controller
             ], 200);
         }
     }
+    public function getEmployeesList(Request $request)
+    {
 
+        try {
+            $token = request()->bearerToken();
+            if ($token != '') {
+                $company = Company::where("api_access_token", $token)->get()->first();
+
+
+                if ($company) {
+                    $company_id = $company['id'];
+
+
+                    $model = Employee::where("company_id", $company_id);
+
+
+                    $model->when($request->filled('employee_ids') && count($request->employee_ids) > 0, function ($q) use ($request) {
+                        $q->whereIn('system_user_id', $request->employee_ids);
+                    });
+
+                    $model->with([
+                        'user' => function ($q) use ($request) {
+                            $q->select(['id', 'email']);
+                            $q->withOut(['assigned_permissions']);
+                        }
+                    ]);
+                    $model->withOut(["schedule", "department", "designation", "sub_department", "branch"]);
+                    $model->select(["id", "system_user_id", 'user_id', 'first_name', 'last_name', 'phone_number']);
+
+                    $model->orderBy("first_name", "ASC");
+
+                    return  $model->get()->makeHidden(['time', 'edit_date', 'show_log_time', 'date', 'hour_only']);
+                } else {
+                    return Response::json(['reecord' => null, 'message' => 'Invalid API Access Token', 'status' => false,], 200);
+                }
+            } else {
+                return Response::json(['reecord' => null, 'message' => 'API Token is missing', 'status' => false,], 200);
+            }
+        } catch (Exception $e) {
+            return Response::json([
+                'record' => null,
+                'message' => 'Error  processing your request' . $e,
+                'status' => false,
+            ], 200);
+        }
+    }
     public function getAttendanceReports(Request $request)
     {
         try {
