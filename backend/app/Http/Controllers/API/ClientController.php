@@ -108,9 +108,10 @@ class ClientController extends Controller
                     });
 
                     $model->with([
-                        'user' => function ($q) use ($request) {
+                        'user' => function ($q) use ($company_id) {
                             $q->select(['id', 'email']);
                             $q->withOut(['assigned_permissions']);
+                            $q->where("company_id", $company_id);
                         }
                     ]);
                     $model->withOut(["schedule", "department", "designation", "sub_department", "branch"]);
@@ -159,8 +160,10 @@ class ClientController extends Controller
                                 ->whereDate("date", ">=", $date_from . ' 00:00:00')
                                 ->whereDate("date", "<=", $date_to . ' 23:59:59');
                             $model->with([
-                                'employeeapi' => function ($q) use ($request) {
+                                'employeeapi' => function ($q) use ($request, $company_id) {
                                     $q->select(['user_id', 'system_user_id', 'first_name', 'last_name', 'phone_number']);
+
+                                    $q->where("company_id", $company_id);
                                     //$q->withOut(['show_joining_date']);
                                     //$q->exclude(['show_joining_date']);
                                     //$q->except(['show_joining_date']);
@@ -170,9 +173,10 @@ class ClientController extends Controller
 
 
                                     $q->with([
-                                        'user' => function ($q) use ($request) {
+                                        'user' => function ($q) use ($company_id) {
                                             $q->select(['id', 'email']);
                                             $q->withOut(['assigned_permissions']);
+                                            $q->where("company_id", $company_id);
                                         }
                                     ]);
                                 }
