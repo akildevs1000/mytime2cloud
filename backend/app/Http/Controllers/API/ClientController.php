@@ -211,7 +211,11 @@ class ClientController extends Controller
             ], 200);
         }
     }
+    public function test()
+    {
 
+        return [];
+    }
     public function generateToken(Request $request, $company_id)
     {
         try {
