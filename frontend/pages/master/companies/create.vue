@@ -559,7 +559,7 @@ export default {
     validate_geographic_info() {
       this.loading = true;
       this.errors = [];
-
+      this.loading = true;
       this.$axios
         .post("company/user/validate", this.geographic_payload)
         .then(({ data }) => {
@@ -575,7 +575,7 @@ export default {
     },
 
     store_data() {
-      // this.loading = true;
+      this.loading = true;
 
       let payload = new FormData();
 
