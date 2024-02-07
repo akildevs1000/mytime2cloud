@@ -99,7 +99,10 @@ class Attendance extends Model
             ],
         ]);
     }
-
+    public function employeeapi()
+    {
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut(["schedule", "department", "designation", "sub_department", "branch"]);
+    }
     public function employeeAttendance()
     {
         return $this->belongsTo(Employee::class, "employee_id");

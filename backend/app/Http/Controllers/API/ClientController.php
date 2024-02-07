@@ -88,6 +88,81 @@ class ClientController extends Controller
         }
     }
 
+    public function getAttendanceReports(Request $request)
+    {
+        try {
+            $token = request()->bearerToken();
+            if ($token != '') {
+                $company = Company::where("api_access_token", $token)->get()->first();
+
+
+                if ($company) {
+                    $company_id = $company['id'];
+                    $date_from = $request->date_from;
+                    $date_to = $request->date_to;
+                    $employee_ids = $request->employee_ids;
+                    if ($date_from != '' && $date_to != '') {
+                        $date_from_obj = new DateTime($date_from);
+                        $date_to_obj = new DateTime($date_to);
+
+                        $abs_diff = $date_to_obj->diff($date_from_obj)->format("%a"); //3
+                        if (!is_array($employee_ids)) {
+                            $employee_ids = [$employee_ids];
+                        }
+                        if ($abs_diff <= 31) {
+                            $model = Attendance::where("company_id", $company_id)
+                                ->whereDate("date", ">=", $date_from . ' 00:00:00')
+                                ->whereDate("date", "<=", $date_to . ' 23:59:59');
+                            $model->with([
+                                'employeeapi' => function ($q) use ($request) {
+                                    $q->select(['user_id', 'system_user_id', 'first_name', 'last_name', 'phone_number']);
+                                    //$q->withOut(['show_joining_date']);
+                                    //$q->exclude(['show_joining_date']);
+                                    //$q->except(['show_joining_date']);
+                                    //$q->makeHidden(['show_joining_date']);
+                                    //$q->setHidden(['show_joining_date']);
+
+
+
+                                    $q->with([
+                                        'user' => function ($q) use ($request) {
+                                            $q->select(['id', 'email']);
+                                            $q->withOut(['assigned_permissions']);
+                                        }
+                                    ]);
+                                }
+                            ]);
+                            $model->when($request->filled('employee_ids') && count($request->employee_ids) > 0, function ($q) use ($request) {
+                                $q->whereIn('employee_id', $request->employee_ids);
+                            });
+
+
+                            $model->select(["id", "employee_id", "date", "logs"]);
+
+                            $model->orderBy("date", "ASC");
+
+                            return  $model->get()->makeHidden(['time', 'edit_date', 'show_log_time', 'date', 'hour_only']);
+                        } else {
+                            return Response::json(['reecord' => null, 'message' => 'Maximum days count is 31 days only in one request', 'status' => false,], 200);
+                        }
+                    } else {
+                        return Response::json(['reecord' => null, 'message' => 'Date from and Date to are missing', 'status' => false,], 200);
+                    }
+                } else {
+                    return Response::json(['reecord' => null, 'message' => 'Invalid API Access Token', 'status' => false,], 200);
+                }
+            } else {
+                return Response::json(['reecord' => null, 'message' => 'API Token is missing', 'status' => false,], 200);
+            }
+        } catch (Exception $e) {
+            return Response::json([
+                'record' => null,
+                'message' => 'Error  processing your request' . $e,
+                'status' => false,
+            ], 200);
+        }
+    }
+
     public function generateToken(Request $request, $company_id)
     {
         try {
