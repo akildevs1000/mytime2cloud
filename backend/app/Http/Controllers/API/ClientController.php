@@ -186,7 +186,7 @@ class ClientController extends Controller
                             });
 
 
-                            $model->select(["id", "employee_id", "date", "logs", "status", "total_hrs"]);
+                            $model->select(["id", "employee_id", "date", "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs"]);
 
                             $model->orderBy("date", "ASC");
 
