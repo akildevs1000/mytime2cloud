@@ -60,7 +60,7 @@ console.log(`logFilePath: ${logFilePath}`);
 const { SOCKET_ENDPOINT } = process.env;
 
 // Create a WebSocket connection
-const socket = new WebSocket(SOCKET_ENDPOINT);
+const socket = new WebSocket(`ws://192.168.2.29:8080/WebSocket`);
 
 // Handle WebSocket connection events
 socket.onopen = () => {

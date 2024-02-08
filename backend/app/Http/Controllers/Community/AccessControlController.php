@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Community;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
-use App\Models\AttendanceLog;
+use App\Models\Community\AttendanceLog;
 use App\Models\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
