@@ -17,8 +17,8 @@ return new class extends Migration
             $table->id();
             $table->string('full_name')->nullable();
             $table->string('phone_number')->nullable();
-            $table->string('floor_id')->default(0);
-            $table->string('room_id')->default(0);
+            $table->integer('floor_id')->default(0);
+            $table->integer('room_id')->default(0);
             $table->string('start_date')->nullable();
             $table->string('end_date')->nullable();
             $table->string('profile_picture')->nullable();

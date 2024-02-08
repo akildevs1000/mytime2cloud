@@ -317,6 +317,13 @@
     "module": "community"
   },
   {
+    "icon": "mdi-bed",
+    "title": "Rooms",
+    "to": "/community/rooms",
+    "menu": "community",
+    "module": "community"
+  },
+  {
     "icon": "mdi-shape-square-plus",
     "title": "Setup",
     "to": "/community/setup",
