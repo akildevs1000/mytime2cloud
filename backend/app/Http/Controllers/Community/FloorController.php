@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Community;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\Floor\StoreRequest;
 use App\Http\Requests\Floor\UpdateRequest;
-
-use App\Models\Floor;
+use App\Models\Community\Floor;
 
 class FloorController extends Controller
 {

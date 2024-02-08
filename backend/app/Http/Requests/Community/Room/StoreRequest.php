@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Room;
+namespace App\Http\Requests\Community\Room;
 
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -25,7 +25,7 @@ class StoreRequest extends FormRequest
     {
 
         return [
-            'room_number' => 'required|unique:rooms,room_number',
+            'room_number' => 'required',
             'floor_id' => 'required',
             'room_category_id' => 'required',
             'status_id' => 'required',

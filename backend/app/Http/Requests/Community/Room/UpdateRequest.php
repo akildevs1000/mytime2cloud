@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Requests\Member;
+namespace App\Http\Requests\Community\Room;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateRequest extends FormRequest
 {
@@ -24,12 +25,10 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'full_name' => 'required|string|max:255',
-            'phone_number' => 'nullable',
-            'age' => 'required|string|max:255',
-            'relation' => 'required|string|max:255',
-            'tanent_id' => 'required|numeric',
-            'profile_picture' => 'nullable',
+            'room_number' =>  'required',
+            'floor_id' => 'required',
+            'room_category_id' => 'required',
+            'status_id' => 'required',
         ];
     }
 }

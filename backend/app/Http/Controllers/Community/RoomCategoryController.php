@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Community;
 
-use App\Http\Requests\RoomCategory\StoreRequest;
-use App\Http\Requests\RoomCategory\UpdateRequest;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Community\RoomCategory\StoreRequest;
+use App\Http\Requests\Community\RoomCategory\UpdateRequest;
 
-use App\Models\RoomCategory;
+use App\Models\Community\RoomCategory;
 
 class RoomCategoryController extends Controller
 {

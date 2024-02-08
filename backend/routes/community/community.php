@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\CommunityController;
+use App\Http\Controllers\Community\CommunityController;
 
 Route::apiResource('/community', CommunityController::class);
 Route::delete('/community-delete/{id}', [CommunityController::class,"communityDelete"]);

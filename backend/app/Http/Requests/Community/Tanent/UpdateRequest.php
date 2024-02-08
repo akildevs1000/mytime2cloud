@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Tanent;
+namespace App\Http\Requests\Community\Tanent;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -33,20 +33,19 @@ class StoreRequest extends FormRequest
             "start_date" => "required",
             "end_date" => "required",
             "profile_picture" => "nullable",
+            "attachment" => "nullable",
             "system_user_id" => "nullable",
-            "email" => "required",
-            "company_id" => "required",
+            "email" => "nullable",
+            "company_id" => "nullable",
 
             "whatsapp_number" => "nullable",
             "date_of_birth" => "required",
+            "nationality" => "required",
             "car_number" => "required",
             "parking_number" => "required",
-
-
-            "rfid" => "nullable",
-            "pin" => "nullable",
-
-            "nationality" => "required",
+            "web_access" => "required",
+            "rfid" => "required",
+            "pin" => "required",
             "address" => "required",
             
             "passport_doc" => "nullable",
@@ -54,9 +53,6 @@ class StoreRequest extends FormRequest
             "contract_doc" => "nullable",
             "ejari_doc" => "nullable",
             "license_doc" => "nullable",
-
-            "web_access" => "nullable",
-
             "others_doc" => "nullable",
         ];
     }

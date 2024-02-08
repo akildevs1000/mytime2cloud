@@ -6,120 +6,21 @@
       </v-snackbar>
     </div>
     <div v-if="!loading">
-      <v-dialog persistent v-model="viewMemberDialogBox" width="800">
-        <v-card>
-          <v-toolbar dense class="popup_background" flat>
-            {{ formAction }} Member
-
-            <v-spacer></v-spacer>
-          </v-toolbar>
-
-          <v-card
-            elevation="0"
-            class="ma-2"
-            v-for="(member, index) in payload.members"
-            :key="index"
+      <v-dialog persistent v-model="viewMemberDialogBox" width="700">
+        <v-toolbar flat dense>
+          <b> Members </b>
+          <v-spacer></v-spacer>
+          <v-icon color="primary" @click="viewMemberDialogBox = false"
+            >mdi-close-circle-outline</v-icon
           >
-            <v-container>
-              <v-row>
-                <v-col cols="3">
-                  <v-card v-if="member.profile_picture" elevation="0">
-                    <v-avatar size="175">
-                      <v-img :src="member.profile_picture"></v-img>
-                    </v-avatar>
-                  </v-card>
-                </v-col>
-                <v-col cols="9">
-                  <v-row class="mt-8">
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Full Name"
-                        :readonly="disabled"
-                        v-model="member.full_name"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.full_name"
-                        :error-messages="
-                          errors && errors.full_name ? errors.full_name[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Relation"
-                        :readonly="disabled"
-                        v-model="member.relation"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.relation"
-                        :error-messages="
-                          errors && errors.relation ? errors.relation[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Age"
-                        :readonly="disabled"
-                        v-model="member.age"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.age"
-                        :error-messages="
-                          errors && errors.age ? errors.age[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Phone Number (optional)"
-                        :readonly="disabled"
-                        v-model="member.phone_number"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.phone_number"
-                        :error-messages="
-                          errors && errors.phone_number
-                            ? errors.phone_number[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <div class="text-right">
-              <v-btn
-                small
-                color="grey white--text"
-                @click="viewMemberDialogBox = false"
-              >
-                Close
-              </v-btn>
-
-              <v-btn
-                v-if="can('employee_create') && formAction == 'Create'"
-                small
-                :loading="loading"
-                color="primary"
-                @click="submitMembers"
-              >
-                submit
-              </v-btn>
-            </div>
-          </v-card-actions>
+        </v-toolbar>
+        <v-card>
+          <v-container>
+            <TanentMembers :members="payload.members" />
+          </v-container>
         </v-card>
       </v-dialog>
-      <v-dialog persistent v-model="memberDialogBox" width="900">
+      <v-dialog persistent v-model="memberDialogBox" width="800">
         <v-card>
           <v-toolbar dense class="popup_background" flat>
             {{ formAction }} Member
@@ -136,96 +37,89 @@
             </span> -->
           </v-toolbar>
 
-          <v-card elevation="0" class="ma-2">
-            <v-container>
-              <v-row>
-                <!-- <v-col cols="12"><strong>Member </strong> </v-col> -->
-                <!-- <v-col cols="6" class="text-right">
-                  <v-icon
-                    v-if="index > 0 && formAction !== 'View'"
-                    right
-                    color="red"
-                    @click="removeMemberItem(index)"
-                  >
-                    mdi mdi-delete</v-icon
-                  >
-                </v-col> -->
-                <v-col cols="6">
-                  <v-text-field
-                    label="Full Name"
-                    :readonly="disabled"
-                    v-model="member.full_name"
-                    dense
-                    class="text-center"
-                    outlined
-                    :hide-details="!errors.full_name"
-                    :error-messages="
-                      errors && errors.full_name ? errors.full_name[0] : ''
-                    "
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    label="Relation"
-                    :readonly="disabled"
-                    v-model="member.relation"
-                    dense
-                    class="text-center"
-                    outlined
-                    :hide-details="!errors.relation"
-                    :error-messages="
-                      errors && errors.relation ? errors.relation[0] : ''
-                    "
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    label="Age"
-                    :readonly="disabled"
-                    v-model="member.age"
-                    dense
-                    class="text-center"
-                    outlined
-                    :hide-details="!errors.age"
-                    :error-messages="errors && errors.age ? errors.age[0] : ''"
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-text-field
-                    label="Phone Number (optional)"
-                    :readonly="disabled"
-                    v-model="member.phone_number"
-                    dense
-                    class="text-center"
-                    outlined
-                    :hide-details="!errors.phone_number"
-                    :error-messages="
-                      errors && errors.phone_number
-                        ? errors.phone_number[0]
-                        : ''
-                    "
-                  ></v-text-field>
-                </v-col>
-                <v-col cols="6">
-                  <v-file-input
-                    v-if="!disabled"
-                    v-model="member.profile_picture"
-                    dense
-                    outlined
-                    prepend-icon=""
-                    append-icon="mdi-camera"
-                    label="Upload Photo"
-                    @change="previewMemberImage"
-                  ></v-file-input>
-                  <v-card v-if="imageMemberPreview" elevation="0">
-                    <v-avatar size="200">
-                      <v-img :src="imageMemberPreview"></v-img>
-                    </v-avatar>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-card>
+          <v-container>
+            <v-row no-gutters>
+              <v-col cols="4" class="text-center pt-3">
+                <v-avatar size="150" style="border: 1px solid #6946dd">
+                  <v-img :src="imageMemberPreview"></v-img>
+                </v-avatar>
+              </v-col>
+              <v-col cols="8" class="pt-2">
+                <v-row>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Full Name"
+                      :readonly="disabled"
+                      v-model="member.full_name"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.full_name"
+                      :error-messages="
+                        errors && errors.full_name ? errors.full_name[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Relation"
+                      :readonly="disabled"
+                      v-model="member.relation"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.relation"
+                      :error-messages="
+                        errors && errors.relation ? errors.relation[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Age"
+                      :readonly="disabled"
+                      v-model="member.age"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.age"
+                      :error-messages="
+                        errors && errors.age ? errors.age[0] : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Phone Number (optional)"
+                      :readonly="disabled"
+                      v-model="member.phone_number"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="!errors.phone_number"
+                      :error-messages="
+                        errors && errors.phone_number
+                          ? errors.phone_number[0]
+                          : ''
+                      "
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-file-input
+                      v-if="!disabled"
+                      v-model="member.profile_picture"
+                      dense
+                      outlined
+                      prepend-icon=""
+                      append-icon="mdi-camera"
+                      label="Upload Photo"
+                      @change="previewMemberImage"
+                    ></v-file-input>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
           <v-divider></v-divider>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -266,10 +160,14 @@
         <v-stepper v-model="step" horizontal>
           <v-stepper-header>
             <v-stepper-step :complete="step > 1" step="1" editable>
-              Basic Info {{payload.id}}
+              Basic Info
             </v-stepper-step>
             <v-divider></v-divider>
             <v-stepper-step :complete="step > 2" step="2" editable>
+              Members
+            </v-stepper-step>
+            <v-divider></v-divider>
+            <v-stepper-step :complete="step > 3" step="3" editable>
               Documentation
             </v-stepper-step>
           </v-stepper-header>
@@ -279,7 +177,10 @@
             <v-row>
               <v-col cols="3">
                 <div class="text-center">
-                  <SnippetsUploadAttachment :defaultImage="setImagePreview" @uploaded="handleAttachment" />
+                  <SnippetsUploadAttachment
+                    :defaultImage="setImagePreview"
+                    @uploaded="handleAttachment"
+                  />
 
                   <span v-if="errors && errors.logo" class="text-danger mt-2">{{
                     errors.logo[0]
@@ -287,7 +188,7 @@
                 </div>
               </v-col>
               <v-col cols="9">
-                <v-row class="mt-1">
+                <v-row class="mt-4">
                   <v-col cols="6">
                     <v-autocomplete
                       @change="getRoomsByFloorId(payload.floor_id)"
@@ -309,6 +210,7 @@
 
                   <v-col cols="6">
                     <v-autocomplete
+                      @change="getRoomNumber(payload.room_id)"
                       label="Room"
                       outlined
                       :readonly="disabled"
@@ -595,7 +497,7 @@
                     </v-menu>
                   </v-col>
 
-                  <v-col cols="6">
+                  <v-col cols="12">
                     <v-switch
                       style="margin-top: 5px"
                       label="Web Access"
@@ -611,7 +513,16 @@
                     </v-switch>
                   </v-col>
 
-                  <v-col cols="12" class="text-right my-1">
+                  <v-col cols="6" class="my-1">
+                    <v-btn
+                      v-if="formAction == 'Edit'"
+                      class="primary"
+                      @click="update_data"
+                      >Update</v-btn
+                    >
+                  </v-col>
+
+                  <v-col cols="6" class="text-right my-1">
                     <v-btn @click="DialogBox = false">Close</v-btn>
                     <v-btn
                       v-if="formAction == 'Create'"
@@ -620,7 +531,7 @@
                       >Next</v-btn
                     >
                     <v-btn
-                      v-else-if="formAction == 'Edit'"
+                      v-if="formAction == 'Edit'"
                       class="primary"
                       @click="tanentUpdateValidate"
                       >Next</v-btn
@@ -632,86 +543,130 @@
           </v-stepper-content>
 
           <v-stepper-content step="2">
+            <!-- Step 1 Content -->
+            <v-card
+              outlined
+              v-for="(member, index) in payload.members"
+              :key="index"
+              class="mb-2"
+            >
+              <v-container>
+                <v-row>
+                  <v-col cols="3">
+                    <div class="text-center">
+                      <SnippetsUploadAttachment
+                        :defaultImage="member.profile_picture"
+                        @uploaded="
+                          (e) => {
+                            member.profile_picture = e;
+                          }
+                        "
+                      />
+
+                      <span
+                        v-if="errors && errors.logo"
+                        class="text-danger mt-2"
+                        >{{ errors.logo[0] }}</span
+                      >
+                    </div>
+                  </v-col>
+                  <v-col cols="9">
+                    <v-row class="mt-1">
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Full Name"
+                          :readonly="disabled"
+                          v-model="member.full_name"
+                          dense
+                          class="text-center"
+                          outlined
+                          :hide-details="!errors.full_name"
+                          :error-messages="
+                            errors && errors.full_name
+                              ? errors.full_name[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Relation"
+                          :readonly="disabled"
+                          v-model="member.relation"
+                          dense
+                          class="text-center"
+                          outlined
+                          :hide-details="!errors.relation"
+                          :error-messages="
+                            errors && errors.relation ? errors.relation[0] : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Age"
+                          :readonly="disabled"
+                          v-model="member.age"
+                          dense
+                          class="text-center"
+                          outlined
+                          :hide-details="!errors.age"
+                          :error-messages="
+                            errors && errors.age ? errors.age[0] : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col cols="6">
+                        <v-text-field
+                          label="Phone Number (optional)"
+                          :readonly="disabled"
+                          v-model="member.phone_number"
+                          dense
+                          class="text-center"
+                          outlined
+                          :hide-details="!errors.phone_number"
+                          :error-messages="
+                            errors && errors.phone_number
+                              ? errors.phone_number[0]
+                              : ''
+                          "
+                        ></v-text-field>
+                      </v-col>
+
+                      <v-col cols="12" class="text-right mt-12">
+                        <v-btn
+                          v-if="formAction == 'Edit'"
+                          class="primary"
+                          @click="update_member(member)"
+                          >Update</v-btn
+                        >
+                      </v-col>
+                    </v-row>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card>
+          </v-stepper-content>
+
+          <v-stepper-content step="3">
             <!-- Step 2 Content -->
             <v-row>
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.passport_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="Passport"
-                ></v-file-input>
+              <v-col
+                v-for="(document, index) in documents"
+                :key="index"
+                cols="6"
+              >
+                <SnippetsUploadDocument
+                  :label="document.label"
+                  @uploaded="updatePayload(document.key, $event)"
+                />
               </v-col>
 
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.id_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="ID"
-                ></v-file-input>
-              </v-col>
-
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.contract_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="Contract"
-                ></v-file-input>
-              </v-col>
-
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.ejari_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="Ejari"
-                ></v-file-input>
-              </v-col>
-
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.license_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="License"
-                ></v-file-input>
-              </v-col>
-              <v-col cols="6">
-                <v-file-input
-                  hide-details
-                  v-if="!disabled"
-                  v-model="payload.others_doc"
-                  dense
-                  outlined
-                  prepend-icon=""
-                  append-icon="mdi-file"
-                  label="Upload Other Doc"
-                ></v-file-input>
-              </v-col>
               <v-col cols="12" class="text-right my-1">
-                <v-btn @click="prevStep">Back</v-btn>
+                <v-btn @click="DialogBox = false">close</v-btn>
                 <v-btn
                   v-if="formAction == 'Create'"
                   class="primary"
@@ -758,7 +713,7 @@
                 </v-btn>
               </span>
               <v-spacer></v-spacer>
-              <span>
+              <!-- <span>
                 <v-btn
                   dense
                   x-small
@@ -776,7 +731,8 @@
                     >mdi-plus-circle</v-icon
                   >
                 </v-btn>
-              </span>
+              </span> -->
+              <TanentCreate @success="getDataFromApi"/>
             </v-toolbar>
             <v-data-table
               dense
@@ -791,6 +747,9 @@
               class="elevation-1"
               :server-items-length="totalRowsCount"
             >
+              <template v-slot:item.category="{ item }">
+                {{ item?.room?.room_category?.name }}
+              </template>
               <template v-slot:header="{ props: { headers } }">
                 <tr v-if="isFilter">
                   <td v-for="header in headers" :key="header.text">
@@ -838,7 +797,7 @@
                     <v-img
                       style="
                         border-radius: 50%;
-                        height: auto;
+                        height: 50px;
                         width: 50px;
                         max-width: 50px;
                       "
@@ -871,12 +830,11 @@
                         Add Member(s)
                       </v-list-item-title>
                     </v-list-item>
-                    <!-- <v-list-item @click="viewItem(item)">
+                    <v-list-item>
                       <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-eye </v-icon>
-                        View
+                        <TanentSingle :key="generateRandomId()" :item="item" />
                       </v-list-item-title>
-                    </v-list-item> -->
+                    </v-list-item>
                     <v-list-item @click="editItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
@@ -932,9 +890,17 @@ export default {
       start_date: "",
       end_date: "",
     },
+    documents: [
+      { label: "Passport", key: "passport_doc" },
+      { label: "ID", key: "id_doc" },
+      { label: "Contract", key: "contract_doc" },
+      { label: "Ejari", key: "ejari_doc" },
+      { label: "License", key: "license_doc" },
+      { label: "Other", key: "others_doc" },
+    ],
     imagePreview: "/no-profile-image.jpg",
-    setImagePreview:null,
-    imageMemberPreview: null,
+    setImagePreview: null,
+    imageMemberPreview: "/no-profile-image.jpg",
 
     tab: null,
 
@@ -1032,11 +998,11 @@ export default {
     // "webaccess": true,
     headers: [
       {
-        text: "Tanent Id",
+        text: "User Device Id",
         align: "left",
         sortable: true,
-        key: "id",
-        value: "id",
+        key: "system_user_id",
+        value: "system_user_id",
         filterable: true,
         filterSpecial: false,
       },
@@ -1050,7 +1016,24 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-
+      {
+        text: "Nationality",
+        align: "left",
+        sortable: true,
+        key: "nationality",
+        value: "nationality",
+        filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Category",
+        align: "left",
+        sortable: true,
+        key: "category",
+        value: "category",
+        filterable: true,
+        filterSpecial: false,
+      },
       {
         text: "Members",
         align: "left",
@@ -1157,6 +1140,14 @@ export default {
     },
   },
   methods: {
+    updatePayload(key, document) {
+      this.payload[key] = document;
+    },
+    generateRandomId() {
+      const length = 8; // Adjust the length of the ID as needed
+      const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number
+      return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
+    },
     handleAttachment(e) {
       this.payload.profile_picture = e;
     },
@@ -1178,6 +1169,10 @@ export default {
     removeMemberItem(index) {
       this.members.splice(index, 1);
     },
+    getRoomNumber(room_id) {
+      let { room_number } = this.rooms.find((e) => e.id == room_id);
+      this.payload.room_number = room_number || 0;
+    },
     async getFloors() {
       let { data: floors } = await this.$axios.get(`floor`, {
         params: { company_id: this.$auth.user.company_id },
@@ -1185,6 +1180,9 @@ export default {
       this.floors = floors.data;
     },
     async getRoomsByFloorId(floor_id) {
+      let { floor_number } = this.floors.find((e) => e.id == floor_id);
+      this.payload.floor_number = floor_number || 0;
+
       let { data } = await this.$axios.get(`room-by-floor-id`, {
         params: {
           company_id: this.$auth.user.company_id,
@@ -1296,7 +1294,18 @@ export default {
 
       this.getExistingMembers(item.id);
     },
-    editItem({ profile_picture,passport_doc,id_doc,contract_doc,ejari_doc, license_doc,others_doc, floor, room, ...payload }) {
+    editItem({
+      profile_picture,
+      passport_doc,
+      id_doc,
+      contract_doc,
+      ejari_doc,
+      license_doc,
+      others_doc,
+      floor,
+      room,
+      ...payload
+    }) {
       this.formAction = "Edit";
       this.disabled = false;
       this.DialogBox = true;
@@ -1304,7 +1313,7 @@ export default {
       this.setImagePreview = profile_picture;
       this.payload = payload;
 
-      this.getRoomsByFloorId(payload.floor_id)
+      this.getRoomsByFloorId(payload.floor_id);
     },
     viewItem({ profile_picture, ...payload }) {
       this.formAction = "View";
@@ -1419,6 +1428,10 @@ export default {
         formData.append("profile_picture", this.upload.name);
       }
 
+      if (this.payload.passport_doc) {
+        formData.append("passport_doc", this.payload.passport_doc.name);
+      }
+
       formData.append("company_id", this.$auth.user.company_id);
 
       return formData;
@@ -1513,14 +1526,39 @@ export default {
 
       // }
     },
+
+    update_member(member) {
+      let formData = new FormData();
+
+      if (member.profile_picture.name) {
+        formData.append("profile_picture", member.profile_picture);
+      }
+
+      formData.append("full_name", member.full_name);
+      formData.append("relation", member.relation);
+      formData.append("age", member.age);
+      formData.append("phone_number", member.phone_number);
+
+      this.$axios
+        .post("/members-update/" + member.id, formData)
+        .then(({ data }) => {
+          this.handleSuccessResponse("Member updated successfully");
+        })
+        .catch(({ response }) => {
+          this.handleErrorResponse(response);
+        });
+
+      // }
+    },
+
     handleSuccessResponse(message) {
       this.errors = [];
       this.snackbar = true;
       this.response = message;
       this.memberDialogBox = false;
-      // this.DialogBox = false;
+      this.DialogBox = false;
       this.dialog = true;
-      // this.getDataFromApi();
+      this.getDataFromApi();
     },
     handleErrorResponse(response) {
       if (!response) {

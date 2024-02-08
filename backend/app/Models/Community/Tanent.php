@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Community;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,6 +10,10 @@ class Tanent extends Model
     use HasFactory;
 
     protected $guarded = [];
+
+    protected $appends = [
+        "profile_picture_name",
+    ];
 
     protected $casts = [
         "floor_id" => "integer",
@@ -38,7 +42,12 @@ class Tanent extends Model
 
     public function room()
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Room::class)->with("room_category:id,name");
+    }
+
+    public function getProfilePictureNameAttribute()
+    {
+       return explode("community/profile_picture/" , $this->profile_picture)[1] ?? "";
     }
 
     public function getProfilePictureAttribute($value)
@@ -46,10 +55,13 @@ class Tanent extends Model
         if (!$value) return null;
         return asset('community/profile_picture/' . $value);
     }
+    
 
-    public function getAttachmentAttribute($value)
+    public static function ProcessDocument($file, $path)
     {
-        if (!$value) return null;
-        return asset('community/others_doc/' . $value);
+        $ext = $file->getClientOriginalExtension();
+        $fileName = time() . '.' . $ext;
+        $file->move(public_path($path), $fileName);
+        return asset($path . '/' . $fileName);
     }
 }
