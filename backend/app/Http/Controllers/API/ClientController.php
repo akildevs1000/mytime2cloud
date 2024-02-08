@@ -10,6 +10,7 @@ use App\Models\Employee;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 
 class ClientController extends Controller
@@ -185,12 +186,21 @@ class ClientController extends Controller
                                 $q->whereIn('employee_id', $request->employee_ids);
                             });
 
+                            $model->with('device_in', function ($q) use ($company_id) {
+                                $q->select(['name',  "device_id"]);
+                                $q->where('company_id', $company_id);
+                            });
 
-                            $model->select(["id", "employee_id", "date", "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs"]);
+                            $model->with('device_out', function ($q) use ($company_id) {
+                                $q->select(['name',  "device_id"]);
+                                $q->where('company_id', $company_id);
+                            });
+                            $model->select([DB::raw('date as date_attendance'),  "id", "employee_id",  "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs", "date"]);
+                            //$model->select(["id", "employee_id",  "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs"]);
 
                             $model->orderBy("date", "ASC");
 
-                            return  $model->get()->makeHidden(['time', 'edit_date', 'show_log_time', 'date', 'hour_only']);
+                            return  $model->get()->makeHidden(['time',  'show_log_time',   'hour_only']);
                         } else {
                             return Response::json(['reecord' => null, 'message' => 'Maximum days count is 31 days only in one request', 'status' => false,], 200);
                         }

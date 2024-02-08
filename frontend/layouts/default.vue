@@ -355,7 +355,10 @@
               >Attention :Fire Alarm Notification
             </v-toolbar>
             <v-card-text>
-              <v-row v-for="device in notificationAlarmDevices">
+              <v-row
+                v-for="(device, index) in notificationAlarmDevices"
+                key="index"
+              >
                 <v-col cols="2"
                   ><img src="../static/fire2.png" width="50px"
                 /></v-col>
@@ -683,6 +686,8 @@ export default {
     };
   },
   created() {
+    this.updateTopmenu();
+
     this.$store.commit("loginType", this.$auth.user.user_type);
     this.getCompanyDetails();
     this.setMenus();
@@ -701,6 +706,8 @@ export default {
   },
 
   mounted() {
+    this.company_menus = [];
+
     let menu_name = this.$route.name;
     let bgColor = "violet";
     let loadSelectedMenu = "";
@@ -708,6 +715,7 @@ export default {
     menu_name = menu_name.replaceAll("-", "/");
 
     if (this.getLoginType === "company" || this.getLoginType === "branch") {
+      //-------------------
       loadSelectedMenu = this.company_menus.filter(
         (item) => item.to === "/" + menu_name && item.submenu == null
       );
@@ -790,6 +798,35 @@ export default {
     },
   },
   methods: {
+    updateTopmenu() {
+      //update company Top menu
+      //filter Display Modules From Company Settings
+
+      try {
+        if (this.$auth.user.company.display_modules) {
+          let display_modules = JSON.parse(
+            this.$auth.user.company.display_modules
+          );
+          if (display_modules) {
+            if (display_modules.access_control == false) {
+              this.company_top_menu = this.company_top_menu.filter(
+                (item) => item.menu != "access_control"
+              );
+            }
+            if (display_modules.visitors == false) {
+              this.company_top_menu = this.company_top_menu.filter(
+                (item) => item.menu != "visitors"
+              );
+            }
+            if (display_modules.community == false) {
+              this.company_top_menu = this.company_top_menu.filter(
+                (item) => item.menu != "community"
+              );
+            }
+          }
+        }
+      } catch (e) {}
+    },
     handleActivity() {
       this.resetTimer();
     },
@@ -970,6 +1007,11 @@ export default {
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected
         );
+
+        // display_modules.forEach((element) => {
+        //   console.log("element", element);
+        // });
+
         return;
       } else if (this.getLoginType === "employee") {
         if (/guard/.test(roleType)) {

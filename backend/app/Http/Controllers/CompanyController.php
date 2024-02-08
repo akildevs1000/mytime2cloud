@@ -390,6 +390,31 @@ class CompanyController extends Controller
         return $this->response('Company successfully updated.', $record, true);
     }
 
+    public function updateCompanyModulesSettings(Request $request, $id)
+    {
+
+
+        if ($request->filled("modules")) {
+
+
+            $arr = [
+
+                "display_modules" => $request->modules,
+
+            ];
+
+
+            $record = Company::whereId($id)->update($arr);
+
+
+            if (!$record) {
+                return $this->response('Company cannot update.', null, false);
+            }
+            return $this->response('Company successfully updated.', $record, true);
+        }
+        return $this->response('Company cannot update.', null, false);
+    }
+
 
     public function updateCompanyUser(UserUpdateRequest $request, $id)
     {
