@@ -355,7 +355,10 @@
               >Attention :Fire Alarm Notification
             </v-toolbar>
             <v-card-text>
-              <v-row v-for="device in notificationAlarmDevices">
+              <v-row
+                v-for="(device, index) in notificationAlarmDevices"
+                key="index"
+              >
                 <v-col cols="2"
                   ><img src="../static/fire2.png" width="50px"
                 /></v-col>
