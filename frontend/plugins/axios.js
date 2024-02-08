@@ -19,6 +19,13 @@ export default ({ $axios, store }, inject) => {
         branch_id: user && user.branch_id,
       };
     }
+
+    // if (user && user.branch_array && user.branch_array.length > 0) {
+    //   config.params = {
+    //     ...config.params,
+    //     branch_array: user && user.branch_array,
+    //   };
+    // }
     // console.log("holdRequests Requests", holdRequests);
 
     // if (holdRequests) {

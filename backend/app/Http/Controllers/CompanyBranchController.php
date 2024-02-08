@@ -16,6 +16,9 @@ class CompanyBranchController extends Controller
     {
         $model = CompanyBranch::query();
         $model->where('company_id', request('company_id'));
+        if (request("branch_id"))
+            $model->where('id', request('branch_id'));
+
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "branch_name as name"]);
     }

@@ -454,7 +454,7 @@ export default {
         this.$auth
           .loginWith("local", { data: this.credentials })
           .then(({ data }) => {
-            //console.log(data.user.branch_id, data.user.is_master);
+            // console.log("$auth.user", data, this.$auth.user);
 
             if (data.user.branch_id == 0 && data.user.is_master == false) {
               this.snackbar = true;
