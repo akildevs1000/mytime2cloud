@@ -303,6 +303,13 @@
     "module": "visitors"
   },
   {
+    "icon": "mdi-clock-time-four-outline ",
+    "title": "Report",
+    "to": "/community/report",
+    "menu": "community",
+    "module": "community"
+  },
+  {
     "icon": "mdi-account-card-details",
     "title": "Tanent",
     "to": "/community/tanent",

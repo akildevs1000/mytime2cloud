@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Community;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Room\StoreRequest;
-use App\Http\Requests\Room\UpdateRequest;
+use App\Http\Requests\Community\Room\StoreRequest;
+use App\Http\Requests\Community\Room\UpdateRequest;
 use App\Models\Community\Room;
 use App\Models\Company;
-use App\Models\Tanent;
+use App\Models\Community\Tanent;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 

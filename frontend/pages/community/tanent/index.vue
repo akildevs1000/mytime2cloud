@@ -50,14 +50,11 @@
                     <v-text-field
                       label="Full Name"
                       :readonly="disabled"
-                      v-model="member.full_name"
+                      v-model="member.system_user_id"
                       dense
                       class="text-center"
                       outlined
-                      :hide-details="!errors.full_name"
-                      :error-messages="
-                        errors && errors.full_name ? errors.full_name[0] : ''
-                      "
+                      :hide-details="true"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="6">
@@ -1164,6 +1161,7 @@ export default {
         age: null,
         relation: null,
         tanent_id: this.payload.id,
+        company_id: this.$auth.user.company_id,
       });
     },
     removeMemberItem(index) {
@@ -1283,6 +1281,8 @@ export default {
       this.memberDialogBox = true;
       this.payload = item;
       this.member.tanent_id = item.id;
+      this.member.system_user_id = parseInt(item.system_user_id) + parseInt(item.members.length) + 1;
+      this.member.company_id = this.$auth.user.company_id;
 
       this.getExistingMembers(item.id);
     },
