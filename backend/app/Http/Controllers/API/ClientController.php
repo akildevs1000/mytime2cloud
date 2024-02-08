@@ -195,7 +195,7 @@ class ClientController extends Controller
                                 $q->select(['name',  "device_id"]);
                                 $q->where('company_id', $company_id);
                             });
-                            $model->select([DB::raw('date as date_attendance'),  "id", "employee_id",  "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs", "date"]);
+                            $model->select([DB::raw('date as date_attendance'),  "id", "employee_id",  "logs", "status", "in as in_time", "device_id_in", "out as out_time", "device_id_out", "total_hrs", "date"]);
                             //$model->select(["id", "employee_id",  "logs", "status", "in", "device_id_in", "out", "device_id_out", "total_hrs"]);
 
                             $model->orderBy("date", "ASC");

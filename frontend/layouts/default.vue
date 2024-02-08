@@ -706,7 +706,7 @@ export default {
   },
 
   mounted() {
-    this.company_menus = [];
+    //this.company_menus = [];
 
     let menu_name = this.$route.name;
     let bgColor = "violet";
