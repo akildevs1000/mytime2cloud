@@ -1,116 +1,45 @@
 <?php
 
-namespace App\Http\Controllers\Reports;
-
-use App\Models\Shift;
-use App\Models\Device;
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\ShiftType;
-use App\Models\Attendance;
-use App\Models\Department;
-use Illuminate\Http\Request;
-use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\App;
+namespace App\Http\Controllers\Community;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
+use App\Models\Company;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 
-class PDFController extends Controller
+
+class AccessControlController extends Controller
 {
-
-    public function daily_summary(Request $request)
+    public function index(Request $request)
     {
-        return Pdf::loadView('pdf.html.daily.daily_summary')->stream();
-    }
-    public function weekly_summary(Request $request)
-    {
-        return Pdf::loadView('pdf.html.weekly.weekly_summary_v1')->stream();
-    }
-    public function monthly_summary()
-    {
-        return Pdf::loadView('pdf.html.monthly.monthly_summary_v1')->stream();
+        return $this->processFilters($request)->paginate($request->per_page);
     }
 
-    public function dailyAccessControl()
+    public function access_control_report_print_pdf(Request $request)
     {
-        return Pdf::loadView('pdf.html.daily.access_control')->stream();
-    }
-    public function weeklyAccessControl()
-    {
-        return Pdf::loadView('pdf.html.weekly.access_control')->stream();
-    }
-    public function monthlyAccessControl()
-    {
-        return Pdf::loadView('pdf.html.monthly.access_control')->stream();
-    }
-    public function monthlyAccessControlV1()
-    {
-        return Pdf::loadView('pdf.html.monthly.access_control_v1')->stream();
-    }
-    public function monthlyAccessControlCount()
-    {
-        return Pdf::loadView('pdf.html.monthly.access_control_count')->stream();
-    }
-    public function monthlyAccessControlByDevice()
-    {
-        return Pdf::loadView('pdf.html.monthly.access_control_by_device')->stream();
-    }
-
-    public function testPDF()
-    {
-        $dataArray = [];
-
-        // Populate the array with dummy data for demonstration purposes
-        for ($i = 0; $i < 30; $i++) {
-            $dataArray[] = [
-                'id' => $i + 1,
-                'name' => 'John Doe',
-                'phone' => '123-456-7890',
-                'code' => '101',
-                'date' => '2024-01-25 08:00:00',
-                'startTime' => '08:00 AM',
-                'endTime' => '05:00 PM',
-                'mode' => 'Entry',
-                'status' => 'Present',
-                'user_type' => 'Employee',
-            ];
-        }
-
-        $chunks = array_chunk($dataArray, 20);
-        return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', ["chunks" => $chunks])->stream();
-    }
-
-    public function accessControlReportPrint(AttendanceLog $model, Request $request)
-    {
-        $data = $this->processFilters($request)->get()->toArray();
+        $data =  $this->processFilters($request)->get()->toArray();
 
         if ($request->debug) return $data;
 
-        $chunks = array_chunk($data, 10);
-
-        return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
-            "chunks" => $chunks,
+        return Pdf::loadView("pdf.access_control_reports.custom", [
+            "data" => $data,
             "company" => Company::whereId(request("company_id") ?? 0)->first(),
-            "params" => $request->all(),
-
+            "params" => $request->all()
         ])->stream();
     }
 
-    public function accessControlReportDownload(AttendanceLog $model, Request $request)
+    public function access_control_report_download_pdf(Request $request)
     {
-        $data = $this->processFilters($request)->get()->toArray();
+        $data =  $this->processFilters($request)->get()->toArray();
 
         if ($request->debug) return $data;
 
-        $chunks = array_chunk($data, 10);
-
-        return Pdf::setPaper('a4', 'landscape')->loadView('pdf.access_control_reports.report', [
-            "chunks" => $chunks,
+        return Pdf::loadView("pdf.access_control_reports.custom", [
+            "data" => $data,
             "company" => Company::whereId(request("company_id") ?? 0)->first(),
-            "params" => $request->all(),
-
+            "params" => $request->all()
         ])->download();
     }
 
