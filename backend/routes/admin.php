@@ -60,6 +60,7 @@ Route::post('company/{id}/update/contact', [CompanyController::class, 'updateCon
 Route::post('company/{id}/update/user', [CompanyController::class, 'updateCompanyUser']);
 Route::post('company/{id}/update/user_whatsapp', [CompanyController::class, 'updateCompanyUserWhatsapp']);
 Route::post('company/{id}/update/whatsapp_settings', [CompanyController::class, 'updateCompanyWhatsappSettings']);
+Route::post('company/{id}/update/modules_settings', [CompanyController::class, 'updateCompanyModulesSettings']);
 
 
 Route::post('company/{id}/update/geographic', [CompanyController::class, 'updateCompanyGeographic']);

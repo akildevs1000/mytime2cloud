@@ -46,7 +46,9 @@
               <v-tab>
                 <v-icon> mdi-whatsapp </v-icon>
               </v-tab>
-
+              <v-tab>
+                <v-icon> mdi mdi-view-module </v-icon>
+              </v-tab>
               <v-tab-item>
                 <v-card flat>
                   <v-card-text>
@@ -889,6 +891,78 @@
                   </v-card-text>
                 </v-card>
               </v-tab-item>
+              <v-tab-item>
+                <v-card flat>
+                  <v-card-text>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <div class="form-group">
+                          <label class="col-form-label">
+                            1. Access Control Module
+                          </label>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-3">
+                        <v-switch
+                          color="success"
+                          class="mt-0 ml-2"
+                          v-model="modules.access_control"
+                        ></v-switch>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <div class="form-group">
+                          <label class="col-form-label">
+                            2. Community Module
+                          </label>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-3">
+                        <v-switch
+                          color="success"
+                          class="mt-0 ml-2"
+                          v-model="modules.community"
+                        ></v-switch>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-sm-3">
+                        <div class="form-group">
+                          <label class="col-form-label">
+                            3. Visitors Module
+                          </label>
+                        </div>
+                      </div>
+
+                      <div class="col-sm-3">
+                        <v-switch
+                          color="success"
+                          class="mt-0 ml-2"
+                          v-model="modules.visitors"
+                        ></v-switch>
+                      </div>
+                    </div>
+                    <v-row>
+                      <v-col cols="12">
+                        <div class="text-right">
+                          <v-btn
+                            v-if="can('master')"
+                            small
+                            :loading="loading"
+                            color="primary"
+                            @click="update_module_settings"
+                          >
+                            Submit
+                          </v-btn>
+                        </div>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-tab-item>
             </v-tabs>
           </v-card>
         </v-col>
@@ -912,6 +986,7 @@ export default {
     }
   },
   data: () => ({
+    modules: { access_control: true, community: true, visitors: true },
     enable_whatsapp_otp: "",
     whatsapp_instance_id: "",
 
@@ -1006,6 +1081,9 @@ export default {
           lon: this.company_payload.lon,
           location: this.company_payload.location,
         };
+        if (this.company_payload.display_modules) {
+          this.modules = JSON.parse(this.company_payload.display_modules);
+        }
 
         this.preloader = false;
       });
@@ -1071,6 +1149,16 @@ export default {
           enable_whatsapp_otp: this.enable_whatsapp_otp,
         },
         `Contact`
+      );
+    },
+
+    update_module_settings() {
+      this.start_process(
+        `/company/${this.id}/update/modules_settings`,
+        {
+          modules: this.modules,
+        },
+        `Modules`
       );
     },
 
