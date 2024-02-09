@@ -54,6 +54,8 @@ class UpdateRequest extends FormRequest
             "ejari_doc" => "nullable",
             "license_doc" => "nullable",
             "others_doc" => "nullable",
+
+            "gender" => "required",
         ];
     }
 }

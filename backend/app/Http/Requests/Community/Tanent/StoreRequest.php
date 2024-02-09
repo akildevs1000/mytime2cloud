@@ -71,6 +71,8 @@ class StoreRequest extends FormRequest
             "web_access" => "nullable",
 
             "others_doc" => "nullable",
+
+            "gender" => "required",
         ];
     }
 }
