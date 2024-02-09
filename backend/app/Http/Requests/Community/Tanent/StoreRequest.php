@@ -29,38 +29,38 @@ class StoreRequest extends FormRequest
 
         return [
 
-            'room_id' => [
-                'required',
-                Rule::unique('tanents')->where(function ($query) use ($room_id, $companyId) {
-                    return $query->where('room_id', $room_id)
-                        ->where('company_id', $companyId);
-                }),
-            ],
+            // 'room_id' => [
+            //     'required',
+            //     Rule::unique('tanents')->where(function ($query) use ($room_id, $companyId) {
+            //         return $query->where('room_id', $room_id)
+            //             ->where('company_id', $companyId);
+            //     }),
+            // ],
 
 
             "full_name" => "nullable|min:3|max:20",
             "first_name" => "required|min:3|max:20",
             "last_name" => "required|min:3|max:20",
-            "phone_number" => "required|min:10|max:20",
+            "phone_number" => "nullable|min:10|max:20",
             "floor_id" => "required",
-            "start_date" => "required",
-            "end_date" => "required",
+            "start_date" => "nullable",
+            "end_date" => "nullable",
             "profile_picture" => "nullable",
             "system_user_id" => "nullable",
-            "email" => "required",
+            "email" => "nullable",
             "company_id" => "required",
 
             "whatsapp_number" => "nullable",
-            "date_of_birth" => "required",
-            "car_number" => "required",
-            "parking_number" => "required",
+            "date_of_birth" => "nullable",
+            "car_number" => "nullable",
+            "parking_number" => "nullable",
 
 
             "rfid" => "nullable",
             "pin" => "nullable",
 
             "nationality" => "required",
-            "address" => "required",
+            "address" => "nullable",
 
             "passport_doc" => "nullable",
             "id_doc" => "nullable",
