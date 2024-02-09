@@ -930,7 +930,7 @@
                     </v-list-item>
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
-                        <TanentEdit :item="item"/>
+                        <TanentEdit @success="handleEditSuccess" :item="item"/>
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="deleteItem(item)">
@@ -1232,6 +1232,9 @@ export default {
     },
   },
   methods: {
+    handleEditSuccess(value) {
+     this.handleSuccessResponse(value);
+    },
     updatePayload(key, document) {
       this.payload[key] = document;
     },

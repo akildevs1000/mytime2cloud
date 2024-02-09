@@ -11,6 +11,10 @@ Route::post('/vehicle-validate', [TanentController::class,"validateVehicle"]);
 Route::post('/vehicle-store', [TanentController::class,"storeVehicles"]);
 
 
+Route::post('/store-multiple-vehicles/{id}', [TanentController::class,"storeMultipleVehicles"]);
+
+
+
 
 Route::post('/tanent-update-validate/{id}', [TanentController::class,"validateUpdateTanent"]);
 

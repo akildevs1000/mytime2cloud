@@ -128,7 +128,7 @@ class TanentController extends Controller
                 $request->file('profile_picture')->move(public_path('/community/profile_picture'), $fileName);
                 $data['profile_picture'] = $fileName;
             }
-           
+
             $record = Tanent::create($data);
 
             if ($record) {
@@ -144,6 +144,15 @@ class TanentController extends Controller
     public function storeVehicles(Request $request)
     {
         return Vehicle::insert($request->vehicles);
+    }
+
+
+    public function storeMultipleVehicles(Request $request,$id)
+    {
+        $model = Vehicle::query();
+        $model->where("tanent_id",$id);
+        $model->delete("tanent");
+        return $model->insert($request->vehicles);
     }
 
     /**

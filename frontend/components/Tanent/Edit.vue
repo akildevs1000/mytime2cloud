@@ -529,11 +529,9 @@
             </v-col>
           </v-row>
           <v-row>
-           <v-col>
-            <v-icon @click="update_vehicle(vehicle)" color="primary"
-              >mdi-floppy</v-icon
-            >
-           </v-col>
+            <v-col>
+              <v-btn @click="add_vehicles" class="primary">Submit</v-btn>
+            </v-col>
           </v-row>
         </v-container>
       </v-tab-item>
@@ -570,16 +568,7 @@ export default {
   },
 
   data: () => ({
-    originalURL: `https://mytime2cloud.com/register/visitor/`,
-    fullCompanyLink: ``,
-    encryptedID: "",
-    fullLink: "",
-    qrCodeDataURL: "",
-    qrCompanyCodeDataURL: "",
     disabled: false,
-    step: 1,
-
-    members: [],
 
     payload: {
       full_name: "",
@@ -598,78 +587,24 @@ export default {
       { label: "License", key: "license_doc" },
       { label: "Other", key: "others_doc" },
     ],
-    imagePreview: "/no-profile-image.jpg",
     setImagePreview: null,
-    imageMemberPreview: "/no-profile-image.jpg",
-
     tab: null,
 
-    totalRowsCount: 0,
-    filters: {},
-    isFilter: false,
-    sortBy: "id",
-    sortDesc: false,
-    snack: false,
-    snackColor: "",
-    snackText: "",
-    loadinglinear: true,
-    displayErrormsg: false,
-    image: "",
-    mime_type: "",
-    cropedImage: "",
-    cropper: "",
-    autoCrop: false,
-    dialogCropping: false,
     tabMenu: [],
     tab: "0",
-    employeeId: 0,
-    employeeObject: {},
     attrs: [],
     dialog: false,
-    editDialog: false,
-    viewDialog: false,
     selectedFile: "",
     dialog: false,
-    memberdialog: false,
-    viewMemberdialog: false,
-    m: false,
-    expand: false,
-    expand2: false,
-    boilerplate: false,
     right: true,
-    rightDrawer: false,
-    drawer: true,
     tab: null,
-    selectedItem: 1,
-    on: "",
-    files: "",
-    search: "",
-    loading: false,
-    //total: 0,
-    next_page_url: "",
-    prev_page_url: "",
-    current_page: 1,
-    per_page: 1000,
-    ListName: "",
     color: "background",
     response: "",
     snackbar: false,
     btnLoader: false,
-    max_employee: 0,
-    employee: {
-      title: "Mr",
-      display_name: "",
-      employee_id: "",
-      system_user_id: "",
-    },
+    
     upload: {
       name: "",
-    },
-
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
     },
     options: {},
     Model: "Tanent",
@@ -679,20 +614,10 @@ export default {
     ids: [],
     loading: false,
     //total: 0,
-    titleItems: ["Mr", "Mrs", "Miss", "Ms", "Dr"],
-    editedIndex: -1,
-    editedItem: { name: "" },
-    defaultItem: { name: "" },
     response: "",
     data: [],
     errors: [],
-    designations: [],
-    roles: [],
-    employees: [],
-    department_filter_id: "",
     dialogVisible: false,
-
-    formAction: "Edit",
 
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -723,26 +648,8 @@ export default {
     updatePayload(key, document) {
       this.payload[key] = document;
     },
-    generateRandomId() {
-      const length = 8; // Adjust the length of the ID as needed
-      const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number
-      return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
-    },
     handleAttachment(e) {
       this.payload.profile_picture = e;
-    },
-    addMemberItem() {
-      this.members.push({
-        full_name: null,
-        phone_number: null,
-        age: null,
-        relation: null,
-        tanent_id: this.payload.id,
-        company_id: this.$auth.user.company_id,
-      });
-    },
-    removeMemberItem(index) {
-      this.members.splice(index, 1);
     },
     getRoomNumber(room_id) {
       let { room_number } = this.rooms.find((e) => e.id == room_id);
@@ -766,107 +673,11 @@ export default {
       });
       this.rooms = data;
     },
-    encrypt() {
-      this.encryptedID = this.$crypto.encrypt(id);
-      // this.fullLink = this.originalURL + this.encryptedID;
-    },
-    closeViewDialog() {
-      this.viewDialog = false;
-    },
-    caps(str) {
-      if (str == "" || str == null) {
-        return "---";
-      } else {
-        let res = str.toString();
-        return res.replace(/\b\w/g, (c) => c.toUpperCase());
-      }
-    },
-    closePopup() {
-      //croppingimagestep5
-      this.$refs.otherDoc_input.value = null;
-      this.dialogCropping = false;
-    },
-    close() {
-      this.dialog = false;
-      this.errors = [];
-      setTimeout(() => {}, 300);
-    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-
-    onPageChange() {
-      this.getDataFromApi();
-    },
-    applyFilters() {
-      this.getDataFromApi();
-    },
-    toggleFilter() {
-      // this.filters = {};
-      this.isFilter = !this.isFilter;
-    },
-    clearFilters() {
-      this.filters = {};
-
-      this.isFilter = false;
-      this.getDataFromApi();
-    },
-    getDataFromApi() {
-      //this.loading = true;
-      this.loadinglinear = true;
-
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
-
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
-      let options = {
-        params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage, //this.pagination.per_page,
-          company_id: this.$auth.user.company_id,
-          ...this.filters,
-        },
-      };
-
-      this.$axios.get(this.endpoint, options).then(({ data }) => {
-        this.data = data.data;
-        //this.server_datatable_totalItems = data.total;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-
-        this.totalRowsCount = data.total;
-
-        this.data.length == 0
-          ? (this.displayErrormsg = true)
-          : (this.displayErrormsg = false);
-
-        this.loadinglinear = false;
-      });
-    },
     addVehicleInfo() {
       this.payload.vehicles.push({ car_number: "", parking_id: "" });
-    },
-    addMember(item) {
-      this.disabled = false;
-      this.formAction = "Create";
-      this.memberdialog = true;
-      this.payload = item;
-      this.member.tanent_id = item.id;
-      this.member.system_user_id =
-        parseInt(item.system_user_id) + parseInt(item.members.length) + 1;
-      this.member.company_id = this.$auth.user.company_id;
-
-      this.getExistingMembers(item.id);
-    },
-    viewMember(item) {
-      this.disabled = true;
-      this.formAction = "View";
-      this.viewMemberdialog = true;
-      this.payload = item;
-
-      this.getExistingMembers(item.id);
     },
     editItem({
       profile_picture,
@@ -880,7 +691,6 @@ export default {
       room,
       ...payload
     }) {
-      this.formAction = "Edit";
       this.disabled = false;
       this.dialog = true;
 
@@ -889,58 +699,9 @@ export default {
 
       this.getRoomsByFloorId(payload.floor_id);
     },
-    viewItem({ profile_picture, ...payload }) {
-      this.formAction = "View";
-      this.disabled = true;
-      this.dialog = true;
-
-      this.imagePreview = profile_picture;
-      this.payload = payload;
-    },
-    getExistingMembers(id) {
-      this.$axios.get(`/members/${id}`).then(({ data }) => {
-        this.members = data;
-
-        if (!data.length) {
-          this.members.push({
-            full_name: null,
-            phone_number: null,
-            age: null,
-            relation: null,
-            tanent_id: id,
-          });
-        }
-      });
-    },
-
-    update_vehicle(vehicle) {
-      console.log(vehicle);
-    },
 
     delete_vehicle(index) {
       this.payload.vehicles.splice(index, 1);
-    },
-    close() {
-      this.dialog = false;
-      setTimeout(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      }, 300);
-    },
-
-    previewMemberImage(event) {
-      const file = this.member.profile_picture;
-
-      if (file) {
-        // Read the selected file and create a preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          this.imageMemberPreview = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        this.imageMemberPreview = null;
-      }
     },
     others_doc(e) {
       this.upload.name = e.target.files[0] || "";
@@ -990,62 +751,27 @@ export default {
 
       return formData;
     },
-    submitMembers() {
-      this.$axios
-        .post(
-          `/members/${this.payload.id}`,
-          this.mapper(Object.assign(this.member))
-        )
-        .then(({ data }) => {
-          this.handleSuccessResponse("Member(s) inserted successfully");
-        })
-        .catch(({ response }) => {
-          this.handleErrorResponse(response);
+    add_vehicles() {
+      let dataToInsert = [];
+
+      this.payload.vehicles.forEach(({ car_number, parking_id }) => {
+        dataToInsert.push({
+          tanent_id: this.payload.id,
+          car_number: car_number,
+          parking_id: parking_id,
         });
-    },
-    tanentValidate() {
+      });
       this.$axios
-        .post(
-          this.endpoint + "-validate",
-          this.mapper(Object.assign(this.payload))
-        )
+        .post(`store-multiple-vehicles/${this.payload.id}`, {
+          vehicles: dataToInsert,
+        })
         .then(({ data }) => {
           this.errors = [];
+          this.$emit("success","Vehicle has been added");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
         });
-
-      // }
-    },
-
-    tanentUpdateValidate() {
-      this.$axios
-        .post(
-          this.endpoint + "-update-validate/" + this.payload.id,
-          this.mapper(Object.assign(this.payload))
-        )
-        .then(({ data }) => {
-          this.errors = [];
-        })
-        .catch(({ response }) => {
-          this.handleErrorResponse(response);
-        });
-
-      // }
-    },
-
-    submit() {
-      this.$axios
-        .post(this.endpoint, this.mapper(Object.assign(this.payload)))
-        .then(({ data }) => {
-          this.handleSuccessResponse("Tanent inserted successfully");
-        })
-        .catch(({ response }) => {
-          this.handleErrorResponse(response);
-        });
-
-      // }
     },
     update_data() {
       this.$axios
@@ -1054,7 +780,8 @@ export default {
           this.mapper(Object.assign(this.payload))
         )
         .then(({ data }) => {
-          this.handleSuccessResponse("Tanent updated successfully");
+          this.errors = [];
+          this.$emit("success","Tanent has been updated");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
@@ -1078,7 +805,8 @@ export default {
       this.$axios
         .post("/members-update/" + member.id, formData)
         .then(({ data }) => {
-          this.handleSuccessResponse("Member updated successfully");
+          this.errors = [];
+          this.$emit("success","Member has been updated");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
@@ -1100,31 +828,19 @@ export default {
           })
           .catch((err) => console.log(err));
     },
-
-    handleSuccessResponse(message) {
-      this.errors = [];
-      this.snackbar = true;
-      this.response = message;
-      this.memberdialog = false;
-      this.dialog = false;
-      this.dialog = true;
-      this.getDataFromApi();
-    },
     handleErrorResponse(response) {
       if (!response) {
-        this.snackbar = true;
-        this.response = "An unexpected error occurred.";
+        alert("An unexpected error occurred.");
         return;
       }
-      let { status, data, statusText } = response;
+      let { status, data } = response;
 
       if (status && status == 422) {
         this.errors = data.errors;
         return;
       }
 
-      this.snackbar = true;
-      this.response = statusText;
+      alert("An unexpected error occurred.");
     },
   },
 };
