@@ -1,7 +1,7 @@
 <template>
   <v-dialog persistent v-model="dialog" width="900">
     <template v-slot:activator="{ on, attrs }">
-      <span style="cursor: pointer" text v-bind="attrs" v-on="on">
+      <span style="cursor: pointer" v-bind="attrs" v-on="on">
         <v-btn dense small class="primary" text title="Add Company">
           Create Tanent
           <v-icon right dark>mdi-plus-circle-outline</v-icon>
@@ -15,6 +15,10 @@
         </v-stepper-step>
         <v-divider></v-divider>
         <v-stepper-step :complete="step > 2" step="2" editable>
+          Vehicle Info
+        </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step :complete="step > 3" step="3" editable>
           Documentation
         </v-stepper-step>
       </v-stepper-header>
@@ -54,7 +58,6 @@
                 >
                 </v-autocomplete>
               </v-col>
-
               <v-col cols="6">
                 <v-autocomplete
                   @change="getRoomNumber(payload.room_id)"
@@ -148,6 +151,7 @@
                   <v-date-picker
                     v-model="payload.date_of_birth"
                     @input="menu3 = false"
+                    no-title scrollable
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -178,38 +182,6 @@
                   :error-messages="
                     errors && errors.whatsapp_number
                       ? errors.whatsapp_number[0]
-                      : ''
-                  "
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="6">
-                <v-text-field
-                  label="Car Number"
-                  :readonly="disabled"
-                  v-model="payload.car_number"
-                  dense
-                  class="text-center"
-                  outlined
-                  :hide-details="!errors.car_number"
-                  :error-messages="
-                    errors && errors.car_number ? errors.car_number[0] : ''
-                  "
-                ></v-text-field>
-              </v-col>
-
-              <v-col cols="6">
-                <v-text-field
-                  label="Parking Number"
-                  :readonly="disabled"
-                  v-model="payload.parking_number"
-                  dense
-                  class="text-center"
-                  outlined
-                  :hide-details="!errors.parking_number"
-                  :error-messages="
-                    errors && errors.parking_number
-                      ? errors.parking_number[0]
                       : ''
                   "
                 ></v-text-field>
@@ -380,6 +352,78 @@
       </v-stepper-content>
 
       <v-stepper-content step="2">
+        <v-container>
+          <v-row no-gutters>
+            <v-col cols="2">
+              <v-icon color="primary" @click="addItem"
+                >mdi-plus-circle-outline</v-icon
+              >
+            </v-col>
+          </v-row>
+          <v-row
+            class="mt-0"
+            v-for="(vehicles, index) in vehicles"
+            :key="index"
+          >
+            <v-col cols="5">
+              <v-text-field
+                label="Car Number"
+                :readonly="disabled"
+                v-model="vehicles.car_number"
+                dense
+                class="text-center"
+                outlined
+                :hide-details="!errors.car_number"
+                :error-messages="
+                  errors && errors.car_number ? errors.car_number[0] : ''
+                "
+              ></v-text-field>
+            </v-col>
+            <v-col cols="5">
+              <v-autocomplete
+                label="Parking Number"
+                outlined
+                :readonly="disabled"
+                v-model="vehicles.parking_id"
+                :items="[
+                  {
+                    id: 1,
+                    parking_number: `P1`,
+                  },
+                  {
+                    id: 2,
+                    parking_number: `P2`,
+                  },
+                ]"
+                dense
+                item-text="parking_number"
+                item-value="id"
+                :hide-details="!errors.parking_number"
+                :error-messages="
+                  errors && errors.parking_number
+                    ? errors.parking_number[0]
+                    : ''
+                "
+              >
+              </v-autocomplete>
+            </v-col>
+
+            <v-col cols="2">
+              <v-icon color="red" @click="deleteItem(index)"
+                >mdi-close-circle-outline</v-icon
+              >
+            </v-col>
+          </v-row>
+        </v-container>
+        <v-row>
+          <v-col class="text-right my-1">
+            <v-btn @click="dialog = false">close</v-btn>
+            <v-btn class="primary" @click="vehicleValidate">Next</v-btn>
+          </v-col>
+        </v-row>
+      </v-stepper-content>
+
+      <v-stepper-content step="3">
         <!-- Step 2 Content -->
         <v-row>
           <v-col v-for="(document, index) in documents" :key="index" cols="6">
@@ -435,6 +479,7 @@ export default {
       { label: "License", key: "license_doc" },
       { label: "Other", key: "others_doc" },
     ],
+    vehicles: [{ car_number: "", parking_id: "" }],
     imagePreview: "/no-profile-image.jpg",
     setImagePreview: null,
     imageMemberPreview: "/no-profile-image.jpg",
@@ -619,25 +664,11 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     addItem() {
-      this.disabled = false;
-      this.formAction = "Create";
-      this.dialog = true;
-      this.payload = {};
-      this.setImagePreview = "/no-profile-image.jpg";
+      this.vehicles.push({ car_number: "", parking_id: "" });
     },
 
-    deleteItem(item) {
-      confirm(
-        "Are you sure you wish to delete , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .delete(`${this.endpoint}/${item.id}`)
-          .then(({ data }) => {
-            this.getDataFromApi();
-            this.snackbar = true;
-            this.response = "Record deleted successfully";
-          })
-          .catch((err) => console.log(err));
+    deleteItem(index) {
+      this.vehicles.splice(index, 1);
     },
     close() {
       this.dialog = false;
@@ -740,17 +771,50 @@ export default {
       // }
     },
 
+    vehicleValidate() {
+      this.$axios
+        .post("vehicle-validate", { vehicles: this.vehicles })
+        .then(({ data }) => {
+          this.errors = [];
+          this.nextStep();
+        })
+        .catch(({ response }) => {
+          this.handleErrorResponse(response);
+        });
+    },
+
     submit() {
       this.$axios
         .post(this.endpoint, this.mapper(Object.assign(this.payload)))
         .then(({ data }) => {
-          this.handleSuccessResponse("Tanent inserted successfully");
+          this.storeVehicle(data.record.id);
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
         });
 
       // }
+    },
+
+    storeVehicle(id) {
+      let dataToInsert = [];
+
+      this.vehicles.forEach(({ car_number, parking_id }) => {
+        dataToInsert.push({
+          tanent_id: id,
+          car_number: car_number,
+          parking_id: parking_id,
+        });
+      });
+      this.$axios
+        .post("vehicle-store", { vehicles: dataToInsert })
+        .then(({ data }) => {
+          this.errors = [];
+          this.handleSuccessResponse("Tanent inserted successfully");
+        })
+        .catch(({ response }) => {
+          this.handleErrorResponse(response);
+        });
     },
     handleSuccessResponse(message) {
       this.errors = [];

@@ -4,7 +4,7 @@
       style="width: 150px; height: 150px; border-radius: 50%; margin: 0 auto"
       :src="imagePreview"
     ></v-img>
-    <v-btn class="mt-2" style="width: 100%" small @click="onpick_attachment"
+    <v-btn outlined block color="primary" class="mt-2" small @click="onpick_attachment"
       >{{ !upload.name ? "Upload" : "Change" }}
       <v-icon right dark>mdi-cloud-upload</v-icon>
     </v-btn>

@@ -13,6 +13,10 @@
         </v-stepper-step>
         <v-divider></v-divider>
         <v-stepper-step :complete="step > 2" step="2" editable>
+          Vehicle Info
+        </v-stepper-step>
+        <v-divider></v-divider>
+        <v-stepper-step :complete="step > 3" step="3" editable>
           Documentation
         </v-stepper-step>
       </v-stepper-header>
@@ -28,8 +32,10 @@
                     </v-toolbar>
                   </v-col> -->
               <v-col cols="12" class="text-center">
-                <v-avatar size="150">
-                  <v-img :src="item.profile_picture"></v-img>
+                <v-avatar size="150" style="border: 1px solid #6946dd">
+                  <v-img
+                    :src="item.profile_picture || `/no-profile-image.jpg`"
+                  ></v-img>
                 </v-avatar>
                 <div class="mt-1">
                   {{ item.first_name }} {{ item.last_name }}
@@ -105,7 +111,13 @@
             </v-row>
           </v-col>
           <v-col cols="8" class="align-center">
-            <v-alert outlined color="primary" dense class="text-center" v-if="!item.members.length">
+            <v-alert
+              outlined
+              color="primary"
+              dense
+              class="text-center"
+              v-if="!item.members.length"
+            >
               No member added yet
             </v-alert>
             <TanentMembers v-else :members="item.members" />
@@ -114,6 +126,30 @@
       </v-stepper-content>
 
       <v-stepper-content step="2">
+        <v-container>
+          <v-alert
+            v-if="!item.vehicles.length"
+            outlined
+            color="primary"
+            dense
+            class="text-center"
+          >
+            No Vehicle info found
+          </v-alert>
+          <table v-else>
+            <tr>
+              <td class="text-h6">Car Number</td>
+              <td class="text-h6">Parking Number</td>
+            </tr>
+            <tr v-for="(vehicles, index) in item.vehicles" :key="index">
+              <td>{{ vehicles.car_number }}</td>
+              <td>{{ vehicles.parking_id }}</td>
+            </tr>
+          </table>
+        </v-container>
+      </v-stepper-content>
+
+      <v-stepper-content step="3">
         <v-container>
           <v-row>
             <v-col cols="6">
@@ -147,8 +183,11 @@ export default {
     return {
       step: 1,
       dialog: false,
-      disabled: true,
     };
   },
 };
 </script>
+
+<style scoped>
+@import url("../../assets/tableStyles.css");
+</style>

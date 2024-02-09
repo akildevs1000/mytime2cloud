@@ -164,7 +164,7 @@
 
     <v-tab-item>
       <v-container class="mt-5">
-        <v-row>
+        <v-row v-if="contact_payload && contact_payload.id">
           <v-col md="6" cols="12" sm="12" dense>
             <v-text-field
               label="Person Name"
@@ -294,7 +294,6 @@ export default {
     show_password_confirm: false,
     current_password_show: false,
     vertical: false,
-    id: "",
     loading: false,
     preloader: true,
     upload: {

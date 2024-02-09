@@ -55,7 +55,7 @@ class StoreRequest extends FormRequest
             'ip' => 'required|ip',
             'function' => 'required',
             'utc_time_zone' => 'required',
-            'branch_id' => 'required',
+            'branch_id' => 'nullable',
             //'camera_save_images' => 'required'
 
         ];
