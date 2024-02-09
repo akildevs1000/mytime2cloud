@@ -5,7 +5,7 @@ namespace App\Http\Requests\Community\Tanent;
 use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -29,22 +29,22 @@ class StoreRequest extends FormRequest
 
         return [
 
-            'room_id' => [
-                'required',
-                Rule::unique('tanents')->where(function ($query) use ($room_id, $companyId) {
-                    return $query->where('room_id', $room_id)
-                        ->where('company_id', $companyId);
-                }),
-            ],
+            // 'room_id' => [
+            //     'required',
+            //     Rule::unique('tanents')->where(function ($query) use ($room_id, $companyId) {
+            //         return $query->where('room_id', $room_id)
+            //             ->where('company_id', $companyId);
+            //     }),
+            // ],
 
 
             "full_name" => "nullable|min:3|max:20",
             "first_name" => "required|min:3|max:20",
             "last_name" => "required|min:3|max:20",
-            "phone_number" => "required|min:10|max:20",
+            "phone_number" => "nullable|min:10|max:20",
             "floor_id" => "required",
-            "start_date" => "required",
-            "end_date" => "required",
+            "start_date" => "nullable",
+            "end_date" => "nullable",
             "profile_picture" => "nullable",
             "system_user_id" => "nullable",
             "email" => "nullable",
