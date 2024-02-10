@@ -8,53 +8,46 @@
             {{-- <p class="page"> </p> --}}
             <p></p>
             @php
-                $p = count($data);
-                if ($p <= 1) {
-                    echo '<span></span>';
-                } else {
-                    for ($a = 1; $a <= $p; $a++) {
-                        echo '<span></span>';
-                    }
-            } @endphp
+            $p = count($data);
+            if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
+                <div id="pageNumbers">
+                    <div class="page-number" style="font-size: 9px"></div>
+                </div>
         </div>
-        <div id="pageNumbers">
-            <div class="page-number" style="font-size: 9px"></div>
-        </div>
-    </div>
-    <footer id="page-bottom-line" style="padding-top: 100px!important">
-        <hr style="width: 100%;">
-        <table class="footer-main-table">
-            <tr style="border :none">
-                <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
-                <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
-                <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
-                </td>
-                <td style="text-align: right;border :none;">
-                    <b>Powered by</b>: <span style="color:blue">
-                        <a href="{{ env('APP_URL') }}" target="_blank">{{ env('APP_NAME') }}</a>
-                    </span>
-                </td>
-                <td style="text-align: right;border :none">
-                    Printed on : {{ date('d-M-Y ') }}
-                </td>
-            </tr>
-        </table>
-    </footer>
-    @php
+        <footer id="page-bottom-line" style="padding-top: 100px!important">
+            <hr style="width: 100%;">
+            <table class="footer-main-table">
+                <tr style="border :none">
+                    <td style="text-align: left;border :none"><b>Device</b>: Main Entrance = MED, Back Entrance = BED</td>
+                    <td style="text-align: left;border :none"><b>Shift Type</b>: Manual = MA, Auto = AU, NO = NO</td>
+                    <td style="text-align: left;border :none"><b>Shift</b>: Morning = Mor, Evening = Eve, Evening2 = Eve2
+                    </td>
+                    <td style="text-align: right;border :none;">
+                        <b>Powered by</b>: <span style="color:blue">
+                            <a href="{{ env('APP_URL') }}" target="_blank">{{ env('APP_NAME') }}</a>
+                        </span>
+                    </td>
+                    <td style="text-align: right;border :none">
+                        Printed on : {{ date('d-M-Y ') }}
+                    </td>
+                </tr>
+            </table>
+        </footer>
+        @php
         $statusColor = '';
         $i = 0;
-    @endphp
+        @endphp
 
-    <table class="main-table">
+        <table class="main-table">
 
-        @foreach ($data as $empID => $employee)
+            @foreach ($data as $empID => $employee)
             @php
-                $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
-                $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
-                $singleEmployee = $employee[key(reset($employee))][0]->employee;
-                // $empName = $singleEmployee->display_name ?? '';
-                $empName = $employee[key(reset($employee))][0]->employee->first_name ? $employee[key(reset($employee))][0]->employee->first_name . ' ' . $employee[key(reset($employee))][0]->employee->last_name : '';
-                $empFullName = $employee[key(reset($employee))][0]->employee->full_name;
+            $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
+            $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
+            $singleEmployee = $employee[key(reset($employee))][0]->employee;
+            // $empName = $singleEmployee->display_name ?? '';
+            $empName = $employee[key(reset($employee))][0]->employee->first_name ? $employee[key(reset($employee))][0]->employee->first_name . ' ' . $employee[key(reset($employee))][0]->employee->last_name : '';
+            $empFullName = $employee[key(reset($employee))][0]->employee->full_name;
 
             @endphp
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
@@ -105,11 +98,9 @@
                     <div class="col-12" style="text-align:center;height:85px;  ">
 
                         @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}"
-                                style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @else
-                            <img src="https://backend.mytime2cloud.com/upload/1697819664.png"
-                                style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        <img src="https://backend.mytime2cloud.com/upload/1697819664.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                         @endif
                     </div>
                     <div style="clear:both">
@@ -141,15 +132,15 @@
 
 
                     @if ($empFullName)
-                        <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
-                            <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                                <td style="border :none; padding:10px">
-                                    <b>Full Name:</b>
-                                    {{ $empFullName }}
-                                </td>
+                    <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <td style="border :none; padding:10px">
+                                <b>Full Name:</b>
+                                {{ $empFullName }}
+                            </td>
 
-                            </tr>
-                        </table>
+                        </tr>
+                    </table>
                     @endif
 
 
@@ -222,90 +213,90 @@
                             <td style="text-align: center; border :none;color:black"> </td>
                             {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}
                 </td> --}}
-                        </tr>
-                        <tr style="border: none">
-                            <th style="text-align: center; border :none" colspan="4">
-                                <hr>
-                            </th>
-                        </tr>
-                    </table>
-                    <br>
+            </tr>
+            <tr style="border: none">
+                <th style="text-align: center; border :none" colspan="4">
+                    <hr>
+                </th>
+            </tr>
+        </table>
+        <br>
+        </td>
+        </tr>
+
+
+
+        <tr style="text-align: left;font-weight:bold;margin-top:20px;width:100%">
+            <td style="text-align:  left;width:10px"> # </td>
+            <td colspan="2" style="text-align:  center; "> Date </td>
+
+            <!-- <td style="text-align:  center;width:80px"> Employee </td> -->
+            <td colspan="2" style="text-align:  center; "> Shift </td>
+
+            <td style="text-align:  center; "> In1 </td>
+            <td style="text-align:  center;width:40px"> Out1 </td>
+
+            <td style="text-align:  center;width:40px"> In2 </td>
+            <td style="text-align:  center;width:40px"> Out2 </td>
+
+            <td style="text-align:  center;width:40px"> In3 </td>
+            <td style="text-align:  center;width:40px"> Out3 </td>
+
+            <td style="text-align:  center;width:40px"> In4 </td>
+            <td style="text-align:  center;width:40px"> Out4 </td>
+
+            <td style="text-align:  center;width:40px"> In5 </td>
+            <td style="text-align:  center;width:40px"> Out5 </td>
+
+            <td style="text-align:  center;width:40px"> In6 </td>
+            <td style="text-align:  center;width:40px"> Out6 </td>
+            <td style="text-align:  center;width:40px"> In7 </td>
+            <td style="text-align:  center;width:40px"> Out7 </td>
+
+            <td style="text-align:  center; "> Total Hours </td>
+            <td style="text-align:  center;width:40px"> OT </td>
+            <td style="text-align:  center;width:40px"> Status </td>
+
+        </tr>
+
+        @foreach ($employee as $date)
+        @php
+        $employee = $date[0];
+        if ($employee->status == 'P') {
+        $statusColor = 'green';
+        } elseif ($employee->status == 'A') {
+        $statusColor = 'red';
+        } elseif ($employee->status == 'M') {
+        $statusColor = 'orange';
+        } elseif ($employee->status == 'O') {
+        $statusColor = 'gray';
+        } elseif ($employee->status == 'L') {
+        $statusColor = 'blue';
+        } elseif ($employee->status == 'H') {
+        $statusColor = 'pink';
+        } elseif ($employee->status == '---') {
+        $statusColor = '#f34100ed';
+        }
+        @endphp
+
+
+
+        @php
+        $pic = getcwd() . '/no-profile-image.jpg';
+
+        if ($employee->employee->profile_picture) {
+        $pic = getcwd() . '/media/employee/profile_picture/' . $employee->employee->profile_picture_raw;
+        }
+
+        @endphp
+
+        <tbody>
+            <tr style="text-align:  center">
+                <td>{{ ++$i }}</td>
+                <td colspan="2" style="text-align:  center;">{{ $employee->date ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
                 </td>
-            </tr>
-
-
-
-            <tr style="text-align: left;font-weight:bold;margin-top:20px;width:100%">
-                <td style="text-align:  left;width:10px"> # </td>
-                <td colspan="2" style="text-align:  center; "> Date </td>
-
-                <!-- <td style="text-align:  center;width:80px"> Employee </td> -->
-                <td colspan="2" style="text-align:  center; "> Shift </td>
-
-                <td style="text-align:  center; "> In1 </td>
-                <td style="text-align:  center;width:40px"> Out1 </td>
-
-                <td style="text-align:  center;width:40px"> In2 </td>
-                <td style="text-align:  center;width:40px"> Out2 </td>
-
-                <td style="text-align:  center;width:40px"> In3 </td>
-                <td style="text-align:  center;width:40px"> Out3 </td>
-
-                <td style="text-align:  center;width:40px"> In4 </td>
-                <td style="text-align:  center;width:40px"> Out4 </td>
-
-                <td style="text-align:  center;width:40px"> In5 </td>
-                <td style="text-align:  center;width:40px"> Out5 </td>
-
-                <td style="text-align:  center;width:40px"> In6 </td>
-                <td style="text-align:  center;width:40px"> Out6 </td>
-                <td style="text-align:  center;width:40px"> In7 </td>
-                <td style="text-align:  center;width:40px"> Out7 </td>
-
-                <td style="text-align:  center; "> Total Hours </td>
-                <td style="text-align:  center;width:40px"> OT </td>
-                <td style="text-align:  center;width:40px"> Status </td>
-
-            </tr>
-
-            @foreach ($employee as $date)
-                @php
-                    $employee = $date[0];
-                    if ($employee->status == 'P') {
-                        $statusColor = 'green';
-                    } elseif ($employee->status == 'A') {
-                        $statusColor = 'red';
-                    } elseif ($employee->status == 'M') {
-                        $statusColor = 'orange';
-                    } elseif ($employee->status == 'O') {
-                        $statusColor = 'gray';
-                    } elseif ($employee->status == 'L') {
-                        $statusColor = 'blue';
-                    } elseif ($employee->status == 'H') {
-                        $statusColor = 'pink';
-                    } elseif ($employee->status == '---') {
-                        $statusColor = '#f34100ed';
-                    }
-                @endphp
-
-
-
-                @php
-                    $pic = getcwd() . '/no-profile-image.jpg';
-
-                    if ($employee->employee->profile_picture) {
-                        $pic = getcwd() . '/media/employee/profile_picture/' . $employee->employee->profile_picture_raw;
-                    }
-
-                @endphp
-
-                <tbody>
-                    <tr style="text-align:  center">
-                        <td>{{ ++$i }}</td>
-                        <td colspan="2" style="text-align:  center;">{{ $employee->date ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
-                        </td>
-                        <!-- <td>
+                <!-- <td>
                     <div style="width:20px;float:left; margin-right:5px">
                         <img style="
                   border-radius: 50%;
@@ -324,195 +315,192 @@
 
 
                 </td> -->
-                        <td colspan="2" style="text-align:  center;">
-                            <div>
-                                {{ $employee->schedule->shift->on_duty_time }} -
-                                {{ $employee->schedule->shift->off_duty_time }}
-                                <div class="secondary-value" style="font-size:6px">
-                                    {{ $employee->schedule->shift->name }}
-                                </div>
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[0]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[0]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[1]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[1]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[2]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[2]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[3]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[3]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[4]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[4]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
+                <td colspan="2" style="text-align:  center;">
+                    <div>
+                        @if ($employee->schedule)
+                        {{ $employee->schedule->shift->on_duty_time }} -
+                        {{ $employee->schedule->shift->off_duty_time }}
+                        <div class="secondary-value" style="font-size:6px">
+                            {{ $employee->schedule->shift->name }}
+                        </div>
+                        @endif
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[0]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[0]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[1]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[1]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[2]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[2]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[3]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[3]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[4]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[4]['device_out'] ?? '---' }}
+                    </div>
+                </td>
 
-                        <td style="text-align:  center;"> {{ $employee->logs[5]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[5]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[5]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[5]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[6]['in'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[6]['device_in'] ?? '---' }}
-                            </div>
-                        </td>
-                        <td style="text-align:  center;"> {{ $employee->logs[6]['out'] ?? '---' }}
-                            <div class="secondary-value" style="font-size:6px">
-                                {{ $employee->logs[6]['device_out'] ?? '---' }}
-                            </div>
-                        </td>
-
-
-                        <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
-                        <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
-                        <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employee->status ?? '---' }}
+                <td style="text-align:  center;"> {{ $employee->logs[5]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[5]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[5]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[5]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[6]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[6]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[6]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[6]['device_out'] ?? '---' }}
+                    </div>
+                </td>
 
 
+                <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
+                <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
+                <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employee->status ?? '---' }}
 
 
-                            <div class="secondary-value" style="font-size:6px">
-                                @if ($employee['shift'] && $employee->status == 'P')
-                                    @php
-                                        $shiftWorkingHours = $employee['shift']['working_hours'];
-                                        $employeeHours = $employee['total_hrs'];
 
-                                        if ($shiftWorkingHours !== '' && $employeeHours !== '' && $shiftWorkingHours !== '---' && $employeeHours !== '---') {
-                                            [$hours, $minutes] = explode(':', $shiftWorkingHours);
-                                            $shiftWorkingHours = $hours * 60 + $minutes;
 
-                                            [$hours, $minutes] = explode(':', $employeeHours);
-                                            $employeeHours = $hours * 60 + $minutes;
+                    <div class="secondary-value" style="font-size:6px">
+                        @if ($employee['shift'] && $employee->status == 'P')
+                        @php
+                        $shiftWorkingHours = $employee['shift']['working_hours'];
+                        $employeeHours = $employee['total_hrs'];
 
-                                            if ($employeeHours < $shiftWorkingHours) {
-                                                echo 'Short Shift';
-                                            }
-                                    } @endphp
-                                @endif
-                            </div>
+                        if ($shiftWorkingHours !== '' && $employeeHours !== '' && $shiftWorkingHours !== '---' && $employeeHours !== '---') {
+                        [$hours, $minutes] = explode(':', $shiftWorkingHours);
+                        $shiftWorkingHours = $hours * 60 + $minutes;
+
+                        [$hours, $minutes] = explode(':', $employeeHours);
+                        $employeeHours = $hours * 60 + $minutes;
+
+                        if ($employeeHours < $shiftWorkingHours) { echo 'Short Shift' ; } } @endphp @endif </div>
 
 
 
 
 
-                        </td>
-                    </tr>
-                </tbody>
-            @endforeach
-            <tr class="my-break">
-                <td colspan="21" style="border: none;"></td>
+                </td>
             </tr>
-            @php $i = 0; @endphp
+        </tbody>
         @endforeach
-    </table>
-    @php
+        <tr class="my-break">
+            <td colspan="21" style="border: none;"></td>
+        </tr>
+        @php $i = 0; @endphp
+        @endforeach
+        </table>
+        @php
 
         function getStatus($employeeData)
         {
-            $countA = 0;
-            $countP = 0;
-            $countM = 0;
-            $countO = 0;
-            $countL = 0;
-            $countH = 0;
+        $countA = 0;
+        $countP = 0;
+        $countM = 0;
+        $countO = 0;
+        $countL = 0;
+        $countH = 0;
 
-            foreach ($employeeData as $employee) {
-                if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-                    throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-                }
-                $status = $employee[0]['status'];
-                if ($status == 'A') {
-                    $countA++;
-                } elseif ($status == 'P') {
-                    $countP++;
-                } elseif ($status == 'M') {
-                    $countM++;
-                } elseif ($status == 'O') {
-                    $countO++;
-                } elseif ($status == 'L') {
-                    $countL++;
-                } elseif ($status == 'H') {
-                    $countH++;
-                }
-            }
-            return [
-                'A' => $countA,
-                'P' => $countP,
-                'M' => $countM,
-                'O' => $countO,
-                'L' => $countL,
-                'H' => $countH,
-            ];
+        foreach ($employeeData as $employee) {
+        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
+        }
+        $status = $employee[0]['status'];
+        if ($status == 'A') {
+        $countA++;
+        } elseif ($status == 'P') {
+        $countP++;
+        } elseif ($status == 'M') {
+        $countM++;
+        } elseif ($status == 'O') {
+        $countO++;
+        } elseif ($status == 'L') {
+        $countL++;
+        } elseif ($status == 'H') {
+        $countH++;
+        }
+        }
+        return [
+        'A' => $countA,
+        'P' => $countP,
+        'M' => $countM,
+        'O' => $countO,
+        'L' => $countL,
+        'H' => $countH,
+        ];
         }
 
         function getTotalHours($employeeData, $type)
         {
-            if (!is_array($employeeData)) {
-                throw new InvalidArgumentException('Invalid employee data: must be an array');
-            }
-            $totalMinutes = 0;
-            foreach ($employeeData as $employee) {
-                if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-                    throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-                }
-                $time = $employee[0][$type];
-                if ($time != '---') {
-                    $parts = explode(':', $time);
-                    $hours = intval($parts[0]);
-                    $minutes = intval($parts[1]);
-                    $totalMinutes += $hours * 60 + $minutes;
-                }
-            }
-
-            $hours = floor($totalMinutes / 60);
-            $minutes = $totalMinutes % 60;
-
-            return sprintf('%02d:%02d', $hours, $minutes);
+        if (!is_array($employeeData)) {
+        throw new InvalidArgumentException('Invalid employee data: must be an array');
+        }
+        $totalMinutes = 0;
+        foreach ($employeeData as $employee) {
+        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
+        }
+        $time = $employee[0][$type];
+        if ($time != '---') {
+        $parts = explode(':', $time);
+        $hours = intval($parts[0]);
+        $minutes = intval($parts[1]);
+        $totalMinutes += $hours * 60 + $minutes;
+        }
         }
 
-    @endphp
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+
+        return sprintf('%02d:%02d', $hours, $minutes);
+        }
+
+        @endphp
 
 </body>
 <style>
