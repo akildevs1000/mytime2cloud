@@ -132,11 +132,12 @@ class AttendanceLog extends Model
                 $q->where('company_id', $request->company_id);
             })
             ->when($request->from_date, function ($query) use ($request) {
-                return $query->whereDate('LogTime', '>=', $request->from_date);
+                return $query->where('LogTime', '>=', $request->from_date);
             })
             ->when($request->to_date, function ($query) use ($request) {
-                return $query->whereDate('LogTime', '<=', $request->to_date);
+                return $query->where('LogTime', '<=',   date("Y-m-d", strtotime($request->to_date . " +1 day")));
             })
+
 
             ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
                 $q->where(function ($query) use ($request) {
