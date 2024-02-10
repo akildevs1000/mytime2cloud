@@ -9,13 +9,6 @@ class Member extends Model
 {
     use HasFactory;
 
-    public static $member_types = [
-        'Family Member',
-        'Relative',
-        'Maid',
-        'Visitor',
-    ];
-
     protected $guarded = [];
 
     protected $appends = [
@@ -24,7 +17,7 @@ class Member extends Model
 
     public function getProfilePictureNameAttribute()
     {
-        return explode("community/profile_picture/", $this->profile_picture)[1] ?? "";
+       return explode("community/profile_picture/" , $this->profile_picture)[1] ?? "";
     }
 
     public function getProfilePictureAttribute($value)

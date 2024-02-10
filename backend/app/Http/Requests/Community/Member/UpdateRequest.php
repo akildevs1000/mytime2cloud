@@ -27,9 +27,8 @@ class UpdateRequest extends FormRequest
             'full_name' => 'required|string|max:255',
             'phone_number' => 'nullable',
             'age' => 'required|string|max:255',
+            'relation' => 'required|string|max:255',
             'profile_picture' => 'nullable',
-            'member_type' => 'required',
-            'nationality' => 'required',
         ];
     }
 }
