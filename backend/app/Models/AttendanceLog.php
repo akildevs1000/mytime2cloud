@@ -76,6 +76,10 @@ class AttendanceLog extends Model
     {
         return $this->belongsTo(Visitor::class, "UserID", "system_user_id")->with("zone");
     }
+    public function tenant()
+    {
+        return $this->belongsTo(Visitor::class, "UserID", "system_user_id")->with("zone");
+    }
 
     public function filter($request)
     {

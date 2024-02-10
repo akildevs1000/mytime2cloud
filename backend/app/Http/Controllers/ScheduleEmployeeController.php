@@ -513,6 +513,10 @@ class ScheduleEmployeeController extends Controller
             // ->whereHas('schedule.shift_type', function ($q) use ($request) {
             //     $q->where('id', '=', $request->shift_type_id);
             // })
+            ->when($request->filled('branch_id'), function ($q) use ($request) {
+
+                $q->where('branch_id', $request->branch_id);
+            })
             ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
