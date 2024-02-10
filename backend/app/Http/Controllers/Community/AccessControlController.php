@@ -17,32 +17,37 @@ class AccessControlController extends Controller
         return $this->processFilters($request)->paginate($request->per_page);
     }
 
-    public function access_control_report_print_pdf(Request $request)
+    public function ReportPrint(Request $request)
     {
-        $data =  $this->processFilters($request)->get()->toArray();
+        $data = $this->processFilters($request)->get()->toArray();
 
         if ($request->debug) return $data;
 
-        return Pdf::loadView("pdf.access_control_reports.custom", [
-            "data" => $data,
+        $chunks = array_chunk($data, 10);
+
+        return Pdf::setPaper('a4', 'landscape')->loadView('pdf.community.report', [
+            "chunks" => $chunks,
             "company" => Company::whereId(request("company_id") ?? 0)->first(),
-            "params" => $request->all()
+            "params" => $request->all(),
+
         ])->stream();
     }
 
-    public function access_control_report_download_pdf(Request $request)
+    public function ReportDownload(Request $request)
     {
-        $data =  $this->processFilters($request)->get()->toArray();
+        $data = $this->processFilters($request)->get()->toArray();
 
         if ($request->debug) return $data;
 
-        return Pdf::loadView("pdf.access_control_reports.custom", [
-            "data" => $data,
+        $chunks = array_chunk($data, 10);
+
+        return Pdf::setPaper('a4', 'landscape')->loadView('pdf.community.report', [
+            "chunks" => $chunks,
             "company" => Company::whereId(request("company_id") ?? 0)->first(),
-            "params" => $request->all()
+            "params" => $request->all(),
+
         ])->download();
     }
-
 
 
     public function processFilters($request)

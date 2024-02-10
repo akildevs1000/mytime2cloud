@@ -2,7 +2,7 @@
   <div v-if="can(`attendance_report_view`)">
     <v-card elevation="0" class="mt-2">
       <v-toolbar dense flat>
-        <span class="headline black--text"> Access Control Reports </span>
+        <span class="headline black--text"> Community Report </span>
       </v-toolbar>
 
       <v-card-text class="py-3">
@@ -298,7 +298,7 @@ export default {
     loading: false,
     time_menu: false,
     Model: "Attendance Reports",
-    endpoint: "access_control_report",
+    endpoint: "community_report",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -609,7 +609,7 @@ export default {
           )
           .join("&");
 
-        const reportUrl = `${backendUrl}/accessControlReport_${type.toLowerCase()}?${queryString}&include_device_types[]=all&include_device_types[]=Access Control`;
+        const reportUrl = `${backendUrl}/community_report_${type.toLowerCase()}?${queryString}&include_device_types[]=all&include_device_types[]=Access Control`;
 
         const report = document.createElement("a");
         report.setAttribute("href", reportUrl);
