@@ -20,142 +20,7 @@
           </v-container>
         </v-card>
       </v-dialog>
-      <v-dialog persistent v-model="memberDialogBox" width="800">
-        <v-card>
-          <v-toolbar dense class="popup_background" flat>
-            {{ formAction }} Member
 
-            <v-spacer></v-spacer>
-            <!-- <span v-if="formAction !== 'View'">
-              <v-icon
-                class="ml-2 primary--text"
-                color="primary"
-                @click="addMemberItem"
-              >
-                mdi mdi-plus-circle</v-icon
-              >
-            </span> -->
-          </v-toolbar>
-
-          <v-container>
-            <v-row no-gutters>
-              <v-col cols="4" class="text-center pt-3">
-                <v-avatar size="150" style="border: 1px solid #6946dd">
-                  <v-img :src="imageMemberPreview"></v-img>
-                </v-avatar>
-              </v-col>
-              <v-col cols="8" class="pt-2">
-                <v-row>
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Full Name"
-                      :readonly="disabled"
-                      v-model="member.full_name"
-                      dense
-                      class="text-center"
-                      outlined
-                      :hide-details="true"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-autocomplete
-                            label="Member Type"
-                            outlined
-                            :readonly="disabled"
-                            v-model="member.member_type"
-                            :items="member_types"
-                            dense
-                            :hide-details="!errors.member_type"
-                            :error-messages="
-                              errors && errors.member_type
-                                ? errors.member_type[0]
-                                : ''
-                            "
-                          >
-                          </v-autocomplete>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Age"
-                      :readonly="disabled"
-                      v-model="member.age"
-                      dense
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.age"
-                      :error-messages="
-                        errors && errors.age ? errors.age[0] : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Phone Number (optional)"
-                      :readonly="disabled"
-                      v-model="member.phone_number"
-                      dense
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.phone_number"
-                      :error-messages="
-                        errors && errors.phone_number
-                          ? errors.phone_number[0]
-                          : ''
-                      "
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-file-input
-                      v-if="!disabled"
-                      v-model="member.profile_picture"
-                      dense
-                      outlined
-                      prepend-icon=""
-                      append-icon="mdi-camera"
-                      label="Upload Photo"
-                      @change="previewMemberImage"
-                    ></v-file-input>
-                  </v-col>
-                  <v-col cols="6">
-                    <v-text-field
-                      label="Nationality"
-                      :readonly="disabled"
-                      v-model="member.nationality"
-                      dense
-                      class="text-center"
-                      outlined
-                      :hide-details="true"
-                    ></v-text-field>
-                  </v-col>
-                </v-row>
-              </v-col>
-            </v-row>
-          </v-container>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <div class="text-right">
-              <v-btn
-                small
-                color="grey white--text"
-                @click="memberDialogBox = false"
-              >
-                Close
-              </v-btn>
-
-              <v-btn
-                v-if="can('employee_create') && formAction == 'Create'"
-                small
-                :loading="loading"
-                color="primary"
-                @click="submitMembers"
-              >
-                submit sdfsfd
-              </v-btn>
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
 
@@ -165,163 +30,154 @@
       </v-snackbar>
       <div v-if="can(`employee_view`)">
         <v-card elevation="0">
-            <v-toolbar class="mb-2" dense flat>
-              <v-toolbar-title
-                ><span>{{ Model }}s </span></v-toolbar-title
-              >
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Reload"
-                >
-                  <v-icon class="ml-2" @click="clearFilters" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </span>
-              <v-spacer></v-spacer>
-              <!-- <span>
-                <v-btn
-                  dense
-                  x-small
-                  class="ma-0 px-0"
-                  :ripple="false"
-                  text
-                  title="Add Tanent"
-                  @click="addItem"
-                >
-                  <v-icon
-                    right
-                    size="x-large"
-                    dark
-                    v-if="can('employee_create')"
-                    >mdi-plus-circle</v-icon
-                  >
-                </v-btn>
-              </span> -->
-              <TanentCreate @success="getDataFromApi" />
-            </v-toolbar>
-            <v-data-table
-              dense
-              :headers="headers"
-              :items="data"
-              model-value="data.id"
-              :loading="loadinglinear"
-              :options.sync="options"
-              :footer-props="{
-                itemsPerPageOptions: [100, 500, 1000],
-              }"
-              class="elevation-1"
-              :server-items-length="totalRowsCount"
+          <v-toolbar class="mb-2" dense flat>
+            <v-toolbar-title
+              ><span>{{ Model }}s </span></v-toolbar-title
             >
-              <template v-slot:item.category="{ item }">
-                {{ item?.room?.room_category?.name }}
-              </template>
-              <template v-slot:header="{ props: { headers } }">
-                <tr v-if="isFilter">
-                  <td v-for="header in headers" :key="header.text">
-                    <v-container>
-                      <v-text-field
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        :hide-details="true"
-                        v-if="header.filterable && !header.filterSpecial"
-                        v-model="filters[header.value]"
-                        :id="header.value"
-                        @input="applyFilters(header.key, $event)"
-                        outlined
-                        dense
-                        autocomplete="off"
-                      ></v-text-field>
-                    </v-container>
-                  </td>
-                </tr>
-              </template>
-
-              <template v-slot:item.members="{ item }">
-                <v-icon color="primary" class="mx-1" @click="viewMember(item)">
-                  mdi-eye
-                </v-icon>
-                {{ item.members.length }}
-              </template>
-
-              <template
-                v-slot:item.full_name="{ item, index }"
-                style="width: 300px"
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
               >
-                <v-row no-gutters>
-                  <v-col
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
+            <v-spacer></v-spacer>
+            <TanentCreate @success="getDataFromApi" />
+          </v-toolbar>
+          <v-data-table
+            dense
+            :headers="headers"
+            :items="data"
+            model-value="data.id"
+            :loading="loadinglinear"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [100, 500, 1000],
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
+            <template v-slot:item.category="{ item }">
+              {{ item?.room?.room_category?.name }}
+            </template>
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      @click:clear="
+                        filters[header.value] = '';
+                        applyFilters();
+                      "
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
+                  </v-container>
+                </td>
+              </tr>
+            </template>
+
+            <template v-slot:item.members="{ item }">
+              <v-icon color="primary" class="mx-1" @click="viewMember(item)">
+                mdi-eye
+              </v-icon>
+              {{ item.members.length }}
+            </template>
+
+            <template
+              v-slot:item.full_name="{ item, index }"
+              style="width: 300px"
+            >
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
                     style="
-                      padding: 5px;
-                      padding-left: 0px;
+                      border-radius: 50%;
+                      height: 50px;
                       width: 50px;
                       max-width: 50px;
                     "
+                    :src="
+                      item.profile_picture
+                        ? item.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: 50px;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="
-                        item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
-                  </v-col>
-                  <v-col style="padding: 10px">
-                    <strong> {{ item.full_name }}</strong>
-                    <p>{{ item.phone_number }}</p>
-                  </v-col>
-                </v-row>
-              </template>
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong> {{ item.full_name }}</strong>
+                  <p>{{ item.phone_number }}</p>
+                </v-col>
+              </v-row>
+            </template>
 
-              <template v-slot:item.options="{ item }">
-                <v-menu bottom left>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                      <v-icon>mdi-dots-vertical</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list width="150" dense>
-                    <v-list-item @click="addMember(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-account </v-icon>
-                        Add Member(s)
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item>
-                      <v-list-item-title style="cursor: pointer">
-                        <TanentSingle :key="generateRandomId()" :item="item" />
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item>
-                      <v-list-item-title style="cursor: pointer">
-                        <TanentEdit :key="generateRandomId()" @success="handleEditSuccess" :item="item" />
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-            </v-data-table>
-          </v-card>
+            <template v-slot:item.options="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="150" dense>
+                  <v-list-item @click="addMember(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <TanentAddMember
+                        @success="handleEditSuccess"
+                        :item="{
+                          tanent_id: item.id,
+                          system_user_id: parseInt(item.system_user_id) + parseInt(item.members.length) + 1 ,
+                          company_id: item.company_id,
+                        }"
+                      />
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title style="cursor: pointer">
+                      <TanentSingle :key="generateRandomId()" :item="item" />
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title style="cursor: pointer">
+                      <TanentEdit
+                        :key="generateRandomId()"
+                        @success="handleEditSuccess"
+                        :item="item"
+                      />
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+        </v-card>
       </div>
     </div>
     <Preloader v-else />
@@ -588,7 +444,7 @@ export default {
       phone_number: null,
       age: null,
       member_type: null,
-      nationality:null,
+      nationality: null,
       tanent_id: 0,
     },
   }),
@@ -638,7 +494,7 @@ export default {
         phone_number: null,
         age: null,
         member_type: null,
-        nationality:null,
+        nationality: null,
         tanent_id: this.payload.id,
         company_id: this.$auth.user.company_id,
       });
@@ -817,7 +673,7 @@ export default {
             phone_number: null,
             age: null,
             member_type: null,
-            nationality:null,
+            nationality: null,
             tanent_id: id,
           });
         }
@@ -1013,7 +869,6 @@ export default {
     },
 
     update_member(member) {
-
       let formData = new FormData();
 
       if (member.profile_picture.name) {
