@@ -225,15 +225,10 @@ class Kernel extends ConsoleKernel
 
         }
 
-        // $schedule->call(function () {
-        //     exec('pm2 reload 20');
-        //     info("Log listener restart");
-        // })->dailyAt('00:00');
-
-        // $schedule->call(function () {
-        //     exec('pm2 reload 37');
-        //     info("Log listener restart");
-        // })->monthlyOn('00:00');
+        $schedule->call(function () {
+            exec('pm2 reload 20');
+            info("Log listener restart");
+        })->dailyAt('00:00');
 
         $schedule->call(function () {
             exec('pm2 reload 21');
