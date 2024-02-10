@@ -826,6 +826,7 @@
 export default {
   props: [
     "report_template",
+    "branch_id",
     "title",
     "shift_type_id",
     "headers",
@@ -1620,6 +1621,8 @@ export default {
       qs += `${path}`;
       qs += `?report_template=${this.report_template}`;
       qs += `&main_shift_type=${this.shift_type_id}`;
+      qs += `&branch_id=${this.payload.branch_id}`;
+
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
       qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
