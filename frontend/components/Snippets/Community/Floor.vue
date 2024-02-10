@@ -75,8 +75,7 @@
         </template>
       </v-snackbar>
       <div v-if="can(`employee_view`)">
-        <v-container>
-          <v-card elevation="0">
+        <v-card elevation="0">
             <v-toolbar class="mb-2" dense flat>
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
@@ -182,7 +181,6 @@
               </template>
             </v-data-table>
           </v-card>
-        </v-container>
       </div>
     </div>
     <Preloader v-else />

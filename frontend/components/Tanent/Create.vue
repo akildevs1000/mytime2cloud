@@ -90,7 +90,6 @@
                   "
                 ></v-text-field>
               </v-col>
-
               <v-col cols="6">
                 <v-text-field
                   label="Last Name"
@@ -105,7 +104,21 @@
                   "
                 ></v-text-field>
               </v-col>
-
+              <v-col cols="12">
+                <v-radio-group
+                  class="ma-0 px-2 pa-0"
+                  v-model="payload.gender"
+                  row
+                  :hide-details="!errors.gender"
+                  :error-messages="
+                    errors && errors.gender ? errors.gender[0] : ''
+                  "
+                >
+                  <v-radio label="Male" value="Male"></v-radio>
+                  <v-radio label="Female" value="Female"></v-radio>
+                  <v-radio label="Other" value="Other"></v-radio>
+                </v-radio-group>
+              </v-col>
               <v-col cols="6">
                 <v-text-field
                   label="Email"
@@ -120,7 +133,6 @@
                   "
                 ></v-text-field>
               </v-col>
-
               <v-col cols="6">
                 <v-menu
                   v-model="menu3"
@@ -151,7 +163,8 @@
                   <v-date-picker
                     v-model="payload.date_of_birth"
                     @input="menu3 = false"
-                    no-title scrollable
+                    no-title
+                    scrollable
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -271,6 +284,8 @@
                   <v-date-picker
                     v-model="payload.start_date"
                     @input="menu = false"
+                    no-title
+                    scrollable
                   ></v-date-picker>
                 </v-menu>
               </v-col>
@@ -302,6 +317,8 @@
                   <v-date-picker
                     v-model="payload.end_date"
                     @input="menu2 = false"
+                    no-title
+                    scrollable
                   ></v-date-picker>
                 </v-menu>
               </v-col>

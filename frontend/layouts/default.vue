@@ -216,6 +216,14 @@
         </v-list>
       </v-menu>
 
+      <v-btn icon plan @click="toggleTheme">
+        <v-icon
+          >mdi-{{
+            $vuetify.theme.dark ? "white-balance-sunny" : "moon-waning-crescent"
+          }}</v-icon
+        >
+      </v-btn>
+
       <v-btn
         v-if="getLoginType == 'company' || getLoginType == 'branch'"
         icon
@@ -798,6 +806,22 @@ export default {
     },
   },
   methods: {
+    toggleTheme() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+
+      if(!this.$vuetify.theme.dark) {
+        this.$vuetify.theme.themes.light = {
+          primary: "#6946dd", //violoet
+          accent: "#d8363a",
+          secondary: "#242424",
+          background: "#34444c",
+          main_bg: "#ECF0F4",
+          violet: "#6946dd",
+          popup_background: "#ecf0f4",
+        };
+      }
+
+    },
     updateTopmenu() {
       //update company Top menu
       //filter Display Modules From Company Settings
