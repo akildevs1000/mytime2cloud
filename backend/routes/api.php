@@ -41,6 +41,7 @@ include('community/tanent.php');
 include('community/member.php');
 include('community/community.php');
 include('community/report.php');
+include('community/dashboard.php');
 
 
 include('csv.php');

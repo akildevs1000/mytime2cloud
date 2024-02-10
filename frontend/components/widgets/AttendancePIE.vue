@@ -1,7 +1,9 @@
 <template>
   <v-card class="mb-5 rounded-md" elevation="1">
     <v-toolbar class="rounded-md" color="background" dense flat dark>
-      <v-toolbar-title><span> {{ Model }} </span></v-toolbar-title>
+      <v-toolbar-title
+        ><span> {{ Model }} </span></v-toolbar-title
+      >
       <!-- <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
@@ -23,7 +25,16 @@
       <v-spacer></v-spacer>
       <v-tooltip top color="primary">
         <template v-slot:activator="{ on, attrs }">
-          <v-btn to="/attendance_report" dense class="ma-0 px-0" x-small :ripple="false" text v-bind="attrs" v-on="on">
+          <v-btn
+            to="/attendance_report"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            v-bind="attrs"
+            v-on="on"
+          >
             <v-icon color="white" class="ml-2" dark>mdi mdi-eye-outline</v-icon>
           </v-btn>
         </template>
@@ -52,6 +63,9 @@ export default {
 
       series: [],
       chart: {
+        toolbar: {
+          show: false,
+        },
         width: 350, //200 //275
         type: "pie",
       },
@@ -77,6 +91,9 @@ export default {
           breakpoint: 480,
           options: {
             chart: {
+              toolbar: {
+                show: false,
+              },
               width: 250, //200 //275
             },
             legend: {
@@ -108,7 +125,9 @@ export default {
           this.data = data;
           this.chartOptions.colors = await data.map((e) => e.color);
           this.chartOptions.labels = await data.map((e) => e.title);
-          this.chartOptions.series = await data.map((e) => parseInt(e.calculated_value));
+          this.chartOptions.series = await data.map((e) =>
+            parseInt(e.calculated_value)
+          );
           new ApexCharts(
             document.querySelector("#AttendancePie"),
             this.chartOptions

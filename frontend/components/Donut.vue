@@ -11,35 +11,41 @@ export default {
       options: {
         title: {
           text: "DAILY ATTENDANCE REPORT",
-          align: "left"
+          align: "left",
         },
         colors: ["#A24FDD", "#6DFCCA", "#E78956", "#3A95D9"],
 
         series: [],
         chart: {
-          type: "donut"
+          toolbar: {
+            show: false,
+          },
+          type: "donut",
         },
         labels: [],
         dataLabels: {
           dropShadow: {
             blur: 3,
-            opacity: 0.8
-          }
+            opacity: 0.8,
+          },
         },
         responsive: [
           {
             breakpoint: 480,
             options: {
               chart: {
-                width: 200
+                toolbar: {
+                  show: false,
+                },
+                width: 200,
               },
               legend: {
-                position: "bottom"
-              }
-            }
-          }
-        ]
-      }
+                position: "bottom",
+              },
+            },
+          },
+        ],
+      },
     };
   },
   created() {
@@ -52,12 +58,11 @@ export default {
   },
   methods: {
     getTitle() {
-      this.options.labels = this.items.map(e => e.title);
+      this.options.labels = this.items.map((e) => e.title);
     },
     getValue() {
-      this.options.series = this.items.map(e => e.value);
-
-    }
-  }
+      this.options.series = this.items.map((e) => e.value);
+    },
+  },
 };
 </script>
