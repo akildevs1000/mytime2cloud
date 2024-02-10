@@ -14,6 +14,12 @@ Route::get('community_dashboard_Get_Counts_today_multi_general', [DashboardContr
 Route::get('community_dashboard_get_counts_today_hour_in_out', [DashboardController::class, "dashboardGetCountsTodayHourInOut"]);
 Route::get('community_dashboard_get_today_statistics', [DashboardController::class, "dashboardGetCountsTodayStatistics"]);
 Route::get('community_dashboard_get_assets_statistics', [DashboardController::class, "dashboardGetAssetsStatistics"]);
+Route::get('community_announcement_list', [DashboardController::class, "dashboardAnnouncementList"]);
+Route::get('community_dashboard_get_male_female_count', [DashboardController::class, "dashboardMaleFemaleCount"]);
+
+
+
+
 
 
 
