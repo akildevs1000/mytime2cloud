@@ -50,9 +50,11 @@ const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
   .split(",");
 const [m, d, y] = newDate.split("/");
 const formattedDate = `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`;
-const logFilePath = `../backend/storage/app/logs/backup/logs.csv`;
-const logFilePathRawData = `../backend/storage/app/logs/backup/logs-data.txt`;
-const logFilePathAlarm = `../backend/storage/app/alarm/backup/alarm-logs.csv`;
+const formattedMonth = `${m.padStart(2, 0)}-${y}`;
+
+const logFilePath = `../backend/storage/app/logs/backup/logs-${formattedMonth}.csv`;
+const logFilePathRawData = `../backend/storage/app/logs/backup/logs-data-${formattedMonth}.txt`;
+const logFilePathAlarm = `../backend/storage/app/alarm/backup/alarm-logs-${formattedMonth}.csv`;
 
 const { SOCKET_ENDPOINT } = process.env;
 
