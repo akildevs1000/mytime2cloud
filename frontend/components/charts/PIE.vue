@@ -17,6 +17,9 @@ export default {
 
         series: [],
         chart: {
+          toolbar: {
+            show: false,
+          },
           width: 350, //200 //275
           type: "pie",
         },
@@ -41,7 +44,11 @@ export default {
           {
             breakpoint: 480,
             options: {
-              chart: {},
+              chart: {
+                toolbar: {
+                  show: false,
+                },
+              },
               legend: {
                 position: "bottom",
               },

@@ -39,6 +39,9 @@ export default {
 
         series: [],
         chart: {
+          toolbar: {
+            show: false,
+          },
           type: "pie",
           width: 590,
           height: 450,
@@ -55,6 +58,9 @@ export default {
             breakpoint: 1400,
             options: {
               chart: {
+                toolbar: {
+                  show: false,
+                },
                 width: 350,
                 margin: 50,
                 height: 4500,

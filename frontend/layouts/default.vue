@@ -1646,4 +1646,10 @@ body {
 }
 </style> -->
 
+<style>
+.apexcharts-canvas {
+  width: 100%;
+}
+</style>
+
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->

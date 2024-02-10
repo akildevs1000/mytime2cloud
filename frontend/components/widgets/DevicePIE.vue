@@ -63,6 +63,9 @@ export default {
 
       series: [],
       chart: {
+        toolbar: {
+          show: false,
+        },
         width: 300, //200 //275
         type: "pie",
       },
@@ -88,6 +91,9 @@ export default {
           breakpoint: 480,
           options: {
             chart: {
+              toolbar: {
+                show: false,
+              },
               width: 250, //200 //275
             },
             legend: {

@@ -22,10 +22,16 @@ export default {
           },
         ],
         chart: {
+          toolbar: {
+            show: false,
+          },
           height: 350,
           type: "area",
           zoom: {
             enabled: false,
+          },
+          toolbar: {
+            show: false,
           },
         },
         dataLabels: {

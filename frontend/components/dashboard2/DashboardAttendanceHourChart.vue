@@ -38,6 +38,9 @@ export default {
       chartOptions: {
         colors: ["#14B012", "#FF0000", "#FFB600"],
         chart: {
+          toolbar: {
+            show: false,
+          },
           type: "bar",
           width: "98%",
         },

@@ -44,7 +44,7 @@
   {
     "icon": "mdi-bell",
     "title": "Community",
-    "to": "/community/tanent",
+    "to": "/community/dashboard",
     "menu": "community",
     "module": "topmenu"
   },

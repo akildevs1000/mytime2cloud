@@ -47,6 +47,9 @@ export default {
 
         series: [],
         chart: {
+          toolbar: {
+            show: false,
+          },
           width: "100%", //200 //275
           type: "donut",
           height: 350,
@@ -107,7 +110,11 @@ export default {
           {
             breakpoint: 480,
             options: {
-              chart: {},
+              chart: {
+                toolbar: {
+                  show: false,
+                },
+              },
               legend: {
                 position: "bottom",
               },

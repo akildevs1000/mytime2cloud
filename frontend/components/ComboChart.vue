@@ -37,10 +37,16 @@ export default {
           },
         ],
         chart: {
+          toolbar: {
+            show: false,
+          },
           height: 350,
           // width: 0,
           type: "line",
           stacked: false,
+          toolbar: {
+            show: false,
+          },
         },
         dataLabels: {
           enabled: false,
