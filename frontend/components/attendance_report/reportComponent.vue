@@ -1621,10 +1621,8 @@ export default {
       qs += `${path}`;
       qs += `?report_template=${this.report_template}`;
       qs += `&main_shift_type=${this.shift_type_id}`;
-      if (
-        this.payload.branch_id != "undefined" &&
-        parseInt(this.payload.branch_id > 0)
-      )
+
+      if (parseInt(this.payload.branch_id) > 0)
         qs += `&branch_id=${this.payload.branch_id}`;
 
       qs += `&shift_type_id=${this.shift_type_id}`;
@@ -1644,7 +1642,7 @@ export default {
       } else {
         qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
       }
-
+      console.log(qs);
       let report = document.createElement("a");
       report.setAttribute("href", qs);
       report.setAttribute("target", "_blank");
