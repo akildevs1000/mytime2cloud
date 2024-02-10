@@ -1621,7 +1621,11 @@ export default {
       qs += `${path}`;
       qs += `?report_template=${this.report_template}`;
       qs += `&main_shift_type=${this.shift_type_id}`;
-      qs += `&branch_id=${this.payload.branch_id}`;
+      if (
+        this.payload.branch_id != "undefined" &&
+        parseInt(this.payload.branch_id > 0)
+      )
+        qs += `&branch_id=${this.payload.branch_id}`;
 
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
