@@ -21,7 +21,7 @@ class TanentController extends Controller
      */
     public function index()
     {
-        return Tanent::where("company_id", request("company_id"))->with(["vehicles", "members", "floor", "room"])->paginate(request("per_page") ?? 10);
+        return Tanent::where("company_id", request("company_id"))->with(["vehicles", "members", "floor", "room"])->orderBy('id', 'desc')->paginate(request("per_page") ?? 10);
     }
 
     /**

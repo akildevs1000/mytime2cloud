@@ -133,113 +133,111 @@
         </template>
       </v-snackbar>
       <div v-if="can(`employee_view`)">
-        <v-container>
-          <v-card elevation="0">
-            <v-toolbar class="mb-2" dense flat>
-              <v-toolbar-title
-                ><span>{{ Model }}s </span></v-toolbar-title
-              >
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Reload"
-                >
-                  <v-icon class="ml-2" @click="clearFilters" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </span>
-              <v-spacer></v-spacer>
-              <span>
-                <v-btn
-                  dense
-                  small
-                  class="primary"
-                  text
-                  title="Add Company"
-                  @click="addItem"
-                >
-                  Create Room
-                  <v-icon right dark>mdi-plus-circle-outline</v-icon>
-                </v-btn>
-              </span>
-            </v-toolbar>
-            <v-data-table
-              dense
-              :headers="headers"
-              :items="rooms"
-              :loading="loadinglinear"
-              :options.sync="options"
-              :footer-props="{
-                itemsPerPageOptions: [100, 500, 1000],
-              }"
-              class="elevation-1"
-              :server-items-length="totalRowsCount"
+        <v-card elevation="0">
+          <v-toolbar class="mb-2" dense flat>
+            <v-toolbar-title
+              ><span>{{ Model }}s </span></v-toolbar-title
             >
-              <template v-slot:header="{ props: { headers } }">
-                <tr v-if="isFilter">
-                  <td v-for="header in headers" :key="header.text">
-                    <v-container>
-                      <v-text-field
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        :hide-details="true"
-                        v-if="header.filterable && !header.filterSpecial"
-                        v-model="filters[header.value]"
-                        :id="header.value"
-                        @input="applyFilters(header.key, $event)"
-                        outlined
-                        dense
-                        autocomplete="off"
-                      ></v-text-field>
-                    </v-container>
-                  </td>
-                </tr>
-              </template>
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Reload"
+              >
+                <v-icon class="ml-2" @click="clearFilters" dark
+                  >mdi mdi-reload</v-icon
+                >
+              </v-btn>
+            </span>
+            <v-spacer></v-spacer>
+            <span>
+              <v-btn
+                dense
+                small
+                class="primary"
+                text
+                title="Add Company"
+                @click="addItem"
+              >
+                Create Room
+                <v-icon right dark>mdi-plus-circle-outline</v-icon>
+              </v-btn>
+            </span>
+          </v-toolbar>
+          <v-data-table
+            dense
+            :headers="headers"
+            :items="rooms"
+            :loading="loadinglinear"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [100, 500, 1000],
+            }"
+            class="elevation-1"
+            :server-items-length="totalRowsCount"
+          >
+            <template v-slot:header="{ props: { headers } }">
+              <tr v-if="isFilter">
+                <td v-for="header in headers" :key="header.text">
+                  <v-container>
+                    <v-text-field
+                      clearable
+                      @click:clear="
+                        filters[header.value] = '';
+                        applyFilters();
+                      "
+                      :hide-details="true"
+                      v-if="header.filterable && !header.filterSpecial"
+                      v-model="filters[header.value]"
+                      :id="header.value"
+                      @input="applyFilters(header.key, $event)"
+                      outlined
+                      dense
+                      autocomplete="off"
+                    ></v-text-field>
+                  </v-container>
+                </td>
+              </tr>
+            </template>
 
-              <template v-slot:item.status_id="{ item }">
-                  {{ item.status_id == 1 ? `Active` : `InActive` }}
+            <template v-slot:item.status_id="{ item }">
+              {{ item.status_id == 1 ? `Active` : `InActive` }}
+            </template>
+
+            <template v-slot:item.options="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
                 </template>
-
-              <template v-slot:item.options="{ item }">
-                <v-menu bottom left>
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                      <v-icon>mdi-dots-vertical</v-icon>
-                    </v-btn>
-                  </template>
-                  <v-list width="120" dense>
-                    <v-list-item @click="viewItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-eye </v-icon>
-                        View
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="editItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="error" small> mdi-delete </v-icon>
-                        Delete
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </template>
-            </v-data-table>
-          </v-card>
-        </v-container>
+                <v-list width="120" dense>
+                  <v-list-item @click="viewItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-eye </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="editItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="deleteItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+        </v-card>
       </div>
     </div>
     <Preloader v-else />
@@ -261,7 +259,7 @@ export default {
   data: () => ({
     disabled: false,
     room_categories: [],
-    floors:[],
+    floors: [],
     payload: {
       room_number: null,
       floor_id: 1,
@@ -428,7 +426,7 @@ export default {
       });
       this.room_categories = room_categories.data;
 
-      let { data:floors } = await this.$axios.get(`floor`, {
+      let { data: floors } = await this.$axios.get(`floor`, {
         params: { company_id: this.id },
       });
       this.floors = floors.data;

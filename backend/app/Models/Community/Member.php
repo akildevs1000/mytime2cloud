@@ -9,6 +9,13 @@ class Member extends Model
 {
     use HasFactory;
 
+    public static $member_types = [
+        'Family Member',
+        'Relative',
+        'Maid',
+        'Visitor',
+    ];
+
     protected $guarded = [];
 
     protected $appends = [
