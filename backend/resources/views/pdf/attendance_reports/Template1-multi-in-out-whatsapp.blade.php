@@ -315,10 +315,10 @@
                 <td colspan="2" style="text-align:  center;">
                     <div>
                         @if ($employee->schedule)
-                        {{ $employee->schedule ?? $employee->schedule->shift->on_duty_time }} -
-                        {{ $employee->schedule ?? $employee->schedule->shift->off_duty_time }}
+                        {{ $employee->schedule->shift->on_duty_time }} -
+                        {{ $employee->schedule->shift->off_duty_time }}
                         <div class="secondary-value" style="font-size:6px">
-                            {{ $employee->schedule ?? $employee->schedule->shift->name }}
+                            {{ $employee->schedule->shift->name }}
                         </div>
                         @endif
                     </div>

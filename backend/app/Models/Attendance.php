@@ -157,6 +157,7 @@ class Attendance extends Model
             $q->where('employee_id', $request->employee_id);
         });
 
+
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) use ($request) {
             $q->where('shift_type_id', 2);
             // $q->where(function ($query) {

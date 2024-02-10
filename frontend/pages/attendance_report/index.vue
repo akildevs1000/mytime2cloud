@@ -25,6 +25,7 @@
           <v-col md="2" sm="2" v-if="isCompany">
             Branch
             <v-select
+              @change="getScheduledEmployees"
               placeholder="Branch"
               class="mt-2"
               outlined
@@ -601,6 +602,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
+          branch_id: this.payload.branch_id,
           company_id: this.$auth.user.company_id,
           department_ids: this.payload.department_ids,
           shift_type_id: this.shift_type_id,

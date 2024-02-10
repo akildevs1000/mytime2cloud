@@ -21,6 +21,10 @@ class Member extends Model
     protected $appends = [
         "profile_picture_name",
     ];
+    public function tenant()
+    {
+        return $this->belongsTo(Tanent::class);
+    }
 
     public function getProfilePictureNameAttribute()
     {

@@ -1631,6 +1631,10 @@ button {
   height: 670px;
   overflow-y: scroll;
 }
+.logtable-comm .v-data-table__wrapper {
+  height: 830px;
+  overflow-y: scroll;
+}
 
 .alarm {
   animation: changeBackgroundColor 1s infinite;
