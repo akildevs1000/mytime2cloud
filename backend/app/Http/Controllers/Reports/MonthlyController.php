@@ -27,6 +27,9 @@ class MonthlyController extends Controller
         }
         $file_name = $file_name . '.pdf';
 
+
+
+
         return $this->processPDF($request)->stream($file_name);
     }
 

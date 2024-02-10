@@ -321,6 +321,10 @@
                             {{ $employee->schedule->shift->name }}
                         </div>
                         @endif
+
+
+
+
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
