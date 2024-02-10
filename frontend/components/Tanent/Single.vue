@@ -77,16 +77,6 @@
                     <small> {{ item.car_number }} </small>
                   </v-col>
 
-                  <v-col cols="6"> <small>Parking Number</small> </v-col>
-                  <v-col cols="6" class="text-right">
-                    <small> {{ item.parking_number }} </small>
-                  </v-col>
-
-                  <v-col cols="6"> <small>RFID</small> </v-col>
-                  <v-col cols="6" class="text-right">
-                    <small> {{ item.rfid }} </small>
-                  </v-col>
-
                   <v-col cols="6"> <small>PIN</small> </v-col>
                   <v-col cols="6" class="text-right">
                     <small> {{ item.pin }} </small>
@@ -143,7 +133,7 @@
             </tr>
             <tr v-for="(vehicles, index) in item.vehicles" :key="index">
               <td>{{ vehicles.car_number }}</td>
-              <td>{{ vehicles.parking_id }}</td>
+              <td>{{ vehicles?.parking?.parking_number }}</td>
             </tr>
           </table>
         </v-container>

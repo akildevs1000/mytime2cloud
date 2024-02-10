@@ -42,7 +42,7 @@ include('community/member.php');
 include('community/community.php');
 include('community/report.php');
 include('community/dashboard.php');
-
+include('community/parking.php');
 
 include('csv.php');
 include('other.php');

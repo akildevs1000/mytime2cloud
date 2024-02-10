@@ -231,6 +231,11 @@ class Kernel extends ConsoleKernel
         })->dailyAt('00:00');
 
         $schedule->call(function () {
+            exec('pm2 reload 37');
+            info("Log listener restart");
+        })->monthlyOn(1, "00:00");
+
+        $schedule->call(function () {
             exec('pm2 reload 21');
             info("MyTime2Cloud SDK restarted");
         })->dailyAt('05:15');
