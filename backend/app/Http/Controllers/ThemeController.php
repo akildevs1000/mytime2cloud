@@ -41,7 +41,7 @@ class ThemeController extends Controller
     }
     public function dashboardCount(Request $request)
     {
-        // return $this->getCounts($request->company_id, $request);
+        return $this->getCounts($request->company_id, $request);
     }
     public function getCounts($id = 0, $request): array
     {
