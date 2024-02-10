@@ -35,6 +35,7 @@ class ClientController extends Controller
     }
     public function getAttendanceLogs(Request $request)
     {
+        return [];
         try {
             $token = request()->bearerToken();
             if ($token != '') {
@@ -90,7 +91,7 @@ class ClientController extends Controller
     }
     public function getEmployeesList(Request $request)
     {
-
+        return [];
         try {
             $token = request()->bearerToken();
             if ($token != '') {
@@ -137,6 +138,8 @@ class ClientController extends Controller
     }
     public function getAttendanceReports(Request $request)
     {
+
+        return [];
         try {
             $token = request()->bearerToken();
             if ($token != '') {
