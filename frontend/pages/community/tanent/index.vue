@@ -50,7 +50,7 @@
                     <v-text-field
                       label="Full Name"
                       :readonly="disabled"
-                      v-model="member.system_user_id"
+                      v-model="member.full_name"
                       dense
                       class="text-center"
                       outlined
@@ -58,18 +58,21 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="6">
-                    <v-text-field
-                      label="Relation"
-                      :readonly="disabled"
-                      v-model="member.relation"
-                      dense
-                      class="text-center"
-                      outlined
-                      :hide-details="!errors.relation"
-                      :error-messages="
-                        errors && errors.relation ? errors.relation[0] : ''
-                      "
-                    ></v-text-field>
+                    <v-autocomplete
+                            label="Member Type"
+                            outlined
+                            :readonly="disabled"
+                            v-model="member.member_type"
+                            :items="member_types"
+                            dense
+                            :hide-details="!errors.member_type"
+                            :error-messages="
+                              errors && errors.member_type
+                                ? errors.member_type[0]
+                                : ''
+                            "
+                          >
+                          </v-autocomplete>
                   </v-col>
                   <v-col cols="6">
                     <v-text-field
@@ -113,6 +116,17 @@
                       @change="previewMemberImage"
                     ></v-file-input>
                   </v-col>
+                  <v-col cols="6">
+                    <v-text-field
+                      label="Nationality"
+                      :readonly="disabled"
+                      v-model="member.nationality"
+                      dense
+                      class="text-center"
+                      outlined
+                      :hide-details="true"
+                    ></v-text-field>
+                  </v-col>
                 </v-row>
               </v-col>
             </v-row>
@@ -136,646 +150,11 @@
                 color="primary"
                 @click="submitMembers"
               >
-                submit
+                submit sdfsfd
               </v-btn>
             </div>
           </v-card-actions>
         </v-card>
-      </v-dialog>
-
-      <v-dialog persistent v-model="DialogBox" width="900">
-        <v-tabs color="deep-purple accent-4">
-          <v-tab>Basic Info</v-tab>
-          <v-tab>Members</v-tab>
-          <v-tab>Vechicle Info</v-tab>
-          <v-tab>Documentation</v-tab>
-
-          <v-tab-item>
-            <v-container>
-              <v-row>
-                <v-col cols="3">
-                  <div class="text-center">
-                    <SnippetsUploadAttachment
-                      :defaultImage="setImagePreview"
-                      @uploaded="handleAttachment"
-                    />
-
-                    <span
-                      v-if="errors && errors.logo"
-                      class="text-danger mt-2"
-                      >{{ errors.logo[0] }}</span
-                    >
-                  </div>
-                </v-col>
-                <v-col cols="9">
-                  <v-row class="mt-4">
-                    <v-col cols="6">
-                      <v-autocomplete
-                        @change="getRoomsByFloorId(payload.floor_id)"
-                        label="Floor Number"
-                        outlined
-                        :readonly="disabled"
-                        v-model="payload.floor_id"
-                        :items="floors"
-                        dense
-                        item-text="floor_number"
-                        item-value="id"
-                        :hide-details="!errors.floor_id"
-                        :error-messages="
-                          errors && errors.floor_id ? errors.floor_id[0] : ''
-                        "
-                      >
-                      </v-autocomplete>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-autocomplete
-                        @change="getRoomNumber(payload.room_id)"
-                        label="Room"
-                        outlined
-                        :readonly="disabled"
-                        v-model="payload.room_id"
-                        :items="rooms"
-                        dense
-                        item-text="room_number"
-                        item-value="id"
-                        :hide-details="!errors.room_id"
-                        :error-messages="
-                          errors && errors.room_id ? errors.room_id[0] : ''
-                        "
-                      >
-                      </v-autocomplete>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        label="First Name"
-                        :readonly="disabled"
-                        v-model="payload.first_name"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.first_name"
-                        :error-messages="
-                          errors && errors.first_name
-                            ? errors.first_name[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Last Name"
-                        :readonly="disabled"
-                        v-model="payload.last_name"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.last_name"
-                        :error-messages="
-                          errors && errors.last_name ? errors.last_name[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Email"
-                        :readonly="disabled"
-                        v-model="payload.email"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.email"
-                        :error-messages="
-                          errors && errors.email ? errors.email[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-menu
-                        v-model="menu3"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="payload.date_of_birth"
-                            label="Date of Birth"
-                            append-icon="mdi-calendar"
-                            outlined
-                            dense
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                            :hide-details="!errors.date_of_birth"
-                            :error-messages="
-                              errors && errors.date_of_birth
-                                ? errors.date_of_birth[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="payload.date_of_birth"
-                          @input="menu3 = false"
-                        ></v-date-picker>
-                      </v-menu>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Phone Number"
-                        :readonly="disabled"
-                        v-model="payload.phone_number"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.phone_number"
-                        :error-messages="
-                          errors && errors.phone_number
-                            ? errors.phone_number[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Whatsapp Number (optional)"
-                        :readonly="disabled"
-                        v-model="payload.whatsapp_number"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.whatsapp_number"
-                        :error-messages="
-                          errors && errors.whatsapp_number
-                            ? errors.whatsapp_number[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Car Number"
-                        :readonly="disabled"
-                        v-model="payload.car_number"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.car_number"
-                        :error-messages="
-                          errors && errors.car_number
-                            ? errors.car_number[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Parking Number"
-                        :readonly="disabled"
-                        v-model="payload.parking_number"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.parking_number"
-                        :error-messages="
-                          errors && errors.parking_number
-                            ? errors.parking_number[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="RFID"
-                        :readonly="disabled"
-                        v-model="payload.rfid"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.rfid"
-                        :error-messages="
-                          errors && errors.rfid ? errors.rfid[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="PIN"
-                        :readonly="disabled"
-                        v-model="payload.pin"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.pin"
-                        :error-messages="
-                          errors && errors.pin ? errors.pin[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Nationality"
-                        :readonly="disabled"
-                        v-model="payload.nationality"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.nationality"
-                        :error-messages="
-                          errors && errors.nationality
-                            ? errors.nationality[0]
-                            : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-text-field
-                        label="Address"
-                        :readonly="disabled"
-                        v-model="payload.address"
-                        dense
-                        class="text-center"
-                        outlined
-                        :hide-details="!errors.address"
-                        :error-messages="
-                          errors && errors.address ? errors.address[0] : ''
-                        "
-                      ></v-text-field>
-                    </v-col>
-
-                    <v-col cols="6">
-                      <v-menu
-                        v-model="menu"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="payload.start_date"
-                            label="Start Date"
-                            append-icon="mdi-calendar"
-                            outlined
-                            dense
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                            :hide-details="!errors.start_date"
-                            :error-messages="
-                              errors && errors.start_date
-                                ? errors.start_date[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="payload.start_date"
-                          @input="menu = false"
-                        ></v-date-picker>
-                      </v-menu>
-                    </v-col>
-                    <v-col cols="6">
-                      <v-menu
-                        v-model="menu2"
-                        :close-on-content-click="false"
-                        :nudge-right="40"
-                        transition="scale-transition"
-                        offset-y
-                        min-width="auto"
-                      >
-                        <template v-slot:activator="{ on, attrs }">
-                          <v-text-field
-                            v-model="payload.end_date"
-                            label="End Date"
-                            append-icon="mdi-calendar"
-                            outlined
-                            dense
-                            readonly
-                            v-bind="attrs"
-                            v-on="on"
-                            :hide-details="!errors.end_date"
-                            :error-messages="
-                              errors && errors.end_date
-                                ? errors.end_date[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </template>
-                        <v-date-picker
-                          v-model="payload.end_date"
-                          @input="menu2 = false"
-                        ></v-date-picker>
-                      </v-menu>
-                    </v-col>
-
-                    <v-col cols="12">
-                      <v-switch
-                        style="margin-top: 5px"
-                        label="Web Access"
-                        outlined
-                        :readonly="disabled"
-                        v-model="payload.web_access"
-                        dense
-                        :hide-details="!errors.web_access"
-                        :error-messages="
-                          errors && errors.web_access
-                            ? errors.web_access[0]
-                            : ''
-                        "
-                      >
-                      </v-switch>
-                    </v-col>
-
-                    <v-col cols="12" class="text-right my-1">
-                      <v-btn @click="DialogBox = false">Close</v-btn>
-                      <v-btn class="primary" @click="update_data">Update</v-btn>
-                    </v-col>
-                  </v-row>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-tab-item>
-
-          <v-tab-item>
-            <v-container>
-              <v-row>
-                <v-col cols="12" class="text-right mb-5">
-                  <v-icon color="primary" @click="DialogBox = false"
-                    >mdi-close-circle-outline</v-icon
-                  >
-                </v-col>
-              </v-row>
-              <v-card
-                outlined
-                v-for="(member, index) in payload.members"
-                :key="index"
-                class="mb-2"
-              >
-                <v-container>
-                  <v-row>
-                    <v-col cols="3">
-                      <div class="text-center">
-                        <SnippetsUploadAttachment
-                          :defaultImage="member.profile_picture"
-                          @uploaded="
-                            (e) => {
-                              member.profile_picture = e;
-                            }
-                          "
-                        />
-
-                        <span
-                          v-if="errors && errors.logo"
-                          class="text-danger mt-2"
-                          >{{ errors.logo[0] }}</span
-                        >
-                      </div>
-                    </v-col>
-                    <v-col cols="9">
-                      <v-row class="mt-1">
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Full Name"
-                            :readonly="disabled"
-                            v-model="member.full_name"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.full_name"
-                            :error-messages="
-                              errors && errors.full_name
-                                ? errors.full_name[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Relation"
-                            :readonly="disabled"
-                            v-model="member.relation"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.relation"
-                            :error-messages="
-                              errors && errors.relation
-                                ? errors.relation[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Age"
-                            :readonly="disabled"
-                            v-model="member.age"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.age"
-                            :error-messages="
-                              errors && errors.age ? errors.age[0] : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Phone Number (optional)"
-                            :readonly="disabled"
-                            v-model="member.phone_number"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.phone_number"
-                            :error-messages="
-                              errors && errors.phone_number
-                                ? errors.phone_number[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="12" class="text-right">
-                          <v-icon @click="update_member(member)" color="primary"
-                            >mdi-floppy</v-icon
-                          >
-                          <v-icon
-                            @click="delete_member(index, member)"
-                            color="error"
-                            >mdi-delete</v-icon
-                          >
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            </v-container>
-          </v-tab-item>
-          <v-tab-item>
-            <v-container>
-              <v-card
-                outlined
-                v-for="(member, index) in payload.members"
-                :key="index"
-                class="mb-2"
-              >
-                <v-container>
-                  <v-row>
-                    <v-col cols="3">
-                      <div class="text-center">
-                        <SnippetsUploadAttachment
-                          :defaultImage="member.profile_picture"
-                          @uploaded="
-                            (e) => {
-                              member.profile_picture = e;
-                            }
-                          "
-                        />
-
-                        <span
-                          v-if="errors && errors.logo"
-                          class="text-danger mt-2"
-                          >{{ errors.logo[0] }}</span
-                        >
-                      </div>
-                    </v-col>
-                    <v-col cols="9">
-                      <v-row class="mt-1">
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Full Name"
-                            :readonly="disabled"
-                            v-model="member.full_name"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.full_name"
-                            :error-messages="
-                              errors && errors.full_name
-                                ? errors.full_name[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Relation"
-                            :readonly="disabled"
-                            v-model="member.relation"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.relation"
-                            :error-messages="
-                              errors && errors.relation
-                                ? errors.relation[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Age"
-                            :readonly="disabled"
-                            v-model="member.age"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.age"
-                            :error-messages="
-                              errors && errors.age ? errors.age[0] : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="6">
-                          <v-text-field
-                            label="Phone Number (optional)"
-                            :readonly="disabled"
-                            v-model="member.phone_number"
-                            dense
-                            class="text-center"
-                            outlined
-                            :hide-details="!errors.phone_number"
-                            :error-messages="
-                              errors && errors.phone_number
-                                ? errors.phone_number[0]
-                                : ''
-                            "
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="12" class="text-right mt-12">
-                          <v-btn
-                            v-if="formAction == 'Edit'"
-                            class="primary"
-                            @click="update_member(member)"
-                            >Update</v-btn
-                          >
-                        </v-col>
-                      </v-row>
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card>
-            </v-container>
-          </v-tab-item>
-
-          <v-tab-item>
-            <v-container>
-              <v-row>
-                <v-col
-                  v-for="(document, index) in documents"
-                  :key="index"
-                  cols="6"
-                >
-                  <SnippetsUploadDocument
-                    :label="document.label"
-                    @uploaded="updatePayload(document.key, $event)"
-                  />
-                </v-col>
-
-                <v-col cols="12" class="text-right my-1">
-                  <v-btn @click="DialogBox = false">close</v-btn>
-                  <v-btn
-                    v-if="formAction == 'Create'"
-                    class="primary"
-                    @click="submit"
-                    >Submit</v-btn
-                  >
-                  <v-btn
-                    v-else-if="formAction == 'Edit'"
-                    class="primary"
-                    @click="update_data"
-                    >Update</v-btn
-                  >
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-tab-item>
-        </v-tabs>
       </v-dialog>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -785,8 +164,7 @@
         </template>
       </v-snackbar>
       <div v-if="can(`employee_view`)">
-        <v-container>
-          <v-card elevation="0">
+        <v-card elevation="0">
             <v-toolbar class="mb-2" dense flat>
               <v-toolbar-title
                 ><span>{{ Model }}s </span></v-toolbar-title
@@ -930,7 +308,7 @@
                     </v-list-item>
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
-                        <TanentEdit @success="handleEditSuccess" :item="item"/>
+                        <TanentEdit :key="generateRandomId()" @success="handleEditSuccess" :item="item" />
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item @click="deleteItem(item)">
@@ -944,7 +322,6 @@
               </template>
             </v-data-table>
           </v-card>
-        </v-container>
       </div>
     </div>
     <Preloader v-else />
@@ -1204,12 +581,14 @@ export default {
     menu3: false,
 
     floors: [],
+    member_types: [],
     rooms: [],
     member: {
       full_name: null,
       phone_number: null,
       age: null,
-      relation: null,
+      member_type: null,
+      nationality:null,
       tanent_id: 0,
     },
   }),
@@ -1220,6 +599,7 @@ export default {
 
     this.getDataFromApi();
     await this.getFloors();
+    await this.getMemberTypes();
   },
 
   mounted() {},
@@ -1233,7 +613,7 @@ export default {
   },
   methods: {
     handleEditSuccess(value) {
-     this.handleSuccessResponse(value);
+      this.handleSuccessResponse(value);
     },
     updatePayload(key, document) {
       this.payload[key] = document;
@@ -1257,7 +637,8 @@ export default {
         full_name: null,
         phone_number: null,
         age: null,
-        relation: null,
+        member_type: null,
+        nationality:null,
         tanent_id: this.payload.id,
         company_id: this.$auth.user.company_id,
       });
@@ -1274,6 +655,10 @@ export default {
         params: { company_id: this.$auth.user.company_id },
       });
       this.floors = floors.data;
+    },
+    async getMemberTypes() {
+      let { data } = await this.$axios.get(`get_member_types`);
+      this.member_types = data;
     },
     async getRoomsByFloorId(floor_id) {
       let { floor_number } = this.floors.find((e) => e.id == floor_id);
@@ -1431,7 +816,8 @@ export default {
             full_name: null,
             phone_number: null,
             age: null,
-            relation: null,
+            member_type: null,
+            nationality:null,
             tanent_id: id,
           });
         }
@@ -1627,6 +1013,7 @@ export default {
     },
 
     update_member(member) {
+
       let formData = new FormData();
 
       if (member.profile_picture.name) {
@@ -1634,7 +1021,8 @@ export default {
       }
 
       formData.append("full_name", member.full_name);
-      formData.append("relation", member.relation);
+      formData.append("member_type", member.member_type);
+      formData.append("nationality", member.nationality);
       formData.append("age", member.age);
       formData.append("phone_number", member.phone_number);
 

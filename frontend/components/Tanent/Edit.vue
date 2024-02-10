@@ -34,7 +34,6 @@
                     @change="getRoomsByFloorId(payload.floor_id)"
                     label="Floor Number"
                     outlined
-                    :readonly="disabled"
                     v-model="payload.floor_id"
                     :items="floors"
                     dense
@@ -53,7 +52,6 @@
                     @change="getRoomNumber(payload.room_id)"
                     label="Room"
                     outlined
-                    :readonly="disabled"
                     v-model="payload.room_id"
                     :items="rooms"
                     dense
@@ -69,7 +67,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="First Name"
-                    :readonly="disabled"
                     v-model="payload.first_name"
                     dense
                     class="text-center"
@@ -84,7 +81,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Last Name"
-                    :readonly="disabled"
                     v-model="payload.last_name"
                     dense
                     class="text-center"
@@ -99,7 +95,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Email"
-                    :readonly="disabled"
                     v-model="payload.email"
                     dense
                     class="text-center"
@@ -148,7 +143,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Phone Number"
-                    :readonly="disabled"
                     v-model="payload.phone_number"
                     dense
                     class="text-center"
@@ -164,7 +158,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Whatsapp Number (optional)"
-                    :readonly="disabled"
                     v-model="payload.whatsapp_number"
                     dense
                     class="text-center"
@@ -181,7 +174,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="RFID"
-                    :readonly="disabled"
                     v-model="payload.rfid"
                     dense
                     class="text-center"
@@ -196,7 +188,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="PIN"
-                    :readonly="disabled"
                     v-model="payload.pin"
                     dense
                     class="text-center"
@@ -209,7 +200,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Nationality"
-                    :readonly="disabled"
                     v-model="payload.nationality"
                     dense
                     class="text-center"
@@ -224,7 +214,6 @@
                 <v-col cols="6">
                   <v-text-field
                     label="Address"
-                    :readonly="disabled"
                     v-model="payload.address"
                     dense
                     class="text-center"
@@ -306,7 +295,6 @@
                     style="margin-top: 5px"
                     label="Web Access"
                     outlined
-                    :readonly="disabled"
                     v-model="payload.web_access"
                     dense
                     :hide-details="!errors.web_access"
@@ -377,7 +365,6 @@
                     <v-col cols="6">
                       <v-text-field
                         label="Full Name"
-                        :readonly="disabled"
                         v-model="member.full_name"
                         dense
                         class="text-center"
@@ -390,24 +377,25 @@
                     </v-col>
 
                     <v-col cols="6">
-                      <v-text-field
-                        label="Relation"
-                        :readonly="disabled"
-                        v-model="member.relation"
-                        dense
-                        class="text-center"
+                      <v-autocomplete
+                        label="Member Type"
                         outlined
-                        :hide-details="!errors.relation"
+                        v-model="member.member_type"
+                        :items="member_types"
+                        dense
+                        :hide-details="!errors.member_type"
                         :error-messages="
-                          errors && errors.relation ? errors.relation[0] : ''
+                          errors && errors.member_type
+                            ? errors.member_type[0]
+                            : ''
                         "
-                      ></v-text-field>
+                      >
+                      </v-autocomplete>
                     </v-col>
 
                     <v-col cols="6">
                       <v-text-field
                         label="Age"
-                        :readonly="disabled"
                         v-model="member.age"
                         dense
                         class="text-center"
@@ -422,7 +410,6 @@
                     <v-col cols="6">
                       <v-text-field
                         label="Phone Number (optional)"
-                        :readonly="disabled"
                         v-model="member.phone_number"
                         dense
                         class="text-center"
@@ -431,6 +418,22 @@
                         :error-messages="
                           errors && errors.phone_number
                             ? errors.phone_number[0]
+                            : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+
+                    <v-col cols="6">
+                      <v-text-field
+                        label="Nationality"
+                        v-model="member.nationality"
+                        dense
+                        class="text-center"
+                        outlined
+                        :hide-details="!errors.nationality"
+                        :error-messages="
+                          errors && errors.nationality
+                            ? errors.nationality[0]
                             : ''
                         "
                       ></v-text-field>
@@ -481,7 +484,6 @@
             <v-col cols="5">
               <v-text-field
                 label="Car Number"
-                :readonly="disabled"
                 v-model="vehicle.car_number"
                 dense
                 class="text-center"
@@ -497,7 +499,6 @@
               <v-autocomplete
                 label="Parking Number"
                 outlined
-                :readonly="disabled"
                 v-model="vehicle.parking_id"
                 :items="[
                   {
@@ -568,8 +569,6 @@ export default {
   },
 
   data: () => ({
-    disabled: false,
-
     payload: {
       full_name: "",
       phone_number: "",
@@ -593,7 +592,6 @@ export default {
     tabMenu: [],
     tab: "0",
     attrs: [],
-    dialog: false,
     selectedFile: "",
     dialog: false,
     right: true,
@@ -602,7 +600,7 @@ export default {
     response: "",
     snackbar: false,
     btnLoader: false,
-    
+
     upload: {
       name: "",
     },
@@ -617,7 +615,7 @@ export default {
     response: "",
     data: [],
     errors: [],
-    dialogVisible: false,
+    member_types:[],
 
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
@@ -632,7 +630,7 @@ export default {
       full_name: null,
       phone_number: null,
       age: null,
-      relation: null,
+      member_type: null,
       tanent_id: 0,
     },
   }),
@@ -642,6 +640,8 @@ export default {
     this.boilerplate = true;
     this.editItem(this.item);
     await this.getFloors();
+    await this.getMemberTypes();
+
   },
 
   methods: {
@@ -660,6 +660,10 @@ export default {
         params: { company_id: this.$auth.user.company_id },
       });
       this.floors = floors.data;
+    },
+    async getMemberTypes() {
+      let { data } = await this.$axios.get(`get_member_types`);
+      this.member_types = data;
     },
     async getRoomsByFloorId(floor_id) {
       let { floor_number } = this.floors.find((e) => e.id == floor_id);
@@ -691,9 +695,6 @@ export default {
       room,
       ...payload
     }) {
-      this.disabled = false;
-      this.dialog = true;
-
       this.setImagePreview = profile_picture;
       this.payload = payload;
 
@@ -767,7 +768,7 @@ export default {
         })
         .then(({ data }) => {
           this.errors = [];
-          this.$emit("success","Vehicle has been added");
+          this.$emit("success", "Vehicle has been added");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
@@ -781,7 +782,7 @@ export default {
         )
         .then(({ data }) => {
           this.errors = [];
-          this.$emit("success","Tanent has been updated");
+          this.$emit("success", "Tanent has been updated");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
@@ -798,15 +799,17 @@ export default {
       }
 
       formData.append("full_name", member.full_name);
-      formData.append("relation", member.relation);
+      formData.append("member_type", member.member_type);
       formData.append("age", member.age);
       formData.append("phone_number", member.phone_number);
+      formData.append("nationality", member.nationality);
+
 
       this.$axios
         .post("/members-update/" + member.id, formData)
         .then(({ data }) => {
           this.errors = [];
-          this.$emit("success","Member has been updated");
+          this.$emit("success", "Member has been updated");
         })
         .catch(({ response }) => {
           this.handleErrorResponse(response);
