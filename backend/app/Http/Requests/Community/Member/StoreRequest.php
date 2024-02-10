@@ -27,11 +27,12 @@ class StoreRequest extends FormRequest
             'full_name' => 'required|string|max:255',
             'phone_number' => 'nullable',
             'age' => 'required|string|max:255',
-            'relation' => 'required|string|max:255',
             'system_user_id' => 'required|numeric',
             'tanent_id' => 'required|numeric',
             'company_id' => 'required|numeric',
             'profile_picture' => 'nullable',
+            'member_type' => 'required',
+            'nationality' => 'required',
         ];
     }
 }

@@ -8,16 +8,10 @@
               <v-avatar size="100" style="border: 1px solid #dddddd">
                 <v-img :src="item.profile_picture"></v-img>
               </v-avatar>
-              <!-- <div class="mt-1" style="height: 10px">{{ item.full_name }}</div> -->
+              <div class="mt-1" style="font-size: 14px;height: 10px">{{ item.member_type }}</div>
             </v-col>
             <v-col cols="12">
               <v-row no-gutters>
-                <v-col cols="6">
-                  <small style="font-size: 11px">Relation</small>
-                </v-col>
-                <v-col cols="6" class="text-right">
-                  <small style="font-size: 11px"> {{ item.relation }} </small>
-                </v-col>
 
                 <v-col cols="6">
                   <small style="font-size: 11px">Full Name</small>
@@ -47,6 +41,12 @@
                 </v-col>
                 <v-col cols="9" class="text-right">
                   <small style="font-size: 11px"> {{item.phone_number}} </small>
+                </v-col>
+                <v-col cols="4">
+                  <small style="font-size: 11px">Nationality</small>
+                </v-col>
+                <v-col cols="8" class="text-right">
+                  <small style="font-size: 11px"> {{item.nationality}} </small>
                 </v-col>
               </v-row>
             </v-col>

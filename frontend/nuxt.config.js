@@ -154,7 +154,7 @@ export default {
   vuetify: {
     customVariables: ["~/assets/variables.scss"],
     theme: {
-      dark: false,
+      dark: true,
 
       themes: {
         light: {
@@ -171,6 +171,14 @@ export default {
           violet: "#6946dd",
           popup_background: "#ecf0f4",
         },
+      },
+
+      options: {
+        customProperties: true, // Enables CSS variables
+      },
+
+      fonts: {
+        "small-font": { fontSize: '11px' },
       },
     },
   },

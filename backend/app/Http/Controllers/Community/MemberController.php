@@ -80,4 +80,9 @@ class MemberController extends Controller
             throw $th;
         }
     }
+
+    public function get_member_types()
+    {
+        return Member::$member_types;
+    }
 }
