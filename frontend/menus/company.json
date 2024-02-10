@@ -136,7 +136,13 @@
     "to": "/web_login_logs",
     "module": "settings"
   },
-
+  {
+    "icon": "mdi-shape-square-plus",
+    "title": "Community Setup",
+    "open_menu": false,
+    "to": "/community/setup",
+    "module": "settings"
+  },
   {
     "icon": "mdi-mail",
     "title": "Mail",
@@ -331,30 +337,16 @@
     "module": "community"
   },
   {
-    "icon": "mdi-bed",
-    "title": "Rooms",
-    "to": "/community/rooms",
-    "menu": "community",
-    "module": "community"
-  },
-  {
-    "icon": "mdi-shape-square-plus",
-    "title": "Setup",
-    "to": "/community/setup",
-    "menu": "community",
-    "module": "community"
+    "icon": "mdi-chart-box",
+    "title": "Visitor Logs",
+    "to": "/visitor/visitor_logs",
+    "menu": "visitors_access",
+    "module": "visitors"
   },
   {
     "icon": "mdi-select-group",
     "title": "Zones",
     "to": "/zone",
-    "menu": "visitors_access",
-    "module": "visitors"
-  },
-  {
-    "icon": "mdi-chart-box",
-    "title": "Visitor Logs",
-    "to": "/visitor/visitor_logs",
     "menu": "visitors_access",
     "module": "visitors"
   },
@@ -429,6 +421,7 @@
     "to": "/web_login_logs",
     "module": "reports"
   },
+  
   {
     "icon": "mdi-file-remove-outline",
     "title": "Document Expiry",

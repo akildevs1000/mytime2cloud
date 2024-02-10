@@ -46,7 +46,7 @@
                   <small style="font-size: 11px">Phone</small>
                 </v-col>
                 <v-col cols="9" class="text-right">
-                  <small style="font-size: 11px"> +1 (399) 167-9918 </small>
+                  <small style="font-size: 11px"> {{item.phone_number}} </small>
                 </v-col>
               </v-row>
             </v-col>

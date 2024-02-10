@@ -41,8 +41,8 @@ class UpdateRequest extends FormRequest
             "whatsapp_number" => "nullable",
             "date_of_birth" => "required",
             "nationality" => "required",
-            "car_number" => "required",
-            "parking_number" => "required",
+            "car_number" => "nullable",
+            "parking_number" => "nullable",
             "web_access" => "required",
             "rfid" => "required",
             "pin" => "required",
@@ -54,6 +54,8 @@ class UpdateRequest extends FormRequest
             "ejari_doc" => "nullable",
             "license_doc" => "nullable",
             "others_doc" => "nullable",
+
+            "gender" => "required",
         ];
     }
 }

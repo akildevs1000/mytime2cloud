@@ -67,4 +67,17 @@ class MemberController extends Controller
             throw $th;
         }
     }
+
+    public function destroy($id)
+    {
+        try {
+            if (Member::find($id)->delete()) {
+                return $this->response('Member successfully deleted.', null, true);
+            } else {
+                return $this->response('Member cannot delete.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 }

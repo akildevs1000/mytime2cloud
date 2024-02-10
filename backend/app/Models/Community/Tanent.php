@@ -35,6 +35,12 @@ class Tanent extends Model
     {
         return $this->hasMany(Member::class);
     }
+
+    public function vehicles()
+    {
+        return $this->hasMany(Vehicle::class);
+    }
+
     public function floor()
     {
         return $this->belongsTo(Floor::class);
