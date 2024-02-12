@@ -38,7 +38,7 @@ class ClientController extends Controller
     {
 
 
-        Storage::put("logs/api_client/api-requests-attendance-logs-" . date('Y-m-d') . ".txt", json_encode($request->all()));
+        Storage::put("logs/api_client/api-requests-attendance-logs-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
         //return [];
         try {
             $token = request()->bearerToken();
@@ -97,7 +97,7 @@ class ClientController extends Controller
     {
         // return [];
 
-        Storage::put("logs/api_client/api-requests-employee-list-" . date('Y-m-d') . ".txt", json_encode($request->all()));
+        Storage::put("logs/api_client/api-requests-employee-list-" . date('Y-m-d') . ".txt",  date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
         try {
             $token = request()->bearerToken();
             if ($token != '') {
@@ -147,7 +147,7 @@ class ClientController extends Controller
 
         //return [];
 
-        Storage::put("logs/api_client/api-requests-attendance-reports-" . date('Y-m-d') . ".txt", json_encode($request->all()));
+        Storage::put("logs/api_client/api-requests-attendance-reports-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
         try {
             $token = request()->bearerToken();
             if ($token != '') {
