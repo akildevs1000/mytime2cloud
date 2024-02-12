@@ -1406,7 +1406,7 @@ export default {
 
     applyFilters(name, value) {
       if (value && value.length < 2) return false;
-
+      this.options.page = 1;
       this.getDataFromApi();
     },
     toggleFilter() {

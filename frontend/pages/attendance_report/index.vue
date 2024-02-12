@@ -200,6 +200,7 @@
       <v-tabs-items v-model="tab">
         <v-tab-item value="tab-1">
           <AttendanceReport
+            v-if="showTabs.single == true"
             :key="1"
             title="General Reports"
             shift_type_id="1"
@@ -212,6 +213,7 @@
         </v-tab-item>
         <v-tab-item value="tab-2">
           <AttendanceReport
+            v-if="showTabs.double == true"
             title="Split Reports"
             shift_type_id="5"
             :headers="doubleHeaders"
@@ -225,6 +227,7 @@
         </v-tab-item>
         <v-tab-item value="tab-3">
           <AttendanceReport
+            v-if="showTabs.multi == true"
             :key="3"
             title="Multi In/Out Reports"
             shift_type_id="2"
@@ -715,6 +718,7 @@ export default {
         })
         .then(({ data }) => {
           this.showTabs = data;
+          this.payload.showTabs = data;
         });
     },
     setDailyDate() {

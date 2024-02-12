@@ -548,7 +548,7 @@
               >
             </v-btn>
           </span>
-          <span
+          <!-- <span
             ><v-btn
               dense
               class="ma-0 px-0"
@@ -561,10 +561,10 @@
                 >mdi-filter</v-icon
               >
             </v-btn>
-          </span>
+          </span> -->
           <v-spacer></v-spacer>
 
-          <span>
+          <!-- <span>
             <v-text-field
               @input="serachAll($event)"
               style="height: 30px; margin-top: 5px"
@@ -575,10 +575,13 @@
               autocomplete="off"
               placeholder="Employee Details"
             ></v-text-field>
-          </span>
+          </span> -->
 
-          <span>
-            <v-icon
+          <span
+            class="pa-2 text-center"
+            @click="() => ((dialog = true), handleChangeEvent())"
+          >
+            <!-- <v-icon
               title="Import File"
               @click="() => ((dialog = true), handleChangeEvent())"
               right
@@ -586,10 +589,18 @@
               color="black"
               size="x-large"
               >mdi-file-import</v-icon
-            >
+            > -->
+            <img
+              title="Import File"
+              style="width: 20px; cursor: pointer"
+              src="../../static/icons/import-icon.png"
+            />
+            <div style="font-size: 8px; color: black; margin-top: -5px">
+              Import
+            </div>
           </span>
-          <span>
-            <v-icon
+          <span class="pa-2 text-center" @click="export_submit">
+            <!-- <v-icon
               title="Download"
               @click="export_submit"
               right
@@ -597,21 +608,183 @@
               color="black"
               size="x-large"
               >mdi-arrow-down-bold-circle</v-icon
-            >
+            > -->
+            <img
+              title="Download"
+              style="width: 20px; cursor: pointer"
+              src="../../static/icons/icon_excel.png"
+            />
+            <div style="font-size: 8px; color: black; margin-top: -4px">
+              Download
+            </div>
           </span>
-          <span>
+          <span class="pa-2 text-center" @click="openNewPage()">
             <v-icon
               v-if="can('employee_create')"
               title="Add Employee"
-              @click="openNewPage()"
               right
               dark
               color="black"
               size="x-large"
               >mdi-account-plus mdi-flip-h</v-icon
             >
+            <div style="font-size: 8px; color: black; margin-top: -5px">
+              Add
+            </div>
           </span>
         </v-toolbar>
+
+        <v-row>
+          <v-col style="max-width: 11%">
+            <v-text-field
+              style="width: 100%"
+              label="Employee ID"
+              placeholder="Employee ID"
+              clearable
+              @click:clear="
+                filters['employee_id'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              v-model="filters['employee_id']"
+              @input="getDataFromApi()"
+              outlined
+              dense
+              autocomplete="off"
+            ></v-text-field>
+          </v-col>
+          <v-col style="max-width: 14%">
+            <v-text-field
+              label="Employee Name"
+              placeholder="Employee Name"
+              style="width: 100%"
+              clearable
+              @click:clear="
+                filters['first_name'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              v-model="filters['first_name']"
+              @input="getDataFromApi()"
+              outlined
+              dense
+              autocomplete="off"
+            ></v-text-field>
+          </v-col>
+
+          <v-col style="max-width: 10%" v-if="$auth.user.branch_id == 0">
+            <v-autocomplete
+              style="width: 100%"
+              clearable
+              @click:clear="
+                filters['branch_id'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              outlined
+              dense
+              small
+              v-model="filters['branch_id']"
+              item-text="name"
+              item-value="id"
+              :items="[{ name: `All Branches`, id: `` }, ...branchList]"
+              placeholder="All Branches"
+              solo
+              flat
+              @change="applyFilters(filters['branch_id'])"
+            ></v-autocomplete>
+          </v-col>
+          <v-col style="max-width: 15%">
+            <v-autocomplete
+              style="width: 100%"
+              label="Department"
+              clearable
+              @click:clear="
+                filters['department_name_id'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              outlined
+              dense
+              small
+              v-model="filters['department_name_id']"
+              item-text="name"
+              item-value="id"
+              :items="[{ name: `All Departments`, id: `` }, ...departments]"
+              placeholder="Department"
+              solo
+              flat
+              @change="getDataFromApi()"
+            ></v-autocomplete>
+          </v-col>
+          <v-col style="max-width: 10%">
+            <v-text-field
+              style="width: 100%"
+              label="Mobile Number"
+              placeholder="Mobile"
+              clearable
+              @click:clear="
+                filters['phone_number'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              v-model="filters['phone_number']"
+              @input="getDataFromApi()"
+              outlined
+              dense
+              autocomplete="off"
+            ></v-text-field>
+          </v-col>
+          <v-col style="max-width: 15%">
+            <v-text-field
+              style="width: 100%"
+              label="Email"
+              placeholder="Email"
+              clearable
+              @click:clear="
+                filters['user.email'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              v-model="filters['user.email']"
+              @input="getDataFromApi()"
+              outlined
+              dense
+              autocomplete="off"
+            ></v-text-field>
+          </v-col>
+          <v-col style="max-width: 10%">
+            <v-autocomplete
+              style="width: 100%"
+              clearable
+              @click:clear="
+                filters['timezone_id'] = '';
+                getDataFromApi();
+              "
+              :hide-details="true"
+              outlined
+              dense
+              small
+              v-model="filters['timezone_id']"
+              item-text="name"
+              item-value="id"
+              :items="[
+                {
+                  name: `All Timezones`,
+                  id: ``,
+                },
+                ...timezones,
+              ]"
+              placeholder="Timezone"
+              solo
+              flat
+              @change="getDataFromApi()"
+            ></v-autocomplete>
+          </v-col>
+        </v-row>
+        <v-row class="pt-0 mt-0">
+          <v-col cols="12" class="mb-3 ml-3 mr-3 elevation-0 pa-2"> </v-col>
+        </v-row>
         <v-data-table
           dense
           v-model="selectedItems"
@@ -626,7 +799,7 @@
           class="elevation-1"
           :server-items-length="totalRowsCount"
         >
-          <template v-slot:header="{ props: { headers } }">
+          <!-- <template v-slot:header="{ props: { headers } }">
             <tr v-if="isFilter">
               <td v-for="header in headers" :key="header.text">
                 <v-container style="padding-left: 0px !important">
@@ -729,7 +902,7 @@
                 </v-container>
               </td>
             </tr>
-          </template>
+          </template> -->
           <template v-slot:item.employee_id="{ item }">
             <strong>{{ item.employee_id }} </strong><br /><span
               style="font-size: 12px"
@@ -1059,7 +1232,7 @@ export default {
         key: "employee_id",
         value: "employee_id",
         filterable: true,
-        width: "150px",
+        width: "10%",
         filterSpecial: false,
       },
       {
@@ -1068,7 +1241,7 @@ export default {
         sortable: true,
         key: "first_name",
         value: "first_name",
-        width: "300px",
+        width: "15%",
         filterable: true,
         filterSpecial: false,
       },
@@ -1078,7 +1251,7 @@ export default {
         sortable: true,
         key: "department_name_id",
         value: "department_name_id", //template name should be match for sorting sub table should be the same
-        width: "200px",
+        width: "15%",
         filterable: true,
         filterSpecial: true,
       },
@@ -1088,7 +1261,7 @@ export default {
         sortable: true,
         key: "mobile",
         value: "phone_number", // search and sorting enable if value matches with template name
-        width: "150px",
+        width: "10%",
         filterable: true,
         filterSpecial: false,
       },
@@ -1100,6 +1273,7 @@ export default {
         value: "user.email",
         filterable: true,
         filterSpecial: false,
+        width: "15%",
       },
       {
         text: "Timezone",
@@ -1144,6 +1318,7 @@ export default {
       key: "branch_id",
       value: "branch.branch_name",
       filterable: true,
+      width: "10%",
       filterSpecial: true,
     });
 
@@ -1169,6 +1344,10 @@ export default {
       { text: "Shift" },
       { text: "Actions" },
     ];
+    this.handleChangeEvent();
+    this.getDepartments(null);
+
+    this.getTimezone(null);
   },
   watch: {
     options: {
@@ -1229,7 +1408,8 @@ export default {
       await this.getTimezone(filterBranchId);
     },
     async getDepartments(filterBranchId) {
-      if (filterBranchId > 0) {
+      // if (filterBranchId > 0)
+      {
         let options = {
           endpoint: "department-list",
           isFilter: this.isFilter,
@@ -1242,9 +1422,10 @@ export default {
           "department_list",
           options
         );
-      } else {
-        this.departments = [];
       }
+      // else {
+      //   this.departments = [];
+      // }
     },
 
     async getTimezone(filterBranchId) {

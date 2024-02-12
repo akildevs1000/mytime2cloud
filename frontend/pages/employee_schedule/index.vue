@@ -429,8 +429,10 @@
         <v-col cols="6"> </v-col>
 
         <v-spacer></v-spacer>
+        <v-label></v-label>
         <v-select
-          style="width: 150px"
+          label="Scheduled Employees"
+          style="width: 250px"
           cols="1"
           :hide-details="true"
           @change="filterEmployees()"
@@ -441,7 +443,7 @@
           dense
           clearable
           :items="[
-            { name: `All`, id: `` },
+            { name: `All Scheduled Employees`, id: `` },
             { name: `Scheduled`, id: `1` },
             { name: `Un-Scheduled`, id: `0` },
           ]"
