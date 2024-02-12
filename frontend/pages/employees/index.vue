@@ -621,7 +621,7 @@
           <span
             class="pa-2 text-center"
             @click="openNewPage()"
-            style="cursor: pointer"
+            style="cursor: pointer; padding-left: 0px !important"
           >
             <v-icon
               @click="openNewPage()"
@@ -643,7 +643,7 @@
         <v-row>
           <v-col style="max-width: 11%">
             <v-text-field
-              style="width: 100%"
+              style="width: 100%; padding-left: 20px"
               label="Employee ID"
               placeholder="Employee ID"
               clearable
