@@ -12,6 +12,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
 
 class ClientController extends Controller
 {
@@ -35,6 +36,9 @@ class ClientController extends Controller
     }
     public function getAttendanceLogs(Request $request)
     {
+
+
+        Storage::put("api_client/api-requests-attendance-logs" . date('Y-m-d') . ".txt", json_encode($request->all()));
         //return [];
         try {
             $token = request()->bearerToken();
@@ -92,6 +96,8 @@ class ClientController extends Controller
     public function getEmployeesList(Request $request)
     {
         // return [];
+
+        Storage::put("api_client/api-requests-employee-list" . date('Y-m-d') . ".txt", json_encode($request->all()));
         try {
             $token = request()->bearerToken();
             if ($token != '') {
@@ -140,6 +146,7 @@ class ClientController extends Controller
     {
 
         //return [];
+        Storage::put("api_client/api-requests-attendance-reports" . date('Y-m-d') . ".txt", json_encode($request->all()));
         try {
             $token = request()->bearerToken();
             if ($token != '') {
