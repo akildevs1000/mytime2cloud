@@ -42,34 +42,16 @@ class ScheduleEmployeeController extends Controller
 
         $model->with(["schedule_all" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
-            // Check if schedules_count is provided in the request
-            // if ($request->has('schedules_count')) {
-            //     if ($request->schedules_count == 0) {
-            //         $q->havingRaw('COUNT(*) = 0');
-            //     } elseif ($request->schedules_count == 1) {
-            //         $q->havingRaw('COUNT(*) > 0');
-            //     }
-            // }
-
         }]);
 
-        if ($request->has('schedules_count')) {
+        if ($request->filled('schedules_count')) {
             if ($request->schedules_count == 0) {
                 $model->doesntHave('schedule_active', 'and', function ($q) use ($request) {
                     $q->where('company_id', $request->company_id);
                 });
-            } elseif ($request->schedules_count == 1) {
             }
         }
 
-        // if ($request->has('schedules_count')) {
-        //     if ($request->schedules_count == 0) {
-        //         $model->doesntHave('schedule_all', 'and', function ($q) use ($request) {
-        //             $q->where('company_id', $request->company_id);
-        //         });
-        //     } elseif ($request->schedules_count == 1) {
-        //     }
-        // }
 
 
         $model->with(["schedule" => function ($q) use ($request) {
@@ -84,8 +66,7 @@ class ScheduleEmployeeController extends Controller
 
         $model->when($request->filled('first_name'), function ($q) use ($request) {
 
-            // $q->where('first_name', 'ILIKE', "$request->first_name%");
-            // $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+
             $q->Where(function ($q) use ($request) {
                 $q->where('first_name', 'ILIKE', "$request->first_name%");
                 $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
@@ -94,10 +75,7 @@ class ScheduleEmployeeController extends Controller
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
 
-            //$q->where('employee_id', 'ILIKE', "$request->employee_id%");
-            //$q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
 
-            //$q->where('system_user_id', 'ILIKE', "$request->employee_id%");
             $q->Where(function ($q) use ($request) {
                 $q->where('employee_id', 'ILIKE', "$request->employee_id%");
                 $q->orWhere('system_user_id', 'ILIKE', "$request->employee_id%");
