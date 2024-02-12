@@ -30,7 +30,8 @@ class NightShiftController extends Controller
 
         $response = [];
 
-        while ($startDate <= $currentDate && $startDate <= $endDate) {
+        // while ($startDate <= $currentDate && $startDate <= $endDate) {
+        while ($startDate <= $endDate) {
             //$response[] = $this->render($company_id, $startDate->format("Y-m-d"), 4, $employee_ids, true);
             $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 4, $employee_ids, $request->filled("auto_render") ? false : true);
 

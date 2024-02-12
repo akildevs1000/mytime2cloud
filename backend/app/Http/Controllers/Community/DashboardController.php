@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Community;
 
 use App\Http\Controllers\Controller;
+use App\Models\Announcement;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Community\Member;
 use App\Models\Community\Room;
+use App\Models\Community\Tanent;
 use App\Models\Department;
+use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Theme;
 use App\Models\VisitorLog;
@@ -228,17 +232,73 @@ class DashboardController extends Controller
 
         return  $finalarray;
     }
+    public function dashboardMaleFemaleCount(Request $request)
+    {
 
+
+        $kids_count = Member::where('company_id', $request->company_id)
+            ->where('age', "<", 18)
+            ->whereIn('tanent_id', function ($query) use ($request) {
+                $query->select('tanent_id')
+                    ->where('company_id', $request->company_id)
+
+                    ->from('rooms');
+            })->get()->count();
+
+
+        $members = Member::where('company_id', $request->company_id)
+            ->where('age', ">=", 18)
+            ->whereIn('tanent_id', function ($query) use ($request) {
+                $query->select('tanent_id')
+                    ->where('company_id', $request->company_id)
+
+                    ->from('rooms');
+            });
+
+
+        $male_count = $members->clone()->where("geneder", "Male")->get()->count();
+        $female_count = $members->clone()->where("geneder", "FeMale")->get()->count();
+
+
+
+
+        $finalarray  = [
+            "male" => $male_count,
+            "female" => $female_count,
+            "kids" => $kids_count,
+        ];
+
+        return  $finalarray;
+    }
     public function dashboardGetAssetsStatistics(Request $request)
     {
-        $finalarray  = [
+        $expiryDate = date("Y-m-d", strtotime("+30 days"));
 
-            "flats_count" => Room::where('company_id', $request->company_id),
-            "occupied_count" => 10,
-            "car_parking_count" => 10,
-            "allocated_count" => 10,
-            "offline_devices" => 10,
-            "contract_expiring_count" => 10,
+        $contract_expiring_count = Tanent::where('company_id', $request->company_id)
+            ->whereDate("end_date", "<=",  $expiryDate)
+            ->where("checkout_date", null)
+            ->get()->count();
+
+        $flats_count = Room::where('company_id', $request->company_id)->get()->count();
+        // $occupied_count = Tanent::where('company_id', $request->company_id)
+        //     ->where("start_date", "<=", date('Y-m-d'))
+        //     ->where("end_date", ">=", date('Y-m-d'))
+        //     ->where("checkout_date", "!=", null)
+        //     ->get()->count();
+
+        $occupied_count =  Room::where('company_id', $request->company_id)->where("tenant_id", "!=", 0)->get()->count();
+
+
+        $offline_devices = Device::where('company_id', $request->company_id)->where('status_id', 2)->get()->count();
+
+
+        $finalarray  = [
+            "flats_count" => $flats_count,
+            "occupied_count" => $occupied_count,
+            "car_parking_count" => 0,
+            "allocated_count" => 0,
+            "offline_devices" =>  $offline_devices,
+            "contract_expiring_count" => $contract_expiring_count,
 
 
         ];
@@ -445,7 +505,22 @@ class DashboardController extends Controller
 
         return  $finalarray;
     }
+    public function dashboardAnnouncementList(Request $request)
+    {
 
+        return (new Announcement())->with(['category', 'user', 'branch'])->withOut("employees")
+            // ->where('start_date', '<=', date("Y-m-d"))
+            // ->where('end_date', '>=', date("Y-m-d"))
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where("branch_id", $request->branch_id);
+            })
+            ->with('category', function ($query) use ($request) {
+                $query
+                    ->where('name', "community");
+            })
+
+            ->paginate(4);
+    }
 
     public function dashboardGetCountsTodayMultiGeneral(Request $request)
     {

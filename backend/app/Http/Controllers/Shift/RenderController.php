@@ -40,6 +40,14 @@ class RenderController extends Controller
         $shift_type_id = $request->shift_type_id;
 
 
+        $date1 = new DateTime($request->dates[0]);
+        $date2 = new DateTime($request->dates[1]);
+        $interval = $date1->diff($date2);
+        if ($interval->days > 5) {
+            return ["Maximum 5 Days allowed between From and To Date."];
+        }
+
+
         return array_merge(
             (new AutoShiftController)->renderData($request),
             (new FiloShiftController)->renderData($request),
