@@ -584,8 +584,8 @@ class Employee extends Model
         $employees->withOut(["department", "sub_department", "designation"]);
         $employees->whereHas("attendance_logs", function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
-            $q->whereDate("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
-            $q->whereDate("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
+            $q->where("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
+            $q->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
             // $q->where("checked", false);
             // $q->where("UserID",707);
         });
@@ -612,8 +612,8 @@ class Employee extends Model
         $employees->withOut(["department", "sub_department", "designation"]);
         $employees->whereHas("attendance_logs", function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
-            $q->whereDate("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
-            $q->whereDate("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
+            $q->where("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
+            $q->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
             // // $q->where("checked", false);
             // $q->where("UserID",707);
         });

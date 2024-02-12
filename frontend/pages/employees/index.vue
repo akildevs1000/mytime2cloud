@@ -618,14 +618,20 @@
               Download
             </div>
           </span>
-          <span class="pa-2 text-center" @click="openNewPage()">
+          <span
+            class="pa-2 text-center"
+            @click="openNewPage()"
+            style="cursor: pointer"
+          >
             <v-icon
+              @click="openNewPage()"
               v-if="can('employee_create')"
               title="Add Employee"
               right
               dark
               color="black"
               size="x-large"
+              style="font-size: 30px; padding-left: 0px !important"
               >mdi-account-plus mdi-flip-h</v-icon
             >
             <div style="font-size: 8px; color: black; margin-top: -5px">
