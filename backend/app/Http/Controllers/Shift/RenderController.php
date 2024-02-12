@@ -44,7 +44,7 @@ class RenderController extends Controller
         $date2 = new DateTime($request->dates[1]);
         $interval = $date1->diff($date2);
         if ($interval->days > 5) {
-            return ["Maximum 5 Days allowed between From and To Date."];
+            return ["Limit  5 Days only  allowed between From and To Date."];
         }
 
 
