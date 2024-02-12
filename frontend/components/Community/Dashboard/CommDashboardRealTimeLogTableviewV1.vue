@@ -88,7 +88,7 @@
       :footer-props="{
         itemsPerPageOptions: [5, 10],
       }"
-      class="elevation-0 logtable"
+      class="elevation-0 logtable-comm"
       :server-items-length="totalRowsCount"
     >
       <template v-slot:item.sno="{ item, index }">

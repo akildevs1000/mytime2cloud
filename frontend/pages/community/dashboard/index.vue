@@ -46,35 +46,9 @@
         </v-row>
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
-            <v-card class="py-2" style="height: 772px; overflow: hidden">
+            <v-card class="py-2" style="height: 932px; overflow: hidden">
               <CommDashboardRealTimeLogTableview :branch_id="branch_id" />
             </v-card>
-          </v-col>
-        </v-row>
-        <v-row class="d-xs-flex">
-          <v-col
-            lg="6"
-            md="6"
-            sm="12"
-            xs="12"
-            class="d-xs-flex"
-            style="flex: auto"
-          >
-            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
-              <CommDashboardAttendanceHourChart
-                :branch_id="branch_id"
-                :name="'AttendanceChart2'"
-                :height="'260'"
-              />
-            </v-card>
-          </v-col>
-          <v-col lg="6" md="6" sm="12" xs="12">
-            <!-- <CommDashboardlastMultiStatistics /> -->
-
-            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
-              <CommDashboardLoginActivities :branch_id="branch_id" />
-            </v-card>
-            <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
           </v-col>
         </v-row>
       </v-col>
@@ -107,7 +81,13 @@
         </v-card>
 
         <CommDashboardRightsideStaticstics :branch_id="branch_id" />
-
+        <v-row>
+          <v-col lg="12" md="12" sm="12" xs="12">
+            <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
+              <CommDashboardCommunityMembers :branch_id="branch_id" />
+            </v-card>
+          </v-col>
+        </v-row>
         <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2" style="height: 443px; overflow: hidden">
@@ -115,16 +95,14 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row>
+
+        <!-- <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
-              <CommDashboardAttednaceDepartmentWise
-                :branch_id="branch_id"
-                name="AttendanceDepartmentWise"
-              />
+              <CommDashboardLoginActivities :branch_id="branch_id" />
             </v-card>
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
     </v-row>
   </div>
@@ -137,6 +115,8 @@ import CommDashboardAttendanceChart from "../../../components/Community/Dashboar
 import CommDashboardLastMonthStatistics from "../../../components/Community/Dashboard/CommDashboardlLastMonthStatisticsV1.vue";
 import CommDashboardRealTimeLogTableview from "../../../components/Community/Dashboard/CommDashboardRealTimeLogTableviewV1.vue";
 import CommDashboardRightsideStaticstics from "../../../components/Community/Dashboard/CommDashboardRightsideStaticsticsV1.vue";
+import CommDashboardCommunityMembers from "../../../components/Community/Dashboard/CommDashboardCommunityMembersV1.vue";
+
 import CommDashboardAnnouncment from "../../../components/Community/Dashboard/CommDashboardAnnouncmentV1.vue";
 import CommDashboardAttendanceHourChart from "../../../components/Community/Dashboard/CommDashboardAttendanceHourChartV1.vue";
 import CommDashboardLoginActivities from "../../../components/Community/Dashboard/CommDashboardLoginActivitiesV1.vue";
@@ -153,6 +133,7 @@ export default {
     CommDashboardRightsideStaticstics,
     // DashboardlastMultiStatistics,
     CommDashboardAttendanceHourChart,
+    CommDashboardCommunityMembers,
   },
   data() {
     return {

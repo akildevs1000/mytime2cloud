@@ -32,7 +32,8 @@
               dense
               v-model="payload.branch_id"
               x-small
-              :items="branches"
+              clearable
+              :items="[{ id: null, branch_name: 'All Branches' }, ...branches]"
               item-value="id"
               item-text="branch_name"
               :hide-details="true"
@@ -164,6 +165,7 @@
         ></v-tabs-slider>
 
         <v-tab
+          v-if="showTabs.single == true"
           :key="1"
           style="height: 30px"
           href="#tab-1"
@@ -173,6 +175,7 @@
         </v-tab>
 
         <v-tab
+          v-if="showTabs.double == true"
           :key="2"
           @click="commonMethod(2)"
           style="height: 30px"
@@ -183,6 +186,7 @@
         </v-tab>
 
         <v-tab
+          v-if="showTabs.multi == true"
           :key="3"
           @click="commonMethod(3)"
           style="height: 30px"
@@ -324,6 +328,7 @@ export default {
       employee_id: "",
       department_ids: [{ id: "-1", name: "" }],
       status: "-1",
+      branch_id: null,
     },
     log_payload: {
       user_id: null,
@@ -411,6 +416,7 @@ export default {
       },
     ],
     isCompany: true,
+    showTabs: { single: true, double: true, multi: true },
   }),
 
   computed: {
@@ -462,7 +468,7 @@ export default {
         //department_ids: this.$auth.user.assignedDepartments,
       },
     };
-
+    this.getAttendanceTabs();
     setTimeout(() => {
       this.getBranches();
       this.getScheduledEmployees();
@@ -697,6 +703,18 @@ export default {
         })
         .then(({ data }) => {
           this.branches = data.data;
+        });
+    },
+    getAttendanceTabs() {
+      this.$axios
+        .get("get_attendance_tabs", {
+          params: {
+            per_page: 10,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.showTabs = data;
         });
     },
     setDailyDate() {

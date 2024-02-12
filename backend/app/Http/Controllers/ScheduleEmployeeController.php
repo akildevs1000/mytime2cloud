@@ -30,9 +30,15 @@ class ScheduleEmployeeController extends Controller
                 $q->where('branch_id', $request->branch_id);
             });
 
-        $model->with(["schedule_active" => function ($q) use ($request) {
-            $q->where("company_id", $request->company_id);
-        }]);
+
+        $model->with([
+            'schedule_active' => function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            }
+        ]);
+
+
+        //$model->has('schedule_active.shift_type_id', '>', 2);
 
         $model->with(["schedule_all" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
@@ -44,12 +50,27 @@ class ScheduleEmployeeController extends Controller
             //         $q->havingRaw('COUNT(*) > 0');
             //     }
             // }
+
         }]);
 
+        if ($request->has('schedules_count')) {
+            if ($request->schedules_count == 0) {
+                $model->doesntHave('schedule_active', 'and', function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id);
+                });
+            } elseif ($request->schedules_count == 1) {
+            }
+        }
 
+        // if ($request->has('schedules_count')) {
+        //     if ($request->schedules_count == 0) {
+        //         $model->doesntHave('schedule_all', 'and', function ($q) use ($request) {
+        //             $q->where('company_id', $request->company_id);
+        //         });
+        //     } elseif ($request->schedules_count == 1) {
+        //     }
+        // }
 
-
-        //$model->whereRaw('schedules_all_count IS NOT NULL');
 
         $model->with(["schedule" => function ($q) use ($request) {
             $q->where("company_id", $request->company_id);
@@ -85,6 +106,8 @@ class ScheduleEmployeeController extends Controller
 
 
         $model->without(["user"]);
+
+
 
 
         return   $model->paginate($request->per_page);

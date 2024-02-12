@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\ScheduleEmployee;
+use App\Models\Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -108,6 +109,25 @@ class AttendanceController extends Controller
 
         Logger::channel("defaulSeeder")->info('Cron: Creating Default seeder. seedDefaultData: ' .  $message);
         return $message;
+    }
+
+    public function getAttendanceTabsDisplay(Request $request)
+    {
+
+        $model = Shift::where("company_id", $request->company_id);
+
+
+        $singleShiftEmployeeCount = $model->clone()->whereIn("shift_type_id", [1,    4, 5, 6])->get()->count();
+        $DualShiftEmployeeCount = $model->clone()->where("shift_type_id", 7)->get()->count();
+
+        $multiShiftEmployeeCount = $model->clone()->where("shift_type_id", 2)->get()->count();
+
+
+        return [
+            "single" => $singleShiftEmployeeCount > 0 ? true : false,
+            "dual" => $DualShiftEmployeeCount > 0 ? true : false,
+            "multi" => $multiShiftEmployeeCount > 0 ? true : false
+        ];
     }
     public function attendance_avg_clock(Request $request)
     {

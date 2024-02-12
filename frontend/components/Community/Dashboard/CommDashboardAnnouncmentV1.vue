@@ -3,7 +3,7 @@
     <v-dialog persistent v-model="announcementDialog" max-width="60%">
       <v-card>
         <v-card-title dense class="popup_background">
-          Announcement
+          Community Announcement
           <v-spacer></v-spacer>
           <v-icon @click="announcementDialog = false" outlined dark>
             mdi mdi-close-circle
@@ -119,7 +119,7 @@ export default {
     announcementViewObj: {},
     options: {},
     Model: "Announcement",
-    endpoint: "announcement_list",
+    endpoint: "community_announcement_list",
     loading: false,
 
     headers: [
@@ -150,7 +150,7 @@ export default {
   }),
   watch: {
     branch_id() {
-      this.$store.commit("dashboard/announcements", null);
+      this.$store.commit("CommDashboard/announcements", null);
       this.getDataFromApi();
     },
   },
@@ -227,7 +227,7 @@ export default {
         this.$axios.get(this.endpoint, options).then(({ data }) => {
           this.loading = false;
           this.data = data.data;
-          this.$store.commit("dashboard/announcements", data.data);
+          this.$store.commit("CommDashboard/announcements", data.data);
           if (!data.total) this.headers;
         });
       }, 1000 * 5);

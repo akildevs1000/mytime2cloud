@@ -21,6 +21,7 @@ export const state = () => ({
   visitor_every_hour_count: null,
 
   right_statistics: null,
+  community_male_female: null,
 });
 
 export const mutations = {
@@ -34,7 +35,9 @@ export const mutations = {
   right_statistics(state, right_statistics) {
     state.right_statistics = right_statistics;
   },
-
+  community_male_female(state, community_male_female) {
+    state.community_male_female = community_male_female;
+  },
   setDashboardData(state, data) {
     state.dashboardData = data;
   },
