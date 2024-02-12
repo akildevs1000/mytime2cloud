@@ -38,10 +38,11 @@ class ClientController extends Controller
     {
 
 
-        Storage::append("logs/api_client/api-requests-attendance-logs-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
+
         //return [];
         try {
             $token = request()->bearerToken();
+            Storage::append("logs/api_client/api-requests-attendance-logs-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") .  " : " . $token . " : " . json_encode($request->all()));
             if ($token != '') {
                 $company = Company::where("api_access_token", $token)->get()->first();
 
@@ -97,9 +98,10 @@ class ClientController extends Controller
     {
         // return [];
 
-        Storage::append("logs/api_client/api-requests-employee-list-" . date('Y-m-d') . ".txt",  date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
+
         try {
             $token = request()->bearerToken();
+            Storage::append("logs/api_client/api-requests-employee-list-"  . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") .  " : " . $token . " : " . json_encode($request->all()));
             if ($token != '') {
                 $company = Company::where("api_access_token", $token)->get()->first();
 
@@ -147,9 +149,10 @@ class ClientController extends Controller
 
         //return [];
 
-        Storage::append("logs/api_client/api-requests-attendance-reports-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") . " : " . json_encode($request->all()));
+
         try {
             $token = request()->bearerToken();
+            Storage::append("logs/api_client/api-requests-attendance-reports-" . date('Y-m-d') . ".txt", date("Y-m-d H:i:s") .  " : " . $token . " : " . json_encode($request->all()));
             if ($token != '') {
                 $company = Company::where("api_access_token", $token)->get()->first();
 
