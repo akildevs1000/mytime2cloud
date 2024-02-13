@@ -229,7 +229,7 @@ export default {
         return;
       }
       this.result = ["Processing..."];
-
+      let renderProcessingStatus = false;
       this.loading = true;
 
       const chunkSize = 10;
@@ -268,12 +268,15 @@ export default {
               this.result = [payload];
               return;
             }
-
+            renderProcessingStatus = true;
             this.result = data;
-            this.$emit("update-data-table");
           })
           .catch((e) => console.log(e));
       }
+
+      // if (!renderProcessingStatus) {
+      //   this.$emit("update-data-table");
+      // }
     },
   },
   components: { DateRangePickerCommon },
