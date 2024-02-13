@@ -12,16 +12,22 @@ use App\Models\Roster;
 use App\Models\Shift;
 use App\Models\ShiftType;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+
 
 class MonthlyMergeController extends Controller
 {
     public function monthly(Request $request)
     {
+
+
+        //return  Pdf::loadFile(('7777.pdf'))->stream();
 
         //Attendance reports - Monthly Geenration Report 
         $file_name = "Attendance Report";
@@ -388,6 +394,20 @@ class MonthlyMergeController extends Controller
     }
     public function processPDF2($request)
     {
+
+
+
+
+
+
+
+
+
+        $oMerger = PDFMerger::init();
+
+
+
+
         // return [$request->from_date, $request->to_date];
 
         $companyID = $request->company_id;
@@ -399,6 +419,9 @@ class MonthlyMergeController extends Controller
         $data1 = $model->get()->groupBy(['employee_id', 'date']);
         $mergedPdf = PDF::loadHTML('');
         $pages = [];
+        $pagescontent = '';
+        header('Content-Type: application/pdf');
+
         foreach ($data1  as $key => $value) {
             # code...
 
@@ -472,16 +495,24 @@ class MonthlyMergeController extends Controller
                     $data_pdf->save($file_path);;
                     unset($data_pdf);
 
-                    //--------------
-                    $pages[] = (string)view('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
+                    // //--------------
+                    // $pages[] = (string)view('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
+
+                    // $pagescontent = $pagescontent . Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+
+
+                    // //echo $pagescontent;
+
+                    // // ob_flush();
                 }
             }
-
 
             //$pdfFiles[] =  $outputFile = storage_path("app\\public\\" . $file_path);;
             //$pdfFiles[] = env("BASE_URL") . Storage::url("app\\public\\" . $file_path); // $outputFile = storage_path("app\\public\\" . $file_path);;
 
             $pdfFiles[] =  asset("app/public/" . $file_path);
+
+            $oMerger->addPDF(($file_path), 'all');
 
             //----------------------------
 
@@ -494,9 +525,37 @@ class MonthlyMergeController extends Controller
 
         }
 
-        $pdf = App::make('dompdf.wrapper');
 
-        return $pdf->loadView('pdf.attendance_reports_updated.merge', ['pages' => $pages]);
+
+
+        // $dompdf = new DOMPDF();
+        // $dompdf->set_paper('a4', 'portrait');
+        // $dompdf->load_html($pagescontent);
+        // $dompdf->render();
+        // $pdf_string = $dompdf->output();
+        // $filepath = "merge.pdf";
+        // file_put_contents("" . $filepath . "", $pdf_string);
+        // $dompdf = new Dompdf();
+        // $dompdf->loadHtml('<h1>hello world1111111111111111111111111111111111111</h1>');
+        // $output = $dompdf->output();
+        // file_put_contents('filename.pdf', $pagescontent);
+
+
+
+
+
+
+        //$oMerger->addPDF(public_path('pdf_two.pdf'), 'all');
+
+        $oMerger->merge();
+        $oMerger->save('temp_pdf/merged_result.pdf');
+
+        unset($oMerger);
+
+        return   Pdf::loadFile(public_path('temp_pdf/merged_result.pdf'));
+
+
+        //return $pdf->loadView('pdf.attendance_reports_updated.merge', ['pages' => $pages]);
         //return  $pdfFiles;
         return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
     }
