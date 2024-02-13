@@ -235,7 +235,7 @@ export default {
       const chunkSize = 10;
 
       for (let i = 0; i < UserIDs.length; i += chunkSize) {
-        await delay(3000);
+        await delay(1000 * 10);
 
         const UserIDs_chunk = UserIDs.slice(i, i + chunkSize);
         // do whatever
@@ -259,7 +259,7 @@ export default {
         if (type != "render_off" && type != "render_absent") {
           endpoint = "render_logs";
         }
-        this.$axios
+        await this.$axios
           .get(endpoint, payload)
           .then(({ data }) => {
             this.loading = false;
