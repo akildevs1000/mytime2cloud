@@ -271,7 +271,7 @@ export default {
           })
           .catch((e) => console.log(e));
 
-        await delay(1000 * 10);
+        await delay(1000 * 2);
         renderProcessingStatus = true;
       } //for
       this.loading = false;
