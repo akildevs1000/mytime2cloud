@@ -12,10 +12,24 @@ use Illuminate\Support\Facades\App;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Reports\ReportController;
 
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+
+
 
 
 class TestController extends Controller
 {
+    public function pdfMergeTest()
+    {
+        $oMerger = PDFMerger::init();
+        
+        $oMerger->addPDF(public_path("pdf_one.pdf"), [2]);
+        $oMerger->addPDF(public_path("pdf_one.pdf"), 'all');
+        $oMerger->merge();
+        return $oMerger->save('merged_result.pdf');
+
+
+    }
     public function index()
     {
     }
