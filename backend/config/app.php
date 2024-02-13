@@ -196,6 +196,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         TechTailor\RPG\RPGServiceProvider::class,
+
+        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
     ],
 
     /*
@@ -213,5 +215,7 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'RPG' => TechTailor\RPG\Facade\RPG::class,
     ])->toArray(),
+
+    'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
 
 ];
