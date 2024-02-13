@@ -9,6 +9,7 @@ use App\Http\Controllers\Reports\DailyController;
 use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
+use App\Http\Controllers\Reports\MonthlyMergeController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\PDFController;
 use App\Http\Controllers\Reports\PDFTestController;
@@ -66,6 +67,11 @@ Route::get('/monthly', [MonthlyController::class, 'monthly']);
 Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
 Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
 Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
+
+//monthly reports merge 
+Route::get('/monthly_merge', [MonthlyMergeController::class, 'monthly']);
+
+
 
 //multi in out
 

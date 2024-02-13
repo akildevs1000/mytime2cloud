@@ -2,6 +2,68 @@
 
 use Illuminate\Support\Facades\File;
 
+function getStatus2($employeeData)
+{
+    $countA = 0;
+    $countP = 0;
+    $countM = 0;
+    $countO = 0;
+    $countL = 0;
+    $countH = 0;
+
+    foreach ($employeeData as $employee) {
+        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+            throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
+        }
+        $status = $employee[0]['status'];
+        if ($status == 'A') {
+            $countA++;
+        } elseif ($status == 'P') {
+            $countP++;
+        } elseif ($status == 'M') {
+            $countM++;
+        } elseif ($status == 'O') {
+            $countO++;
+        } elseif ($status == 'L') {
+            $countL++;
+        } elseif ($status == 'H') {
+            $countH++;
+        }
+    }
+    return [
+        'A' => $countA,
+        'P' => $countP,
+        'M' => $countM,
+        'O' => $countO,
+        'L' => $countL,
+        'H' => $countH,
+    ];
+}
+
+function getTotalHours2($employeeData, $type)
+{
+    if (!is_array($employeeData)) {
+        throw new InvalidArgumentException('Invalid employee data: must be an array');
+    }
+    $totalMinutes = 0;
+    foreach ($employeeData as $employee) {
+        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+            throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
+        }
+        $time = $employee[0][$type];
+        if ($time != '---') {
+            $parts = explode(':', $time);
+            $hours = intval($parts[0]);
+            $minutes = intval($parts[1]);
+            $totalMinutes += $hours * 60 + $minutes;
+        }
+    }
+
+    $hours = floor($totalMinutes / 60);
+    $minutes = $totalMinutes % 60;
+
+    return sprintf('%02d:%02d', $hours, $minutes);
+}
 function removeFile($path, $file_name)
 {
     $delete = public_path($path . $file_name);
