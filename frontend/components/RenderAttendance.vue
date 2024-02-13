@@ -235,8 +235,6 @@ export default {
       const chunkSize = 10;
 
       for (let i = 0; i < UserIDs.length; i += chunkSize) {
-        await delay(1000 * 10);
-
         const UserIDs_chunk = UserIDs.slice(i, i + chunkSize);
         // do whatever
 
@@ -262,7 +260,7 @@ export default {
         await this.$axios
           .get(endpoint, payload)
           .then(({ data }) => {
-            this.loading = false;
+            //this.loading = false;
 
             if (endpoint !== "render_logs") {
               this.result = [payload];
@@ -272,8 +270,12 @@ export default {
             this.result = data;
           })
           .catch((e) => console.log(e));
-      }
 
+        await delay(1000 * 10);
+        renderProcessingStatus = true;
+      } //for
+      this.loading = false;
+      this.$emit("update-data-table");
       // if (!renderProcessingStatus) {
       //   this.$emit("update-data-table");
       // }
