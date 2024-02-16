@@ -234,7 +234,7 @@ class NightShiftController extends Controller
             $model->insert($items);
 
             if (!$custom_render) {
-                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+                // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
             }
             $message = "[" . $date . " " . date("H:i:s") .  "] Night Shift. Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
