@@ -341,7 +341,10 @@ export default {
         if (this.$auth.user) this.getRecords(true);
       }
     }, 1000 * 60);
-    //this.getRecords();
+
+    setTimeout(() => {
+      this.getRecords();
+    }, 1000 * 5);
   },
   created() {
     let payload = {

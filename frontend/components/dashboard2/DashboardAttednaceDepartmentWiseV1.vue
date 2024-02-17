@@ -89,7 +89,9 @@ export default {
     },
   },
   created() {
-    this.getDataFromApi();
+    setTimeout(() => {
+      this.getDataFromApi();
+    }, 1000 * 30);
   },
   methods: {
     viewLogs() {

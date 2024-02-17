@@ -118,7 +118,9 @@ export default {
     // this.display_title =
     //   "Attendance : " + this.date_from + " to " + this.date_to;
 
-    await this.getDataFromApi();
+    setTimeout(() => {
+      this.getDataFromApi();
+    }, 1000 * 10);
   },
 
   methods: {
