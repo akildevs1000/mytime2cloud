@@ -160,7 +160,7 @@ export default {
   created() {
     setTimeout(() => {
       this.getRecords();
-    }, 1000 * 40);
+    }, 1000 * 12);
   },
   computed: {
     employees() {

@@ -96,12 +96,14 @@ export default {
   },
   watch: {
     async display_title() {
-      await this.getDataFromApi();
+      if (this.display_title != "") await this.getDataFromApi();
     },
     async branch_id(val) {
-      this.$store.commit("dashboard/setDashboardData", null);
-      //this.$store.commit("setDashboardData", null);
-      await this.getDataFromApi();
+      if (this.branch_id != "") {
+        this.$store.commit("dashboard/setDashboardData", null);
+        //this.$store.commit("setDashboardData", null);
+        await this.getDataFromApi();
+      }
     },
   },
   async created() {
@@ -120,7 +122,7 @@ export default {
 
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 10);
+    }, 1000 * 6);
   },
 
   methods: {

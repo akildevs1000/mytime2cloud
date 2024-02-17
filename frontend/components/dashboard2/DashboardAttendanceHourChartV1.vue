@@ -92,7 +92,7 @@ export default {
   created() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 25);
+    }, 1000 * 8);
   },
   mounted() {
     this.chartOptions.chart.height = this.height;

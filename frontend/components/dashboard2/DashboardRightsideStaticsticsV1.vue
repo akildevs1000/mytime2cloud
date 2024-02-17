@@ -326,7 +326,7 @@ export default {
   created() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 20);
+    }, 1000 * 16);
   },
 
   methods: {
