@@ -23,8 +23,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
-        return false;
-        exit;
+
         $monthYear = date("M-Y");
 
         $schedule
@@ -61,7 +60,8 @@ class Kernel extends ConsoleKernel
 
 
         $companyIds = Company::pluck("id");
-
+        return false;
+        exit;
         foreach ($companyIds as $companyId) {
 
             $schedule
