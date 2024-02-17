@@ -61,8 +61,7 @@ class Kernel extends ConsoleKernel
 
         $companyIds = Company::pluck("id");
         //step 1 ;
-        return false;
-        exit;
+
         foreach ($companyIds as $companyId) {
 
             $schedule
@@ -72,7 +71,8 @@ class Kernel extends ConsoleKernel
 
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
+            return false;
+            exit;
 
             //if ($companyId == 1) 
             {
