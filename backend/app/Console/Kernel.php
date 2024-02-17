@@ -182,8 +182,7 @@ class Kernel extends ConsoleKernel
                     ->withoutOverlapping()
                     ->appendOutputTo(storage_path("logs/$monthYear-generate_monthly_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
-            return false;
-            exit;
+
             $schedule
                 ->command("task:send_whatsapp_notification {$companyId}")
                 // ->everyMinute()
