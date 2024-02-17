@@ -63,7 +63,9 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_auto_shift {$companyId} " . date("Y-m-d"))
-                ->everyMinute()
+                //->everyMinute()
+                ->everyFiveMinutes()
+
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -134,7 +136,7 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
-                ->everyMinute()
+                ->everyFiveMinutes()
                 // ->dailyAt('09:00')
                 ->withoutOverlapping()
                 ->runInBackground()
