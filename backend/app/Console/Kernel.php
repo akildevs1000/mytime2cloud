@@ -22,6 +22,9 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        return false;
+        exit;
         $monthYear = date("M-Y");
 
         $schedule
