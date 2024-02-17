@@ -67,8 +67,8 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_auto_shift {$companyId} " . date("Y-m-d"))
-                //->everyMinute()
-                ->everyFiveMinutes()
+                ->everyTwoMinutes()
+                //->everyFiveMinutes()
 
                 ->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
