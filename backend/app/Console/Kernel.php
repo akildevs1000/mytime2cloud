@@ -69,7 +69,7 @@ class Kernel extends ConsoleKernel
                 ->everyTwoMinutes()
                 //->everyFiveMinutes()
 
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
