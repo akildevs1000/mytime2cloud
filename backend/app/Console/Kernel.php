@@ -60,6 +60,7 @@ class Kernel extends ConsoleKernel
 
 
         $companyIds = Company::pluck("id");
+        //step 1 ;
         return false;
         exit;
         foreach ($companyIds as $companyId) {
