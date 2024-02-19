@@ -29,6 +29,12 @@ class Kernel extends ConsoleKernel
             info("Log listener restart");
         })->dailyAt('00:00');
 
+        $schedule->call(function () {
+            exec('pm2 reload 7');
+            info("Camera Log listener restart");
+        })->dailyAt('00:00');
+
+
         // $schedule->call(function () {
         //     exec('pm2 reload 11');
         //     info("Log listener backup restart");
