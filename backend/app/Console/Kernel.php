@@ -24,24 +24,40 @@ class Kernel extends ConsoleKernel
     {
 
 
+        $schedule->call(function () {
+            exec('pm2 reload 5');
+            info("Log listener restart");
+        })->dailyAt('00:00');
+
+        // $schedule->call(function () {
+        //     exec('pm2 reload 11');
+        //     info("Log listener backup restart");
+        // })->monthlyOn(1, "00:00");
+
+        $schedule->call(function () {
+            exec('pm2 reload 4');
+            info("MyTime2Cloud SDK Production");
+        })->dailyAt('05:15');
+
+
         $monthYear = date("M-Y");
 
         $schedule
             ->command('task:sync_attendance_logs')
             ->everyMinute()
 
-            ->withoutOverlapping()
+            //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         $schedule
             ->command('task:sync_attendance_camera_logs')
             ->everyMinute()
-            ->withoutOverlapping()
+            //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:sync_alarm_logs')
             ->everyMinute()
-            ->withoutOverlapping()
+            //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/alarm/" . date("d-M-y") . "-alarm-logs-laravel.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
@@ -82,7 +98,7 @@ class Kernel extends ConsoleKernel
                     // ->everyThirtyMinutes()
                     // ->everyMinute()
                     // ->runInBackground()
-                    ->withoutOverlapping()
+                    //->withoutOverlapping()
                     ->appendOutputTo(storage_path("logs/$monthYear-send-notification-for-offline-devices-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
@@ -91,7 +107,7 @@ class Kernel extends ConsoleKernel
                 ->hourly()
                 ->between('00:00', '05:59')
                 ->runInBackground()
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/shifts/multi_night/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             // $schedule
@@ -141,7 +157,7 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
                 ->everyFiveMinutes()
                 // ->dailyAt('09:00')
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->runInBackground()
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-visitor-logs-by-log-type-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -151,7 +167,7 @@ class Kernel extends ConsoleKernel
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
                 ->runInBackground()
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-default-attendance-seeder-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             //whatsapp reports 
@@ -163,7 +179,7 @@ class Kernel extends ConsoleKernel
                     // ->everyMinute()
                     ->dailyAt('03:45')
                     // ->runInBackground()
-                    ->withoutOverlapping()
+                    //->withoutOverlapping()
                     ->appendOutputTo(storage_path("logs/$monthYear-generate_daily_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
@@ -171,7 +187,7 @@ class Kernel extends ConsoleKernel
                     // ->everyMinute()
                     ->dailyAt('04:00')
                     // ->runInBackground()
-                    ->withoutOverlapping()
+                    //->withoutOverlapping()
                     ->appendOutputTo(storage_path("logs/$monthYear-generate_weekly_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
                 $schedule
@@ -179,7 +195,7 @@ class Kernel extends ConsoleKernel
                     // ->everyMinute()
                     ->monthlyOn(1, "04:30")
                     // ->runInBackground()
-                    ->withoutOverlapping()
+                    //->withoutOverlapping()
                     ->appendOutputTo(storage_path("logs/$monthYear-generate_monthly_report-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
@@ -195,7 +211,7 @@ class Kernel extends ConsoleKernel
                 //->everyFiveMinutes()
                 ->dailyAt('01:00')
                 // ->runInBackground()
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-leaves-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
@@ -203,14 +219,14 @@ class Kernel extends ConsoleKernel
                 //->everyTenMinutes()
                 ->dailyAt('01:30')
                 // ->runInBackground()
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-holidays-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-monthly-flexible-holidays-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -219,7 +235,7 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_off $companyId")
                 // ->everyMinute()
                 ->dailyAt('02:00')
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-sync-off-by-day-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -227,7 +243,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
-                ->withoutOverlapping()
+                //->withoutOverlapping()
                 ->appendOutputTo(storage_path("logs/$monthYear-visitor-set-expire-date-$companyId.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
@@ -240,26 +256,13 @@ class Kernel extends ConsoleKernel
 
         }
 
-        $schedule->call(function () {
-            exec('pm2 reload 5');
-            info("Log listener restart");
-        })->dailyAt('00:00');
 
-        $schedule->call(function () {
-            exec('pm2 reload 11');
-            info("Log listener backup restart");
-        })->monthlyOn(1, "00:00");
-
-        $schedule->call(function () {
-            exec('pm2 reload 4');
-            info("MyTime2Cloud SDK Production");
-        })->dailyAt('05:15');
 
         $schedule->call(function () {
             $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
             info($count . "companies has been updated");
-        })->dailyAt('00:00')
-            ->withoutOverlapping();
+        })->dailyAt('00:00');
+        //->withoutOverlapping();
 
 
         $schedule->call(function () {
@@ -279,7 +282,7 @@ class Kernel extends ConsoleKernel
             ->command('task:check_device_health')
             ->hourly()
             ->between('7:00', '23:59')
-            ->withoutOverlapping()
+            //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$monthYear-devices-health.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
@@ -317,7 +320,7 @@ class Kernel extends ConsoleKernel
             ->command('task:render_missing')
             ->dailyAt('02:15')
             // ->everyMinute()
-            ->withoutOverlapping()
+            //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$monthYear-render-missing-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         if (env("APP_ENV") == "production") {

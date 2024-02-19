@@ -29,7 +29,5 @@ class SyncAttendanceCameraLogs extends Command
     public function handle()
     {
         echo (new AttendanceLogCameraController)->store();
-        sleep(30);
-        echo (new AttendanceLogCameraController)->store();
     }
 }
