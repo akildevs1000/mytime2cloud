@@ -1,5 +1,8 @@
 const WebSocket = require("ws");
 const fs = require("fs");
+const axios = require('axios');
+const { Agent } = require('https');
+
 require("dotenv").config();
 
 const options = {
@@ -56,26 +59,46 @@ console.log(`Current Date: ${formattedDate}`);
 console.log(`Current Time: ${newTime.trim()}`);
 console.log(`logFilePath: ${logFilePath}`);
 
-const { SOCKET_ENDPOINT } = process.env;
+const { SOCKET_ENDPOINT, WHATSAPP_ENDPOINT, NUMBER, INSTANCE_ID, TOKEN } = process.env;
+
+
+const sendWhatsappMessage = async (msg) => {
+  axios.get(`${WHATSAPP_ENDPOINT}?number=${NUMBER}&type=text&message=${msg}&instance_id=${INSTANCE_ID}&access_token=${TOKEN}`, {
+    httpsAgent: new Agent({
+      rejectUnauthorized: false
+    })
+  })
+    .then(({ data }) => console.log(msg))
+    .catch(error => console.error(error));
+};
+
 
 // Create a WebSocket connection
 const socket = new WebSocket(SOCKET_ENDPOINT);
+
+
+let message = `Listener started at ${formattedDate} ${newTime.trim()}.\nReady to listen data from ${SOCKET_ENDPOINT}`;
+console.log(message);
+sendWhatsappMessage(message);
 
 // Handle WebSocket connection events
 socket.onopen = () => {
   console.log(`Connected to ${SOCKET_ENDPOINT}`);
 };
 
-socket.onerror = (error) => {
-  console.error("WebSocket error:", error.message);
+socket.onerror = async (error) => {
+  let message = "WebSocket error: " + error.message;
+  console.error(message);
+  await sendWhatsappMessage(message);
+
 };
 // Handle WebSocket close event
-socket.onclose = (event) => {
-  console.error(
-    `WebSocket connection closed with code ${
-      event.code
-    } at ${formattedDate} ${newTime.trim()}`
-  );
+
+socket.onclose = async (event) => {
+  let message = `WebSocket connection closed with code ${event.code
+    } at ${formattedDate} ${newTime.trim()}`;
+  console.error(message);
+  // await sendWhatsappMessage(message);
 };
 
 socket.onmessage = ({ data }) => {
@@ -113,12 +136,14 @@ socket.onmessage = ({ data }) => {
   }
 };
 
-process.on("SIGTERM", () => {
-  console.log(`Prcess killed at ${formattedDate} ${newTime.trim()}`);
+process.on("SIGTERM", async () => {
+  let message = `Prcess killed at ${formattedDate} ${newTime.trim()}`;
+  await sendWhatsappMessage(message);
   process.exit(0); // Exit the process gracefully
 });
 
-process.on("SIGINT", () => {
-  console.log(`Prcess killed at ${formattedDate} ${newTime.trim()}`);
+process.on("SIGINT", async () => {
+  let message = `Prcess killed at ${formattedDate} ${newTime.trim()}`;
+  await sendWhatsappMessage(message);
   process.exit(0); // Exit the process gracefully
 });
