@@ -707,10 +707,10 @@ export default {
 
     setInterval(() => {
       this.verifyAlarmStatus();
-    }, 1000 * 65);
+    }, 1000 * 60 * 1);
     setInterval(() => {
       this.loadNotificationMenu();
-    }, 1000 * 45 * 3);
+    }, 1000 * 60 * 2);
   },
 
   mounted() {
@@ -809,7 +809,7 @@ export default {
     toggleTheme() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
 
-      if(!this.$vuetify.theme.dark) {
+      if (!this.$vuetify.theme.dark) {
         this.$vuetify.theme.themes.light = {
           primary: "#6946dd", //violoet
           accent: "#d8363a",
@@ -820,7 +820,6 @@ export default {
           popup_background: "#ecf0f4",
         };
       }
-
     },
     updateTopmenu() {
       //update company Top menu

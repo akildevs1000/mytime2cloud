@@ -132,14 +132,14 @@
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <span class="mx-2">Render As: </span>
+      <span class="mx-2"> </span>
 
       <v-btn
         :loading="loading"
         class="primary"
         small
         @click="renderByType(endpoint)"
-        >Log</v-btn
+        >Click to Re-generate Attendance</v-btn
       >
       <!-- <v-btn class="background" dark small @click="renderByType(`render_off`)">
         Week Off</v-btn
@@ -220,48 +220,65 @@ export default {
     handleDatesFilter(dates) {
       this.editItems.dates = dates;
     },
-    renderByType(type) {
+
+    async renderByType(type) {
+      const delay = (ms) => new Promise((res) => setTimeout(res, ms));
       const { UserID, date, reason, UserIDs, dates } = this.editItems;
       if (!UserIDs.length || !dates.length) {
         alert("System User Id and Date field is required");
         return;
       }
       this.result = ["Processing..."];
-
+      let renderProcessingStatus = false;
       this.loading = true;
-      let payload = {
-        params: {
-          date,
-          UserID,
-          updated_by: this.$auth.user.id,
-          company_ids: [this.$auth.user.company_id],
-          manual_entry: true,
-          reason,
-          employee_ids: UserIDs,
-          dates,
-          shift_type_id: this.shift_type_id,
-        },
-      };
 
-      // return;
-      let endpoint = "/" + type;
-      if (type != "render_off" && type != "render_absent") {
-        endpoint = "render_logs";
-      }
-      this.$axios
-        .get(endpoint, payload)
-        .then(({ data }) => {
-          this.loading = false;
+      const chunkSize = 10;
 
-          if (endpoint !== "render_logs") {
-            this.result = [payload];
-            return;
-          }
+      for (let i = 0; i < UserIDs.length; i += chunkSize) {
+        const UserIDs_chunk = UserIDs.slice(i, i + chunkSize);
+        // do whatever
 
-          this.result = data;
-          this.$emit("update-data-table");
-        })
-        .catch((e) => console.log(e));
+        let payload = {
+          params: {
+            date,
+            UserID,
+            updated_by: this.$auth.user.id,
+            company_ids: [this.$auth.user.company_id],
+            manual_entry: true,
+            reason,
+            employee_ids: UserIDs_chunk,
+            dates,
+            shift_type_id: this.shift_type_id,
+          },
+        };
+
+        // return;
+        let endpoint = "/" + type;
+        if (type != "render_off" && type != "render_absent") {
+          endpoint = "render_logs";
+        }
+        await this.$axios
+          .get(endpoint, payload)
+          .then(({ data }) => {
+            //this.loading = false;
+
+            if (endpoint !== "render_logs") {
+              this.result = [payload];
+              return;
+            }
+            renderProcessingStatus = true;
+            this.result = data;
+          })
+          .catch((e) => console.log(e));
+
+        await delay(1000 * 2);
+        renderProcessingStatus = true;
+      } //for
+      this.loading = false;
+      this.$emit("update-data-table");
+      // if (!renderProcessingStatus) {
+      //   this.$emit("update-data-table");
+      // }
     },
   },
   components: { DateRangePickerCommon },

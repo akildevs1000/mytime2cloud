@@ -158,7 +158,9 @@ export default {
     },
   },
   created() {
-    this.getRecords();
+    setTimeout(() => {
+      this.getRecords();
+    }, 1000 * 12);
   },
   computed: {
     employees() {

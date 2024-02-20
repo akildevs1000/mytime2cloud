@@ -319,16 +319,20 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getRecords();
+        setTimeout(() => {
+          this.getRecords();
+        }, 1000 * 5);
       },
       deep: true,
     },
 
     branch_id() {
-      this.$store.commit("dashboard/recent_logs", null);
-      setTimeout(() => {
-        this.getRecords();
-      }, 500);
+      if (this.branch_id != "") {
+        this.$store.commit("dashboard/recent_logs", null);
+        setTimeout(() => {
+          this.getRecords();
+        }, 1000 * 5);
+      }
     },
   },
   mounted() {
@@ -341,7 +345,6 @@ export default {
         if (this.$auth.user) this.getRecords(true);
       }
     }, 1000 * 60);
-    //this.getRecords();
   },
   created() {
     let payload = {

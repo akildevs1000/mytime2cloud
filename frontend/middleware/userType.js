@@ -37,7 +37,7 @@ const data = async ({ $auth, redirect }) => {
   if (user_type.branch_id == 0 && user_type.is_master == false) {
     redirect("logout");
   } else {
-    redirect("/dashboard");
+    redirect("/attendance_report");
   }
 
   return "";

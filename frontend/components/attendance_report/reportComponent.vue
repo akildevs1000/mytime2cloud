@@ -58,7 +58,10 @@
           <v-list width="200" dense>
             <v-list-item
               v-if="can(`attendance_report_re_generate`)"
-              @click="reportSync = true"
+              @click="
+                reportSync = true;
+                key = key + 1;
+              "
             >
               <v-list-item-title style="cursor: pointer">
                 <v-icon color="secondary" small> mdi-cached </v-icon>
@@ -567,6 +570,7 @@
             <v-icon dark @click="reportSync = false">mdi-close-box</v-icon>
           </v-card-title>
           <RenderAttendance
+            :key="key"
             :shift_type_id="shift_type_id"
             :endpoint="render_endpoint"
             :display_emp_pic="display_emp_pic"
@@ -845,6 +849,7 @@ export default {
   ],
 
   data: () => ({
+    key: 1,
     generateMultiLogsDialog: false,
     currentPage: "",
     tableHeight: 750,
