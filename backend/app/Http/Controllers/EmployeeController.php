@@ -1038,6 +1038,8 @@ class EmployeeController extends Controller
         $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
         $employees = Employee::query();
 
+
+
         // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
         $employees->where("company_id", $company_id);
         if ($system_user_id)
@@ -1058,17 +1060,19 @@ class EmployeeController extends Controller
             {
                 //$date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
                 $attendance = Attendance::where("company_id", $company_id);
-                $count = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->count();
+                $count = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->get()->count();
 
 
                 if ($count == 0 && $employee->system_user_id != '') {
 
 
+
+
                     $data[] = [
                         "date" =>  $date,
                         "employee_id" => $employee->system_user_id,
-                        "shift_id" => $employee->schedule->shift_id ?? 1,
-                        "shift_type_id" => $employee->schedule->shift_type_id ?? 1,
+                        "shift_id" => $employee->schedule_active->shift_id,
+                        "shift_type_id" => $employee->schedule_active->shift_type_id,
                         "status" => "A",
                         "in" => "---",
                         "out" => "---",
