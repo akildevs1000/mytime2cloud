@@ -568,6 +568,8 @@ export default {
         filterType: this.filterType,
         key: this.key++,
       };
+
+      this.getAttendanceTabs();
     },
     getFirstAndLastDay() {
       const currentDate = new Date();
@@ -714,6 +716,8 @@ export default {
           params: {
             per_page: 10,
             company_id: this.$auth.user.company_id,
+            from_date: this.from_date,
+            to_date: this.to_date,
           },
         })
         .then(({ data }) => {
