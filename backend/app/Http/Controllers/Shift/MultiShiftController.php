@@ -226,7 +226,8 @@ class MultiShiftController extends Controller
                 $model->insert($chunk);
             }
 
-            if (!$custom_render) {
+            //if (!$custom_render)
+            {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
                     ->where("LogTime", ">=", $date . ' 00:00:00')
                     ->where("LogTime", "<=", $date . ' 23:59:00')

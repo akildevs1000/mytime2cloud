@@ -189,7 +189,8 @@ class SingleShiftController extends Controller
             $model->delete();
             $model->insert($items);
 
-            if (!$custom_render) {
+            //if (!$custom_render) 
+            {
                 // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
                     ->where("LogTime", ">=", $date . ' 00:00:00')
