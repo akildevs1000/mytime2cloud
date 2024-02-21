@@ -26,37 +26,31 @@ class MonthlyMergeController extends Controller
     public function monthly(Request $request)
     {
 
-
-        //return  Pdf::loadFile(('7777.pdf'))->stream();
-
-        //Attendance reports - Monthly Geenration Report 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
         }
         $file_name = $file_name . '.pdf';
 
-
-        // return $this->processPDF($request);
-
-        return $this->processPDF2($request)->stream($file_name);
-    }
-
-    public function monthly2(Request $request)
-    {
-
-        //Attendance reports - Monthly Geenration Report 
-        $file_name = "Attendance Report";
-        if (isset($request->from_date) && isset($request->to_date)) {
-            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
-        }
-        $file_name = $file_name . '.pdf';
-
-
-        // return $this->processPDF($request);
 
         return $this->processPDF($request)->stream($file_name);
     }
+
+    // public function monthly2(Request $request)
+    // {
+
+    //     //Attendance reports - Monthly Geenration Report 
+    //     $file_name = "Attendance Report";
+    //     if (isset($request->from_date) && isset($request->to_date)) {
+    //         $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+    //     }
+    //     $file_name = $file_name . '.pdf';
+
+
+    //     // return $this->processPDF($request);
+
+    //     return $this->processPDF($request)->stream($file_name);
+    // }
 
     public function monthly_download_pdf(Request $request)
     {
@@ -308,108 +302,7 @@ class MonthlyMergeController extends Controller
     public function processPDF($request)
     {
         // return [$request->from_date, $request->to_date];
-
-        $companyID = $request->company_id;
-
-        //$model = (new Attendance)->processAttendanceModel($request);
-        //$data = $model->get()->groupBy(['employee_id', 'date']);
-        $pdfFiles = [];
-        $model = (new Attendance)->processAttendanceModel($request);
-        $data1 = $model->get()->groupBy(['employee_id', 'date']);
-        foreach ($data1  as $key => $value) {
-            # code...
-
-            $data  = [$key => $value];
-
-
-            $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-            $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
-            $company['report_type'] = $this->getStatusText($request->status);
-            $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
-            $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
-            $collection = $model->clone()->get();
-
-            $info = (object) [
-                'total_absent' => $model->clone()->where('status', 'A')->count(),
-                'total_present' => $model->clone()->where('status', 'P')->count(),
-                'total_off' => $model->clone()->where('status', 'O')->count(),
-                'total_missing' => $model->clone()->where('status', 'M')->count(),
-                'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-                'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
-                'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
-                'report_type' => $request->report_type ?? "",
-                'shift_type_id' => $request->shift_type_id ?? 0,
-                'total_leave' => 0,
-            ];
-
-            // if ($request->employee_id && $request->filled('employee_id')) {
-            //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
-            //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
-            // }
-
-            $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
-
-            if ($request->from_date == $request->to_date) {
-                $fileName =  $fileName . "-whatsapp";
-            }
-
-            $main_shift_name = 'Single Shift';
-            if ($request->main_shift_type == 2)
-                $main_shift_name = 'Multi Shift';
-            else   if ($request->main_shift_type == 5)
-                $main_shift_name = 'Double Shift';
-
-
-            $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
-
-
-            // //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-            // if ($request->report_template == 'Template2')
-            //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-            // if ($request->report_template == 'Template1') {
-            //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
-            // }
-
-            if ($request->report_template == 'Template2') {
-                $file_path = "temp_pdf/" . $key . ".pdf";
-                $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
-                Storage::disk('public')->put($file_path, $data_pdf);
-
-                unset($data_pdf);
-            }
-            if ($request->report_template == 'Template1') { {
-                    $file_path =   "temp_pdf\\" . $key . ".pdf";
-                    $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
-                    Storage::disk('public')->put($file_path, $data_pdf);
-                    // Storage::public_path('temp_pdf/')->put($file_path, $data_pdf);
-
-                    unset($data_pdf);
-                }
-            }
-
-            $pdfFiles[] =  $outputFile = storage_path("app\\public\\" . $file_path);;
-        }
-        //return  $pdfFiles;
-        return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
-    }
-    public function processPDF2($request)
-    {
-
-
-
-
-
-
-
-
-
         $oMerger = PDFMerger::init();
-
-
-
-
-        // return [$request->from_date, $request->to_date];
-
         $companyID = $request->company_id;
 
         //$model = (new Attendance)->processAttendanceModel($request);
@@ -417,11 +310,8 @@ class MonthlyMergeController extends Controller
         $pdfFiles = [];
         $model = (new Attendance)->processAttendanceModel($request);
         $data1 = $model->get()->groupBy(['employee_id', 'date']);
-        $mergedPdf = PDF::loadHTML('');
-        $pages = [];
-        $pagescontent = '';
-        header('Content-Type: application/pdf');
 
+        $folder_name = rand(10000, 99999);
         foreach ($data1  as $key => $value) {
             # code...
 
@@ -477,88 +367,284 @@ class MonthlyMergeController extends Controller
             // }
 
             if ($request->report_template == 'Template2') {
-                $file_path = "temp_pdf/" . $key . ".pdf";
+                $file_path = "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
                 $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
                 Storage::disk('public')->put($file_path, $data_pdf);
 
                 unset($data_pdf);
             }
             if ($request->report_template == 'Template1') { {
-                    $file_path =   "temp_pdf/" . $key . ".pdf";
-                    //$data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
-                    //Storage::disk('public')->put($file_path, $data_pdf);
-                    //Storage::public_path('temp_pdf/')->put($file_path, $data_pdf);
-                    //Storage::disk('local')->put($file_path, $data_pdf);
+                    $file_path =   "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
+                    $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
 
-                    $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
-                    $path = 'public/';
-                    $data_pdf->save($file_path);;
+
+                    Storage::disk('public')->put($file_path, $data_pdf);
+
+
                     unset($data_pdf);
-
-                    // //--------------
-                    // $pages[] = (string)view('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
-
-                    // $pagescontent = $pagescontent . Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
-
-
-                    // //echo $pagescontent;
-
-                    // // ob_flush();
                 }
             }
 
-            //$pdfFiles[] =  $outputFile = storage_path("app\\public\\" . $file_path);;
-            //$pdfFiles[] = env("BASE_URL") . Storage::url("app\\public\\" . $file_path); // $outputFile = storage_path("app\\public\\" . $file_path);;
-
-            $pdfFiles[] =  asset("app/public/" . $file_path);
-
-            $oMerger->addPDF(($file_path), 'all');
-
-            //----------------------------
 
 
-
-
-
-
-
-
+            $oMerger->addPDF(storage_path("app\\public\\" . $file_path), 'all');
         }
-
-
-
-
-        // $dompdf = new DOMPDF();
-        // $dompdf->set_paper('a4', 'portrait');
-        // $dompdf->load_html($pagescontent);
-        // $dompdf->render();
-        // $pdf_string = $dompdf->output();
-        // $filepath = "merge.pdf";
-        // file_put_contents("" . $filepath . "", $pdf_string);
-        // $dompdf = new Dompdf();
-        // $dompdf->loadHtml('<h1>hello world1111111111111111111111111111111111111</h1>');
-        // $output = $dompdf->output();
-        // file_put_contents('filename.pdf', $pagescontent);
-
-
-
-
-
-
-        //$oMerger->addPDF(public_path('pdf_two.pdf'), 'all');
 
         $oMerger->merge();
-        $oMerger->save('temp_pdf/merged_result.pdf');
-
-        unset($oMerger);
-
-        return   Pdf::loadFile(public_path('temp_pdf/merged_result.pdf'));
 
 
-        //return $pdf->loadView('pdf.attendance_reports_updated.merge', ['pages' => $pages]);
-        //return  $pdfFiles;
-        return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
+        $path =  '\\public\\temp_pdf\\' . $folder_name;
+        if (Storage::exists($path)) {
+            // Delete the folder and all its contents
+            Storage::deleteDirectory($path);
+        } else {
+
+            return "Folder does not exist.";
+        }
+        // return Storage::deleteDirectory();
+        // return storage_path("app\\public") . '\\temp_pdf\\' . $folder_name;
+        // Storage::deleteDirectory(storage_path("public") . '\\temp_pdf\\' . $folder_name);
+
+
+        return $oMerger;
+
+        // // return $oMerger->save('merged_result.pdf');
+        // $oMerger->save(storage_path('' . 'merged_result.pdf'));
+        // // return $oMerger->save(storage_path('' . 'merged_result.pdf'));
+
+        // return  pdf::loadFile(public_path("merged_result.pdf"));
+
+        // return  $pdfFiles;
+        // return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
     }
+    // public function processPDF2($request)
+    // {
+    //     // return [$request->from_date, $request->to_date];
+
+    //     $companyID = $request->company_id;
+
+    //     //$model = (new Attendance)->processAttendanceModel($request);
+    //     //$data = $model->get()->groupBy(['employee_id', 'date']);
+    //     $pdfFiles = [];
+    //     $model = (new Attendance)->processAttendanceModel($request);
+    //     $data1 = $model->get()->groupBy(['employee_id', 'date']);
+    //     foreach ($data1  as $key => $value) {
+    //         # code...
+
+    //         $data  = [$key => $value];
+
+
+    //         $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+    //         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+    //         $company['report_type'] = $this->getStatusText($request->status);
+    //         $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
+    //         $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
+    //         $collection = $model->clone()->get();
+
+    //         $info = (object) [
+    //             'total_absent' => $model->clone()->where('status', 'A')->count(),
+    //             'total_present' => $model->clone()->where('status', 'P')->count(),
+    //             'total_off' => $model->clone()->where('status', 'O')->count(),
+    //             'total_missing' => $model->clone()->where('status', 'M')->count(),
+    //             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+    //             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+    //             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+    //             'report_type' => $request->report_type ?? "",
+    //             'shift_type_id' => $request->shift_type_id ?? 0,
+    //             'total_leave' => 0,
+    //         ];
+
+    //         // if ($request->employee_id && $request->filled('employee_id')) {
+    //         //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
+    //         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
+    //         // }
+
+    //         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+    //         if ($request->from_date == $request->to_date) {
+    //             $fileName =  $fileName . "-whatsapp";
+    //         }
+
+    //         $main_shift_name = 'Single Shift';
+    //         if ($request->main_shift_type == 2)
+    //             $main_shift_name = 'Multi Shift';
+    //         else   if ($request->main_shift_type == 5)
+    //             $main_shift_name = 'Double Shift';
+
+
+    //         $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+
+
+    //         // //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+    //         // if ($request->report_template == 'Template2')
+    //         //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+    //         // if ($request->report_template == 'Template1') {
+    //         //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
+    //         // }
+
+    //         if ($request->report_template == 'Template2') {
+    //             $file_path = "temp_pdf/" . $key . ".pdf";
+    //             $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
+    //             Storage::disk('public')->put($file_path, $data_pdf);
+
+    //             unset($data_pdf);
+    //         }
+    //         if ($request->report_template == 'Template1') { {
+    //                 $file_path =   "temp_pdf\\" . $key . ".pdf";
+    //                 $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
+    //                 $data_pdf->save($file_path);;
+
+    //                 unset($data_pdf);
+    //             }
+    //         }
+
+    //         $pdfFiles[] =  $outputFile = storage_path("app\\public\\" . $file_path);;
+    //     }
+    //     //return  $pdfFiles;
+    //     return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
+    // }
+    // public function processPDF2222($request)
+    // {
+
+
+
+
+
+    //     // $pdfContent = '<html><body><h1>Hello, this is a PDF!</h1></body></html>';
+
+    //     // // Load PDF content into a PDF object
+    //     // $pdf = PDF::loadHTML($pdfContent);
+
+    //     // // You can customize the PDF further if needed
+    //     // // For example, set paper size, orientation, etc.
+    //     // $pdf->setPaper('A4', 'portrait');
+
+    //     // // Save the PDF or return it as a response
+    //     // // $pdf->save('path-to-save.pdf'); // Save PDF to a file
+    //     // // return $pdf->download('filename.pdf'); // Download PDF
+
+    //     // // Alternatively, you can directly return the PDF as a response
+    //     // return $pdf->stream('filename.pdf');
+
+
+
+
+    //     $oMerger = PDFMerger::init();
+
+
+
+
+    //     // return [$request->from_date, $request->to_date];
+
+    //     $companyID = $request->company_id;
+
+    //     //$model = (new Attendance)->processAttendanceModel($request);
+    //     //$data = $model->get()->groupBy(['employee_id', 'date']);
+    //     $pdfFiles = [];
+    //     $model = (new Attendance)->processAttendanceModel($request);
+    //     $data1 = $model->get()->groupBy(['employee_id', 'date']);
+    //     $mergedPdf = PDF::loadHTML('');
+    //     $pages = [];
+    //     $pagescontent = '';
+    //     header('Content-Type: application/pdf');
+
+    //     foreach ($data1  as $key => $value) {
+    //         # code...
+
+    //         $data  = [$key => $value];
+
+
+    //         $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+    //         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+    //         $company['report_type'] = $this->getStatusText($request->status);
+    //         $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
+    //         $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
+    //         $collection = $model->clone()->get();
+
+    //         $info = (object) [
+    //             'total_absent' => $model->clone()->where('status', 'A')->count(),
+    //             'total_present' => $model->clone()->where('status', 'P')->count(),
+    //             'total_off' => $model->clone()->where('status', 'O')->count(),
+    //             'total_missing' => $model->clone()->where('status', 'M')->count(),
+    //             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+    //             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+    //             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+    //             'report_type' => $request->report_type ?? "",
+    //             'shift_type_id' => $request->shift_type_id ?? 0,
+    //             'total_leave' => 0,
+    //         ];
+
+    //         // if ($request->employee_id && $request->filled('employee_id')) {
+    //         //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
+    //         //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
+    //         // }
+
+    //         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+    //         if ($request->from_date == $request->to_date) {
+    //             $fileName =  $fileName . "-whatsapp";
+    //         }
+
+    //         $main_shift_name = 'Single Shift';
+    //         if ($request->main_shift_type == 2)
+    //             $main_shift_name = 'Multi Shift';
+    //         else   if ($request->main_shift_type == 5)
+    //             $main_shift_name = 'Double Shift';
+
+
+    //         $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+
+
+    //         // //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+    //         // if ($request->report_template == 'Template2')
+    //         //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+    //         // if ($request->report_template == 'Template1') {
+    //         //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
+    //         // }
+
+    //         if ($request->report_template == 'Template2') {
+    //             $file_path = "temp_pdf/" . $key . ".pdf";
+    //             $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
+    //             Storage::disk('public')->put($file_path, $data_pdf);
+
+    //             unset($data_pdf);
+    //         }
+    //         if ($request->report_template == 'Template1') { {
+    //                 $file_path =   "temp_pdf/" . $key . ".pdf";
+    //                 //$data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+    //                 //Storage::disk('public')->put($file_path, $data_pdf);
+    //                 //Storage::public_path('temp_pdf/')->put($file_path, $data_pdf);
+    //                 //Storage::disk('local')->put($file_path, $data_pdf);
+
+    //                 $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
+    //                 $path = 'public/';
+    //                 $data_pdf->save($file_path);;
+    //                 unset($data_pdf);
+
+
+
+    //                 // //--------------
+    //                 // $pages[] = (string)view('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr);
+
+    //                 // $pagescontent = $pagescontent . Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+
+
+    //                 // //echo $pagescontent;
+
+    //                 // // ob_flush();
+    //             }
+    //         }
+    //     }
+
+
+
+    //     //return   Pdf::loadFile(public_path('temp_pdf/merged_result.pdf'));
+
+
+    //     //return $pdf->loadView('pdf.attendance_reports_updated.merge', ['pages' => $pages]);
+    //     //return  $pdfFiles;
+    //     return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
+    // }
 
     public function getHTML($data, $company)
     {
