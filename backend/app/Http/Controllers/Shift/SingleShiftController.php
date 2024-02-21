@@ -133,6 +133,7 @@ class SingleShiftController extends Controller
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",
+
             ];
 
 
