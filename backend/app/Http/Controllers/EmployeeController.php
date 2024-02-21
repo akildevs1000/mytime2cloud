@@ -1038,7 +1038,15 @@ class EmployeeController extends Controller
         $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
         $employees = Employee::query();
 
+        $employees->with(["schedule_active" => function ($q) use ($request, $date) {
+            $q->where("company_id", $request->company_id);
+            $q->where("company_id", $request->company_id);
+            $q->where("to_date", ">=", $date);
 
+            $q->withOut("shift_type");
+            // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+            $q->orderBy("to_date", "asc");
+        }]);
 
         // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
         $employees->where("company_id", $company_id);
