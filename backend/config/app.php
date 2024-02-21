@@ -219,4 +219,6 @@ return [
 
     ])->toArray(),
 
+    'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
+
 ];
