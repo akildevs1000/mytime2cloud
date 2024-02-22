@@ -28,9 +28,21 @@ class MonthlyMergeJobController extends Controller
 {
     public function monthly(Request $request)
     {
+        $file_name = "Attendance Report";
+        if (isset($request->from_date) && isset($request->to_date)) {
+            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+        }
+        $file_name = $file_name . '.pdf';
+
+        $final_file_name =  $this->processPDF($request);
 
 
-        //return ReportsPDFMergeJob::dispatch(59516);
+        return response()->file(
+            $final_file_name
+        );
+    }
+    public function monthly_download(Request $request)
+    {
 
 
         $file_name = "Attendance Report";
@@ -39,8 +51,12 @@ class MonthlyMergeJobController extends Controller
         }
         $file_name = $file_name . '.pdf';
 
-        return [$this->processPDF($request)];
-        // return $this->processPDF($request)->stream($file_name);
+        $final_file_name =  $this->processPDF($request);
+
+        return response()->download(
+            $final_file_name,
+            $file_name
+        );
     }
 
     // public function monthly2(Request $request)
@@ -348,90 +364,35 @@ class MonthlyMergeJobController extends Controller
 
 
             ReportsPDFGeneratorJob::dispatch($folder_name,  $data, $key, $request1);
+        }
+        // sleep(10);
+        // $job = new  ReportsPDFMergeJob($folder_name);
+        // dispatch($job);
+        ReportsPDFMergeJob::dispatch($folder_name);
 
 
-
-            # code...
-
-            /* $data  = [$key => $value];
+        $folderPath =  $storage_path = storage_path("app/public/temp_pdf/");;
+        $fileName =  $folder_name . ".pdf";
 
 
-            $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-            $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
-            $company['report_type'] = $this->getStatusText($request->status);
-            $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
-            $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
-            $collection = $model->clone()->get();
+        $maxWaitTime = 60 * 5; // Adjust this according to your needs
 
-            $info = (object) [
-                'total_absent' => $model->clone()->where('status', 'A')->count(),
-                'total_present' => $model->clone()->where('status', 'P')->count(),
-                'total_off' => $model->clone()->where('status', 'O')->count(),
-                'total_missing' => $model->clone()->where('status', 'M')->count(),
-                'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-                'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
-                'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
-                'report_type' => $request->report_type ?? "",
-                'shift_type_id' => $request->shift_type_id ?? 0,
-                'total_leave' => 0,
-            ];
+        $startTime = time();
 
+        while (!file_exists($folderPath . $fileName)) {
 
+            if (time() - $startTime > $maxWaitTime) {
+                //echo "Timeout reached. File not found within the specified time.";
 
-            $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
-
-            if ($request->from_date == $request->to_date) {
-                $fileName =  $fileName . "-whatsapp";
+                return '';
+                break;
             }
 
-            $main_shift_name = 'Single Shift';
-            if ($request->main_shift_type == 2)
-                $main_shift_name = 'Multi Shift';
-            else   if ($request->main_shift_type == 5)
-                $main_shift_name = 'Double Shift';
 
-
-            $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
-
-
-
-            $que_job_blade_name = '';
-            $que_job_data = '';
-            if ($request->report_template == 'Template2') {
-                // $file_path = "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
-                // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
-                // Storage::disk('public')->put($file_path, $data_pdf);
-
-                // unset($data_pdf);
-
-                $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template;
-                $que_job_data = $arr;
-            }
-            if ($request->report_template == 'Template1') { {
-                    //$file_path =   "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
-                    // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
-                    // Storage::disk('public')->put($file_path, $data_pdf);
-                    //unset($data_pdf);
-
-                    $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName;
-                    $que_job_data = $arr;
-                }
-            }
-
-            $request1 = (object) ["shift_type_id" => $request->shift_type_id];
-            $job_data = ['request' => $request1, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
-            ReportsPDFGeneratorJob::dispatch($folder_name, $que_job_blade_name, $job_data, $key);
-
-            // $path1 = storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf");
-
-
-            //$oMerger->addPDF($path1, 'all');
-
-            */
+            sleep(1); // You can adjust the sleep duration if needed
         }
 
-        $job = new  ReportsPDFMergeJob($folder_name);
-        return  dispatch($job);
+        return  $folderPath . $fileName;
     }
     public function processPDF111($request)
     {
