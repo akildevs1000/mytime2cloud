@@ -365,7 +365,7 @@ class MonthlyMergeJobController extends Controller
 
             ReportsPDFGeneratorJob::dispatch($folder_name,  $data, $key, $request1);
         }
-        // sleep(10);
+        sleep(10);
         // $job = new  ReportsPDFMergeJob($folder_name);
         // dispatch($job);
         ReportsPDFMergeJob::dispatch($folder_name);
@@ -375,22 +375,22 @@ class MonthlyMergeJobController extends Controller
         $fileName =  $folder_name . ".pdf";
 
 
-        $maxWaitTime = 60 * 2; // Adjust this according to your needs
+        // $maxWaitTime = 60 * 2; // Adjust this according to your needs
 
-        $startTime = time();
+        // $startTime = time();
 
-        while (!file_exists($folderPath . $fileName)) {
+        // while (!file_exists($folderPath . $fileName)) {
 
-            if (time() - $startTime > $maxWaitTime) {
-                //echo "Timeout reached. File not found within the specified time.";
+        //     if (time() - $startTime > $maxWaitTime) {
+        //         //echo "Timeout reached. File not found within the specified time.";
 
-                return '';
-                break;
-            }
+        //         return '';
+        //         break;
+        //     }
 
 
-            sleep(1); // You can adjust the sleep duration if needed
-        }
+        //     sleep(1); // You can adjust the sleep duration if needed
+        // }
 
         return  $folderPath . $fileName;
     }
