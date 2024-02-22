@@ -445,36 +445,7 @@
         @php $i = 0; @endphp
         @endforeach
         </table>
-        @php
 
-
-
-        function getTotalHours2($employeeData, $type)
-        {
-        if (!is_array($employeeData)) {
-        throw new InvalidArgumentException('Invalid employee data: must be an array');
-        }
-        $totalMinutes = 0;
-        foreach ($employeeData as $employee) {
-        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-        }
-        $time = $employee[0][$type];
-        if ($time != '---') {
-        $parts = explode(':', $time);
-        $hours = intval($parts[0]);
-        $minutes = intval($parts[1]);
-        $totalMinutes += $hours * 60 + $minutes;
-        }
-        }
-
-        $hours = floor($totalMinutes / 60);
-        $minutes = $totalMinutes % 60;
-
-        return sprintf('%02d:%02d', $hours, $minutes);
-        }
-
-        @endphp
 
 </body>
 <style>
