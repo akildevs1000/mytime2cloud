@@ -34,12 +34,12 @@ class MonthlyMergeJobController extends Controller
         }
         $file_name = $file_name . '.pdf';
 
-        $final_file_name =  $this->processPDF($request);
+        return  $final_file_name =  $this->processPDF($request);
 
 
-        return response()->file(
-            $final_file_name
-        );
+        // return response()->file(
+        //     $final_file_name
+        // );
     }
     public function monthly_download(Request $request)
     {
@@ -51,13 +51,50 @@ class MonthlyMergeJobController extends Controller
         }
         $file_name = $file_name . '.pdf';
 
-        $final_file_name =  $this->processPDF($request);
+        return  $final_file_name =  $this->processPDF($request);
 
-        return response()->download(
-            $final_file_name,
-            $file_name
-        );
+        // return response()->download(
+        //     $final_file_name,
+        //     $file_name
+        // );
     }
+
+    public function downloadFinalfile(Request $request)
+    {
+        $input_file = $request->file;
+        $folderPath =  $storage_path = storage_path("app/public/temp_pdf/");;
+        $fileName =  $input_file . ".pdf";
+
+        $file_name = "Attendance Report";
+        $file_name = $file_name . '.pdf';
+        if (file_exists($folderPath .  $fileName)) {
+            return response()->download(
+                $folderPath .  $fileName,
+                $file_name
+            );
+        } else {
+            return ['File not found'];
+        }
+    }
+    public function viewFinalfile(Request $request)
+    {
+        $input_file = $request->file;
+        $folderPath =  $storage_path = storage_path("app/public/temp_pdf/");;
+        $fileName =  $input_file . ".pdf";
+
+        $file_name = "Attendance Report";
+        $file_name = $file_name . '.pdf';
+        if (file_exists($folderPath .  $fileName)) {
+            return response()->file(
+                $folderPath .  $fileName
+
+            );
+        } else {
+            return ['File not found'];
+        }
+    }
+
+
 
     // public function monthly2(Request $request)
     // {
@@ -370,7 +407,7 @@ class MonthlyMergeJobController extends Controller
         // dispatch($job);
         ReportsPDFMergeJob::dispatch($folder_name);
 
-
+        return $folder_name;
         $folderPath =  $storage_path = storage_path("app/public/temp_pdf/");;
         $fileName =  $folder_name . ".pdf";
 

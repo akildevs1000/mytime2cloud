@@ -24,6 +24,26 @@
         <v-toolbar-title> </v-toolbar-title>
 
         <v-spacer></v-spacer>
+
+        <span style="padding-left: 15px"
+          ><img
+            v-if="donwload_pdf_file != ''"
+            title="Download File"
+            style="cursor: pointer"
+            @click="view_report_pdf_file()"
+            src="/icons/icon_print.png"
+            class="iconsize"
+        /></span>
+        <span style="padding-left: 15px"
+          ><img
+            v-if="view_pdf_file != ''"
+            title="View PDF File"
+            style="cursor: pointer"
+            @click="donwload_file()"
+            src="/icons/icon_pdf.png"
+            class="iconsize"
+        /></span>
+        <span style="padding-left: 15px">|||</span>
         <span style="padding-left: 15px"
           ><img
             title="Print"
@@ -865,6 +885,9 @@ export default {
   ],
 
   data: () => ({
+    donwload_pdf_file: "",
+    view_pdf_file: "",
+
     key: 1,
     generateMultiLogsDialog: false,
     currentPage: "",
@@ -1613,6 +1636,36 @@ export default {
       pdf.setAttribute("target", "_blank");
       pdf.click();
     },
+
+    donwload_file() {
+      let path =
+        process.env.BACKEND_URL +
+        "/download_finalfile?file=" +
+        this.donwload_pdf_file;
+
+      let report = document.createElement("a");
+      report.setAttribute("href", path);
+      report.setAttribute("target", "_blank");
+      report.click();
+
+      return;
+    },
+    view_report_pdf_file() {
+      let path =
+        process.env.BACKEND_URL +
+        "/view_finalfile?t=" +
+        Math.random(10000, 99000) +
+        "&file=" +
+        this.view_pdf_file;
+
+      let report = document.createElement("a");
+      report.setAttribute("href", path);
+      report.setAttribute("target", "_blank");
+      report.click();
+
+      return;
+    },
+
     process_file2(type) {
       if (this.data && !this.data.length) {
         alert("No data found");
@@ -1653,19 +1706,35 @@ export default {
         qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
       }
       console.log(qs);
-      // let options = {
-      //   params: {},
-      // };
-      // this.$axios.get(qs, options).then(({ data }) => {
-      //   console.log(data);
-      // });
+      this.loading = true;
+      this.donwload_pdf_file = "";
+      this.view_pdf_file = "";
+      this.snackbar = true;
+      this.response = "Processing your request...Please wait ";
+      alert(this.response);
+      let options = {
+        params: {},
+      };
+      this.$axios.get(qs, options).then(({ data }) => {
+        console.log(data);
 
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
+        setTimeout(() => {
+          this.donwload_pdf_file = data;
+          this.view_pdf_file = data;
+          this.loading = false;
 
-      return;
+          this.snackbar = true;
+          this.response =
+            "Processing completed . Now you can Download your Report ";
+        }, 3000);
+      });
+
+      // let report = document.createElement("a");
+      // report.setAttribute("href", qs);
+      // report.setAttribute("target", "_blank");
+      // report.click();
+
+      // return;
     },
 
     process_file(type) {

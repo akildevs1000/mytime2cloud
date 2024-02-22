@@ -90,6 +90,11 @@ Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download
 // //monthly reports Jobs Queue merge 
 Route::get('/monthly_merge_job', [MonthlyMergeJobController::class, 'monthly']);
 Route::get('/monthly_download_pdf_merge_job', [MonthlyMergeJobController::class, 'monthly_download']);
+Route::get('/download_finalfile', [MonthlyMergeJobController::class, 'downloadFinalfile']);
+Route::get('/view_finalfile', [MonthlyMergeJobController::class, 'viewFinalfile']);
+
+
+
 
 //multi in out
 
