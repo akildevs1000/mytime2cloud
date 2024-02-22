@@ -305,8 +305,132 @@ class MonthlyMergeJobController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
-
     public function processPDF($request)
+    {
+        // return [$request->from_date, $request->to_date];
+        $oMerger = PDFMerger::init();
+        $companyID = $request->company_id;
+
+        //$model = (new Attendance)->processAttendanceModel($request);
+        //$data = $model->get()->groupBy(['employee_id', 'date']);
+        $pdfFiles = [];
+        $model = (new Attendance)->processAttendanceModel($request);
+        $data1 = $model->get()->groupBy(['employee_id', 'date']);
+
+        $folder_name = rand(10000, 99999);
+
+        $request1 = (object) [
+            "shift_type_id" => $request->shift_type_id,
+            "department_id" => $request->department_id,
+            "status" => $request->status,
+            "from_date" => $request->from_date,
+            "to_date" => $request->to_date,
+            "report_type" => $request->report_type,
+            "main_shift_type" => $request->main_shift_type,
+            "company_id" => $request->company_id,
+            "employee_id" => $request->employee_id,
+            "department_ids" => $request->department_ids,
+            "late_early" => $request->late_early,
+
+            "overtime" => $request->overtime,
+            "branch_id" => $request->branch_id,
+
+            "daily_date" => $request->daily_date,
+            "date" => $request->date,
+            "sortBy" => $request->sortBy,
+            "report_template" => $request->report_template,
+
+
+        ];
+        foreach ($data1  as $key => $value) {
+
+            $data  = [$key => $value];
+
+
+            ReportsPDFGeneratorJob::dispatch($folder_name,  $data, $key, $request1);
+
+
+
+            # code...
+
+            /* $data  = [$key => $value];
+
+
+            $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+            $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
+            $company['report_type'] = $this->getStatusText($request->status);
+            $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
+            $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
+            $collection = $model->clone()->get();
+
+            $info = (object) [
+                'total_absent' => $model->clone()->where('status', 'A')->count(),
+                'total_present' => $model->clone()->where('status', 'P')->count(),
+                'total_off' => $model->clone()->where('status', 'O')->count(),
+                'total_missing' => $model->clone()->where('status', 'M')->count(),
+                'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
+                'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+                'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+                'report_type' => $request->report_type ?? "",
+                'shift_type_id' => $request->shift_type_id ?? 0,
+                'total_leave' => 0,
+            ];
+
+
+
+            $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
+
+            if ($request->from_date == $request->to_date) {
+                $fileName =  $fileName . "-whatsapp";
+            }
+
+            $main_shift_name = 'Single Shift';
+            if ($request->main_shift_type == 2)
+                $main_shift_name = 'Multi Shift';
+            else   if ($request->main_shift_type == 5)
+                $main_shift_name = 'Double Shift';
+
+
+            $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+
+
+
+            $que_job_blade_name = '';
+            $que_job_data = '';
+            if ($request->report_template == 'Template2') {
+                // $file_path = "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
+                // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
+                // Storage::disk('public')->put($file_path, $data_pdf);
+
+                // unset($data_pdf);
+
+                $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template;
+                $que_job_data = $arr;
+            }
+            if ($request->report_template == 'Template1') { {
+                    //$file_path =   "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
+                    // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+                    // Storage::disk('public')->put($file_path, $data_pdf);
+                    //unset($data_pdf);
+
+                    $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName;
+                    $que_job_data = $arr;
+                }
+            }
+
+            $request1 = (object) ["shift_type_id" => $request->shift_type_id];
+            $job_data = ['request' => $request1, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+            ReportsPDFGeneratorJob::dispatch($folder_name, $que_job_blade_name, $job_data, $key);
+
+            // $path1 = storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf");
+
+
+            //$oMerger->addPDF($path1, 'all');
+
+            */
+        }
+    }
+    public function processPDF111($request)
     {
         // return [$request->from_date, $request->to_date];
         $oMerger = PDFMerger::init();
@@ -345,10 +469,7 @@ class MonthlyMergeJobController extends Controller
                 'total_leave' => 0,
             ];
 
-            // if ($request->employee_id && $request->filled('employee_id')) {
-            //     $data = count($data) > 0 ?  $data[$request->employee_id] : [];
-            //     return Pdf::loadView('pdf.single-employee',  ['data' => $data, 'company' => $company, 'info' => $info]);
-            // }
+
 
             $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
 
@@ -366,12 +487,7 @@ class MonthlyMergeJobController extends Controller
             $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
 
 
-            // //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-            // if ($request->report_template == 'Template2')
-            //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-            // if ($request->report_template == 'Template1') {
-            //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
-            // }
+
             $que_job_blade_name = '';
             $que_job_data = '';
             if ($request->report_template == 'Template2') {
@@ -422,6 +538,24 @@ class MonthlyMergeJobController extends Controller
 
 
         // return  ReportsPDFMergeJob::dispatch($folder_name);
+    }
+    public function getStatusText($status)
+    {
+        $arr = [
+            "All" => "All",
+            "A" => "Absent",
+            "M" => "Missing",
+            "P" => "Present",
+            "O" => "Week Off",
+            "L" => "Leave",
+            "H" => "Holiday",
+            "V" => "Vaccation",
+            "LC" => "Late In",
+            "EG" => "Early Out",
+            "-1" => "Summary"
+        ];
+
+        return $arr[$status];
     }
     // public function processPDF2($request)
     // {

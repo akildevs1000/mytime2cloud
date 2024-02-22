@@ -292,6 +292,153 @@ class Attendance extends Model
 
         return $model;
     }
+    public function processAttendanceModelPDFJob($request)
+    {
+
+        $model = self::query();
+
+        $model->where('company_id', $request->company_id);
+        $model->with(['shift_type', 'last_reason', 'branch']);
+
+        $model->when($request->employee_id, function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+
+
+        $model->when($request->shift_type_id && $request->shift_type_id == 2, function ($q) use ($request) {
+            $q->where('shift_type_id', 2);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   2)
+            //         ->orWhere('shift_type_id', '---');
+            // });
+        });
+
+        $model->when($request->shift_type_id && $request->shift_type_id == 5, function ($q) {
+            $q->where('shift_type_id', 5);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   5)
+            //         ->orWhere('shift_type_id', '---');
+            // });
+        });
+
+        $model->when($request->shift_type_id && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
+            //$q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            $q->where(function ($query) {
+                $query->whereIn('shift_type_id', [1, 3, 4, 6])
+                    ->orWhere('shift_type_id', '---');
+            });
+        });
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $model->when($request->department_ids && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
+            $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
+        });
+
+        $model->when($request->status && $request->status != "-1", function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+
+
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "LC", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "EG", function ($q) {
+            $q->where('early_going', "!=", "---");
+        });
+
+        $model->when($request->overtime == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
+        $model->when($request->branch_id, function ($q) use ($request) {
+            $key = strtolower($request->branch_id);
+            $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->where('branch_id',   $request->branch_id);
+        // });
+
+
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+        });
+
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->from_date, $request->to_date]);
+        });
+
+        // $model->whereBetween("date", [$request->from_date, $request->to_date]);
+
+        $model->whereHas('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->where('status', 1);
+            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+            $q->with(['department', 'branch']);
+        });
+
+        $model->with([
+            'employee' => function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+                $q->where('status', 1);
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+                $q->with(['department', 'branch']);
+            }
+        ]);
+
+        $model->with('device_in', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_out', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        //$model->with('schedule');
+
+        $model->when($request->date, function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
+        });
+
+        $model->when($request->sortBy, function ($q) use ($request) {
+            $sortDesc = $request->sortDesc;
+
+            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+
+        $model->when(!$request->sortBy, function ($q) use ($request) {
+
+            if ($request->from_date == $request->to_date) {
+                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id")->limit(0, 1),   'asc');
+            } else {
+                $q->orderBy('date', 'asc');
+            }
+        });
+
+        $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn ($q) => $q->where('device_type', 'Access Control'));
+
+
+
+        return $model;
+    }
 
 
     public function startDBOperation($date, $script, $payload)
