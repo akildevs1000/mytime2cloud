@@ -450,7 +450,7 @@
         </table>
         @php
 
-        function getStatus($employeeData)
+        function getStatus_old($employeeData)
         {
         $countA = 0;
         $countP = 0;
