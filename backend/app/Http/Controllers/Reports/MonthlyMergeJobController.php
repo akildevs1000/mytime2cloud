@@ -93,6 +93,20 @@ class MonthlyMergeJobController extends Controller
             return ['File not found'];
         }
     }
+    public function verifyGeneratedPDFFile(Request $request)
+    {
+        $input_file = $request->file;
+        $folderPath =  $storage_path = storage_path("app/public/temp_pdf/");;
+        $fileName =  $input_file . ".pdf";
+
+        $file_name = "Attendance Report";
+        $file_name = $file_name . '.pdf';
+        if (file_exists($folderPath .  $fileName)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 
 
@@ -399,7 +413,7 @@ class MonthlyMergeJobController extends Controller
 
             $data  = [$key => $value];
 
-
+            $data = (object)$data;
             ReportsPDFGeneratorJob::dispatch($folder_name,  $data, $key, $request1);
         }
         sleep(10);
