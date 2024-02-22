@@ -172,17 +172,17 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
-                                {{ getStatus($data->toArray())['P'] ?? 0 }}
+                                {{ getStatus($data())['P'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:red">
-                                {{ getStatus($data->toArray())['A'] ?? 0 }}
+                                {{ getStatus($data())['A'] ?? 0 }}
                             </td>
 
                             <td style="text-align: center; border :none;color:gray">
-                                {{ getStatus($data->toArray())['O'] ?? 0 }}
+                                {{ getStatus($data())['O'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:blue">
-                                {{ getStatus($data->toArray())['L'] ?? 0 }}
+                                {{ getStatus($data())['L'] ?? 0 }}
                             </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
@@ -196,10 +196,10 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none;color:pink">
-                                {{ getStatus($data->toArray())['H'] ?? 0 }}
+                                {{ getStatus($data())['H'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:orange">
-                                {{ getStatus($data->toArray())['M'] ?? 0 }}
+                                {{ getStatus($data())['M'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none; padding:5px;color:black">
                                 {{ $empTotWrkHrs ?? 0 }}
@@ -369,17 +369,17 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
-                                {{ getStatus($data->toArray())['P'] ?? 0 }}
+                                {{ getStatus($data())['P'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:red">
-                                {{ getStatus($data->toArray())['A'] ?? 0 }}
+                                {{ getStatus($data())['A'] ?? 0 }}
                             </td>
 
                             <td style="text-align: center; border :none;color:gray">
-                                {{ getStatus($data->toArray())['O'] ?? 0 }}
+                                {{ getStatus($data())['O'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:blue">
-                                {{ getStatus($data->toArray())['L'] ?? 0 }}
+                                {{ getStatus($data())['L'] ?? 0 }}
                             </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
@@ -393,10 +393,10 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none;color:pink">
-                                {{ getStatus($data->toArray())['H'] ?? 0 }}
+                                {{ getStatus($data())['H'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:orange">
-                                {{ getStatus($data->toArray())['M'] ?? 0 }}
+                                {{ getStatus($data())['M'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none; padding:5px;color:black">
                                 {{ $empTotWrkHrs ?? 0 }}
