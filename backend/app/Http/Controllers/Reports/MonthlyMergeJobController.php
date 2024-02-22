@@ -429,6 +429,9 @@ class MonthlyMergeJobController extends Controller
 
             */
         }
+
+        $job = new  ReportsPDFMergeJob($folder_name);
+        return  dispatch($job);
     }
     public function processPDF111($request)
     {
