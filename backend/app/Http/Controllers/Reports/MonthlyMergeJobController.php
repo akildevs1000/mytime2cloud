@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\ReportsPDFGeneratorJob;
+use App\Jobs\ReportsPDFMergeJob;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Department;
@@ -27,39 +29,8 @@ class MonthlyMergeJobController extends Controller
     public function monthly(Request $request)
     {
 
-        $oMerger = PDFMerger::init();
-        // $folderPath = public_path('app/public/temp_pdf/91522/'); // Replace 'your-folder' with the actual folder name or path
-        $folderPath =  storage_path('/app/public/temp_pdf/91522/');
-        if (File::isDirectory($folderPath)) {
-            $files = File::files($folderPath);
 
-            foreach ($files as $file) {
-                $filename = pathinfo($file, PATHINFO_FILENAME);
-                $extension = pathinfo($file, PATHINFO_EXTENSION);
-
-                $oMerger->addPDF($file, 'all');
-
-                // Do something with the file information
-                echo "File Name: $filename, Extension: $extension <br>";
-            }
-        } else {
-            echo "The specified folder does not exist.";
-        }
-
-        $oMerger->merge();
-        $oMerger->save(storage_path('/app/public/temp_pdf/91522/merged_result.pdf'));
-
-        return;
-
-        $oMerger->addPDF($path1, 'all');
-        $oMerger->merge();
-        $oMerger->save('merged_result.pdf');
-
-
-
-
-        ini_set('memory_limit', '5000M');
-        ini_set('max_execution_time', '0');
+        //return ReportsPDFMergeJob::dispatch(59516);
 
 
         $file_name = "Attendance Report";
@@ -68,8 +39,8 @@ class MonthlyMergeJobController extends Controller
         }
         $file_name = $file_name . '.pdf';
 
-
-        return $this->processPDF($request)->stream($file_name);
+        return [$this->processPDF($request)];
+        // return $this->processPDF($request)->stream($file_name);
     }
 
     // public function monthly2(Request $request)
@@ -401,33 +372,40 @@ class MonthlyMergeJobController extends Controller
             // if ($request->report_template == 'Template1') {
             //     return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
             // }
-
+            $que_job_blade_name = '';
+            $que_job_data = '';
             if ($request->report_template == 'Template2') {
-                $file_path = "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
-                $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
-                Storage::disk('public')->put($file_path, $data_pdf);
+                // $file_path = "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
+                // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template, $arr)->output();
+                // Storage::disk('public')->put($file_path, $data_pdf);
 
-                unset($data_pdf);
+                // unset($data_pdf);
+
+                $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template;
+                $que_job_data = $arr;
             }
             if ($request->report_template == 'Template1') { {
-                    $file_path =   "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
-                    $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+                    //$file_path =   "temp_pdf/" . $folder_name . "/" . $key . ".pdf";
+                    // $data_pdf = Pdf::loadView('pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName, $arr)->output();
+                    // Storage::disk('public')->put($file_path, $data_pdf);
+                    //unset($data_pdf);
 
-
-                    Storage::disk('public')->put($file_path, $data_pdf);
-
-
-                    unset($data_pdf);
+                    $que_job_blade_name = 'pdf.attendance_reports_updated.' . $request->report_template . '-' . $fileName;
+                    $que_job_data = $arr;
                 }
             }
-            //return  storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf"); //$path1 =  '\\public\\' . $file_path;
-            $path1 = storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf");
 
-            // $oMerger->addPDF(storage_path("app\\public\\" . $file_path), 'all');
-            $oMerger->addPDF($path1, 'all');
+            $request1 = (object) ["shift_type_id" => $request->shift_type_id];
+            $job_data = ['request' => $request1, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
+            ReportsPDFGeneratorJob::dispatch($folder_name, $que_job_blade_name, $job_data, $key);
+
+            // $path1 = storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf");
+
+
+            //$oMerger->addPDF($path1, 'all');
         }
 
-        $oMerger->merge();
+        /*$oMerger->merge();
 
 
         $path =  '\\public\\temp_pdf\\' . $folder_name;
@@ -438,21 +416,12 @@ class MonthlyMergeJobController extends Controller
 
             //return "Folder does not exist.";
         }
-        // return Storage::deleteDirectory();
-        // return storage_path("app\\public") . '\\temp_pdf\\' . $folder_name;
-        // Storage::deleteDirectory(storage_path("public") . '\\temp_pdf\\' . $folder_name);
+        */
+        $job = new  ReportsPDFMergeJob($folder_name);
+        return  dispatch($job);
 
 
-        return $oMerger;
-
-        // // return $oMerger->save('merged_result.pdf');
-        // $oMerger->save(storage_path('' . 'merged_result.pdf'));
-        // // return $oMerger->save(storage_path('' . 'merged_result.pdf'));
-
-        // return  pdf::loadFile(public_path("merged_result.pdf"));
-
-        // return  $pdfFiles;
-        // return   Pdf::loadView('pdf.attendance_reports_updated.merge', ["pdfFiles" => $pdfFiles]);
+        // return  ReportsPDFMergeJob::dispatch($folder_name);
     }
     // public function processPDF2($request)
     // {

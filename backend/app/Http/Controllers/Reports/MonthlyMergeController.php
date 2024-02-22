@@ -25,6 +25,9 @@ class MonthlyMergeController extends Controller
 {
     public function monthly(Request $request)
     {
+        ini_set('memory_limit', '5000M');
+        ini_set('max_execution_time', '0');
+
 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
@@ -132,7 +135,7 @@ class MonthlyMergeController extends Controller
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
         }
         $file_name = $file_name . '.pdf';
-        return $this->processPDF($request)->download($file_name);
+        return $this->processPDF($request)->download("test-------------");
     }
 
     public function multi_in_out_monthly_pdf(Request $request)
@@ -384,10 +387,11 @@ class MonthlyMergeController extends Controller
                     unset($data_pdf);
                 }
             }
+            //return  storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf"); //$path1 =  '\\public\\' . $file_path;
+            $path1 = storage_path("app/public/temp_pdf/" . $folder_name . "/" . $key . ".pdf");
 
-
-
-            $oMerger->addPDF(storage_path("app\\public\\" . $file_path), 'all');
+            // $oMerger->addPDF(storage_path("app\\public\\" . $file_path), 'all');
+            $oMerger->addPDF($path1, 'all');
         }
 
         $oMerger->merge();
@@ -399,7 +403,7 @@ class MonthlyMergeController extends Controller
             Storage::deleteDirectory($path);
         } else {
 
-            return "Folder does not exist.";
+            //return "Folder does not exist.";
         }
         // return Storage::deleteDirectory();
         // return storage_path("app\\public") . '\\temp_pdf\\' . $folder_name;
