@@ -127,6 +127,8 @@ class FiloShiftController extends Controller
                 "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
+                "late_coming" => "---",
+                "early_going" => "---",
             ];
 
             if ($shift && $item["shift_type_id"] == 6) {
@@ -181,9 +183,15 @@ class FiloShiftController extends Controller
             // }
             $model->insert($items);
 
-            if (!$custom_render) {
+            //if (!$custom_render) 
+            {
                 // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->where("LogTime", ">=", $date . ' 00:00:00')
                 //     ->where("LogTime", "<=", $date . ' 23:59:00')->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+
+                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
+                    ->where("LogTime", ">=", $date . ' 00:00:00')
+                    ->where("LogTime", "<=", $date . ' 23:59:00')
+                    ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
             }
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {

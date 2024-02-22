@@ -42,8 +42,8 @@
 
             @foreach ($data as $empID => $employee)
             @php
-            $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
-            $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
+            $empTotWrkHrs = getTotalHours2($employee->toArray(), 'total_hrs');
+            $empTotOtHrs = getTotalHours2($employee->toArray(), 'ot');
             $singleEmployee = $employee[key(reset($employee))][0]->employee;
             // $empName = $singleEmployee->display_name ?? '';
             $empName = $employee[key(reset($employee))][0]->employee->first_name ? $employee[key(reset($employee))][0]->employee->first_name . ' ' . $employee[key(reset($employee))][0]->employee->last_name : '';
@@ -129,8 +129,6 @@
                 </td>
 
                 <td style="border: nosne;text-align:right" colspan="8">
-
-
                     @if ($empFullName)
                     <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
@@ -143,8 +141,7 @@
                     </table>
                     @endif
 
-
-                    <table class="summary-table" style="backgroudnd-color:red; margin-top:10px">
+                    <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
@@ -175,17 +172,17 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;color:green">
-                                {{ getStatus($employee->toArray())['P'] }}
+                                {{ getStatus2($employee->toArray())['P'] }}
                             </td>
                             <td style="text-align: center; border :none;color:red">
-                                {{ getStatus($employee->toArray())['A'] ?? 0 }}
+                                {{ getStatus2($employee->toArray())['A'] ?? 0 }}
                             </td>
 
                             <td style="text-align: center; border :none;color:gray">
-                                {{ getStatus($employee->toArray())['O'] ?? 0 }}
+                                {{ getStatus2($employee->toArray())['O'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:blue">
-                                {{ getStatus($employee->toArray())['L'] ?? 0 }}
+                                {{ getStatus2($employee->toArray())['L'] ?? 0 }}
                             </td>
                         </tr>
                         <tr class="summary-header" style="border: none;background-color:#eeeeee ">
@@ -199,10 +196,10 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none;color:pink">
-                                {{ getStatus($employee->toArray())['H'] ?? 0 }}
+                                {{ getStatus2($employee->toArray())['H'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none;color:orange">
-                                {{ getStatus($employee->toArray())['M'] ?? 0 }}
+                                {{ getStatus2($employee->toArray())['M'] ?? 0 }}
                             </td>
                             <td style="text-align: center; border :none; padding:5px;color:black">
                                 {{ $empTotWrkHrs ?? 0 }}
@@ -317,13 +314,26 @@
                 </td> -->
                 <td colspan="2" style="text-align:  center;">
                     <div>
+
+                        @if($employee->status == 'O')
+                        Week-Off
+                        @else
                         @if ($employee->schedule)
                         {{ $employee->schedule->shift->on_duty_time }} -
                         {{ $employee->schedule->shift->off_duty_time }}
                         <div class="secondary-value" style="font-size:6px">
+
+
+
                             {{ $employee->schedule->shift->name }}
+
                         </div>
                         @endif
+                        @endif
+
+
+
+
                     </div>
                 </td>
                 <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
@@ -435,72 +445,7 @@
         @php $i = 0; @endphp
         @endforeach
         </table>
-        @php
 
-        function getStatus($employeeData)
-        {
-        $countA = 0;
-        $countP = 0;
-        $countM = 0;
-        $countO = 0;
-        $countL = 0;
-        $countH = 0;
-
-        foreach ($employeeData as $employee) {
-        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-        }
-        $status = $employee[0]['status'];
-        if ($status == 'A') {
-        $countA++;
-        } elseif ($status == 'P') {
-        $countP++;
-        } elseif ($status == 'M') {
-        $countM++;
-        } elseif ($status == 'O') {
-        $countO++;
-        } elseif ($status == 'L') {
-        $countL++;
-        } elseif ($status == 'H') {
-        $countH++;
-        }
-        }
-        return [
-        'A' => $countA,
-        'P' => $countP,
-        'M' => $countM,
-        'O' => $countO,
-        'L' => $countL,
-        'H' => $countH,
-        ];
-        }
-
-        function getTotalHours($employeeData, $type)
-        {
-        if (!is_array($employeeData)) {
-        throw new InvalidArgumentException('Invalid employee data: must be an array');
-        }
-        $totalMinutes = 0;
-        foreach ($employeeData as $employee) {
-        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-        }
-        $time = $employee[0][$type];
-        if ($time != '---') {
-        $parts = explode(':', $time);
-        $hours = intval($parts[0]);
-        $minutes = intval($parts[1]);
-        $totalMinutes += $hours * 60 + $minutes;
-        }
-        }
-
-        $hours = floor($totalMinutes / 60);
-        $minutes = $totalMinutes % 60;
-
-        return sprintf('%02d:%02d', $hours, $minutes);
-        }
-
-        @endphp
 
 </body>
 <style>

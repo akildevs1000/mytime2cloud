@@ -24,7 +24,7 @@
                     </td>
                     <td style="text-align: right;border :none;">
                         <b>Powered by</b>: <span style="color:blue">
-                            <a href="https://ideahrms.com/" target="_blank">ideahrms.com</a>
+                            <a href="{{ env('APP_URL') }}" target="_blank">{{ env('APP_NAME') }}</a>
                         </span>
                     </td>
                     <td style="text-align: right;border :none">
@@ -45,23 +45,17 @@
             $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
             $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
             $singleEmployee = $employee[key(reset($employee))][0]->employee;
-            $empName = $singleEmployee->display_name ?? '';
+            // $empName = $singleEmployee->display_name ?? '';
+            $empName = $employee[key(reset($employee))][0]->employee->first_name ? $employee[key(reset($employee))][0]->employee->first_name . ' ' . $employee[key(reset($employee))][0]->employee->last_name : '';
+            $empFullName = $employee[key(reset($employee))][0]->employee->full_name;
 
             @endphp
-            @if ($info->shift_type_id == 2)
             <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
-                <td style="border: nonse" colspan="5">
+                <td style="border: nonse" colspan="6">
                     <div class="row">
 
 
-                        <div class="col-5" style="">
-                            @if (env('APP_ENV') !== 'local')
-                            <img src="{{ $company->logo }}" width="100px" style="margin: 0px 0px 0px 0px">
-                            @else
-                            <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" width="100px" style="margin: 0px 0px 0px 0px">
-                            @endif
-                        </div>
-                        <div class="col-5" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
+                        <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
                             <table style="padding:0px;margin:0px">
                                 <tr style="text-align: left; border :none; padding:100px 0px;">
                                     <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
@@ -100,13 +94,23 @@
                         </div>
                     </div>
                 </td>
-                <td style="border: nonse" colspan="5">
-                    <div>
+                <td style="border: nonse" colspan="8">
+                    <div class="col-12" style="text-align:center;height:85px;  ">
+
+                        @if (env('APP_ENV') !== 'local')
+                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @else
+                        <img src="https://backend.mytime2cloud.com/upload/1697819664.png" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
+                        @endif
+                    </div>
+                    <div style="clear:both">
                         <table style="text-align: left; border :none;  ">
                             <tr style="text-align: left; border :none;">
                                 <td style="text-align: center; border :none">
                                     <span class="title-font">
-                                        {{ $info->report_type }} {{ $company->report_type }} Report
+                                        <!-- {{ $info->report_type }}  -->
+
+                                        {{ $company->report_type }} Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
@@ -123,9 +127,24 @@
                         </table>
                     </div>
                 </td>
-                <td style="border :none" colspan="3"></td>
-                <td style="border: nosne;text-align:right" colspan="4">
-                    <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
+
+                <td style="border: nosne;text-align:right" colspan="8">
+
+
+                    @if ($empFullName)
+                    <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
+                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                            <td style="border :none; padding:10px">
+                                <b>Full Name:</b>
+                                {{ $empFullName }}
+                            </td>
+
+                        </tr>
+                    </table>
+                    @endif
+
+
+                    <table class="summary-table" style="backgroudnd-color:red; margin-top:10px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <th style="text-align: center; border :none; padding:5px">EID</th>
                             <th style="text-align: center; border :none">Name</th>
@@ -204,183 +223,17 @@
         <br>
         </td>
         </tr>
-        @else
-        <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
-            <td style="border: nonse" colspan="4">
-                <div class="row">
-                    <div class="col-5" style="">
-                        @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" height="120px" width="130px" style="margin: 0px 0px 0px 0px">
-                        @else
-                        <img src="https://th.bing.com/th/id/R.b4e3fb857db675de7df59ab6f4cf30ab?rik=gbQLvTh9DaC6tQ&pid=ImgRaw&r=0" height="120px" width="180px" height="120px" width="130px" style="margin: 0px 0px 0px 0px">
-                        @endif
-                    </div>
-                    <div class="col-5" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
-                        <table style="padding:0px;margin:0px">
-                            <tr style="text-align: left; border :none; padding:100px 0px;">
-                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
-                                    <b style="padding:0px;margin:0px">
-                                        {{ $company->name }}
-                                    </b>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
-                                    <span style="margin-left: 3px">P.O.Box
-                                        {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->location }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
-                                    <span style="margin-left: 3px">{{ '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </td>
-            <td style="border: nonse" colspan="7">
-                <div>
-                    <table style="text-align: left; border :none;  ">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span class="title-font">
-                                    {{ $info->report_type }} {{ $company->report_type }} Report
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span style="font-size: 11px">
-                                    {{ date('d-M-Y', strtotime($company->start)) }} -
-                                    {{ date('d-M-Y', strtotime($company->end)) }}
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-            <td style="border: nosne;text-align:right;width:250px;">
-                <table style="" class="summary-table" style="backgroudnd-color:red; margin-top:20px">
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">EID</th>
-                        <th style="text-align: center; border :none">Name</th>
-                        <th style="text-align: center; border :none">Department</th>
-                        <th style="text-align: center; border :none">Shift Type </th>
-
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                            {{ $empID ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $empName ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $singleEmployee->department->name ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            Multi In/Out
-                        </td>
-                    </tr>
-
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">Present</th>
-                        <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Week Off</th>
-                        <th style="text-align: center; border :none">Leaves</th>
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;color:green">
-                            {{ getStatus($employee->toArray())['P'] }}
-                        </td>
-                        <td style="text-align: center; border :none;color:red">
-                            {{ getStatus($employee->toArray())['A'] ?? 0 }}
-                        </td>
-
-                        <td style="text-align: center; border :none;color:gray">
-                            {{ getStatus($employee->toArray())['O'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:blue">
-                            {{ getStatus($employee->toArray())['L'] ?? 0 }}
-                        </td>
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none">Holidays</th>
-                        <th style="text-align: center; border :none">Missing</th>
-
-                        <th style="text-align: center; border :none; padding:5px">Work Hours</th>
-                        <th style="text-align: center; border :none">OT Hours</th>
-                        <th style="text-align: center; border :none"> </th>
-                        {{-- <th style="text-align: center; border :none">Department</th> --}}
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none;color:pink">
-                            {{ getStatus($employee->toArray())['H'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:orange">
-                            {{ getStatus($employee->toArray())['M'] ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none; padding:5px;color:black">
-                            {{ $empTotWrkHrs ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:black">
-                            {{ $empTotOtHrs ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:black"> </td>
-                        {{-- <td style="text-align: center; border :none;color:black">{{ $info->department->name ?? 0 }}
-            </td> --}}
-        </tr>
-        <tr style="border: none">
-            <th style="text-align: center; border :none" colspan="4">
-                <hr>
-            </th>
-        </tr>
-        </table>
-        <br>
-        </td>
-        </tr>
-        @endif
 
 
-        {{-- <tr style="margin-top:20px;">
-                <td colspan="2"> <b>EID</b> : {{ $empID ?? '' }}</td>
-        <td colspan="3"> <b>Name</b> : {{ substr($empName, 0, 10) ?? '' }}</td>
-        <td colspan="3"><b>Department</b> : {{ $info->department->name ?? '' }}</td>
-        <td colspan="3"> <b>Working Hours</b> : {{ $empTotWrkHrs ?? '' }}</td>
-        <td colspan="2"> <b>OT Hours</b> : {{ $empTotOtHrs ?? '' }}</td>
-        <td colspan="2" style="color:green"> Present : {{ getStatus($employee->toArray())['P'] }}</td>
-        <td colspan="2" style="color:red"> Absent : {{ getStatus($employee->toArray())['A'] }}</td>
-        </tr> --}}
 
-        {{-- <tr>
-                <td colspan="17"></td>
-            </tr> --}}
-        @if ($info->shift_type_id == 2)
-        <tr style="text-align: left;font-weight:bold;margin-top:20px">
+        <tr style="text-align: left;font-weight:bold;margin-top:20px;width:100%">
             <td style="text-align:  left;width:10px"> # </td>
-            <td style="text-align:  center;width:40px"> Date </td>
-            <td style="text-align:  center;width:40px"> Day </td>
-            <td style="text-align:  center;width:80px"> Shift </td>
+            <td colspan="2" style="text-align:  center; "> Date </td>
 
-            <td style="text-align:  center;width:40px"> In1 </td>
+            <!-- <td style="text-align:  center;width:80px"> Employee </td> -->
+            <td colspan="2" style="text-align:  center; "> Shift </td>
+
+            <td style="text-align:  center; "> In1 </td>
             <td style="text-align:  center;width:40px"> Out1 </td>
 
             <td style="text-align:  center;width:40px"> In2 </td>
@@ -395,9 +248,15 @@
             <td style="text-align:  center;width:40px"> In5 </td>
             <td style="text-align:  center;width:40px"> Out5 </td>
 
-            <td style="text-align:  center;width:40px"> Total Hours </td>
+            <td style="text-align:  center;width:40px"> In6 </td>
+            <td style="text-align:  center;width:40px"> Out6 </td>
+            <td style="text-align:  center;width:40px"> In7 </td>
+            <td style="text-align:  center;width:40px"> Out7 </td>
+
+            <td style="text-align:  center; "> Total Hours </td>
             <td style="text-align:  center;width:40px"> OT </td>
             <td style="text-align:  center;width:40px"> Status </td>
+
         </tr>
 
         @foreach ($employee as $date)
@@ -418,92 +277,174 @@
         } elseif ($employee->status == '---') {
         $statusColor = '#f34100ed';
         }
+        @endphp
+
+
+
+        @php
+        $pic = getcwd() . '/no-profile-image.jpg';
+
+        if ($employee->employee->profile_picture) {
+        $pic = getcwd() . '/media/employee/profile_picture/' . $employee->employee->profile_picture_raw;
+        }
+
         @endphp
 
         <tbody>
             <tr style="text-align:  center">
                 <td>{{ ++$i }}</td>
-                <td style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
-                <td style="text-align:  center;">{{ date('D', strtotime($employee->date)) ?? '---' }}</td>
-                <td style="text-align:  center;">{{ $employee->roster->name ?? '---' }}</td>
-                <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }} </td>
+                <td colspan="2" style="text-align:  center;">{{ $employee->date ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">{{ $employee->day ?? '---' }}</div>
+                </td>
+                <!-- <td>
+                    <div style="width:20px;float:left; margin-right:5px">
+                        <img style="
+                  border-radius: 50%;
+                  height: auto;
+                  width: 20px;
+                 
+                  
+                " src="{{ $pic }}" />
+                    </div>
+                    <div style="width:auto;float:left">
+                        {{ $employee->employee->first_name }} {{ $employee->employee->last_name }}
+                        <div class="secondary-value" style="font-size:6px">
+                            {{ $employee->employee->employee_id }}
+                        </div>
+                    </div>
+
+
+                </td> -->
+                <td colspan="2" style="text-align:  center;">
+                    <div>
+
+                        @if($employee->status == 'O')
+                        Week-Off
+                        @else
+                        @if ($employee->schedule)
+                        {{ $employee->schedule->shift->on_duty_time }} -
+                        {{ $employee->schedule->shift->off_duty_time }}
+                        <div class="secondary-value" style="font-size:6px">
+
+
+
+                            {{ $employee->schedule->shift->name }}
+
+                        </div>
+                        @endif
+                        @endif
+
+
+
+
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[0]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[0]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[0]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[0]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[1]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[1]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[1]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[1]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[2]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[2]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[2]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[2]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[3]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[3]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[3]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[3]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[4]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[4]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[4]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+
+                <td style="text-align:  center;"> {{ $employee->logs[5]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[5]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[5]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[5]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[6]['in'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[6]['device_in'] ?? '---' }}
+                    </div>
+                </td>
+                <td style="text-align:  center;"> {{ $employee->logs[6]['out'] ?? '---' }}
+                    <div class="secondary-value" style="font-size:6px">
+                        {{ $employee->logs[6]['device_out'] ?? '---' }}
+                    </div>
+                </td>
+
+
                 <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                 <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
-                <td style="text-align:  center; color:{{ $statusColor }}">
-                    {{ $employee->status ?? '---' }}
+                <td style="text-align:  center; color:{{ $statusColor }}"> {{ str_replace("O","W",$employee->status) ?? '---' }}
+
+
+
+
+                    <div class="secondary-value" style="font-size:6px">
+                        @if ($employee['shift'] && $employee->status == 'P')
+                        @php
+                        $shiftWorkingHours = $employee['shift']['working_hours'];
+                        $employeeHours = $employee['total_hrs'];
+
+                        if ($shiftWorkingHours !== '' && $employeeHours !== '' && $shiftWorkingHours !== '---' && $employeeHours !== '---') {
+                        [$hours, $minutes] = explode(':', $shiftWorkingHours);
+                        $shiftWorkingHours = $hours * 60 + $minutes;
+
+                        [$hours, $minutes] = explode(':', $employeeHours);
+                        $employeeHours = $hours * 60 + $minutes;
+
+                        if ($employeeHours < $shiftWorkingHours) { echo 'Short Shift' ; } } @endphp @endif </div>
+
+
+
+
+
                 </td>
             </tr>
         </tbody>
         @endforeach
         <tr class="my-break">
-            <td colspan="17" style="border: none;"></td>
+            <td colspan="21" style="border: none;"></td>
         </tr>
-        @else
-        <tr style="text-align: center;font-weight:bold;margin-top:20px">
-            <td style="text-align: center;"> # </td>
-            <td style="text-align: center; width:100px;"> Date </td>
-            <td style="text-align: center;"> Day </td>
-            <td style="text-align: center; width:100px;"> Shift </td>
-            <td style="text-align: center;"> In </td>
-            <td style="text-align: center;"> Out </td>
-            <td style="text-align: center;"> Late Coming </td>
-            <td style="text-align: center;"> Early Going </td>
-            <td style="text-align: center;"> Total Hours </td>
-            <td style="text-align: center;"> OT </td>
-            <td style="text-align: center;"> Status </td>
-        </tr>
-
-        @foreach ($employee as $date)
-        @php
-        $employee = $date[0];
-        if ($employee->status == 'P') {
-        $statusColor = 'green';
-        } elseif ($employee->status == 'A') {
-        $statusColor = 'red';
-        } elseif ($employee->status == 'M') {
-        $statusColor = 'orange';
-        } elseif ($employee->status == 'O') {
-        $statusColor = 'gray';
-        } elseif ($employee->status == 'L') {
-        $statusColor = 'blue';
-        } elseif ($employee->status == 'H') {
-        $statusColor = 'pink';
-        } elseif ($employee->status == '---') {
-        $statusColor = '#f34100ed';
-        }
-        @endphp
-
-        <tbody>
-            <tr style="text-align:  center">
-                <td style="text-align:  center;">{{ ++$i }}</td>
-                <td style="text-align:  center;">{{ $employee->date ?? '---' }}</td>
-                <td style="text-align:  center;">{{ date('D', strtotime($employee->date)) ?? '---' }}</td>
-                <td style="text-align:  center;">{{ $employee->schedule->shift->name ?? '---' }}</td>
-                <td style="text-align:  center;"> {{ $employee->in }} </td>
-                <td style="text-align:  center;"> {{ $employee->out }} </td>
-                <td style="text-align:  center;"> {{ $employee->late_coming }} </td>
-                <td style="text-align:  center;"> {{ $employee->early_going }} </td>
-                <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
-                <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
-                <td style="text-align:  center; color:{{ $statusColor }}">
-                    {{ str_replace("O","W",$employee->status) ?? '---' }}
-                </td>
-            </tr>
-        </tbody>
-        @endforeach
-        <tr class="my-break">
-            <td colspan="11" style="border: none;"></td>
-        </tr>
-        @endif
         @php $i = 0; @endphp
         @endforeach
         </table>
@@ -624,7 +565,6 @@
     /* @page {
         margin: -10px 30px 25px 50px;
     } */
-
     @page {
         margin: 5px 30px 25px 50px;
     }
@@ -855,6 +795,12 @@
         border-radius: 0px;
         resize: vertical;
         outline: 0;
+    }
+
+    .secondary-value1 {
+        font-size: 6px !important;
+        padding-top: 5px;
+        vertical-align: top !important;
     }
 </style>
 

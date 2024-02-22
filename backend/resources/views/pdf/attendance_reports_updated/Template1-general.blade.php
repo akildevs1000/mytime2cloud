@@ -335,15 +335,28 @@
 
 
                         <td colspan="2" style="text-align:  center;">
-                            @if ($employee->schedule)
                             <div>
+
+                                @if($employee->status == 'O')
+                                Week-Off
+                                @else
+                                @if ($employee->schedule)
                                 {{ $employee->schedule->shift->on_duty_time }} -
                                 {{ $employee->schedule->shift->off_duty_time }}
                                 <div class="secondary-value" style="font-size:6px">
+
+
+
                                     {{ $employee->schedule->shift->name }}
+
                                 </div>
+                                @endif
+                                @endif
+
+
+
+
                             </div>
-                            @endif
                         </td>
                         <td colspan="2" style="text-align:  center;">
                             <div>
@@ -376,7 +389,7 @@
                         </td>
                         <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                         <td colspan="1" style="text-align:  center; color:{{ $statusColor }}">
-                            {{ $employee->status ?? '---' }}
+                            {{ str_replace("O","W",$employee->status) ?? '---' }}
 
                             <div class="secondary-value" style="font-size:6px">
                                 @if ($employee['shift'] && $employee->status == 'P')

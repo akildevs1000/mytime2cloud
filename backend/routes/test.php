@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Alarm\DeviceSensorLogsController;
 use App\Http\Controllers\AlarmLogsController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
@@ -32,6 +33,9 @@ use Illuminate\Support\Facades\Log as Logger;
 Route::get("pdf-merge-test",[TestController::class,"pdfMergeTest"]);
 
 Route::get('/test/getLogs', function (Request $request) {
+
+
+    return (new DeviceSensorLogsController)->updateCompanyIds();
     $curl = curl_init();
 
 

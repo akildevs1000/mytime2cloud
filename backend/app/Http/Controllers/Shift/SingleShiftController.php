@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use Illuminate\Support\Facades\DB;
 
 class SingleShiftController extends Controller
 {
@@ -130,6 +131,9 @@ class SingleShiftController extends Controller
                 "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
                 "status" => "M",
+                "late_coming" => "---",
+                "early_going" => "---",
+
             ];
 
 
@@ -181,21 +185,31 @@ class SingleShiftController extends Controller
         }
 
         try {
+
+            DB::beginTransaction();
             $UserIds = array_column($items, "employee_id");
             $model = Attendance::query();
             $model->where("company_id", $id);
             $model->whereIn("employee_id", $UserIds);
             $model->where("date", $date);
             $model->delete();
+            DB::commit();
             $model->insert($items);
 
-            if (!$custom_render) {
+            //if (!$custom_render)
+            {
                 // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
+                    ->where("LogTime", ">=", $date . ' 00:00:00')
+                    ->where("LogTime", "<=", $date . ' 23:59:00')
+                    ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
             }
 
             $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift.   Affected Ids: " . json_encode($UserIds);
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. " . $e->getMessage();
+
+            DB::rollback();
         }
 
         $this->devLog("render-manual-log", $message);
