@@ -42,8 +42,8 @@
 
             @foreach ($data as $empID => $employee)
             @php
-            $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
-            $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
+            $empTotWrkHrs = getTotalHours2($employee->toArray(), 'total_hrs');
+            $empTotOtHrs = getTotalHours2($employee->toArray(), 'ot');
             $singleEmployee = $employee[key(reset($employee))][0]->employee;
             // $empName = $singleEmployee->display_name ?? '';
             $empName = $employee[key(reset($employee))][0]->employee->first_name ? $employee[key(reset($employee))][0]->employee->first_name . ' ' . $employee[key(reset($employee))][0]->employee->last_name : '';
@@ -449,7 +449,7 @@
 
 
 
-        function getTotalHours($employeeData, $type)
+        function getTotalHours2($employeeData, $type)
         {
         if (!is_array($employeeData)) {
         throw new InvalidArgumentException('Invalid employee data: must be an array');
