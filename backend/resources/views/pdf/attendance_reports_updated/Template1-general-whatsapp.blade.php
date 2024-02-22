@@ -560,7 +560,7 @@
                     <td colspan="2" style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                     <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                     <td colspan="1" style="text-align:  center; color:{{ $statusColor }}">
-                        {{ $employee->status ?? '---' }}
+                        {{ str_replace("O","W",$employee->status) ?? '---' }}
 
                         <div class="secondary-value" style="font-size:6px">
                             @if ($employee['shift'] && $employee->status=="P")

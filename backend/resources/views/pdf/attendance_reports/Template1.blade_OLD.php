@@ -495,7 +495,7 @@
                 <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                 <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                 <td style="text-align:  center; color:{{ $statusColor }}">
-                    {{ $employee->status ?? '---' }}
+                    {{ str_replace("O","W",$employee->status) ?? '---' }}
                 </td>
             </tr>
         </tbody>

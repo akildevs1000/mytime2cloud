@@ -210,7 +210,7 @@
                     <td style="text-align:  center;"> {{ $employee->logs[4]['out'] ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $employee->total_hrs ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
-                    <td style="text-align:  center; color:{{ $statusColor }}"> {{ $employee->status ?? '---' }}
+                    <td style="text-align:  center; color:{{ $statusColor }}"> {{ str_replace("O","W",$employee->status) ?? '---' }}
                     </td>
                 </tr>
             </tbody>
