@@ -73,7 +73,7 @@ class MonthlyMergeJobController extends Controller
                 $file_name
             );
         } else {
-            return ['File not found'];
+            return ['Report generation is in-progress.... Reload same page after a minute.'];
         }
     }
     public function viewFinalfile(Request $request)
@@ -90,7 +90,7 @@ class MonthlyMergeJobController extends Controller
 
             );
         } else {
-            return ['File not found'];
+            return ['Report generation is in-progress.... Reload same page after a minute.'];
         }
     }
     public function verifyGeneratedPDFFile(Request $request)
