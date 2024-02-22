@@ -447,7 +447,7 @@
         </table>
         @php
 
-        function getStatus_old($employeeData)
+        <!-- function getStatus_old($employeeData)
         {
         $countA = 0;
         $countP = 0;
@@ -483,7 +483,7 @@
         'L' => $countL,
         'H' => $countH,
         ];
-        }
+        } -->
 
         function getTotalHours($employeeData, $type)
         {
