@@ -143,7 +143,7 @@ class ReportsPDFGeneratorJob implements ShouldQueue
             // echo  $file_path;
         } catch (\Exception $e) {
             $file_name_raw = "jobs_pdf/jobs_pdf_error_" . date("d-m-Y") . ".txt";
-            Storage::append($file_name_raw,  $file_path  . ' - ' . $e->getMessage());
+            Storage::append($file_name_raw,  $file_path  . ' \n ' . json_encode($e));
 
             echo   $e->getMessage();
         }
