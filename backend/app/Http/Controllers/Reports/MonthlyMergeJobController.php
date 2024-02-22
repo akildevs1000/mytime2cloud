@@ -375,7 +375,7 @@ class MonthlyMergeJobController extends Controller
         $fileName =  $folder_name . ".pdf";
 
 
-        $maxWaitTime = 60 * 5; // Adjust this according to your needs
+        $maxWaitTime = 60 * 2; // Adjust this according to your needs
 
         $startTime = time();
 
