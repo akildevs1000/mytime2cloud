@@ -332,8 +332,6 @@
 
                         </td>
                         @endif
-
-
                         <td colspan="2" style="text-align:  center;">
                             <div>
 
