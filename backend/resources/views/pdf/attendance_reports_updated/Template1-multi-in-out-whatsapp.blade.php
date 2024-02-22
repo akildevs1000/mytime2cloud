@@ -447,43 +447,7 @@
         </table>
         @php
 
-        <!-- function getStatus_old($employeeData)
-        {
-        $countA = 0;
-        $countP = 0;
-        $countM = 0;
-        $countO = 0;
-        $countL = 0;
-        $countH = 0;
 
-        foreach ($employeeData as $employee) {
-        if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
-        throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
-        }
-        $status = $employee[0]['status'];
-        if ($status == 'A') {
-        $countA++;
-        } elseif ($status == 'P') {
-        $countP++;
-        } elseif ($status == 'M') {
-        $countM++;
-        } elseif ($status == 'O') {
-        $countO++;
-        } elseif ($status == 'L') {
-        $countL++;
-        } elseif ($status == 'H') {
-        $countH++;
-        }
-        }
-        return [
-        'A' => $countA,
-        'P' => $countP,
-        'M' => $countM,
-        'O' => $countO,
-        'L' => $countL,
-        'H' => $countH,
-        ];
-        } -->
 
         function getTotalHours($employeeData, $type)
         {
