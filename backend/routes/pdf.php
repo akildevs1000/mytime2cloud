@@ -10,6 +10,7 @@ use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
 use App\Http\Controllers\Reports\MonthlyMergeController;
+use App\Http\Controllers\Reports\MonthlyMergeJobController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\PDFController;
 use App\Http\Controllers\Reports\PDFTestController;
@@ -85,6 +86,9 @@ Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download
 // Route::get('/multi_in_out_monthly_download_csv', [MonthlyMergeController::class, 'multi_in_out_monthly_download_csv']);
 
 
+
+// //monthly reports Jobs Queue merge 
+Route::get('/monthly_merge_job', [MonthlyMergeJobController::class, 'monthly']);
 
 
 //multi in out
