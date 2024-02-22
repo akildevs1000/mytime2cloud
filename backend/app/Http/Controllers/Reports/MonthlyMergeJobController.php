@@ -413,7 +413,7 @@ class MonthlyMergeJobController extends Controller
 
             $data  = [$key => $value];
 
-            $data = (object)$data;
+
             ReportsPDFGeneratorJob::dispatch($folder_name,  $data, $key, $request1);
         }
         sleep(10);
