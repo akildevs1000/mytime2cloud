@@ -9,7 +9,13 @@
             {{-- <p class="page"> </p> --}}
             <p></p>
             @php
+            $p = 0;
+
+            try {
             $p = count($data);
+            } catch (\Exception $e) {
+
+            }
             if ($p <= 1) { echo '<span></span>' ; } else { for ($a=1; $a <=$p; $a++) { echo '<span></span>' ; } } @endphp </div>
 
                 <!-- <div id="pageNumbers">
