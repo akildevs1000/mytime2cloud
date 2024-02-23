@@ -73,12 +73,12 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             //->withoutOverlapping()
             ->appendOutputTo(storage_path("logs/$monthYear-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-        $schedule
-            ->command('task:alarm_update_company_ids')
-            // ->everyThirtyMinutes()
-            ->everyMinute()
-            //->withoutOverlapping()
-            ->appendOutputTo(storage_path("logs/alarm-$monthYear-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        // $schedule
+        //     ->command('task:alarm_update_company_ids')
+        //     // ->everyThirtyMinutes()
+        //     ->everyMinute()
+        //     //->withoutOverlapping()
+        //     ->appendOutputTo(storage_path("logs/alarm-$monthYear-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
         $companyIds = Company::pluck("id");
