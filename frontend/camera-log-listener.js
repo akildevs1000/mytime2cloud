@@ -200,11 +200,11 @@ function saveRegisteredMemberstoCSV(
         let RecordDate = getTime2();
 
         if (TimeArray.length == 0) {
-          logConsoleStatus("Adjusted -RecordDate", RecordDate);
+          //logConsoleStatus("Adjusted -RecordDate", RecordDate);
         } else {
           RecordDate = TimeArray[arrayCounter];
           if (RecordDate) RecordDate = formatdate(RecordDate);
-          logConsoleStatus("RecordDate", RecordDate);
+          // logConsoleStatus("RecordDate", RecordDate);
         }
 
         let RecordNumber = RegisterIdArray[arrayCounter];
