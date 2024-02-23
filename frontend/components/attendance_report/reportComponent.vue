@@ -25,7 +25,7 @@
 
         <v-spacer></v-spacer>
 
-        <span style="padding-left: 15px"
+        <!--  <span style="padding-left: 15px"
           ><img
             v-if="donwload_pdf_file != ''"
             title="Download File"
@@ -60,6 +60,7 @@
             src="/icons/icon_pdf.png"
             class="iconsize"
         /></span>
+        <span style="padding-left: 15px">|||</span>-->
         <span style="padding-left: 15px"
           ><img
             title="Print"
@@ -1717,16 +1718,9 @@ export default {
       };
       this.$axios.get(qs, options).then(({ data }) => {
         console.log(data);
-
-        setTimeout(() => {
-          this.donwload_pdf_file = data;
-          this.view_pdf_file = data;
-          this.loading = false;
-
-          this.snackbar = true;
-          this.response =
-            "Processing completed . Now you can Download your Report ";
-        }, 3000);
+        this.donwload_pdf_file = data;
+        this.view_pdf_file = data;
+        this.verify_generated_pdf_file(data);
       });
 
       // let report = document.createElement("a");
@@ -1735,6 +1729,34 @@ export default {
       // report.click();
 
       // return;
+    },
+
+    verify_generated_pdf_file(data) {
+      let qs =
+        process.env.BACKEND_URL +
+        "/verify_generated_pdf_file?file=" +
+        this.donwload_pdf_file;
+
+      let options = {
+        params: {},
+      };
+      this.$axios.get(qs, options).then(({ data }) => {
+        console.log(data);
+
+        if (data == 1) {
+          this.loading = false;
+
+          this.snackbar = true;
+          this.response =
+            "Processing completed . Now you can Download your Report ";
+        } else {
+          this.loading = false;
+
+          this.snackbar = true;
+          this.response =
+            "Processing Not completed . Wait for few more minutes";
+        }
+      });
     },
 
     process_file(type) {
