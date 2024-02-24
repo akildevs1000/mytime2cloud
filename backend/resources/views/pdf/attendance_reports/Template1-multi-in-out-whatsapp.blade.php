@@ -151,7 +151,7 @@
                         </tr>
                         <tr style="border: none">
                             <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                                {{ $empID ?? '---' }}
+                                {{ $singleEmployee->employee_id ?? '---' }}
                             </td>
                             <td style="text-align: center; border:none;font-size:11px">
                                 {{ $empName ?? '---' }}
