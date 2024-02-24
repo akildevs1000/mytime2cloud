@@ -702,8 +702,13 @@ export default {
     this.setSubLeftMenuItems("dashboard", "/dashboard2", false);
     this.logo_src = require("@/static/logo22.png");
     this.pendingNotificationsCount = 0;
-    this.loadNotificationMenu();
-    this.verifyAlarmStatus();
+  },
+
+  mounted() {
+    setTimeout(() => {
+      this.loadNotificationMenu();
+      this.verifyAlarmStatus();
+    }, 1000 * 10);
 
     setInterval(() => {
       this.verifyAlarmStatus();
@@ -711,9 +716,6 @@ export default {
     setInterval(() => {
       this.loadNotificationMenu();
     }, 1000 * 60 * 2);
-  },
-
-  mounted() {
     //this.company_menus = [];
 
     let menu_name = this.$route.name;
@@ -1011,7 +1013,7 @@ export default {
         this.menuProperties[menu_name].elevation = 0;
         this.menuProperties[menu_name].selected = bgColor;
       }
-      if (redirect) this.$router.push(page);
+      if (redirect) return this.$router.push(page);
     },
 
     setMenus() {
@@ -1676,6 +1678,16 @@ body {
 <style>
 .apexcharts-canvas {
   width: 100%;
+}
+</style>
+
+<style>
+.theme--light.v-text-field > .v-input__control > .v-input__slot:before {
+  border-color: #fff !important;
+}
+
+.no-border:before {
+  border-color: #fff !important;
 }
 </style>
 
