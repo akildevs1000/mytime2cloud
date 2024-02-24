@@ -39,7 +39,7 @@ const server = net.createServer((socket) => {
   // When the socket connection ends
   socket.on("end", () => {});
 });
-console.log(getTime2());
+//console.log(getTime2());
 const PORT = 4802; // Port on which the server will listen
 server.listen(PORT, () => {
   logConsoleStatus(`Server is listening on port ${PORT}`);
@@ -55,7 +55,7 @@ function saveXMlToLog(filePath, xmlData, logFilePath, TodayDatetime) {
   });
 }
 function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
-  logConsoleStatus(`${TodayDatetime} - Reading  unregistered member`);
+  //logConsoleStatus(`${TodayDatetime} - Reading  unregistered member`);
 
   let StoragePermission = getPicStoragePermission(deviceId);
 
@@ -68,7 +68,7 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
     let matches;
     while ((matches = regex.exec(xmlData)) !== null) {
       const contentBetweenTags = matches[1];
-      logConsoleStatus(`${TodayDatetime} - XML content reading started`);
+      //logConsoleStatus(`${TodayDatetime} - XML content reading started`);
       if (contentBetweenTags) {
         let xmlString = firsttag + contentBetweenTags + endTag;
 
@@ -114,25 +114,25 @@ function saveUNRegisteredMemberstoImage(xmlData, TodayDatetime, deviceId) {
                 buffer
               );
             } else {
-              logConsoleStatus(
-                "No image saved due to lessthan 90% quality",
-                Quality
-              );
+              // logConsoleStatus(
+              //   "No image saved due to lessthan 90% quality",
+              //   Quality
+              // );
             }
           }
         });
 
-        logConsoleStatus(`${TodayDatetime} - XML content reading completed`);
+        // logConsoleStatus(`${TodayDatetime} - XML content reading completed`);
       } else {
         logConsoleStatus(
-          `${TodayDatetime} - Saving unregistered Filed. No Content `
+          `${TodayDatetime} - Saving unregistered Failed . No Content `
         );
       }
     } //whilre
   } else {
-    logConsoleStatus(
-      `${TodayDatetime} - -------- No permission to save unregistered`
-    );
+    // logConsoleStatus(
+    //   `${TodayDatetime} - -------- No permission to save unregistered`
+    // );
   }
 
   // } catch (error) {
@@ -200,11 +200,11 @@ function saveRegisteredMemberstoCSV(
         let RecordDate = getTime2();
 
         if (TimeArray.length == 0) {
-          logConsoleStatus("Adjusted -RecordDate", RecordDate);
+          //logConsoleStatus("Adjusted -RecordDate", RecordDate);
         } else {
           RecordDate = TimeArray[arrayCounter];
           if (RecordDate) RecordDate = formatdate(RecordDate);
-          logConsoleStatus("RecordDate", RecordDate);
+          // logConsoleStatus("RecordDate", RecordDate);
         }
 
         let RecordNumber = RegisterIdArray[arrayCounter];

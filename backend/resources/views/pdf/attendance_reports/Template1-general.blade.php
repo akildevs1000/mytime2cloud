@@ -332,18 +332,29 @@
 
                         </td>
                         @endif
-
-
                         <td colspan="2" style="text-align:  center;">
-                            @if ($employee->schedule)
                             <div>
+
+                                @if($employee->status == 'O')
+                                Week-Off
+                                @else
+                                @if ($employee->schedule)
                                 {{ $employee->schedule->shift->on_duty_time }} -
                                 {{ $employee->schedule->shift->off_duty_time }}
                                 <div class="secondary-value" style="font-size:6px">
+
+
+
                                     {{ $employee->schedule->shift->name }}
+
                                 </div>
+                                @endif
+                                @endif
+
+
+
+
                             </div>
-                            @endif
                         </td>
                         <td colspan="2" style="text-align:  center;">
                             <div>

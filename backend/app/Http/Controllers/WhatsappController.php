@@ -129,8 +129,8 @@ class WhatsappController extends Controller
 
                 //if ($response->status() == 200) 
                 {
-                    Log::channel('whatsapp_logs')->info($msg);
-                    Log::channel('whatsapp_logs')->info($response);
+                    // Log::channel('whatsapp_logs')->info($msg);
+                    //Log::channel('whatsapp_logs')->info($response);
                 }
             } else {
                 Log::channel('whatsapp_logs')->info('Company Insance ID is not exist');
@@ -182,7 +182,7 @@ class WhatsappController extends Controller
 
         // You can check the response status and get the response content as needed
         if ($response->successful()) {
-            Log::channel('whatsapp_logs')->info($response->json());
+            //Log::channel('whatsapp_logs')->info($response->json());
         } else {
             Log::channel('whatsapp_logs')->info($response->body());
         }
@@ -241,7 +241,7 @@ class WhatsappController extends Controller
 
         // You can check the response status and get the response content as needed
         if ($response->successful()) {
-            Log::channel('whatsapp_logs')->info($response->json());
+            // Log::channel('whatsapp_logs')->info($response->json());
         } else {
             Log::channel('whatsapp_logs')->info($response->body());
         }

@@ -10,6 +10,7 @@ use App\Http\Controllers\Reports\ReportController;
 use App\Http\Controllers\Reports\WeeklyController;
 use App\Http\Controllers\Reports\MonthlyController;
 use App\Http\Controllers\Reports\MonthlyMergeController;
+use App\Http\Controllers\Reports\MonthlyMergeJobController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\PDFController;
 use App\Http\Controllers\Reports\PDFTestController;
@@ -31,19 +32,19 @@ Route::get('/daily_download_csv', [ReportController::class, 'general_download_cs
 //multi in out
 // -> csv
 Route::get('/multi_in_out_daily_download_csv', [ReportController::class, 'multi_in_out_daily_download_csv']);
-//Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'multi_in_out_monthly_download_csv']);
+Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'multi_in_out_monthly_download_csv']);
 Route::get('/multi_in_out_weekly_download_csv', [WeeklyController::class, 'multi_in_out_weekly_download_csv']);
 
 // -> pdf view
 Route::get('/multi_in_out_daily', [DailyController::class, 'mimo_daily_pdf']);
 Route::get('/multi_in_out_weekly', [WeeklyController::class, 'multi_in_out_weekly_pdf']);
-//Route::get('/multi_in_out_monthly', [MonthlyController::class, 'multi_in_out_monthly_pdf']);
+Route::get('/multi_in_out_monthly', [MonthlyController::class, 'multi_in_out_monthly_pdf']);
 
 
 // -> pdf download
 Route::get('/multi_in_out_daily_download_pdf', [DailyController::class, 'mimo_daily_download']);
 Route::get('/multi_in_out_weekly_download_pdf', [WeeklyController::class, 'multi_in_out_weekly_download_pdf']);
-//Route::get('/multi_in_out_monthly_download_pdf', [MonthlyController::class, 'multi_in_out_monthly_download_pdf']);
+Route::get('/multi_in_out_monthly_download_pdf', [MonthlyController::class, 'multi_in_out_monthly_download_pdf']);
 
 
 // -> pdf cron
@@ -64,25 +65,36 @@ Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_cs
 
 
 
-// //monthly _OLD without merge 
-// Route::get('/monthly', [MonthlyController::class, 'monthly']);
-// Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
-// Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
-// Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
+//monthly _OLD without merge 
+Route::get('/monthly', [MonthlyController::class, 'monthly']);
+Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
+Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
+Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
 
-//monthly reports merge 
-Route::get('/monthly_merge', [MonthlyMergeController::class, 'monthly']);
+// //monthly reports merge 
+// Route::get('/monthly_merge', [MonthlyMergeController::class, 'monthly']);
 
-//monthly
-Route::get('/monthly', [MonthlyMergeController::class, 'monthly']);
-Route::get('/monthly_download_pdf', [MonthlyMergeController::class, 'monthly_download_pdf']);
-Route::get('/monthly_generate_pdf', [MonthlyMergeController::class, 'monthly_generate_pdf']);
-Route::get('/monthly_download_csv', [MonthlyMergeController::class, 'monthly_download_csv']);
+// //monthly
+// Route::get('/monthly', [MonthlyMergeController::class, 'monthly']);
+// Route::get('/monthly_download_pdf', [MonthlyMergeController::class, 'monthly_download_pdf']);
+// Route::get('/monthly_generate_pdf', [MonthlyMergeController::class, 'monthly_generate_pdf']);
+// Route::get('/monthly_download_csv', [MonthlyMergeController::class, 'monthly_download_csv']);
 
-Route::get('/multi_in_out_monthly', [MonthlyMergeController::class, 'multi_in_out_monthly_pdf']);
-Route::get('/multi_in_out_monthly_download_pdf', [MonthlyMergeController::class, 'multi_in_out_monthly_download_pdf']);
+// Route::get('/multi_in_out_monthly', [MonthlyMergeController::class, 'multi_in_out_monthly_pdf']);
+// Route::get('/multi_in_out_monthly_download_pdf', [MonthlyMergeController::class, 'multi_in_out_monthly_download_pdf']);
 
-Route::get('/multi_in_out_monthly_download_csv', [MonthlyMergeController::class, 'multi_in_out_monthly_download_csv']);
+// Route::get('/multi_in_out_monthly_download_csv', [MonthlyMergeController::class, 'multi_in_out_monthly_download_csv']);
+
+
+
+// //monthly reports Jobs Queue merge 
+// Route::get('/monthly_merge_job', [MonthlyMergeJobController::class, 'monthly']);
+// Route::get('/monthly_download_pdf_merge_job', [MonthlyMergeJobController::class, 'monthly_download']);
+// Route::get('/download_finalfile', [MonthlyMergeJobController::class, 'downloadFinalfile']);
+// Route::get('/view_finalfile', [MonthlyMergeJobController::class, 'viewFinalfile']);
+// Route::get('/verify_generated_pdf_file', [MonthlyMergeJobController::class, 'verifyGeneratedPDFFile']);
+
+
 
 
 
