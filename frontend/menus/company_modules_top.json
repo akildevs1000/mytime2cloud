@@ -43,13 +43,6 @@
   },
   {
     "icon": "mdi-bell",
-    "title": "Community",
-    "to": "/community/dashboard",
-    "menu": "community",
-    "module": "topmenu"
-  },
-  {
-    "icon": "mdi-bell",
     "title": "Reports",
     "to": "/attendance_report",
     "menu": "reports",
