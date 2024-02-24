@@ -26,7 +26,7 @@ class AttendanceLogController extends Controller
 
     public function handleFileForCron()
     {
-        $date = date("m-Y", strtotime("yesterday"));
+        $date = date("d-m-Y", strtotime("yesterday"));
 
         $csvPath = "app/logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
@@ -112,7 +112,7 @@ class AttendanceLogController extends Controller
 
     public function handleFile()
     {
-        $date = date("m-Y");
+        $date = date("d-m-Y");
 
         $csvPath = "app/logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
