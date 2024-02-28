@@ -24,13 +24,13 @@ class Kernel extends ConsoleKernel
     {
 
 
-        $schedule->call(function () {
-            exec('pm2 reload 5');
-            info("Log listener restart");
-        })->dailyAt('00:00');
+        // $schedule->call(function () {
+        //     exec('pm2 reload 5');
+        //     info("Log listener restart");
+        // })->dailyAt('00:00');
 
         $schedule->call(function () {
-            exec('pm2 reload 7');
+            exec('pm2 reload 3');
             info("Camera Log listener restart");
         })->dailyAt('00:00');
 
