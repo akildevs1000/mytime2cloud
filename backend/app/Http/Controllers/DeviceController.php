@@ -979,7 +979,10 @@ class DeviceController extends Controller
         $company = Company::where("id", $id)->where("is_offline_device_notificaiton_sent", false)->first();
 
         if ($company) {
-            $notifications = DeviceNotification::with("managers")->where("company_id", $id)->get();
+            $notifications = DeviceNotification::with("managers")->where("company_id", $id)
+                ->with("managers", function ($query) use ($id) {
+                    $query->where("company_id", $id);
+                })->get();
 
 
             foreach ($notifications as $key => $notification) {

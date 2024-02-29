@@ -39,6 +39,7 @@ class ReportNotificationCrons extends Command
         $id = $this->argument("id");
         $company_id = $this->argument("company_id");
 
+
         $script_name = "ReportNotificationCrons";
 
         $date = date("Y-m-d H:i:s");
@@ -52,7 +53,7 @@ class ReportNotificationCrons extends Command
                 })->first();
 
 
-            if (in_array("Email", $model->mediums)) {
+            if (in_array("Email", $model->mediums ?? [])) {
 
                 // if ($model->frequency == "Daily") {
 
@@ -74,7 +75,7 @@ class ReportNotificationCrons extends Command
             }
 
             //wahtsapp with attachments
-            if (in_array("Whatsapp", $model->mediums)) {
+            if (in_array("Whatsapp", $model->mediums ?? [])) {
 
                 foreach ($model->managers as $key => $manager) {
 
