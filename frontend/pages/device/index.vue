@@ -1203,6 +1203,7 @@
       </v-data-table>
     </v-card>
   </div>
+  <NoAccess v-else />
 </template>
 <script>
 // import Back from "../../components/Snippets/Back.vue";
