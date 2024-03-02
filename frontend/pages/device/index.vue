@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`automation_contnet_access`)">
+  <div v-if="can(`device_access`)">
     <v-dialog
       v-model="dialogAccessSettings"
       width="90%"
