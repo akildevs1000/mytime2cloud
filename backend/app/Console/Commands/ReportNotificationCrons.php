@@ -20,7 +20,7 @@ class ReportNotificationCrons extends Command
      *
      * @var string
      */
-    protected $signature = 'task:report_notification_crons {id}';
+    protected $signature = 'task:report_notification_crons {id} {company_id}';
 
     /**
      * The console command description.
@@ -37,6 +37,8 @@ class ReportNotificationCrons extends Command
     public function handle()
     {
         $id = $this->argument("id");
+        $company_id = $this->argument("company_id");
+
 
         $script_name = "ReportNotificationCrons";
 
@@ -44,10 +46,14 @@ class ReportNotificationCrons extends Command
 
         try {
 
-            $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", $id)->first();
+            $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", $id)
+
+                ->with("managers", function ($query) use ($company_id) {
+                    $query->where("company_id", $company_id);
+                })->first();
 
 
-            if (in_array("Email", $model->mediums)) {
+            if (in_array("Email", $model->mediums ?? [])) {
 
                 // if ($model->frequency == "Daily") {
 
@@ -69,7 +75,7 @@ class ReportNotificationCrons extends Command
             }
 
             //wahtsapp with attachments
-            if (in_array("Whatsapp", $model->mediums)) {
+            if (in_array("Whatsapp", $model->mediums ?? [])) {
 
                 foreach ($model->managers as $key => $manager) {
 
