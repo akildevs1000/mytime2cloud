@@ -245,7 +245,6 @@ class MonthlyController extends Controller
                 "Total Hrs",
                 "OT",
                 "Status",
-                "Other",
 
 
             ]);
@@ -253,7 +252,7 @@ class MonthlyController extends Controller
                 fputcsv($file, [
                     ++$i,
                     $col['date'],
-                    $col['employee_id'] ?? "---",
+                    isset($col['employee_id']) ? (string)$col['employee_id'] : "---",
                     $col['employee']["display_name"] ?? "---",
                     $col["in1"] ?? "---",
                     $col["out1"] ?? "---",
@@ -272,7 +271,6 @@ class MonthlyController extends Controller
                     $col["total_hrs"] ?? "---",
                     $col["ot"] ?? "---",
                     $col["status"] ?? "---",
-                    "other",
 
                 ], ",");
             }
