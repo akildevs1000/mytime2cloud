@@ -245,6 +245,8 @@ class MonthlyController extends Controller
                 "Total Hrs",
                 "OT",
                 "Status",
+                "Other",
+
 
             ]);
             foreach ($data as $col) {
@@ -270,6 +272,7 @@ class MonthlyController extends Controller
                     $col["total_hrs"] ?? "---",
                     $col["ot"] ?? "---",
                     $col["status"] ?? "---",
+                    "other",
 
                 ], ",");
             }
