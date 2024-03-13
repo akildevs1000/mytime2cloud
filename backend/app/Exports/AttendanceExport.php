@@ -26,7 +26,6 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
     public function headings(): array
     {
         return [
-            "#",
             "Date",
             "E.ID",
             "Name",
