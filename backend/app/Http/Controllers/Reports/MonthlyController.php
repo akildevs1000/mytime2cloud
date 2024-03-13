@@ -252,7 +252,7 @@ class MonthlyController extends Controller
                 fputcsv($file, [
                     ++$i,
                     $col['date'],
-                    isset($col['employee_id']) ? "'" . (string)$col['employee_id'] : "---",
+                    isset($col['employee_id']) ? '"' . $col['employee_id'] : '---',
                     
                     $col['employee']["display_name"] ?? "---",
                     $col["in1"] ?? "---",
