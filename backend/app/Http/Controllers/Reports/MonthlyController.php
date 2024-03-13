@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Reports;
 
+use App\Exports\AttendanceExport;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Company;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MonthlyController extends Controller
 {
@@ -210,7 +212,13 @@ class MonthlyController extends Controller
         if (isset($request->from_date) && isset($request->to_date)) {
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
         }
-        $file_name = $file_name . '.csv';
+        // $file_name = $file_name . '.csv';
+
+        $file_name = $file_name . '.xlsx';
+
+        return Excel::download(new AttendanceExport($data), $file_name);
+
+
 
         $headers = array(
             "Content-type" => "text/csv",

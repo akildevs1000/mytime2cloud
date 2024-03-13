@@ -196,8 +196,8 @@ return [
         App\Providers\RouteServiceProvider::class,
 
         TechTailor\RPG\RPGServiceProvider::class,
-        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class
-
+        Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,
     ],
 
     /*
@@ -214,6 +214,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'RPG' => TechTailor\RPG\Facade\RPG::class,
+        'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'PDFMerger' => Webklex\PDFMerger\Facades\PDFMergerFacade::class
 
 
