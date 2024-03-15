@@ -107,6 +107,17 @@
           <v-col md="2" sm="4">
             Employee ID
             <v-autocomplete
+              class="mt-2"
+              outlined
+              dense
+              v-model="payload.employee_id"
+              :items="scheduled_employees"
+              multiple
+              item-value="system_user_id"
+              item-text="name_with_user_id"
+              placeholder="Employees"
+            >
+              <!-- <v-autocomplete
               density="comfortable"
               class="mt-2"
               outlined
@@ -117,7 +128,42 @@
               item-value="system_user_id"
               item-text="name_with_user_id"
               :hide-details="true"
-            ></v-autocomplete>
+            > -->
+              <template v-if="scheduled_employees.length" #prepend-item>
+                <v-list-item @click="toggleEmployeesSelection">
+                  <v-list-item-action>
+                    <v-checkbox
+                      @click="toggleEmployeesSelection"
+                      v-model="selectAllEmployees"
+                      :indeterminate="isIndeterminateEmployee"
+                      :true-value="true"
+                      :false-value="false"
+                    ></v-checkbox>
+                  </v-list-item-action>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ selectAllEmployees ? "Unselect All" : "Select All" }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+              <template v-slot:selection="{ item, index }">
+                <span v-if="index === 0 && payload.employee_id.length == 1">{{
+                  item.name_with_user_id
+                }}</span>
+                <span
+                  v-else-if="
+                    index === 1 &&
+                    payload.employee_id.length == scheduled_employees.length
+                  "
+                  class=" "
+                  >All Selected
+                </span>
+                <span v-else-if="index === 1" class=" ">
+                  {{ payload.employee_id.length }} Employee(s)
+                </span>
+              </template>
+            </v-autocomplete>
           </v-col>
           <v-col md="1" sm="4">
             <div>Report Templates</div>
@@ -259,6 +305,7 @@ export default {
     key: 1,
     payload11: {},
     selectAllDepartment: false,
+    selectAllEmployees: false,
     branches: [],
     tab: null,
     generalHeaders,
@@ -432,6 +479,12 @@ export default {
         this.payload.department_ids.length < this.departments.length
       );
     },
+    isIndeterminateEmployee() {
+      return (
+        this.payload.employee_id.length > 0 &&
+        this.payload.employee_id.length < this.scheduled_employees.length
+      );
+    },
   },
 
   watch: {
@@ -447,7 +500,15 @@ export default {
         this.payload.department_ids = [];
       }
     },
-
+    selectAllEmployees(value) {
+      if (value) {
+        this.payload.employee_id = this.scheduled_employees.map(
+          (e) => e.system_user_id
+        );
+      } else {
+        this.payload.employee_id = [];
+      }
+    },
     // tab(value) {
     //   this.payload11 = {
     //     ...this.payload,
@@ -507,6 +568,9 @@ export default {
   methods: {
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
+    },
+    toggleEmployeesSelection() {
+      this.selectAllEmployees = !this.selectAllEmployees;
     },
     filterAttr(data) {
       this.from_date = data.from;
@@ -624,10 +688,10 @@ export default {
         .get(`/scheduled_employees_with_type`, options)
         .then(({ data }) => {
           this.scheduled_employees = data;
-          this.scheduled_employees.unshift({
-            system_user_id: "",
-            name_with_user_id: "All Employees",
-          });
+          // this.scheduled_employees.unshift({
+          //   system_user_id: "",
+          //   name_with_user_id: "All Employees",
+          // });
         });
     },
     setSevenDays(selected_date) {

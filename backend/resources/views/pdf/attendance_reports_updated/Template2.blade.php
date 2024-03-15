@@ -473,6 +473,7 @@ die();
         @endforeach
 
         @php
+
         function getStatus($employeeData)
         {
         $countA = 0;

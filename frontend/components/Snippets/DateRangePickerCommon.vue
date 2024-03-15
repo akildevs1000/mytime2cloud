@@ -93,8 +93,10 @@ export default {
   methods: {
     firstPicker() {
       this.startDates.sort((a, b) => a.localeCompare(b));
+
       this.endDates = [];
       this.finalDates = this.startDates;
+      console.log("this.finalDates", this.finalDates);
       this.$emit("selected-dates", this.finalDates);
     },
     secondPicker() {

@@ -137,6 +137,7 @@ class MultiShiftController extends Controller
                 "shift_id" => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"]  ?? 0,
                 "status" => count($data) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+
             ];
 
             $logsJson = [];
