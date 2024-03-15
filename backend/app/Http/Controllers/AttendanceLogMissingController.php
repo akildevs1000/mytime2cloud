@@ -76,7 +76,7 @@ class AttendanceLogMissingController  extends Controller
             // if ($indexSerialNumber > 0) {
 
             $url = env("SDK_URL") . $deviceId . "/GetRecordByIndex";
-            $url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
+            //$url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
             $data =  [
                 "TransactionType" => 1,
                 "Quantity" => 60,
