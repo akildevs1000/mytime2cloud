@@ -112,7 +112,7 @@ class AttendanceLogMissingController  extends Controller
                 $data = [
                     "UserID" => $record['userCode'],
                     "DeviceID" => $deviceId,
-                    "LogTime" => $record['recordDate'], //substr(str_replace("T", " ", $record[2]), 0, -3),
+                    "LogTime" =>  substr(str_replace(" ", " ", $record['recordDate']), 0, -3),
                     "SerialNumber" => $record['recordNumber'],
                     "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
                     "mode" => $verification_methods[$record['recordCode']] ?? "---",
