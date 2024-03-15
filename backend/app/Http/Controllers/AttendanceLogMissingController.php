@@ -66,8 +66,10 @@ class AttendanceLogMissingController  extends Controller
 
             //find serial number 
             $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
-                ->where("LogTime", '<=', $date . ' 00:00:00')
-                ->where("DeviceID",   $deviceId)->first();
+                ->whereDate("LogTime", '<=', $date)
+                ->where("SerialNumber", '>', 0)
+
+                ->where("DeviceID",   $deviceId)->orderBy("LogTime", "DESC")->first();
             if ($indexSerialNumberModel) {
                 $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
             }
@@ -124,7 +126,7 @@ class AttendanceLogMissingController  extends Controller
                 if (!$exists) {
                     AttendanceLog::create($data);
 
-                    $finalResult[] = $condition;
+                    $finalResult[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $record['recordDate'], "SerialNumber" => $record['recordNumber']];
                 }
                 // $status = AttendanceLog::firstOrCreate(
                 //     $condition,

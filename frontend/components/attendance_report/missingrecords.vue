@@ -114,6 +114,13 @@
           <template v-slot:item.date="{ item, index }" style="padding: 0px">
             {{ item.LogTime }}
           </template>
+          <template
+            v-slot:item.serial_number="{ item, index }"
+            style="padding: 0px"
+          >
+            {{ item.SerialNumber }}
+          </template>
+
           <template v-slot:item.message="{ item, index }" style="padding: 0px">
             Success
           </template>
@@ -164,6 +171,13 @@ export default {
           sortable: false,
           filterable: false,
           value: "date",
+        },
+        {
+          text: "SerialNumber",
+          align: "left",
+          sortable: false,
+          filterable: false,
+          value: "serial_number",
         },
         {
           text: "Message",
