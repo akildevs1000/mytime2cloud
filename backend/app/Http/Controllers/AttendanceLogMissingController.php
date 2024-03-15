@@ -109,10 +109,11 @@ class AttendanceLogMissingController  extends Controller
             $finalResult = [];
             foreach ($records['data'] as $record) {
 
+                $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
                 $data = [
                     "UserID" => $record['userCode'],
                     "DeviceID" => $deviceId,
-                    "LogTime" =>  substr(str_replace(" ", " ", $record['recordDate']), 0, -3),
+                    "LogTime" =>  $logtime,
                     "SerialNumber" => $record['recordNumber'],
                     "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
                     "mode" => $verification_methods[$record['recordCode']] ?? "---",
@@ -120,16 +121,16 @@ class AttendanceLogMissingController  extends Controller
                     "company_id" => $company_id,
                 ];
 
-                $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $record['recordDate']];
+                $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
                 $exists = AttendanceLog::where('UserID', $record['userCode'])
                     ->where('DeviceID', $deviceId)
-                    ->where('LogTime', $record['recordDate'])
+                    ->where('LogTime', $logtime)
                     ->exists();
 
                 if (!$exists) {
                     AttendanceLog::create($data);
 
-                    $finalResult[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $record['recordDate'], "SerialNumber" => $record['recordNumber']];
+                    $finalResult[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime, "SerialNumber" => $record['recordNumber']];
                 }
                 // $status = AttendanceLog::firstOrCreate(
                 //     $condition,
