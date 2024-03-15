@@ -3,11 +3,11 @@ const data = async ({ $auth, redirect }) => {
 
   if (user_type.branch_id == 0 && user_type.is_master == false) {
     //this.$router.push("/login");
-    redirect("/login");
+    return redirect("/login");
     return "";
   }
   if (user_type == "master") {
-    redirect("/master");
+    return redirect("/master");
     return;
   }
 
@@ -17,11 +17,11 @@ const data = async ({ $auth, redirect }) => {
   }
 
   if (/guard/.test(roleType)) {
-    redirect("/guard/guard-dashboard");
+    return redirect("/guard/guard-dashboard");
     return;
   }
   if (/host/.test(roleType)) {
-    redirect("/host/visitor-dashboard");
+    return redirect("/host/visitor-dashboard");
     return;
   }
 
@@ -30,14 +30,14 @@ const data = async ({ $auth, redirect }) => {
       window.location.href = process.env.EMPLOYEE_APP_URL;
       return "";
     } catch (e) {
-      redirect("logout");
+      return redirect("logout");
       return "";
     }
   }
   if (user_type.branch_id == 0 && user_type.is_master == false) {
-    redirect("logout");
+    return redirect("logout");
   } else {
-    redirect("/attendance_report");
+    return redirect("/dashboard");
   }
 
   return "";

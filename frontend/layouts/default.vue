@@ -711,6 +711,7 @@ export default {
     }, 1000 * 10);
 
     setInterval(() => {
+      this.resetTimer();
       this.verifyAlarmStatus();
     }, 1000 * 60 * 1);
     setInterval(() => {
@@ -868,7 +869,7 @@ export default {
       // Handle inactivity
       this.handleInactivity = () => {
         // Perform actions when the user is inactive
-        this.$router.push(`/dashboard2`);
+        this.$router.push(`/dashboard`);
         // For example, you could redirect the user, show a message, etc.
       };
 
