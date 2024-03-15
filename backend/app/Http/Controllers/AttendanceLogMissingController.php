@@ -59,7 +59,7 @@ class AttendanceLogMissingController  extends Controller
             $company_id = $request->company_id;
             $date = $request->date;
 
-            $date = date('Y-m-d', strtotime($date . ' + 1 days'));
+            //$date = date('Y-m-d', strtotime($date . ' + 1 days'));
 
 
             $deviceId = $request->device_id;
