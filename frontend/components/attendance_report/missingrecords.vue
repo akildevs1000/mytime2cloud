@@ -94,7 +94,7 @@
           :loading="loading"
           class="elevation-0"
           model-value="data.id"
-          height="600"
+          height="500"
           no-data-text="No Data available.  "
           :footer-props="{
             itemsPerPageOptions: [100, 500, 1000],
