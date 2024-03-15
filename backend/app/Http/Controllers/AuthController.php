@@ -276,7 +276,11 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
+
+        // return $request->user();
+        // return $request->all();
+        return true;
+        //return  $request->user()->tokens()->delete();
     }
 
     public function throwErrorIfFail($request, $user)
