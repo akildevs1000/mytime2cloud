@@ -28,7 +28,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
         return [
             "Date",
             "E.ID",
-            "Name",
+            "Full Name",
             "In1",
             "Out1",
             "In2",
@@ -54,7 +54,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
         return [
             $row['date'],
             (string)$row['employee']["employee_id"] ?? "---",
-            $row['employee']["display_name"] ?? "---",
+            $row['employee']["full_name"] ?? "---",
             $row["in1"] ?? "---",
             $row["out1"] ?? "---",
             $row["in2"] ?? "---",
