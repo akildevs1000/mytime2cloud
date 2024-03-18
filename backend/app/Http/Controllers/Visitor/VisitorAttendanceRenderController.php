@@ -121,6 +121,8 @@ class VisitorAttendanceRenderController extends Controller
                 "status" => "M",
                 "total_hrs" => '---',
                 "over_stay" => '---',
+                "late_coming" => "---",
+                "early_going" => "---",
             ];
 
 

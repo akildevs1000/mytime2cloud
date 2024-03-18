@@ -228,6 +228,81 @@ class AttendanceLogController extends Controller
             // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
         }
     }
+    // public function storemissing()
+    // {
+    //     $result = $this->handleFile();
+
+    //     if (array_key_exists("error", $result)) {
+    //         return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+    //     }
+
+    //     $result["data"] = array_values(array_unique($result["data"]));
+
+    //     $records = [];
+
+    //     foreach ($result["data"] as $row) {
+
+
+    //         $columns = explode(',', $row);
+
+
+    //         if (
+    //             date("Y-m-d H:i", strtotime($columns[2])) >= '2024-02-24 00:00'
+    //             && date("Y-m-d H:i", strtotime($columns[2])) <= '2024-02-24 14:30'
+    //         ) {
+
+
+
+    //             // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+
+    //             //if (!$isDuplicateLogTime) 
+
+    //             $count = AttendanceLog::where("UserID", $columns[0])
+    //                 ->where("UserID", $columns[0])
+    //                 ->where("DeviceID", $columns[1])
+    //                 ->where("LogTime", substr(str_replace("T", " ", $columns[2]), 0, 16))
+    //                 ->get()->count();
+
+    //             if ($count == 0) {
+    //                 $records[] = [
+    //                     "UserID" => $columns[0],
+    //                     "DeviceID" => $columns[1],
+    //                     "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
+    //                     "SerialNumber" => $columns[3],
+    //                     "status" => $columns[4] ?? "Allowed",
+    //                     "mode" => $columns[5] ?? "Face",
+    //                     "reason" => $columns[6] ?? "---",
+    //                 ];
+    //             }
+
+    //             //
+
+
+    //             // try {
+    //             //     AttendanceLog::insert($records);
+    //             //     // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
+    //             //     // Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+    //             //     return $this->getMeta("Sync Attenance Logs", count($records) . " new logs has been inserted." . "\n");
+    //             // } catch (\Throwable $th) {
+
+    //             //     Logger::channel("custom")->error('Error occured while inserting logs.');
+    //             //     Logger::channel("custom")->error('Error Details: ' . $th);
+    //             //     return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+
+    //             //     // return $data = [
+    //             //     //     'title' => 'Quick action required',
+    //             //     //     'body' => $th,
+    //             //     // ];
+    //             //     // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+    //             // }
+    //         } else {
+    //         }
+    //     }
+
+    //     //  AttendanceLog::insert($records);
+
+    //     return $records;
+    // }
 
     public function verifyDuplicateLog($columns)
     {

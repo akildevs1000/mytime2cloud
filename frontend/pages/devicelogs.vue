@@ -5,6 +5,20 @@
         {{ response }}
       </v-snackbar>
     </div>
+    <v-dialog v-model="missingLogsDialog" max-width="1000px">
+      <v-card>
+        <v-card-title dark class="popup_background">
+          <span dense>Missing Device Logs </span>
+          <v-spacer></v-spacer>
+          <v-icon dark @click="missingLogsDialog = false" outlined>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <missingrecords />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-row justify="center">
       <v-dialog v-model="generateLogsDialog" max-width="700px">
         <v-card>
@@ -77,6 +91,16 @@
               @click="generateLogsDialog = true"
             >
               <v-icon class="">mdi mdi-plus-circle</v-icon>
+            </v-btn>
+            <v-btn
+              v-if="can(`logs_create`)"
+              title="Attendance Log"
+              x-small
+              :ripple="false"
+              text
+              @click="missingLogsDialog = true"
+            >
+              <v-icon class="">mdi mdi-head-cog-outline</v-icon>
             </v-btn>
             <!-- </template>
               <span> Attendance Log</span>
@@ -350,13 +374,16 @@
 <script>
 import DateRangePicker from "../components/Snippets/Filters/DateRangePicker.vue";
 import CustomFilter from "../components/CustomFilter.vue";
+import missingrecords from "../components/attendance_report/missingrecords.vue";
 
 export default {
   components: {
     DateRangePicker,
     CustomFilter,
+    missingrecords,
   },
   data: () => ({
+    missingLogsDialog: false,
     branchesList: [],
     tableHeight: 750,
     id: "",
