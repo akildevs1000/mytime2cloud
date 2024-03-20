@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Exports;
 
 use App\Models\Attendance;
@@ -54,7 +55,7 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
         return [
             $row['date'],
             (string)$row['employee']["employee_id"] ?? "---",
-            $row['employee']["full_name"] ?? "---",
+            $row['employee']["full_name"] ?? $row['employee']["first_name"] . " " . $row['employee']["last_name"],
             $row["in1"] ?? "---",
             $row["out1"] ?? "---",
             $row["in2"] ?? "---",
