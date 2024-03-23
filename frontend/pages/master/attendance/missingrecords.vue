@@ -276,6 +276,8 @@ export default {
             this.payload.device_id = this.devices[counter].device_id;
             processComplatedStatus = this.getMissingLogs();
             counter++;
+          } else {
+            alert("Verified All Devices");
           }
         }
       }, 1000 * 10);
