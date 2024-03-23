@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;;
 
 use App\Models\AlarmLogs;
+use App\Models\Company;
 use App\Models\Device;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log as Logger;
@@ -166,6 +168,21 @@ class AlarmLogsController extends Controller
         $fullPath = storage_path($csvPath);
 
         if (!file_exists($fullPath)) {
+
+            try {
+                $company = Company::where("id", 8);
+
+                $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
+
+
+
+                (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
+                // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+
+            } catch (\Exception $e) {
+            }
+
             return ["error" => true, "message" => 'File doest not exist.'];
         }
 
