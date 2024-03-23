@@ -29,11 +29,18 @@
               solo
               flat
             >
+              <template #selection="{ item }">
+                <span
+                  >{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
+                  {{ item.name }}</span
+                >
+              </template>
               <!-- Custom template to display both name and id in dropdown options -->
               <template #item="{ item }">
                 <v-list-item-content>
                   <v-list-item-title
-                    >{{ item.company.name }} - {{ item.name }}
+                    >{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
+                    {{ item.name }}
                   </v-list-item-title>
                 </v-list-item-content>
               </template></v-autocomplete
