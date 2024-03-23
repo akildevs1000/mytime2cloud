@@ -92,18 +92,41 @@ class DeviceController extends Controller
             }
         });
 
+
+
         if (!$request->sortBy)
             $model->orderBy("name", "ASC");
         return $model->paginate($request->per_page ?? 1000);
 
         //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
     }
+    public function getDeviceListMaster(Device $model, Request $request)
+    {
+        return $model->with(['company', 'status'])
+            ->where("model_number", "!=", "Manual")
+            ->where("model_number",  'not like', "%Mobile%")
+            ->where("name",  'not like', "%Manual%")
+            ->where("name",  'not like', "%manual%")
 
+            ->orderBy(Company::select("name")->whereColumn("devices.company_id", "companies.id"),  'asc')
+
+            // ->orderBy(function ($q) use ($request) {
+            //     //$q->orderBy("companies.name", "asc");
+
+            //     $q->orderBy(Company::select("name")->whereColumn("devices.company_id", "companies.id"),  'desc');
+            // })
+
+
+            // ->orderBy("name", "asc")
+            ->get();
+    }
     public function getDeviceList(Device $model, Request $request)
     {
         return $model->with(['status'])->where('company_id', $request->company_id)
             ->where("model_number", "!=", "Manual")
             ->where("model_number",  'not like', "%Mobile%")
+            ->where("name",  'not like', "%Manual%")
+            ->where("name",  'not like', "%manual%")
 
             ->orderBy("name", "asc")->get();
     }

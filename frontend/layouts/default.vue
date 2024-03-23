@@ -854,11 +854,13 @@ export default {
       } catch (e) {}
     },
     handleActivity() {
+      console.log("handleActivity");
       this.resetTimer();
     },
     resetTimer() {
+      console.log("resetTimer");
       // Time in milliseconds after which the user is considered inactive
-      const INACTIVITY_TIME = 1000 * 60 * 30; // 5 minutes
+      const INACTIVITY_TIME = 1000 * 60 * 30; //30 minutes
       clearTimeout(this.inactivityTimeout);
       this.inactivityTimeout = setTimeout(
         this.handleInactivity,
@@ -866,8 +868,10 @@ export default {
       );
     },
     setupInactivityDetection() {
+      console.log("setupInactivityDetection");
       // Handle inactivity
       this.handleInactivity = () => {
+        console.log("handleInactivity");
         // Perform actions when the user is inactive
         this.$router.push(`/dashboard`);
         // For example, you could redirect the user, show a message, etc.

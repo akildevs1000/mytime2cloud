@@ -63,6 +63,11 @@ class AttendanceLogMissingController  extends Controller
 
 
             $deviceId = $request->device_id;
+            if ($company_id == 0) {
+                $device = Device::where("device_id", $deviceId)->first();
+                $company_id = $device["company_id"];
+            }
+
 
 
             $indexSerialNumber = 0;

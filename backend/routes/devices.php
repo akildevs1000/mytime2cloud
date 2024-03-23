@@ -25,6 +25,9 @@ Route::post('device/delete/selected', [DeviceController::class, 'deleteSelected'
 Route::get('device_list', [DeviceController::class, 'getDeviceList']);
 Route::get('device_list_not_manual', [DeviceController::class, 'getDeviceListNotManul']);
 
+Route::get('device_list_master', [DeviceController::class, 'getDeviceListMaster']);
+
+
 
 
 Route::get('devcie_count_Status/{company_id}', [DeviceController::class, 'devcieCountByStatus']);

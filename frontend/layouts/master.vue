@@ -203,8 +203,14 @@ export default {
           permission: this.can("company_access"),
         },
         {
+          icon: "mdi mdi-playlist-remove",
+          title: "Missing Logs",
+          to: "/master/attendance/missingrecords",
+          permission: this.can("master"),
+        },
+        {
           icon: "mdi-login-variant",
-          title: "Logs",
+          title: "Web Logs",
           to: "/master/web_login_logs",
           permission: this.can("master"),
         },

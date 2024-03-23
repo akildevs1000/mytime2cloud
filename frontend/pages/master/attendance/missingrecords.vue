@@ -28,7 +28,16 @@
               placeholder="Device Name"
               solo
               flat
-            ></v-autocomplete>
+            >
+              <!-- Custom template to display both name and id in dropdown options -->
+              <template #item="{ item }">
+                <v-list-item-content>
+                  <v-list-item-title
+                    >{{ item.company.name }} - {{ item.name }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </template></v-autocomplete
+            >
             <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
               errors.device_id[0]
             }}</span>
@@ -135,6 +144,16 @@
 <script>
 // import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
 export default {
+  layout({ $auth }) {
+    let { user_type } = $auth.user;
+    if (user_type == "master") {
+      return "master";
+    } else if (user_type == "employee") {
+      return "employee";
+    } else if (user_type == "master") {
+      return "default";
+    }
+  },
   components: {},
   data() {
     return {
@@ -212,7 +231,7 @@ export default {
           company_id: this.$auth.user.company_id,
         },
       };
-      this.$axios.get(`/device_list`, payload).then(({ data }) => {
+      this.$axios.get(`/device_list_master`, payload).then(({ data }) => {
         this.devices = data;
       });
     },
