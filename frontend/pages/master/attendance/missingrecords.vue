@@ -9,9 +9,9 @@
       </v-snackbar>
     </div>
     <v-card>
-      <!-- <v-toolbar dense flat>
+      <v-toolbar dense flat>
         <span class="headline black--text"> Missing Attendance Logs </span>
-      </v-toolbar> -->
+      </v-toolbar>
       <v-card-text>
         <v-row>
           <v-col cols="4">
