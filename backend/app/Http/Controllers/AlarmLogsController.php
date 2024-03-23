@@ -170,16 +170,20 @@ class AlarmLogsController extends Controller
         if (!file_exists($fullPath)) {
 
             try {
-                $company = Company::where("id", 8);
 
-                $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
-
+                if (strtotime(date("Y-m-d H:i:s") >= strtotime(date("Y-m-d 10:00:00")))) {
 
 
-                (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
-                // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
-                // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+                    $company = Company::where("id", 8);
 
+                    $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
+
+
+
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
+                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+                }
             } catch (\Exception $e) {
             }
 
