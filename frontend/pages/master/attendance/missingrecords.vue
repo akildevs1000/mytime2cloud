@@ -90,7 +90,8 @@
           </v-col>
           <v-col md="2" sm="2">
             <v-btn @click="automate()" color="primary" primary fill
-              >Select date and Automate
+              ><v-icon class="">mdi mdi-head-cog-outline</v-icon> Select date
+              and Automate
             </v-btn>
           </v-col>
         </v-row></v-card-text
@@ -259,12 +260,19 @@ export default {
         this.errors["date"] = ["The date field is required."];
         return false;
       }
+
+      this.snackbarMessage =
+        "Automation Missing Logs process started...Please wait";
       let counter = 0;
+      let processComplatedStatus = true;
       setInterval(() => {
         if (counter <= this.devices.length) {
-          this.payload.device_id = this.devices[counter].device_id;
-          this.getMissingLogs();
-          counter++;
+          if (processComplatedStatus) {
+            processComplatedStatus = false;
+            this.payload.device_id = this.devices[counter].device_id;
+            processComplatedStatus = this.getMissingLogs();
+            counter++;
+          }
         }
       }, 1000 * 10);
     },
@@ -323,6 +331,8 @@ export default {
           this.loading = false;
         }
       });
+
+      return true;
     },
   },
 };
