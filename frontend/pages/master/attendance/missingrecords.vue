@@ -116,7 +116,7 @@
           :loading="loading"
           class="elevation-0"
           model-value="data.id"
-          height="500"
+          height="800"
           no-data-text="No Data available.  "
           :footer-props="{
             itemsPerPageOptions: [100, 500, 1000],
@@ -224,6 +224,10 @@ export default {
   watch: {},
   mounted() {},
   created() {
+    const today = new Date();
+
+    this.payload.date = today.toISOString().slice(0, 10);
+
     this.getDeviceList();
   },
   // watch: {
