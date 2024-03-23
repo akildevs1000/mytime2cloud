@@ -88,6 +88,11 @@
               >Submit
             </v-btn>
           </v-col>
+          <v-col md="2" sm="2">
+            <v-btn @click="automate()" color="primary" primary fill
+              >Select date and Automate
+            </v-btn>
+          </v-col>
         </v-row></v-card-text
       >
     </v-card>
@@ -242,6 +247,28 @@ export default {
         this.devices = data;
       });
     },
+    automate() {
+      // this.devices.forEach((element) => {
+
+      //   this.payload.device_id = element.device_id;
+      //   this.getMissingLogs();
+
+      // });
+      if (!this.payload.date) {
+        this.errors = {};
+        this.errors["date"] = ["The date field is required."];
+        return false;
+      }
+      let counter = 0;
+      setInterval(() => {
+        if (counter <= this.devices.length) {
+          this.payload.device_id = this.devices[counter].device_id;
+          this.getMissingLogs();
+          counter++;
+        }
+      }, 1000 * 10);
+    },
+
     getMissingLogs() {
       this.snackbarMessage = "";
 
