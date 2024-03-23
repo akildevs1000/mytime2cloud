@@ -14,7 +14,7 @@
       </v-toolbar> -->
       <v-card-text>
         <v-row>
-          <v-col cols="3">
+          <v-col cols="4">
             <v-autocomplete
               v-model="payload.device_id"
               label="Select Device"
