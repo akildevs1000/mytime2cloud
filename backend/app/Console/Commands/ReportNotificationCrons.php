@@ -84,7 +84,7 @@ class ReportNotificationCrons extends Command
 
 
 
-
+                        $attachments = [];
 
                         foreach ($model->reports as $file) {
 

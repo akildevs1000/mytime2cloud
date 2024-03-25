@@ -92,7 +92,10 @@ class AlarmLogsController extends Controller
     {
         $result = $this->handleFile();
 
-        if (array_key_exists("error", $result)) {
+        // if (array_key_exists("error", $result)) {
+        //     return $this->getMeta("Sync Attenance alarm Logs", $result["message"] . "\n");
+        // }
+        if (isset($result["error"])) {
             return $this->getMeta("Sync Attenance alarm Logs", $result["message"] . "\n");
         }
 
@@ -161,7 +164,7 @@ class AlarmLogsController extends Controller
 
     public function handleFile()
     {
-        return  $date = date("d-m-Y");
+        $date = date("d-m-Y");
 
         $csvPath = "app/alarm/alarm-logs-$date.csv"; // The path to the file relative to the "Storage" folder
 

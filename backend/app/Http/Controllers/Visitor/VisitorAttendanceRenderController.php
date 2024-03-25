@@ -150,7 +150,7 @@ class VisitorAttendanceRenderController extends Controller
         }
 
         if (!count($items)) {
-            $message = '[' . $date . " " . date("H:i:s") . '] Visitor Attendances: No data found' . $message;
+            // $message = '[' . $date . " " . date("H:i:s") . '] Visitor Attendances: No data found' . $message;
             $this->devLog("visitor-attenadnce-log", $message);
             return $message;
         }
