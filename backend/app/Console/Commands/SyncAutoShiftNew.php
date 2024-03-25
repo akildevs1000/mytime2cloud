@@ -68,7 +68,7 @@ class SyncAutoShiftNew extends Command
             //calling manual render method to pull all 
             $renderRequest = Request::create('/render_logs', 'get', $requestArray);
 
-            echo json_encode((new RenderController())->renderLogs($renderRequest));
+            echo json_encode((new RenderController())->renderLogs($renderRequest)) . '--------' . $auto_render;
         } catch (\Throwable $th) {
             //throw $th;
             $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
