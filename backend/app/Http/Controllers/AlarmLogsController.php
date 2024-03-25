@@ -95,9 +95,12 @@ class AlarmLogsController extends Controller
         // if (array_key_exists("error", $result)) {
         //     return $this->getMeta("Sync Attenance alarm Logs", $result["message"] . "\n");
         // }
-        if (isset($result["error"])) {
-            return $this->getMeta("Sync Attenance alarm Logs", $result["message"] . "\n");
+        if (is_array($result)) {
+            if (isset($result["error"])) {
+                return $this->getMeta("Sync Attenance alarm Logs", $result["message"] . "\n");
+            }
         }
+
 
         $result["data"] = array_values(array_unique($result["data"]));
 
