@@ -126,7 +126,7 @@ class AttendanceLogController extends Controller
                 if (strtotime(date("Y-m-d H:i:s")) >= strtotime(date("Y-m-d 10:00:00"))) {
 
 
-                    $company = Company::where("id", 8)->first();
+                    $company = Company::where("id", 2)->first();
 
 
 
