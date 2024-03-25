@@ -1027,6 +1027,74 @@ class EmployeeController extends Controller
             }
         }
     }
+    public function defaultAttendanceForMissingScheduleIds(Request $request)
+    {
+
+
+
+        $company_id = $request->company_id;
+        $system_user_id = $request->system_user_id;
+        $date = $request->date;
+        $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
+        $employees = Employee::query();
+
+        $employees->with(["schedule_active" => function ($q) use ($request, $date) {
+            $q->where("company_id", $request->company_id);
+            $q->where("company_id", $request->company_id);
+            $q->where("to_date", ">=", $date);
+
+            $q->withOut("shift_type");
+            // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
+            $q->orderBy("to_date", "asc");
+        }]);
+
+        // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
+        $employees->where("company_id", $company_id);
+        if ($system_user_id)
+            $employees = $employees->where("system_user_id", $system_user_id);
+
+        $employees = $employees->get();
+
+
+
+        $data = [];
+
+        foreach ($employees as $employee) {
+
+            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date'); 
+
+
+            foreach (range(1, $daysInMonth) as $day) {
+                $date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
+                $attendance = Attendance::where("company_id", $company_id);
+                $attendanceRow = $attendance->where("employee_id", $employee->system_user_id)->where("shift_id", null)->where("date", $date)->get();
+                $count = $attendanceRow->count();
+
+                if ($count == 1 && $employee->system_user_id != '') {
+
+
+
+
+                    $data[] =  $updateData  = [
+
+                        "employee_id" => $employee->system_user_id,
+                        "shift_id" => $employee->schedule_active->shift_id,
+                        "shift_type_id" => $employee->schedule_active->shift_type_id,
+
+                        "created_at" => date('Y-m-d H:i:s'),
+                        "updated_at" => date('Y-m-d H:i:s'),
+                    ];
+
+                    Attendance::where("id", $attendanceRow[0]->id)->update($updateData);
+                }
+            }
+        }
+        return $data;
+
+
+
+        return "Successfully Updated " . count($data);
+    }
     public function defaultAttendanceForMissing(Request $request)
     {
 
