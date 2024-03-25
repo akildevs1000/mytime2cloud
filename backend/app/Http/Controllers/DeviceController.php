@@ -1022,7 +1022,14 @@ class DeviceController extends Controller
                 $company = $company->load(['devices' => function ($q) use ($notification) {
                     $q->where("status_id", self::OFFLINE_STATUS_ID)
                         ->where("branch_id", $notification->branch_id)
-                        ->where("name", "!=", "Mobile");
+                        ->where("name", "!=", "Mobile")
+                        ->where("device_type", "!=", "Manual")
+                        ->where("device_id", "!=", "Manual")
+                        ->where("device_id", "!=", "Manual")
+                        ->where("model_number", "!=", "Manual")
+                        ->where("model_number",  'not like', "%Mobile%")
+                        ->where("name",  'not like', "%Manual%")
+                        ->where("name",  'not like', "%manual%");
                 }]);
 
                 $counter = 1;

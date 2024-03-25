@@ -130,7 +130,9 @@ class AttendanceController extends Controller
             $singleShiftEmployeeCount = Attendance::where("date", '>=', $date . ' 00:00:00')
                 ->where("date", '<=',  $date . ' 23:59:00')
                 ->where("company_id", $request->company_id)
-                ->whereIn("shift_type_id", [1,    4, 5, 6])->get()->count();
+                ->whereIn("shift_type_id", [1,    4, 5, 6])
+
+                ->get()->count();
         }
         if ($DualShiftEmployeeCount == 0) {
             $DualShiftEmployeeCount = Attendance::where("date", '>=', $date . ' 00:00:00')
