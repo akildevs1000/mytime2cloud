@@ -400,7 +400,7 @@ class Controller extends BaseController
 
     public function devLog($file_name, $message): void
     {
-        Storage::append("devlogs/" . $file_name . '-' . date('d-m-Y') . ".log", $message . "\n");
+        Storage::append("dev_logs/" . $file_name . '-' . date('d-m-Y') . ".log", $message . "\n");
     }
 
     public function processImage($folder): string
