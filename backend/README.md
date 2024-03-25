@@ -96,3 +96,5 @@ END Snippet to add action to notitfication
 ------------------------------------------
 
 pm2 start java --  -jar  SxDeviceManager.jar
+
+composer require webklex/laravel-pdfmerger

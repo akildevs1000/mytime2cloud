@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
@@ -119,6 +120,27 @@ class AttendanceLogController extends Controller
         $fullPath = storage_path($csvPath);
 
         if (!file_exists($fullPath)) {
+
+            try {
+
+                if (strtotime(date("Y-m-d H:i:s")) >= strtotime(date("Y-m-d 10:00:00"))) {
+
+
+                    $company = Company::where("id", 8)->first();
+
+
+
+                    $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
+
+
+
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
+                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+                }
+            } catch (\Exception $e) {
+            }
+
             return ["error" => true, "message" => 'File doest not exist.'];
         }
 
@@ -182,7 +204,7 @@ class AttendanceLogController extends Controller
     }
     public function store()
     {
-        $result = $this->handleFile();
+        return  $result = $this->handleFile();
 
         if (array_key_exists("error", $result)) {
             return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");

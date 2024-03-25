@@ -22,13 +22,19 @@ class TestController extends Controller
     public function pdfMergeTest()
     {
         $oMerger = PDFMerger::init();
-        
-        $oMerger->addPDF(public_path("pdf_one.pdf"), [2]);
-        $oMerger->addPDF(public_path("pdf_one.pdf"), 'all');
+
+        // $oMerger->addPDF(public_path("pdf_one.pdf"), [2]);
+        // $oMerger->addPDF(public_path("pdf_one.pdf"), 'all');
+        $oMerger->addPDF("C:\\akil\\ideaHRMS\\ideahrms\\backend\\storage\\app\\public\\temp_pdf\\1001.pdf", 'all');
+
+        $oMerger->addPDF("C:\\akil\\ideaHRMS\\ideahrms\\backend\\storage\\app\\public\\temp_pdf\\353.pdf", 'all');
+
+        $oMerger->addPDF("C:\\akil\\ideaHRMS\\ideahrms\\backend\\storage\\app\\public\\temp_pdf\\5656.pdf", 'all');
+
+
+
         $oMerger->merge();
         return $oMerger->save('merged_result.pdf');
-
-
     }
     public function index()
     {

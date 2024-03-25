@@ -28,6 +28,8 @@ class SyncAttendanceLogs extends Command
      */
     public function handle()
     {
-        echo (new AttendanceLogController)->store();
+
+
+        echo json_encode((new AttendanceLogController)->store());
     }
 }

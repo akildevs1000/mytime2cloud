@@ -161,7 +161,7 @@ class AlarmLogsController extends Controller
 
     public function handleFile()
     {
-        $date = date("d-m-Y");
+        return  $date = date("d-m-Y");
 
         $csvPath = "app/alarm/alarm-logs-$date.csv"; // The path to the file relative to the "Storage" folder
 
@@ -169,23 +169,6 @@ class AlarmLogsController extends Controller
 
         if (!file_exists($fullPath)) {
 
-            try {
-
-                if (strtotime(date("Y-m-d H:i:s") >= strtotime(date("Y-m-d 10:00:00")))) {
-
-
-                    $company = Company::where("id", 8);
-
-                    $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
-
-
-
-                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
-                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
-                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
-                }
-            } catch (\Exception $e) {
-            }
 
             return ["error" => true, "message" => 'File doest not exist.'];
         }
