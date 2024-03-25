@@ -16,7 +16,7 @@ class SyncAutoShiftNew extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_auto_shift  {company_id} {date}';
+    protected $signature = 'task:sync_auto_shift  {company_id} {date} {auto_render}';
 
     /**
      * The console command description.
@@ -36,6 +36,7 @@ class SyncAutoShiftNew extends Command
         $id = $this->argument("company_id");
 
         $date = $this->argument("date");
+        $auto_render = $this->argument("auto_render");
 
         try {
             //echo (new AutoShiftController)->render($id, $date, [], false) . "\n";
@@ -61,7 +62,7 @@ class SyncAutoShiftNew extends Command
                 'employee_ids' => [],
                 'dates' => array($date, $date),
                 'shift_type_id' => 1,
-                'auto_render' => false
+                'auto_render' => $auto_render
             );
 
             //calling manual render method to pull all 
