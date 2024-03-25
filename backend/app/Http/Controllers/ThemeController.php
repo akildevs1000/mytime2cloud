@@ -45,6 +45,8 @@ class ThemeController extends Controller
     }
     public function getCounts($id = 0, $request): array
     {
+
+
         $model = Attendance::with("employee")->where('company_id', $id)
 
             ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
@@ -59,16 +61,19 @@ class ThemeController extends Controller
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
             ->get();
+        $attendanceCounts = 0;
+        try {
+            $attendanceCounts = AttendanceLog::with(["employee"])->where("company_id", $id)
+                ->whereDate("LogTime", date("Y-m-d"))
+                ->when($request->filled("branch_id"), function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                ->groupBy("UserID")
 
-        $attendanceCounts = AttendanceLog::with(["employee"])->where("company_id", $id)
-            ->whereDate("LogTime", date("Y-m-d"))
-            ->when($request->filled("branch_id"), function ($q) use ($request) {
-                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
-            })
-            ->groupBy("UserID")
-
-            ->selectRaw('"UserID", COUNT(*) as count')
-            ->get();
+                ->selectRaw('"UserID", COUNT(*) as count')
+                ->get();
+        } catch (\Exception $e) {
+        }
 
         $countsByParity = $attendanceCounts->groupBy(fn ($item) => $item->count % 2 === 0 ? 'even' : 'odd')->map->count();
 

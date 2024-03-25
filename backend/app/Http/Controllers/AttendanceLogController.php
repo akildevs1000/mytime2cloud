@@ -204,7 +204,7 @@ class AttendanceLogController extends Controller
     }
     public function store()
     {
-        return  $result = $this->handleFile();
+        $result = $this->handleFile();
 
         if (array_key_exists("error", $result)) {
             return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
