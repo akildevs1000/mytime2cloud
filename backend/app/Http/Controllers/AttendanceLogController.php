@@ -135,7 +135,7 @@ class AttendanceLogController extends Controller
 
 
                     (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
-                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
                     // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
                 }
             } catch (\Exception $e) {
