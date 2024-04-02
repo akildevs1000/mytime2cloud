@@ -1027,20 +1027,27 @@ class EmployeeController extends Controller
             }
         }
     }
-    public function defaultAttendanceForMissingScheduleIds(Request $request)
+    public function  defaultAttendanceForMissingScheduleIds(Request $request)
+    {
+        $company_id = $request->company_id;
+        $system_user_id = $request->system_user_id;
+        $date = $request->date;
+        $this->AttendanceForMissingScheduleIds($company_id, $system_user_id, $date);
+    }
+    public function AttendanceForMissingScheduleIds($company_id, $system_user_id, $date)
     {
 
 
 
-        $company_id = $request->company_id;
-        $system_user_id = $request->system_user_id;
-        $date = $request->date;
+        //$company_id = $request->company_id;
+        //$system_user_id = $request->system_user_id;
+        //$date = $request->date;
         $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
         $employees = Employee::query();
 
-        $employees->with(["schedule_active" => function ($q) use ($request, $date) {
-            $q->where("company_id", $request->company_id);
-            $q->where("company_id", $request->company_id);
+        $employees->with(["schedule_active" => function ($q) use ($company_id, $date) {
+            $q->where("company_id", $company_id);
+            $q->where("company_id", $company_id);
             $q->where("to_date", ">=", $date);
 
             $q->withOut("shift_type");
@@ -1049,18 +1056,23 @@ class EmployeeController extends Controller
         }]);
 
 
-        $employeesEmptyShiftids = Attendance::where("shift_id", null)
-            ->where('date', ">=", date("Y-m-", strtotime($date)) . sprintf("%02d",  01))
+        $employeesEmptyShiftids = Attendance::where('date', ">=", date("Y-m-", strtotime($date)) . sprintf("%02d",  01))
             ->where('date', "<=", date("Y-m-", strtotime($date)) . sprintf("%02d",  $daysInMonth))
-            ->where("company_id", $request->company_id)
-            ->when(request()->filled("system_user_id"), function ($q) use ($system_user_id) {
+            ->where(function ($query) {
+                $query->where("shift_id", null)
+                    ->Orwhere("shift_id", 0);
+            })
+            ->where("company_id", $company_id)
+            ->when($system_user_id > 0, function ($q) use ($system_user_id) {
                 $q->where("employee_id", $system_user_id);
             })->pluck("employee_id");
+
+
 
         $employees->whereIn("system_user_id", $employeesEmptyShiftids);
 
         $employees->where("company_id", $company_id);
-        if ($system_user_id)
+        if ($system_user_id > 0)
             $employees = $employees->where("system_user_id", $system_user_id);
 
 
@@ -1104,7 +1116,7 @@ class EmployeeController extends Controller
                 }
             }
         }
-        return $data;
+
 
 
 

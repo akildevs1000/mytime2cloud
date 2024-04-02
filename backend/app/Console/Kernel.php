@@ -86,6 +86,17 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
+
+            $schedule
+                ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
+
+                ->everyThirtyMinutes()
+
+                //->withoutOverlapping()
+                ->appendOutputTo(storage_path("kernal_logs/shifts/auto/$monthYear-{$companyId}.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+
             $schedule
                 ->command("task:sync_auto_shift {$companyId} " . date("Y-m-d") . " false")
                 ->everyFourMinutes()

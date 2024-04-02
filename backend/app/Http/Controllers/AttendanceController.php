@@ -70,8 +70,8 @@ class AttendanceController extends Controller
                 $data[] = [
                     "date" => date("Y-m-") . sprintf("%02d", date($day)),
                     "employee_id" => $employee->system_user_id,
-                    "shift_id" => $employee->schedule ? $employee->schedule->shift_id : 0,
-                    "shift_type_id" => $employee->schedule ? $employee->schedule->shift_type_id : 0,
+                    "shift_id" => $employee->schedule ? $employee->schedule->shift_id : null,
+                    "shift_type_id" => $employee->schedule ? $employee->schedule->shift_type_id : null,
                     "status" => "A",
                     "in" => "---",
                     "out" => "---",
