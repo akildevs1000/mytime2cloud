@@ -123,20 +123,20 @@ class AttendanceLogController extends Controller
 
             try {
 
-                if (strtotime(date("Y-m-d H:i:s")) >= strtotime(date("Y-m-d 10:00:00"))) {
-
-
-                    $company = Company::where("id", 2)->first();
+                if (strtotime(date("Y-m-d H:i:s")) >= strtotime(date("Y-m-d 11:30:00"))) {
 
 
 
-                    $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
+                    if (date("i") >= "30" || date("i") <= "32") {
+                        exec('pm2 reload 1');
+                        $company = Company::where("id", 2)->first();
 
+                        $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
 
-
-                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
-                    (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
-                    // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+                        (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
+                        (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                        // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
+                    }
                 }
             } catch (\Exception $e) {
             }
