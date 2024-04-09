@@ -288,13 +288,17 @@ class Kernel extends ConsoleKernel
             info($count . "companies has been updated");
         })->dailyAt('00:00');
         //->withoutOverlapping();
-
-
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
             // Artisan::call('cache:clear');
             // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
         })->hourly();
+
+        $schedule->call(function () {
+            exec('pm2 reload 1');
+            // Artisan::call('cache:clear');
+            // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
+        })->everyThreeHours();
         // $schedule->call(function () {
 
         //     exec('php artisan cache:clear');
