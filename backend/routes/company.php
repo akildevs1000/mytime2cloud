@@ -35,6 +35,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\PersonalInfoController;
 use App\Http\Controllers\policyController;
 use App\Http\Controllers\QualificationController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ReportNotificationController;
 use App\Http\Controllers\ReportNotificationLogsController;
 use App\Http\Controllers\Reports\AutoReportController;
@@ -140,7 +141,7 @@ Route::apiResource('policy', policyController::class);
 Route::get('policy/search/{key}', [policyController::class, 'search']);
 Route::post('policy/delete/selected', [policyController::class, 'deleteSelected']);
 
-//mail content 
+//mail content
 Route::apiResource('mail_content', MailContentController::class);
 
 // activities
@@ -298,3 +299,7 @@ Route::apiResource('leave_count', LeaveCountController::class);
 Route::apiResource('leave_groups', LeaveGroupsController::class);
 Route::get('leave_groups/{id}', [LeaveGroupsController::class, 'show']);
 Route::get('leave-group-list', [LeaveGroupsController::class, 'dropdownList']);
+
+
+
+Route::post('register', [RegisterController::class, 'store']);
