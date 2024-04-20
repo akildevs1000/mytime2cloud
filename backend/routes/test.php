@@ -8,6 +8,7 @@ use App\Http\Controllers\CameraController;
 use App\Http\Controllers\DeviceCameraController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\KeyGeneratorController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
@@ -40,6 +41,12 @@ Route::get("test111password", function (Request $request) {
     //return Hash::make("AkiL@2211");
 });
 Route::get("pdf-merge-test", [TestController::class, "pdfMergeTest"]);
+
+Route::post("encrypt-devices", [DeviceController::class, "encrypt"]);
+Route::post("decrypt-devices", [DeviceController::class, "decrypt"]);
+
+
+
 
 
 // Route::get('/test/getLogs', function (Request $request) {

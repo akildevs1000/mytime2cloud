@@ -1140,6 +1140,35 @@ class DeviceController extends Controller
         return "Cron DeviceSeeder: " . count($data) . " record has been inserted.";
     }
 
+    function encrypt()
+    {
+        return $this->response("Your Key", encrypt(request()->all()), true);
+    }
+
+    function decrypt()
+    {
+        $devices = decrypt(request("token"));
+
+        $items = [];
+
+        foreach ($devices as $device) {
+            $items[] = [
+                'company_id' =>  1,
+                'device_id' =>  $device["device_id"],
+                'model_number' =>  $device["device_model"],
+                'name' =>  "Default Name",
+                'status_id' =>  1,
+                'ip' =>  "0.0.0.0",
+                'port' =>  "0000",
+                'utc_time_zone' =>  "Asia/Dubai",
+                'function' =>  "auto",
+                'device_type' =>  "all",
+            ];
+        }
+
+        return $items;
+    }
+
     public function modes()
     {
         return [
