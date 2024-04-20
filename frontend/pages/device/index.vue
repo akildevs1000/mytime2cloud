@@ -692,15 +692,17 @@
             </span>
           </v-col>
           <v-col md="12">
-            <v-text-field
+            <v-select
+              outlined
+              dense
               class="pb-0"
               :hide-details="!payload.model_number"
               v-model="payload.model_number"
-              placeholder="Model Number"
-              outlined
-              dense
+              :items="[`OX-866`, `OX-886`, `OX-966`]"
               label="Model Number *"
-            ></v-text-field>
+              placeholder="Model Number"
+            ></v-select>
+            <!-- <v-text-field></v-text-field> -->
             <span v-if="errors && errors.model_number" class="error--text"
               >{{ errors.model_number[0] }}
             </span>
