@@ -1488,8 +1488,6 @@ export default {
         whatsapp_relative_number: e.whatsapp_relative_number,
         employee_id: e.employee_id,
         joining_date: e.show_joining_date,
-        department_code: e.department_id,
-        designation_code: e.designation_id,
         department: e.department.name,
         sub_department: e.sub_department.name,
         designation: e.designation.name,
