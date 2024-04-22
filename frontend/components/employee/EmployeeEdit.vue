@@ -167,7 +167,6 @@
                 <!-- <label class="col-form-label">Branch </label> -->
                 <v-select
                   label="Branch"
-                  @change="filterDepartmentsByBranch($event)"
                   v-model="employee.branch_id"
                   :hide-details="!errors.branch_id"
                   :error-messages="
@@ -186,7 +185,6 @@
                 <!-- <label class="col-form-label">Department</label> -->
                 <v-select
                   label="Department"
-                  @change="filterSubDepartmentsByDepartment($event)"
                   :items="departments"
                   item-text="name"
                   item-value="id"
@@ -403,7 +401,6 @@ export default {
       });
       this.branchesList = data;
 
-      this.filterDepartmentsByBranch(this.employee.branch_id);
     } catch (error) {
       // Handle the error
       console.error("Error fetching branch list", error);
@@ -439,19 +436,13 @@ export default {
             department_id: data.department_id,
             sub_department_id: data.sub_department_id,
             designation_id: data.designation_id,
-            //employee_role_id: data.user.employee_role_id,
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
             branch_id: data.branch_id,
           };
-
-          if (this.employee.department_id)
-            this.filterDepartmentsByBranch(this.employee.branch_id);
-
-          if (this.employee.sub_department_id)
-            this.filterSubDepartmentsByDepartment(this.employee.department_id);
-          // this.employee.id = data.id;
           this.previewImage = data.profile_picture;
+          this.getDepartments();
+          this.getSubDepartments();
           this.getDesignations();
         })
         .catch((err) => console.log(err));
@@ -470,33 +461,24 @@ export default {
         })
         .catch((err) => console.log(err));
     },
-    filterDepartmentsByBranch(filterBranchId) {
-      this.getDepartments(filterBranchId);
-    },
-    getDepartments(filterBranchId) {
-      this.filterBranchId = filterBranchId;
-
+    getDepartments() {
       this.$axios
         .get(`departments`, {
           params: {
             per_page: 1000,
             company_id: this.$auth.user.company_id,
-            //department_ids: this.$auth.user.assignedDepartments,
-            filter_branch_id: filterBranchId,
           },
         })
         .then(({ data }) => {
           this.departments = data.data;
         });
     },
-    filterSubDepartmentsByDepartment(filterDepartmentId) {
-      this.employee.sub_department_id = "0";
+    getSubDepartments() {
       this.$axios
         .get(`sub-departments`, {
           params: {
             per_page: 1000,
             company_id: this.$auth.user.company_id,
-            department_ids: [filterDepartmentId],
           },
         })
         .then(({ data }) => {

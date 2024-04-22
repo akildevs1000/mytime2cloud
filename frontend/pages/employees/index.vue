@@ -1314,7 +1314,7 @@ export default {
       this.branch_id = this.$auth.user.branch_id;
       this.employee.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
-      await this.getDepartments(this.branch_id);
+      await this.getDepartments(null);
       return;
     }
     this.headers_table.splice(2, 0, {
@@ -1421,7 +1421,6 @@ export default {
           isFilter: this.isFilter,
           params: {
             company_id: this.$auth.user.company_id,
-            branch_id: filterBranchId,
           },
         };
         this.departments = await this.$store.dispatch(
