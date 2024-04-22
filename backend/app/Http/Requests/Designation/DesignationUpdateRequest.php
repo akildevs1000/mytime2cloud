@@ -26,8 +26,7 @@ class DesignationUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>'required|min:4|max:100',
-            'department_id'=>'required'
+            'name'=>'required|min:4|max:100'
         ];
     }
 }

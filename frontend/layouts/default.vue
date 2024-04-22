@@ -854,11 +854,9 @@ export default {
       } catch (e) {}
     },
     handleActivity() {
-      console.log("handleActivity");
       this.resetTimer();
     },
     resetTimer() {
-      console.log("resetTimer");
       // Time in milliseconds after which the user is considered inactive
       const INACTIVITY_TIME = 1000 * 60 * 30; //30 minutes
       clearTimeout(this.inactivityTimeout);
@@ -868,10 +866,8 @@ export default {
       );
     },
     setupInactivityDetection() {
-      console.log("setupInactivityDetection");
       // Handle inactivity
       this.handleInactivity = () => {
-        console.log("handleInactivity");
         // Perform actions when the user is inactive
         this.$router.push(`/dashboard`);
         // For example, you could redirect the user, show a message, etc.
@@ -892,7 +888,6 @@ export default {
     },
     loadNotificationMenu() {
       let company_id = this.$auth.user?.company?.id || 0;
-      //console.log("company_id", company_id);
       if (company_id == 0) {
         return false;
       }
@@ -938,35 +933,10 @@ export default {
         }
 
         this.pendingNotificationsCount = pendingcount;
-        // console.log("pendingcount", pendingcount);
-        // if (pendingcount == 0) {
-        //   this.pendingNotificationsCount = 0;
-        // } else this.pendingNotificationsCount = pendingcount;
-        // console.log(
-        //   "pendingcount",
-        //   pendingcount,
-        //   this.pendingNotificationsCount
-        // );
-        // if (this.pendingNotificationsCount == "") {
-        //   this.pendingNotificationsCount = 0;
-        // }
-        // if (this.pendingNotificationsCount > 0) {
-        //   //console.log("this.$config", this.$config);
-        //   document.title =
-        //     "Mytime2Cloud " +
-        //     " - Notifications Pending : " +
-        //     this.pendingNotificationsCount;
-        // }
-
-        // let menu1 = { title: "Leave Notifications (2)", click: "Test" };
-        // let menu2 = { title: "Visitor Notifications (2)", click: "Test" };
-        // this.notificationsMenuItems.push(menu1);
-        // this.notificationsMenuItems.push(menu2);
       });
     },
     verifyAlarmStatus() {
       let company_id = this.$auth.user?.company?.id || 0;
-      //console.log("company_id", company_id);
       if (company_id == 0) {
         return false;
       }
@@ -1037,10 +1007,6 @@ export default {
         this.items = this.company_menus.filter(
           (item) => item.module === this.topMenu_Selected
         );
-
-        // display_modules.forEach((element) => {
-        //   console.log("element", element);
-        // });
 
         return;
       } else if (this.getLoginType === "employee") {

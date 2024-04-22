@@ -1149,24 +1149,12 @@ class DeviceController extends Controller
     {
         $devices = decrypt(request("token"));
 
-        $items = [];
-
-        foreach ($devices as $device) {
-            $items[] = [
-                'company_id' =>  1,
-                'device_id' =>  $device["device_id"],
-                'model_number' =>  $device["device_model"],
-                'name' =>  "Default Name",
-                'status_id' =>  1,
-                'ip' =>  "0.0.0.0",
-                'port' =>  "0000",
-                'utc_time_zone' =>  "Asia/Dubai",
-                'function' =>  "auto",
-                'device_type' =>  "all",
-            ];
+        try {
+            Device::insert($devices);
+            return $this->response("Devices has been inserted.", null, true);
+        } catch (\Exception $e) {
+            return $this->response($e->getMessage(), null, false);
         }
-
-        return $items;
     }
 
     public function modes()

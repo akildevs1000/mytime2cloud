@@ -27,8 +27,7 @@ class DepartmentRequest extends FormRequest
     {
         return [
             'name' => 'required|min:4|max:50',
-            'company_id' => 'required',
-            'branch_id' => 'required'
+            'company_id' => 'required'
         ];
     }
 }

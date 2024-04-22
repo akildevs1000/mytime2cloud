@@ -6,196 +6,91 @@
       </v-snackbar>
     </div>
     <div>
-      <v-row>
-        <v-dialog
-          persistent
-          v-model="dialogFormDesignation"
-          :fullscreen="false"
-          width="500px"
-        >
-          <v-card>
-            <v-card-title dense class="popup_background">
-              <span>New Designation</span>
-              <v-spacer></v-spacer>
-              <v-icon @click="dialogFormDesignation = false" outlined>
-                mdi mdi-close-circle
-              </v-icon>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row class="mt-2">
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="new_Designation_name"
-                      placeholder="Designation"
-                      outlined
-                      dense
-                    ></v-text-field>
-                    <span v-if="errors && errors.name" class="error--text">{{
-                      errors.name[0]
-                    }}</span>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-autocomplete
-                      v-model="new_designation_department_id"
-                      :items="departments"
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select Departments"
-                      outlined
-                      dense
-                    >
-                    </v-autocomplete>
-                    <span
-                      v-if="errors && errors.department_id"
-                      class="error--text"
-                      >{{ errors.department_id[0] }}</span
-                    >
-                  </v-col>
-                  <v-col
-                    md="12"
-                    lg="12"
-                    class="text-right"
-                    style="padding: 0px"
-                  >
-                    <v-btn class="primary" @click="savenewDesignation">Save</v-btn>
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-        <v-dialog
-          persistent
-          v-model="dialogFormSubdepartment"
-          :fullscreen="false"
-          width="500px"
-        >
-          <v-card>
-            <v-card-title dense class="popup_background">
-              <span>New Sub Department</span>
-              <v-spacer></v-spacer>
-              <v-icon @click="dialogFormSubdepartment = false" outlined>
-                mdi mdi-close-circle
-              </v-icon>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row class="mt-2">
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="New_sub_DepartmentName"
-                      placeholder="Sub Department"
-                      outlined
-                      dense
-                    ></v-text-field>
-                    <span v-if="errors && errors.name" class="error--text">{{
-                      errors.name[0]
-                    }}</span>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-autocomplete
-                      v-model="Newdepartment_id"
-                      :items="departments"
-                      item-text="name"
-                      item-value="id"
-                      placeholder="Select Departments"
-                      outlined
-                      dense
-                    >
-                    </v-autocomplete>
-                    <span
-                      v-if="errors && errors.department_id"
-                      class="error--text"
-                      >{{ errors.department_id[0] }}</span
-                    >
-                  </v-col>
+      <v-dialog
+        persistent
+        v-model="dialogFormSubdepartment"
+        :fullscreen="false"
+        width="500px"
+      >
+        <v-card>
+          <v-card-title dense class="popup_background">
+            <span>New Sub Department</span>
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogFormSubdepartment = false" outlined>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row class="mt-2">
+                <v-col cols="12">
+                  <v-text-field
+                    hide-details
+                    v-model="New_sub_DepartmentName"
+                    placeholder="Sub Department"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  <span v-if="errors && errors.name" class="error--text">{{
+                    errors.name[0]
+                  }}</span>
+                </v-col>
 
-                  <v-card-actions>
-                    <v-col md="6" lg="6" style="padding: 0px">
-                      <!-- <v-btn class="error" @click="close">
+                <v-card-actions>
+                  <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      <v-dialog
+        persistent
+        v-model="dialogForm"
+        :fullscreen="false"
+        width="350px"
+      >
+        <v-card>
+          <v-card-title dense class="popup_background">
+            <span>{{ formTitle }} {{ Model }}</span>
+            <v-spacer></v-spacer>
+            <v-icon @click="dialogForm = false" outlined>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row class="">
+                <v-col md="12" sm="12" cols="12" small dense class="pt-0">
+                  <v-text-field
+                    label="Department Name"
+                    dense
+                    outlined
+                    :hide-details="!errors.name"
+                    type="text"
+                    v-model="editedItem.name"
+                    :error="errors.name"
+                    :error-messages="
+                      errors && errors.name ? errors.name[0] : ''
+                    "
+                    placeholder="Department Name"
+                  ></v-text-field>
+                </v-col>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-col md="12" sm="12" cols="12" class="pa-0 text-right">
+                    <!-- <v-btn small dark class="background" @click="close">
                           Cancel
                         </v-btn> -->
-                    </v-col>
-                    <v-col
-                      md="6"
-                      lg="6"
-                      class="text-right"
-                      style="padding: 0px"
-                    >
-                      <v-btn class="primary" @click="saveSubDepartment"
-                        >Save</v-btn
-                      >
-                    </v-col>
-                  </v-card-actions>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-        <v-dialog
-          persistent
-          v-model="dialogForm"
-          :fullscreen="false"
-          width="350px"
-        >
-          <v-card>
-            <v-card-title dense class="popup_background">
-              <span>{{ formTitle }} {{ Model }}</span>
-              <v-spacer></v-spacer>
-              <v-icon @click="dialogForm = false" outlined>
-                mdi mdi-close-circle
-              </v-icon>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row class="">
-                  <v-col md="12" sm="12" cols="12" small dense class="pb-0">
-                    <v-select
-                      label="Branch "
-                      v-model="editedItem.branch_id"
-                      :items="branchesList"
-                      dense
-                      placeholder="Branch"
-                      outlined
-                      item-value="id"
-                      item-text="branch_name"
-                      :error="errors.branch_id"
-                      :error-messages="
-                        errors && errors.branch_id ? errors.branch_id[0] : ''
-                      "
-                    >
-                    </v-select>
+                    <v-btn small class="primary" @click="save">Save</v-btn>
                   </v-col>
-                  <v-col md="12" sm="12" cols="12" small dense class="pt-0">
-                    <v-text-field
-                      label="Department Name"
-                      dense
-                      outlined
-                      :hide-details="!errors.name"
-                      type="text"
-                      v-model="editedItem.name"
-                      :error="errors.name"
-                      :error-messages="
-                        errors && errors.name ? errors.name[0] : ''
-                      "
-                      placeholder="Department Name"
-                    ></v-text-field>
-                  </v-col>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-col md="12" sm="12" cols="12" class="pa-0 text-right">
-                      <!-- <v-btn small dark class="background" @click="close">
-                          Cancel
-                        </v-btn> -->
-                      <v-btn small class="primary" @click="save">Save</v-btn>
-                    </v-col>
-                  </v-card-actions>
-                </v-row>
-              </v-container>
-            </v-card-text>
-          </v-card>
-        </v-dialog>
+                </v-card-actions>
+              </v-row>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      <v-row>
         <v-col md="12" lg="12">
           <!-- <Back color="primary" /> -->
 
@@ -270,66 +165,6 @@
               class="elevation-1"
               :server-items-length="totalRowsCount"
             >
-              <template v-slot:header="{ props: { headers } }">
-                <tr v-if="isFilter">
-                  <td v-for="header in headers" :key="header.text">
-                    <v-container>
-                      <v-text-field
-                        clearable
-                        :hide-details="true"
-                        v-if="header.filterable && !header.filterSpecial"
-                        v-model="filters[header.key]"
-                        :id="header.value"
-                        @input="applyFilters(header.key, $event)"
-                        outlined
-                        dense
-                        autocomplete="off"
-                      ></v-text-field>
-                    </v-container>
-                  </td>
-                </tr>
-              </template>
-              <template v-slot:item.id="{ item }">
-                {{ caps(item.id) }}
-              </template>
-              <template v-slot:item.name="{ item }">
-                {{ caps(item.name) }}
-              </template>
-              <template v-slot:item.branch_name="{ item }">
-                {{ (item.branch && item.branch.branch_name) || "---" }}
-              </template>
-              <template v-slot:item.sub_dep.name="{ item }">
-                <span
-                  v-for="(sub_dep, index) in item.children.slice(0, 3)"
-                  :key="index"
-                >
-                  <div small class="ma-1">
-                    {{ caps(sub_dep.name) }}
-                  </div>
-                  <br />
-                </span>
-
-                <div
-                  small
-                  class="ma-1"
-                  style="color: black"
-                  @click="gotoSubdepartments(item)"
-                  v-if="item.children.length > 3"
-                >
-                  View all..
-                </div>
-              </template>
-              <template v-slot:item.designations="{ item }">
-                <span
-                  v-for="(designation, index) in item.designations.slice(0, 3)"
-                  :key="index"
-                >
-                  <div class="ma-1">
-                    {{ caps(designation.name) }}
-                  </div>
-                  <br />
-                </span>
-              </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
@@ -338,16 +173,6 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item
-                      v-if="can(`department_view`)"
-                      @click="gotoSubdepartments(item)"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="primary" small> mdi-view-list </v-icon>
-                        View
-                      </v-list-item-title>
-                    </v-list-item>
-
                     <v-list-item
                       v-if="can(`department_edit`)"
                       @click="editItem(item)"
@@ -389,7 +214,6 @@ export default {
     generateLogsDialog: false,
     totalRowsCount: 0,
     new_Designation_name: "",
-    new_designation_department_id: "",
     departments: [],
 
     New_sub_DepartmentName: "",
@@ -406,9 +230,9 @@ export default {
       total: 0,
       per_page: 10,
     },
-    Model: "Departments",
+    Model: "Sub Departments",
     options: {},
-    endpoint: "departments",
+    endpoint: "sub-departments",
     search: "",
     snackbar: false,
     dialog: false,
@@ -433,46 +257,12 @@ export default {
     data: [],
     errors: [],
     headers_table: [
-      // {
-      //   text: "Department Code",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "id",
-      //   width: "150px",
-      //   key: "id",
-      //   filterable: true,
-      // },
-      // {
-      //   key: "name",
-      //   text: "Department",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "name",
-      //   filterable: true,
-      // },
-
-      // {
-      //   key: "branch_name",
-      //   text: "Branch",
-      //   align: "left",
-      //   sortable: true,
-      //   value: "branch_name",
-      //   filterable: true,
-      // },
-
       {
         text: "Sub Department",
         align: "left",
         sortable: false,
-        value: "sub_dep.name",
+        value: "name",
       },
-      // {
-      //   text: "Designations",
-      //   align: "left",
-      //   sortable: false,
-      //   value: "designations",
-      // },
-
       { text: "Options", align: "left", sortable: false, value: "options" },
     ],
     branchesList: [],
@@ -502,7 +292,6 @@ export default {
   created() {
     this.loading = true;
     this.getDataFromApi();
-    this.getbranchesList();
   },
 
   methods: {
@@ -554,27 +343,6 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getbranchesList() {
-      this.payloadOptions = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
-        this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
-      });
-    },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
       this.loading = true;
@@ -600,23 +368,21 @@ export default {
       if (filter_column != "") {
         this.payloadOptions.params[filter_column] = filter_value;
       }
-      this.$axios
-        .get(`${url}?page=${page}`, this.payloadOptions)
-        .then(({ data }) => {
-          if (filter_column != "" && data.data.length == 0) {
-            this.snack = true;
-            this.snackColor = "error";
-            this.snackText = "No Results Found";
-            this.loading = false;
-            return false;
-          }
-          this.data = data.data;
-          this.departments = data.data;
-          this.pagination.current = data.current_page;
-          this.pagination.total = data.last_page;
+      this.$axios.get(url, this.payloadOptions).then(({ data }) => {
+        if (filter_column != "" && data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
-          this.totalRowsCount = data.total;
-        });
+          return false;
+        }
+        this.data = data.data;
+        this.departments = data.data;
+        this.pagination.current = data.current_page;
+        this.pagination.total = data.last_page;
+        this.loading = false;
+        this.totalRowsCount = data.total;
+      });
     },
     searchIt(e) {
       if (e.length == 0) {
@@ -681,37 +447,10 @@ export default {
         this.editedIndex = -1;
       }, 300);
     },
-    savenewDesignation() {
-      let payload = {
-        name: this.new_Designation_name,
-        department_id: this.new_designation_department_id,
-        company_id: this.$auth.user.company_id,
-      };
-
-      this.$axios
-        .post("designation", payload)
-        .then(({ data }) => {
-          if (!data.status) {
-            this.errors = data.errors;
-          } else {
-            this.getDataFromApi();
-            this.snackbar = data.status;
-            this.response = data.message;
-            this.dialogForm = false;
-            this.dialogFormDesignation = false;
-            this.close();
-            this.errors = [];
-            this.search = "";
-            this.new_Designation_name = "";
-            this.new_designation_department_id = "";
-          }
-        })
-        .catch((res) => console.log(res));
-    },
     saveSubDepartment() {
       let payload = {
         name: this.New_sub_DepartmentName,
-        department_id: this.Newdepartment_id,
+        department_id: 0,
         company_id: this.$auth.user.company_id,
       };
 
@@ -737,8 +476,6 @@ export default {
     save() {
       let payload = {
         name: this.editedItem.name,
-        company_id: this.$auth.user.company_id,
-        branch_id: this.editedItem.branch_id,
       };
       if (this.editedIndex > -1) {
         this.$axios
@@ -747,9 +484,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              const index = this.data.findIndex(
-                (item) => item.id == this.editedItem.id
-              );
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
