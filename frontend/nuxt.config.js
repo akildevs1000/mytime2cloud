@@ -21,7 +21,7 @@ Object.keys(networkInterfaces).forEach((interfaceName) => {
 export default {
   buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
-  target: "static",
+  target: "server",
   generate: {
     // Interval in milliseconds between two render cycles to avoid
     // flooding a potential API with calls from the web application.
