@@ -20,7 +20,7 @@ class SyncMultiShiftNight extends Command
      *
      * @var string
      */
-    protected $description = 'Sync Multi Shift Night';
+    protected $description = 'Sync Multi Shift';
 
     /**
      * Execute the console command.

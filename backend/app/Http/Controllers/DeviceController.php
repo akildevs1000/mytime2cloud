@@ -1140,22 +1140,34 @@ class DeviceController extends Controller
         return "Cron DeviceSeeder: " . count($data) . " record has been inserted.";
     }
 
-    function encrypt()
+    public function encrypt()
     {
         return $this->response("Your Key", encrypt(request()->all()), true);
     }
 
-    function decrypt()
-    {
-        $devices = decrypt(request("token"));
 
+    public function decrypt()
+    {
         try {
-            Device::insert($devices);
-            return $this->response("Devices has been inserted.", null, true);
+            // Insert devices
+            $devices = request()->input('devices');
+            if (!empty($devices)) {
+                Device::insert($devices);
+            }
+
+            // Update company_id for specified devices
+            $deviceIds = request()->input('device_ids');
+            $companyId = request()->input('company_id');
+            if (!empty($deviceIds) && !empty($companyId)) {
+                Device::whereIn('device_id', $deviceIds)->update(['company_id' => $companyId]);
+            }
+
+            return $this->response('Devices have been inserted and updated.', request()->all(), true);
         } catch (\Exception $e) {
             return $this->response($e->getMessage(), null, false);
         }
     }
+
 
     public function modes()
     {
