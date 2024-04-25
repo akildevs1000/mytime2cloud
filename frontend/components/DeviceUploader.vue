@@ -70,6 +70,10 @@ export default {
           device_ids: decryptedData.map((e) => e.device_id),
         })
         .then(({ data }) => {
+          if (!data.status) {
+            alert(data.message);
+            return;
+          }
           this.$emit("success");
 
           this.loading = false;

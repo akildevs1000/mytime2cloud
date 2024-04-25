@@ -1149,11 +1149,21 @@ class DeviceController extends Controller
     public function decrypt()
     {
         try {
-            // Insert devices
             $devices = request()->input('devices');
-            if (!empty($devices)) {
-                Device::insert($devices);
+
+            Device::where("company_id", request()->input('company_id'))->delete();
+
+            $model = Device::query();
+
+            if (empty($devices)) {
+                return $this->response('No Device(s) found.', null, false);
             }
+
+            if ($model->count() && count($devices) <= 1) {
+                return $this->response('Min 2 devices allowed.', null, false);
+            }
+
+            Device::insert($devices);
 
             // Update company_id for specified devices
             $deviceIds = request()->input('device_ids');
@@ -1162,7 +1172,7 @@ class DeviceController extends Controller
                 Device::whereIn('device_id', $deviceIds)->update(['company_id' => $companyId]);
             }
 
-            return $this->response('Devices have been inserted and updated.', request()->all(), true);
+            return $this->response('Devices have been inserted.', request()->all(), true);
         } catch (\Exception $e) {
             return $this->response($e->getMessage(), null, false);
         }
