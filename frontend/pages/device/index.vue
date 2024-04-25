@@ -891,7 +891,8 @@
           </v-btn>
         </span>
         <span>
-          <v-btn
+          <DeviceUploader @success="(e) => getDataFromApi()" />
+          <!-- <v-btn
             v-if="can(`device_create`)"
             x-small
             :ripple="false"
@@ -900,7 +901,7 @@
             @click="addItem()"
           >
             <v-icon dark white>mdi-plus-circle</v-icon>
-          </v-btn>
+          </v-btn> -->
         </span>
       </v-toolbar>
 
