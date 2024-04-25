@@ -42,6 +42,7 @@ class SubDepartmentController extends Controller
     public function store(SubDepartment $model, SubDepartmentRequest $request)
     {
         $data = $request->validated();
+        $data["department_id"] = 0;
 
         try {
             $record = $model->create($data);
