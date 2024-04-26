@@ -46,7 +46,7 @@ class ReportNotificationCrons extends Command
 
         try {
 
-            $model = ReportNotification::with(["managers", "company.company_mail_content"])->where("id", $id)
+            $model = ReportNotification::where("type", "automation")->with(["managers", "company.company_mail_content"])->where("id", $id)
 
                 ->with("managers", function ($query) use ($company_id) {
                     $query->where("company_id", $company_id);

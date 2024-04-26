@@ -225,6 +225,11 @@ class Employee extends Model
         return $this->hasMany(Attendance::class, "employee_id", "system_user_id");
     }
 
+    public function today_absent()
+    {
+        return $this->hasOne(Attendance::class, "employee_id", "system_user_id")->where("status", "A")->whereDate("date", date("Y-m-d"));
+    }
+
     public function attendance_logs()
     {
         return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");

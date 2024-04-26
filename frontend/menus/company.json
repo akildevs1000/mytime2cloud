@@ -72,6 +72,13 @@
     "module": "settings"
   },
   {
+    "icon": "mdi-message-outline",
+    "title": "Alerts",
+    "to": "/alerts",
+    "menu": "notifications_access",
+    "module": "settings"
+  },
+  {
     "icon": "mdi-email",
     "title": "Automation",
     "to": "/automation",

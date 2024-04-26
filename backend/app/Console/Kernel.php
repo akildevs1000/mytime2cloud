@@ -331,10 +331,14 @@ class Kernel extends ConsoleKernel
         $models = ReportNotification::get();
 
         foreach ($models as $model) {
-            $scheduleCommand = $schedule->command('task:report_notification_crons ' . $model->id . ' ' . $model->company_id)
-                ->runInBackground()
-                ->appendOutputTo("custom_cron.log");
-            //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            $command_name = "task:report_notification_crons";
+
+            if ($model->type == "alert") {
+                $command_name = "alert:absents";
+            }
+
+            $scheduleCommand = $schedule->command("$command_name " . $model->id . ' ' . $model->company_id)
+                ->runInBackground();
 
             if ($model->frequency == "Daily") {
                 $scheduleCommand->dailyAt($model->time);
