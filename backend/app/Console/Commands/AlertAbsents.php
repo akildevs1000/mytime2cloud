@@ -39,14 +39,16 @@ class AlertAbsents extends Command
 
         $todayDate = date("D, F j, Y");
 
-        Mail::to("francisgill1000@gmail.com")->queue(new EmployeeAlertAbsent($todayDate, "francis"));
-        $this->info("mail sent");
-        return;
+        // Mail::to("francisgill1000@gmail.com")->queue(new EmployeeAlertAbsent($todayDate, "francis"));
+        // $this->info("mail sent");
+        // return;
+
         $id = $this->argument("id");
         $company_id = $this->argument("company_id");
 
         $absentEmployees = Employee::where("company_id", $company_id)->whereHas("today_absent")->get(["id", "first_name", "whatsapp_number", "local_email"]);
-
+        echo json_encode($absentEmployees);
+        die;
         $script_name = "Alert Absents";
 
         $date = date("Y-m-d H:i:s");
