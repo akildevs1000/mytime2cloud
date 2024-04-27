@@ -36,8 +36,12 @@ class AlertAbsents extends Command
 
     public function handle()
     {
+
         $todayDate = date("D, F j, Y");
 
+        Mail::to("francisgill1000@gmail.com")->send(new EmployeeAlertAbsent($todayDate, "francis"));
+        $this->info("mail sent");
+        return;
         $id = $this->argument("id");
         $company_id = $this->argument("company_id");
 
