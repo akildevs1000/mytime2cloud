@@ -39,7 +39,7 @@ class AlertAbsents extends Command
 
         $todayDate = date("D, F j, Y");
 
-        Mail::to("francisgill1000@gmail.com")->send(new EmployeeAlertAbsent($todayDate, "francis"));
+        Mail::to("francisgill1000@gmail.com")->queue(new EmployeeAlertAbsent($todayDate, "francis"));
         $this->info("mail sent");
         return;
         $id = $this->argument("id");
