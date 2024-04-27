@@ -47,8 +47,7 @@ class AlertAbsents extends Command
         $company_id = $this->argument("company_id");
 
         $absentEmployees = Employee::where("company_id", $company_id)->whereHas("today_absent")->get(["id", "first_name", "whatsapp_number", "local_email"]);
-        echo json_encode($absentEmployees);
-        die;
+
         $script_name = "Alert Absents";
 
         $date = date("Y-m-d H:i:s");
@@ -68,42 +67,43 @@ class AlertAbsents extends Command
                 $employeeName =  $absentEmployee->first_name;
 
                 if (in_array("Email", $model->mediums ?? [])) {
-                    Mail::to($model->managers->pluck("email") ?? [])->send(new AdminAlertAbsent($todayDate, $absentEmployees));
-                    Mail::to($absentEmployee->local_email)->send(new EmployeeAlertAbsent($todayDate, $employeeName));
+                    // Mail::to($model->managers->pluck("email") ?? [])->send(new AdminAlertAbsent($todayDate, $absentEmployees));
+                    // Mail::to($absentEmployee->local_email)->send(new EmployeeAlertAbsent($todayDate, $employeeName));
+                    $this->info($absentEmployee->local_email);
                 }
 
-                if (in_array("Whatsapp", $model->mediums ?? [])) {
+                // if (in_array("Whatsapp", $model->mediums ?? [])) {
 
-                    foreach ($model->managers as $manager) {
+                //     foreach ($model->managers as $manager) {
 
-                        $adminName = "Admin";
-                        $systemName = "MyTime2@Cloud";
+                //         $adminName = "Admin";
+                //         $systemName = "MyTime2@Cloud";
 
-                        $message = "Subject: System Notification: Absent Employees Update\n\n";
-                        $message .= "Dear $adminName,\n\n";
-                        $message .= "This is an automated message to inform you that a total of " . count($absentEmployees) . " employees were absent today ($todayDate).\n\n";
+                //         $message = "Subject: System Notification: Absent Employees Update\n\n";
+                //         $message .= "Dear $adminName,\n\n";
+                //         $message .= "This is an automated message to inform you that a total of " . count($absentEmployees) . " employees were absent today ($todayDate).\n\n";
 
-                        $message .= "Employee List:\n\n";
-
-
-                        foreach ($absentEmployees as $key => $absentEmployee) {
-
-                            $employeeName =  $absentEmployee->first_name . "\n";
-                            $message .= ++$key . ". " . $employeeName . "\n";
+                //         $message .= "Employee List:\n\n";
 
 
-                            $employeeMessage = "Hi " . $employeeName . ",\n\n";
-                            $employeeMessage .= "We noticed that you were absent today ($todayDate). If there's a valid reason for your absence, please let us know.\n\n";
-                            $employeeMessage .= "Thank you,\n" . "Admin";
-                            (new WhatsappController)->sendMessage($employeeMessage, $absentEmployee->whatsapp_number);
-                        }
+                //         foreach ($absentEmployees as $key => $absentEmployee) {
 
-                        $message .= "For any further information or action required, please let us know.\n\n";
-                        $message .= "Thank you,\n$systemName";
+                //             $employeeName =  $absentEmployee->first_name . "\n";
+                //             $message .= ++$key . ". " . $employeeName . "\n";
 
-                        (new WhatsappController)->sendMessage($message, $manager->whatsapp_number);
-                    }
-                }
+
+                //             $employeeMessage = "Hi " . $employeeName . ",\n\n";
+                //             $employeeMessage .= "We noticed that you were absent today ($todayDate). If there's a valid reason for your absence, please let us know.\n\n";
+                //             $employeeMessage .= "Thank you,\n" . "Admin";
+                //             (new WhatsappController)->sendMessage($employeeMessage, $absentEmployee->whatsapp_number);
+                //         }
+
+                //         $message .= "For any further information or action required, please let us know.\n\n";
+                //         $message .= "Thank you,\n$systemName";
+
+                //         (new WhatsappController)->sendMessage($message, $manager->whatsapp_number);
+                //     }
+                // }
             }
 
 
