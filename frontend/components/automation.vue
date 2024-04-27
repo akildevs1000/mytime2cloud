@@ -586,7 +586,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     add_number() {
       if (this.number && this.number.length > 10) {
@@ -660,6 +659,7 @@ export default {
           })
           .catch((e) => console.log(e));
       } else {
+        this.payload.type = "automation";
         this.$axios
           .post("/report_notification", this.payload)
           .then(({ data }) => {

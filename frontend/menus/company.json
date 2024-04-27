@@ -144,13 +144,6 @@
     "module": "settings"
   },
   {
-    "icon": "mdi-shape-square-plus",
-    "title": "Community Setup",
-    "open_menu": false,
-    "to": "/community/setup",
-    "module": "settings"
-  },
-  {
     "icon": "mdi-mail",
     "title": "Mail",
     "open_menu": false,

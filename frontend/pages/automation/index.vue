@@ -438,7 +438,9 @@ export default {
     currentPage: 1,
     dialogNew: false,
     showFilters: false,
-    filters: {},
+    filters: {
+      type: "automation",
+    },
     isFilter: false,
     totalRowsCount: 0,
     datatable_search_textbox: "",
