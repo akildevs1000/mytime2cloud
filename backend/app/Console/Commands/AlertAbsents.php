@@ -69,7 +69,11 @@ class AlertAbsents extends Command
                 if (in_array("Email", $model->mediums ?? [])) {
                     // Mail::to($model->managers->pluck("email") ?? [])->send(new AdminAlertAbsent($todayDate, $absentEmployees));
                     // Mail::to($absentEmployee->local_email)->send(new EmployeeAlertAbsent($todayDate, $employeeName));
-                    $this->info($absentEmployee->local_email);
+                    if (!empty($absentEmployee->local_email) && filter_var($absentEmployee->local_email, FILTER_VALIDATE_EMAIL)) {
+                        $this->info($absentEmployee->local_email);
+                    } else {
+                        $this->info("email not found");
+                    }
                 }
 
                 // if (in_array("Whatsapp", $model->mediums ?? [])) {
