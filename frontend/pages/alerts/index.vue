@@ -98,25 +98,26 @@
       >
         <v-card>
           <v-card-title dense class="popup_background">
-            {{ editItemPayload ? "Edit" : "New" }} Alert
+            {{ editItemPayload ? "Edit" : "New" }} Absent Notification
             <v-spacer></v-spacer>
             <v-icon @click="dialogNew = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
           <v-card-text class="mt-4">
-            <Alert
+            <AlertCreate
+              type="alert"
               @getDataFromApi="getDataFromApi"
               :editItemPayload="editItemPayload"
               :key="newDialogKey"
               @closePopup="closePopup"
-            ></Alert>
+             />
           </v-card-text>
         </v-card>
       </v-navigation-drawer>
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
-          <v-toolbar-title><span> Alert List</span></v-toolbar-title>
+          <v-toolbar-title><span> Absent Notification</span></v-toolbar-title>
           <span>
             <v-btn
               dense
@@ -403,10 +404,8 @@
 </template>
 
 <script>
-import Alert from "../../components/automation.vue";
 
 export default {
-  components: { Alert },
 
   data: () => ({
     dialogviewHisotry: false,

@@ -105,12 +105,13 @@
             </v-icon>
           </v-card-title>
           <v-card-text class="mt-4">
-            <Automation
+            <AlertCreate
+              type="automation"
               @getDataFromApi="getDataFromApi"
               :editItemPayload="editItemPayload"
               :key="newDialogKey"
               @closePopup="closePopup"
-            ></Automation>
+             />
           </v-card-text>
         </v-card>
       </v-navigation-drawer>
@@ -417,10 +418,8 @@
 </template>
 
 <script>
-import Automation from "../../components/automation.vue";
 
 export default {
-  components: { Automation },
 
   data: () => ({
     dialogviewHisotry: false,

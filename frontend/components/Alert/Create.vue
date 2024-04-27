@@ -136,7 +136,7 @@
       errors.date[0]
     }}</span>
 
-    <TimePickerCommon
+    <SnippetsTimePickerCommon
       label=""
       :default_value="payload.time"
       @getTime="(value) => (payload.time = value)"
@@ -370,6 +370,7 @@
 
 <script>
 import {
+  TiptapVuetify,
   Heading,
   Bold,
   Italic,
@@ -384,7 +385,8 @@ import {
 } from "tiptap-vuetify";
 
 export default {
-  props: ["dialogNew", "editItemPayload"],
+  props: ["dialogNew", "editItemPayload", "type"],
+  components: { TiptapVuetify },
 
   data: () => ({
     daysNumaric: [],
@@ -583,7 +585,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     add_number() {
       if (this.number && this.number.length > 10) {
@@ -657,6 +658,7 @@ export default {
           })
           .catch((e) => console.log(e));
       } else {
+        this.payload.type = this.type;
         this.$axios
           .post("/report_notification", this.payload)
           .then(({ data }) => {
@@ -678,75 +680,6 @@ export default {
           .catch((e) => console.log(e));
       }
     },
-    test_endpoint() {
-      // /test/whatsapp
-      this.$axios.get("/test/whatsapp").then((res) => {});
-    },
-    test() {
-      var axios = require("axios");
-      // var data = JSON.stringify({
-      //   messaging_product: "whatsapp",
-      //   recipient_type: "individual",
-      //   to: "923108559858",
-      //   type: "text",
-      //   text: {
-      //     preview_url: false,
-      //     body: "contect"
-      //   }
-      //   // type: "text",
-      //   // text: {
-      //   //   // the text object
-      //   //   preview_url: false,
-      //   //   body: "sdfsdf"
-      //   // }
-      // });
-
-      var data = JSON.stringify({
-        messaging_product: "whatsapp",
-        to: "923108559858",
-        type: "template",
-        template: {
-          name: "automated_reports",
-          language: {
-            code: "en",
-          },
-        },
-      });
-
-      var config = {
-        method: "post",
-        url: "https://graph.facebook.com/v14.0/102482416002121/messages",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization:
-            "Bearer EAAP9IfKKSo0BAGDS96w2XuYjjpXIqxZBAOcwzlFWecCxODjNO3ruEcbnZCkmHSWNAGNf1Q9wC2uwe5XnyxteTOYAO3l9wgy4iu9L6wwYgtZBZAygXV3Tc4euoYANOZCFlvMAsnNz7vNQEYUYdL56l9poliM3eS6ZCZBV4dMzJhKEQKDbUTZB2ZBvEVl2mlHvSj8dCWgITF8e9GFkTXO8isMsx",
-        },
-        data: data,
-      };
-
-      axios(config)
-        .then(function (response) {})
-        .catch(function (error) {
-          console.log(error);
-        });
-    },
   },
 };
 </script>
-<!-- <style>
-.tiptap-vuetify-editor__content {
-  min-height: 400px !important;
-}
-
-.ProseMirror .ProseMirror-focused {
-  height: 400px !important;
-}
-
-.tiptap-icon .v-icon {
-  color: white !important;
-}
-
-.tiptap-icon .v-btn--icon {
-  color: white !important;
-}
-</style> -->
