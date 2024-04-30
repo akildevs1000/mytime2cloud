@@ -153,31 +153,12 @@ class Attendance extends Model
         $model->where('company_id', $request->company_id);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-
-        // if (gettype($request->employee_id) == "array") {
-        //     $model->when(count($request->employee_id) > 0, fn ($q) => $q->whereIn('employee_id', $request->employee_id));
-        // } else {
-        //     if (!empty($request->employee_id)) {
-        //         $model->whereIn('employee_id', explode(",", $request->employee_id));
-        //     }
-        // }
-
-        if (!empty($request->employee_id)) {
-            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
-            $model->whereIn('employee_id', $employeeIds);
-        }
-
-
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) {
             $q->where('shift_type_id', 2);
         });
 
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 5, function ($q) {
             $q->where('shift_type_id', 5);
-            // $q->where(function ($query) {
-            //     $query->where('shift_type_id',   5)
-            //         ->orWhere('shift_type_id', '---');
-            // });
         });
 
         $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
@@ -187,7 +168,11 @@ class Attendance extends Model
                     ->orWhere('shift_type_id', '---');
             });
         });
-
+        
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+            $model->whereIn('employee_id', $employeeIds);
+        }
         $department_ids = $request->department_ids;
 
         if (gettype($department_ids) !== "array") {
