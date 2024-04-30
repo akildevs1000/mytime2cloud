@@ -5,23 +5,23 @@ const networkInterfaces = os.networkInterfaces();
 
 
 // Find the IPv4 address of the local machine
-let ipv4Address = "139.59.69.241";
+let ipv4Address = null;
 
-// Object.keys(networkInterfaces).forEach((interfaceName) => {
-//   networkInterfaces[interfaceName].forEach((networkInterface) => {
-//     // Only consider IPv4 addresses, ignore internal and loopback addresses
-//     if (networkInterface.family === "IPv4" && !networkInterface.internal) {
-//       ipv4Address = networkInterface.address;
-//     }
-//   });
-// });
+Object.keys(networkInterfaces).forEach((interfaceName) => {
+  networkInterfaces[interfaceName].forEach((networkInterface) => {
+    // Only consider IPv4 addresses, ignore internal and loopback addresses
+    if (networkInterface.family === "IPv4" && !networkInterface.internal) {
+      ipv4Address = networkInterface.address;
+    }
+  });
+});
 
 
 
 export default {
   buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
-  target: "server",
+  target: "static",
   generate: {
     // Interval in milliseconds between two render cycles to avoid
     // flooding a potential API with calls from the web application.
@@ -115,7 +115,7 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: process.env.BACKEND_URL,
+    baseURL: `http://${ipv4Address ?? "localhost"}:8000/api` ,
   },
 
   auth: {
@@ -200,8 +200,8 @@ export default {
   },
 
   server: {
-    host: process.env.LOCAL_IP,
-    port: process.env.LOCAL_PORT,
+    host: ipv4Address ?? "localhost",
+    port: 3000,
   },
 
   env: {

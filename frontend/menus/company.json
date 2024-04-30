@@ -56,7 +56,14 @@
     "submenu": "visitors",
     "module": "dashboard"
   },
-
+  {
+    "icon": "mdi-domain",
+    "title": "Profile",
+    "to": "/companies",
+    "menu": "setting_access",
+    "class": "submenutitle",
+    "module": "settings"
+  },
   {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
@@ -85,14 +92,7 @@
     "menu": "notifications_access",
     "module": "settings"
   },
-  {
-    "icon": "mdi-domain",
-    "title": "Profile",
-    "to": "/companies",
-    "menu": "setting_access",
-    "class": "submenutitle",
-    "module": "settings"
-  },
+
   {
     "icon": "mdi-account-supervisor-circle",
     "title": "Roles",
@@ -134,13 +134,6 @@
     "title": "Web Logs",
     "open_menu": false,
     "to": "/web_login_logs",
-    "module": "settings"
-  },
-  {
-    "icon": "mdi-shape-square-plus",
-    "title": "Community Setup",
-    "open_menu": false,
-    "to": "/community/setup",
     "module": "settings"
   },
   {
@@ -421,7 +414,7 @@
     "to": "/web_login_logs",
     "module": "reports"
   },
-  
+
   {
     "icon": "mdi-file-remove-outline",
     "title": "Document Expiry",
