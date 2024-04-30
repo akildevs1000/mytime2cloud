@@ -155,8 +155,9 @@ class Attendance extends Model
 
 
         if (gettype($request->employee_id) == "array") {
-            // $request->employee_id = explode(",", $request->employee_id);
             $model->when(count($request->employee_id) > 0, fn ($q) => $q->whereIn('employee_id', $request->employee_id));
+        } else {
+            $model->whereIn('employee_id', explode(",", $request->employee_id));
         }
 
 
