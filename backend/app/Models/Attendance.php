@@ -154,7 +154,7 @@ class Attendance extends Model
         $model->with(['shift_type', 'last_reason', 'branch']);
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
+            $q->whereIn('employee_id', $request->employee_id);
         });
 
 
