@@ -153,6 +153,11 @@ class Attendance extends Model
         $model->where('company_id', $request->company_id);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
+        
+        if (gettype($request->employee_id) !== "array") {
+            $request->employee_id = explode(",", $request->employee_id);
+        }
+
         $model->when($request->employee_id && count($request->employee_id) > 0, fn ($q) => $q->whereIn('employee_id', $request->employee_id));
 
         $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) {
