@@ -559,6 +559,7 @@ class DeviceController extends Controller
     {
 
 
+
         $device = Device::where("device_id", $request->device_id)->first();
         if ($device->status_id == 2) {
             return $this->response("Device is offline. Please Check Device Online status.", null, false);
@@ -576,6 +577,7 @@ class DeviceController extends Controller
             } else {
 
                 $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/OpenDoor";
                 $response = $this->callCURL($url);
 
 
@@ -610,6 +612,7 @@ class DeviceController extends Controller
 
 
                 $url = env('SDK_URL') . "/$request->device_id/CloseDoor";
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/CloseDoor";
                 $response = $this->callCURL($url);
 
 
@@ -655,6 +658,7 @@ class DeviceController extends Controller
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
                 $url = env('SDK_URL') . "/$device_id/HoldDoor";
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/HoldDoor";
                 $response = $this->callCURL($url);
 
                 if ($response['status']  == 200)
@@ -690,6 +694,7 @@ class DeviceController extends Controller
             } else {
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
                 $url = env('SDK_URL') . "/$device_id/SetWorkParam";
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
 
 
                 $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
@@ -1149,21 +1154,11 @@ class DeviceController extends Controller
     public function decrypt()
     {
         try {
+            // Insert devices
             $devices = request()->input('devices');
-
-            Device::where("company_id", request()->input('company_id'))->delete();
-
-            $model = Device::query();
-
-            if (empty($devices)) {
-                return $this->response('No Device(s) found.', null, false);
+            if (!empty($devices)) {
+                Device::insert($devices);
             }
-
-            if ($model->count() && count($devices) <= 1) {
-                return $this->response('Min 2 devices allowed.', null, false);
-            }
-
-            Device::insert($devices);
 
             // Update company_id for specified devices
             $deviceIds = request()->input('device_ids');
@@ -1172,7 +1167,7 @@ class DeviceController extends Controller
                 Device::whereIn('device_id', $deviceIds)->update(['company_id' => $companyId]);
             }
 
-            return $this->response('Devices have been inserted.', request()->all(), true);
+            return $this->response('Devices have been inserted and updated.', request()->all(), true);
         } catch (\Exception $e) {
             return $this->response($e->getMessage(), null, false);
         }

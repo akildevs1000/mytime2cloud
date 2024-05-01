@@ -4,17 +4,17 @@ const os = require("os");
 const networkInterfaces = os.networkInterfaces();
 
 
-// Find the IPv4 address of the local machine
-let ipv4Address = null;
+// // Find the IPv4 address of the local machine
+// let ipv4Address = null;
 
-Object.keys(networkInterfaces).forEach((interfaceName) => {
-  networkInterfaces[interfaceName].forEach((networkInterface) => {
-    // Only consider IPv4 addresses, ignore internal and loopback addresses
-    if (networkInterface.family === "IPv4" && !networkInterface.internal) {
-      ipv4Address = networkInterface.address;
-    }
-  });
-});
+// Object.keys(networkInterfaces).forEach((interfaceName) => {
+//   networkInterfaces[interfaceName].forEach((networkInterface) => {
+//     // Only consider IPv4 addresses, ignore internal and loopback addresses
+//     if (networkInterface.family === "IPv4" && !networkInterface.internal) {
+//       ipv4Address = networkInterface.address;
+//     }
+//   });
+// });
 
 
 
@@ -114,9 +114,9 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {
-    baseURL: `http://${ipv4Address ?? "localhost"}:8000/api` ,
-  },
+  // axios: {
+  //   baseURL: `http://192.168.2.26:8000/api` ,
+  // },
 
   auth: {
     strategies: {
@@ -199,10 +199,10 @@ export default {
     interval: 500,
   },
 
-  server: {
-    host: ipv4Address ?? "localhost",
-    port: 3000,
-  },
+  // server: {
+  //   host: ipv4Address ?? "localhost",
+  //   port: 3000,
+  // },
 
   env: {
     SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE,

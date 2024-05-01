@@ -52,6 +52,7 @@ class SDKController extends Controller
         asort($data);
 
         $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$id/WriteTimeGroup";
 
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
@@ -105,10 +106,8 @@ class SDKController extends Controller
     }
     public function PersonAddRangePhotos(Request $request)
     {
-
-
-
         $url = env('SDK_URL') . "/Person/AddRange";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
@@ -194,28 +193,33 @@ class SDKController extends Controller
     public function GetAllDevicesHealth()
     {
         $url = env('SDK_URL') . "/getDevices";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/getDevices";
 
         return $this->processSDKRequestBulk($url, null);
     }
     public function PersonAddRangeWithData($data)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
 
         return $this->processSDKRequestBulk($url, $data);
     }
     public function processSDKRequestPersonAddJobJson($url, $json)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestJobDeletePersonJson($device_id, $json)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/DeletePerson";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/DeletePerson";
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestSettingsUpdateTime($device_id, $time)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
 
         $data = [
             'time' => $time
@@ -225,6 +229,7 @@ class SDKController extends Controller
     public function processSDKRequestSettingsUpdate($device_id, $data)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
 
 
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
@@ -233,6 +238,7 @@ class SDKController extends Controller
     public function processSDKRequestCloseAlarm($device_id, $data)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/CloseAlarm";
+        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/CloseAlarm";
 
 
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
@@ -327,6 +333,7 @@ class SDKController extends Controller
 
 
             $url = env('SDK_URL') . "/" . "{$device_id}/GetWorkParam";
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/GetWorkParam";
             $data =   null;
 
 
@@ -366,8 +373,8 @@ class SDKController extends Controller
 
 
             $url = env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail";
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/GetPersonDetail";
             $data =   ["usercode" => $user_code];
-
 
             // return [$url, $data];
             try {
