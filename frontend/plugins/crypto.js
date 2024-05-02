@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-const secretPassphrase = process.env.SECRET_PASS_PHRASE;
+const secretPassphrase = process.env.SECRET_PASS_PHRASE || "myapp";
 
 const iv = crypto.randomBytes(16);
 

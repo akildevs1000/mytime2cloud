@@ -2,7 +2,10 @@
 <template>
   <v-dialog v-model="dialog" max-width="500px">
     <template v-slot:activator="{ on }">
-      <v-icon color="black" dark v-on="on">mdi-upload-outline</v-icon>
+      <v-btn color="primary" v-on="on"
+        >Upload Device(s)
+        <!-- <v-icon>mdi-upload-outline</v-icon> -->
+      </v-btn>
     </template>
     <v-card>
       <v-card-title>Upload File</v-card-title>

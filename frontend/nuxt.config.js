@@ -1,23 +1,5 @@
 import colors from "vuetify/es5/util/colors";
 
-const os = require("os");
-const networkInterfaces = os.networkInterfaces();
-
-
-// // Find the IPv4 address of the local machine
-// let ipv4Address = null;
-
-// Object.keys(networkInterfaces).forEach((interfaceName) => {
-//   networkInterfaces[interfaceName].forEach((networkInterface) => {
-//     // Only consider IPv4 addresses, ignore internal and loopback addresses
-//     if (networkInterface.family === "IPv4" && !networkInterface.internal) {
-//       ipv4Address = networkInterface.address;
-//     }
-//   });
-// });
-
-
-
 export default {
   buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
@@ -139,24 +121,6 @@ export default {
     middleware: ["auth"],
   },
 
-  // serverMiddleware: ['~middleware/verify.js'],
-
-  // PWA module configuration: https://go.nuxtjs.dev/pwa
-  // pwa: {
-  //   manifest: {
-  //     name: 'MyTime 2 Cloud',
-  //     lang: 'en',
-  //     icons: [
-  //       {
-  //         src: '/icon-512x512.png',
-  //         sizes: '512x512',
-  //         type: 'image/png',
-  //       },
-  //       // Add other sizes and formats as needed
-  //     ],
-  //   },
-  // },
-
   pwa: {
     manifest: {
       name: "MyTime 2 Cloud",
@@ -198,11 +162,6 @@ export default {
     transpile: ["vuetify/lib", "tiptap-vuetify", "vue-apexchart"],
     interval: 500,
   },
-
-  // server: {
-  //   host: ipv4Address ?? "localhost",
-  //   port: 3000,
-  // },
 
   env: {
     SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE,

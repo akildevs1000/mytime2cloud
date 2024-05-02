@@ -5,6 +5,7 @@ use App\Http\Controllers\AlarmLogsController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\DeviceCameraController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Log as Logger;
 
 
 
+Route::get('/get-baseurl', [Controller::class, "getBaseUrl"]);
 
 Route::get("test111password", function (Request $request) {
     ///////return (new AttendanceLogController)->storemissing();

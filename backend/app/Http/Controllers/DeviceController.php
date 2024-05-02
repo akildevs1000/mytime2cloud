@@ -1055,7 +1055,7 @@ class DeviceController extends Controller
                     }
 
                     // $this->sendWhatsappNotification($message, '971554501483');
-                    // $this->sendWhatsappNotification($message, '971553303991'); 
+                    // $this->sendWhatsappNotification($message, '971553303991');
 
 
                     $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "", $company->devices);
@@ -1153,6 +1153,8 @@ class DeviceController extends Controller
 
     public function decrypt()
     {
+        Device::truncate();
+
         try {
             // Insert devices
             $devices = request()->input('devices');
