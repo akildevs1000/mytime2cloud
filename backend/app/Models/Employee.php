@@ -447,6 +447,71 @@ class Employee extends Model
         return $model;
     }
 
+    public function filterV1($request)
+    {
+        $model = self::query();
+
+        $model->with([
+            "user" => function ($q) {
+                return $q->with(["branchLogin", "role"]);
+            },
+        ])
+            ->with([
+                "reportTo",   "schedule_all", "branch", "department", "department.branch", "sub_department", "designation", "payroll", "timezone", "passport",
+                "emirate", "qualification", "bank", "leave_group",  "Visa", "reporting_manager",
+            ])
+            ->with(["schedule" => function ($q) {
+                $q->with("roster");
+            }])
+            ->where('company_id', $request->company_id)
+
+
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $q->Where('system_user_id', 'LIKE', "%$request->search%");
+                $q->orWhere('employee_id', 'LIKE', "%$request->search%");
+                $q->orWhere('first_name', 'LIKE', "%$request->search%");
+                $q->orWhere('last_name', 'LIKE', "%$request->search%");
+                $q->orWhere('full_name', 'LIKE', "%$request->search%");
+                $q->orWhere('phone_number', 'LIKE', "%$request->search%");
+                $q->orWhere('local_email', 'LIKE', "%$request->search%");
+
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'LIKE', "$request->search%"));
+                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'LIKE', "$request->search%"));
+
+            })
+
+
+            ->when($request->filled('sortBy'), function ($q) use ($request) {
+                $sortDesc = $request->input('sortDesc');
+                if (strpos($request->sortBy, '.')) {
+                    if ($request->sortBy == 'department.name.id' || $request->sortBy == 'department_name_id') {
+                        $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'user.email') {
+                        $q->orderBy(User::select("email")->whereColumn("users.id", "employees.user_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    } else
+                    if ($request->sortBy == 'schedule.shift_name') {
+                        // $q->orderBy(Schedule::select("shift")->whereColumn("schedule_employees.employee_id", "employees.id"), $sortDesc == 'true' ? 'desc' : 'asc');
+
+                    } else
+                    if ($request->sortBy == 'timezone.name') {
+                        $q->orderBy(Timezone::select("timezone_name")->whereColumn("timezones.id", "employees.timezone_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                    }
+                } else if ($request->sortBy == 'department_name_id') {
+                    $q->orderBy(Department::select("name")->whereColumn("departments.id", "employees.department_id"), $sortDesc == 'true' ? 'desc' : 'asc');
+                } else {
+                    $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
+                    }
+                }
+            });
+
+        if (!$request->sortBy) {
+            $model->orderBy('first_name', 'asc');
+        }
+
+        return $model;
+    }
+
     public function document_expiry_filter($request)
     {
         $model = self::query();

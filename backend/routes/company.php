@@ -158,7 +158,9 @@ Route::get('no-shift-employees/search/{key}', [DutyOrganizerController::class, '
 Route::apiResource('no-shift-employees', DutyOrganizerController::class);
 
 //  Employee
+Route::get('employeev1', [EmployeeController::class, "indexV1"]);
 Route::apiResource('employee', EmployeeController::class);
+
 
 Route::get('employeesList', [EmployeeController::class, 'employeesList']);
 Route::get('document_expiry', [EmployeeController::class, 'document_expiry']);
