@@ -129,10 +129,10 @@ class PDFController extends Controller
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', ["all", "Access Control"]));
 
 
-        $model->where(function ($m) use ($request) {
-            $m->whereHas('tanent', fn ($q) => $q->where("company_id", $request->company_id));
-            $m->orWhereHas('member', fn ($q) => $q->where("company_id", $request->company_id));
-        });
+        // $model->where(function ($m) use ($request) {
+        //     $m->whereHas('tanent', fn ($q) => $q->where("company_id", $request->company_id));
+        //     $m->orWhereHas('member', fn ($q) => $q->where("company_id", $request->company_id));
+        // });
 
         $model->when(request()->filled("report_type"), function ($query) use ($request) {
             if ($request->report_type == "Allowed") {
