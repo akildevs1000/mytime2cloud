@@ -152,8 +152,8 @@ class PDFController extends Controller
 
         $model->with("device");
 
-        $model->with('tanent', fn ($q) => $q->where('company_id', $request->company_id));
-        $model->with('member', fn ($q) => $q->where('company_id', $request->company_id));
+        // $model->with('tanent', fn ($q) => $q->where('company_id', $request->company_id));
+        // $model->with('member', fn ($q) => $q->where('company_id', $request->company_id));
 
         // ->distinct("LogTime", "UserID", "company_id")
         $model->when($request->filled('department_ids'), function ($q) use ($request) {
