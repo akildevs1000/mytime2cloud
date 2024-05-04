@@ -228,69 +228,64 @@
                     <th>User Type</th>
                 </tr>
                 @foreach ($chunk as $key => $data)
-                @if (array_key_exists('employee', $data) && $data['employee'])                        <tr>
-                            <td style="width:10px;">{{ $key + 1 }}</td>
+                    <tr>
+                        <td style="width:10px;">{{ $key + 1 }}</td>
 
-                            <td>
-                                @php
-                                    $pic =
-                                        'https://i.pinimg.com/originals/df/5f/5b/df5f5b1b174a2b4b6026cc6c8f9395c1.jpg';
+                        <td>
+                            @php
+                                $pic = 'https://i.pinimg.com/originals/df/5f/5b/df5f5b1b174a2b4b6026cc6c8f9395c1.jpg';
 
-                                    if ($data['employee']['profile_picture_raw']) {
-                                        $pic =
-                                            getcwd() .
-                                            '/media/employee/profile_picture/' .
-                                            $data['employee']['profile_picture_raw'];
-                                    }
+                                if ($data['employee']['profile_picture_raw']) {
+                                    $pic = getcwd() . '/media/employee/profile_picture/' . $data['employee']['profile_picture_raw'];
+                                }
 
-                                @endphp
+                            @endphp
 
-                                <table>
-                                    <tr>
-                                        <td style="width:20px;" class="border-none">
-                                            <img alt="{{ $pic }}"
-                                                style="border-radius: 50%;width:40px;padding-top:5px;"src="{{ $pic }}" />
-                                        </td>
-                                        <td class="border-none">
-                                            <b style="margin-left:5px; padding-top:-30px;">
-                                                {{ $data['employee']['first_name'] ?? '---' }}
-                                                {{ $data['employee']['last_name'] ?? '---' }}
-                                            </b>
-                                            <br>
-                                            <small
-                                                style="margin-left:5px;">EID:{{ $data['employee']['employee_id'] ?? '---' }}</small>
+                            <table>
+                                <tr>
+                                    <td style="width:20px;" class="border-none">
+                                        <img alt="{{ $pic }}"
+                                            style="border-radius: 50%;width:40px;padding-top:5px;"src="{{ $pic }}" />
+                                    </td>
+                                    <td class="border-none">
+                                        <b style="margin-left:5px; padding-top:-30px;">
+                                            {{ $data['employee']['first_name'] ?? '---' }}
+                                            {{ $data['employee']['last_name'] ?? '---' }}
+                                        </b>
+                                        <br>
+                                        <small
+                                            style="margin-left:5px;">EID:{{ $data['employee']['employee_id'] ?? '---' }}</small>
 
-                                            {{-- <br>
-                                    <small style="margin-left:5px;">Branch:
-                                        {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
-                                    <br>
-                                    <small style="margin-left:5px;">Department:
-                                        {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
-                                        </td>
-                                    </tr>
-                                </table>
-                            </td>
+                                        {{-- <br>
+                                        <small style="margin-left:5px;">Branch:
+                                            {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
+                                        <br>
+                                        <small style="margin-left:5px;">Department:
+                                            {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
 
-                            <td>
-                                <b> {{ $data['employee']['branch']['branch_name'] ?? '---' }}</b>
-                                <br>
-                                {{ $data['employee']['department']['name'] ?? '---' }}
-                            </td>
-                            <td>{{ $data['employee']['phone_number'] ?? '---' }}</td>
-                            <td>{{ $data['device']['location'] ?? '---' }}</td>
-                            <td>{{ $data['date'] }} {{ $data['time'] }}</td>
-                            <td>
-                                {{ strtolower($data['device']['function']) !== 'out' ? 'In' : '---' }}
-                            </td>
-                            <td>
-                                {{ strtolower($data['device']['function']) == 'out' ? 'Out' : '---' }}
-                            </td>
-                            </td>
-                            <td>{{ $data['device']['mode'] ?? '---' }}</td>
-                            <td>{{ $data['status'] }}</td>
-                            <td>Employee</td>
-                        </tr>
-                    @endif
+                        <td>
+                            <b> {{ $data['employee']['branch']['branch_name'] ?? '---' }}</b>
+                            <br>
+                            {{ $data['employee']['department']['name'] ?? '---' }}
+                        </td>
+                        <td>{{ $data['employee']['phone_number'] ?? '---' }}</td>
+                        <td>{{ $data['device']['location'] ?? '---' }}</td>
+                        <td>{{ $data['date'] }} {{ $data['time'] }}</td>
+                        <td>
+                            {{ strtolower($data['device']['function']) !== 'out' ? 'In' : '---' }}
+                        </td>
+                        <td>
+                            {{ strtolower($data['device']['function']) == 'out' ? 'Out' : '---' }}
+                        </td>
+                        </td>
+                        <td>{{ $data['device']['mode'] ?? '---' }}</td>
+                        <td>{{ $data['status'] }}</td>
+                        <td>Employee</td>
+                    </tr>
                 @endforeach
             </table>
             <footer class="page page-break">

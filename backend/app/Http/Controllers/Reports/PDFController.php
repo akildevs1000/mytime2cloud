@@ -184,6 +184,10 @@ class PDFController extends Controller
                 }
             })
 
+            ->with('employee', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+            })
+
             ->when($request->filled('branch_id'), function ($q) {
                 $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id', request("branch_id")));
             });
