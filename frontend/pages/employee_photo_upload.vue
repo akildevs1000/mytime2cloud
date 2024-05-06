@@ -15,634 +15,445 @@
       </v-snackbar>
     </div>
 
-    <v-row>
-      <v-col cols="12">
-        <!-- <Back class="primary white--text" /> -->
-      </v-col>
-      <v-col v-if="isCompany" cols="3">
-        <v-select
-          @change="filterDepartmentsByBranch($event)"
-          v-model="branch_id"
-          :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
-          dense
-          placeholder="All Branches"
-          outlined
-          item-value="id"
-          item-text="branch_name"
-        >
-        </v-select>
-      </v-col>
-      <v-col cols="3">
-        <v-select
-          @change="loadDepartmentemployees"
-          v-model="departmentselected"
-          :items="departments"
-          dense
-          outlined
-          item-value="id"
-          item-text="name"
-          hide-details
-          label="Department"
-          :search-input.sync="searchInput"
-        ></v-select>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 300px">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-            <span> Employees </span>
-          </v-toolbar>
-          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-            <v-card-text>
-              <v-row
-                class="timezone-displaylistview1"
-                v-for="(user, index) in leftEmployees"
-                :id="user.id"
-                v-model="leftEmployees"
-                :key="user.id"
-                style="border-bottom: 1px solid #ddd"
+    <v-card class="mb-5">
+      <v-row>
+        <v-col cols="8">
+          <v-toolbar dense flat>
+            <v-toolbar-title>
+              <b class="" style="font-size: 18px; font-weight: 600"
+                >Employees upload to Devices</b
               >
-                <v-col md="1" style="padding: 0px; margin-top: -7px">
-                  <v-checkbox
-                    dense
-                    small
-                    hideDetails
-                    v-model="leftSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <!-- <v-checkbox
-                    style="padding: 0px"
-                    v-else
-                    dense
-                    small
-                    disabled
-                    hideDetails
-                    indeterminate
-                    v-model="leftSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox> -->
-                </v-col>
-
-                <v-col md="1" style="padding: 0px">
-                  <v-img
-                    class="employee-pic"
-                    :title="user.first_name + ' ' + user.last_name"
-                    style="float: left; border-radius: 50%; height: auto"
-                    :src="
-                      user.profile_picture
-                        ? user.profile_picture
-                        : '/no-profile-image.jpg'
-                    "
-                  >
-                  </v-img>
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.first_name }}
-                  {{ user.last_name }}
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.employee_id }}
-                </v-col>
-              </v-row>
-            </v-card-text>
-
-            <!-- <v-card-text
-              class="photo-displaylistview"
-              v-for="(user, index) in leftEmployees"
-              :id="user.id"
-              v-on:dblclick="
-                (counter += 1), moveToRightEmp(user.id, user.timezone)
-              "
-              :key="index"
-            >
-              <v-row>
-                <v-col class="col-1" style="padding: 0px">
-                  <v-checkbox
-                    v-if="user.profile_picture"
-                    class="col"
-                    v-model="leftSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <v-checkbox
-                    v-else
-                    indeterminate
-                    value
-                    disabled
-                    hide-details
-                    class="col-1 d-flex flex-column justify-center"
-                  ></v-checkbox>
-                </v-col>
-                <v-col col="2" class="col" style="padding-top: 21px">
-                  {{ user.employee_id }}: {{ user.display_name }}
-                </v-col>
-                <v-col col=" 2">
-                  <v-img
-                    v-if="user.profile_picture != ''"
-                    style="border-radius: 50%; width: 40px"
-                    :src="user.profile_picture || '/no-profile-image.jpg'"
-                  >
-                  </v-img>
-                </v-col>
-              </v-row>
-            </v-card-text> -->
-          </div>
-        </v-card>
-      </v-col>
-
-      <v-col cols="2">
-        <div style="text-align: -webkit-center">
-          <button
-            type="button"
-            id="undo_redo_undo"
-            class="btn primary btn-block white--text"
-          >
-            Options
-          </button>
-
-          <button
-            @click="moveToRightEmpOption2"
-            type="button"
-            id="undo_redo_rightSelected"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-right theme--red"
-            ></i>
-          </button>
-
-          <button
-            @click="allmoveToRightEmp"
-            type="button"
-            id="undo_redo_rightAll"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-            ></i>
-          </button>
-          <button
-            @click="moveToLeftempOption2"
-            type="button"
-            id="undo_redo_leftSelected"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-left theme--red"
-            ></i>
-          </button>
-          <button
-            @click="allmoveToLeftemp"
-            type="button"
-            id="undo_redo_leftAll"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-            ></i>
-          </button>
-        </div>
-      </v-col>
-
-      <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 300px">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-            <span>Selected Employees </span>
+            </v-toolbar-title>
           </v-toolbar>
-          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-            <v-card-text>
-              <v-row
-                class="timezone-displaylistview1"
-                v-for="(user, index) in rightEmployees"
-                :id="user.id"
-                v-model="rightSelectedEmp"
-                :key="user.id"
-                style="border-bottom: 1px solid #ddd"
-              >
-                <v-col md="1" style="padding: 0px">
-                  <v-checkbox
-                    dense
-                    small
-                    hideDetails
-                    v-model="rightSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <!-- <v-checkbox  v-if="user.profile_picture"
-                    style="padding: 0px"
-                    v-else
-                    dense
-                    small
-                    hideDetails
-                    v-model="rightSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox> -->
-                </v-col>
-
-                <v-col md="1" style="padding: 0px">
-                  <v-img
-                    class="employee-pic"
-                    :title="user.first_name + ' ' + user.last_name"
-                    style="float: left; border-radius: 50%; height: auto"
-                    :src="
-                      user.profile_picture
-                        ? user.profile_picture
-                        : '/no-profile-image.jpg'
-                    "
-                  >
-                  </v-img>
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.first_name }}
-                  {{ user.last_name }}
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.employee_id }}
-                </v-col>
-              </v-row>
-            </v-card-text>
-            <!-- <v-card-text
-              class="photo-displaylistview"
-              v-for="(user, index) in rightEmployees"
-              :id="user.id"
-              v-model="rightSelectedEmp"
-              :key="user.id"
+        </v-col>
+        <v-col cols="4" class="text-right">
+          <v-toolbar dense flat>
+            <v-select
+              v-if="isCompany"
+              @change="filterDepartmentsByBranch($event)"
+              v-model="branch_id"
+              :items="[
+                { branch_name: `All Branches`, id: `` },
+                ...branchesList,
+              ]"
+              dense
+              outlined
+              item-value="id"
+              item-text="branch_name"
+              hide-details
+              label="All Branches"
+            ></v-select>
+            <v-select
+              class="mx-2"
+              @change="loadDepartmentemployees"
+              v-model="departmentselected"
+              :items="departments"
+              dense
+              outlined
+              item-value="id"
+              item-text="name"
+              hide-details
+              label="Department"
+              :search-input.sync="searchInput"
+            ></v-select>
+          </v-toolbar>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="5">
+          <v-card class="photo-displaylist mx-1" style="height: 300px" outlined>
+            <div class="pa-2">Employees</div>
+            <v-divider />
+            <div
+              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
             >
-              <div class="row">
-                <v-col class="col-1" style="padding: 0px">
-                  <v-checkbox
-                    hideDetails
-                    class="col-1 d-flex flex-column justify-center"
-                    v-model="rightSelectedEmp"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                </v-col>
-                <v-col col="2" class="col" style="padding-top: 21px">
-                  {{ user.employee_id }} : {{ user.display_name }}
-                </v-col>
-                <v-col col="4">
-                  <span
-                    ><v-img
-                      v-if="user.profile_picture != ''"
-                      style="border-radius: 50%; width: 40px"
-                      :src="user.profile_picture"
+              <v-card-text>
+                <v-row
+                  class="timezone-displaylistview1"
+                  v-for="(user, index) in leftEmployees"
+                  :id="user.id"
+                  v-model="leftEmployees"
+                  :key="user.id"
+                  style="border-bottom: 1px solid #ddd"
+                >
+                  <v-col md="1" style="padding: 0px; margin-top: -7px">
+                    <v-checkbox
+                      dense
+                      small
+                      hideDetails
+                      v-model="leftSelectedEmp"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+
+                  <v-col md="1" style="padding: 0px">
+                    <v-img
+                      :title="user.first_name + ' ' + user.last_name"
+                      style="
+                        float: left;
+                        border-radius: 50%;
+                        height: auto;
+                        padding: 0px;
+                        position: relative;
+                        top: 0;
+                        transition: top ease 1s;
+
+                        margin-left: -3px;
+                        width: 25px;
+                        border: 1px solid #ddd;
+                      "
+                      :src="
+                        user.profile_picture
+                          ? user.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
                     >
-                    </v-img
-                  ></span>
-                </v-col>
-                <v-col col="4">
-                  <span
-                    v-if="user.sdkEmpResponse == 'Success'"
-                    style="color: green"
-                    >{{ user.sdkEmpResponse }}</span
-                  >
-                  <span v-else style="color: red">{{
-                    user.sdkEmpResponse
-                  }}</span>
-                </v-col>
-              </div>
-            </v-card-text> -->
-
-            <!-- <select
-              multiple
-              v-model="rightSelectedEmp"
-              @dblclick="moveToLeftemp"
-              class="form-control"
-              size="13"
-            >
-              <option
-                v-for="(user, index) in rightEmployees"
-                :key="index"
-                :value="user.id"
-              >
-                Eid: {{ user.employee_id }} : {{ user.display_name }} :
-              </option>
-            </select> -->
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 300px">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-            <span> Devices</span>
-          </v-toolbar>
-          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-            <v-card-text>
-              <v-row
-                class="timezone-displaylistview1"
-                v-for="(user, index) in leftDevices"
-                :id="user.id"
-                v-model="leftSelectedDevices"
-                :key="user.id"
-                style="border-bottom: 1px solid #ddd"
-              >
-                <v-col md="1" style="padding: 0px;margin-top-3">
-                  <v-checkbox
-                    v-if="user.status.name == 'active'"
-                    dense
-                    small
-                    hideDetails
-                    v-model="leftSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <v-checkbox
-                    style="padding: 0px;margin-top-3"
-                    v-else
-                    indeterminate
-                    value
-                    disabled
-                    dense
-                    small
-                    hideDetails
-                    v-model="leftSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.name }}
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.model_number }}
-                </v-col>
-                <v-col md="3" style="padding: 0px">
-                  <img
-                    title="Online"
-                    v-if="user.status.name == 'active'"
-                    src="/icons/device_status_open.png"
-                    style="width: 30px"
-                  />
-                  <img
-                    title="Offline"
-                    v-else
-                    src="/icons/device_status_close.png"
-                    style="width: 30px"
-                  />
-                </v-col>
-              </v-row>
-            </v-card-text>
-            <!-- <v-card-text
-              class="photo-displaylistview"
-              v-for="(user, index) in leftDevices"
-              :id="user.id"
-              v-model="leftSelectedDevices"
-              :key="user.id"
-            >
-              <div class="row">
-                <v-col class="col-1" style="padding: 0px">
-                  <v-checkbox
-                    v-if="user.status.name == 'active'"
-                    hideDetails
-                    class="col-1 d-flex flex-column justify-center"
-                    v-model="leftSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <v-checkbox
-                    v-else
-                    indeterminate
-                    value
-                    disabled
-                    hide-details
-                    class="col-1 d-flex flex-column justify-center"
-                  ></v-checkbox>
-                </v-col>
-                <div col-4 class="col" style="padding-top: 21px">
-                  {{ user.name }} : {{ user.device_id }}
-                  <span
-                    style="color: green"
-                    v-if="user.status.name == 'active'"
-                  >
-                    Online</span
-                  >
-                  <span style="color: red" v-else>Offline </span>
-                </div>
-              </div>
-            </v-card-text> -->
-          </div>
-        </v-card>
-      </v-col>
-
-      <v-col cols="2">
-        <div style="text-align: -webkit-center">
-          <button
-            type="button"
-            id="undo_redo_undo"
-            class="btn primary btn-block white--text"
-          >
-            Options
-          </button>
-
-          <button
-            @click="moveToRightDevicesOption2"
-            type="button"
-            id="undo_redo_rightSelected"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-right theme--red"
-            ></i>
-          </button>
-
-          <button
-            @click="allmoveToRightDevices"
-            type="button"
-            id="undo_redo_rightAll"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-            ></i>
-          </button>
-          <button
-            @click="moveToLeftDevicesOption2"
-            type="button"
-            id="undo_redo_leftSelected"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-left theme--red"
-            ></i>
-          </button>
-          <button
-            @click="allmoveToLeftDevices"
-            type="button"
-            id="undo_redo_leftAll"
-            class="btn btn-default btn-block"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-            ></i>
-          </button>
-        </div>
-      </v-col>
-
-      <v-col cols="5">
-        <v-card class="photo-displaylist" style="height: 300px">
-          <v-toolbar color=" " dense flat style="border: 1px solid #ddd">
-            <span>Selected Devices</span>
-          </v-toolbar>
-          <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
-            <v-card-text>
-              <v-row
-                class="timezone-displaylistview1"
-                v-for="(user, index) in rightDevices"
-                :id="user.id"
-                v-model="rightSelectedDevices"
-                :key="user.id"
-                style="border-bottom: 1px solid #ddd"
-              >
-                <v-col md="1" style="padding: 0px;margin-top-3">
-                  <v-checkbox
-                    v-if="user.status.name == 'active'"
-                    dense
-                    small
-                    hideDetails
-                    v-model="rightSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                  <v-checkbox
-                    style="padding: 0px;margin-top-3"
-                    v-else
-                    indeterminate
-                    value
-                    disabled
-                    dense
-                    small
-                    hideDetails
-                    v-model="leftSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.name }}
-                </v-col>
-                <v-col md="3" style="padding: 0px; padding-top: 5px">
-                  {{ user.model_number }}
-                </v-col>
-                <v-col md="3" style="padding: 0px">
-                  <span
-                    v-if="user.sdkDeviceResponse == 'Success'"
-                    style="color: green"
-                    >{{ user.sdkDeviceResponse }}</span
-                  >
-                  <span v-else style="color: red">{{
-                    user.sdkDeviceResponse
-                  }}</span>
-                </v-col>
-              </v-row>
-            </v-card-text>
-            <!-- <v-card-text
-              class="photo-displaylistview"
-              v-for="(user, index) in rightDevices"
-              :id="user.id"
-              v-model="rightSelectedDevices"
-              :key="user.id"
-            >
-              <div class="row">
-                <v-col class="col-1" style="padding: 0px">
-                  <v-checkbox
-                    hideDetails
-                    class="col-1 d-flex flex-column justify-center"
-                    v-model="rightSelectedDevices"
-                    :value="user.id"
-                    primary
-                    hide-details
-                  ></v-checkbox>
-                </v-col>
-                <div col class="col-sm" style="padding-top: 21px">
-                  {{ user.name }} : {{ user.device_id }}
-                </div>
-                <div col class="col-sm d-flex flex-column justify-center">
-                  <span
-                    v-if="user.sdkDeviceResponse == 'Success'"
-                    style="color: green"
-                    >{{ user.sdkDeviceResponse }}</span
-                  >
-                  <span v-else style="color: red">{{
-                    user.sdkDeviceResponse
-                  }}</span>
-                </div>
-              </div>
-            </v-card-text> -->
-          </div>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-progress-linear
-        v-if="progressloading"
-        :active="loading"
-        :indeterminate="loading"
-        absolute
-        color="primary"
-      ></v-progress-linear>
-      <v-col cols="12">
-        <div class="row">
-          <div class="col col-lg-6 text-center">
-            <span v-if="errors && errors.message" class="text-danger mt-2">{{
-              errors.message
-            }}</span>
-          </div>
-          <div class="col col-lg-3 text-right">
-            <div style="width: 150px; float: right">
-              <button
-                :loading="loading"
-                @click="goback()"
-                type="button"
-                id="save"
-                class="btn primary btn-block white--text v-size--default"
-              >
-                Back
-              </button>
+                    </v-img>
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.first_name }}
+                    {{ user.last_name }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.employee_id }}
+                  </v-col>
+                </v-row>
+              </v-card-text>
             </div>
+          </v-card>
+        </v-col>
+
+        <v-col cols="2">
+          <div style="text-align: -webkit-center">
+            <v-btn type="button" class="primary mt-8 mb-2" block>
+              Transfer Employees
+            </v-btn>
+
+            <button
+              @click="moveToRightEmpOption2"
+              type="button"
+              id="undo_redo_rightSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--red"
+              ></i>
+            </button>
+
+            <button
+              @click="allmoveToRightEmp"
+              type="button"
+              id="undo_redo_rightAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+              ></i>
+            </button>
+            <button
+              @click="moveToLeftempOption2"
+              type="button"
+              id="undo_redo_leftSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--red"
+              ></i>
+            </button>
+            <button
+              @click="allmoveToLeftemp"
+              type="button"
+              id="undo_redo_leftAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+              ></i>
+            </button>
           </div>
-          <div class="col col-lg-3 text-right">
-            <div style="width: 150px; float: right">
-              <button
-                :disabled="!displaybutton"
-                :loading="loading"
-                @click="onSubmit"
-                type="button"
-                id="save"
-                class="btn primary btn-block white--text v-size--default"
-              >
-                Submit
-              </button>
+        </v-col>
+
+        <v-col cols="5">
+          <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
+            <div class="pa-2">Selected Employees</div>
+            <v-divider />
+            <div
+              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
+            >
+              <v-card-text>
+                <v-row
+                  class="timezone-displaylistview1"
+                  v-for="(user, index) in rightEmployees"
+                  :id="user.id"
+                  v-model="rightSelectedEmp"
+                  :key="user.id"
+                  style="border-bottom: 1px solid #ddd"
+                >
+                  <v-col md="1" style="padding: 0px">
+                    <v-checkbox
+                      dense
+                      small
+                      hideDetails
+                      v-model="rightSelectedEmp"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+
+                  <v-col md="1" style="padding: 0px">
+                    <v-img
+                      :title="user.first_name + ' ' + user.last_name"
+                      style="
+                        float: left;
+                        border-radius: 50%;
+                        height: auto;
+                        padding: 0px;
+                        position: relative;
+                        top: 0;
+                        transition: top ease 1s;
+                        margin-left: -3px;
+                        width: 25px;
+                        border: 1px solid #ddd;
+                      "
+                      :src="
+                        user.profile_picture
+                          ? user.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
+                    >
+                    </v-img>
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.first_name }}
+                    {{ user.last_name }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.employee_id }}
+                  </v-col>
+                </v-row>
+              </v-card-text>
             </div>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="5">
+          <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
+            <div class="pa-2">Devices</div>
+            <v-divider />
+            <div
+              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
+            >
+              <v-card-text>
+                <v-row
+                  class="timezone-displaylistview1"
+                  v-for="(user, index) in leftDevices"
+                  :id="user.id"
+                  v-model="leftSelectedDevices"
+                  :key="user.id"
+                  style="border-bottom: 1px solid #ddd"
+                >
+                  <v-col md="1" style="padding: 0px;margin-top-3">
+                    <v-checkbox
+                      v-if="user.status.name == 'active'"
+                      dense
+                      small
+                      hideDetails
+                      v-model="leftSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                    <v-checkbox
+                      style="padding: 0px;margin-top-3"
+                      v-else
+                      indeterminate
+                      value
+                      disabled
+                      dense
+                      small
+                      hideDetails
+                      v-model="leftSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.name }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.model_number }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px">
+                    <img
+                      title="Online"
+                      v-if="user.status.name == 'active'"
+                      src="/icons/device_status_open.png"
+                      style="width: 30px"
+                    />
+                    <img
+                      title="Offline"
+                      v-else
+                      src="/icons/device_status_close.png"
+                      style="width: 30px"
+                    />
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </div>
+          </v-card>
+        </v-col>
+
+        <v-col cols="2">
+          <div style="text-align: -webkit-center">
+            <v-btn type="button" class="primary mt-8 mb-2" block>
+              Transfer Devices
+            </v-btn>
+            <button
+              @click="moveToRightDevicesOption2"
+              type="button"
+              id="undo_redo_rightSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--red"
+              ></i>
+            </button>
+
+            <button
+              @click="allmoveToRightDevices"
+              type="button"
+              id="undo_redo_rightAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+              ></i>
+            </button>
+            <button
+              @click="moveToLeftDevicesOption2"
+              type="button"
+              id="undo_redo_leftSelected"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--red"
+              ></i>
+            </button>
+            <button
+              @click="allmoveToLeftDevices"
+              type="button"
+              id="undo_redo_leftAll"
+              class="btn btn-default btn-block"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+              ></i>
+            </button>
           </div>
-        </div>
-      </v-col>
-    </v-row>
+        </v-col>
+
+        <v-col cols="5">
+          <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
+            <div class="pa-2">Selected Devices</div>
+            <v-divider />
+            <div
+              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
+            >
+              <v-card-text>
+                <v-row
+                  class="timezone-displaylistview1"
+                  v-for="(user, index) in rightDevices"
+                  :id="user.id"
+                  v-model="rightSelectedDevices"
+                  :key="user.id"
+                  style="border-bottom: 1px solid #ddd"
+                >
+                  <v-col md="1" style="padding: 0px;margin-top-3">
+                    <v-checkbox
+                      v-if="user.status.name == 'active'"
+                      dense
+                      small
+                      hideDetails
+                      v-model="rightSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                    <v-checkbox
+                      style="padding: 0px;margin-top-3"
+                      v-else
+                      indeterminate
+                      value
+                      disabled
+                      dense
+                      small
+                      hideDetails
+                      v-model="leftSelectedDevices"
+                      :value="user.id"
+                      primary
+                      hide-details
+                    ></v-checkbox>
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.name }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px; padding-top: 5px">
+                    {{ user.model_number }}
+                  </v-col>
+                  <v-col md="3" style="padding: 0px">
+                    <span
+                      v-if="user.sdkDeviceResponse == 'Success'"
+                      style="color: green"
+                      >{{ user.sdkDeviceResponse }}</span
+                    >
+                    <span v-else style="color: red">{{
+                      user.sdkDeviceResponse
+                    }}</span>
+                  </v-col>
+                </v-row>
+              </v-card-text>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row class="mx-1">
+        <v-progress-linear
+          v-if="progressloading"
+          :active="loading"
+          :indeterminate="loading"
+          absolute
+          color="primary"
+        ></v-progress-linear>
+        <v-col cols="12" class="text-right">
+          <span v-if="errors && errors.message" class="text-danger mt-2">{{
+            errors.message
+          }}</span>
+          <v-btn class="grey" @click="goback" small dark> Back </v-btn>
+          <v-btn
+            small
+            class="primary"
+            :disabled="!displaybutton"
+            :loading="loading"
+            @click="onSubmit"
+          >
+            Submit
+          </v-btn>
+        </v-col>
+      </v-row>
+    </v-card>
   </div>
 </template>
 
@@ -826,175 +637,6 @@ export default {
       });
     },
 
-    // onSubmit_old() {
-    //   this.resetErrorMessages();
-
-    //   if (this.timezonesselected == "") {
-    //     this.response = this.response + "Timezones not selected";
-    //   } else if (this.rightEmployees.length == 0) {
-    //     this.response = this.response + " Atleast select one Employee Details";
-    //   } else if (this.rightDevices.length == 0) {
-    //     this.response = this.response + " Atleast select one Device Details";
-    //   }
-
-    //   if (this.response != "") {
-    //     this.snackbar.show = true;
-    //     this.snackbar.message = this.response;
-    //     this.snackbar.color = "red";
-    //     setTimeout(() => {
-    //       this.snackbar.show = false;
-    //     }, 1000 * 10);
-    //     return false;
-    //   }
-    //   this.loading = true;
-
-    //   let columnsToFilter = ["systeM_user_id"];
-    //   let onlyUserSystemids = {};
-    //   // $.each(columnsToFilter, function (index, column) {
-    //   //   if (this.timezonesselected.hasOwnProperty(column)) {
-    //   //     onlyUserSystemids[column] = jsonData[column];
-    //   //   }
-    //   // });
-
-    //   // Define the keys you want to select
-    //   let keysToSelect = ["system_user_id"];
-
-    //   // Select the specified keys from each object
-    //   let filteredDataEmp = [];
-    //   this.rightEmployees.map(function (obj) {
-    //     let selectedObj = {};
-    //     keysToSelect.forEach(function (key) {
-    //       if (obj.hasOwnProperty(key)) {
-    //         // selectedObj[key] = obj[key];
-    //         selectedObj = obj[key];
-    //         filteredDataEmp.push(selectedObj);
-    //       }
-    //     });
-    //     return selectedObj;
-    //   });
-    //   //
-    //   // Define the keys you want to select
-    //   keysToSelect = ["device_id"];
-
-    //   // Select the specified keys from each object
-    //   let filteredDataDevices = [];
-    //   this.rightDevices.map(function (obj) {
-    //     let selectedObj = {};
-    //     keysToSelect.forEach(function (key) {
-    //       if (obj.hasOwnProperty(key)) {
-    //         // selectedObj[key] = obj[key];
-    //         selectedObj = obj[key];
-    //         filteredDataDevices.push(selectedObj);
-    //       }
-    //     });
-    //     return selectedObj;
-    //   });
-
-    //   let options = {
-    //     timezone_id: this.timezonesselected,
-    //     employee_id: this.rightEmployees,
-    //     device_id: this.rightDevices,
-    //     company_id: this.$auth.user.company_id,
-    //     employee_ids: filteredDataEmp,
-    //     device_ids: filteredDataDevices,
-    //   };
-
-    //   let url = this.endpointUpdatetimezoneStore;
-
-    //   this.progressloading = true;
-    //   let jsrightEmployees = this.rightEmployees;
-
-    //   this.snackbar.show = true;
-    //   this.response = "Connecting to devices... Please wait...";
-
-    //   let SDKSuccessStatus = true;
-    //   this.$axios.post(`${url}`, options).then(({ data }) => {
-    //     this.displaybutton = false;
-    //     if (data.record.SDKResponse.data) {
-    //       this.loading = false;
-
-    //       this.rightDevices.forEach((rightDevicesobj) => {
-    //         // $.each(this.rightDevices, function (index, rightDevicesobj) {
-    //         let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-    //           (e) => e.sn == rightDevicesobj.device_id
-    //         );
-
-    //         let deviceStatusResponse = "";
-    //         let EmpStatusResponse = "";
-
-    //         if (SdkResponseDeviceobject.message == "") {
-    //           deviceStatusResponse = "Success";
-    //         } else if (
-    //           SdkResponseDeviceobject.message == "The device was not found"
-    //         ) {
-    //           deviceStatusResponse = "The device was not found or offline";
-    //           SDKSuccessStatus = false;
-    //         } else if (SdkResponseDeviceobject.message == "person info error") {
-    //           let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-    //           jsrightEmployees.forEach((element) => {
-    //             let systemUserid = element.system_user_id;
-    //             SDKSuccessStatus = false;
-    //             let selectedEmpobject = SDKUseridArray.find(
-    //               (e) => e.userCode == systemUserid
-    //             );
-    //             EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-    //             deviceStatusResponse = "";
-
-    //             if (EmpStatusResponse != "") {
-    //               //Adding extra parameters for Employee object
-    //               if (selectedEmpobject) {
-    //                 element.sdkEmpResponse = "person info error ";
-    //                 // $.extend(element, {
-    //                 //   sdkEmpResponse: "person info error ",
-    //                 // });
-    //               } else {
-    //                 element.sdkEmpResponse = "Success ";
-    //                 // $.extend(element, {
-    //                 //   sdkEmpResponse: "Success",
-    //                 // });
-    //               }
-    //             }
-    //           });
-    //         } else {
-    //         }
-
-    //         //Adding extra parameters for Devices object
-    //         // $.extend(rightDevicesobj, {
-    //         //   sdkDeviceResponse:
-    //         //     deviceStatusResponse != "" ? deviceStatusResponse : "Success",
-    //         // });
-
-    //         rightDevicesobj.forEach((element) => {
-    //           element["sdkDeviceResponse"] =
-    //             deviceStatusResponse != "" ? deviceStatusResponse : "Success";
-    //         });
-    //         this.errors = [];
-    //       });
-    //       this.rightEmployees = jsrightEmployees;
-    //       this.progressloading = false;
-
-    //       this.loading = false;
-    //       if (!SDKSuccessStatus) {
-    //         {
-    //           this.errors = data.errors;
-    //         }
-    //         this.errors = [];
-    //         this.errors["message"] =
-    //           "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
-
-    //         //this.displaybutton = false;
-    //       } else {
-    //         this.$router.push("/timezonemapping/list");
-    //       }
-    //     } else {
-    //       this.errors = [];
-    //       this.progressloading = false;
-
-    //       this.errors["message"] = "Device Communication is not available";
-    //       return false;
-    //     }
-    //   });
-    // },
     goback() {
       this.$router.push("/timezonemapping/list");
     },
@@ -1349,162 +991,7 @@ export default {
       this.leftSelectedDevices.pop(id);
       this.verifySubmitButton();
     },
-    // onSubmit_old() {
-    //   this.resetErrorMessages();
-    //   this.displaybutton = false;
-    //   this.loading = true;
-    //   if (this.rightEmployees.length == 0) {
-    //     this.response = this.response + " Atleast select one Employee Details";
-    //   } else if (this.rightDevices.length == 0) {
-    //     this.response = this.response + " Atleast select one Device Details";
-    //   }
 
-    //   this.loading_dialog = true;
-    //   this.errors = [];
-    //   let personListArray = [];
-    //   this.rightEmployees.forEach(async (item) => {
-    //     let person = {
-    //       name: item.first_name + " " + item.last_name,
-    //       userCode: parseInt(item.system_user_id),
-
-    //       //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-    //       faceImage: item.profile_picture,
-    //     };
-    //     if (item.rfid_card_number != "") {
-    //       person.cardData = item.rfid_card_number;
-    //     }
-    //     if (item.rfid_card_password != "") {
-    //       person.password = item.rfid_card_password;
-    //     }
-    //     personListArray.push(person);
-    //   });
-
-    //   this.rightDevices.forEach(async (item) => {
-    //     // let person = {
-    //     //   name: item.display_name,
-    //     //   userCode: parseInt(item.system_user_id),
-
-    //     //   //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
-    //     //   faceImage: item.profile_picture
-    //     // };
-    //     // personListArray.push(person);
-
-    //     let payload = {
-    //       personList: personListArray,
-    //       snList: [item.device_id],
-    //     };
-
-    //     if (payload.snList && payload.snList.length === 0) {
-    //       alert(`Atleast one device must be selected`);
-    //       return false;
-    //     }
-
-    //     this.devices_dialog.forEach((e) => {
-    //       e.state = "---";
-    //       e.message = "---";
-    //     });
-
-    //     //try {
-    //     const { data } = await this.$axios.post(`/Person/AddRange`, payload);
-
-    //     if (data.status == 200) {
-    //       this.loading_dialog = false;
-
-    //       this.snackbar.show = true;
-    //       this.response = "Employee(s) pictures has been uploaded";
-
-    //       let jsrightEmployees = this.rightEmployees;
-    //       let SDKSuccessStatus = true;
-    //       this.rightDevices.forEach((elementDevice) => {
-    //         let SdkResponseDeviceobject = data.data.find(
-    //           (e) => e.sn == elementDevice.device_id
-    //         );
-
-    //         let deviceStatusResponse = "";
-    //         let EmpStatusResponse = "";
-
-    //         if (SdkResponseDeviceobject.message == "") {
-    //           deviceStatusResponse = "Success";
-    //         } else if (
-    //           SdkResponseDeviceobject.message == "The device was not found"
-    //         ) {
-    //           deviceStatusResponse = "The device was not found or offline";
-    //           SDKSuccessStatus = false;
-    //         } else if (SdkResponseDeviceobject.message == "person info error") {
-    //           let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-    //           jsrightEmployees.forEach((element) => {
-    //             let systemUserid = element.system_user_id;
-    //             SDKSuccessStatus = false;
-
-    //             element["sdkEmpResponse"] = "Success";
-    //             let selectedEmpobject = SDKUseridArray.find(
-    //               (e) => e.userCode == systemUserid
-    //             );
-    //             EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-    //             deviceStatusResponse = "";
-
-    //             if (EmpStatusResponse != "") {
-    //               //Adding extra parameters for Employee object
-    //               if (selectedEmpobject) {
-    //                 element["sdkEmpResponse"] = "person photo error ";
-    //                 // $.extend(element, {
-    //                 //   sdkEmpResponse: "person info error ",
-    //                 // });
-    //               } else {
-    //                 // $.extend(element, {
-    //                 //   sdkEmpResponse: " Success",
-    //                 // });
-    //                 element["sdkEmpResponse"] = " Success";
-    //               }
-    //             }
-    //           });
-    //         } else {
-    //         }
-
-    //         //Adding extra parameters for Devices object
-    //         // $.extend(elementDevice, {
-    //         //   sdkDeviceResponse:
-    //         //     deviceStatusResponse != "" ? deviceStatusResponse : " Success",
-    //         // });
-
-    //         elementDevice["sdkDeviceResponse"] =
-    //           deviceStatusResponse != "" ? deviceStatusResponse : "Success";
-    //         this.errors = [];
-
-    //         this.loading = false;
-    //       });
-
-    //       // data.data.forEach((e) => {
-    //       //   const index = this.devices_dialog.findIndex(
-    //       //     (item) => item.device_id === e.sn
-    //       //   );
-    //       //   if (index !== -1) {
-    //       //     const updatedElement = {
-    //       //       ...this.devices_dialog[index],
-    //       //       state: e.state,
-    //       //       message: e.message || "Success",
-    //       //     };
-
-    //       //     this.devices_dialog.splice(index, 1, updatedElement);
-    //       //   }
-    //       // });
-    //     } else {
-    //       this.loading_dialog = false;
-    //       this.snackbar.show = true;
-    //       this.response = data.message;
-
-    //       this.loading = false;
-    //     }
-
-    //     this.displaybutton = true;
-    //     // } catch (error) {
-    //     //   this.loading_dialog = false;
-    //     //   this.snackbar = true;
-    //     //   this.response = error.message;
-
-    //     // }
-    //   });
-    // },
     async onSubmit() {
       this.displaybutton = false;
       this.loading = true;
@@ -1582,20 +1069,6 @@ export default {
         setTimeout(() => {
           location.reload();
         }, 1000);
-        // data.data.forEach((e) => {
-        //   const index = this.devices_dialog.findIndex(
-        //     (item) => item.device_id === e.sn
-        //   );
-        //   if (index !== -1) {
-        //     const updatedElement = {
-        //       ...this.devices_dialog[index],
-        //       state: e.state,
-        //       message: e.message || "Success",
-        //     };
-
-        //     this.devices_dialog.splice(index, 1, updatedElement);
-        //   }
-        // });
       } else {
         this.loading_dialog = false;
         this.snackbar.show = true;
@@ -1605,45 +1078,7 @@ export default {
       }
 
       this.displaybutton = true;
-      // } catch (error) {
-      //   this.loading_dialog = false;
-      //   this.snackbar = true;
-      //   this.response = error.message;
-
-      // }
     },
   },
 };
 </script>
-<style scoped>
-.employee-pic {
-  padding: 0px;
-  position: relative;
-  top: 0;
-  transition: top ease 1s;
-
-  margin-left: -3px;
-  width: 25px;
-  border: 1px solid #ddd;
-}
-
-@media (max-width: 500px) {
-  .employeepage-seach-textfield {
-    max-width: 68px;
-  }
-
-  .xs-padding-0 {
-    padding-right: 0px !important;
-  }
-
-  .xs-margin-5 {
-    margin-top: 5px !important;
-  }
-
-  .v-data-table > .v-data-table__wrapper .v-data-table__mobile-table-row {
-    margin: 10px;
-    border: 1px solid #ededed;
-    display: block;
-  }
-}
-</style>
