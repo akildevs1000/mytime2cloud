@@ -1251,7 +1251,7 @@ export default {
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
-      
+
       let options = {
         params: {
           page: page,
@@ -1269,7 +1269,7 @@ export default {
 
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios.get(this.endpoint).then(({ data }) => {
+      this.$axios.get(this.endpoint, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
