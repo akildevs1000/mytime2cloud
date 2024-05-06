@@ -476,6 +476,7 @@
               <v-row>
                 <v-col>
                   <v-select
+                    label="Select Branch"
                     :hide-details="true"
                     clearable
                     item-value="id"
@@ -488,11 +489,14 @@
                 </v-col>
                 <v-col cols="12">
                   <v-file-input
+                    outlined
                     accept="text/csv"
                     v-model="files"
                     placeholder="Upload your file"
                     label="File"
-                    prepend-icon="mdi-paperclip"
+                    prepend-icon=""
+                    append-icon="mdi-upload"
+                    dense
                   >
                     <template v-slot:selection="{ text }">
                       <v-chip v-if="text" small label color="primary">
@@ -500,9 +504,6 @@
                       </v-chip>
                     </template>
                   </v-file-input>
-                  <br />
-                  <a href="/employees.csv" download> Download Sample</a>
-                  <br />
                   <span
                     v-if="errors && errors.length > 0"
                     class="error--text"
@@ -528,503 +529,293 @@
         </v-card>
       </v-dialog>
 
-      <v-card elevation="0" class="mt-2">
-        <v-toolbar class="mb-2 white--text" color="white" dense flat>
-          <v-toolbar-title>
-            <span style="color: black"> {{ Model }}s </span></v-toolbar-title
-          >
-
-          <span
-            ><v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-            >
-              <v-icon @click="getDataFromApi()" class="mx-1 ml-2"
-                >mdi mdi-reload</v-icon
-              >
-            </v-btn>
-          </span>
-          <!-- <span
-            ><v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-            >
-              <v-icon @click="toggleFilter" class="mx-1 ml-2"
-                >mdi-filter</v-icon
-              >
-            </v-btn>
-          </span> -->
-          <v-spacer></v-spacer>
-
-          <!-- <span>
-            <v-text-field
-              @input="serachAll($event)"
-              style="height: 30px; margin-top: 5px"
-              clearable
-              :hide-details="true"
-              outlined
-              dense
-              autocomplete="off"
-              placeholder="Employee Details"
-            ></v-text-field>
-          </span> -->
-
-          <span
-            class="pa-2 text-center"
-            @click="() => ((dialog = true), handleChangeEvent())"
-          >
-            <!-- <v-icon
-              title="Import File"
-              @click="() => ((dialog = true), handleChangeEvent())"
-              right
-              dark
-              color="black"
-              size="x-large"
-              >mdi-file-import</v-icon
-            > -->
-            <img
-              title="Import File"
-              style="width: 20px; cursor: pointer"
-              src="../../static/icons/import-icon.png"
-            />
-            <div style="font-size: 8px; color: black; margin-top: -5px">
-              Import
-            </div>
-          </span>
-          <span class="pa-2 text-center" @click="export_submit">
-            <!-- <v-icon
-              title="Download"
-              @click="export_submit"
-              right
-              dark
-              color="black"
-              size="x-large"
-              >mdi-arrow-down-bold-circle</v-icon
-            > -->
-            <img
-              title="Download"
-              style="width: 20px; cursor: pointer"
-              src="../../static/icons/icon_excel.png"
-            />
-            <div style="font-size: 8px; color: black; margin-top: -4px">
-              Download
-            </div>
-          </span>
-          <span
-            class="pa-2 text-center"
-            @click="openNewPage()"
-            style="cursor: pointer; padding-left: 0px !important"
-          >
-            <v-icon
-              @click="openNewPage()"
-              v-if="can('employee_create')"
-              title="Add Employee"
-              right
-              dark
-              color="black"
-              size="x-large"
-              style="font-size: 30px; padding-left: 0px !important"
-              >mdi-account-plus mdi-flip-h</v-icon
-            >
-            <div style="font-size: 8px; color: black; margin-top: -5px">
-              Add
-            </div>
-          </span>
-        </v-toolbar>
-
+      <v-card>
         <v-row>
-          <v-col style="max-width: 11%">
-            <v-text-field
-              style="width: 100%; padding-left: 20px"
-              label="Employee ID"
-              placeholder="Employee ID"
-              clearable
-              @click:clear="
-                filters['employee_id'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              v-model="filters['employee_id']"
-              @input="getDataFromApi()"
-              outlined
-              dense
-              autocomplete="off"
-            ></v-text-field>
-          </v-col>
-          <v-col style="max-width: 14%">
-            <v-text-field
-              label="Employee Name"
-              placeholder="Employee Name"
-              style="width: 100%"
-              clearable
-              @click:clear="
-                filters['first_name'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              v-model="filters['first_name']"
-              @input="getDataFromApi()"
-              outlined
-              dense
-              autocomplete="off"
-            ></v-text-field>
-          </v-col>
-
-          <v-col style="max-width: 10%" v-if="$auth.user.branch_id == 0">
-            <v-autocomplete
-              style="width: 100%"
-              clearable
-              @click:clear="
-                filters['branch_id'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              outlined
-              dense
-              small
-              v-model="filters['branch_id']"
-              item-text="name"
-              item-value="id"
-              :items="[{ name: `All Branches`, id: `` }, ...branchList]"
-              placeholder="All Branches"
-              solo
-              flat
-              @change="applyFilters(filters['branch_id'])"
-            ></v-autocomplete>
-          </v-col>
-          <v-col style="max-width: 15%">
-            <v-autocomplete
-              style="width: 100%"
-              label="Department"
-              clearable
-              @click:clear="
-                filters['department_name_id'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              outlined
-              dense
-              small
-              v-model="filters['department_name_id']"
-              item-text="name"
-              item-value="id"
-              :items="[{ name: `All Departments`, id: `` }, ...departments]"
-              placeholder="Department"
-              solo
-              flat
-              @change="getDataFromApi()"
-            ></v-autocomplete>
-          </v-col>
-          <v-col style="max-width: 10%">
-            <v-text-field
-              style="width: 100%"
-              label="Mobile Number"
-              placeholder="Mobile"
-              clearable
-              @click:clear="
-                filters['phone_number'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              v-model="filters['phone_number']"
-              @input="getDataFromApi()"
-              outlined
-              dense
-              autocomplete="off"
-            ></v-text-field>
-          </v-col>
-          <v-col style="max-width: 15%">
-            <v-text-field
-              style="width: 100%"
-              label="Email"
-              placeholder="Email"
-              clearable
-              @click:clear="
-                filters['user.email'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              v-model="filters['user.email']"
-              @input="getDataFromApi()"
-              outlined
-              dense
-              autocomplete="off"
-            ></v-text-field>
-          </v-col>
-          <v-col style="max-width: 10%">
-            <v-autocomplete
-              style="width: 100%"
-              clearable
-              @click:clear="
-                filters['timezone_id'] = '';
-                getDataFromApi();
-              "
-              :hide-details="true"
-              outlined
-              dense
-              small
-              v-model="filters['timezone_id']"
-              item-text="name"
-              item-value="id"
-              :items="[
-                {
-                  name: `All Timezones`,
-                  id: ``,
-                },
-                ...timezones,
-              ]"
-              placeholder="Timezone"
-              solo
-              flat
-              @change="getDataFromApi()"
-            ></v-autocomplete>
-          </v-col>
-        </v-row>
-        <v-row class="pt-0 mt-0">
-          <v-col cols="12" class="mb-3 ml-3 mr-3 elevation-0 pa-2"> </v-col>
-        </v-row>
-        <v-data-table
-          dense
-          v-model="selectedItems"
-          :headers="headers_table"
-          :items="data"
-          model-value="data.id"
-          :loading="loadinglinear"
-          :options.sync="options"
-          :footer-props="{
-            itemsPerPageOptions: [100, 500, 1000],
-          }"
-          class="elevation-1"
-          :server-items-length="totalRowsCount"
-        >
-          <!-- <template v-slot:header="{ props: { headers } }">
-            <tr v-if="isFilter">
-              <td v-for="header in headers" :key="header.text">
-                <v-container style="padding-left: 0px !important">
-                  <v-text-field
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :hide-details="true"
-                    v-if="header.filterable && !header.filterSpecial"
-                    v-model="filters[header.value]"
-                    :id="header.value"
-                    @input="getDataFromApi()"
-                    outlined
-                    dense
-                    autocomplete="off"
-                  ></v-text-field>
-
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'department_name_id'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      { name: `All Departments`, id: `` },
-                      ...departments,
-                    ]"
-                    placeholder="Department"
-                    solo
-                    flat
-                    @change="getDataFromApi()"
-                  ></v-select>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial &&
-                      header.value == 'branch.branch_name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[{ name: `All Branches`, id: `` }, ...branchList]"
-                    placeholder="All Branches"
-                    solo
-                    flat
-                    @change="applyFilters(filters[header.key])"
-                  ></v-select>
-                  <v-select
-                    clearable
-                    @click:clear="
-                      filters[header.value] = '';
-                      getDataFromApi();
-                    "
-                    :id="header.key"
-                    :hide-details="true"
-                    v-if="
-                      header.filterSpecial && header.value == 'timezone.name'
-                    "
-                    outlined
-                    dense
-                    small
-                    v-model="filters[header.key]"
-                    item-text="name"
-                    item-value="id"
-                    :items="[
-                      {
-                        name: `All Timezones`,
-                        id: ``,
-                      },
-                      ...timezones,
-                    ]"
-                    placeholder="Timezone"
-                    solo
-                    flat
-                    @change="getDataFromApi()"
-                  ></v-select>
-                </v-container>
-              </td>
-            </tr>
-          </template> -->
-          <template v-slot:item.employee_id="{ item }">
-            <strong>{{ item.employee_id }} </strong><br /><span
-              style="font-size: 12px"
-              >{{ item.system_user_id }}</span
+          <v-col>
+            <b class="ml-5" style="font-size: 18px; font-weight: 600"
+              >Employees</b
             >
-          </template>
-
-          <template
-            v-slot:item.first_name="{ item, index }"
-            style="width: 300px"
-          >
-            <v-row no-gutters>
-              <v-col
-                style="
-                  padding: 5px;
-                  padding-left: 0px;
-                  width: 50px;
-                  max-width: 50px;
-                "
+            <span>
+              <v-btn
+                dense
+                class="ma-0 px-0"
+                x-small
+                :ripple="false"
+                text
+                title="Filter"
               >
-                <v-img
-                  style="
-                    border-radius: 50%;
-                    height: auto;
-                    width: 50px;
-                    max-width: 50px;
-                  "
-                  :src="
-                    item.profile_picture
-                      ? item.profile_picture
-                      : '/no-profile-image.jpg'
-                  "
+                <v-icon @click="getDataFromApi()" class="mx-1 ml-2"
+                  >mdi mdi-reload</v-icon
                 >
-                </v-img>
-              </v-col>
-              <v-col style="padding: 10px">
-                <strong>
-                  {{ item.first_name ? item.first_name : "---" }}
-                  {{ item.last_name ? item.last_name : "---" }}</strong
-                >
-                <div class="secondary-value">
-                  {{ item.designation ? caps(item.designation.name) : "---" }}
+              </v-btn>
+            </span>
+          </v-col>
+          <v-col class="text-right">
+            <div class="input-group" style="width: 100%">
+              <input
+                class="custom-input"
+                type="text"
+                placeholder="Search"
+                @input="searchData"
+                v-model="search"
+              />
+              <v-icon style="position: absolute; top: 16px; right: 107px"
+                >mdi-magnify</v-icon
+              >
+              <v-btn
+                style="margin-top: -6px"
+                class="primary"
+                small
+                @click="openNewPage()"
+                v-if="can('employee_create')"
+                >+ New</v-btn
+              >
 
-                  {{
-                    item.user.role && item.user.role.name != "---"
-                      ? "(Role:" + caps(item.user.role.name) + ")"
-                      : ""
-                  }}
+              <v-menu offset-y :nudge-width="100">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    dark-2
+                    icon
+                    v-bind="attrs"
+                    v-on="on"
+                    style="margin-top: -9px"
+                  >
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list dense>
+                  <v-list-item
+                    @click="() => ((dialog = true), handleChangeEvent())"
+                  >
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <div style="height: 17px; width: 17px">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                          class="icon align-text-top"
+                        >
+                          <path
+                            fill="#6946dd"
+                            d="M356 169.2c-3.1 3.1-7.2 4.7-11.3 4.7-4.1 0-8.2-1.6-11.3-4.7L272 107.8v205c0 8.8-7.2 16-16 16s-16-7.2-16-16v-205l-61.4 61.4c-6.2 6.2-16.4 6.2-22.6 0-6.2-6.2-6.2-16.4 0-22.6l88.7-88.7c6.2-6.2 16.4-6.2 22.6 0l88.7 88.7c6.3 6.2 6.3 16.3 0 22.6z"
+                          ></path>
+                          <path
+                            fill="#6946dd"
+                            d="M423 463.6H89c-44.9 0-81.4-39.8-81.4-88.7v-97.3c0-8.8 7.2-16 16-16s16 7.2 16 16v97.3c0 31.3 22.2 56.7 49.4 56.7h334c27.2 0 49.4-25.4 49.4-56.7v-98.5c0-8.8 7.2-16 16-16s16 7.2 16 16v98.5c0 48.9-36.5 88.7-81.4 88.7z"
+                          ></path>
+                        </svg>
+                      </div>
 
-                  <!-- {{
-                    item.user.branch_login &&
-                    "(" + item.user.branch_login.branch_name + ")"
-                  }} -->
-                </div>
-              </v-col>
-            </v-row>
-          </template>
+                      <div style="margin: 4px 0 0 5px">
+                        <span style="font-size: 12px"> Employees</span>
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <div style="height: 17px; width: 17px">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                          class="icon align-text-top"
+                        >
+                          <path
+                            fill="#6946dd"
+                            d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                          ></path>
+                          <path
+                            fill="#6946dd"
+                            d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                          ></path>
+                        </svg>
+                      </div>
 
-          <template v-slot:item.branch.branch_name="{ item }">
-            {{ caps(item.branch && item.branch.branch_name) }}
-            <div class="secondary-value">
-              {{ item.user.branch_login && "(Branch Owner)" }}
+                      <div style="margin: 4px 0 0 5px">
+                        <span style="font-size: 12px"
+                          ><a
+                            style="text-decoration: none; color: black"
+                            href="/employees.csv"
+                            download
+                          >
+                            Download Sample File</a
+                          ></span
+                        >
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item @click="export_submit">
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <div style="height: 17px; width: 17px">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                          class="icon align-text-top"
+                        >
+                          <path
+                            fill="#6946dd"
+                            d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                          ></path>
+                          <path
+                            fill="#6946dd"
+                            d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div style="margin: 4px 0 0 5px">
+                        <span style="font-size: 12px">Employees</span>
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </div>
-          </template>
-          <template v-slot:item.department_name_id="{ item }">
-            <strong>{{ caps(item.department.name) }}</strong>
-            <div>{{ caps(item.sub_department.name) }}</div>
-          </template>
-          <template v-slot:item.phone_number="{ item }">
-            {{ item.phone_number }}
-          </template>
-          <template v-slot:item.user.email="{ item }" style="width: 200px">
-            {{ item.user.email }}
-          </template>
-          <template v-slot:item.timezone.name="{ item }">
-            {{ item.timezone ? item.timezone.timezone_name : "" }}
-          </template>
-          <template v-slot:item.options="{ item }">
-            <v-menu bottom left>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
+          </v-col>
+          <v-col cols="12">
+            <v-data-table
+              elevation="0"
+              dense
+              v-model="selectedItems"
+              :headers="headers_table"
+              :items="data"
+              model-value="data.id"
+              :loading="loadinglinear"
+              :options.sync="options"
+              :footer-props="{
+                itemsPerPageOptions: [100, 500, 1000],
+              }"
+              :server-items-length="totalRowsCount"
+            >
+              <template v-slot:item.employee_id="{ item }">
+                <div style="font-size: 13px">{{ item.employee_id }}</div>
+                <small style="font-size: 11px">{{ item.system_user_id }}</small>
               </template>
-              <v-list width="120" dense>
-                <v-list-item
-                  v-if="can('employee_profile_view')"
-                  @click="viewItem(item)"
+
+              <template
+                v-slot:item.first_name="{ item, index }"
+                style="width: 300px"
+              >
+                <v-row no-gutters>
+                  <v-col
+                    style="
+                      padding: 5px;
+                      padding-left: 0px;
+                      width: 50px;
+                      max-width: 50px;
+                    "
+                  >
+                    <v-img
+                      style="
+                        border-radius: 50%;
+                        height: auto;
+                        width: 50px;
+                        max-width: 50px;
+                      "
+                      :src="
+                        item.profile_picture
+                          ? item.profile_picture
+                          : '/no-profile-image.jpg'
+                      "
+                    >
+                    </v-img>
+                  </v-col>
+                  <v-col style="padding: 10px">
+                    <div style="font-size: 13px">
+                      {{ item.first_name ? item.first_name : "" }}
+                      {{ item.last_name ? item.last_name : "" }}
+                    </div>
+                    <small style="font-size: 12px; color: #6c7184"
+                      >IT manager</small
+                    >
+                  </v-col>
+                </v-row>
+              </template>
+
+              <template v-slot:item.branch.branch_name="{ item }">
+                <div style="font-size: 13px">
+                  {{ caps(item.branch && item.branch.branch_name) }}
+                </div>
+                <small style="font-size: 11px">
+                  {{ item.user.branch_login && "(Branch Owner)" }}</small
                 >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="secondary" small> mdi-eye </v-icon>
-                    View
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="can('employee_edit')"
-                  @click="editItem(item)"
-                >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="secondary" small> mdi-pencil </v-icon>
-                    Edit
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  v-if="can('employee_delete')"
-                  @click="deleteItem(item)"
-                >
-                  <v-list-item-title style="cursor: pointer">
-                    <v-icon color="error" small> mdi-delete </v-icon>
-                    Delete
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </v-data-table>
+              </template>
+              <template v-slot:item.department_name_id="{ item }">
+                <div style="font-size: 13px">
+                  {{ caps(item.department.name) }}
+                </div>
+                <small style="font-size: 11px">{{
+                  caps(item.sub_department.name)
+                }}</small>
+              </template>
+
+              <template v-slot:item.phone_number="{ item }">
+                <div style="font-size: 13px">
+                  {{ item.phone_number }}
+                </div>
+              </template>
+
+              <template v-slot:item.timezone.name="{ item }">
+                {{ item.timezone ? item.timezone.timezone_name : "" }}
+              </template>
+              <template v-slot:item.options="{ item }">
+                <v-menu bottom left>
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list width="120" dense>
+                    <v-list-item
+                      v-if="can('employee_profile_view')"
+                      @click="viewItem(item)"
+                    >
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small> mdi-eye </v-icon>
+                        View
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item
+                      v-if="can('employee_edit')"
+                      @click="editItem(item)"
+                    >
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small> mdi-pencil </v-icon>
+                        Edit
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item
+                      v-if="can('employee_delete')"
+                      @click="deleteItem(item)"
+                    >
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="error" small> mdi-delete </v-icon>
+                        Delete
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </template>
+            </v-data-table>
+          </v-col>
+        </v-row>
       </v-card>
     </div>
     <Preloader v-else />
@@ -1053,10 +844,19 @@ import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 
 export default {
+  head() {
+    return {
+      link: [
+        {
+          rel: "stylesheet",
+          href: "~/assets/source-sans-pro.css", // Adjust the path if needed
+        },
+      ],
+    };
+  },
   components: {
     VueCropper,
     EmployeeProfileView,
-
     EmployeeEdit,
     Contact,
     Passport,
@@ -1232,16 +1032,6 @@ export default {
     payloadOptions: {},
     headers_table: [
       {
-        text: "Emp Id / Device Id",
-        align: "left",
-        sortable: true,
-        key: "employee_id",
-        value: "employee_id",
-        filterable: true,
-        width: "10%",
-        filterSpecial: false,
-      },
-      {
         text: "Name",
         align: "left",
         sortable: true,
@@ -1249,6 +1039,16 @@ export default {
         value: "first_name",
         width: "15%",
         filterable: true,
+        filterSpecial: false,
+      },
+      {
+        text: "Emp Id / Device Id",
+        align: "left",
+        sortable: true,
+        key: "employee_id",
+        value: "employee_id",
+        filterable: true,
+        width: "10%",
         filterSpecial: false,
       },
       {
@@ -1276,7 +1076,7 @@ export default {
         align: "left",
         sortable: true,
         key: "email",
-        value: "user.email",
+        value: "local_email",
         filterable: true,
         filterSpecial: false,
         width: "15%",
@@ -1304,6 +1104,7 @@ export default {
     import_branch_id: "",
 
     refresh: false,
+    search: null,
   }),
 
   async created() {
@@ -1364,6 +1165,11 @@ export default {
     },
   },
   methods: {
+    searchData() {
+      if (this.search.length == 0 || this.search.length > 3) {
+        this.getDataFromApi();
+      }
+    },
     closePopup2() {
       this.editDialog = false;
       this.getDataFromApi();
@@ -1610,11 +1416,13 @@ export default {
     async getDataFromApi() {
       this.loadinglinear = true;
 
+      this.filters.search = this.search;
+
       const data = await this.$store.dispatch("fetchData", {
         key: "employees",
         options: this.options,
         refresh: this.refresh,
-        endpoint: this.endpoint,
+        endpoint: "employeev1",
         filters: this.filters,
       });
 
@@ -1799,3 +1607,19 @@ export default {
   },
 };
 </script>
+<style scoped>
+.custom-input {
+  padding: 6px 10px;
+  height: 30px;
+  position: relative;
+  border-radius: 5px;
+  border: 1px solid grey;
+  font-size: 16px;
+  transition: border-color 0.3s ease-in-out;
+  outline: none; /* Remove default outline */
+}
+
+.custom-input:focus {
+  border-color: purple;
+}
+</style>

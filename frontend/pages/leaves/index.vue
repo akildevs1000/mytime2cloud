@@ -309,14 +309,16 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-row>
-      <v-col md="12">
-        <!-- <Back color="primary" /> -->
 
-        <v-card class="mb-5 mt-2 rounded-md" elevation="0">
-          <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title><span> Leaves List</span></v-toolbar-title>
-
+    <v-card dense flat>
+      <v-row>
+        <v-col cols="6">
+          <v-toolbar dense flat>
+            <v-toolbar-title>
+              <b class="" style="font-size: 18px; font-weight: 600"
+                >Leaves List</b
+              >
+            </v-toolbar-title>
             <span>
               <v-btn
                 dense
@@ -331,495 +333,308 @@
                 >
               </v-btn>
             </span>
-
-            <span>
-              <v-btn
-                dense
-                class="ma-0 px-0"
-                x-small
-                :ripple="false"
-                text
-                title="Filter"
-              >
-                <v-icon class="ml-2" @click="toggleFilter" dark
-                  >mdi mdi-filter</v-icon
-                >
-              </v-btn>
-            </span>
-
-            <v-spacer></v-spacer>
           </v-toolbar>
+        </v-col>
+        <v-col cols="6" class="text-right">
+          <v-toolbar dense flat>
+            <v-row>
+              <v-col cols="3">
+                <v-select
+                  :hide-details="true"
+                  outlined
+                  dense
+                  small
+                  v-model="filters[`branch_id`]"
+                  item-text="branch_name"
+                  item-value="id"
+                  :items="[
+                    { branch_name: `All Branches`, id: `` },
+                    ...branchesList,
+                  ]"
+                  placeholder="All Branches"
+                  solo
+                  flat
+                  @change="getDataFromApi"
+                ></v-select>
+              </v-col>
+              <v-col cols="3">
+                <v-select
+                  :hide-details="true"
+                  outlined
+                  dense
+                  small
+                  v-model="filters[`leave_type_id`]"
+                  item-text="name"
+                  item-value="id"
+                  :items="[{ name: `All Leave Types`, id: `` }, ...leaveTypes]"
+                  placeholder="Leave Types"
+                  solo
+                  flat
+                  @change="applyFilters(`leave_type_id`, id)"
+                ></v-select>
+              </v-col>
+              <v-col cols="2">
+                <v-select
+                  :hide-details="true"
+                  @change="applyFilters('status', $event)"
+                  item-value="value"
+                  item-text="title"
+                  v-model="filters[`status`]"
+                  outlined
+                  dense
+                  :items="[
+                    { value: '', title: 'All' },
+                    { value: 'approved', title: 'Approved' },
+                    {
+                      value: 'rejected',
+                      title: 'Rejected',
+                    },
+                    { value: 'pending', title: 'Pending' },
+                  ]"
+                  placeholder="Status"
+                ></v-select>
+              </v-col>
+              <v-col cols="3">
+                <span>
+                  <CustomFilter
+                    @filter-attr="filterAttr"
+                    :defaultFilterType="1"
+                    height="40px"
+                  />
+                </span>
+              </v-col>
 
-          <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-            {{ snackText }}
+              <v-col cols="1">
+                <v-menu offset-y :nudge-width="100">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      dark-2
+                      icon
+                      v-bind="attrs"
+                      v-on="on"
+                      style="margin-top: -9px"
+                    >
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </template>
+                  <v-list dense>
+                    <v-list-item @click="export_submit">
+                      <v-list-item-title
+                        style="
+                          cursor: pointer;
+                          display: flex;
+                          align-items: center;
+                        "
+                      >
+                        <div style="height: 17px; width: 17px">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 512 512"
+                            class="icon align-text-top"
+                          >
+                            <path
+                              fill="#6946dd"
+                              d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                            ></path>
+                            <path
+                              fill="#6946dd"
+                              d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                            ></path>
+                          </svg>
+                        </div>
 
-            <template v-slot:action="{ attrs }">
-              <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-            </template>
-          </v-snackbar>
+                        <div style="margin: 4px 0 0 5px">
+                          <span style="font-size: 12px">Leaves</span>
+                        </div>
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-col>
+            </v-row>
+          </v-toolbar>
+        </v-col>
+      </v-row>
+    </v-card>
 
-          <v-data-table
-            v-if="can(`leave_application_view`)"
-            v-model="ids"
-            item-key="id"
-            :headers="headers"
-            :items="data"
-            :loading="loading"
-            :footer-props="{
-              itemsPerPageOptions: [10, 50, 100, 500, 1000],
-            }"
-            class="elevation-1"
-            :options.sync="options"
-            :server-items-length="totalRowsCount"
+    <v-card class="mb-5 mt-2 pt-2 rounded-md" elevation="0">
+      <v-data-table
+        v-if="can(`leave_application_view`)"
+        v-model="ids"
+        item-key="id"
+        :headers="headers"
+        :items="data"
+        :loading="loading"
+        :footer-props="{
+          itemsPerPageOptions: [10, 50, 100, 500, 1000],
+        }"
+        class="elevation-1"
+        :options.sync="options"
+        :server-items-length="totalRowsCount"
+      >
+        <template v-slot:item.employee="{ item }">
+          <v-row no-gutters>
+            <v-col
+              style="
+                padding: 5px;
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+              "
+            >
+              <v-img
+                style="
+                  border-radius: 50%;
+                  height: auto;
+                  width: 50px;
+                  max-width: 50px;
+                "
+                :src="
+                  item.employee.profile_picture
+                    ? item.employee.profile_picture
+                    : '/no-profile-image.jpg'
+                "
+              >
+              </v-img>
+            </v-col>
+            <v-col style="padding: 10px">
+              <div style="font-size: 13px">
+                {{ item.employee ? item.employee.first_name : "" }}
+                {{ item.employee ? item.employee.last_name : "" }}
+              </div>
+              <small style="font-size: 12px; color: #6c7184">{{
+                item?.employee?.designation?.name || "---"
+              }}</small>
+            </v-col>
+          </v-row>
+        </template>
+
+        <template v-slot:item.branch.name="{ item }">
+          <div style="font-size: 13px">
+            {{
+              item.employee.department &&
+              item.employee.department.branch &&
+              item.employee.department.branch.branch_name
+            }}
+          </div>
+        </template>
+
+        <template v-slot:item.group.name="{ item }">
+          <div style="font-size: 13px">
+            {{
+              item.employee.leave_group && item.employee.leave_group.group_name
+            }}
+          </div>
+        </template>
+        <template v-slot:item.leave_type.name="{ item }">
+          <div style="font-size: 13px">
+            {{ item.leave_type.name }}
+          </div>
+        </template>
+        <template v-slot:item.start_date="{ item }">
+          <div style="font-size: 13px">
+            {{ item.start_date }}
+          </div>
+        </template>
+        <template v-slot:item.end_date="{ item }">
+          <div style="font-size: 13px">
+            {{ item.end_date }}
+          </div>
+        </template>
+        <template v-slot:item.reason="{ item }">
+          <div style="font-size: 13px">
+            {{ item.reason.substr(0, 30) + "..." }}
+          </div>
+        </template>
+        <template v-slot:item.reporting="{ item }">
+          <div style="font-size: 13px">
+            {{ item.reporting.first_name }} {{ item.reporting.last_name }}
+          </div>
+        </template>
+        <template v-slot:item.created_at="{ item }">
+          <div style="font-size: 13px">
+            {{ getCurrentDateTime(item.created_at) }}
+          </div>
+        </template>
+        <template v-slot:item.status="{ item }">
+          <v-chip
+            v-if="item.status == 1"
+            small
+            class="p-2 mx-1"
+            color="primary"
+            style="font-size: 13px"
           >
-            <template v-slot:header="{ props: { headers } }">
-              <tr v-if="isFilter">
-                <td v-for="header in headers" :key="header.text">
-                  <v-container>
-                    <v-text-field
-                      clearable
-                      :hide-details="true"
-                      v-if="
-                        !header.filterSpecial &&
-                        header.filterable &&
-                        header.text != 'Status'
-                      "
-                      v-model="filters[header.key]"
-                      id="header.value"
-                      @input="applyFilters(header.key, $event)"
-                      outlined
-                      dense
-                      autocomplete="off"
-                    ></v-text-field>
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial && header.value == 'group.name'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="group_name"
-                      item-value="id"
-                      :items="[
-                        { group_name: `All Groups`, id: `` },
-                        ...leaveGroups,
-                      ]"
-                      placeholder="Leave Groups"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial &&
-                        header.value == 'leave_type.name'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="name"
-                      item-value="id"
-                      :items="[
-                        { name: `All Leave Types`, id: `` },
-                        ...leaveTypes,
-                      ]"
-                      placeholder="Leave Types"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
+            Approved
+          </v-chip>
+          <v-chip
+            v-if="item.status == 2"
+            small
+            class="p-2 mx-1"
+            color="error"
+            style="font-size: 13px"
+          >
+            Rejected
+          </v-chip>
+          <v-chip
+            v-if="item.status == 0"
+            small
+            class="p-2 mx-1"
+            color="secondary"
+            style="font-size: 13px"
+          >
+            Pending
+          </v-chip>
+        </template>
 
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :id="header.key"
-                      :hide-details="true"
-                      v-if="
-                        header.filterSpecial && header.value == 'branch.name'
-                      "
-                      outlined
-                      dense
-                      small
-                      v-model="filters[header.key]"
-                      item-text="branch_name"
-                      item-value="id"
-                      :items="[
-                        { branch_name: `All Branches`, id: `` },
-                        ...branchesList,
-                      ]"
-                      placeholder="All Branches"
-                      solo
-                      flat
-                      @change="applyFilters(header.key, id)"
-                    ></v-select>
-                    <v-menu
-                      v-if="
-                        header.filterSpecial && header.value == 'start_date'
-                      "
-                      ref="from_menu_filter"
-                      v-model="from_menu_filter"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          clearable
-                          @click:clear="
-                            filters[header.value] = '';
-                            applyFilters();
-                          "
-                          :hide-details="!from_date_filter"
-                          outlined
-                          dense
-                          v-model="filters[header.value]"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          placeholder="Start Date"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        style="height: 350px"
-                        v-model="filters[header.value]"
-                        no-title
-                        scrollable
-                        @input="applyFilters()"
-                      >
-                        <v-spacer></v-spacer>
-
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="
-                            filters[header.value] = '';
-                            from_menu_filter = false;
-                            applyFilters();
-                          "
-                        >
-                          Clear
-                        </v-btn>
-                      </v-date-picker>
-                    </v-menu>
-                    <v-menu
-                      v-if="header.filterSpecial && header.value == 'end_date'"
-                      ref="to_menu_filter"
-                      v-model="to_menu_filter"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          clearable
-                          @click:clear="
-                            filters[header.value] = '';
-                            applyFilters();
-                          "
-                          :hide-details="!to_date_filter"
-                          outlined
-                          dense
-                          v-model="filters[header.value]"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          placeholder="End Date"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        style="height: 350px"
-                        v-model="filters[header.value]"
-                        no-title
-                        scrollable
-                        @input="applyFilters()"
-                      >
-                        <v-spacer></v-spacer>
-
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="
-                            filters[header.value] = '';
-                            to_menu_filter = false;
-                            applyFilters();
-                          "
-                        >
-                          Clear
-                        </v-btn>
-                      </v-date-picker>
-                    </v-menu>
-                    <v-menu
-                      v-if="
-                        header.filterSpecial && header.value == 'created_at'
-                      "
-                      ref="created_at_menu_filter"
-                      v-model="created_at_menu_filter"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          clearable
-                          @click:clear="
-                            filters[header.value] = '';
-                            applyFilters();
-                          "
-                          :hide-details="!created_at_filter"
-                          outlined
-                          dense
-                          v-model="filters[header.value]"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          placeholder="Application Date"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        clearable
-                        @click:clear="
-                          filters[header.value] = '';
-                          applyFilters();
-                        "
-                        style="height: 350px"
-                        v-model="filters[header.value]"
-                        no-title
-                        scrollable
-                        @input="applyFilters()"
-                      >
-                        <v-spacer></v-spacer>
-
-                        <v-btn
-                          text
-                          color="primary"
-                          @click="
-                            filters[header.value] = '';
-                            to_menu_filter = false;
-                            applyFilters();
-                          "
-                        >
-                          Clear
-                        </v-btn>
-                      </v-date-picker>
-                    </v-menu>
-
-                    <v-select
-                      clearable
-                      @click:clear="
-                        filters[header.value] = '';
-                        applyFilters();
-                      "
-                      :hide-details="true"
-                      @change="applyFilters('status', $event)"
-                      item-value="value"
-                      item-text="title"
-                      v-model="filters[header.value]"
-                      outlined
-                      dense
-                      v-else-if="header.filterable && header.text == 'Status'"
-                      :items="[
-                        { value: '', title: 'All' },
-                        { value: 'approved', title: 'Approved' },
-                        {
-                          value: 'rejected',
-                          title: 'Rejected',
-                        },
-                        { value: 'pending', title: 'Pending' },
-                      ]"
-                      placeholder="Status"
-                    ></v-select>
-                  </v-container>
-                </td>
-              </tr>
+        <template v-slot:item.action="{ item }">
+          <v-menu bottom left :nudge-width="100">
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
             </template>
-            <template v-slot:item.employee.name="{ item }">
-              <v-row no-gutters>
-                <v-col
-                  style="
-                    padding: 5px;
-                    padding-left: 0px;
-                    width: 50px;
-                    max-width: 50px;
-                  "
-                >
-                  <v-img
-                    style="
-                      border-radius: 50%;
-                      height: auto;
-                      width: 50px;
-                      max-width: 50px;
-                    "
-                    :src="
-                      item.employee.profile_picture
-                        ? item.employee.profile_picture
-                        : '/no-profile-image.jpg'
-                    "
+            <v-list width="120" dense>
+              <v-list-item @click="view(item)">
+                <v-list-item-title style="cursor: pointer; font-size: 13px">
+                  <v-icon
+                    v-if="can(`leave_application_view`)"
+                    color="primary"
+                    small
+                    @click="view(item)"
                   >
-                  </v-img>
-                </v-col>
-                <v-col style="padding: 10px">
-                  <strong>
-                    {{
-                      item.employee.first_name
-                        ? item.employee.first_name
-                        : "---"
-                    }}
-                    {{
-                      item.employee.last_name ? item.employee.last_name : "---"
-                    }}</strong
+                    mdi-information
+                  </v-icon>
+                  View Application
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                @click="
+                  gotoGroupDetails(
+                    item.employee.leave_group_id,
+                    item.employee.id,
+                    item.employee.full_name
+                  )
+                "
+              >
+                <v-list-item-title style="cursor: pointer; font-size: 13px">
+                  <v-icon
+                    v-if="can(`leave_application_view`)"
+                    color="primary"
+                    small
                   >
-                  <div>
-                    {{
-                      item.employee.designation
-                        ? item.employee.designation.name
-                        : "---"
-                    }}
-                  </div>
-                </v-col>
-              </v-row>
-            </template>
-
-            <template v-slot:item.branch.name="{ item }">
-              {{
-                item.employee.department &&
-                item.employee.department.branch &&
-                item.employee.department.branch.branch_name
-              }}
-            </template>
-
-            <template v-slot:item.group.name="{ item }">
-              {{
-                item.employee.leave_group &&
-                item.employee.leave_group.group_name
-              }}
-            </template>
-            <template v-slot:item.leave_type.name="{ item }">
-              {{ item.leave_type.name }}
-            </template>
-            <template v-slot:item.start_date="{ item }">
-              {{ item.start_date }}
-            </template>
-            <template v-slot:item.end_date="{ item }">
-              {{ item.end_date }}
-            </template>
-            <template v-slot:item.reason="{ item }">
-              {{ item.reason.substr(0, 30) + "..." }}
-            </template>
-            <template v-slot:item.reporting="{ item }">
-              {{ item.reporting.first_name }} {{ item.reporting.last_name }}
-            </template>
-            <template v-slot:item.created_at="{ item }">
-              {{ getCurrentDateTime(item.created_at) }}
-            </template>
-            <template v-slot:item.status="{ item }">
-              <v-chip
-                v-if="item.status == 1"
-                small
-                class="p-2 mx-1"
-                color="primary"
-              >
-                Approved
-              </v-chip>
-              <v-chip
-                v-if="item.status == 2"
-                small
-                class="p-2 mx-1"
-                color="error"
-              >
-                Rejected
-              </v-chip>
-              <v-chip
-                v-if="item.status == 0"
-                small
-                class="p-2 mx-1"
-                color="secondary"
-              >
-                Pending
-              </v-chip>
-            </template>
-
-            <template v-slot:item.action="{ item }">
-              <v-menu bottom left>
-                <template v-slot:activator="{ on, attrs }">
-                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-                <v-list width="120" dense>
-                  <v-list-item @click="view(item)">
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`leave_application_view`)"
-                        color="primary"
-                        small
-                        @click="view(item)"
-                      >
-                        mdi-information </v-icon
-                      >View Application
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item
-                    @click="
-                      gotoGroupDetails(
-                        item.employee.leave_group_id,
-                        item.employee.id,
-                        item.employee.full_name
-                      )
-                    "
-                  >
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon
-                        v-if="can(`leave_application_view`)"
-                        color="primary"
-                        small
-                      >
-                        mdi-calendar
-                      </v-icon>
-                      Statistics
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </template>
-            <template v-slot:no-data>
-              <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
-            </template>
-          </v-data-table>
-        </v-card>
-      </v-col>
-    </v-row>
+                    mdi-calendar
+                  </v-icon>
+                  Statistics
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+        <template v-slot:no-data>
+          <!-- <v-btn color="primary" @click="initialize">Reset</v-btn> -->
+        </template>
+      </v-data-table>
+    </v-card>
   </div>
 
   <NoAccess v-else />
@@ -974,12 +789,12 @@ export default {
     ],
     headers: [
       {
-        text: "Employee  ",
+        text: "Employee",
         align: "left",
         sortable: true,
-        filterable: true,
+        filterable: false,
         key: "employee_name",
-        value: "employee.name",
+        value: "employee",
       },
       {
         text: "Branch",
@@ -987,7 +802,7 @@ export default {
         sortable: true,
         filterable: true,
         key: "branch_id",
-        value: "branch.name",
+        value: "employee.branch.branch_name",
         filterSpecial: true,
       },
       {
@@ -1029,7 +844,7 @@ export default {
       {
         text: "Leave Note",
         align: "left",
-        filterable: true,
+        filterable: false,
         sortable: true,
         value: "reason",
         key: "leave_note",
@@ -1038,7 +853,7 @@ export default {
         text: "Reporting ",
         align: "left",
         sortable: false,
-        filterable: true,
+        filterable: false,
         value: "reporting",
         key: "reporting_manager",
       },
@@ -1119,6 +934,53 @@ export default {
   },
 
   methods: {
+    filterAttr(data) {
+      this.filters[`start_date`] = data.from;
+      this.filters[`end_date`] = data.to;
+
+      this.getDataFromApi();
+    },
+    json_to_csv(json) {
+      let data = json.map((e) => ({
+        Employee:
+          `${e?.employee?.first_name} ${e?.employee?.last_name}` || "---",
+        "Emp Id/Device Id":
+          `${e?.employee?.employee_id}/${e?.employee?.system_user_id}` || "---",
+        Branch: e?.employee?.branch?.branch_name || "---",
+        "Group Type": e?.group?.name || "---",
+        "Leave Type": e?.leave_type?.name || "---",
+        "Start Date": e.start_date,
+        "End Date": e.end_date,
+        "Leave Note": e.reason,
+        Reporting: e.reporting_manager || "---",
+        "Applied On": e.created_at,
+        Status: e.status,
+      }));
+      let header = Object.keys(data[0]).join(",") + "\n";
+      let rows = "";
+      data.forEach((e) => {
+        rows += Object.values(e).join(",").trim() + "\n";
+      });
+      return header + rows;
+    },
+    export_submit() {
+      if (this.data.length == 0) {
+        this.snackbar = true;
+        this.response = "No record to download";
+        return;
+      }
+
+      let csvData = this.json_to_csv(this.data);
+      let element = document.createElement("a");
+      element.setAttribute(
+        "href",
+        "data:text/csv;charset=utf-8, " + encodeURIComponent(csvData)
+      );
+      element.setAttribute("download", "download.csv");
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    },
     getbranchesList() {
       this.payloadOptions = {
         params: {
@@ -1128,16 +990,7 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
-        if (this.$auth.user.branch_id) {
-          this.branch_id = this.$auth.user.branch_id;
-        } else {
-          // this.branchesList = [
-          //   { branch_name: `All Branches`, id: `` },
-          //   ,
-          //   ...this.branchesList,
-          // ];
-          this.branch_id = "";
-        }
+        this.branch_id = this.$auth.user.branch_id || "";
       });
     },
     applyFilters(filter_column = "", filter_value = "") {
@@ -1204,9 +1057,6 @@ export default {
       let year = now.getFullYear();
       let day = ("0" + now.getDate()).slice(-2);
       let month = ("0" + (now.getMonth() + 1)).slice(-2);
-      let hours = ("0" + now.getHours()).slice(-2);
-      let minutes = ("0" + now.getMinutes()).slice(-2);
-      let seconds = ("0" + now.getSeconds()).slice(-2);
 
       let formattedDateTime = year + "-" + month + "-" + day; //+ " " + hours + ":" + minutes;
 
@@ -1235,20 +1085,6 @@ export default {
         .then(({ data }) => {
           this.DialogLeaveGroupData = data[0].leave_count;
         });
-    },
-    gotoDialogPage(item) {
-      this.DialogEmployeesData = item.employees;
-      this.dialogEmployees = true;
-    },
-    datatable_save() {},
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
     },
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
@@ -1293,11 +1129,7 @@ export default {
       this.getDataFromApi();
     },
 
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
-      if (url == "") {
-        url = this.endpoint;
-        //
-      }
+    getDataFromApi() {
       this.loading = true;
 
       let endDate = new Date();
@@ -1322,32 +1154,12 @@ export default {
           year: endDate.getFullYear(),
         },
       };
-      // if (filter_column != '') {
 
-      //   options.params[filter_column] = filter_value;
-
-      // }
-
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
-        // if (filter_column != '' && data.data.length == 0) {
-        //   this.snack = true;
-        //   this.snackColor = 'error';
-        //   this.snackText = 'No Results Found';
-        //   this.loading = false;
-        //   //return false;
-        // }
+      this.$axios.get(`employee_leaves`, options).then(({ data }) => {
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
         this.totalRowsCount = data.total;
-
-        // try {
-        //   if (this.$auth)
-        //     if (this.$auth.user)
-        //       this.login_user_employee_id = this.$auth.user.employee.id;
-        // } catch (error) {
-
-        // }
       });
     },
 
@@ -1406,19 +1218,20 @@ export default {
       }, 300);
     },
 
-    getEmployees(url = "employee") {
+    getEmployees() {
       this.loading = true;
 
       const { page, itemsPerPage } = this.options;
 
       let options = {
         params: {
+          page: page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
         },
       };
 
-      this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {
+      this.$axios.get(`employee`, options).then(({ data }) => {
         this.employees_dialog = data.data;
       });
     },
