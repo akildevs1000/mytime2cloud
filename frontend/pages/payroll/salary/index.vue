@@ -723,11 +723,11 @@
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
-                    <strong>
+                    <div style="font-size:13px;">
                       {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</strong
+                      {{ item.last_name ? item.last_name : "---" }}</div
                     >
-                    <div>
+                    <div style="font-size:11px;">
                       {{
                         item.designation ? caps(item.designation.name) : "---"
                       }}
@@ -737,19 +737,30 @@
               </template>
 
               <template v-slot:item.department.name.id="{ item }">
-                <strong>{{ caps(item.department.name) }}</strong>
-                <div>{{ caps(item.sub_department.name) }}</div>
+                <div style="font-size:13px;">{{ caps(item.department.name) }}</div>
+                <div style="font-size:11px;">{{ caps(item.sub_department.name) }}</div>
+              </template>
+              <template v-slot:item.employee_id="{ item }">
+                <div style="font-size:13px;">
+                  {{ item.employee_id }}
+                </div>
               </template>
               <template v-slot:item.year_month="{ item }">
-                {{ item.payroll_month }} / {{ item.payroll_year }}
-              </template>
+                <div style="font-size:13px;">
+                  {{ item.payroll_month }} / {{ item.payroll_year }}
+                </div>
+              </template> 
 
               <template v-slot:item.payroll.basic_salary="{ item }">
-                {{ item.payroll && item.payroll.basic_salary }}
+                <div style="font-size:13px;">
+                  {{ item.payroll && item.payroll.basic_salary }}
+                </div>
               </template>
 
               <template v-slot:item.payroll.net_salary="{ item }">
-                {{ item.payroll && item.payroll.net_salary }}
+                <div style="font-size:13px;">
+                  {{ item.payroll && item.payroll.net_salary }}
+                </div>
               </template>
               <template v-slot:item.payslip="{ item }">
                 <span
@@ -875,14 +886,7 @@ export default {
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     headers_table: [
-      {
-        text: "Emp ID",
-        align: "left",
-        sortable: true,
-        key: "employee_id",
-        filterable: true,
-        value: "employee_id",
-      },
+      
       {
         text: "Name",
         align: "left",
@@ -892,7 +896,14 @@ export default {
         value: "first_name",
         filterSpecial: false,
       },
-
+      {
+        text: "Emp ID",
+        align: "left",
+        sortable: true,
+        key: "employee_id",
+        filterable: true,
+        value: "employee_id",
+      },
       {
         text: "Department",
         align: "left",
