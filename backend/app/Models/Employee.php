@@ -467,16 +467,16 @@ class Employee extends Model
 
 
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->Where('system_user_id', 'LIKE', "%$request->search%");
-                $q->orWhere('employee_id', 'LIKE', "%$request->search%");
-                $q->orWhere('first_name', 'LIKE', "%$request->search%");
-                $q->orWhere('last_name', 'LIKE', "%$request->search%");
-                $q->orWhere('full_name', 'LIKE', "%$request->search%");
-                $q->orWhere('phone_number', 'LIKE', "%$request->search%");
-                $q->orWhere('local_email', 'LIKE', "%$request->search%");
+                $q->Where('system_user_id', 'ILIKE', "%$request->search%");
+                $q->orWhere('employee_id', 'ILIKE', "%$request->search%");
+                $q->orWhere('first_name', 'ILIKE', "%$request->search%");
+                $q->orWhere('last_name', 'ILIKE', "%$request->search%");
+                $q->orWhere('full_name', 'ILIKE', "%$request->search%");
+                $q->orWhere('phone_number', 'ILIKE', "%$request->search%");
+                $q->orWhere('local_email', 'ILIKE', "%$request->search%");
 
-                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'LIKE', "$request->search%"));
-                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'LIKE', "$request->search%"));
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search%"));
+                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search%"));
 
             })
 
