@@ -1,23 +1,5 @@
 import colors from "vuetify/es5/util/colors";
 
-const os = require("os");
-const networkInterfaces = os.networkInterfaces();
-
-
-// Find the IPv4 address of the local machine
-let ipv4Address = "139.59.69.241";
-
-// Object.keys(networkInterfaces).forEach((interfaceName) => {
-//   networkInterfaces[interfaceName].forEach((networkInterface) => {
-//     // Only consider IPv4 addresses, ignore internal and loopback addresses
-//     if (networkInterface.family === "IPv4" && !networkInterface.internal) {
-//       ipv4Address = networkInterface.address;
-//     }
-//   });
-// });
-
-
-
 export default {
   buildDir: ".nuxt",
   // Target: https://go.nuxtjs.dev/config-target
@@ -37,47 +19,13 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
+    css: [
+    ],
 
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-
-      // { test
-      //   rel: "stylesheet",
-      //   href: "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css",
-      // },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css",
-      },
     ],
     script: [
-      {
-        type: "text/javascript",
-        src: "https://code.jquery.com/jquery-3.5.1.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-
-      {
-        type: "text/javascript",
-        src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
     ],
   },
 
@@ -139,23 +87,6 @@ export default {
     middleware: ["auth"],
   },
 
-  // serverMiddleware: ['~middleware/verify.js'],
-
-  // PWA module configuration: https://go.nuxtjs.dev/pwa
-  // pwa: {
-  //   manifest: {
-  //     name: 'MyTime 2 Cloud',
-  //     lang: 'en',
-  //     icons: [
-  //       {
-  //         src: '/icon-512x512.png',
-  //         sizes: '512x512',
-  //         type: 'image/png',
-  //       },
-  //       // Add other sizes and formats as needed
-  //     ],
-  //   },
-  // },
 
   pwa: {
     manifest: {
@@ -169,12 +100,19 @@ export default {
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
+
   vuetify: {
     customVariables: ["~/assets/variables.scss"],
     theme: {
       dark: false,
-
+      treeShake: true,
       themes: {
+        options: {
+          customProperties: true,
+        },
+        typography: {
+          fontFamily: 'Source Sans Pro', // Use the same font family name as declared in @font-face
+        },
         light: {
           //primary: "#5fafa3", //green
           primary: "#6946dd", //violoet
