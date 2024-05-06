@@ -89,7 +89,6 @@
           </v-row>
         </template>
 
-     
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -420,7 +419,7 @@
                       >{{ errors.time[0] }}</span
                     >
                   </v-col>
-                  
+
                   <v-col cols="12" class="pa-0">
                     <v-textarea
                       filled
@@ -1101,7 +1100,6 @@ export default {
         });
     },
     update() {
-
       let log_payload = {
         UserID: this.editItems.UserID,
         LogTime: this.editItems.date + " " + this.editItems.time,
@@ -1244,7 +1242,7 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+    getDataFromApi(filter_column = "", filter_value = "") {
       if (!this.payload.from_date) return false;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -1253,11 +1251,7 @@ export default {
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
-      // if (this.clearPagenumber) {
-      //   console.log("this.options", this.options);
-      //   page = 1;
-      //   this.options.page = 1;
-      // }
+      
       let options = {
         params: {
           page: page,
@@ -1273,52 +1267,27 @@ export default {
         },
       };
 
-      // console.log(this.employee_id);
-      // if (this.employee_id) {
-      //   console.log("headers", this.headers);
-
-      //   this.headers = this.originalTableHeaders.filter(
-      //     (item) => item.value != "employee_name"
-      //   );
-      // } else {
-      //   this.headers = this.originalTableHeaders;
-      // }
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios
-        .get(
-          `https://backend.mytime2cloud.com/api/report?page=1&sortDesc=false&per_page=31&company_id=2&report_type=Monthly&shift_type_id=1&overtime=0&from_date=2024-05-04&to_date=2024-05-04&daily_date=2024-05-04&employee_id=&department_ids[]=293&department_ids[]=6&department_ids[]=295&department_ids[]=10&department_ids[]=7&department_ids[]=294&department_ids[]=8&department_ids[]=9&status=-1&showTabs=%7B%22single%22:true,%22dual%22:false,%22multi%22:true%7D&tabselected=0&filterType=Monthly&key=2`
-        )
-        .then(({ data }) => {
-          if (filter_column != "" && data.data.length == 0) {
-            this.snack = true;
-            this.snackColor = "error";
-            this.snackText = "No Results Found";
-            this.loading = false;
-            return false;
-          }
-
-          this.data = data.data;
-          this.total = data.total;
+      this.$axios.get(this.endpoint).then(({ data }) => {
+        if (filter_column != "" && data.data.length == 0) {
+          this.snack = true;
+          this.snackColor = "error";
+          this.snackText = "No Results Found";
           this.loading = false;
-          this.totalRowsCount = data.total;
+          return false;
+        }
 
-          if (this.clearPagenumber) {
-            this.options.page = 1;
-            this.clearPagenumber = false;
-          }
+        this.data = data.data;
+        this.total = data.total;
+        this.loading = false;
+        this.totalRowsCount = data.total;
 
-          //this.getAverageTimeCalculation(data);
-
-          // try {
-          //   if (this.shift_type_id == 1)
-          //     this.$emit("genRecordCount", this.totalRowsCount);
-          //   if (this.shift_type_id == 2)
-          //     this.$emit("multiRecordCount", this.totalRowsCount);
-          //   if (this.shift_type_id == 5)
-          //     this.$emit("dualRecordCount", this.totalRowsCount);
-          // } catch (e) {}
-        });
+        if (this.clearPagenumber) {
+          this.options.page = 1;
+          this.clearPagenumber = false;
+        }
+      });
     },
 
     editItem(item) {
@@ -1327,34 +1296,6 @@ export default {
       this.editItems.UserID = item.employee_id;
       this.editItems.date = item.edit_date;
     },
-
-    // update() {
-    //   if (this.$refs.form.validate()) {
-    //     let payload = {
-    //       UserID: this.editItems.UserID,
-    //       LogTime: this.editItems.date + " " + this.editItems.time,
-    //       DeviceID: this.editItems.device_id,
-    //       user_id: this.editItems.UserID,
-    //       company_id: this.$auth.user.company_id,
-    //     };
-    //     this.$axios
-    //       .post("/generate_manual_log", payload)
-    //       .then(({ data }) => {
-    //         this.loading = false;
-    //         if (!data.status) {
-    //           this.errors = data.errors;
-    //           // this.msg = data.message;
-    //         } else {
-    //           this.snackbar = true;
-    //           this.response = data.message;
-    //           this.renderByType(this.render_endpoint);
-    //           this.close();
-    //           this.editItems = [];
-    //         }
-    //       })
-    //       .catch((e) => console.log(e));
-    //   }
-    // },
 
     renderByType(type) {
       const UserID = this.editItems.UserID;
@@ -1403,10 +1344,6 @@ export default {
         this.log_list = data.data;
         this.log_list.item = item;
       });
-
-      // this.editedIndex = this.data.indexOf(item);
-      // this.editedItem = Object.assign({}, item);
-      // this.dialog = true;
     },
 
     close() {
@@ -1486,7 +1423,7 @@ export default {
         alert("No data found");
         return;
       }
-     
+
       let path =
         process.env.BACKEND_URL +
         "/" +
