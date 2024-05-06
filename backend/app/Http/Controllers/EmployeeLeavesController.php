@@ -19,9 +19,7 @@ class EmployeeLeavesController extends Controller
         $model = EmployeeLeaves::query();
         $model->with(["leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
+
         $model->when($request->filled('leave_type_id'), function ($q) use ($request) {
             $q->where('leave_type_id', $request->leave_type_id);
         });
@@ -29,8 +27,11 @@ class EmployeeLeavesController extends Controller
             $q->where("start_date", ">=", $request->start_date);
             $q->where("end_date", "<=", $request->end_date);
         });
+
         $model->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->where('branch_id',  $request->branch_id);
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $qu->where("branch_id", $request->branch_id);
+            });
         });
 
         $model->when($request->filled('status'), function ($q) use ($request) {
