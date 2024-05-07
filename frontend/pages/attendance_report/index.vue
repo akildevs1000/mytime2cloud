@@ -264,62 +264,58 @@
 
             <v-tab style="height: 30px" class="black--text slidegroup1">
               <v-menu bottom right>
-                  <template v-slot:activator="{ on, attrs }">
-                    <span v-bind="attrs" v-on="on">
-                      <v-icon dark-2 icon color="violet" small>mdi-file</v-icon>
-                      Print/PDF
-                    </span>
-                  </template>
-                  <v-list width="200" dense>
-                    <v-list-item
-                      v-if="can(`attendance_report_re_generate`)"
-                      @click="openRegeneratePopup"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-cached </v-icon>
-                        Re-Generate Report
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      v-if="can(`attendance_report_manual_entry_access`)"
-                      @click="openGenerateLogPopup"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small>
-                          mdi-plus-circle-outline
-                        </v-icon>
-                        Manual Log
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item @click="process_file_in_child_comp(`Monthly`)">
-                      <v-list-item-title style="cursor: pointer">
-                        <img src="/icons/icon_print.png" class="iconsize" />
-                        Print
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item
-                      @click="
-                        process_file_in_child_comp('Monthly_download_pdf')
-                      "
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <img src="/icons/icon_pdf.png" class="iconsize" />
-                        PDF
-                      </v-list-item-title>
-                    </v-list-item>
+                <template v-slot:activator="{ on, attrs }">
+                  <span v-bind="attrs" v-on="on">
+                    <v-icon dark-2 icon color="violet" small>mdi-file</v-icon>
+                    Print/PDF
+                  </span>
+                </template>
+                <v-list width="200" dense>
+                  <v-list-item
+                    v-if="can(`attendance_report_re_generate`)"
+                    @click="openRegeneratePopup"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-cached </v-icon>
+                      Re-Generate Report
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="can(`attendance_report_manual_entry_access`)"
+                    @click="openGenerateLogPopup"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small>
+                        mdi-plus-circle-outline
+                      </v-icon>
+                      Manual Log
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="process_file_in_child_comp(`Monthly`)">
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_print.png" class="iconsize" />
+                      Print
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    @click="process_file_in_child_comp('Monthly_download_pdf')"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_pdf.png" class="iconsize" />
+                      PDF
+                    </v-list-item-title>
+                  </v-list-item>
 
-                    <v-list-item
-                      @click="
-                        process_file_in_child_comp('Monthly_download_csv')
-                      "
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <img src="/icons/icon_excel.png" class="iconsize" />
-                        EXCEL
-                      </v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
+                  <v-list-item
+                    @click="process_file_in_child_comp('Monthly_download_csv')"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_excel.png" class="iconsize" />
+                      EXCEL
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </v-tab>
           </v-tabs>
         </v-card>
@@ -342,6 +338,7 @@
           </v-tab-item>
           <v-tab-item value="tab-2">
             <AttendanceReport
+              ref="attendanceReportRef"
               v-if="showTabs.double == true"
               title="Split Reports"
               shift_type_id="5"
@@ -351,11 +348,11 @@
               process_file_endpoint="multi_in_out_"
               render_endpoint="render_multi_inout_report"
               :key="2"
-              ref="profile"
             />
           </v-tab-item>
           <v-tab-item value="tab-3">
             <AttendanceReport
+              ref="attendanceReportRef"
               v-if="showTabs.multi == true"
               :key="3"
               title="Multi In/Out Reports"
