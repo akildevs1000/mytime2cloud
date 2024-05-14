@@ -65,14 +65,6 @@
     "module": "settings"
   },
   {
-    "icon": "mdi-domain",
-    "title": "Profile",
-    "to": "/companies",
-    "menu": "setting_access",
-    "class": "submenutitle",
-    "module": "settings"
-  },
-  {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
     "to": "/branches",
