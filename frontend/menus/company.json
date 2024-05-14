@@ -56,7 +56,14 @@
     "submenu": "visitors",
     "module": "dashboard"
   },
-
+  {
+    "icon": "mdi-domain",
+    "title": "Profile",
+    "to": "/companies",
+    "menu": "setting_access",
+    "class": "submenutitle",
+    "module": "settings"
+  },
   {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
@@ -72,32 +79,10 @@
     "module": "settings"
   },
   {
-    "icon": "mdi-message-outline",
-    "title": "Absent",
-    "to": "/alerts",
-    "menu": "notifications_access",
-    "module": "settings"
-  },
-  {
     "icon": "mdi-email",
     "title": "Automation",
     "to": "/automation",
     "menu": "notifications_access",
-    "module": "settings"
-  },
-  {
-    "icon": "mdi-cellphone-text",
-    "title": "Device Notifications",
-    "to": "/device_notifications",
-    "menu": "notifications_access",
-    "module": "settings"
-  },
-  {
-    "icon": "mdi-domain",
-    "title": "Profile",
-    "to": "/companies",
-    "menu": "setting_access",
-    "class": "submenutitle",
     "module": "settings"
   },
   {

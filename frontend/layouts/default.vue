@@ -232,7 +232,7 @@
         @click="goToSettings()"
         class="mr-3"
         ><v-icon class="violet--text" style="text-align: center"
-          >mdi-settings</v-icon
+          >mdi-cog</v-icon
         ></v-btn
       >
 
@@ -366,7 +366,7 @@
             <v-card-text>
               <v-row
                 v-for="(device, index) in notificationAlarmDevices"
-                key="index"
+                :key="index"
               >
                 <v-col cols="2"
                   ><img src="../static/fire2.png" width="50px"
