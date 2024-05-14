@@ -228,6 +228,7 @@
                     <th>User Type</th>
                 </tr>
                 @foreach ($chunk as $key => $data)
+                    @if (array_key_exists('employee', $data) && $data['employee'])
                     <tr>
                         <td style="width:10px;">{{ $key + 1 }}</td>
 
@@ -286,6 +287,7 @@
                         <td>{{ $data['status'] }}</td>
                         <td>Employee</td>
                     </tr>
+                    @endif
                 @endforeach
             </table>
             <footer class="page page-break">

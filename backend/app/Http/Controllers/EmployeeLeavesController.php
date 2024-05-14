@@ -19,41 +19,20 @@ class EmployeeLeavesController extends Controller
         $model = EmployeeLeaves::query();
         $model->with(["leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
-        // $model->where('year', $request->year);
-        $model->when($request->filled('employee_id'), function ($q) use ($request) {
-            $q->where('employee_id', $request->employee_id);
-        });
-        $model->when($request->filled('employee_name'), function ($q) use ($request) {
-            $q->whereHas('employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->employee_name%"));
-        });
-        // $model->when($request->filled('group_name'), function ($q) use ($request) {
-        //     $q->whereHas('employee.leave_group', fn(Builder $query) => $query->where('group_name', 'ILIKE', "$request->group_name%"));
-        // });
-        $model->when($request->filled('group_name_id'), function ($q) use ($request) {
-            $q->whereHas('employee', fn (Builder $query) => $query->where('leave_group_id', $request->group_name_id));
-        });
+
         $model->when($request->filled('leave_type_id'), function ($q) use ($request) {
             $q->where('leave_type_id', $request->leave_type_id);
         });
-        $model->when($request->filled('start_date'), function ($q) use ($request) {
-            $q->where('start_date', 'ILIKE', "$request->start_date%");
-        });
-        $model->when($request->filled('end_date'), function ($q) use ($request) {
-            $q->where('end_date', 'ILIKE', "$request->end_date%");
-        });
-        $model->when($request->filled('leave_note'), function ($q) use ($request) {
-            $q->where('reason', 'ILIKE', "$request->leave_note%");
-        });
-        $model->when($request->filled('reporting'), function ($q) use ($request) {
-            $q->whereHas('reporting', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->reporting%"));
-        });
-        $model->when($request->filled('created_at'), function ($q) use ($request) {
-            $q->where('created_at', 'ILIKE', "$request->created_at%");
-        });
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
-            $q->where('branch_id',  $request->branch_id);
+        $model->when($request->start_date && $request->end_date, function ($q) use ($request) {
+            $q->where("start_date", ">=", $request->start_date);
+            $q->where("end_date", "<=", $request->end_date);
         });
 
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $qu->where("branch_id", $request->branch_id);
+            });
+        });
 
         $model->when($request->filled('status'), function ($q) use ($request) {
             if (strtolower($request->status) == 'approved') {

@@ -183,27 +183,6 @@
           }}
         </div>
       </template>
-
-      <!-- <template v-slot:item.device.device_name="{ item }">
-        <div>
-          {{ item.device ? caps(item.device.name) : "---" }} <br />
-
-          <div
-            class="secondary-value"
-            v-if="item.device.device_type == 'Mobile'"
-          >
-            {{ item.gps_location ? item.gps_location : "---" }}
-          </div>
-          <div v-else class="secondary-value">
-            {{
-              item.device && item.device.location ? item.device.location : "---"
-            }}
-          </div>
-        </div>
-      </template> -->
-      <!-- <template v-slot:item.log="{ item }">
-        <v-btn @click="viewLog(item.UserID)">View Log</v-btn>
-      </template> -->
     </v-data-table>
   </div>
 </template>
@@ -235,14 +214,6 @@ export default {
       total: 0,
       options: {},
       headers_table: [
-        // {
-        //   text: "#E.ID",
-        //   align: "left",
-        //   sortable: true,
-        //   filterable: true,
-
-        //   value: "UserID",
-        // },
         {
           text: "#",
           align: "left",
@@ -251,15 +222,6 @@ export default {
 
           value: "sno",
         },
-        {
-          text: "Employee   Id",
-          align: "left",
-          sortable: true,
-          filterable: true,
-
-          value: "employee.employee_id",
-        },
-
         {
           text: "Employee Name",
           align: "left",
@@ -466,32 +428,6 @@ export default {
           this.totalRowsCount = data.total;
         });
     },
-    // socketConnection_old() {
-    //   this.socket = new WebSocket(this.url);
-
-    //   this.socket.onmessage = ({ data }) => {
-    //     let json = JSON.parse(data);
-    //     console.log("json.Data.UserCode", data);
-    //     if (json.Status == 200 && json.Data.UserCode > 0) {
-    //       this.getDetails(json.Data);
-    //     }
-    //   };
-    // },
-    // getDetails_old2(item) {
-    //   item.company_id = this.$auth.user.company_id;
-
-    //   this.$axios.post(`/device/details`, item).then(({ data }) => {
-    //     console.log(data);
-    //     if (
-    //       data.device &&
-    //       this.$auth.user &&
-    //       data.device.company_id == this.$auth.user.company_id
-    //     ) {
-    //       this.logs.data.unshift(data);
-    //     }
-    //   });
-    // },
-
     getDetails(item) {
       let DeviceId = item.SN;
 
@@ -546,27 +482,6 @@ export default {
         }
       };
     },
-    // getDetails_Old({ SN, RecordImage, UserCode, RecordDate }) {
-    //   if (this.devices)
-    //     if (this.devices.includes(SN)) {
-    //       let employee = this.employees.find(
-    //         (e) => e.system_user_id == UserCode && e.first_name !== null
-    //       );
-
-    //       let item = {
-    //         UserCode,
-    //         image:
-    //           "data:image;base64," + RecordImage || "/no-profile-image.jpg",
-    //         time: this.setTime(RecordDate),
-    //         name:
-    //           employee &&
-    //           (employee.display_name ||
-    //             employee.first_name ||
-    //             employee.last_name),
-    //       };
-    //       this.logs.unshift(item);
-    //     }
-    // },
     setTime(dateTimeString) {
       try {
         const dateTime = new Date(dateTimeString);
@@ -580,15 +495,3 @@ export default {
   },
 };
 </script>
-<!-- <style scoped>
-.theme--light.v-data-table .v-data-footer {
-  float: right !important;
-}
-.center-both {
-  height: 31vh;
-  /* Adjust the height as needed */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style> -->

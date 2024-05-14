@@ -216,6 +216,11 @@ class EmployeeController extends Controller
         return $this->getPayslipstatus($data, $request);
     }
 
+    public function indexV1(Employee $employee, Request $request)
+    {
+        return  $employee->filterV1($request)->paginate($request->per_page ?? 100);
+    }
+
     public function document_expiry(Request $request)
     {
 

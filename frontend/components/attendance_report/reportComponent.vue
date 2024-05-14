@@ -24,130 +24,6 @@
         <v-toolbar-title> </v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <!--  <span style="padding-left: 15px"
-          ><img
-            v-if="donwload_pdf_file != ''"
-            title="Download File"
-            style="cursor: pointer"
-            @click="view_report_pdf_file()"
-            src="/icons/icon_print.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px"
-          ><img
-            v-if="view_pdf_file != ''"
-            title="View PDF File"
-            style="cursor: pointer"
-            @click="donwload_file()"
-            src="/icons/icon_pdf.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px">|||</span>
-        <span style="padding-left: 15px"
-          ><img
-            title="Print"
-            style="cursor: pointer"
-            @click="process_file2(report_type)"
-            src="/icons/icon_print.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px"
-          ><img
-            title="Download Pdf"
-            style="cursor: pointer"
-            @click="process_file2(report_type + '_download_pdf')"
-            src="/icons/icon_pdf.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px">|||</span>-->
-        <span style="padding-left: 15px"
-          ><img
-            title="Print"
-            style="cursor: pointer"
-            @click="process_file(report_type)"
-            src="/icons/icon_print.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px"
-          ><img
-            title="Download Pdf"
-            style="cursor: pointer"
-            @click="process_file(report_type + '_download_pdf')"
-            src="/icons/icon_pdf.png"
-            class="iconsize"
-        /></span>
-        <span style="padding-left: 15px"
-          ><img
-            title="Download Excel"
-            style="cursor: pointer"
-            @click="process_file(report_type + '_download_csv')"
-            src="/icons/icon_excel.png"
-            class="iconsize"
-        /></span>
-
-        <v-menu bottom right>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn dark-2 icon v-bind="attrs" v-on="on">
-              <v-icon color="violet">mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list width="200" dense>
-            <v-list-item
-              v-if="can(`attendance_report_re_generate`)"
-              @click="
-                reportSync = true;
-                key = key + 1;
-              "
-            >
-              <v-list-item-title style="cursor: pointer">
-                <v-icon color="secondary" small> mdi-cached </v-icon>
-                Re-Generate Report
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-if="can(`attendance_report_manual_entry_access`)"
-              @click="generateLogsDialog = true"
-            >
-              <v-list-item-title style="cursor: pointer">
-                <v-icon color="secondary" small>
-                  mdi-plus-circle-outline
-                </v-icon>
-                Manual Log
-              </v-list-item-title>
-            </v-list-item>
-            <!-- <v-list-item
-              v-if="can(`attendance_report_manual_entry_access`)"
-              @click="generateMultiLogsDialog = true"
-            >
-              <v-list-item-title style="cursor: pointer">
-                <v-icon color="secondary" small>
-                  mdi-plus-circle-outline
-                </v-icon>
-                Manual Multi Log
-              </v-list-item-title>
-            </v-list-item> -->
-            <v-list-item @click="process_file(report_type)">
-              <v-list-item-title style="cursor: pointer">
-                <img src="/icons/icon_print.png" class="iconsize" />
-                Print
-              </v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="process_file(report_type + '_download_pdf')">
-              <v-list-item-title style="cursor: pointer">
-                <img src="/icons/icon_pdf.png" class="iconsize" />
-                PDF
-              </v-list-item-title>
-            </v-list-item>
-
-            <v-list-item @click="process_file(report_type + '_download_csv')">
-              <v-list-item-title style="cursor: pointer">
-                <img src="/icons/icon_excel.png" class="iconsize" />
-                EXCEL
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
       </v-toolbar>
 
       <v-data-table
@@ -167,23 +43,25 @@
         :height="tableHeight"
         no-data-text="No Data available. Click 'Generate' button to see the results"
       >
-        <template v-slot:item.employee_name="{ item }" style="padding: 0px">
-          <v-row no-gutters :title="'Dep: ' + item.employee.department.name">
+        <template
+          v-slot:item.employee_name="{ item, index }"
+          style="width: 300px"
+        >
+          <v-row no-gutters>
             <v-col
-              md="2"
               style="
-                padding: 3px;
+                padding: 5px;
                 padding-left: 0px;
-                width: 30px;
-                max-width: 30px;
+                width: 50px;
+                max-width: 50px;
               "
             >
               <v-img
                 style="
                   border-radius: 50%;
                   height: auto;
-                  width: 30px;
-                  max-width: 30px;
+                  width: 45px;
+                  max-width: 45px;
                 "
                 :src="
                   item.employee.profile_picture
@@ -193,25 +71,24 @@
               >
               </v-img>
             </v-col>
-            <v-col style="padding: 3px" md="8">
-              <strong>
+            <v-col style="padding: 10px">
+              <div style="font-size: 13px">
                 {{
                   item.employee.first_name ? item.employee.first_name : "---"
                 }}
-                {{
-                  item.employee.last_name ? item.employee.last_name : "---"
-                }}</strong
-              >
-              <div class="secondary-value">
+                {{ item.employee.last_name ? item.employee.last_name : "---" }}
+              </div>
+              <small style="font-size: 12px; color: #6c7184">
                 {{
                   item.employee.employee_id
                     ? item.employee.employee_id
                     : item?.employee_id
                 }}
-              </div>
+              </small>
             </v-col>
           </v-row>
         </template>
+
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
@@ -542,35 +419,7 @@
                       >{{ errors.time[0] }}</span
                     >
                   </v-col>
-                  <!-- <v-col md="12">
-                  <v-text-field
-                    v-model="editItems.device_id"
-                    label="Device Id"
-                    readonly
-                  ></v-text-field>
-                  <span
-                    v-if="errors && errors.device_id"
-                    class="text-danger mt-2"
-                    >{{ errors.device_id[0] }}</span
-                  >
-                </v-col> -->
 
-                  <!-- <v-col md="12">
-                    <v-autocomplete
-                      label="Select Device"
-                      v-model="editItems.device_id"
-                      :items="devices"
-                      item-text="name"
-                      item-value="device_id"
-                      :rules="deviceRules"
-                    >
-                    </v-autocomplete>
-                    <span
-                      v-if="errors && errors.device_id"
-                      class="text-danger mt-2"
-                      >{{ errors.device_id[0] }}</span
-                    >
-                  </v-col> -->
                   <v-col cols="12" class="pa-0">
                     <v-textarea
                       filled
@@ -602,7 +451,7 @@
       <v-dialog persistent v-model="reportSync" max-width="800px">
         <v-card style="width: 100%">
           <v-card-title class="popup_background">
-            <span class="headline"> Render Report </span>
+            <span class="headline"> Re-Generate Report </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="reportSync = false">mdi-close-box</v-icon>
           </v-card-title>
@@ -873,14 +722,7 @@ export default {
     "headers",
     "render_endpoint",
     "process_file_endpoint",
-    // "report_type",
     "payload1",
-    // "status",
-    // "department_ids",
-    // "employee_id",
-    // "daily_date",
-    // "from_date",
-    // "to_date",
     "display_emp_pic",
     "system_user_id",
   ],
@@ -1038,18 +880,6 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? "New" : "Edit";
     },
-
-    // employees() {
-    //   return this.$store.state.employeeList.map((e) => ({
-    //     system_user_id: e.system_user_id,
-    //     first_name: e.first_name,
-    //     last_name: e.last_name,
-    //     user_id: e.user_id,
-    //     display_name: e.display_name,
-    //     name_with_id: `${e.first_name} ${e.last_name}`,
-    //     shift_type_id: e.latest_schedule && e.schedule_all.shift_type_id,
-    //   }));
-    // },
   },
 
   watch: {
@@ -1058,34 +888,6 @@ export default {
       this.errors = [];
       this.search = "";
     },
-    // report_type(val) {
-    //   this.changeReportType(val);
-    // },
-    // department_ids(value) {
-    //   this.payload.department_ids = value;
-    //   this.getDataFromApi();
-    // },
-    // employee_id(value) {
-    //   this.payload.employee_id = value;
-    //   this.getDataFromApi();
-    // },
-    // status(value) {
-    //   this.payload.status = value;
-    //   this.getDataFromApi();
-    // },
-    // daily_date(value) {
-    //   this.payload.daily_date = value;
-    //   this.getDataFromApi();
-    // },
-    // from_date(value) {
-    //   this.payload.from_date = value;
-    //   this.getDataFromApi();
-    // },
-    // to_date(value) {
-    //   this.payload.to_date = value;
-    //   this.getDataFromApi();
-    // },
-
     payload1(value) {
       this.payload = value;
       // this.payload.status = value.status;
@@ -1298,23 +1100,6 @@ export default {
         });
     },
     update() {
-      //  UserID: this.editItems.UserID,
-      //       LogTime: this.editItems.date + " " + this.editItems.time,
-      //       DeviceID: this.editItems.device_id,
-      //       user_id: this.editItems.UserID,
-      //       company_id: this.$auth.user.company_id,
-      //console.log(this.editItems);
-      //console.log(this.employees);
-
-      // let emp = this.employees.find(
-      //   (e) => e.system_user_id == this.editItems.UserID
-      // );
-
-      //let { user_id, date, time } = this.log_payload;
-
-      //console.log(emp);
-      // let shift_type_id = this.editItems.shift_type_id;
-
       let log_payload = {
         UserID: this.editItems.UserID,
         LogTime: this.editItems.date + " " + this.editItems.time,
@@ -1323,11 +1108,6 @@ export default {
         log_type: "auto",
       };
       this.loading = true;
-
-      // if (!user_id || !date || !time) {
-      //   alert("Please enter required fields");
-      //   return;
-      // }
 
       this.$axios
         .post(`/generate_log`, log_payload)
@@ -1462,7 +1242,7 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+    getDataFromApi(filter_column = "", filter_value = "") {
       if (!this.payload.from_date) return false;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -1471,11 +1251,7 @@ export default {
       let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
-      // if (this.clearPagenumber) {
-      //   console.log("this.options", this.options);
-      //   page = 1;
-      //   this.options.page = 1;
-      // }
+
       let options = {
         params: {
           page: page,
@@ -1491,19 +1267,9 @@ export default {
         },
       };
 
-      // console.log(this.employee_id);
-      // if (this.employee_id) {
-      //   console.log("headers", this.headers);
-
-      //   this.headers = this.originalTableHeaders.filter(
-      //     (item) => item.value != "employee_name"
-      //   );
-      // } else {
-      //   this.headers = this.originalTableHeaders;
-      // }
       if (filter_column != "") options.params[filter_column] = filter_value;
 
-      this.$axios.get(url, options, {}).then(({ data }) => {
+      this.$axios.get(this.endpoint, options).then(({ data }) => {
         if (filter_column != "" && data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
@@ -1521,17 +1287,6 @@ export default {
           this.options.page = 1;
           this.clearPagenumber = false;
         }
-
-        //this.getAverageTimeCalculation(data);
-
-        // try {
-        //   if (this.shift_type_id == 1)
-        //     this.$emit("genRecordCount", this.totalRowsCount);
-        //   if (this.shift_type_id == 2)
-        //     this.$emit("multiRecordCount", this.totalRowsCount);
-        //   if (this.shift_type_id == 5)
-        //     this.$emit("dualRecordCount", this.totalRowsCount);
-        // } catch (e) {}
       });
     },
 
@@ -1541,34 +1296,6 @@ export default {
       this.editItems.UserID = item.employee_id;
       this.editItems.date = item.edit_date;
     },
-
-    // update() {
-    //   if (this.$refs.form.validate()) {
-    //     let payload = {
-    //       UserID: this.editItems.UserID,
-    //       LogTime: this.editItems.date + " " + this.editItems.time,
-    //       DeviceID: this.editItems.device_id,
-    //       user_id: this.editItems.UserID,
-    //       company_id: this.$auth.user.company_id,
-    //     };
-    //     this.$axios
-    //       .post("/generate_manual_log", payload)
-    //       .then(({ data }) => {
-    //         this.loading = false;
-    //         if (!data.status) {
-    //           this.errors = data.errors;
-    //           // this.msg = data.message;
-    //         } else {
-    //           this.snackbar = true;
-    //           this.response = data.message;
-    //           this.renderByType(this.render_endpoint);
-    //           this.close();
-    //           this.editItems = [];
-    //         }
-    //       })
-    //       .catch((e) => console.log(e));
-    //   }
-    // },
 
     renderByType(type) {
       const UserID = this.editItems.UserID;
@@ -1617,10 +1344,6 @@ export default {
         this.log_list = data.data;
         this.log_list.item = item;
       });
-
-      // this.editedIndex = this.data.indexOf(item);
-      // this.editedItem = Object.assign({}, item);
-      // this.dialog = true;
     },
 
     close() {
@@ -1667,70 +1390,6 @@ export default {
       return;
     },
 
-    process_file2(type) {
-      if (this.data && !this.data.length) {
-        alert("No data found");
-        return;
-      }
-
-      let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase() +
-        "_merge_job";
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?report_template=${this.report_template}`;
-      qs += `&main_shift_type=${this.shift_type_id}`;
-
-      if (parseInt(this.payload.branch_id) > 0)
-        qs += `&branch_id=${this.payload.branch_id}`;
-
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
-      if (
-        this.payload.department_ids &&
-        this.payload.department_ids.length > 0
-      ) {
-        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
-      }
-      qs += `&employee_id=${this.payload.employee_id}`;
-      qs += `&report_type=${this.report_type}`;
-
-      if (this.report_type == "Daily") {
-        qs += `&daily_date=${this.payload.daily_date}`;
-      } else {
-        qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
-      }
-      console.log(qs);
-      this.loading = true;
-      this.donwload_pdf_file = "";
-      this.view_pdf_file = "";
-      this.snackbar = true;
-      this.response = "Processing your request...Please wait ";
-      alert(this.response);
-      let options = {
-        params: {},
-      };
-      this.$axios.get(qs, options).then(({ data }) => {
-        console.log(data);
-        this.donwload_pdf_file = data;
-        this.view_pdf_file = data;
-        this.verify_generated_pdf_file(data);
-      });
-
-      // let report = document.createElement("a");
-      // report.setAttribute("href", qs);
-      // report.setAttribute("target", "_blank");
-      // report.click();
-
-      // return;
-    },
-
     verify_generated_pdf_file(data) {
       let qs =
         process.env.BACKEND_URL +
@@ -1765,17 +1424,6 @@ export default {
         return;
       }
 
-      // if (this.payload.department_ids == undefined) {
-      //   alert("Department Must be selected");
-      //   return;
-      // }
-
-      // if (!this.payload.department_ids.length) {
-      //   alert("Department Must be selected");
-      //   return;
-      // }
-      //type = "monthly";
-      //type = type.toLowerCase().replace("custom", "monthly");
       let path =
         process.env.BACKEND_URL +
         "/" +

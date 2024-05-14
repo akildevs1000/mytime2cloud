@@ -26,18 +26,14 @@ class ShiftController extends Controller
         $model->withCount(["autoshift" => function ($q) use ($request) {
             return $q->where("company_id", $request->company_id);
         }]);
-        $model->when($request->filled('name'), function ($q) use ($request) {
-            //$key = strtolower($request->name);
-            $q->where('name', 'ILIKE', "$request->name%");
-        });
-        $model->when($request->filled('shift_type_name'), function ($q) use ($request) {
-            //$key = strtolower($request->search_shift_type);
-            $q->whereHas('shift_type', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->shift_type_name%"));
-        });
-        $model->when($request->filled('branch_id'), function ($q) use ($request) {
 
-            $q->where('branch_id', 'ILIKE',  $request->branch_id);
+        $model->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('name', 'ILIKE', "$request->search%");
+            $q->orwhereHas('shift_type', fn (Builder $query) => $query->where('name', 'LIKE', "$request->search%"));
+            $q->orwhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'LIKE', "$request->search%"));
+            $q->where("company_id", $request->company_id);
         });
+
         return $model->paginate($request->per_page);
     }
 

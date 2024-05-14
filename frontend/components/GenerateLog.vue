@@ -6,10 +6,9 @@
       </v-snackbar>
     </div>
     <v-row>
-      <v-col md="3">
+      <v-col cols="4">
         <v-autocomplete
           label="Employee ID"
-          class="mt-5"
           placeholder="Employee Device Id"
           v-model="log_payload.user_id"
           :items="employees"
@@ -17,6 +16,7 @@
           item-value="system_user_id"
           dense
           outlined
+          hide-details
           @change="handleChangeEvent(log_payload.user_id)"
         >
         </v-autocomplete>
@@ -24,7 +24,7 @@
           errors.user_id[0]
         }}</span>
       </v-col>
-      <v-col md="3">
+      <v-col cols="4">
         <v-menu
           ref="menu"
           v-model="menu"
@@ -36,8 +36,8 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-text-field
+              hide-details
               label="Date"
-              class="mt-5"
               dense
               outlined
               placeholder="Date"
@@ -60,7 +60,7 @@
           </v-date-picker>
         </v-menu>
       </v-col>
-      <v-col md="3">
+      <v-col cols="4">
         <v-menu
           ref="time_menu_ref"
           v-model="time_menu"
@@ -76,16 +76,17 @@
             <v-text-field
               label="Time"
               v-model="log_payload.time"
-              class="mt-5"
               dense
               outlined
               placeholder="Time"
               readonly
               v-bind="attrs"
               v-on="on"
+              hide-details
             ></v-text-field>
           </template>
           <v-time-picker
+            no-title
             v-if="time_menu"
             v-model="log_payload.time"
             full-width
@@ -106,24 +107,6 @@
         </v-menu>
         <span v-if="errors && errors.time" class="text-danger mt-2">{{
           errors.time[0]
-        }}</span>
-      </v-col>
-      <v-col md="3">
-        <v-autocomplete
-          class="mt-5"
-          label="Device Name"
-          placeholder="Device Name"
-          v-model="log_payload.device_id"
-          :items="devices"
-          item-text="name"
-          item-value="device_id"
-          dense
-          outlined
-          @change="handleChangeEvent(log_payload.user_id)"
-        >
-        </v-autocomplete>
-        <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
-          errors.user_id[0]
         }}</span>
       </v-col>
       <v-col cols="12">
@@ -163,7 +146,7 @@ export default {
 
     log_payload: {
       user_id: null,
-      device_id: "",
+      device_id: "Manual",
       date: null,
       time: null,
       shift_type_id: null,
@@ -245,6 +228,7 @@ export default {
     },
     async submit() {
       await this.getLastLog(this.log_payload.user_id);
+
       let { user_id, date, time, branch_id, device_id } = this.log_payload;
 
       let log_payload = {

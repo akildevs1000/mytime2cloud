@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('devices', function (Blueprint $table) {
-            // $table->string("device_type")->nullable();
+        Schema::table('report_notifications', function (Blueprint $table) {
+            $table->string("type")->nullable();
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('devices', function (Blueprint $table) {
-            // $table->dropColumn("device_type");
+        Schema::table('report_notifications', function (Blueprint $table) {
+            //
         });
     }
 };

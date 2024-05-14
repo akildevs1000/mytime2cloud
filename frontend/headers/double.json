@@ -1,13 +1,5 @@
 [
   {
-    "text": "Date",
-    "align": "left",
-    "sortable": true,
-    "filterable": false,
-    "value": "date"
-  },
-
-  {
     "text": "Employee",
     "align": "left",
     "sortable": false,
@@ -15,7 +7,13 @@
     "value": "employee_name",
     "key": "employee_name"
   },
-
+  {
+    "text": "Date",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "value": "date"
+  },
   {
     "text": "Shift",
     "align": "left",

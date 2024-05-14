@@ -1,291 +1,372 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <!-- <Back class="primary white--text" /> -->
-    <v-card elevation="0" class="mt-2" v-if="can(`attendance_report_view`)">
-      <v-toolbar dense flat>
-        <span class="headline black--text"> Attendance Reports </span>
+    <v-card
+      class="mt-5 pa-2"
+      elevation="0"
+      v-if="can(`attendance_report_view`)"
+    >
+      <v-toolbar flat dense>
+        <v-toolbar-title
+          style="font-size: 18px; font-weight: 600; width: 200px"
+        >
+          Attendance Reports
+        </v-toolbar-title>
+        <v-select
+          style="width: 150px"
+          class="mx-1"
+          label="Type"
+          outlined
+          dense
+          v-model="payload.status"
+          x-small
+          :items="statuses"
+          item-value="id"
+          item-text="name"
+          :hide-details="true"
+        ></v-select>
+        <v-select
+          style="width: 150px"
+          class="mx-1"
+          v-if="isCompany"
+          label="Branch"
+          @change="getScheduledEmployees"
+          placeholder="Branch"
+          outlined
+          dense
+          v-model="payload.branch_id"
+          x-small
+          clearable
+          :items="[{ id: null, branch_name: 'All Branches' }, ...branches]"
+          item-value="id"
+          item-text="branch_name"
+          :hide-details="true"
+        ></v-select>
+        <v-autocomplete
+          style="width: 150px"
+          class="mx-1"
+          label="Departments"
+          @change="getScheduledEmployees"
+          placeholder="Departments"
+          outlined
+          dense
+          v-model="payload.department_ids"
+          x-small
+          clearable
+          :items="departments"
+          multiple
+          item-text="name"
+          item-value="id"
+          :hide-details="true"
+        >
+          <template v-if="departments.length" #prepend-item>
+            <v-list-item @click="toggleDepartmentSelection">
+              <v-list-item-action>
+                <v-checkbox
+                  @click="toggleDepartmentSelection"
+                  v-model="selectAllDepartment"
+                  :indeterminate="isIndeterminateDepartment"
+                  :true-value="true"
+                  :false-value="false"
+                ></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ selectAllDepartment ? "Unselect All" : "Select All" }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+          <template v-slot:selection="{ item, index }">
+            <span v-if="index === 0 && payload.department_ids.length == 1">{{
+              item.name
+            }}</span>
+            <span
+              v-else-if="
+                index === 1 &&
+                payload.department_ids.length == departments.length
+              "
+              class=" "
+              >All Selected
+            </span>
+            <span v-else-if="index === 1" class=" ">
+              {{ payload.department_ids.length }} Department(s)
+            </span>
+          </template>
+        </v-autocomplete>
+        <v-autocomplete
+          style="width: 150px"
+          class="mx-1"
+          label="Employee ID"
+          outlined
+          dense
+          v-model="payload.employee_id"
+          :items="scheduled_employees"
+          multiple
+          item-value="system_user_id"
+          item-text="name_with_user_id"
+          placeholder="Employees"
+          :hide-details="true"
+        >
+          <template v-if="scheduled_employees.length" #prepend-item>
+            <v-list-item @click="toggleEmployeesSelection">
+              <v-list-item-action>
+                <v-checkbox
+                  @click="toggleEmployeesSelection"
+                  v-model="selectAllEmployees"
+                  :indeterminate="isIndeterminateEmployee"
+                  :true-value="true"
+                  :false-value="false"
+                ></v-checkbox>
+              </v-list-item-action>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ selectAllEmployees ? "Unselect All" : "Select All" }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </template>
+          <template v-slot:selection="{ item, index }">
+            <span v-if="index === 0 && payload.employee_id.length == 1">{{
+              item.name_with_user_id
+            }}</span>
+            <span
+              v-else-if="
+                index === 1 &&
+                payload.employee_id.length == scheduled_employees.length
+              "
+              class=" "
+              >All Selected
+            </span>
+            <span v-else-if="index === 1" class=" ">
+              {{ payload.employee_id.length }} Employee(s)
+            </span>
+          </template>
+        </v-autocomplete>
+        <v-autocomplete
+          style="width: 150px"
+          class="mx-1"
+          label="Report Templates"
+          density="compact"
+          outlined
+          dense
+          v-model="report_template"
+          x-small
+          :items="['Template1', 'Template2']"
+          item-text="['Daily']"
+          :hide-details="true"
+        ></v-autocomplete>
+        <div class="mx-1">
+          <CustomFilter
+            @filter-attr="filterAttr"
+            :defaultFilterType="1"
+            height="40px"
+          />
+        </div>
+        <div class="text-right">
+          <v-btn
+            style="border-radius: 5px"
+            @click="commonMethod"
+            color="primary"
+            primary
+            >Generate
+          </v-btn>
+        </div>
       </v-toolbar>
+    </v-card>
 
-      <v-card-text class="py-3">
-        <v-row>
-          <v-col md="1" sm="2">
-            Type
-            <v-select
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.status"
-              x-small
-              :items="statuses"
-              item-value="id"
-              item-text="name"
-              :hide-details="true"
-            ></v-select>
-          </v-col>
-          <v-col md="2" sm="2" v-if="isCompany">
-            Branch
-            <v-select
-              @change="getScheduledEmployees"
-              placeholder="Branch"
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.branch_id"
-              x-small
-              clearable
-              :items="[{ id: null, branch_name: 'All Branches' }, ...branches]"
-              item-value="id"
-              item-text="branch_name"
-              :hide-details="true"
-            ></v-select>
-          </v-col>
-          <v-col md="2" sm="4">
-            Departments
-            <!-- <v-autocomplete
-              @change="getScheduledEmployees"
-              class="mt-2"
-              outlined
-              dense
-              multiple
-              v-model="payload.department_ids"
-              x-small
-              :items="departments"
-              item-value="id"
-              item-text="name"
-              :hide-details="true"
-            ></v-autocomplete> -->
+    <v-row no-gutters>
+      <v-col cols="6">
+        <v-card elevation="0" v-if="can(`attendance_report_view`)">
+          <v-tabs
+            class="slidegroup1"
+            v-model="tab"
+            background-color="popup_background"
+            dark
+          >
+            <v-tabs-slider
+              class="violet slidegroup1"
+              style="height: 3px"
+            ></v-tabs-slider>
 
-            <v-autocomplete
-              class="mt-2"
-              outlined
-              dense
-              @change="getScheduledEmployees"
-              v-model="payload.department_ids"
-              :items="departments"
-              multiple
-              item-text="name"
-              item-value="id"
-              placeholder="Departments"
+            <v-tab
+              v-if="showTabs.single == true"
+              :key="1"
+              style="height: 30px"
+              href="#tab-1"
+              class="black--text slidegroup1"
             >
-              <template v-if="departments.length" #prepend-item>
-                <v-list-item @click="toggleDepartmentSelection">
-                  <v-list-item-action>
-                    <v-checkbox
-                      @click="toggleDepartmentSelection"
-                      v-model="selectAllDepartment"
-                      :indeterminate="isIndeterminateDepartment"
-                      :true-value="true"
-                      :false-value="false"
-                    ></v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ selectAllDepartment ? "Unselect All" : "Select All" }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{ item, index }">
-                <span
-                  v-if="index === 0 && payload.department_ids.length == 1"
-                  >{{ item.name }}</span
-                >
-                <span
-                  v-else-if="
-                    index === 1 &&
-                    payload.department_ids.length == departments.length
-                  "
-                  class=" "
-                  >All Selected
-                </span>
-                <span v-else-if="index === 1" class=" ">
-                  {{ payload.department_ids.length }} Department(s)
-                </span>
-              </template>
-            </v-autocomplete>
-          </v-col>
-          <v-col md="2" sm="4">
-            Employee ID
-            <v-autocomplete
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.employee_id"
-              :items="scheduled_employees"
-              multiple
-              item-value="system_user_id"
-              item-text="name_with_user_id"
-              placeholder="Employees"
+              Single
+            </v-tab>
+
+            <v-tab
+              v-if="showTabs.double == true"
+              :key="2"
+              @click="commonMethod(2)"
+              style="height: 30px"
+              href="#tab-2"
+              class="black--text slidegroup1"
             >
-              <!-- <v-autocomplete
-              density="comfortable"
-              class="mt-2"
-              outlined
-              dense
-              v-model="payload.employee_id"
-              x-small
-              :items="scheduled_employees"
-              item-value="system_user_id"
-              item-text="name_with_user_id"
-              :hide-details="true"
-            > -->
-              <template v-if="scheduled_employees.length" #prepend-item>
-                <v-list-item @click="toggleEmployeesSelection">
-                  <v-list-item-action>
-                    <v-checkbox
-                      @click="toggleEmployeesSelection"
-                      v-model="selectAllEmployees"
-                      :indeterminate="isIndeterminateEmployee"
-                      :true-value="true"
-                      :false-value="false"
-                    ></v-checkbox>
-                  </v-list-item-action>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ selectAllEmployees ? "Unselect All" : "Select All" }}
+              Double
+            </v-tab>
+
+            <v-tab
+              v-if="showTabs.multi == true"
+              :key="3"
+              @click="commonMethod(3)"
+              style="height: 30px"
+              href="#tab-3"
+              class="black--text slidegroup1"
+            >
+              Multi
+            </v-tab>
+          </v-tabs>
+        </v-card>
+      </v-col>
+
+      <v-col cols="6">
+        <v-card elevation="0" v-if="can(`attendance_report_view`)">
+          <v-tabs
+            class="slidegroup1"
+            background-color="popup_background"
+            right
+            dark
+          >
+            <v-tabs-slider
+              class="violet slidegroup1"
+              style="height: 3px"
+            ></v-tabs-slider>
+
+            <v-tab
+              @click="openRegeneratePopup"
+              style="height: 30px"
+              class="black--text slidegroup1"
+            >
+              <span style="font-size: 12px"
+                ><v-icon small>mdi-cached</v-icon> Re-Generate Report</span
+              >
+            </v-tab>
+
+            <v-tab
+              @click="openGenerateLogPopup"
+              style="height: 30px"
+              class="black--text slidegroup1"
+            >
+              <span style="font-size: 12px"
+                ><v-icon small>mdi-pencil-outline</v-icon> Manual</span
+              >
+            </v-tab>
+
+            <v-tab style="height: 30px" class="black--text slidegroup1">
+              <span style="font-size: 12px"
+                ><v-icon small>mdi-mail</v-icon> Send</span
+              >
+            </v-tab>
+
+            <v-tab style="height: 30px" class="black--text slidegroup1">
+              <v-menu bottom right>
+                <template v-slot:activator="{ on, attrs }">
+                  <span v-bind="attrs" v-on="on">
+                    <v-icon dark-2 icon color="violet" small>mdi-file</v-icon>
+                    Print/PDF
+                  </span>
+                </template>
+                <v-list width="200" dense>
+                  <v-list-item
+                    v-if="can(`attendance_report_re_generate`)"
+                    @click="openRegeneratePopup"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-cached </v-icon>
+                      Re-Generate Report
                     </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-              <template v-slot:selection="{ item, index }">
-                <span v-if="index === 0 && payload.employee_id.length == 1">{{
-                  item.name_with_user_id
-                }}</span>
-                <span
-                  v-else-if="
-                    index === 1 &&
-                    payload.employee_id.length == scheduled_employees.length
-                  "
-                  class=" "
-                  >All Selected
-                </span>
-                <span v-else-if="index === 1" class=" ">
-                  {{ payload.employee_id.length }} Employee(s)
-                </span>
-              </template>
-            </v-autocomplete>
-          </v-col>
-          <v-col md="1" sm="4">
-            <div>Report Templates</div>
-            <v-autocomplete
-              density="compact"
-              class="mt-2"
-              outlined
-              dense
-              v-model="report_template"
-              x-small
-              :items="['Template1', 'Template2']"
-              item-text="['Daily']"
-              :hide-details="true"
-            ></v-autocomplete>
-          </v-col>
-          <v-col md="2" sm="5">
-            <div class="mb-2">Date</div>
-            <CustomFilter
-              @filter-attr="filterAttr"
-              :defaultFilterType="1"
-              :height="'45px '"
+                  </v-list-item>
+                  <v-list-item
+                    v-if="can(`attendance_report_manual_entry_access`)"
+                    @click="openGenerateLogPopup"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small>
+                        mdi-plus-circle-outline
+                      </v-icon>
+                      Manual Log
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item @click="process_file_in_child_comp(`Monthly`)">
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_print.png" class="iconsize" />
+                      Print
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    @click="process_file_in_child_comp('Monthly_download_pdf')"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_pdf.png" class="iconsize" />
+                      PDF
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item
+                    @click="process_file_in_child_comp('Monthly_download_csv')"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <img src="/icons/icon_excel.png" class="iconsize" />
+                      EXCEL
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-tab>
+          </v-tabs>
+        </v-card>
+      </v-col>
+      <v-col cols="12">
+        <v-tabs-items v-model="tab">
+          <v-tab-item value="tab-1">
+            <AttendanceReport
+              ref="attendanceReportRef"
+              v-if="showTabs.single == true"
+              :key="1"
+              title="General Reports"
+              shift_type_id="1"
+              :headers="generalHeaders"
+              :report_template="report_template"
+              :payload1="payload11"
+              process_file_endpoint=""
+              render_endpoint="render_general_report"
             />
-          </v-col>
-          <v-col md="2" sm="2">
-            <div class="mb-2">&nbsp;</div>
-            <v-btn @click="commonMethod()" color="primary" primary fill
-              >Generate
-            </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-text>
-    </v-card>
-
-    <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-tabs
-        class="slidegroup1"
-        v-model="tab"
-        background-color="popup_background"
-        right
-        dark
-      >
-        <v-tabs-slider
-          class="violet slidegroup1"
-          style="height: 3px"
-        ></v-tabs-slider>
-
-        <v-tab
-          v-if="showTabs.single == true"
-          :key="1"
-          style="height: 30px"
-          href="#tab-1"
-          class="black--text slidegroup1"
-        >
-          Single
-        </v-tab>
-
-        <v-tab
-          v-if="showTabs.double == true"
-          :key="2"
-          @click="commonMethod(2)"
-          style="height: 30px"
-          href="#tab-2"
-          class="black--text slidegroup1"
-        >
-          Double
-        </v-tab>
-
-        <v-tab
-          v-if="showTabs.multi == true"
-          :key="3"
-          @click="commonMethod(3)"
-          style="height: 30px"
-          href="#tab-3"
-          class="black--text slidegroup1"
-        >
-          Multi
-        </v-tab>
-      </v-tabs>
-
-      <v-tabs-items v-model="tab">
-        <v-tab-item value="tab-1">
-          <AttendanceReport
-            v-if="showTabs.single == true"
-            :key="1"
-            title="General Reports"
-            shift_type_id="1"
-            :headers="generalHeaders"
-            :report_template="report_template"
-            :payload1="payload11"
-            process_file_endpoint=""
-            render_endpoint="render_general_report"
-          />
-        </v-tab-item>
-        <v-tab-item value="tab-2">
-          <AttendanceReport
-            v-if="showTabs.double == true"
-            title="Split Reports"
-            shift_type_id="5"
-            :headers="doubleHeaders"
-            :report_template="report_template"
-            :payload1="payload11"
-            process_file_endpoint="multi_in_out_"
-            render_endpoint="render_multi_inout_report"
-            :key="2"
-            ref="profile"
-          />
-        </v-tab-item>
-        <v-tab-item value="tab-3">
-          <AttendanceReport
-            v-if="showTabs.multi == true"
-            :key="3"
-            title="Multi In/Out Reports"
-            shift_type_id="2"
-            :headers="multiHeaders"
-            :report_template="report_template"
-            :payload1="payload11"
-            process_file_endpoint="multi_in_out_"
-            render_endpoint="render_multi_inout_report"
-          />
-        </v-tab-item>
-      </v-tabs-items>
-    </v-card>
+          </v-tab-item>
+          <v-tab-item value="tab-2">
+            <AttendanceReport
+              ref="attendanceReportRef"
+              v-if="showTabs.double == true"
+              title="Split Reports"
+              shift_type_id="5"
+              :headers="doubleHeaders"
+              :report_template="report_template"
+              :payload1="payload11"
+              process_file_endpoint="multi_in_out_"
+              render_endpoint="render_multi_inout_report"
+              :key="2"
+            />
+          </v-tab-item>
+          <v-tab-item value="tab-3">
+            <AttendanceReport
+              ref="attendanceReportRef"
+              v-if="showTabs.multi == true"
+              :key="3"
+              title="Multi In/Out Reports"
+              shift_type_id="2"
+              :headers="multiHeaders"
+              :report_template="report_template"
+              :payload1="payload11"
+              process_file_endpoint="multi_in_out_"
+              render_endpoint="render_multi_inout_report"
+            />
+          </v-tab-item>
+        </v-tabs-items>
+      </v-col>
+    </v-row>
   </div>
   <NoAccess v-else />
 </template>
@@ -302,6 +383,7 @@ export default {
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    selectFile: null,
     key: 1,
     payload11: {},
     selectAllDepartment: false,
@@ -375,7 +457,8 @@ export default {
       from_date: null,
       to_date: null,
       daily_date: null,
-      employee_id: "",
+      employee_id: [],
+
       department_ids: [{ id: "-1", name: "" }],
       status: "-1",
       branch_id: null,
@@ -566,6 +649,22 @@ export default {
   },
 
   methods: {
+    openRegeneratePopup() {
+      this.$refs.attendanceReportRef.reportSync = true;
+    },
+    openGenerateLogPopup() {
+      this.$refs.attendanceReportRef.generateLogsDialog = true;
+    },
+
+    process_file_in_child_comp(val) {
+      if (this.payload.employee_id && this.payload.employee_id.length == 0) {
+        alert("Employee not selected");
+        return;
+      }
+
+      this.$refs.attendanceReportRef.process_file(val);
+    },
+
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
     },
@@ -582,35 +681,6 @@ export default {
     },
 
     commonMethod(id = 0) {
-      // const today = new Date();
-      // switch (this.filterType) {
-      //   case 1:
-      //     this.from_date = this.currentDate;
-      //     this.to_date = this.currentDate;
-      //     break;
-      //   case 2:
-      //     this.from_date = new Date(Date.now() - 86400000)
-      //       .toISOString()
-      //       .slice(0, 10);
-      //     this.to_date = new Date(Date.now() - 86400000)
-      //       .toISOString()
-      //       .slice(0, 10);
-      //     break;
-      //   case 3:
-      //     this.from_date = this.week[0];
-      //     this.to_date = this.week[1];
-      //     break;
-      //   case 4:
-      //     this.from_date = this.getFirstAndLastDay()[0];
-      //     this.to_date = this.getFirstAndLastDay()[1];
-      //     break;
-
-      //   // default:
-      //   //   this.from_date = new Date().toJSON().slice(0, 10);
-      //   //   this.to_date = new Date().toJSON().slice(0, 10);
-      //   //   break;
-      // }
-      //this.getDataFromApi();
       let filterDay = this.filter_type_items.filter(
         (e) => e.id == this.filterType
       );
@@ -841,15 +911,9 @@ export default {
   },
 };
 </script>
-<style>
-/* .v-slide-group__content {
-  height: 30px !important;
-}
+<!-- <style>
 
-.v-slide-group__wrapper {
-  height: 34px !important;
-} */
 .slidegroup1 .v-slide-group {
   height: 34px !important;
 }
-</style>
+</style> -->

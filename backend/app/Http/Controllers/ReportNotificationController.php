@@ -18,7 +18,10 @@ class ReportNotificationController extends Controller
     {
 
 
-        $model = $model->with(["managers", "logs"])->where('company_id', $request->company_id)
+        $model = $model->with(["managers", "logs"])
+            ->where('company_id', $request->company_id)
+            ->where('type', request("type") ?? "automation")
+
 
             ->with("managers", function ($query) use ($request) {
                 $query->where("company_id", $request->company_id);

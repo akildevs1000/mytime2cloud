@@ -135,7 +135,6 @@
               <v-btn
                 small
                 text
-                class="btn-text-size"
                 :elevation="0"
                 :color="
                   menuProperties[items.menu] &&
@@ -144,7 +143,9 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <span>{{ items.title }}</span>
+                <b style="font-size: 16px;font-weight: 600;">
+                  {{ items.title }}
+                </b>
               </v-btn>
             </v-col>
           </v-row>
@@ -231,7 +232,7 @@
         @click="goToSettings()"
         class="mr-3"
         ><v-icon class="violet--text" style="text-align: center"
-          >mdi-settings</v-icon
+          >mdi-cog</v-icon
         ></v-btn
       >
 
@@ -365,7 +366,7 @@
             <v-card-text>
               <v-row
                 v-for="(device, index) in notificationAlarmDevices"
-                key="index"
+                :key="index"
               >
                 <v-col cols="2"
                   ><img src="../static/fire2.png" width="50px"
@@ -560,6 +561,16 @@ import company_top_menu from "../menus/company_modules_top.json";
 import employee_top_menu from "../menus/employee_modules_top.json";
 
 export default {
+  head() {
+    return {
+      link: [
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap",
+        },
+      ],
+    };
+  },
   data() {
     return {
       notificationsMenuItems: [
@@ -1640,13 +1651,12 @@ button {
   }
 }
 </style>
-<!-- <style>
-body {
-  min-width: 1600px;
-}
-</style> -->
 
 <style>
+* {
+  font-family: "Source Sans Pro", sans-serif !important;
+}
+
 .apexcharts-canvas {
   width: 100%;
 }

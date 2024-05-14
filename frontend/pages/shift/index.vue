@@ -142,144 +142,159 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
+      {{ snackText }}
+
+      <template v-slot:action="{ attrs }">
+        <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
+
     <v-card elevation="0" class="mt-2" v-if="can(`shift_view`)">
-      <v-toolbar class="mb-2 white--text" color="white" dense flat>
-        <v-toolbar-title style="color: black"
-          ><span> {{ Model }} List</span></v-toolbar-title
-        >
-        <span>
-          <v-btn dense x-small :ripple="false" text title="Reload">
-            <v-icon dark white @click="getDataFromApi()">mdi mdi-reload</v-icon>
-          </v-btn>
-        </span>
-        <span>
-          <v-btn x-small :ripple="false" text title="Filter">
-            <v-icon dark white @click="toggleFilter">mdi-filter</v-icon>
-          </v-btn>
-        </span>
-
-        <v-spacer></v-spacer>
-
-        <span>
-          <v-btn
-            v-if="can(`shift_create`)"
-            dense
-            x-small
-            :ripple="false"
-            text
-            title="Add   Shift Details"
-          >
-            <v-icon dark @click="goToCreate">mdi mdi-plus-circle</v-icon>
-          </v-btn>
-        </span>
-      </v-toolbar>
-      <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
-        {{ snackText }}
-
-        <template v-slot:action="{ attrs }">
-          <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
-        </template>
-      </v-snackbar>
-
-      <v-data-table
-        dense
-        :server-items-length="total"
-        :headers="headers"
-        :items="data"
-        model-value="data.id"
-        :loading="loading"
-        :options.sync="options"
-        :footer-props="{
-          itemsPerPageOptions: [20, 50, 100, 500, 1000],
-        }"
-        class="elevation-1"
-      >
-        <template v-slot:header="{ props: { headers } }">
-          <tr v-if="isFilter">
-            <td v-for="header in headers" :key="header.text">
-              <v-container>
-                <v-text-field
-                  clearable
-                  :hide-details="true"
-                  v-if="header.filterable && !header.filterSpecial"
-                  v-model="filters[header.key]"
-                  :id="header.value"
-                  @input="applyFilters(header.key, $event)"
-                  outlined
-                  dense
-                  autocomplete="off"
-                ></v-text-field>
-
-                <v-select
-                  clearable
-                  @click:clear="
-                    filters[header.value] = '';
-                    applyFilters();
-                  "
-                  :id="header.key"
-                  :hide-details="true"
-                  v-if="
-                    header.filterSpecial && header.value == 'branch.branch_name'
-                  "
-                  outlined
-                  dense
-                  small
-                  v-model="filters[header.key]"
-                  item-text="name"
-                  item-value="id"
-                  :items="[{ name: `All Branches`, id: `` }, ...branchList]"
-                  placeholder="All Branches"
-                  solo
-                  flat
-                  @change="applyFilters(header.key, $event)"
-                ></v-select>
-              </v-container>
-            </td>
-          </tr>
-        </template>
-        <template v-slot:item.sno="{ item, index }">
-          {{ ++index }}
-        </template>
-
-        <template v-slot:item.scheduled_time="{ item, index }">
-          {{ item.on_duty_time }} to {{ item.off_duty_time }}
-          <span v-if="item.shift_type_id == 5">
-            -
-            {{ item.on_duty_time1 }} to {{ item.off_duty_time1 }}
+      <v-row>
+        <v-col>
+          <b class="ml-5" style="font-size: 18px; font-weight: 600">{{
+            Model
+          }}</b>
+          <span>
+            <v-btn
+              dense
+              class="ma-0 px-0"
+              x-small
+              :ripple="false"
+              text
+              title="Filter"
+            >
+              <v-icon @click="getDataFromApi()" class="mx-1 ml-2"
+                >mdi mdi-reload</v-icon
+              >
+            </v-btn>
           </span>
-        </template>
-
-        <template v-slot:item.isAutoShift="{ item, index }">
-          <v-icon v-if="item.isAutoShift" color="green">mdi-check</v-icon>
-          <v-icon v-else color="red">mdi-close</v-icon>
-        </template>
-
-        <template v-slot:item.actions="{ item }">
-          <v-menu bottom left>
-            <template v-slot:activator="{ on, attrs }">
-              <div class="text-center">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+        </v-col>
+        <v-col class="text-right">
+          <div class="input-group" style="width: 100%">
+            <input
+              class="custom-input"
+              type="text"
+              placeholder="Search"
+              @input="searchData"
+              v-model="filters.search"
+            />
+            <v-icon style="position: absolute; top: 16px; right: 107px"
+              >mdi-magnify</v-icon
+            >
+            <v-btn
+              style="margin-top: -6px"
+              class="primary"
+              small
+              @click="goToCreate"
+              v-if="can(`shift_create`)"
+              >+ New</v-btn
+            >
+            <v-menu offset-y :nudge-width="100">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn
+                  dark-2
+                  icon
+                  v-bind="attrs"
+                  v-on="on"
+                  style="margin-top: -9px"
+                >
                   <v-icon>mdi-dots-vertical</v-icon>
                 </v-btn>
-              </div>
+              </template>
+              <v-list dense>
+                <v-list-item @click="export_submit">
+                  <v-list-item-title
+                    style="cursor: pointer; display: flex; align-items: center"
+                  >
+                    <div style="height: 17px; width: 17px">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                        class="icon align-text-top"
+                      >
+                        <path
+                          fill="#6946dd"
+                          d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                        ></path>
+                        <path
+                          fill="#6946dd"
+                          d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                        ></path>
+                      </svg>
+                    </div>
+
+                    <div style="margin: 4px 0 0 5px">
+                      <span style="font-size: 12px">{{ Model }}</span>
+                    </div>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+        </v-col>
+        <v-col cols="12">
+          <v-data-table
+            dense
+            :server-items-length="total"
+            :headers="headers"
+            :items="data"
+            model-value="data.id"
+            :loading="loading"
+            :options.sync="options"
+            :footer-props="{
+              itemsPerPageOptions: [20, 50, 100, 500, 1000],
+            }"
+          >
+            <template v-slot:item.sno="{ item, index }">
+              {{ ++index }}
             </template>
-            <v-list width="120" dense>
-              <v-list-item v-if="can(`shift_edit`)" @click="editItem(item)">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Edit
-                </v-list-item-title>
-              </v-list-item>
-              <v-list-item v-if="can(`shift_delete`)" @click="deleteItem(item)">
-                <v-list-item-title style="cursor: pointer">
-                  <v-icon color="error" small> mdi-delete </v-icon>
-                  Delete
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </template>
-      </v-data-table>
+
+            <template v-slot:item.scheduled_time="{ item, index }">
+              {{ item.on_duty_time }} to {{ item.off_duty_time }}
+              <span v-if="item.shift_type_id == 5">
+                -
+                {{ item.on_duty_time1 }} to {{ item.off_duty_time1 }}
+              </span>
+            </template>
+
+            <template v-slot:item.isAutoShift="{ item, index }">
+              <v-icon v-if="item.isAutoShift" color="green">mdi-check</v-icon>
+              <v-icon v-else color="red">mdi-close</v-icon>
+            </template>
+
+            <template v-slot:item.actions="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <div class="text-center">
+                    <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                      <v-icon>mdi-dots-vertical</v-icon>
+                    </v-btn>
+                  </div>
+                </template>
+                <v-list width="120" dense>
+                  <v-list-item v-if="can(`shift_edit`)" @click="editItem(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="secondary" small> mdi-pencil </v-icon>
+                      Edit
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-if="can(`shift_delete`)"
+                    @click="deleteItem(item)"
+                  >
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="error" small> mdi-delete </v-icon>
+                      Delete
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
     </v-card>
 
     <NoAccess v-else />
@@ -305,10 +320,10 @@ export default {
     showDialog: false,
     branchList: [],
     isFilter: false,
-    filters: {},
+    filters: {
+      search: null,
+    },
     shifts: [],
-    datatable_search_textbox: "",
-    datatable_searchById: "",
     filter_employeeid: "",
     snack: false,
     snackColor: "",
@@ -325,7 +340,6 @@ export default {
     options: {},
     Model: "Shift & Schedule",
     endpoint: "shift",
-    search: "",
     snackbar: false,
     ids: [],
     loading: false,
@@ -357,31 +371,51 @@ export default {
       return;
     }
 
-    // let branch_header = [
-    //   {
-    //     text: "Branch",
-    //     align: "left",
-    //     sortable: true,
-    //     key: "branch_id",
-    //     value: "branch.branch_name",
-    //     filterable: true,
-    //     filterSpecial: true,
-    //   },
-    // ];
-
-    // const headerExists = this.headers.some(
-    //   (header) => header.text === "Branch"
-    // );
-
-    // if (!headerExists) {
-    //   // Insert the "Branch" header if it doesn't already exist
-    //   this.headers.splice(1, 0, ...branch_header);
-    // }
-
     this.getComponent();
   },
 
   methods: {
+    searchData() {
+      if (this.filters.search.length == 0 || this.filters.search.length > 3) {
+        this.getDataFromApi();
+      }
+    },
+    json_to_csv(json) {
+      let data = json.map((e) => ({
+        "Shift Name": e.name,
+        "Shift Type": e.shift_type.name,
+        Time: e.scheduled_time,
+        "From Date": e.show_from_date,
+        "To Date": e.show_to_date,
+        "Auto Shift": e.isAutoShift ? "Yes" : "No",
+        "Half Day": e.halfday,
+        "Half Day Working Hours": e.halfday_working_hours,
+      }));
+      let header = Object.keys(data[0]).join(",") + "\n";
+      let rows = "";
+      data.forEach((e) => {
+        rows += Object.values(e).join(",").trim() + "\n";
+      });
+      return header + rows;
+    },
+    export_submit() {
+      if (this.data.length == 0) {
+        this.snackbar = true;
+        this.response = "No record to download";
+        return;
+      }
+
+      let csvData = this.json_to_csv(this.data);
+      let element = document.createElement("a");
+      element.setAttribute(
+        "href",
+        "data:text/csv;charset=utf-8, " + encodeURIComponent(csvData)
+      );
+      element.setAttribute("download", "download.csv");
+      document.body.appendChild(element);
+      element.click();
+      document.body.removeChild(element);
+    },
     async handleChangeEvent() {
       this.branchList = await this.$store.dispatch("fetchDropDowns", {
         key: "branchList",
@@ -486,13 +520,6 @@ export default {
         this.total = data.total;
         this.loading = false;
       });
-    },
-    searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 2) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
     },
 
     editItem(item) {
@@ -605,3 +632,19 @@ export default {
   },
 };
 </script>
+<style scoped>
+.custom-input {
+  padding: 6px 10px;
+  height: 30px;
+  position: relative;
+  border-radius: 5px;
+  border: 1px solid grey;
+  font-size: 16px;
+  transition: border-color 0.3s ease-in-out;
+  outline: none; /* Remove default outline */
+}
+
+.custom-input:focus {
+  border-color: purple;
+}
+</style>

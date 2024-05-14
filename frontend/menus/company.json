@@ -65,6 +65,14 @@
     "module": "settings"
   },
   {
+    "icon": "mdi-domain",
+    "title": "Profile",
+    "to": "/companies",
+    "menu": "setting_access",
+    "class": "submenutitle",
+    "module": "settings"
+  },
+  {
     "icon": "mdi-filmstrip-box-multiple",
     "title": "Branches",
     "to": "/branches",
@@ -85,14 +93,6 @@
     "menu": "notifications_access",
     "module": "settings"
   },
-  {
-    "icon": "mdi-cellphone-text",
-    "title": "Device Notifications",
-    "to": "/device_notifications",
-    "menu": "notifications_access",
-    "module": "settings"
-  },
-
   {
     "icon": "mdi-account-supervisor-circle",
     "title": "Roles",
@@ -136,6 +136,31 @@
     "to": "/web_login_logs",
     "module": "settings"
   },
+
+  {
+    "icon": "mdi mdi-calculator",
+    "title": "Settings",
+    "to": "/payroll/create",
+    "menu": "payroll_settings_access",
+    "open_menu": false,
+    "module": "settings"
+  },
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Formulla List",
+    "to": "/payroll_formula",
+    "menu": "payroll_settings_access",
+    "open_menu": false,
+    "module": "settings"
+  },
+  {
+    "icon": "mdi-format-list-bulleted",
+    "title": "Payroll Generation Date List",
+    "to": "/payroll_generate_date",
+    "menu": "payroll_settings_access",
+    "open_menu": false,
+    "module": "settings"
+  },
   {
     "icon": "mdi-mail",
     "title": "Mail",
@@ -168,7 +193,7 @@
 
   {
     "icon": "mdi mdi-camera-account",
-    "title": "Photo Upload",
+    "title": "Employee Upload",
     "to": "/employee_photo_upload",
     "menu": "employee_photo_upload",
     "module": "employees"
@@ -217,27 +242,7 @@
     "menu": "payroll_access",
     "module": "payroll"
   },
-  {
-    "icon": "mdi mdi-calculator",
-    "title": "Settings",
-    "to": "/payroll/create",
-    "menu": "payroll_settings_access",
-    "module": "payroll"
-  },
-  {
-    "icon": "mdi-format-list-bulleted",
-    "title": "Payroll Formulla List",
-    "to": "/payroll_formula",
-    "menu": "payroll_settings_access",
-    "module": "payroll"
-  },
-  {
-    "icon": "mdi-format-list-bulleted",
-    "title": "Payroll Generation Date List",
-    "to": "/payroll_generate_date",
-    "menu": "payroll_settings_access",
-    "module": "payroll"
-  },
+  
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",
@@ -250,13 +255,6 @@
     "title": "Mapped List",
     "to": "/timezonemapping/list",
     "menu": "timezone_mapping_list",
-    "module": "access_control"
-  },
-  {
-    "icon": "mdi mdi-camera-account",
-    "title": "Photo Upload",
-    "to": "/employee_photo_upload",
-    "menu": "employee_photo_upload",
     "module": "access_control"
   },
   {

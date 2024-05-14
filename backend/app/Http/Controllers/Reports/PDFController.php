@@ -122,17 +122,17 @@ class PDFController extends Controller
 
         $model->where("company_id", $request->company_id);
 
-        $model->whereDate('LogTime', '>=', $request->filled("from_date") && $request->from_date !== 'null' ? $request->from_date : date("Y-m-d"));
+        $model->where('LogTime', '>=', $request->filled("from_date") && $request->from_date !== 'null' ? $request->from_date : date("Y-m-d"));
 
-        $model->whereDate('LogTime', '<=', $request->filled("to_date") && $request->to_date !== 'null' ? $request->to_date : date("Y-m-d"));
+        $model->where('LogTime', '<=', $request->filled("to_date") && $request->to_date !== 'null' ? $request->to_date : date("Y-m-d"));
 
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', ["all", "Access Control"]));
 
 
-        $model->where(function ($m) use ($request) {
-            $m->whereHas('tanent', fn ($q) => $q->where("company_id", $request->company_id));
-            $m->orWhereHas('member', fn ($q) => $q->where("company_id", $request->company_id));
-        });
+        // $model->where(function ($m) use ($request) {
+        //     $m->whereHas('tanent', fn ($q) => $q->where("company_id", $request->company_id));
+        //     $m->orWhereHas('member', fn ($q) => $q->where("company_id", $request->company_id));
+        // });
 
         $model->when(request()->filled("report_type"), function ($query) use ($request) {
             if ($request->report_type == "Allowed") {
@@ -152,8 +152,8 @@ class PDFController extends Controller
 
         $model->with("device");
 
-        $model->with('tanent', fn ($q) => $q->where('company_id', $request->company_id));
-        $model->with('member', fn ($q) => $q->where('company_id', $request->company_id));
+        // $model->with('tanent', fn ($q) => $q->where('company_id', $request->company_id));
+        // $model->with('member', fn ($q) => $q->where('company_id', $request->company_id));
 
         // ->distinct("LogTime", "UserID", "company_id")
         $model->when($request->filled('department_ids'), function ($q) use ($request) {
@@ -182,6 +182,10 @@ class PDFController extends Controller
 
                     $q->whereHas('device', fn (Builder $query) => $query->where('location', 'ILIKE', "$request->devicelocation%"));
                 }
+            })
+
+            ->with('employee', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
             })
 
             ->when($request->filled('branch_id'), function ($q) {

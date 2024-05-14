@@ -19,47 +19,13 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
+    css: [
+    ],
 
     link: [
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-
-      // { test
-      //   rel: "stylesheet",
-      //   href: "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css",
-      // },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css",
-      },
-      {
-        rel: "stylesheet",
-        href: "https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/4.4.95/css/materialdesignicons.min.css",
-      },
     ],
     script: [
-      {
-        type: "text/javascript",
-        src: "https://code.jquery.com/jquery-3.5.1.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-      {
-        type: "text/javascript",
-        src: "https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
-
-      {
-        type: "text/javascript",
-        src: "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js",
-        async: false,
-        body: false,
-      }, // Insert in body
     ],
   },
 
@@ -121,6 +87,7 @@ export default {
     middleware: ["auth"],
   },
 
+
   pwa: {
     manifest: {
       name: "MyTime 2 Cloud",
@@ -133,12 +100,19 @@ export default {
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
+
   vuetify: {
     customVariables: ["~/assets/variables.scss"],
     theme: {
       dark: false,
-
+      treeShake: true,
       themes: {
+        options: {
+          customProperties: true,
+        },
+        typography: {
+          fontFamily: 'Source Sans Pro', // Use the same font family name as declared in @font-face
+        },
         light: {
           //primary: "#5fafa3", //green
           primary: "#6946dd", //violoet
