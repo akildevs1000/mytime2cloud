@@ -574,7 +574,7 @@ export default {
     },
 
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -588,7 +588,7 @@ export default {
           return;
         }
 
-        const backendUrl = process.env.BACKEND_URL;
+        const backendUrl = `http://${window.location.hostname ?? "localhost"}:8000/api`;
         const queryParams = {
           company_id: this.$auth.user.company_id,
           branch_id: this.payload.branch_id,

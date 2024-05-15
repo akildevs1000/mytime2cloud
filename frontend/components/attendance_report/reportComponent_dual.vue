@@ -947,6 +947,7 @@ export default {
       },
     ],
     max_date: null,
+    baseURL: null,
   }),
 
   computed: {
@@ -1022,30 +1023,7 @@ export default {
     });
   },
   async created() {
-    // // this.loading = true;
-    // // this.setMonthlyDateRange();
-    // this.payload.daily_date = new Date().toJSON().slice(0, 10);
-    // this.payload.department_ids = this.$auth.user.assignedDepartments;
-    // let options = {
-    //   params: {
-    //     per_page: 1000,
-    //     company_id: this.$auth.user.company_id,
-    //     //department_ids: this.$auth.user.assignedDepartments,
-    //   },
-    // };
-    // this.getDepartments(options);
-    // this.getDeviceList(options);
-    // let dt = new Date();
-    // let y = dt.getFullYear();
-    // let m = dt.getMonth() + 1;
-    // let dd = new Date(dt.getFullYear(), m, 0);
-    // m = m < 10 ? "0" + m : m;
-    // this.payload.from_date = `${y}-${m}-01`;
-    // this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-    // // this.from_date = this.payload.daily_date;
-    // // this.to_date = this.payload.daily_date;
-    // // this.payload.from_date = this.payload.daily_date;
-    // // this.payload.to_date = this.payload.daily_date;
+    this.baseURL = `http://${window.location.hostname ?? "localhost"}:8000/api`;
   },
 
   methods: {
@@ -1377,7 +1355,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = this.baseURL + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1402,10 +1380,7 @@ export default {
       //type = "monthly";
       //type = type.toLowerCase().replace("custom", "monthly");
       let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
+        this.baseURL + "/" + this.process_file_endpoint + type.toLowerCase();
 
       let qs = ``;
 

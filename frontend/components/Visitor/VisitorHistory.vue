@@ -860,7 +860,7 @@ export default {
       const frequency = this.frequency;
       const company_id = this.$auth.user.company_id;
       let { itemsPerPage } = this.options;
-      let path = process.env.BACKEND_URL + "/visitor_attendance_report";
+      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/visitor_attendance_report";
 
       let qs = ``;
 

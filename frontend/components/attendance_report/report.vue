@@ -958,6 +958,7 @@ export default {
       },
     ],
     max_date: null,
+    baseURL: null,
   }),
 
   computed: {
@@ -983,6 +984,8 @@ export default {
     },
   },
   async created() {
+    this.baseURL = `http://${window.location.hostname ?? "localhost"}:8000/api`;
+
     this.main_report_type = this.main_report_type_props;
     this.loading = true;
     // this.setMonthlyDateRange();
@@ -1372,7 +1375,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = this.baseURL + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1391,10 +1394,7 @@ export default {
       }
       type = type.toLowerCase().replace("custom", "monthly");
       let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
+        this.baseURL + "/" + this.process_file_endpoint + type.toLowerCase();
 
       let qs = ``;
 

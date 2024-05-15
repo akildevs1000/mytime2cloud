@@ -446,7 +446,7 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     getDonwloadLink() {
-      return process.env.BACKEND_URL + "/download_postman_json";
+      return `http://${window.location.hostname ?? "localhost"}:8000/api` + "/download_postman_json";
     },
     regenerateToken() {
       this.loading_bar = true;

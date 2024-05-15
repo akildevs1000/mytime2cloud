@@ -572,7 +572,7 @@ export default {
           return;
         }
 
-        const backendUrl = process.env.BACKEND_URL;
+        const backendUrl = `http://${window.location.hostname ?? "localhost"}:8000/api`;
 
         const queryParams = {
           company_id: this.$auth.user.company_id,

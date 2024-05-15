@@ -328,8 +328,8 @@ export default {
     otp: "",
     userId: "",
     credentials: {
-      email: "",
-      password: "",
+      email: "admin",
+      password: "admin",
       source: "admin",
     },
   }),

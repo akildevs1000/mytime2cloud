@@ -1206,7 +1206,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1231,7 +1231,7 @@ export default {
       //type = "monthly";
       //type = type.toLowerCase().replace("custom", "monthly");
       let path =
-        process.env.BACKEND_URL +
+        `http://${window.location.hostname ?? "localhost"}:8000/api` +
         "/" +
         this.process_file_endpoint +
         type.toLowerCase();

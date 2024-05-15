@@ -901,12 +901,12 @@ export default {
     },
     // getDonwloadLink(pic, employee_id) {
     //   return (
-    //     process.env.BACKEND_URL + "/download-emp-pic/" + pic + "/" + employee_id
+    //     `http://${window.location.hostname ?? "localhost"}:8000/api` + "/download-emp-pic/" + pic + "/" + employee_id
     //   );
     // },
     getDonwloadLink(pic, employee_id) {
       return (
-        process.env.BACKEND_URL +
+        `http://${window.location.hostname ?? "localhost"}:8000/api` +
         "/download-employee-profile-pdf/" +
         employee_id
       );
