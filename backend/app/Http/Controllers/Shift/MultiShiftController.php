@@ -159,6 +159,7 @@ class MultiShiftController extends Controller
 
                 $minutes = 0;
 
+
                 if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
 
 
@@ -179,20 +180,12 @@ class MultiShiftController extends Controller
                     $totalMinutes += $minutes;
                 }
 
-
-
-                $logsJson[] =  [
-                    "in" => (isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "auto")) || ($currentLog["DeviceID"] == "Manual") ? $currentLog['time'] : "---",
-                    "out" => ($nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "auto")) || ($nextLog["DeviceID"] == "Manual") ? $nextLog['time'] : "---",
-
-                    // "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
-                    // "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
-
-                    // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                    "device_in" => $currentLog['device']['short_name'] ?? $currentLog['device']['name'] ??  "---",
-                    "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
-
-                    "total_minutes" =>  $this->minutesToHours($minutes),
+                $logsJson[] = [
+                    "in" => (isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "auto")) || (isset($currentLog["DeviceID"]) && $currentLog["DeviceID"] == "Manual") ? $currentLog['time'] : "---",
+                    "out" => ($nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "auto")) || ($nextLog && isset($nextLog["DeviceID"]) && $nextLog["DeviceID"] == "Manual") ? $nextLog['time'] : "---",
+                    "device_in" => isset($currentLog['device']) ? ($currentLog['device']['short_name'] ?? $currentLog['device']['name'] ?? "---") : "---",
+                    "device_out" => isset($nextLog['device']) ? ($nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---") : "---",
+                    "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);
