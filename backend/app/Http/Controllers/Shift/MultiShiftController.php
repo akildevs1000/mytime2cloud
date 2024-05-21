@@ -152,50 +152,38 @@ class MultiShiftController extends Controller
                 if ($nextLog && $nextLog['device']['function'] == "In") {
                     $i++;
                     $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                }
-
-                else if ($currentLog && $currentLog['device']['function'] == "Out") {
+                } else if ($currentLog && $currentLog['device']['function'] == "Out") {
                     $i++;
                     $currentLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
                 }
 
                 $minutes = 0;
 
-                if (
-                    isset($currentLog["device"]["function"]) &&
-                    (strtolower($currentLog["device"]["function"]) != "out")
-                    && $nextLog
-                    && isset($nextLog["device"]["function"])
-                    && (strtolower($nextLog["device"]["function"]) != "in")
-                ) {
+                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
 
 
-                    if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+                    $parsed_out = strtotime($nextLog['time'] ?? 0);
+                    $parsed_in = strtotime($currentLog['time'] ?? 0);
 
-
-                        $parsed_out = strtotime($nextLog['time'] ?? 0);
-                        $parsed_in = strtotime($currentLog['time'] ?? 0);
-
-                        if ($parsed_in > $parsed_out) {
-                            //$item["extra"] = $nextLog['time'];
-                            $parsed_out += 86400;
-                        }
-
-                        $diff = $parsed_out - $parsed_in;
-
-                        $minutes =  ($diff / 60);
-
-                        //$totalMinutes += $minutes > 0 ? $minutes : 0;
-
-                        $totalMinutes += $minutes;
+                    if ($parsed_in > $parsed_out) {
+                        //$item["extra"] = $nextLog['time'];
+                        $parsed_out += 86400;
                     }
+
+                    $diff = $parsed_out - $parsed_in;
+
+                    $minutes =  ($diff / 60);
+
+                    //$totalMinutes += $minutes > 0 ? $minutes : 0;
+
+                    $totalMinutes += $minutes;
                 }
 
 
 
                 $logsJson[] =  [
-                    "in" => isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] != "Out") ?  $currentLog['time'] : "---",
-                    "out" => $nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] != "In") ?  $nextLog['time'] : "---",
+                    "in" => (isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "auto")) || ($currentLog["DeviceID"] == "Manual") ? $currentLog['time'] : "---",
+                    "out" => ($nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "auto")) || ($nextLog["DeviceID"] == "Manual") ? $nextLog['time'] : "---",
 
                     // "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
                     // "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
