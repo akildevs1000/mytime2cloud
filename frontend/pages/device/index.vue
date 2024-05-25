@@ -698,7 +698,7 @@
               class="pb-0"
               :hide-details="!payload.model_number"
               v-model="payload.model_number"
-              :items="[`OX-866`, `OX-886`, `OX-966`]"
+              :items="[`OX-866`, `OX-886`, `OX-966`, `OX900`]"
               label="Model Number *"
               placeholder="Model Number"
             ></v-select>
@@ -1176,7 +1176,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-else-if="can(`device_edit`) && item.model_number == 'MEGVII'"
+                v-else-if="can(`device_edit`) && item.model_number == 'OX900'"
                 @click="showDeviceMegviiSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
