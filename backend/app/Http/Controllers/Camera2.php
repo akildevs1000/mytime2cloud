@@ -25,7 +25,7 @@ class Camera2 extends Controller
         //try {
         $device_sn = $request->device_sn;
         //$card_number = $request->card_number;
-        $person_code = $request->person_code;
+        $card_number = $request->person_code;
         $timestamp = $request->timestamp;
         $recognition_score = $request->recognition_score;
 
