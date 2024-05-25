@@ -639,7 +639,7 @@ class DeviceController extends Controller
     {
         $company_ids = Device::where("device_id", $request->device_id)->pluck('company_id');
         $branch_ids = Device::where("device_id", $request->device_id)->pluck('branch_id');
-        return  $devices_to_call = Device::wherein("company_id", $company_ids)->wherein("branch_id", $branch_ids)->get();
+        return  $devices_to_call = Device::wherein("company_id", $company_ids)->wherein("branch_id", $branch_ids)->where("serial_number", "!=", null)->get();
         $return = [];
         foreach ($devices_to_call as $key => $device) {
             try {
