@@ -216,8 +216,9 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function getCameraDeviceLiveStatus($company_id)
     {
+        //139.59.69.241:8888
         $online_devices_count = 0;
-        $devices = Device::where('company_id', $company_id)->where('model_number', "OX900"); //OX900
+        $devices = Device::where('company_id', $company_id)->where('model_number', "OX-900"); //OX-900
 
         $devices->clone()->update(["status_id" => 2]);
 

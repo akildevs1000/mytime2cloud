@@ -316,7 +316,7 @@ class DeviceController extends Controller
                     if ($device->model_number == 'CAMERA1') {
                         //(new DeviceCameraController())->updateTimeZone();
                     }
-                } else  if ($device->model_number == 'OX900') {
+                } else  if ($device->model_number == 'OX-900') {
                 } else {
 
                     $data = [
@@ -570,7 +570,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'OX900') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoor($device);
                 return $this->response('Open Door Command Successfull',  null, true);
             } else {
@@ -603,7 +603,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'OX900') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
                 return $this->response('Close Door Command Successfull',  null, true);
             } else {
@@ -650,7 +650,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'OX900') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoorAlways($device);
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
@@ -682,7 +682,7 @@ class DeviceController extends Controller
                 } catch (\Exception $e) {
                     return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
                 }
-            } else  if ($device->model_number == 'OX900') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
 
 
@@ -852,7 +852,7 @@ class DeviceController extends Controller
         } catch (\Exception $e) {
         }
         try {
-
+            //139.59.69.241:8888
             $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
 
             $online_devices_count = $online_devices_count +  $count;
