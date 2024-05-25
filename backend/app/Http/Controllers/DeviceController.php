@@ -294,7 +294,7 @@ class DeviceController extends Controller
             return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
     }
-    public function updateDeviceAlarmToSDK(Request $request)
+    public function AlarmOffToDeviceSDK(Request $request)
     {
 
 
@@ -317,31 +317,38 @@ class DeviceController extends Controller
                         //(new DeviceCameraController())->updateTimeZone();
                     }
                 } else  if ($device->model_number == 'OX-900') {
+
+                    (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
                 } else {
 
-                    $data = [
-                        "IllegalVerificationAlarm" => false,
-                        "PasswordAlarm" => false,
-                        "DoorMagneticAlarm" => false,
-                        "BlacklistAlarm" => false,
-                        "FireAlarm" => true,
-                        "OpenDoorTimeoutAlarm" => false,
-                        "AntiDisassemblyAlarm" => false,
-                    ];
-                    if ($request->status == 0) {
-                        (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
-                        //always open the door till close manually
-                        $this->CallAlwaysOpenDoor($request->serial_number);
+                    $url = env('SDK_URL') . "/$request->serial_number/CloseDoor";
+                    $response = $this->callCURL($url);
 
-                        $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
-                        Device::where("serial_number", $request->serial_number)->update($data);
 
-                        $data = ["status" => 0, "device_id" => $request->serial_number, "log_time" => date('Y-m-d H:i:s')];
-                        AlarmLogs::create($data);
 
-                        return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
-                    }
+                    // $data = [
+                    //     "IllegalVerificationAlarm" => false,
+                    //     "PasswordAlarm" => false,
+                    //     "DoorMagneticAlarm" => false,
+                    //     "BlacklistAlarm" => false,
+                    //     "FireAlarm" => true,
+                    //     "OpenDoorTimeoutAlarm" => false,
+                    //     "AntiDisassemblyAlarm" => false,
+                    // ];
+                    // if ($request->status == 0) {
+                    //     (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+                    //     //always open the door till close manually
+                    //     $this->CallAlwaysOpenDoor($request->serial_number);
+                    // }
                 }
+
+                $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
+                Device::where("serial_number", $request->serial_number)->update($data);
+
+                $data = ["status" => 0, "device_id" => $request->serial_number, "log_time" => date('Y-m-d H:i:s')];
+                AlarmLogs::create($data);
+
+                return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
             } catch (\Exception $e) {
                 return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
             }
@@ -627,6 +634,21 @@ class DeviceController extends Controller
     public function getAlarmNotification(Request $request)
     {
         return  $devices = Device::with(["branch", "zone"])->where("company_id", $request->company_id)->where("alarm_status", 1)->get();
+    }
+    public function triggerAllDeviceAlarmSDK(Request $request)
+    {
+        $company_ids = Device::where("device_id", $request->device_id)->pluck('company_id');
+        $branch_ids = Device::where("device_id", $request->device_id)->pluck('branch_id');
+        $devices_to_call = Device::wherein("company_id", $company_ids)->wherein("branch_id", $branch_ids)->get();
+        $return = [];
+        foreach ($devices_to_call as $key => $device) {
+            try {
+                $return[] =  (new DeviceController())->CallAlwaysOpenDoor($device->serial_number);
+                $data = ["alarm_status" => 1, "alarm_start_datetime" => date('Y-m-d H:i:s')];
+                Device::where("serial_number", $device->serial_number)->update($data);
+            } catch (\Exception $e) {
+            }
+        }
     }
     public function openDoorAlways(Request $request)
     {
