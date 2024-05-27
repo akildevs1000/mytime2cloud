@@ -698,7 +698,7 @@
               class="pb-0"
               :hide-details="!payload.model_number"
               v-model="payload.model_number"
-              :items="[`OX-866`, `OX-886`, `OX-966`]"
+              :items="[`OX-866`, `OX-886`, `OX-966`, `OX-900`]"
               label="Model Number *"
               placeholder="Model Number"
             ></v-select>
@@ -1176,7 +1176,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-else-if="can(`device_edit`) && item.model_number == 'MEGVII'"
+                v-else-if="can(`device_edit`) && item.model_number == 'OX-900'"
                 @click="showDeviceMegviiSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -1506,7 +1506,7 @@ export default {
           };
           this.loading = true;
           this.$axios
-            .post(`/update-device-alarm-status`, options.params)
+            .post(`/update-device-alarm-status-off`, options.params)
             .then(({ data }) => {
               this.getDataFromApi();
               if (!data.status) {

@@ -36,8 +36,8 @@ class DeviceCameraModel2Controller extends Controller
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
-                "text": "welcome",
-                "person_type": "staff"
+                "text": "Door Open",
+                "person_type": "admin-software"
             }
         }';
         $response = $this->postCURL('/api/devices/io', $json);
@@ -48,20 +48,20 @@ class DeviceCameraModel2Controller extends Controller
         //reset the always open door settings and then close the door automatically after 1 sec 
         $this->sxdmSn = $device->device_id;
         $json = '{             
-                "door_open_stat": "none"                 
-            
+                "door_open_stat": "none"   
+                              
+
         }';
         $response = $this->putCURL('/api/devices/door', $json);
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
-                "text": "welcome",
-                "person_type": "staff"
+                "text": "Door Closed",
+                "person_type": "admin-software"
             }
         }';
         $response = $this->postCURL('/api/devices/io', $json);
     }
-
     public function openDoorAlways($device)
     {
         $this->sxdmSn = $device->device_id;
@@ -216,8 +216,9 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function getCameraDeviceLiveStatus($company_id)
     {
+        //139.59.69.241:8888
         $online_devices_count = 0;
-        $devices = Device::where('company_id', $company_id)->where('model_number', "MEGVII");
+        $devices = Device::where('company_id', $company_id)->where('model_number', "OX-900"); //OX-900
 
         $devices->clone()->update(["status_id" => 2]);
 
