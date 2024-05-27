@@ -359,43 +359,24 @@ class SDKController extends Controller
     }
     public function getPersonDetails($device_id, $user_code)
     {
+        try {
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post(env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail", ["usercode" => $user_code]);
 
-        // $device_id = $request->device_id;
-        // $user_code = $request->user_code;
-        if ($device_id != '' && $user_code != '') {
+            $res = $response->json();
 
+            unset($res["data"]["faceImage"]);
 
-            $url = env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail";
-            $data =   ["usercode" => $user_code];
-
-
-            // return [$url, $data];
-            try {
-                $return = Http::timeout(3600)->withoutVerifying()->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])->post($url, $data);
-
-                $return = json_decode($return, true);
-                if (array_key_exists($return['status'], $this->SDKResponseArray)) {
-                    $return['message'] =  $this->SDKResponseArray[$return['status']];
-                }
-
-                return json_encode($return);
-            } catch (\Exception $e) {
-                return [
-                    "status" => 102,
-                    "message" => $e->getMessage(),
-                ];
-            }
-        } else {
+            return $res;
+        } catch (\Exception $e) {
             return [
                 "status" => 102,
-                "message" => "Invalid Details",
+                "message" => $e->getMessage(),
             ];
         }
-        // You can log the error or perform any other necessary actions here
-
     }
+
     public function processSDKRequestBulk($url, $data)
     {
 

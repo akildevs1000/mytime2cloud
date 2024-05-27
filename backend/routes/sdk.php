@@ -16,4 +16,4 @@ Route::post('/{id}/WriteTimeGroup', [SDKController::class, 'processTimeGroup']);
 Route::post('/Person/AddRange/Photos', [SDKController::class, 'PersonAddRangePhotos']);
 
 Route::post('/SDK/{id}/{command}', [SDKController::class, 'handleCommand']);
-//Route::post('/SDK/get-device-person-details', [SDKController::class, 'getPersonDetails']);
+Route::get('/SDK/get-device-person-details/{device_id}/{user_code}', [SDKController::class, 'getPersonDetails']);
