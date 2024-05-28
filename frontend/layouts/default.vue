@@ -143,7 +143,7 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="font-size: 16px;font-weight: 600;">
+                <b style="font-size: 16px; font-weight: 600">
                   {{ items.title }}
                 </b>
               </v-btn>
@@ -344,7 +344,6 @@
         </template>
       </v-snackbar>
       <v-dialog
-        persistent
         v-model="alarmNotificationStatus"
         transition="dialog-top-transition"
         max-width="800"
@@ -362,6 +361,10 @@
                 color: #fff !important;
               "
               >Attention :Fire Alarm Notification
+              <v-spacer></v-spacer>
+              <v-icon color="white" @click="alarmNotificationStatus = false"
+                >mdi-close-circle-outline</v-icon
+              >
             </v-toolbar>
             <v-card-text>
               <v-row

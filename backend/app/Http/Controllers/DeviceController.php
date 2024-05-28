@@ -378,7 +378,7 @@ class DeviceController extends Controller
             $device_settings = [
                 // "name" => $request->deviceSettings['name'] ?? '',
                 "name" =>  '',
-                "door" => $request->deviceSettings['door'] ?? '1',
+                // "door" => $request->deviceSettings['door'] ?? '1',
 
 
                 "language" => $request->deviceSettings['language'] ?? '2',
@@ -490,6 +490,21 @@ class DeviceController extends Controller
 
         try {
             $record = $Device->update($request->validated());
+
+            //update to Device 
+            if ($request->model_number == 'OX-900') {
+                $json = '{             
+                        "enable": ' .  $request->function == 'Auto'  ? 'true' : 'false' . '  
+                    }';
+                (new DeviceCameraModel2Controller($request->camera_sdk_url))->updateAttendanceSDKData($request->device_id, $json);
+            } else {
+
+                $device_settings = [
+                    "door" => $request->function == 'In' ? 0 : '1'
+
+                ];
+                (new SDKController)->processSDKRequestSettingsUpdate($request->device_id, $device_settings);
+            }
 
 
 

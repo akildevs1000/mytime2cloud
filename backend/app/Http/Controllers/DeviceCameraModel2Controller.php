@@ -75,9 +75,34 @@ class DeviceCameraModel2Controller extends Controller
     {
         $this->sxdmSn = $request->deviceSettings['device_id'];
         $json = '{             
-                "voice_volume": ' . round($request->deviceSettings['voice_volume']) . '              
-            
-        }';
+                "voice_volume": ' . round($request->deviceSettings['voice_volume']) . '   }';
+        $response = $this->putCURL('/api/devices/profile', $json);
+        //---------------------------
+
+
+        $data["verification_mode"] = $request->deviceSettings['verification_mode'];
+        $data["open_duration"] = $request->deviceSettings['open_duration']  * 1000;
+
+        $response1  = $this->putCURL('/api/devices/door', json_encode($data));
+        //---------------------------
+        $json = '{             
+            "recognition_mode": "' .  ($request->deviceSettings['recognition_mode']) . '"}';
+        $response = $this->putCURL('/api/devices/recognition', $json);
+
+        return $response1;
+    }
+
+    public function updateAttendanceSDKData($device_id, $json)
+    {
+        $this->sxdmSn = $device_id;
+
+        $response = $this->putCURL('/api/custom/attendance', $json);
+    }
+
+    public function updateSDKData($device_id, $json)
+    {
+        $this->sxdmSn = $device_id;
+
         $response = $this->putCURL('/api/devices/profile', $json);
     }
     public function getSettings($device)
@@ -91,6 +116,7 @@ class DeviceCameraModel2Controller extends Controller
             $door = $this->getCURL('/api/devices/door');
             $network = $this->getCURL('/api/devices/network');
             $server = $this->getCURL('/api/devices/server');
+            $recognition = $this->getCURL('/api/devices/recognition');
 
             $row['model_spec'] = $status['model_spec'];
             $row['voice_volume'] = $profile['voice_volume'];
@@ -99,7 +125,9 @@ class DeviceCameraModel2Controller extends Controller
             $row['wifi_ip'] = $network['wifi']['ip'];
             $row['lan_ip'] = $network['lan']['ip'];
             $row['ipaddr'] = $server['ipaddr'];
-
+            $row['open_duration'] =   $door['open_duration'] / 1000;
+            $row['verification_mode'] = $door['verification_mode'];
+            $row['recognition_mode'] = $recognition['recognition_mode'];
 
 
             $inputDateString = $row['local_time'];

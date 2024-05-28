@@ -208,7 +208,7 @@
                       </td>
                     </tr> -->
 
-                    <tr>
+                    <!-- <tr>
                       <td>Door</td>
                       <td>
                         <v-select
@@ -226,7 +226,7 @@
                           label="Entry or exit"
                         ></v-select>
                       </td>
-                    </tr>
+                    </tr> -->
 
                     <tr>
                       <td>Language</td>
@@ -308,7 +308,7 @@
                         ></v-select>
                       </td>
                     </tr>
-                    <tr>
+                    <!-- <tr>
                       <td>Time</td>
                       <td>
                         <v-text-field
@@ -384,7 +384,7 @@
                           </v-date-picker>
                         </v-menu>
                       </td>
-                    </tr>
+                    </tr> -->
                     <tr>
                       <td></td>
                       <td>
@@ -410,7 +410,7 @@
     <v-dialog v-model="DialogDeviceMegviiSettings" max-width="800px">
       <v-card>
         <v-card-title class="popup_background">
-          <span>Camera Device MEGVII Settings </span>
+          <span>Device - OXSAI Settings </span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="DialogDeviceMegviiSettings = false"
@@ -421,7 +421,7 @@
         <v-card-text class="mt-2">
           <v-row class="100%" style="margin: auto; line-height: 36px">
             <v-col cols="12" style="padding: 0px">
-              <v-simple-table>
+              <table style="width: 100%">
                 <tr>
                   <td colspan="2">
                     <v-btn
@@ -435,7 +435,7 @@
                         )
                       "
                     >
-                      Reload
+                      Reload <br />
                     </v-btn>
                     <br />
                     <div v-if="loadingDeviceData" style="color: red">
@@ -446,8 +446,8 @@
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <td>Device Model</td>
+                <!-- <tr>
+                  <td style="width: 30%">Model</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -458,23 +458,69 @@
                       dense
                     ></v-text-field>
                   </td>
-                </tr>
+                </tr> -->
 
                 <tr>
-                  <td>Device Time</td>
+                  <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
+                    <v-select
+                      :disable="loadingDeviceData"
+                      :readOnly="loadingDeviceData"
                       class="pb-0"
-                      v-model="deviceCAMVIISettings.local_time"
-                      placeholder="Device Time"
+                      v-model="deviceCAMVIISettings.recognition_mode"
+                      placeholder="Mode"
+                      @change="UpdateverificationModeItems()"
+                      :items="[
+                        { name: 'Single Person', value: 'single' },
+                        {
+                          name: 'Multi Person Attendance',
+                          value: 'double',
+                        },
+                      ]"
+                      item-value="value"
+                      item-text="name"
                       outlined
                       dense
-                    ></v-text-field>
+                      label="Persons Entry"
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
-                  <td>Device Always Open Status</td>
+                  <td>Door Open</td>
+                  <td>
+                    <v-row>
+                      <v-col cols="6">
+                        <v-select
+                          :disable="loadingDeviceData"
+                          class="pb-0"
+                          v-model="deviceCAMVIISettings.verification_mode"
+                          placeholder="Mode"
+                          :items="verificationModeItems"
+                          item-value="value"
+                          item-text="name"
+                          outlined
+                          dense
+                          label="Open Mode"
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-select
+                          :disable="loadingDeviceData"
+                          class="pb-0"
+                          v-model="deviceCAMVIISettings.open_duration"
+                          placeholder="Mode"
+                          :items="oneTOsixty"
+                          outlined
+                          dense
+                          label="Duration"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                  </td>
+                </tr>
+
+                <!-- <tr>
+                  <td>Always Open Status</td>
                   <td>
                     <v-switch
                       :disabled="true"
@@ -488,7 +534,7 @@
                       value="green"
                       hide-details
                     ></v-switch>
-                    <!-- <v-text-field
+                      <v-text-field
                       :disabled="true"
                       class="pb-0"
                       v-model="deviceCAMVIISettings.door_open_stat"
@@ -496,12 +542,49 @@
                       outlined
                       dense
                       label="Device Always Open Status  "
+                    ></v-text-field> 
+                  </td>
+                </tr> -->
+                <tr>
+                  <td>Volume</td>
+                  <td>
+                    <v-progress-linear
+                      style="cursor: pointer"
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      height="25"
+                    >
+                      <strong
+                        >{{ Math.ceil(deviceCAMVIISettings.voice_volume) }}%
+                      </strong>
+                    </v-progress-linear>
+
+                    (Click on color Bar to change the Volume)<br /><br />
+                    <!-- <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      placeholder="Device Volume"
+                      outlined
+                      dense
+                      label="Device Volume  "
                     ></v-text-field> -->
                   </td>
                 </tr>
-
                 <tr>
-                  <td>Device Wifi IP</td>
+                  <td>Time</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.local_time"
+                      placeholder="Device Time"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Wifi IP</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -514,7 +597,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>Device LAN IP</td>
+                  <td>LAN IP</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -526,8 +609,8 @@
                     ></v-text-field>
                   </td>
                 </tr>
-                <tr>
-                  <td>Device Server IP address</td>
+                <!-- <tr>
+                  <td>Server IP address</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -538,31 +621,7 @@
                       dense
                     ></v-text-field>
                   </td>
-                </tr>
-                <tr>
-                  <td>Device Volume</td>
-                  <td>
-                    <v-progress-linear
-                      v-model="deviceCAMVIISettings.voice_volume"
-                      height="25"
-                    >
-                      <strong
-                        >{{
-                          Math.ceil(deviceCAMVIISettings.voice_volume)
-                        }}%</strong
-                      >
-                    </v-progress-linear>
-                    <!-- <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.voice_volume"
-                      placeholder="Device Volume"
-                      outlined
-                      dense
-                      label="Device Volume  "
-                    ></v-text-field> -->
-                  </td>
-                </tr>
+                </tr> -->
 
                 <tr>
                   <td></td>
@@ -577,7 +636,7 @@
                     >
                   </td>
                 </tr>
-              </v-simple-table>
+              </table>
             </v-col>
           </v-row>
         </v-card-text>
@@ -1215,7 +1274,8 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
-    deviceCAMVIISettings: {},
+    oneTOsixty: [],
+    deviceCAMVIISettings: { voice_volume: 0 },
     DialogDeviceMegviiSettings: false,
     valid: false,
     rules: [(value) => (value || "").length <= 10 || "Max 10 characters"],
@@ -1229,6 +1289,15 @@ export default {
       (value) => (value || "").length <= 8 || "Max 8 characters",
     ],
     sdk_message: "",
+    verificationModeItems: [
+      { name: "Face", value: "face" },
+      { name: "Face Or Card", value: "face_or_card" },
+      { name: "Face and Card", value: "face_and_card" },
+      {
+        name: "Face and Password",
+        value: "face_and_pass",
+      },
+    ],
     DialogDeviceSettings: false,
     deviceSettings: { maker: {} },
     to_menu_filter: false,
@@ -1453,6 +1522,9 @@ export default {
     }, 1000 * 60);
   },
   async created() {
+    for (let index = 1; index <= 60; index++) {
+      this.oneTOsixty.push(index);
+    }
     this.loading = true;
 
     if (this.$auth.user.branch_id) {
@@ -1494,6 +1566,24 @@ export default {
   },
 
   methods: {
+    UpdateverificationModeItems() {
+      if (this.deviceCAMVIISettings.recognition_mode == "single") {
+        this.verificationModeItems = [
+          { name: "Face", value: "face" },
+          { name: "Face Or Card", value: "face_or_card" },
+          { name: "Face and Card", value: "face_and_card" },
+          {
+            name: "Face and Password",
+            value: "face_and_pass",
+          },
+        ];
+      } else {
+        this.verificationModeItems = [
+          { name: "Face", value: "face" },
+          { name: "Face Or Card", value: "face_or_card" },
+        ];
+      }
+    },
     UpdateAlarmStatus(item, status) {
       if (status == 0) {
         if (confirm("Are you sure you want to TURN OFF the Alarm")) {
@@ -1655,6 +1745,8 @@ export default {
               this.deviceCAMVIISettings = data.SDKresponseData.data;
               this.deviceCAMVIISettings.device_id = device_id;
 
+              this.UpdateverificationModeItems();
+
               return;
             }
           });
@@ -1690,10 +1782,10 @@ export default {
               this.deviceSettings = data.SDKresponseData.data;
               this.deviceSettings.device_id = device_id;
 
-              this.deviceSettings.time = this.deviceSettings.time.replace(
-                "T",
-                " "
-              );
+              // this.deviceSettings.time = this.deviceSettings.time.replace(
+              //   "T",
+              //   " "
+              // );
 
               return;
             }
