@@ -50,6 +50,9 @@ class DbBackup extends Command
 
 
         $this->sqlBackup();
+
+
+        echo exec("php artisan backup:clean --only-db");
     }
 
     public function sqlBackup()
