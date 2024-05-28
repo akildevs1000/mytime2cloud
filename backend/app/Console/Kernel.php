@@ -265,6 +265,7 @@ class Kernel extends ConsoleKernel
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
+
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
@@ -281,6 +282,13 @@ class Kernel extends ConsoleKernel
 
         }
 
+        $schedule
+            ->command("task:files-delete-old-log-files")
+
+            ->dailyAt('23:30')
+            //->withoutOverlapping()
+            ->appendOutputTo(storage_path("kernal_logs/$monthYear-delete-old-logs.log"))
+            ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
         $schedule->call(function () {
@@ -362,6 +370,8 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('6:00')
                 ->appendOutputTo(storage_path("kernal_logs/db_backup.log"))
                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
 
             $schedule
                 ->command('restart_sdk')

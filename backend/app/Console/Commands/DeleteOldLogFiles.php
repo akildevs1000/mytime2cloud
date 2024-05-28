@@ -14,7 +14,7 @@ class DeleteOldLogFiles extends Command
      *
      * @var string
      */
-    protected $signature = 'files:delete-old-log-files';
+    protected $signature = 'task:files-delete-old-log-files';
 
     /**
      * The console command description.
