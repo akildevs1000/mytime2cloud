@@ -169,6 +169,7 @@ class SDKController extends Controller
             return in_array($item['device_id'], $snList);
         });
         $message = [];
+
         foreach ($filteredCameraArray as  $value) {
 
             foreach ($request->personList as  $persons) {
@@ -176,11 +177,13 @@ class SDKController extends Controller
 
                     //$personProfilePic = $persons['faceImage'];
                     $personProfilePic = public_path('media/employee/profile_picture/' . $persons['profile_picture_raw']);
+                    //$personProfilePic = public_path('media/employee/profile_picture/' .  "1666962517.jpg");
+
                     if ($personProfilePic != '') {
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
+                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id']);
                     }
                 }
             }

@@ -16,7 +16,7 @@ class DeviceCameraModel2Controller extends Controller
 {
     public  $camera_sdk_url = '';
     public  $sxdmToken = '7VOarATI4IfbqFWLF38VdWoAbHUYlpAY';
-    public  $sxdmSn = 'M014200892105001731';
+    public  $sxdmSn = '';
 
 
     public function __construct($camera_sdk_url)
@@ -139,12 +139,12 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id)
     {
 
         try {
 
-
+            $this->sxdmSn = $device_id;
             $sessionId = $this->getActiveSessionId();
             if ($sessionId != '') {
 
@@ -160,27 +160,30 @@ class DeviceCameraModel2Controller extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => '{
-                    "recognition_type": "staff",
-                    "is_admin": false,
-                    "person_name": "' . $name . '",
-                    "id": ' . $system_user_id . ',
-                    "password": "123456",
-                    "card_number": ' . $system_user_id . ',
-                    "person_code":' . $system_user_id . ',
-                    "visit_begin_time": "' . date('Y-m-d 00:00:00') . '",
-                    "visit_end_time": "' .  date('Y-m-d 00:00:00', strtotime(date("Y-m-d 23:00:00") . " + 365 day")) . '",
-                    "phone_num":"18686868686",
-                    "group_list": [
-                      1
-                    ],
-                    "feature_version":"8903",
-                    "face_list": [
-                      {
-                        "idx": 3,
-                        "data": "' . $base65Image . '"
-                      }
-                    ]
-                  }',
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id": "",
+                        "card_number": "",
+                        "id_number": "",
+                        "pass": "",
+                        "password": "",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                        "face_list": [
+                          {
+                            "idx": 0,
+                            "data":  "' . $base65Image . ' "
+                          }
+                        ]
+                      }',
                     CURLOPT_HTTPHEADER => array(
                         'Content-Type: application/json',
                         'Cookie: sessionID=' . $sessionId,
@@ -189,10 +192,33 @@ class DeviceCameraModel2Controller extends Controller
                     ),
                 ));
 
+                // CURLOPT_POSTFIELDS => '{
+                //     "recognition_type": "staff",
+                //     "is_admin": false,
+                //     "person_name": "' . $name . '",
+                //     "id": ' . $system_user_id . ',
+                //     "password": "123456",
+                //     "card_number": ' . $system_user_id . ',
+                //     "person_code":' . $system_user_id . ',
+                //     "visit_begin_time": "' . date('Y-m-d 00:00:00') . '",
+                //     "visit_end_time": "' .  date('Y-m-d 00:00:00', strtotime(date("Y-m-d 23:00:00") . " + 365 day")) . '",
+                //     "phone_num":"18686868686",
+                //     "group_list": [
+                //       1
+                //     ],
+                //     "feature_version":"8903",
+                //     "face_list": [
+                //       {
+                //         "idx": 3,
+                //         "data": "' . $base65Image . '"
+                //       }
+                //     ]
+                //   }',
+
                 $response = curl_exec($curl);
 
                 curl_close($curl);
-                //return $response;
+
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
             } else {
