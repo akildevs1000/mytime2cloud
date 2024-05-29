@@ -23,6 +23,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $file_name_raw = "kernal_logs/test.txt";
+        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices test listed');
 
         $schedule->call(function () {
             $file_name_raw = "kernal_logs/test.txt";
