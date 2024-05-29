@@ -117,7 +117,7 @@ class Kernel extends ConsoleKernel
                 }
             }
         }
-        exit;
+
         // $schedule->call(function () {
         //     exec('pm2 reload 5');
         //     info("Log listener restart");
