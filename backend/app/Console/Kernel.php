@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->call(function () {
-            $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+            $file_name_raw = "kernal_logs/test.txt";
             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
         })->everyMinute();
         //-------------------------------------------------------------------------------------------------------------------------
