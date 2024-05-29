@@ -609,6 +609,19 @@
                     ></v-text-field>
                   </td>
                 </tr>
+                <tr>
+                  <td>Persons Count</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.persons_count"
+                      placeholder="Persons count on Device"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
                 <!-- <tr>
                   <td>Server IP address</td>
                   <td>

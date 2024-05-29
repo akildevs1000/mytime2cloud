@@ -118,6 +118,16 @@ class DeviceCameraModel2Controller extends Controller
             $server = $this->getCURL('/api/devices/server');
             $recognition = $this->getCURL('/api/devices/recognition');
 
+            $json = '{
+                "cmd": "person_list_query",
+                 
+                "limit": 100,
+                "offset": 0,
+                "sort": "asc",
+               
+              }';
+            $persons = $this->postCURL('/api/groups/query', $json);
+
             $row['model_spec'] = $status['model_spec'];
             $row['voice_volume'] = $profile['voice_volume'];
             $row['local_time'] = $time['local_time'];
@@ -128,6 +138,12 @@ class DeviceCameraModel2Controller extends Controller
             $row['open_duration'] =   $door['open_duration'] / 1000;
             $row['verification_mode'] = $door['verification_mode'];
             $row['recognition_mode'] = $recognition['recognition_mode'];
+
+            $persons_count = 0;
+            foreach ($persons['data'] as $key => $value) {
+                $persons_count = $persons_count + $value['person_count'];
+            }
+            $row['persons_count'] =  ($persons_count);
 
 
             $inputDateString = $row['local_time'];
