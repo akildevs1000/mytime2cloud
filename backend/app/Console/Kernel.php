@@ -64,6 +64,9 @@ class Kernel extends ConsoleKernel
                             $timeArray = explode(":", $timeValue);
 
                             if (date("H:i") == $timeValue) {
+                                $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+
                                 $result = (new SDKController)->handleCommand($device->device_id, "HoldDoor");
                             }
 
