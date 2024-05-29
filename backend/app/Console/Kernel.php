@@ -23,6 +23,11 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->call(function () {
+            $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
+        })->everyMinute();
         //-------------------------------------------------------------------------------------------------------------------------
         //Schedule Device Access Control 
 
