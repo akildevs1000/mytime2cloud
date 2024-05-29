@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\SDKController;
 use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
 use App\Models\DeviceActivesettings;
@@ -62,6 +63,11 @@ class Kernel extends ConsoleKernel
                             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
                             $timeArray = explode(":", $timeValue);
 
+                            if (date("H:i") == $timeValue) {
+                                $result = (new SDKController)->handleCommand($device->device_id, "HoldDoor");
+                            }
+
+
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
                                 ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
@@ -98,6 +104,10 @@ class Kernel extends ConsoleKernel
                             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
 
                             $timeArray = explode(":", $timeValue);
+
+                            if (date("H:i") == $timeValue) {
+                                $result = (new SDKController)->handleCommand($device->device_id, "CloseDoor");
+                            }
 
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
