@@ -11,6 +11,7 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Storage;
 
 class Kernel extends ConsoleKernel
 {
@@ -421,6 +422,10 @@ class Kernel extends ConsoleKernel
             ->where('date_to', '>=', $date)
             ->get();
 
+        $file_name_raw = "jobs_pdf/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
+
+
         foreach ($devices as $device) {
             $deviceId = $device->device_id;
             $logPath = storage_path("logs/{$date}-access-control-time-slot-logs.log");
@@ -432,6 +437,9 @@ class Kernel extends ConsoleKernel
 
                 foreach ($jsonArray as $key => $time) {
                     if ($weekDays[$key] == $today) {
+                        $file_name_raw = "jobs_pdf/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - cmd - {$command}');
+
                         $schedule
                             ->command("task:AccessControlTimeSlots {$deviceId} {$command}")
                             ->dailyAt($time)
