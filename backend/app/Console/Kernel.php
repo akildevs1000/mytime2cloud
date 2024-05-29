@@ -40,6 +40,9 @@ class Kernel extends ConsoleKernel
             $q->orWhere('date_to', "<=", date("Y-m-d"));
         })->get();
 
+
+
+
         $weekDays = [0 => "Sun", 1 => "Mon", 2 => "Tue", 3 => "Wed", 4 => "Thu", 5 => "Fri", 6 => "Sat"];
         // $file_name_raw = "kernal_logs/$date-device-access.log";
         // Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
@@ -67,12 +70,12 @@ class Kernel extends ConsoleKernel
                                 $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
                                 Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
 
-                                $result = (new SDKController)->handleCommand($device->device_id, "HoldDoor");
+                                $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
                             }
 
 
                             $schedule
-                                ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
                                 ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
@@ -109,11 +112,11 @@ class Kernel extends ConsoleKernel
                             $timeArray = explode(":", $timeValue);
 
                             if (date("H:i") == $timeValue) {
-                                $result = (new SDKController)->handleCommand($device->device_id, "CloseDoor");
+                                $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
                             }
 
                             $schedule
-                                ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
                                 ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
