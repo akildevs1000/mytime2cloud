@@ -422,7 +422,7 @@ class Kernel extends ConsoleKernel
             ->where('date_to', '>=', $date)
             ->get();
 
-        $file_name_raw = "jobs_pdf/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
         Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
 
 
@@ -437,7 +437,7 @@ class Kernel extends ConsoleKernel
 
                 foreach ($jsonArray as $key => $time) {
                     if ($weekDays[$key] == $today) {
-                        $file_name_raw = "jobs_pdf/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+                        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
                         Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - cmd - {$command}');
 
                         $schedule
