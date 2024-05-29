@@ -23,7 +23,50 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        //-------------------------------------------------------------------------------------------------------------------------
+        //Schedule Device Access Control 
 
+        $date = date('Y-m-d');  // Gets the current date in Y-m-d format
+        $today = date("D");     // Gets the current day abbreviation (Mon, Tue, etc.)
+        $weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];  // Corrected the array to match PHP's date() output for day abbreviation
+
+        // Fetch devices where the current date is within the date range
+        $devices = DeviceActivesettings::where('date_from', '<=', $date)
+            ->where('date_to', '>=', $date)
+            ->get();
+
+        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
+
+
+        foreach ($devices as $device) {
+            $deviceId = $device->device_id;
+            $logPath = storage_path("logs/{$date}-access-control-time-slot-logs.log");
+            $adminMail = env("ADMIN_MAIL_RECEIVERS");
+
+            // Function to schedule tasks based on JSON data
+            $scheduleTasks = function ($json, $command) use ($weekDays, $today, $deviceId, $logPath, $adminMail, $schedule) {
+                $jsonArray = json_decode($json, true);  // Decode JSON to associative array
+
+                foreach ($jsonArray as $key => $time) {
+                    if ($weekDays[$key] == $today) {
+                        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
+                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - cmd - {$command}');
+
+                        $schedule
+                            ->command("task:AccessControlTimeSlots {$deviceId} {$command}")
+                            ->dailyAt($time)
+                            ->withoutOverlapping()
+                            ->appendOutputTo($logPath)
+                            ->emailOutputOnFailure($adminMail);
+                    }
+                }
+            };
+
+            // Schedule open and close tasks
+            $scheduleTasks($device['open_json'], 'HoldDoor');
+            $scheduleTasks($device['close_json'], 'CloseDoor');
+        }
 
         // $schedule->call(function () {
         //     exec('pm2 reload 5');
@@ -410,50 +453,7 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("kernal_logs/restart_sdk.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
 
-        //-------------------------------------------------------------------------------------------------------------------------
-        //Schedule Device Access Control 
 
-        $date = date('Y-m-d');  // Gets the current date in Y-m-d format
-        $today = date("D");     // Gets the current day abbreviation (Mon, Tue, etc.)
-        $weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];  // Corrected the array to match PHP's date() output for day abbreviation
-
-        // Fetch devices where the current date is within the date range
-        $devices = DeviceActivesettings::where('date_from', '<=', $date)
-            ->where('date_to', '>=', $date)
-            ->get();
-
-        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
-        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
-
-
-        foreach ($devices as $device) {
-            $deviceId = $device->device_id;
-            $logPath = storage_path("logs/{$date}-access-control-time-slot-logs.log");
-            $adminMail = env("ADMIN_MAIL_RECEIVERS");
-
-            // Function to schedule tasks based on JSON data
-            $scheduleTasks = function ($json, $command) use ($weekDays, $today, $deviceId, $logPath, $adminMail, $schedule) {
-                $jsonArray = json_decode($json, true);  // Decode JSON to associative array
-
-                foreach ($jsonArray as $key => $time) {
-                    if ($weekDays[$key] == $today) {
-                        $file_name_raw = "kernal_logs/kernal_logs_devices-" . date("d-m-Y") . ".txt";
-                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - cmd - {$command}');
-
-                        $schedule
-                            ->command("task:AccessControlTimeSlots {$deviceId} {$command}")
-                            ->dailyAt($time)
-                            ->withoutOverlapping()
-                            ->appendOutputTo($logPath)
-                            ->emailOutputOnFailure($adminMail);
-                    }
-                }
-            };
-
-            // Schedule open and close tasks
-            $scheduleTasks($device['open_json'], 'HoldDoor');
-            $scheduleTasks($device['close_json'], 'CloseDoor');
-        }
         // $date = date('Y-m-d');
         // $devices =  DeviceActivesettings::where(function ($q) {
         //     $q->orWhere('date_from', ">=", date("Y-m-d"));
