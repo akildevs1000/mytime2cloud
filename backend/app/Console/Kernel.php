@@ -56,17 +56,17 @@ class Kernel extends ConsoleKernel
                     if (count($time) == 1) {
                         $key1 = 0;
                     }
-                    if ($weekDays[$key1] == date("D")) {
+                    //     if ($weekDays[$key1] == date("D")) {
 
-                        $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
-                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs.log');
-                        $schedule
-                            ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-                            ->at($time)
-                            ->withoutOverlapping()
-                            ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-                    }
+                    $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
+                    Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $time[$key1]);
+                    $schedule
+                        ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+                        ->at($time[$key1])
+                        ->withoutOverlapping()
+                        ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                        ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                    //     }
                 }
             }
             //
@@ -82,18 +82,18 @@ class Kernel extends ConsoleKernel
                         $key1 = 0;
                     }
 
-                    if ($weekDays[$key1] == date("D")) {
-                        $file_name_raw = "kernal_logs/$date-device-close-access.log";
-                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs.log');
+                    //     if ($weekDays[$key1] == date("D")) {
+                    $file_name_raw = "kernal_logs/$date-device-close-access.log";
+                    Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $time[$key1]);
 
-                        $schedule
-                            ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+                    $schedule
+                        ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
 
-                            ->at($time)
-                            ->withoutOverlapping()
-                            ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
-                            ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-                    }
+                        ->at($time[$key1])
+                        ->withoutOverlapping()
+                        ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
+                        ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                    //     }
                 }
             }
         }
