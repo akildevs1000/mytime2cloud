@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         $schedule->call(function () {
             $file_name_raw = "kernal_logs/test.txt";
             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
-        })->everyMinute();
+        })->everyMinute()->appendOutputTo(storage_path("test.txt"));
         //-------------------------------------------------------------------------------------------------------------------------
         //Schedule Device Access Control 
 
