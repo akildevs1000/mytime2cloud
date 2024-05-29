@@ -40,7 +40,7 @@ class Kernel extends ConsoleKernel
         })->get();
 
         $weekDays = [0 => "Mon", 1 => "Tue", 2 => "Wed", 3 => "Thu", 4 => "Fri", 5 => "Sat", 6 => "Sun"];
-        $file_name_raw = "kernal_logs/device-access.txt";
+        $file_name_raw = "kernal_logs/$date-device-access.log";
         Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
 
         foreach ($devices as $key => $device) {
@@ -60,7 +60,7 @@ class Kernel extends ConsoleKernel
 
                     if ($weekDays[$key1] == date("D")) {
 
-                        $file_name_raw = "kernal_logs/device-access.txt";
+                        $file_name_raw = "kernal_logs/$date-device-access.log";
                         Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs.log');
                         $schedule
                             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
@@ -86,7 +86,7 @@ class Kernel extends ConsoleKernel
                     }
 
                     if ($weekDays[$key1] == date("D")) {
-                        $file_name_raw = "kernal_logs/device-access.txt";
+                        $file_name_raw = "kernal_logs/$date-device-access.log";
                         Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_open_logs.log');
 
                         $schedule
