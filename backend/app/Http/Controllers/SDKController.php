@@ -464,7 +464,7 @@ class SDKController extends Controller
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("http://139.59.69.241:5000/$id/$command");
+            ])->post(env('SDK_URL') . "/$id/$command");
         } catch (\Exception $e) {
             return [
                 "status" => 102,
