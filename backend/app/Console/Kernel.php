@@ -23,13 +23,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $file_name_raw = "test.txt";
-        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices test listed');
+        // $file_name_raw = "test.txt";
+        // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices test listed');
 
-        $schedule->call(function () {
-            $file_name_raw = "test.txt";
-            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
-        })->everyMinute()->appendOutputTo(storage_path("test.txt"));
+        // $schedule->call(function () {
+        //     $file_name_raw = "test.txt";
+        //     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
+        // })->everyMinute()->appendOutputTo(storage_path("test.txt"));
         //-------------------------------------------------------------------------------------------------------------------------
         //Schedule Device Access Control 
 
@@ -40,6 +40,8 @@ class Kernel extends ConsoleKernel
         })->get();
 
         $weekDays = [0 => "Mon", 1 => "Tue", 2 => "Wed", 3 => "Thu", 4 => "Fri", 5 => "Sat", 6 => "Sun"];
+        $file_name_raw = "kernal_logs/device-access.txt";
+        Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
 
         foreach ($devices as $key => $device) {
 
@@ -57,13 +59,15 @@ class Kernel extends ConsoleKernel
 
 
                     if ($weekDays[$key1] == date("D")) {
+
+                        $file_name_raw = "kernal_logs/device-access.txt";
+                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs.log');
                         $schedule
                             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-                            // ->everyThirtyMinutes()
-                            ->everyMinute()
-                            ->dailyAt($time)
+
+                            ->at($time)
                             ->withoutOverlapping()
-                            ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                            ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                     }
                 }
@@ -82,13 +86,15 @@ class Kernel extends ConsoleKernel
                     }
 
                     if ($weekDays[$key1] == date("D")) {
+                        $file_name_raw = "kernal_logs/device-access.txt";
+                        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_open_logs.log');
+
                         $schedule
                             ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
-                            // ->everyThirtyMinutes()
-                            ->everyMinute()
-                            ->dailyAt($time)
+
+                            ->at($time)
                             ->withoutOverlapping()
-                            ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                            ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
                             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                     }
                 }
