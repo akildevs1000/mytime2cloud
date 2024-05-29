@@ -266,7 +266,7 @@
               class="black--text slidegroup1"
             >
               <span style="font-size: 12px"
-                ><v-icon small>mdi-pencil-outline</v-icon> Manual</span
+                ><v-icon small>mdi-plus</v-icon> Manual Log</span
               >
             </v-tab>
 
@@ -281,7 +281,7 @@
               @click="openMissingPopup"
             >
               <span style="font-size: 12px"
-                ><v-icon small>mdi-mail</v-icon> Missing Logs</span
+                ><v-icon small>mdi-download</v-icon> Missing Logs</span
               >
             </v-tab>
 
