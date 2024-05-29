@@ -803,16 +803,22 @@ class DeviceController extends Controller
     {
         $model =  DeviceActivesettings::where('company_id', $request->company_id)
             ->where('device_id', $key_id)
-            ->where('date_from', $request->date_from)
-            ->where('date_to', $request->date_to)
+            // ->where('date_from', $request->date_from)
+            // ->where('date_to', $request->date_to)
             ->get();
         $input_time_slots = $request->input_time_slots;
 
         $open_array = [];
+        $date_from = '';
+        $date_to = '';
+
         if (isset($model[0])) {
 
             $open_json = $model[0]->open_json;
             $open_array = json_decode($open_json, true);
+
+            $date_from = $model[0]->date_from;
+            $date_to = $model[0]->date_to;
         }
         $return_araay = [];
 
@@ -825,7 +831,7 @@ class DeviceController extends Controller
         }
 
 
-        return $return_araay;
+        return ["data" => $return_araay, "date_from" => $date_from, "date_to" => $date_to];
     }
     public function checkDeviceHealth(Request $request)
     {

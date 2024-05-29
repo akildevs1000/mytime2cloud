@@ -70,9 +70,12 @@
         <CustomFilter
           class="mt-2"
           @filter-attr="filterAttr"
+          :default_date_from="date_from"
+          :default_date_to="date_to"
           :defaultFilterType="1"
           style="float: right"
           :height="35"
+          :key="key"
         />
       </v-col>
     </v-row>
@@ -150,6 +153,7 @@ export default {
       date_to: "",
       filterType: "",
       day_index: "",
+      key: 1,
     };
   },
   mounted() {},
@@ -169,7 +173,7 @@ export default {
       this.date_from = data.from;
       this.date_to = data.to;
 
-      this.getDataFromApi();
+      //this.getDataFromApi();
       //this.filterType = "Monthly";
     },
 
@@ -211,13 +215,14 @@ export default {
       this.span_time_minutes = 30;
       const timeSlots = [];
       for (let hour = 0; hour < hours; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
+        for (let minute = 0; minute <= 59; minute += interval) {
           const formattedHour = `${hour.toString().padStart(2, "0")}:${minute
             .toString()
             .padStart(2, "0")}`;
           timeSlots.push(formattedHour);
         }
       }
+
       return timeSlots;
     },
     generateTimeSlotsRange(start, end) {
@@ -225,7 +230,7 @@ export default {
       this.span_time_minutes = 30;
       const timeSlots = [];
       for (let hour = start; hour < end; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
+        for (let minute = 0; minute <= 59; minute += interval) {
           const formattedHour = `${hour.toString().padStart(2, "0")}:${minute
             .toString()
             .padStart(2, "0")}`;
@@ -242,14 +247,17 @@ export default {
           per_page: 1000,
           company_id: this.$auth.user.company_id,
           input_time_slots: this.timeSlots,
-          date_from: this.date_from,
-          date_to: this.date_to,
+          // date_from: this.date_from,
+          // date_to: this.date_to,
         },
       };
       this.$axios
         .get(`/get_device_active_settings/${this.device_id}`, options)
         .then(({ data }) => {
-          data.forEach((element) => {
+          this.date_from = data.date_from;
+          this.date_to = data.date_to;
+          this.key = this.key + 1;
+          data.data.forEach((element) => {
             console.log(element);
             const myArray = element.split("-");
             this.toggleCellBackground(myArray[0], myArray[1]);
@@ -281,6 +289,7 @@ export default {
     //   this.dialogManualInput = false;
     // },
     toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
+      console.log("isPopup", isPopup);
       const refName = `cell_${rowIndex}_${columnIndex}`;
       const printableContent = document.getElementById(refName);
 

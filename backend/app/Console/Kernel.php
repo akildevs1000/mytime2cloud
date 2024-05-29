@@ -357,6 +357,33 @@ class Kernel extends ConsoleKernel
             }
         }
 
+        // $date = date("M-Y");
+
+        // $devices = AccessControlTimeSlot::get();
+
+        // foreach ($devices as $device) {
+        //     foreach ($device->json as $slot) {
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["startTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //         $schedule
+        //             ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+        //             // ->everyThirtyMinutes()
+        //             ->everyMinute()
+        //             ->dailyAt($slot["endTimeOpen"])
+        //             ->withoutOverlapping()
+        //             ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //             ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     }
+        // }
+
         $schedule
             ->command('task:render_missing')
             ->dailyAt('02:15')
@@ -381,6 +408,91 @@ class Kernel extends ConsoleKernel
                 //->hourly()
                 ->appendOutputTo(storage_path("kernal_logs/restart_sdk.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         }
+
+        //-------------------------------------------------------------------------------------------------------------------------
+        //Schedule Device Access Control 
+
+        $date = date('Y-m-d');  // Gets the current date in Y-m-d format
+        $today = date("D");     // Gets the current day abbreviation (Mon, Tue, etc.)
+        $weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];  // Corrected the array to match PHP's date() output for day abbreviation
+
+        // Fetch devices where the current date is within the date range
+        $devices = DeviceActivesettings::where('date_from', '<=', $date)
+            ->where('date_to', '>=', $date)
+            ->get();
+
+        foreach ($devices as $device) {
+            $deviceId = $device->device_id;
+            $logPath = storage_path("logs/{$date}-access-control-time-slot-logs.log");
+            $adminMail = env("ADMIN_MAIL_RECEIVERS");
+
+            // Function to schedule tasks based on JSON data
+            $scheduleTasks = function ($json, $command) use ($weekDays, $today, $deviceId, $logPath, $adminMail, $schedule) {
+                $jsonArray = json_decode($json, true);  // Decode JSON to associative array
+
+                foreach ($jsonArray as $key => $time) {
+                    if ($weekDays[$key] == $today) {
+                        $schedule
+                            ->command("task:AccessControlTimeSlots {$deviceId} {$command}")
+                            ->dailyAt($time)
+                            ->withoutOverlapping()
+                            ->appendOutputTo($logPath)
+                            ->emailOutputOnFailure($adminMail);
+                    }
+                }
+            };
+
+            // Schedule open and close tasks
+            $scheduleTasks($device['open_json'], 'HoldDoor');
+            $scheduleTasks($device['close_json'], 'CloseDoor');
+        }
+        // $date = date('Y-m-d');
+        // $devices =  DeviceActivesettings::where(function ($q) {
+        //     $q->orWhere('date_from', ">=", date("Y-m-d"));
+        //     $q->orWhere('date_to', "<=", date("Y-m-d"));
+        // })->get();
+
+        // $weekDays = [0 => "Mon", 1 => "Tue", 2 => "Wed", 3 => "Thu", 4 => "Fri", 5 => "Sat", 6 => "Sun"];
+
+        // foreach ($devices as $key => $device) {
+
+        //     $openJson =  $device['open_json'];
+
+        //     $openJsonArray = json_decode($openJson);
+
+        //     foreach ($openJsonArray as  $key => $time) {
+
+        //         if ($weekDays[$key] == date("D")) {
+        //             $schedule
+        //                 ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+        //                 // ->everyThirtyMinutes()
+        //                 ->everyMinute()
+        //                 ->dailyAt($time)
+        //                 ->withoutOverlapping()
+        //                 ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //         }
+        //     }
+        //     //
+
+        //     $closeJson =  $device['close_json'];
+
+        //     $closeJsonArray = json_decode($closeJson);
+
+        //     foreach ($closeJsonArray as  $key => $time) {
+
+        //         if ($weekDays[$key] == date("D")) {
+        //             $schedule
+        //                 ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+        //                 // ->everyThirtyMinutes()
+        //                 ->everyMinute()
+        //                 ->dailyAt($time)
+        //                 ->withoutOverlapping()
+        //                 ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+        //                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //         }
+        //     }
+        // }
     }
 
     /**
