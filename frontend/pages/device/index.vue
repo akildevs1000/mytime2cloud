@@ -512,7 +512,7 @@
                           :items="oneTOsixty"
                           outlined
                           dense
-                          label="Duration"
+                          label="Duration - Seconds"
                         ></v-select>
                       </v-col>
                     </v-row>
