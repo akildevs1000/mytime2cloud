@@ -55,7 +55,7 @@ class Kernel extends ConsoleKernel
                 if (count($time) > 0) {
                     foreach ($time as $keyDay => $timeValue) {
 
-                        echo $weekDays[$keyDay] . '-' . date("D");
+
                         if ($weekDays[$keyDay] == date("D")) {
 
                             $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
@@ -64,7 +64,7 @@ class Kernel extends ConsoleKernel
 
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-                                ->cron($timeArray[0] . ' ' . $timeArray[1] . ' * * *')
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -92,7 +92,7 @@ class Kernel extends ConsoleKernel
                     foreach ($time as $keyDay => $timeValue) {
 
 
-                        echo $weekDays[$keyDay] . '-' . date("D");
+
                         if ($weekDays[$keyDay] == date("D")) {
                             $file_name_raw = "kernal_logs/$date-device-close-access.log";
                             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
@@ -101,7 +101,7 @@ class Kernel extends ConsoleKernel
 
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
-                                ->cron($timeArray[0] . ' ' . $timeArray[1] . ' * * *')
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
