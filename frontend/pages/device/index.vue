@@ -374,7 +374,7 @@
                         ></v-select>
                       </td>
                     </tr>
-                    <!-- <tr>
+                    <tr>
                       <td>Time</td>
                       <td>
                         <v-text-field
@@ -450,7 +450,7 @@
                           </v-date-picker>
                         </v-menu>
                       </td>
-                    </tr> -->
+                    </tr>
                     <tr>
                       <td></td>
                       <td>

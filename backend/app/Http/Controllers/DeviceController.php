@@ -183,7 +183,7 @@ class DeviceController extends Controller
         file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
         // Define the path to the file in the public folder
-        $filePath =  $publicDirectory . '\\' . $imageName;
+        $filePath =  $publicDirectory . '/' . $imageName;
 
 
         return $imageName;
@@ -193,7 +193,7 @@ class DeviceController extends Controller
             return response()->download($filePath, $imageName);
         } else {
             // Return a 404 Not Found response if the file doesn't exist
-            abort(404);
+            return 'File not found';
         }
 
 
@@ -213,7 +213,7 @@ class DeviceController extends Controller
         $imageName = $request->image;
         $publicDirectory = public_path("temp");
 
-        $filePath =  $publicDirectory . '\\' . $imageName;
+        $filePath =  $publicDirectory . '/' . $imageName;
 
         // Check if the file exists
         if (file_exists($filePath)) {
@@ -221,7 +221,7 @@ class DeviceController extends Controller
             return response()->download($filePath, $imageName);
         } else {
             // Return a 404 Not Found response if the file doesn't exist
-            abort(404);
+            return 'File not found';
         }
 
 
