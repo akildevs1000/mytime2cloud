@@ -150,7 +150,7 @@ class DeviceController extends Controller
 
             $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
 
-            return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
+            return ["SDKresponseData" => ($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
         } else {
             return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
         }
