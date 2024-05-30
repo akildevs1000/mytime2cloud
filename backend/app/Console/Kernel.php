@@ -39,109 +39,109 @@ class Kernel extends ConsoleKernel
             info("Camera Log listener restart");
         })->everyMinute();
 
-        //(new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
+        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
 
-        $date = date('Y-m-d');
-        $devices =  DeviceActivesettings::where(function ($q) {
-            $q->orWhere('date_from', ">=", date("Y-m-d"));
-            $q->orWhere('date_to', "<=", date("Y-m-d"));
-        })->get();
-
-
-
-
-        $weekDays = [0 => "Sun", 1 => "Mon", 2 => "Tue", 3 => "Wed", 4 => "Thu", 5 => "Fri", 6 => "Sat"];
-        // $file_name_raw = "kernal_logs/$date-device-access.log";
-        // Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
-
-        foreach ($devices as $key => $device) {
-
-            $openJson =  $device['open_json'];
-
-            $openJsonArray = json_decode($openJson, true);
-
-            foreach ($openJsonArray as  $key => $time) {
-
-
-                if (count($time) > 0) {
-                    foreach ($time as $keyDay => $timeValue) {
-
-
-                        if ($weekDays[$keyDay] == date("D")) {
-
-                            $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
-                            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
-                            $timeArray = explode(":", $timeValue);
-
-                            // if (date("H:i") == $timeValue) {
-                            //     $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
-                            //     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
-
-                            //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
-                            // }
-
-
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-                            // $schedule
-                            //     ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
-                            //     ->at($time[$key1])
-                            //     ->withoutOverlapping()
-                            //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-                        }
-                    }
-                }
-            }
-            //
-
-            $closeJson =  $device['close_json'];
-
-            $closeJsonArray = json_decode($closeJson, true);
-
-            foreach ($closeJsonArray as  $key => $time) {
-                if (count($time) > 0) {
-                    foreach ($time as $keyDay => $timeValue) {
+        // $date = date('Y-m-d');
+        // $devices =  DeviceActivesettings::where(function ($q) {
+        //     $q->orWhere('date_from', ">=", date("Y-m-d"));
+        //     $q->orWhere('date_to', "<=", date("Y-m-d"));
+        // })->get();
 
 
 
-                        if ($weekDays[$keyDay] == date("D")) {
-                            $file_name_raw = "kernal_logs/$date-device-close-access.log";
-                            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
 
-                            $timeArray = explode(":", $timeValue);
+        // $weekDays = [0 => "Sun", 1 => "Mon", 2 => "Tue", 3 => "Wed", 4 => "Thu", 5 => "Fri", 6 => "Sat"];
+        // // $file_name_raw = "kernal_logs/$date-device-access.log";
+        // // Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
 
-                            // if (date("H:i") == $timeValue) {
-                            //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
-                            // }
+        // foreach ($devices as $key => $device) {
 
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //     $openJson =  $device['open_json'];
 
-                            // $schedule
-                            //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+        //     $openJsonArray = json_decode($openJson, true);
 
-                            //     ->at($time[$key1])
-                            //     ->withoutOverlapping()
-                            //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
-                            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-                        }
-                    }
-                }
-            }
-        }
+        //     foreach ($openJsonArray as  $key => $time) {
+
+
+        //         if (count($time) > 0) {
+        //             foreach ($time as $keyDay => $timeValue) {
+
+
+        //                 if ($weekDays[$keyDay] == date("D")) {
+
+        //                     $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
+        //                     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+        //                     $timeArray = explode(":", $timeValue);
+
+        //                     // if (date("H:i") == $timeValue) {
+        //                     //     $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
+        //                     //     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+
+        //                     //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
+        //                     // }
+
+
+        //                     $schedule
+        //                         ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
+        //                         ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+        //                         ->withoutOverlapping()
+        //                         ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+        //                         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //                     // $schedule
+        //                     //     ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+        //                     //     ->at($time[$key1])
+        //                     //     ->withoutOverlapping()
+        //                     //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+        //                     //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+        //                 }
+        //             }
+        //         }
+        //     }
+        //     //
+
+        //     $closeJson =  $device['close_json'];
+
+        //     $closeJsonArray = json_decode($closeJson, true);
+
+        //     foreach ($closeJsonArray as  $key => $time) {
+        //         if (count($time) > 0) {
+        //             foreach ($time as $keyDay => $timeValue) {
+
+
+
+        //                 if ($weekDays[$keyDay] == date("D")) {
+        //                     $file_name_raw = "kernal_logs/$date-device-close-access.log";
+        //                     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
+
+        //                     $timeArray = explode(":", $timeValue);
+
+        //                     // if (date("H:i") == $timeValue) {
+        //                     //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+        //                     // }
+
+        //                     $schedule
+        //                         ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+        //                         ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+        //                         ->withoutOverlapping()
+        //                         ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+        //                         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+        //                     // $schedule
+        //                     //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+
+        //                     //     ->at($time[$key1])
+        //                     //     ->withoutOverlapping()
+        //                     //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
+        //                     //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
         // $schedule->call(function () {
         //     exec('pm2 reload 5');
