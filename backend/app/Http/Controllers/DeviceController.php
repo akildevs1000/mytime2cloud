@@ -689,23 +689,23 @@ class DeviceController extends Controller
 
                                 $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
                             }
-                            //$schedule = new Schedule();
+                            // //$schedule = new Schedule();
 
-                            // Get the current time
-                            $currentTime = new DateTime();
+                            // // Get the current time
+                            // $currentTime = new DateTime();
 
-                            // Create a DateTime object for the target time today
-                            $today = $currentTime->format('Y-m-d');
-                            $targetDateTime = new DateTime("$today $timeValue");
-                            if ($currentTime < $targetDateTime) {
-                                $schedule
-                                    ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                    //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                    ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
-                                    ->withoutOverlapping()
-                                    ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-                            }
+                            // // Create a DateTime object for the target time today
+                            // $today = $currentTime->format('Y-m-d');
+                            // $targetDateTime = new DateTime("$today $timeValue");
+                            // if ($currentTime < $targetDateTime) {
+                            //     $schedule
+                            //         ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+                            //         //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                            //         ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
+                            //         ->withoutOverlapping()
+                            //         ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                            //         ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            // }
                         }
                     }
                 }
