@@ -650,7 +650,7 @@ class DeviceController extends Controller
 
                             if (date("H:i") == $timeValue) {
                                 $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
 
                                 $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
                             }
@@ -695,7 +695,7 @@ class DeviceController extends Controller
 
                             if (date("H:i") == $timeValue) {
                                 $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_closeDoor_logs-' . $timeValue);
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
 
                                 $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
                             }
