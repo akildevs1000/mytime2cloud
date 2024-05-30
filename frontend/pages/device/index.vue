@@ -25,7 +25,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
+    <v-dialog v-model="uploadedUserInfoDialog" max-width="600px">
       <v-card :loading="loadingDeviceData">
         <v-card-title class="popup_background">
           <span>Find User ID on Device </span>
@@ -67,6 +67,38 @@
           >
             <v-card-title style="font-size: 13px"
               >{{ ++index }}: Device: {{ visitor.deviceName }}
+
+              <!-- <v-spacer></v-spacer>
+
+              <v-btn
+                v-if="visitor.SDKresponseData.data"
+                dense
+                small
+                class="primary mt-2"
+                @click="
+                  downloadImage(
+                    visitor.SDKresponseData.data.faceImage,
+                    visitor.SDKresponseData.data.userCode
+                  )
+                "
+              >
+                Download Image
+              </v-btn>
+              <v-spacer></v-spacer>
+              <v-btn
+                v-if="visitor.SDKresponseData.data"
+                dense
+                small
+                class="primary mt-2"
+                @click="
+                  copyToProfileimage(
+                    visitor.SDKresponseData.data.faceImage,
+                    visitor.SDKresponseData.data.userCode
+                  )
+                "
+              >
+                Copy to Profile Image
+              </v-btn> -->
             </v-card-title>
             <v-card-text class="mt-2">
               <v-row
@@ -114,6 +146,40 @@
                     <tr>
                       <td>Timezone Group Id</td>
                       <td>: {{ visitor.SDKresponseData.data.timeGroup }}</td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <v-btn
+                          v-if="visitor.SDKresponseData.data"
+                          dense
+                          small
+                          class="primary mt-2"
+                          @click="
+                            downloadImage(
+                              visitor.SDKresponseData.data.faceImage,
+                              visitor.SDKresponseData.data.userCode
+                            )
+                          "
+                        >
+                          Download Image
+                        </v-btn>
+                      </td>
+                      <td>
+                        <v-btn
+                          v-if="visitor.SDKresponseData.data"
+                          dense
+                          small
+                          class="primary mt-2"
+                          @click="
+                            copyToProfileimage(
+                              visitor.SDKresponseData.data.faceImage,
+                              visitor.SDKresponseData.data.userCode
+                            )
+                          "
+                        >
+                          Copy to Profile Image
+                        </v-btn>
+                      </td>
                     </tr>
                   </v-simple-table>
                 </v-col>
@@ -1502,6 +1568,7 @@ export default {
     isCompany: true,
     timeZoneOptions: [],
     editedItem: null,
+    downloadProfileLink: null,
   }),
 
   computed: {
@@ -1579,6 +1646,50 @@ export default {
   },
 
   methods: {
+    copyToProfileimage(faceImage, userId) {
+      if (
+        confirm("Are you sure? It will override the Software Profile picture ")
+      ) {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            face_image: faceImage,
+            system_user_id: userId,
+          },
+        };
+        this.$axios
+          .post(`/copy-to-profilepic`, options.params)
+          .then(({ data }) => {
+            this.response = "Device Image is copied to Profile Picture";
+            this.snackbar = true;
+          })
+          .catch((e) => console.log(e));
+      }
+    },
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
     UpdateverificationModeItems() {
       if (this.deviceCAMVIISettings.recognition_mode == "single") {
         this.verificationModeItems = [

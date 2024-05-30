@@ -362,12 +362,22 @@ class SDKController extends Controller
     }
     public function getPersonDetails($device_id, $user_code)
     {
+
         try {
-            $response = Http::timeout(3600 * 6)->withoutVerifying()->withHeaders([
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post(env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail", ["usercode" => $user_code]);
 
             $res = $response->json();
+
+
+            // $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $res["data"]["faceImage"]));
+            // $imageName = time() . ".png";
+            // $publicDirectory = public_path("test");
+            // if (!file_exists($publicDirectory)) {
+            //     mkdir($publicDirectory, 0777, true);
+            // }
+            // file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
             //unset($res["data"]["faceImage"]);
 

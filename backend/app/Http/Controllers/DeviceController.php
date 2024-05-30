@@ -155,6 +155,85 @@ class DeviceController extends Controller
             return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
         }
     }
+    public function copytoProfilePicture(Request $request)
+    {
+
+        if ($request->system_user_id > 0) {
+            $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
+            $imageName = $request->system_user_id . '.jpg';
+            file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+
+            $data = ["profile_picture" => $imageName];
+
+            Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->update($data);
+
+            return $this->response('Profile Picture is successfully Updated', null, true);
+        }
+    }
+    public function downloadProfilePictureSdk(Request $request)
+    {
+
+
+        $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
+        $imageName = time() . ".png";
+        $publicDirectory = public_path("temp");
+        if (!file_exists($publicDirectory)) {
+            mkdir($publicDirectory, 0777, true);
+        }
+        file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
+
+        // Define the path to the file in the public folder
+        $filePath =  $publicDirectory . '\\' . $imageName;
+
+
+        return $imageName;
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $imageName);
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            abort(404);
+        }
+
+
+        // if ($request->id > 0) {
+        //     $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->faceImage)));
+        //     $imageName = $request->id . '.jpg';
+        //     file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+        // }
+
+
+
+    }
+    public function downloadProfilePicture(Request $request)
+    {
+
+
+        $imageName = $request->image;
+        $publicDirectory = public_path("temp");
+
+        $filePath =  $publicDirectory . '\\' . $imageName;
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $imageName);
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            abort(404);
+        }
+
+
+        // if ($request->id > 0) {
+        //     $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->faceImage)));
+        //     $imageName = $request->id . '.jpg';
+        //     file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+        // }
+
+
+
+    }
     public function store(StoreRequest $request)
     {
         try {
