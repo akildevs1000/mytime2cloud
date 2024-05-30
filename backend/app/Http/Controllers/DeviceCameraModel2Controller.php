@@ -33,6 +33,7 @@ class DeviceCameraModel2Controller extends Controller
 
     public function openDoor($device)
     {
+        $this->resetDoorStatus($device);
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
@@ -44,20 +45,9 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function closeDoor($device)
     {
-
+        $this->resetDoorStatus($device);
         //reset the always open door settings and then close the door automatically after 1 sec 
-        $this->sxdmSn = $device->device_id;
-        $json = '{             
-                "door_open_stat": "none"   
 
-
-        }';
-        //     $json = '{             
-        //         "door_open_stat": "close"   
-
-
-        // }';
-        $response = $this->putCURL('/api/devices/door', $json);
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
@@ -69,11 +59,29 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function openDoorAlways($device)
     {
+        $this->resetDoorStatus($device);
+
         $this->sxdmSn = $device->device_id;
         $json = '{             
                 "door_open_stat": "open"                 
             
         }';
+        $response = $this->putCURL('/api/devices/door', $json);
+    }
+
+    public function resetDoorStatus($device)
+    {
+        $this->sxdmSn = $device->device_id;
+        $json = '{             
+                "door_open_stat": "none"   
+
+
+        }';
+        //     $json = '{             
+        //         "door_open_stat": "close" //it will close permanent   
+
+
+        // }';
         $response = $this->putCURL('/api/devices/door', $json);
     }
     public function updateSettings($request)
