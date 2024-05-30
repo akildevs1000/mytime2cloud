@@ -648,12 +648,12 @@ class DeviceController extends Controller
                                 $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
                             }
                             // // Get the current time
-                            // $currentTime = new DateTime();
+                            // $current = new DateTime();
 
                             // // Create a DateTime object for the target time today
-                            // $today = $currentTime->format('Y-m-d');
+                            // $today = $current->format('Y-m-d');
                             // $targetDateTime = new DateTime("$today $timeValue");
-                            // if ($currentTime < $targetDateTime) {
+                            // if ($current < $targetDateTime) {
                             //     //$schedule = new Schedule();
                             //     $schedule
                             //         ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
@@ -692,12 +692,12 @@ class DeviceController extends Controller
                             // //$schedule = new Schedule();
 
                             // // Get the current time
-                            // $currentTime = new DateTime();
+                            // $current = new DateTime();
 
                             // // Create a DateTime object for the target time today
-                            // $today = $currentTime->format('Y-m-d');
+                            // $today = $current->format('Y-m-d');
                             // $targetDateTime = new DateTime("$today $timeValue");
-                            // if ($currentTime < $targetDateTime) {
+                            // if ($current < $targetDateTime) {
                             //     $schedule
                             //         ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
                             //         //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')

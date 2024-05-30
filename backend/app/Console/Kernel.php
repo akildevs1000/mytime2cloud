@@ -39,9 +39,9 @@ class Kernel extends ConsoleKernel
             info("Camera Log listener restart");
         })->everyMinute();
 
-        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
+        //(new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
-        /*
+
         $date = date('Y-m-d');
         $devices =  DeviceActivesettings::where(function ($q) {
             $q->orWhere('date_from', ">=", date("Y-m-d"));
@@ -74,12 +74,12 @@ class Kernel extends ConsoleKernel
                             Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
                             $timeArray = explode(":", $timeValue);
 
-                            if (date("H:i") == $timeValue) {
-                                $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+                            // if (date("H:i") == $timeValue) {
+                            //     $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
+                            //     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
 
-                                $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
-                            }
+                            //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
+                            // }
 
 
                             $schedule
@@ -119,9 +119,9 @@ class Kernel extends ConsoleKernel
 
                             $timeArray = explode(":", $timeValue);
 
-                            if (date("H:i") == $timeValue) {
-                                $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
-                            }
+                            // if (date("H:i") == $timeValue) {
+                            //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+                            // }
 
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
@@ -142,7 +142,7 @@ class Kernel extends ConsoleKernel
                 }
             }
         }
-*/
+
         // $schedule->call(function () {
         //     exec('pm2 reload 5');
         //     info("Log listener restart");
