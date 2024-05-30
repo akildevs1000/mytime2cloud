@@ -647,7 +647,7 @@ class DeviceController extends Controller
 
                             if (date("H:i") == $timeValue) {
                                 $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s")  . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
 
 
                                 if ($device["devices"]->model_number == 'OX-900') {
@@ -692,7 +692,7 @@ class DeviceController extends Controller
 
                             if (date("H:i") == $timeValue) {
                                 $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
                                 if ($device["devices"]->model_number == 'OX-900') {
                                     (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->closeDoor($device["devices"]);
                                     $this->response('Always Open  Command is Successfull',  null, true);
