@@ -363,13 +363,13 @@ class SDKController extends Controller
     public function getPersonDetails($device_id, $user_code)
     {
         try {
-            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
+            $response = Http::timeout(3600 * 6)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
             ])->post(env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail", ["usercode" => $user_code]);
 
             $res = $response->json();
 
-            unset($res["data"]["faceImage"]);
+            //unset($res["data"]["faceImage"]);
 
             return $res;
         } catch (\Exception $e) {
