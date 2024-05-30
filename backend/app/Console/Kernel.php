@@ -39,7 +39,7 @@ class Kernel extends ConsoleKernel
             info("Camera Log listener restart");
         })->everyMinute();
 
-        (new DeviceController())->deviceAccessControllAllwaysOpen();
+        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
         /*
         $date = date('Y-m-d');
