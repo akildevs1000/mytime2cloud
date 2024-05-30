@@ -33,15 +33,17 @@ class DeviceCameraModel2Controller extends Controller
 
     public function openDoor($device)
     {
-        $this->resetDoorStatus($device);
-        $this->sxdmSn = $device->device_id;
-        $json = '{
-            "tips": {
-                "text": "Door Open",
-                "person_type": "admin-software"
-            }
-        }';
-        $response = $this->postCURL('/api/devices/io', $json);
+
+        $this->openDoorAlways($device);
+        // $this->resetDoorStatus($device);
+        // $this->sxdmSn = $device->device_id;
+        // $json = '{
+        //     "tips": {
+        //         "text": "Door Open",
+        //         "person_type": "admin-software"
+        //     }
+        // }';
+        // $response = $this->postCURL('/api/devices/io', $json);
     }
     public function closeDoor($device)
     {
@@ -59,7 +61,7 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function openDoorAlways($device)
     {
-        $this->resetDoorStatus($device);
+        //$this->resetDoorStatus($device);
 
         $this->sxdmSn = $device->device_id;
         $json = '{             
