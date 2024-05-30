@@ -68,6 +68,7 @@ Route::get('/close_door', [DeviceController::class, 'closeDoor']);
 Route::get('/open_door_always', [DeviceController::class, 'openDoorAlways']);
 Route::get('/get_notifications_alarm', [DeviceController::class, 'getAlarmNotification']);
 
+
 Route::get('/trigger-all-devices-alarm-sdk', [DeviceController::class, 'triggerAllDeviceAlarmSDK']);
 Route::post('/download-profilepic-sdk', [DeviceController::class, 'downloadProfilePictureSdk']);
 Route::get('/download-profilepic-disk', [DeviceController::class, 'downloadProfilePicture']);
