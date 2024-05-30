@@ -651,7 +651,8 @@ class DeviceController extends Controller
                             //$schedule = new Schedule();
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
@@ -682,9 +683,11 @@ class DeviceController extends Controller
                             //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
                             // }
                             //$schedule = new Schedule();
+
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
