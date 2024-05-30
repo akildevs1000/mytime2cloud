@@ -38,7 +38,7 @@ class AccessControlTimeSlots extends Command
 
         $date = date("Y-m-d");
         $file_name_raw = "kernal_logs/$date-device-$command-access.log";
-        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_$command_logs' - ' . $command');
+        Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_$command_logs' - ' . $command' . json_encode($result));
 
 
         return $this->info($result);
