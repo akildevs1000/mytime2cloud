@@ -658,7 +658,7 @@ class DeviceController extends Controller
 
                             $schedule
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
                                 ->withoutOverlapping()
                                 ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
