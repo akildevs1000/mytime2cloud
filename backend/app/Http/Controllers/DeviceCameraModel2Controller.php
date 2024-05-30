@@ -67,6 +67,15 @@ class DeviceCameraModel2Controller extends Controller
             
         }';
         $response = $this->putCURL('/api/devices/door', $json);
+
+        $this->sxdmSn = $device->device_id;
+        $json = '{
+            "tips": {
+                "text": "Door Open",
+                "person_type": "admin-software"
+            }
+        }';
+        $response = $this->postCURL('/api/devices/io', $json);
     }
 
     public function resetDoorStatus($device)

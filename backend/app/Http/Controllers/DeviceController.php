@@ -631,6 +631,8 @@ class DeviceController extends Controller
 
         foreach ($devices as $key => $device) {
 
+
+
             $openJson =  $device['open_json'];
 
             $openJsonArray = json_decode($openJson, true);
