@@ -644,9 +644,9 @@ class DeviceController extends Controller
 
                         if ($weekDays[$keyDay] == date("D")) {
 
-                            $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
-                            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
-                            $timeArray = explode(":", $timeValue);
+                            // $file_name_raw = "kernal_logs/$date-device-HoldDoor-access.log";
+                            // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_HoldDoor_logs-' . $timeValue);
+                            // $timeArray = explode(":", $timeValue);
 
                             if (date("H:i") == $timeValue) {
                                 $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
@@ -688,12 +688,15 @@ class DeviceController extends Controller
 
 
                         if ($weekDays[$keyDay] == date("D")) {
-                            $file_name_raw = "kernal_logs/$date-device-close-access.log";
-                            Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
+                            // $file_name_raw = "kernal_logs/$date-device-close-access.log";
+                            // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
 
                             $timeArray = explode(":", $timeValue);
 
                             if (date("H:i") == $timeValue) {
+                                $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_closeDoor_logs-' . $timeValue);
+
                                 $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
                             }
 
