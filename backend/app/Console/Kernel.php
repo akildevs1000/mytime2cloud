@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\SDKController;
 use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
@@ -33,7 +34,14 @@ class Kernel extends ConsoleKernel
         // })->everyMinute()->appendOutputTo(storage_path("test.txt"));
         //-------------------------------------------------------------------------------------------------------------------------
         //Schedule Device Access Control 
+        $schedule->call(function () {
+            exec('pm2 reload 3');
+            info("Camera Log listener restart");
+        })->everyMinute();
 
+        (new DeviceController())->deviceAccessControllAllwaysOpen();
+
+        /*
         $date = date('Y-m-d');
         $devices =  DeviceActivesettings::where(function ($q) {
             $q->orWhere('date_from', ">=", date("Y-m-d"));
@@ -134,7 +142,7 @@ class Kernel extends ConsoleKernel
                 }
             }
         }
-
+*/
         // $schedule->call(function () {
         //     exec('pm2 reload 5');
         //     info("Log listener restart");
