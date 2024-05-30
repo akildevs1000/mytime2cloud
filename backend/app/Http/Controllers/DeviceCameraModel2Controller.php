@@ -47,16 +47,16 @@ class DeviceCameraModel2Controller extends Controller
 
         //reset the always open door settings and then close the door automatically after 1 sec 
         $this->sxdmSn = $device->device_id;
-        // $json = '{             
-        //         "door_open_stat": "none"   
+        $json = '{             
+                "door_open_stat": "none"   
+
+
+        }';
+        //     $json = '{             
+        //         "door_open_stat": "close"   
 
 
         // }';
-        $json = '{             
-            "door_open_stat": "close"   
-                          
-
-    }';
         $response = $this->putCURL('/api/devices/door', $json);
         $this->sxdmSn = $device->device_id;
         $json = '{
