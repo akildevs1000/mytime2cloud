@@ -693,24 +693,24 @@ class DeviceController extends Controller
 
                             $timeArray = explode(":", $timeValue);
 
-                            // if (date("H:i") == $timeValue) {
-                            //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
-                            // }
-
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            if (date("H:i") == $timeValue) {
+                                $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+                            }
 
                             // $schedule
-                            //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
-
-                            //     ->at($time[$key1])
+                            //     ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+                            //     ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                             //     ->withoutOverlapping()
-                            //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
+                            //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
                             //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+                            // // $schedule
+                            // //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+
+                            // //     ->at($time[$key1])
+                            // //     ->withoutOverlapping()
+                            // //     ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-close-logs.log"))
+                            // //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                         }
                     }
                 }
