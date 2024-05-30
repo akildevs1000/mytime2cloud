@@ -647,15 +647,22 @@ class DeviceController extends Controller
 
                             //     $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
                             // }
+                            // Get the current time
+                            $currentTime = new DateTime();
 
-                            //$schedule = new Schedule();
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
-                                //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            // Create a DateTime object for the target time today
+                            $today = $currentTime->format('Y-m-d');
+                            $targetDateTime = new DateTime("$today $timeValue");
+                            if ($currentTime < $targetDateTime) {
+                                //$schedule = new Schedule();
+                                $schedule
+                                    ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
+                                    //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                    ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
+                                    ->withoutOverlapping()
+                                    ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            }
                         }
                     }
                 }
@@ -684,13 +691,21 @@ class DeviceController extends Controller
                             // }
                             //$schedule = new Schedule();
 
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            // Get the current time
+                            $currentTime = new DateTime();
+
+                            // Create a DateTime object for the target time today
+                            $today = $currentTime->format('Y-m-d');
+                            $targetDateTime = new DateTime("$today $timeValue");
+                            if ($currentTime < $targetDateTime) {
+                                $schedule
+                                    ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+                                    //->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                    ->cron($timeArray[1] . ' ' . $timeArray[0] . ' ' . date('d') . ' ' . date('m') . ' *')
+                                    ->withoutOverlapping()
+                                    ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                            }
                         }
                     }
                 }
