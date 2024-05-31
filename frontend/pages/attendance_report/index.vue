@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <v-dialog v-model="missingLogsDialog" max-width="1000px">
+    <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
           <span dense>Missing Device Logs </span>

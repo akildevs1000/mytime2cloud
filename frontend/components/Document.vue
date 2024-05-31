@@ -188,6 +188,9 @@
                   </v-icon>
                 </td>
               </tr>
+              <tr v-if="document_list.length == 0">
+                <td>0 Documents are availalbe</td>
+              </tr>
               <!-- Add more rows as needed -->
             </tbody>
           </table>

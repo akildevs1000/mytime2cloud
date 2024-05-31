@@ -356,7 +356,7 @@
             <span class="headline">Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <v-card-text>

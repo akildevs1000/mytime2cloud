@@ -50,7 +50,7 @@
   },
   {
     "icon": "mdi-chart-box-outline",
-    "title": "Reports11111",
+    "title": "Reports",
     "to": "/visitor/visitor-dashboard",
     "menu": "true",
     "submenu": "visitors",

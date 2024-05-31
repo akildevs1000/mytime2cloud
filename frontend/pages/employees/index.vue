@@ -743,8 +743,8 @@
                       {{ item.last_name ? item.last_name : "" }}
                     </div>
                     <small style="font-size: 12px; color: #6c7184"
-                      >IT manager</small
-                    >
+                      >{{ item.designation.name }}
+                    </small>
                   </v-col>
                 </v-row>
               </template>

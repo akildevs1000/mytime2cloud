@@ -1,6 +1,6 @@
 <template>
   <div v-if="can(`visitor_access`)">
-    <v-dialog v-model="dialogInformation" max-width="1300px">
+    <v-dialog v-model="dialogInformation" width="auto">
       <v-card>
         <v-card-title class="popup_background">
           <span dense> Visitors Requests - {{ statisticsFilter }} </span>

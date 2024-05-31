@@ -583,7 +583,7 @@
           <v-card-title class="popup_background">
             <span class="headline"> Render Report </span>
             <v-spacer></v-spacer>
-            <v-icon dark @click="reportSync = false">mdi-close-box</v-icon>
+            <v-icon dark @click="reportSync = false">mdi-close-circle</v-icon>
           </v-card-title>
           <RenderAttendance
             :shift_type_id="shift_type_id"
@@ -601,7 +601,7 @@
             <span class="headline">Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <v-card-text>

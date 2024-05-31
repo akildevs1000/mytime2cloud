@@ -20,7 +20,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-card elevation="1" class="mt-2" style="min-height: 500px">
+    <v-card elevation="1" class="mt-2" style="height: auto">
       <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">

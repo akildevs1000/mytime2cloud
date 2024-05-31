@@ -1238,6 +1238,7 @@ header i {
 .whitebackground--text {
   background-color: #ecf0f4;
 }
+
 /* New Theme  popup_background*/
 .v-application .popup_background {
   background-color: #ecf0f4 !important;
@@ -1278,6 +1279,15 @@ header i {
 }
 .popup_background .v-icon {
   color: black !important;
+}
+
+.v-dialog > .v-card > .popup_background {
+  background-color: #6946dd !important;
+  padding: 5px 6px 5px !important;
+  color: #fff !important;
+}
+.v-dialog > .v-card > .popup_background > .mdi-close-circle {
+  color: #fff !important;
 }
 
 /* .theme--dark.v-toolbar.v-sheet {
