@@ -28,7 +28,7 @@
     <v-dialog v-model="uploadedUserInfoDialog" max-width="600px">
       <v-card :loading="loadingDeviceData">
         <v-card-title class="popup_background">
-          <span>Find User ID on Device </span>
+          <span>Find User ID on Device - {{ popupDeviceName }}</span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="uploadedUserInfoDialog = false"
@@ -1368,6 +1368,7 @@ export default {
     visitor_status_list: [],
     inputFindDeviceUserId: "",
     popupDeviceId: null,
+    popupDeviceName: null,
     uploadedUserInfoDialog: false,
     dialogAccessSettings: false,
     popup_device_id: "",
@@ -1818,6 +1819,7 @@ export default {
     findUser(item) {
       this.visitorUploadedDevicesInfo = [];
       this.popupDeviceId = item.device_id;
+      this.popupDeviceName = item.name;
       this.uploadedUserInfoDialog = true;
     },
 
