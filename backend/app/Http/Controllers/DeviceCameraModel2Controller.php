@@ -19,15 +19,46 @@ class DeviceCameraModel2Controller extends Controller
     public  $sxdmSn = '';
 
 
-    public function __construct($camera_sdk_url)
+    public function __construct($camera_sdk_url, $sxdmSn = '')
     {
         $this->camera_sdk_url = $camera_sdk_url;
+        $this->sxdmSn = $sxdmSn;
     }
 
 
 
 
+    public function getPersonDetails($system_user_id)
+    {
 
+        $data = [];
+        $json = '{
+            "cmd": "person_list_query",
+            
+            "limit": 10,
+            "offset": 0,
+            "sort": "asc",
+            "query_string": "' . $system_user_id . '"
+          }';
+        $response = $this->postCURL('/api/persons/query', $json);
+
+        foreach ($response['data'] as $key => $personList) {
+
+
+
+            $person = $this->getCURL('/api/persons/item/' . $personList['id']);
+
+            if (isset($person['picture_data'])) {
+
+                $picture_data = $person['picture_data'];
+                $picture_data = str_replace("data:image/jpg;base64,", "", $picture_data);
+
+                $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" => $picture_data, "timeGroup" => "0"];
+            }
+        }
+
+        return $data;
+    }
 
 
 

@@ -67,38 +67,6 @@
           >
             <v-card-title style="font-size: 13px"
               >{{ ++index }}: Device: {{ visitor.deviceName }}
-
-              <!-- <v-spacer></v-spacer>
-
-              <v-btn
-                v-if="visitor.SDKresponseData.data"
-                dense
-                small
-                class="primary mt-2"
-                @click="
-                  downloadImage(
-                    visitor.SDKresponseData.data.faceImage,
-                    visitor.SDKresponseData.data.userCode
-                  )
-                "
-              >
-                Download Image
-              </v-btn>
-              <v-spacer></v-spacer>
-              <v-btn
-                v-if="visitor.SDKresponseData.data"
-                dense
-                small
-                class="primary mt-2"
-                @click="
-                  copyToProfileimage(
-                    visitor.SDKresponseData.data.faceImage,
-                    visitor.SDKresponseData.data.userCode
-                  )
-                "
-              >
-                Copy to Profile Image
-              </v-btn> -->
             </v-card-title>
             <v-card-text class="mt-2">
               <v-row
@@ -344,7 +312,6 @@
                       <td>
                         <v-text-field
                           type="number"
-                          :rules="menu_password"
                           class="pb-0"
                           v-model="deviceSettings.menuPassword"
                           placeholder="min 4 to  max 8 numbers"

@@ -146,9 +146,19 @@ class DeviceController extends Controller
     public function getDevicePersonDetails(Request $request)
     {
         if ($request->system_user_id > 0) {
-            $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
+            $deviceName = '';
+            //$deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
+            $device = Device::where('device_id', $request->device_id)->get()->first();
+            $responseData = [];
+            if (isset($device["name"])) {
+                $deviceName = $device["name"];
 
-            $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+                if ($device["model_number"] == 'OX-900') {
+                    $responseData['data'] = (new DeviceCameraModel2Controller($device["camera_sdk_url"], $device["serial_number"]))->getPersonDetails($request->system_user_id);
+                } else {
+                    $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+                }
+            }
 
             return ["SDKresponseData" => ($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
         } else {
