@@ -134,7 +134,9 @@
                       </td>
                       <td>
                         <v-btn
-                          v-if="visitor.SDKresponseData.data"
+                          v-if="
+                            visitor.SDKresponseData.data && visitor.employee
+                          "
                           dense
                           small
                           class="primary mt-2"
@@ -149,11 +151,20 @@
                         </v-btn>
                       </td>
                     </tr>
+                    <tr v-if="!visitor.employee">
+                      <td colspan="2" style="color: red">
+                        {{ visitor.SDKresponseData.data.userCode }} is not Exist
+                        in Employees/Users List. <br />
+                        Create and Copy Image after create user Details
+                      </td>
+                    </tr>
                   </v-simple-table>
                 </v-col>
               </v-row>
 
-              <div v-else>{{ visitor.SDKresponseData.message }}</div>
+              <div v-else style="color: red">
+                Message: {{ visitorUploadedDevicesInfo[0].message }}
+              </div>
 
               <!-- <v-row>
                 <v-col cols="12">
@@ -170,6 +181,9 @@
               </v-row> -->
             </v-card-text>
           </v-card>
+          <!-- <div v-if="visitorUploadedDevicesInfo.length == 0">
+            User Information is not available On Device
+          </div> -->
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -1802,6 +1816,7 @@ export default {
       }
     },
     findUser(item) {
+      this.visitorUploadedDevicesInfo = [];
       this.popupDeviceId = item.device_id;
       this.uploadedUserInfoDialog = true;
     },

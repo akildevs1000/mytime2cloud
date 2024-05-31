@@ -158,26 +158,37 @@ class DeviceController extends Controller
                 } else {
                     $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
                 }
+
+                $employeeDetails = Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->first();
             }
 
-            return ["SDKresponseData" => ($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
+            if (isset($responseData['data']['faceImage'])) {
+                return ["SDKresponseData" => ($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id,  "employee" => $employeeDetails];
+            }
+            return ["SDKresponseData" => "", "message" => "User ID is not available on  Device  ", "deviceName" => $deviceName, "device_id" => $request->device_id];
         } else {
-            return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
+            // return ["SDKresponseData" => "", "message" => "User ID is not available on  Device ", "deviceName" => $deviceName, "device_id" => $request->device_id];
         }
     }
     public function copytoProfilePicture(Request $request)
     {
 
         if ($request->system_user_id > 0) {
-            $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
-            $imageName = $request->system_user_id . '.jpg';
-            file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
 
-            $data = ["profile_picture" => $imageName];
+            $employeeDetails = Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->get();
+            if (count($employeeDetails) > 0) {
+                $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
+                $imageName = $request->system_user_id . '.jpg';
+                file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
 
-            Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->update($data);
+                $data = ["profile_picture" => $imageName];
 
-            return $this->response('Profile Picture is successfully Updated', null, true);
+                Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->update($data);
+
+                return $this->response('Profile Picture is successfully Updated', null, true);
+            } else {
+                return $this->response('Employee Details are not Avaiallbe. Create Employees Data', null, false);
+            }
         }
     }
     public function downloadProfilePictureSdk(Request $request)
