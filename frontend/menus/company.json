@@ -50,15 +50,16 @@
   },
   {
     "icon": "mdi-chart-box-outline",
-    "title": "Reports",
+    "title": "Reports11111",
     "to": "/visitor/visitor-dashboard",
     "menu": "true",
     "submenu": "visitors",
     "module": "dashboard"
   },
+
   {
     "icon": "mdi-domain",
-    "title": "Profile",
+    "title": "Company",
     "to": "/companies",
     "menu": "setting_access",
     "class": "submenutitle",
@@ -234,7 +235,7 @@
     "menu": "payroll_access",
     "module": "payroll"
   },
-  
+
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",

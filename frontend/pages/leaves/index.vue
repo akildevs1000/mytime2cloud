@@ -502,9 +502,11 @@
                 {{ item.employee ? item.employee.first_name : "" }}
                 {{ item.employee ? item.employee.last_name : "" }}
               </div>
-              <small style="font-size: 12px; color: #6c7184">{{
-                item?.employee?.designation?.name || "---"
-              }}</small>
+              <small style="font-size: 12px; color: #6c7184"
+                >{{ item?.employee?.designation?.name || "---" }}
+
+                1111111</small
+              >
             </v-col>
           </v-row>
         </template>

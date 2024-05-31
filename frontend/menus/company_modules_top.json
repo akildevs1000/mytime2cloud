@@ -47,5 +47,12 @@
     "to": "/attendance_report",
     "menu": "reports",
     "module": "topmenu"
+  },
+  {
+    "icon": "mdi-bell",
+    "title": "Settings",
+    "to": "/companies",
+    "menu": "settings",
+    "module": "topmenu"
   }
 ]

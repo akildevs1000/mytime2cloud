@@ -225,7 +225,7 @@
         >
       </v-btn>  -->
 
-      <v-btn
+      <!-- <v-btn
         v-if="getLoginType == 'company' || getLoginType == 'branch'"
         icon
         plan
@@ -234,7 +234,7 @@
         ><v-icon class="violet--text" style="text-align: center"
           >mdi-cog</v-icon
         ></v-btn
-      >
+      > -->
 
       <v-menu
         bottom
