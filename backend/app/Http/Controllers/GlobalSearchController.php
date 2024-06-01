@@ -105,21 +105,21 @@ class GlobalSearchController extends Controller
 
         // // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->input("to_date")));
 
-        // if ($this->verifyDateFormat($request->search_value, "Y-m-d")) {
-        //     $startDate = Carbon::parse($request->search_value);
-        //     $endDate = Carbon::parse($request->search_value);
+        if ($this->verifyDateFormat($request->search_value, "Y-m-d")) {
+            $startDate = Carbon::parse($request->search_value);
+            $endDate = Carbon::parse($request->search_value);
 
 
 
-        //     $model = $model->where(function ($query) use ($startDate, $endDate) {
-        //         $query->whereBetween('visit_from', [$startDate, $endDate])
-        //             ->orWhereBetween('visit_to', [$startDate, $endDate])
-        //             ->orWhere(function ($query) use ($startDate, $endDate) {
-        //                 $query->whereDate('visit_from', '<=', $startDate)
-        //                     ->whereDate('visit_to', '>=', $endDate);
-        //             });
-        //     });
-        // }
+            $model = $model->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('visit_from', [$startDate, $endDate])
+                    ->orWhereBetween('visit_to', [$startDate, $endDate])
+                    ->orWhere(function ($query) use ($startDate, $endDate) {
+                        $query->whereDate('visit_from', '<=', $startDate)
+                            ->whereDate('visit_to', '>=', $endDate);
+                    });
+            });
+        }
         // // $model->when($request->filled('search_value'), fn ($q) => $q->Where('host_company_id',   $request->input("search_value")));
 
         // // $model->when($request->filled('search_value'), fn ($q) => $q->Where('purpose_id',   $request->input("search_value")));
