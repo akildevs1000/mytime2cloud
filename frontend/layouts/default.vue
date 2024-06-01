@@ -367,17 +367,20 @@
           </v-btn>
         </template>
       </v-snackbar>
-      <v-dialog v-model="globalSearchPopup" max-width="700px">
+      <v-dialog v-model="globalSearchPopup" :width="globalSearchPopupWidth">
         <v-card>
           <v-card-title dense class="popup_background">
-            Search for Employee/Visitors info...
+            Search for Employee/Visitors information
             <v-spacer></v-spacer>
             <v-icon @click="globalSearchPopup = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
           <v-card-text>
-            <GlobalSearch />
+            <GlobalSearchForm
+              :key="key"
+              @global-search-results-updated="GlobalSearchResultsUpdated"
+            />
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -600,6 +603,7 @@ import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
 import employee_top_menu from "../menus/employee_modules_top.json";
+import GlobalSearchForm from "../components/Globalsearch/GlobalSearchForm.vue";
 
 export default {
   head() {
@@ -612,8 +616,12 @@ export default {
       ],
     };
   },
+  components: {
+    GlobalSearchForm,
+  },
   data() {
     return {
+      globalSearchPopupWidth: "500px",
       globalsearch: "",
       globalSearchPopup: false,
       notificationsMenuItems: [
@@ -745,6 +753,7 @@ export default {
 
       inactivityTimeout: null,
       alarmNotificationStatus: false,
+      key: 1,
     };
   },
   created() {
@@ -864,6 +873,8 @@ export default {
   },
   methods: {
     showGlobalsearchPopup() {
+      this.key = this.key + 1;
+      this.globalSearchPopupWidth = "500px";
       this.globalSearchPopup = true;
       //this.$refs.globalSearchTextbox.focus();
     },
@@ -1191,6 +1202,9 @@ export default {
       this.$axios.get(`/logout`).then(({ res }) => {
         this.$auth.logout();
       });
+    },
+    GlobalSearchResultsUpdated() {
+      this.globalSearchPopupWidth = "1400px";
     },
   },
   beforeDestroy() {
