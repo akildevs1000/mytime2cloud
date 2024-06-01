@@ -198,7 +198,7 @@
         <v-list light nav dense>
           <v-list-item-group color="primary">
             <v-list-item
-              v-if="this.$auth && this.$auth.user.user_type == 'company'"
+              v-if="$auth && $auth.user.user_type == 'company'"
               @click="goToCompany()"
             >
               <v-list-item-icon>
