@@ -152,6 +152,30 @@
         </template>
       </span>
 
+      <span>
+        <!-- <v-icon
+          class="violet--text"
+          @click="showGlobalsearchPopup"
+          style="text-align: center"
+          >mdi-magnify</v-icon
+        > -->
+        <v-text-field
+          @keyup.enter="showGlobalsearchPopup"
+          @keydown="showGlobalsearchPopup"
+          @keyup="showGlobalsearchPopup"
+          style="width: 200px"
+          class="pt-6 global-search-textbox"
+          @click="showGlobalsearchPopup"
+          label="Search"
+          color="black"
+          outlined
+          dense
+          border-color="black"
+          append-icon="mdi-magnify"
+          v-model="globalsearch"
+        ></v-text-field>
+      </span>
+
       <v-spacer></v-spacer>
 
       <v-menu
@@ -343,6 +367,20 @@
           </v-btn>
         </template>
       </v-snackbar>
+      <v-dialog v-model="globalSearchPopup" max-width="700px">
+        <v-card>
+          <v-card-title dense class="popup_background">
+            Search for Employee/Visitors info...
+            <v-spacer></v-spacer>
+            <v-icon @click="globalSearchPopup = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <GlobalSearch />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-dialog
         v-model="alarmNotificationStatus"
         transition="dialog-top-transition"
@@ -576,6 +614,8 @@ export default {
   },
   data() {
     return {
+      globalsearch: "",
+      globalSearchPopup: false,
       notificationsMenuItems: [
         {
           title: "Leaves Pending (0)",
@@ -823,6 +863,10 @@ export default {
     },
   },
   methods: {
+    showGlobalsearchPopup() {
+      this.globalSearchPopup = true;
+      //this.$refs.globalSearchTextbox.focus();
+    },
     toggleTheme() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
 
@@ -1682,6 +1726,16 @@ button {
 
 .no-border:before {
   border-color: #fff !important;
+}
+
+.global-search-textbox fieldset,
+.global-search-textbox .v-label,
+.global-search-textbox .v-icon,
+.global-search-textbox .theme--dark.v-input textarea {
+  color: black !important;
+}
+.company-profile-picture .v-image__image--cover {
+  background-size: contain;
 }
 </style>
 

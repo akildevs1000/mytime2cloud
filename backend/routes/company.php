@@ -23,6 +23,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeLeaveDocumentController;
 use App\Http\Controllers\EmployeeLeavesController;
 use App\Http\Controllers\ExperienceController;
+use App\Http\Controllers\GlobalSearchController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\LeaveController;
 use App\Http\Controllers\LeaveCountController;
@@ -159,6 +160,8 @@ Route::apiResource('no-shift-employees', DutyOrganizerController::class);
 
 //  Employee
 Route::get('employeev1', [EmployeeController::class, "indexV1"]);
+Route::post('global-search', [GlobalSearchController::class, "globalSearch"]);
+
 Route::apiResource('employee', EmployeeController::class);
 
 
