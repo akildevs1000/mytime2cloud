@@ -396,7 +396,7 @@
       <v-card>
         <v-tabs
           v-model="tab"
-          class="popup_background"
+          class="popup_background_noviolet"
           centered
           icons-and-text
           color="violet"

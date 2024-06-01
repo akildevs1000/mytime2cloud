@@ -76,7 +76,7 @@
                     v-else
                     size="40"
                     dark
-                    class="error mt-6"
+                    class="black mt-6"
                     fab
                     @click="removeItem(index)"
                     x-small
@@ -183,7 +183,7 @@
                     padding: 8px;
                   "
                 >
-                  <v-icon color="error" @click="delete_document(d.id)">
+                  <v-icon color="black" @click="delete_document(d.id)">
                     mdi-delete
                   </v-icon>
                 </td>

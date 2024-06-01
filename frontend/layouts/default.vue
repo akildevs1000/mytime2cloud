@@ -1344,6 +1344,20 @@ header i {
   padding: 5px 6px 5px !important;
   color: #fff !important;
 }
+.popup_background_white {
+}
+.v-dialog > .v-card > .popup_background_noviolet {
+  background-color: #ecf0f4 !important  ;
+  padding: 5px 6px 5px !important;
+  color: #fff !important;
+}
+
+.popup_background_noviolet .v-tabs-bar {
+  background-color: #ecf0f4 !important;
+}
+.noviolet {
+  background-color: #ecf0f4 !important   ;
+}
 .v-dialog > .v-card > .popup_background > .mdi-close-circle {
   color: #fff !important;
 }
