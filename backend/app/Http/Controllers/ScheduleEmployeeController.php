@@ -24,7 +24,7 @@ class ScheduleEmployeeController extends Controller
     }
     public function employeesWithScheduleCount(Request $request)
     {
-        $model = Employee::with(["branch"])
+        $model = Employee::with(["branch", "sub_department"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
@@ -38,7 +38,9 @@ class ScheduleEmployeeController extends Controller
             $model->with("department", function ($q) use ($request) {
                 $q->whereCompanyId($request->company_id);
             });
-
+            $model->with("sub_department", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
 
             $model->with("schedule", function ($q) use ($request) {
                 $q->whereCompanyId($request->company_id);
