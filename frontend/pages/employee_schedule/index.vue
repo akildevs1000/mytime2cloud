@@ -535,7 +535,7 @@
         <v-toolbar-title class="black--text"
           ><span> Schedule List</span></v-toolbar-title
         >
-        <!-- <span>
+        <span>
           <v-btn
             dense
             class="ma-0 px-0"
@@ -549,7 +549,7 @@
             >
           </v-btn>
         </span>
-        <span>
+        <!--  <span>
           <v-btn
             dense
             class="ma-0 px-0"
@@ -909,8 +909,9 @@
         <template v-slot:item.branch_id="{ item }">
           {{ item.branch && item.branch.branch_name }}
         </template>
-        <template v-slot:item.department.name.id="{ item }">
+        <template v-slot:item.department.name="{ item }">
           <strong>{{ caps(item.department.name) }}</strong>
+
           <div class="secondary-value">
             {{ caps(item.sub_department.name) }}
           </div>
@@ -1095,7 +1096,7 @@ export default {
         filterName: "employee_first_name",
       },
       {
-        text: "Emp Id",
+        text: "Emp Id/Device Id",
         align: "left",
         sortable: true,
         value: "employee_id",
