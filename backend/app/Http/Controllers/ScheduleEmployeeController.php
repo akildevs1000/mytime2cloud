@@ -24,7 +24,7 @@ class ScheduleEmployeeController extends Controller
     }
     public function employeesWithScheduleCount(Request $request)
     {
-        $model = Employee::with(["branch", "sub_department"])
+        $model = Employee::with(["branch", "sub_department",  "department.branch", "sub_department",])
             ->where('company_id', $request->company_id)
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
