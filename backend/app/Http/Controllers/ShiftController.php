@@ -24,9 +24,9 @@ class ShiftController extends Controller
         $model->with(["shift_type", "branch"]);
         $model->where('company_id', $request->company_id);
 
-        $model->when(request()->filled("branch_id"), function ($query) use ($request) {
-            return $query->where('branch_id', $request->branch_id);
-        });
+        // $model->when(request()->filled("branch_id"), function ($query) use ($request) {
+        //     return $query->where('branch_id', $request->branch_id);
+        // });
 
         $model->withCount(["autoshift" => function ($q) use ($request) {
             return $q->where("company_id", $request->company_id);

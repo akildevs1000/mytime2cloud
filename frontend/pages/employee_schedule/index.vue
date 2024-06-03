@@ -201,7 +201,6 @@
             <v-col md="3">
               <div>Shift Name</div>
               <v-autocomplete
-                label="Shifts"
                 placeholder="Shift Name"
                 :error="errors && errors.shift_id"
                 :error-messages="
@@ -1563,7 +1562,9 @@ export default {
         alert("Atleast one Shift is required");
         return false;
       }
-      if (this.filterEmployeeIds.length == 0) {
+
+      console.log(this.empId + "" + this.filterEmployeeIds.length);
+      if (!this.empId && this.filterEmployeeIds.length == 0) {
         alert("Atleast Select One Employee  ");
         return false;
       }
