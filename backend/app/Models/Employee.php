@@ -477,7 +477,6 @@ class Employee extends Model
 
                 $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search%"));
                 $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search%"));
-
             })
 
 

@@ -588,7 +588,7 @@
 
         <v-select
           class="custom-text-field-height employee-schedule-cropdown"
-          style="width: 150px"
+          style="width: 100px"
           height="30px"
           cols="1"
           :hide-details="true"
