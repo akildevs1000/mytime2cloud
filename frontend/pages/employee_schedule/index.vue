@@ -311,7 +311,7 @@
                 OT Allowed
                 <v-checkbox
                   :readonly="!isEdit"
-                  style="margin-top: -8px"
+                  style="margin-top: 4px"
                   v-model="item.is_over_time"
                 ></v-checkbox>
               </div>
