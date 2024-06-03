@@ -159,19 +159,36 @@
           style="text-align: center"
           >mdi-magnify</v-icon
         > -->
+        <!-- <v-text-field
+          style="
+            width: 200px;
+            margin-top: 100px !important;
+            max-height: 30px !important;
+          "
+          max-height="10px"
+          class="custom-text-field-height mt-10 global-search-textbox"
+          color="black"
+          outlined
+          dense
+          height:="20px"
+          border-color="black"
+          append-icon="mdi-magnify"
+          v-model="globalsearch"
+        ></v-text-field> -->
         <v-text-field
           @keyup.enter="showGlobalsearchPopup"
           @keydown="showGlobalsearchPopup"
           @keyup="showGlobalsearchPopup"
-          style="width: 200px"
-          class="pt-6 global-search-textbox"
+          style="width: 220px; padding-left: 50px"
+          height="26px"
+          class="custom-text-field-height pt-7 global-search-textbox"
           @click="showGlobalsearchPopup"
-          label="Search"
           color="black"
           outlined
           dense
           border-color="black"
-          append-icon="mdi-magnify"
+          prepend-inner-icon="mdi-magnify"
+          placeholder="Search"
           v-model="globalsearch"
         ></v-text-field>
       </span>
@@ -1762,8 +1779,35 @@ button {
 .global-search-textbox .theme--dark.v-input textarea {
   color: black !important;
 }
+.global-search-textbox.v-text-field--enclosed:not(.v-text-field--rounded)
+  > .v-input__control
+  > .v-input__slot {
+  padding: 0 4px;
+}
+.global-search-textbox.v-input input::placeholder {
+  color: black !important;
+}
 .company-profile-picture .v-image__image--cover {
   background-size: contain;
+}
+.custom-text-field-height .v-input__slot {
+  min-height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.custom-text-field-height .v-label {
+  top: 6px !important;
+}
+.custom-text-field-height .v-input__append-inner {
+  margin-top: 3px !important;
+}
+.custom-text-field-height .v-input__prepend-inner {
+  margin-top: 3px !important;
+}
+
+.employee-schedule-cropdown .mdi-menu-down {
+  padding-top: 7px;
 }
 </style>
 

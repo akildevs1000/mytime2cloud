@@ -128,7 +128,38 @@
                               ></v-img>
                             </div>
                           </div>
+                          <v-icon
+                            v-if="!upload.name"
+                            @click="onpick_attachment"
+                            right
+                            dark
+                            fill
+                            color="primary"
+                            size="40"
+                            title="Change Profile Picture"
+                            >mdi mdi-folder-open-outline
+                          </v-icon>
                           <v-btn
+                            dense
+                            small
+                            v-if="upload.name"
+                            style="width: 100px"
+                            @click="cancelAttachment"
+                            class="primary mb-2"
+                            >Cancel
+                          </v-btn>
+                          <v-btn
+                            dense
+                            small
+                            v-if="upload.name"
+                            style="width: 100px"
+                            @click="update_company"
+                            class="primary mb-2"
+                            >{{ !upload.name ? "Change Logo" : "Submit" }}
+                            <v-icon right dark> </v-icon>
+                          </v-btn>
+
+                          <!-- <v-btn
                             v-if="!upload.name"
                             style="width: 100%"
                             @click="onpick_attachment"
@@ -138,8 +169,8 @@
                                 ? "Change Logo"
                                 : "Submit to Save logo"
                             }}
-                            <v-icon right dark> </v-icon>
-                          </v-btn>
+                            <v-icon right dark>mdi mdi-cloud-upload </v-icon>
+                          </v-btn> 
                           <v-btn
                             v-if="upload.name"
                             style="width: 100%"
@@ -151,7 +182,7 @@
                                 : "Submit to Save logo"
                             }}
                             <v-icon right dark> </v-icon>
-                          </v-btn>
+                          </v-btn>-->
                         </v-card>
 
                         <input
@@ -169,7 +200,7 @@
                           >{{ errors.logo[0] }}</span
                         >
                         <v-card
-                          class="ml-1 mr-1 mt-5"
+                          class="ml-1 mr-1 mt-2"
                           style="text-align: center"
                         >
                           <v-card-title>Visitor QR Code</v-card-title>
@@ -1015,6 +1046,10 @@ export default {
         this.$emit("input", file[0]);
       }
     },
+    cancelAttachment() {
+      this.upload.name = "";
+      this.previewImage = null;
+    },
 
     update_company() {
       this.update_contact();
@@ -1080,6 +1115,8 @@ export default {
           } else {
             this.snackbar = true;
             this.response = model + " updated successfully";
+
+            this.upload.name = "";
           }
         })
         .catch((e) => console.log(e));

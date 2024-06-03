@@ -29,8 +29,21 @@ class ScheduleEmployeeController extends Controller
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
             });
+        if ($request->department_ids) {
+            if (!in_array("---", $request->department_ids)) {
+                $model->whereIn("department_id", $request->department_ids);
+            }
 
 
+            $model->with("department", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
+
+
+            $model->with("schedule", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
+        }
         $model->with([
             'schedule_active' => function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
@@ -46,7 +59,11 @@ class ScheduleEmployeeController extends Controller
 
         if ($request->filled('schedules_count')) {
             if ($request->schedules_count == 0) {
-                $model->doesntHave('schedule_active', 'and', function ($q) use ($request) {
+                $model->whereDoesntHave('schedule_active', function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id);
+                });
+            } elseif ($request->schedules_count == 1) {
+                $model->whereHas('schedule_active', function ($q) use ($request) {
                     $q->where('company_id', $request->company_id);
                 });
             }
