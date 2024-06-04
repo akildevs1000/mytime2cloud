@@ -1787,6 +1787,10 @@ button {
 .global-search-textbox.v-input input::placeholder {
   color: black !important;
 }
+
+.global-search-textbox .v-input__slot {
+  padding: 0 3px !important;
+}
 .company-profile-picture .v-image__image--cover {
   background-size: contain;
 }
@@ -1808,6 +1812,16 @@ button {
 
 .employee-schedule-cropdown .mdi-menu-down {
   padding-top: 7px;
+}
+
+.employee-schedule-search-box .v-input__slot {
+  min-height: 30px !important;
+}
+.employee-schedule-search-box .v-label {
+  line-height: 11px !important;
+}
+.employee-schedule-search-box .v-input__icon {
+  height: 21px !important;
 }
 </style>
 

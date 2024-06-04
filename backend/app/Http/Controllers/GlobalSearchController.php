@@ -43,10 +43,25 @@ class GlobalSearchController extends Controller
             ->with(["schedule" => function ($q) {
                 $q->with("roster");
             }])
-            ->where('company_id', $request->company_id)
+            ->where('company_id', $request->company_id);
 
 
-            ->when($request->filled('search_value'), function ($q) use ($request) {
+        // ->when($request->filled('search_value'), function ($q) use ($request) {
+        //     $q->Where('system_user_id', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('employee_id', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('first_name', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('last_name', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('full_name', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('phone_number', 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('local_email', 'ILIKE', "%$request->search_value%");
+
+        //     $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search_value%"));
+        //     $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search_value%"));
+        // });
+
+
+        $model->when($request->filled('search_value'), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
                 $q->Where('system_user_id', 'ILIKE', "%$request->search_value%");
                 $q->orWhere('employee_id', 'ILIKE', "%$request->search_value%");
                 $q->orWhere('first_name', 'ILIKE', "%$request->search_value%");
@@ -58,7 +73,7 @@ class GlobalSearchController extends Controller
                 $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search_value%"));
                 $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search_value%"));
             });
-
+        });
 
         // ->when($request->filled('sortBy'), function ($q) use ($request) {
         //     $sortDesc = $request->input('sortDesc');

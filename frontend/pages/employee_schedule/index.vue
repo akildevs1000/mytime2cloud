@@ -23,6 +23,7 @@
           <v-row v-if="!empId">
             <v-col md="3">
               <v-select
+                label="Branch"
                 @change="filterDepartmentsByBranch()"
                 cols="1"
                 :hide-details="true"
@@ -38,6 +39,7 @@
 
             <v-col md="3">
               <v-autocomplete
+                label="Departments"
                 height="40px"
                 class="announcement-dropdown1"
                 outlined
@@ -84,13 +86,15 @@
                     All Selected
                   </span>
                   <span v-else-if="index === 1" class=" ">
-                    Selected {{ filterDepartmentIds.length }} Department(s)
+                    {{ filterDepartmentIds.length }} Seleted
+                    <!-- Selected {{ filterDepartmentIds.length }} Department(s) -->
                   </span>
                 </template>
               </v-autocomplete>
             </v-col>
             <v-col md="3">
               <v-select
+                label="All Employees"
                 @change="getEmployeesByScheduleFilter()"
                 cols="1"
                 :hide-details="true"
@@ -101,14 +105,16 @@
                 item-value="id"
                 item-text="name"
                 :items="[
-                  { id: 2, name: 'All' },
+                  { id: 2, name: 'All Employees' },
                   { id: 0, name: 'Unscheduled' },
                   { id: 1, name: 'Scheduled' },
                 ]"
               ></v-select>
             </v-col>
-            <v-col md="3">
+            <v-col md="2">
               <v-autocomplete
+                label="Employees"
+                height="40px"
                 class="announcement-dropdown1"
                 outlined
                 dense
@@ -156,7 +162,8 @@
                     All Selected
                   </span>
                   <span v-else-if="index === 1" class=" ">
-                    Selected {{ filterEmployeeIds.length }} Employee(s)
+                    {{ filterEmployeeIds.length }} Seleted
+                    <!-- Selected  Employee(s) -->
                   </span>
                 </template>
               </v-autocomplete>
@@ -199,8 +206,9 @@
               ></v-select>
             </v-col> -->
             <v-col md="3">
-              <div>Shift Name</div>
+              <!-- <div>Shift Name</div> -->
               <v-autocomplete
+                label="Shift Name"
                 placeholder="Shift Name"
                 :error="errors && errors.shift_id"
                 :error-messages="
@@ -220,7 +228,19 @@
                 :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
-            <v-col md="3">
+            <v-col cols="3">
+              <CustomFilter
+                class="mt-0"
+                @filter-attr="filterAttr($event, item)"
+                :default_date_from="date_from"
+                :default_date_to="date_to"
+                :defaultFilterType="1"
+                style="float: right"
+                :height="40"
+                :key="key + i"
+              />
+            </v-col>
+            <!-- <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
 
@@ -253,21 +273,7 @@
                     scrollable
                     @input="from_menu[i] = false"
                   >
-                    <!-- <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="from_menu[i] = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="
-                        isEdit
-                          ? set_date_save($refs.from_menu[i], item.from_date, i)
-                          : ''
-                      "
-                    >
-                      OK
-                    </v-btn> -->
+                     
                   </v-date-picker>
                 </v-menu>
               </div>
@@ -305,23 +311,26 @@
                   ></v-date-picker>
                 </v-menu>
               </div>
-            </v-col>
-            <v-col md="2">
-              <div>
-                OT Allowed
-                <v-checkbox
+            </v-col> -->
+            <v-col md="4">
+              <v-row>
+                <v-col class="pt-5" style="max-width: 100px">OT Allowed?</v-col>
+
+                <v-col class="pl-0" style="max-width: 50px">
+                  <v-switch
+                    color="primary align-left"
+                    class="mt-0 ml-0 pt-2"
+                    v-model="item.is_over_time"
+                    @change="item.is_over_time = true"
+                  ></v-switch>
+                </v-col>
+              </v-row>
+              <!-- <v-checkbox
                   :readonly="!isEdit"
                   style="margin-top: 4px"
                   v-model="item.is_over_time"
-                ></v-checkbox>
-              </div>
+                ></v-checkbox> -->
             </v-col>
-            <!-- <v-col md="1" v-if="isEdit">
-              <div></div>
-              <v-icon @click="removeItem(i, item)" color="error"
-                >mdi-delete</v-icon
-              >
-            </v-col> -->
           </v-row>
         </v-card-text>
         <v-divider></v-divider>
@@ -531,23 +540,24 @@
 
     <v-card elevation="0" class="mt-2">
       <v-toolbar class="mb-2 white--text" color="white" dense flat>
-        <v-toolbar-title class="black--text"
-          ><span> Schedule List</span></v-toolbar-title
+        <v-toolbar-title class="black--text">
+          <span> Schedule List</span>
+        </v-toolbar-title>
+        <!-- <span class="black--text"> Schedule List1</span> -->
+
+        <v-btn
+          dense
+          class="ma-0 px-0"
+          x-small
+          :ripple="false"
+          text
+          title="Reload"
         >
-        <span>
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            title="Reload"
+          <v-icon class="ml-2" @click="clearFilters" dark
+            >mdi mdi-reload</v-icon
           >
-            <v-icon class="ml-2" @click="clearFilters" dark
-              >mdi mdi-reload</v-icon
-            >
-          </v-btn>
-        </span>
+        </v-btn>
+
         <!--  <span>
           <v-btn
             dense
@@ -579,31 +589,41 @@
           ></v-select
         ></v-col> -->
 
-        <v-col cols="9"> </v-col>
-
         <v-spacer></v-spacer>
-
-        <v-label></v-label>
-
-        <v-select
-          class="custom-text-field-height employee-schedule-cropdown"
-          style="width: 100px"
-          height="30px"
-          cols="1"
-          :hide-details="true"
-          @change="filterEmployees()"
-          item-value="id"
-          item-text="name"
-          v-model="filterScheduledEmp"
-          outlined
-          dense
-          :items="[
-            { name: `All Employees  `, id: `` },
-            { name: `Scheduled Only`, id: `1` },
-            { name: `Un-Scheduled`, id: `0` },
-          ]"
-        ></v-select>
-        <span>
+        <span cols="4" class="mt-8" style="width: 220px">
+          <v-text-field
+            style="width: 200px"
+            height="20"
+            class="employee-schedule-search-box"
+            @input="getDataFromApi()"
+            v-model="commonSearch"
+            label="Search (min 3 characters)"
+            dense
+            outlined
+            type="text"
+            append-icon="mdi-magnify"
+          ></v-text-field>
+        </span>
+        <span cols="4" class="mt-1" style="width: 190px">
+          <v-select
+            height="30px"
+            style="width: 180px"
+            class="custom-text-field-height employee-schedule-cropdown"
+            :hide-details="true"
+            @change="filterEmployees()"
+            item-value="id"
+            item-text="name"
+            v-model="filterScheduledEmp"
+            outlined
+            dense
+            :items="[
+              { name: `All Employees  `, id: `` },
+              { name: `Scheduled Only`, id: `1` },
+              { name: `Un-Scheduled`, id: `0` },
+            ]"
+          ></v-select>
+        </span>
+        <span cols="2" class="mt-1" style="max-width: 80px">
           <v-btn
             dense
             class="ma-2 px-1 primary"
@@ -615,7 +635,62 @@
             + New
           </v-btn>
         </span>
-
+        <!-- <input
+          class="custom-input"
+          type="text"
+          placeholder="Search"
+          @input="getDataFromApi()"
+          v-model="commonSearch"
+        /> -->
+        <!-- <v-col cols="12" class="text-right">
+          <v-row>
+            <v-col cols="7"></v-col>
+            <v-col cols="2" class="text-left" style="max-width: 200px">
+              <v-text-field
+                height="20"
+                @input="getDataFromApi()"
+                v-model="commonSearch"
+                label="Display Name"
+                dense
+                outlined
+                type="text"
+                append-icon="mdi-magnify"
+              ></v-text-field>
+             
+            </v-col>
+            <v-col cols="2" style="max-width: 200px">
+              <v-select
+                class="custom-text-field-height employee-schedule-cropdown"
+                height="40px"
+                cols="1"
+                :hide-details="true"
+                @change="filterEmployees()"
+                item-value="id"
+                item-text="name"
+                v-model="filterScheduledEmp"
+                outlined
+                dense
+                :items="[
+                  { name: `All Employees  `, id: `` },
+                  { name: `Scheduled Only`, id: `1` },
+                  { name: `Un-Scheduled`, id: `0` },
+                ]"
+              ></v-select>
+            </v-col>
+            <v-col cols="1" class="text-left" style="max-width: 100px">
+              <v-btn
+                dense
+                class="ma-2 px-1 primary"
+                fill
+                dark
+                small
+                @click="openScheduleDialog"
+              >
+                + New
+              </v-btn>
+            </v-col>
+          </v-row>
+        </v-col> -->
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
             <template v-slot:activator="{ on, attrs }"> -->
         <!-- <v-btn
@@ -1001,8 +1076,14 @@
   <NoAccess v-else />
 </template>
 <script>
+import { extensions } from "@tiptap/vue-2";
+
 export default {
   data: () => ({
+    commonSearch: "",
+    key: 1,
+    date_from: "",
+    date_to: "",
     filterPopupEmployeeSchedule: 2,
     selectAllEmployee: false,
     filterEmployeeIds: "",
@@ -1277,9 +1358,11 @@ export default {
     },
     selectAllEmployee(value) {
       if (value) {
-        this.filterEmployeeIds = this.employees_dialog.map((e) => e.id);
+        this.filterEmployeeIds = this.employees_dialog.map(
+          (e) => e.system_user_id
+        );
       } else {
-        this.filterEmployeeIds.employees = [];
+        this.filterEmployeeIds = [];
       }
     },
     dialog(val) {
@@ -1312,6 +1395,10 @@ export default {
     },
   },
   created() {
+    const today = new Date();
+
+    this.date_from = today.toISOString().slice(0, 10);
+    this.date_to = today.toISOString().slice(0, 10);
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
         {
@@ -1344,6 +1431,12 @@ export default {
   },
 
   methods: {
+    filterAttr(data, item) {
+      this.date_from = data.from;
+      this.date_to = data.to;
+      item.from_date = data.from;
+      item.to_date = data.to;
+    },
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
     },
@@ -1438,6 +1531,7 @@ export default {
     filterEmployees() {
       this.filters["schedules_count"] = this.filterScheduledEmp;
       this.getDataFromApi();
+      this.filterEmployeeIds = [];
     },
     updateIndex(page) {
       this.currentPage = page;
@@ -1500,7 +1594,7 @@ export default {
         (e) => e.branch_id == this.branch_id
       );
       this.schedules_temp_list = [];
-      this.addRow(1);
+      this.addRow(0);
       this.isEdit = true;
 
       this.filterDepartmentIds = [];
@@ -1529,7 +1623,7 @@ export default {
           this.schedules_temp_list = data;
 
           if (data.length == 0) {
-            this.addRow(1);
+            this.addRow(0);
           }
 
           this.schedules_temp_list.forEach((object) => {
@@ -1563,11 +1657,11 @@ export default {
         return false;
       }
 
-      console.log(this.empId + "" + this.filterEmployeeIds.length);
       if (!this.empId && this.filterEmployeeIds.length == 0) {
         alert("Atleast Select One Employee  ");
         return false;
       }
+      var continueSavedata = true;
       this.schedules_temp_list.forEach((element) => {
         let shiftsSelected = this.shifts.filter(
           (e) => e.shift_id == element.shift_id
@@ -1575,7 +1669,14 @@ export default {
 
         if (shiftsSelected[0])
           element.shift_type_id = shiftsSelected[0].shift_type_id;
+
+        if (element.shift_id == 0) {
+          alert("Please select Shift Name");
+          continueSavedata = false;
+          return false;
+        }
       });
+      if (!continueSavedata) return false;
 
       let payload = {
         //employee_ids: [this.empId],
@@ -1609,8 +1710,8 @@ export default {
       let item = {
         shift_id: id,
         shift_type_id: 1,
-        from_date: "", // new Date().toJSON().slice(0, 10),
-        to_date: "", //new Date().toJSON().slice(0, 10),
+        from_date: new Date().toJSON().slice(0, 10),
+        to_date: new Date().toJSON().slice(0, 10),
         is_over_time: false,
       };
       if (this.schedules_temp_list.length < 5) {
@@ -1734,6 +1835,8 @@ export default {
 
     getEmployeesByScheduleFilter() {
       this.employeesByDepartment();
+      this.selectAllEmployee = false;
+      this.filterEmployeeIds = [];
     },
 
     employeesByDepartment() {
@@ -1857,6 +1960,10 @@ export default {
     },
     //main
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
+      console.log(this.commonSearch.length);
+      if (this.commonSearch != "" && this.commonSearch.length < 3) {
+        return false;
+      }
       this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -1867,6 +1974,7 @@ export default {
       let options = {
         params: {
           page: page,
+          common_search: this.commonSearch != "" ? this.commonSearch : null,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
@@ -2013,6 +2121,7 @@ export default {
         alert("Atleast 1 Employee must be selected");
         return;
       }
+
       this.errors = [];
 
       let payload = {
