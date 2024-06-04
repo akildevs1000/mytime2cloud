@@ -597,7 +597,7 @@
             class="employee-schedule-search-box"
             @input="getDataFromApi()"
             v-model="commonSearch"
-            label="Search (min 3 characters)"
+            label="Search (min 3)"
             dense
             outlined
             type="text"
