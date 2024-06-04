@@ -1821,7 +1821,7 @@ button {
   line-height: 11px !important;
 }
 .employee-schedule-search-box .v-input__icon {
-  height: 21px !important;
+  height: 17px !important;
 }
 </style>
 
