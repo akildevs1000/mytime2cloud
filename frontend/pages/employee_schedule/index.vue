@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog persistent v-model="editDialog" width="900">
+    <v-dialog v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense dark class="popup_background">
           {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
@@ -230,10 +230,11 @@
             </v-col>
             <v-col cols="3">
               <CustomFilter
+                :disabled="!isEdit"
                 class="mt-0"
                 @filter-attr="filterAttr($event, item)"
-                :default_date_from="date_from"
-                :default_date_to="date_to"
+                :default_date_from="item.from_date"
+                :default_date_to="item.to_date"
                 :defaultFilterType="1"
                 style="float: right"
                 :height="40"
@@ -318,6 +319,7 @@
 
                 <v-col class="pl-0" style="max-width: 50px">
                   <v-switch
+                    :disabled="!isEdit"
                     color="primary align-left"
                     class="mt-0 ml-0 pt-2"
                     v-model="item.is_over_time"
@@ -346,7 +348,7 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog persistent v-model="dialog" width="1300">
+    <v-dialog v-model="dialog" width="1300">
       <v-card>
         <v-card-title class="text-h5">
           Schedule Employees
@@ -1960,7 +1962,6 @@ export default {
     },
     //main
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
-      console.log(this.commonSearch.length);
       if (this.commonSearch != "" && this.commonSearch.length < 3) {
         return false;
       }

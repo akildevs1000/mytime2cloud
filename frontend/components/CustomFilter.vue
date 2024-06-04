@@ -6,6 +6,7 @@
     v-model="time3"
     @change="CustomFilter()"
     range
+    :disabled="disabled ? disabled : false"
   ></date-picker>
 </template>
 
@@ -17,6 +18,7 @@ export default {
     DatePicker,
   },
   props: [
+    "disabled",
     "defaultFilterType",
     "height",
     "width",
