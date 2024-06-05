@@ -282,9 +282,11 @@ class DeviceController extends Controller
 
             $data = $request->validated();
 
+            if ($data["model_number"] == "OX-900") {
+                $data["camera_sdk_url"] = env('OX900_SDK_URL');
+            }
 
-
-
+            $data["serial_number"] = $data["device_id"];
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
             $record = $model->create($data);
