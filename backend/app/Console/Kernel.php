@@ -72,7 +72,7 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_attendance_camera_logs')
             ->everyMinute()
             //->withoutOverlapping()
-            ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-y") . "-attendance-camera2-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
         $schedule
             ->command('task:sync_alarm_logs')
