@@ -387,7 +387,7 @@
       <v-dialog v-model="globalSearchPopup" :width="globalSearchPopupWidth">
         <v-card>
           <v-card-title dense class="popup_background">
-            Global Search {{ globalSearchPopupWidth }}
+            Global Search
             <v-spacer></v-spacer>
             <v-icon @click="globalSearchPopup = false" outlined dark>
               mdi mdi-close-circle
