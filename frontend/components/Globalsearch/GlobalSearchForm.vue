@@ -6,45 +6,51 @@
       </v-snackbar>
     </div> -->
     <v-container>
-      <v-row>
-        <v-col cols="5" style="max-width: 300px">
-          <v-select
-            label="Select"
-            v-model="searchType"
-            @change="changeSearchType"
-            :items="[
-              { name: 'Employee', value: 'employee' },
-              { name: 'Visitor', value: 'visitor' },
-            ]"
-            dense
-            placeholder="Select "
-            outlined
-            :hide-details="true"
-            item-text="name"
-            item-value="value"
-          ></v-select>
-        </v-col>
-        <v-col cols="5" style="max-width: 300px">
-          <v-text-field
-            ref="globalSearchTextbox"
-            label="Enter Name/ID/Phone...."
-            dense
-            small
-            outlined
-            type="text"
-            v-model="searchValue"
-            clearable
-          ></v-text-field>
-        </v-col>
-        <v-col cols="2"
-          ><v-btn class="primary" small @click="globlaSearchProcess()"
-            >Search</v-btn
-          ></v-col
-        >
-      </v-row>
+      <v-row
+        ><v-col v-if="totalRowsCount > 0 && searchValue != ''"> </v-col
+        ><v-col
+          ><v-row style="height: 71px" class="mt-2 text-right">
+            <v-col cols="5">
+              <v-select
+                label="Select"
+                v-model="searchType"
+                @change="changeSearchType"
+                :items="[
+                  { name: 'Employee', value: 'employee' },
+                  { name: 'Visitor', value: 'visitor' },
+                ]"
+                dense
+                placeholder="Select "
+                outlined
+                :hide-details="true"
+                item-text="name"
+                item-value="value"
+              ></v-select>
+            </v-col>
+            <v-col cols="5">
+              <v-text-field
+                ref="globalSearchTextbox"
+                label="Enter Name/ID/Phone"
+                dense
+                small
+                outlined
+                type="text"
+                v-model="searchValue"
+                clearable
+              ></v-text-field>
+            </v-col>
+            <v-col cols="2" class="pt-4" style="max-width: 60px"
+              ><v-btn class="primary" small @click="globlaSearchProcess()"
+                >Find</v-btn
+              ></v-col
+            >
+          </v-row></v-col
+        ></v-row
+      >
+      <v-spacer></v-spacer>
 
-      <v-row>
-        <v-col cols="12">
+      <v-row v-if="totalRowsCount > 0 && searchValue != ''" class="p-0">
+        <v-col cols="12" class="p-0">
           <GlobalSearchEmployeesResults
             v-if="searchType == 'employee' && searchValue != ''"
             :data="data"
@@ -57,6 +63,7 @@
           />
         </v-col>
       </v-row>
+      <div v-else-if="searchValue != ''">No Records found</div>
     </v-container>
   </div>
 </template>
@@ -77,6 +84,7 @@ export default {
       searchValue: "",
       data: [],
       totalRowsCount: 0,
+      buttonClicked: false,
     };
   },
   mounted() {
@@ -116,7 +124,7 @@ export default {
       }
     },
     globlaSearchProcess() {
-      if (this.searchValue == "") {
+      if (this.searchValue == "" || this.searchValue == null) {
         this.data = [];
         return;
       }
@@ -138,9 +146,12 @@ export default {
             this.data = data.visitors.data;
             this.totalRowsCount = data.visitors.total;
           }
-
-          if (this.totalRowsCount > 0)
-            this.$emit("global-search-results-updated", data);
+          this.$emit("global-search-results-updated", this.totalRowsCount);
+          if (this.totalRowsCount > 0) {
+            this.buttonClicked = true;
+          } else {
+            //this.buttonClicked = false;
+          }
 
           this.loadinglinear = false;
         })

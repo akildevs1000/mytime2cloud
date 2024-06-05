@@ -387,7 +387,7 @@
       <v-dialog v-model="globalSearchPopup" :width="globalSearchPopupWidth">
         <v-card>
           <v-card-title dense class="popup_background">
-            Search for Employee/Visitors information
+            Global Search {{ globalSearchPopupWidth }}
             <v-spacer></v-spacer>
             <v-icon @click="globalSearchPopup = false" outlined dark>
               mdi mdi-close-circle
@@ -1220,8 +1220,9 @@ export default {
         this.$auth.logout();
       });
     },
-    GlobalSearchResultsUpdated() {
-      this.globalSearchPopupWidth = "1400px";
+    GlobalSearchResultsUpdated(value) {
+      if (value > 0) this.globalSearchPopupWidth = "1400px";
+      else this.globalSearchPopupWidth = "500px";
     },
   },
   beforeDestroy() {
