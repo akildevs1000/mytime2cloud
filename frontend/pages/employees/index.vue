@@ -584,38 +584,6 @@
                   </v-btn>
                 </template>
                 <v-list dense>
-                  <v-list-item
-                    @click="() => ((dialog = true), handleChangeEvent())"
-                  >
-                    <v-list-item-title
-                      style="
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                      "
-                    >
-                      <div style="height: 17px; width: 17px">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 512 512"
-                          class="icon align-text-top"
-                        >
-                          <path
-                            fill="#6946dd"
-                            d="M356 169.2c-3.1 3.1-7.2 4.7-11.3 4.7-4.1 0-8.2-1.6-11.3-4.7L272 107.8v205c0 8.8-7.2 16-16 16s-16-7.2-16-16v-205l-61.4 61.4c-6.2 6.2-16.4 6.2-22.6 0-6.2-6.2-6.2-16.4 0-22.6l88.7-88.7c6.2-6.2 16.4-6.2 22.6 0l88.7 88.7c6.3 6.2 6.3 16.3 0 22.6z"
-                          ></path>
-                          <path
-                            fill="#6946dd"
-                            d="M423 463.6H89c-44.9 0-81.4-39.8-81.4-88.7v-97.3c0-8.8 7.2-16 16-16s16 7.2 16 16v97.3c0 31.3 22.2 56.7 49.4 56.7h334c27.2 0 49.4-25.4 49.4-56.7v-98.5c0-8.8 7.2-16 16-16s16 7.2 16 16v98.5c0 48.9-36.5 88.7-81.4 88.7z"
-                          ></path>
-                        </svg>
-                      </div>
-
-                      <div style="margin: 4px 0 0 5px">
-                        <span style="font-size: 12px"> Employees</span>
-                      </div>
-                    </v-list-item-title>
-                  </v-list-item>
                   <v-list-item>
                     <v-list-item-title
                       style="
@@ -654,6 +622,38 @@
                       </div>
                     </v-list-item-title>
                   </v-list-item>
+                  <v-list-item
+                    @click="() => ((dialog = true), handleChangeEvent())"
+                  >
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <div style="height: 17px; width: 17px">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 512 512"
+                          class="icon align-text-top"
+                        >
+                          <path
+                            fill="#6946dd"
+                            d="M356 169.2c-3.1 3.1-7.2 4.7-11.3 4.7-4.1 0-8.2-1.6-11.3-4.7L272 107.8v205c0 8.8-7.2 16-16 16s-16-7.2-16-16v-205l-61.4 61.4c-6.2 6.2-16.4 6.2-22.6 0-6.2-6.2-6.2-16.4 0-22.6l88.7-88.7c6.2-6.2 16.4-6.2 22.6 0l88.7 88.7c6.3 6.2 6.3 16.3 0 22.6z"
+                          ></path>
+                          <path
+                            fill="#6946dd"
+                            d="M423 463.6H89c-44.9 0-81.4-39.8-81.4-88.7v-97.3c0-8.8 7.2-16 16-16s16 7.2 16 16v97.3c0 31.3 22.2 56.7 49.4 56.7h334c27.2 0 49.4-25.4 49.4-56.7v-98.5c0-8.8 7.2-16 16-16s16 7.2 16 16v98.5c0 48.9-36.5 88.7-81.4 88.7z"
+                          ></path>
+                        </svg>
+                      </div>
+
+                      <div style="margin: 4px 0 0 5px">
+                        <span style="font-size: 12px"> Upload Employees</span>
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item>
 
                   <v-list-item @click="export_submit">
                     <v-list-item-title
@@ -681,7 +681,7 @@
                       </div>
 
                       <div style="margin: 4px 0 0 5px">
-                        <span style="font-size: 12px">Employees</span>
+                        <span style="font-size: 12px">Download Employees</span>
                       </div>
                     </v-list-item-title>
                   </v-list-item>

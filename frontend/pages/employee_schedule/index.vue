@@ -6,10 +6,13 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="editDialog" width="900">
+    <v-dialog v-model="editDialog" :width="schedulePopupWidth">
       <v-card>
         <v-card-title dense dark class="popup_background">
-          {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
+          <div v-if="!empId">Add Schedule</div>
+          <div v-else>
+            {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
+          </div>
           <v-spacer></v-spacer>
 
           <v-icon @click="editDialog = false" outlined dark>
@@ -20,8 +23,18 @@
         <v-card-text>
           <br />
 
-          <v-row v-if="!empId">
-            <v-col md="3">
+          <v-row v-if="!empId"> </v-row>
+
+          <!-- <v-row>
+            <v-col class="text-right">
+              <v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
+                <b>Add +</b>
+              </v-btn>
+            </v-col>
+          </v-row> -->
+
+          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
+            <v-col md="2" v-if="!empId">
               <v-select
                 label="Branch"
                 @change="filterDepartmentsByBranch()"
@@ -37,7 +50,7 @@
               ></v-select>
             </v-col>
 
-            <v-col md="3">
+            <v-col md="2" v-if="!empId">
               <v-autocomplete
                 label="Departments"
                 height="40px"
@@ -92,7 +105,7 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col md="3">
+            <v-col md="2" v-if="!empId">
               <v-select
                 label="All Employees"
                 @change="getEmployeesByScheduleFilter()"
@@ -111,7 +124,7 @@
                 ]"
               ></v-select>
             </v-col>
-            <v-col md="2">
+            <v-col md="2" v-if="!empId">
               <v-autocomplete
                 label="Employees"
                 height="40px"
@@ -168,17 +181,6 @@
                 </template>
               </v-autocomplete>
             </v-col>
-          </v-row>
-
-          <!-- <v-row>
-            <v-col class="text-right">
-              <v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
-                <b>Add +</b>
-              </v-btn>
-            </v-col>
-          </v-row> -->
-
-          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <!-- <v-col md="12">
               <v-checkbox
                 :readonly="!isEdit"
@@ -205,7 +207,7 @@
                 ]"
               ></v-select>
             </v-col> -->
-            <v-col md="3">
+            <v-col :md="!empId ? 2 : 4">
               <!-- <div>Shift Name</div> -->
               <v-autocomplete
                 label="Shift Name"
@@ -228,7 +230,7 @@
                 :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
-            <v-col cols="3">
+            <v-col :md="!empId ? 2 : 4">
               <CustomFilter
                 :disabled="!isEdit"
                 class="mt-0"
@@ -236,7 +238,7 @@
                 :default_date_from="item.from_date"
                 :default_date_to="item.to_date"
                 :defaultFilterType="1"
-                style="float: right"
+                style="float: right; width: 100%"
                 :height="40"
                 :key="key + i"
               />
@@ -313,7 +315,7 @@
                 </v-menu>
               </div>
             </v-col> -->
-            <v-col md="4">
+            <v-col :md="!empId ? 2 : 4" v-if="empId">
               <v-row>
                 <v-col class="pt-5" style="max-width: 100px">OT Allowed?</v-col>
 
@@ -336,14 +338,16 @@
           </v-row>
         </v-card-text>
         <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
+        <v-card-actions class="text-center">
+          <!-- <v-spacer></v-spacer> -->
           <!-- <v-btn dark small color="grey" @click="editDialog = false">
               Close
             </v-btn> -->
-          <v-btn v-if="isEdit" dark small color="primary" @click="update">
-            Submit
-          </v-btn>
+          <div style="width: 100%">
+            <v-btn v-if="isEdit" dark small color="primary" @click="update">
+              Submit
+            </v-btn>
+          </div>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -625,7 +629,7 @@
             ]"
           ></v-select>
         </span>
-        <span cols="2" class="mt-1" style="max-width: 80px">
+        <span cols="2" class="mt-1" style="max-width: 140px">
           <v-btn
             dense
             class="ma-2 px-1 primary"
@@ -634,7 +638,7 @@
             small
             @click="openScheduleDialog"
           >
-            + New
+            + Add Schedule
           </v-btn>
         </span>
         <!-- <input
@@ -1082,6 +1086,7 @@ import { extensions } from "@tiptap/vue-2";
 
 export default {
   data: () => ({
+    schedulePopupWidth: "70%",
     commonSearch: "",
     key: 1,
     date_from: "",
@@ -1632,6 +1637,12 @@ export default {
             object.branch_id = item.branch_id;
           });
           this.editDialog = true;
+
+          if (this.schedules_temp_list.length == 1) {
+            this.schedulePopupWidth = "70%";
+          } else {
+            this.schedulePopupWidth = "900px";
+          }
         });
     },
 
@@ -1718,6 +1729,12 @@ export default {
       };
       if (this.schedules_temp_list.length < 5) {
         this.schedules_temp_list.push(item);
+      }
+
+      if (this.schedules_temp_list.length == 1) {
+        this.schedulePopupWidth = "80%";
+      } else {
+        this.schedulePopupWidth = "900px";
       }
     },
 
