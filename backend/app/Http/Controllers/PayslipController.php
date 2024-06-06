@@ -331,7 +331,7 @@ class PayslipController extends Controller
         $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
 
         $formatter = new NumberFormatter('en_US', NumberFormatter::SPELLOUT);
-        $Payroll->final_salary_in_words  = ucfirst($formatter->format($Payroll->finalSalary));
+        $Payroll->final_salary_in_words  = ucfirst($formatter->format(round($Payroll->finalSalary)));
         $Payroll->payslip_month_year = $days_countdate->format('F Y');
 
 
