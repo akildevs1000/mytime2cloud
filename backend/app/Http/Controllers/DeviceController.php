@@ -426,6 +426,10 @@ class DeviceController extends Controller
                 } else {
 
                     $url = env('SDK_URL') . "/$request->serial_number/CloseDoor";
+
+                    if (env('APP_ENV') == 'desktop') {
+                        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->serial_number/CloseDoor";
+                    }
                     $response = $this->callCURL($url);
 
 
@@ -685,7 +689,6 @@ class DeviceController extends Controller
     {
 
 
-
         $device = Device::where("device_id", $request->device_id)->first();
         if ($device->status_id == 2) {
             return $this->response("Device is offline. Please Check Device Online status.", null, false);
@@ -703,7 +706,11 @@ class DeviceController extends Controller
             } else {
 
                 $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
-                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/OpenDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/OpenDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -837,7 +844,11 @@ class DeviceController extends Controller
 
 
                 $url = env('SDK_URL') . "/$request->device_id/CloseDoor";
-                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/CloseDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/CloseDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -898,7 +909,11 @@ class DeviceController extends Controller
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
                 $url = env('SDK_URL') . "/$device_id/HoldDoor";
-                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/HoldDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/HoldDoor";
+                }
+
                 $response = $this->callCURL($url);
 
                 if ($response['status']  == 200)
@@ -934,8 +949,10 @@ class DeviceController extends Controller
             } else {
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
                 $url = env('SDK_URL') . "/$device_id/SetWorkParam";
-                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
 
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
+                }
 
                 $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
                 if ($utc_time_zone != '') {
@@ -1059,7 +1076,6 @@ class DeviceController extends Controller
 
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
 
-
         $companyDevices = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -1077,7 +1093,7 @@ class DeviceController extends Controller
         foreach ($companyDevices as $key => $Device) {
             $companyDevice_id = $Device["device_id"];
             $companiesIds[] = $Device["company_id"];
-            if (array_key_exists("data", $devicesHealth)) {
+            if (isset($devicesHealth["data"])) {
                 $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
                     return $companyDevice_id == $device['sn'];
                 });
@@ -1300,7 +1316,7 @@ class DeviceController extends Controller
                     }
 
                     // $this->sendWhatsappNotification($message, '971554501483');
-                    // $this->sendWhatsappNotification($message, '971553303991');
+                    // $this->sendWhatsappNotification($message, '971553303991'); 
 
 
                     $this->sendNotification($notification, $company, $offlineDevicesCount, $devicesLocations, "", $company->devices);
