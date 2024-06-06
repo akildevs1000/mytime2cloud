@@ -1049,9 +1049,6 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = '')
     {
-
-
-
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -1080,20 +1077,22 @@ class DeviceController extends Controller
         foreach ($companyDevices as $key => $Device) {
             $companyDevice_id = $Device["device_id"];
             $companiesIds[] = $Device["company_id"];
-            $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
-                return $companyDevice_id == $device['sn'];
-            });
+            if (array_key_exists("data", $devicesHealth)) {
+                $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
+                    return $companyDevice_id == $device['sn'];
+                });
 
-            if (count($SDKDeviceResponce) && current($SDKDeviceResponce)["keepAliveTime"] != '') {
-                $date  = new DateTime(current($SDKDeviceResponce)["keepAliveTime"], new DateTimeZone('Asia/Dubai'));
-                $DeviceDateTime = $date->format('Y-m-d H:i:00');
-                $online_devices_count++;
-                Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
-            } else {
-                // $offline_devices_count++;
-                Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
+                if (count($SDKDeviceResponce) && current($SDKDeviceResponce)["keepAliveTime"] != '') {
+                    $date  = new DateTime(current($SDKDeviceResponce)["keepAliveTime"], new DateTimeZone('Asia/Dubai'));
+                    $DeviceDateTime = $date->format('Y-m-d H:i:00');
+                    $online_devices_count++;
+                    Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
+                } else {
+                    // $offline_devices_count++;
+                    Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
 
-                // info($count . "companies has been updated");
+                    // info($count . "companies has been updated");
+                }
             }
         }
         try {

@@ -350,7 +350,8 @@ class DeviceCameraModel2Controller extends Controller
         foreach ($devices->get() as $device) {
 
             $this->sxdmSn = $device->device_id;
-            $this->camera_sdk_url = $device->camera_sdk_url;
+            $url = $device->camera_sdk_url ?? gethostbyname(gethostname());
+            $this->camera_sdk_url = "$url:8888";
 
 
             $response = $this->getCURL('/api/devices/status');
