@@ -426,6 +426,10 @@ class DeviceController extends Controller
                 } else {
 
                     $url = env('SDK_URL') . "/$request->serial_number/CloseDoor";
+
+                    if (env('APP_ENV') == 'desktop') {
+                        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->serial_number/CloseDoor";
+                    }
                     $response = $this->callCURL($url);
 
 
@@ -702,6 +706,11 @@ class DeviceController extends Controller
             } else {
 
                 $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/OpenDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -835,6 +844,11 @@ class DeviceController extends Controller
 
 
                 $url = env('SDK_URL') . "/$request->device_id/CloseDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/CloseDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -895,6 +909,11 @@ class DeviceController extends Controller
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
                 $url = env('SDK_URL') . "/$device_id/HoldDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/HoldDoor";
+                }
+
                 $response = $this->callCURL($url);
 
                 if ($response['status']  == 200)
@@ -931,6 +950,9 @@ class DeviceController extends Controller
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
                 $url = env('SDK_URL') . "/$device_id/SetWorkParam";
 
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
+                }
 
                 $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
                 if ($utc_time_zone != '') {
@@ -1044,9 +1066,6 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = '')
     {
-
-
-
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -1056,7 +1075,6 @@ class DeviceController extends Controller
             ->get()->count();;
 
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
-
 
         $companyDevices = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
@@ -1075,20 +1093,22 @@ class DeviceController extends Controller
         foreach ($companyDevices as $key => $Device) {
             $companyDevice_id = $Device["device_id"];
             $companiesIds[] = $Device["company_id"];
-            $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
-                return $companyDevice_id == $device['sn'];
-            });
+            if (isset($devicesHealth["data"])) {
+                $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
+                    return $companyDevice_id == $device['sn'];
+                });
 
-            if (count($SDKDeviceResponce) && current($SDKDeviceResponce)["keepAliveTime"] != '') {
-                $date  = new DateTime(current($SDKDeviceResponce)["keepAliveTime"], new DateTimeZone('Asia/Dubai'));
-                $DeviceDateTime = $date->format('Y-m-d H:i:00');
-                $online_devices_count++;
-                Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
-            } else {
-                // $offline_devices_count++;
-                Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
+                if (count($SDKDeviceResponce) && current($SDKDeviceResponce)["keepAliveTime"] != '') {
+                    $date  = new DateTime(current($SDKDeviceResponce)["keepAliveTime"], new DateTimeZone('Asia/Dubai'));
+                    $DeviceDateTime = $date->format('Y-m-d H:i:00');
+                    $online_devices_count++;
+                    Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
+                } else {
+                    // $offline_devices_count++;
+                    Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
 
-                // info($count . "companies has been updated");
+                    // info($count . "companies has been updated");
+                }
             }
         }
         try {
@@ -1394,6 +1414,8 @@ class DeviceController extends Controller
 
     public function decrypt()
     {
+        Device::truncate();
+
         try {
             // Insert devices
             $devices = request()->input('devices');

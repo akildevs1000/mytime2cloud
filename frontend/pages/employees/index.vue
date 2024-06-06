@@ -801,6 +801,16 @@
                         Edit
                       </v-list-item-title>
                     </v-list-item>
+                    <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <DeviceUser
+                          iconColor="secondary"
+                          label="Employee"
+                          :key="generateRandomId()"
+                          :system_user_id="item.system_user_id"
+                        />
+                      </v-list-item-title>
+                    </v-list-item>
                     <v-list-item
                       v-if="can('employee_delete')"
                       @click="deleteItem(item)"
@@ -1165,6 +1175,11 @@ export default {
     },
   },
   methods: {
+    generateRandomId() {
+      const length = 8; // Adjust the length of the ID as needed
+      const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number
+      return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
+    },
     searchData() {
       if (this.search.length == 0 || this.search.length > 3) {
         this.getDataFromApi();
