@@ -1044,9 +1044,6 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = '')
     {
-
-
-
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -1101,7 +1098,7 @@ class DeviceController extends Controller
         }
         try {
             //139.59.69.241:8888
-            return $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
+            $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
 
             $online_devices_count = $online_devices_count +  $count;
         } catch (\Exception $e) {
