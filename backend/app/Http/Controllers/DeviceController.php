@@ -1076,7 +1076,6 @@ class DeviceController extends Controller
 
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
 
-
         $companyDevices = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_type", "!=", "Manual")
@@ -1094,7 +1093,7 @@ class DeviceController extends Controller
         foreach ($companyDevices as $key => $Device) {
             $companyDevice_id = $Device["device_id"];
             $companiesIds[] = $Device["company_id"];
-            if (array_key_exists("data", $devicesHealth)) {
+            if (isset($devicesHealth["data"])) {
                 $SDKDeviceResponce = array_filter($devicesHealth["data"], function ($device) use ($companyDevice_id) {
                     return $companyDevice_id == $device['sn'];
                 });
