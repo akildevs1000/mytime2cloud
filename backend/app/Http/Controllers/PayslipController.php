@@ -280,7 +280,8 @@ class PayslipController extends Controller
         $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
 
 
-        $days_countdate = DateTime::createFromFormat('Y-m-d', date('y') . '-' . date('m') . '-01');
+        //$days_countdate = DateTime::createFromFormat('Y-m-d', date('y') . '-' . date('m') . '-01');
+        $days_countdate = DateTime::createFromFormat('Y-m-d', $request->year . '-' . $request->month  . '-01');
         $Payroll->total_month_days = $days_countdate->format('t');
 
         $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
@@ -331,6 +332,7 @@ class PayslipController extends Controller
 
         $formatter = new NumberFormatter('en_US', NumberFormatter::SPELLOUT);
         $Payroll->final_salary_in_words  = ucfirst($formatter->format($Payroll->finalSalary));
+        $Payroll->payslip_month_year = $days_countdate->format('F Y');
 
 
         return $Payroll;

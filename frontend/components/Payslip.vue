@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-card>
-      <v-card-text class="text-center">
+    <v-card elevation="0">
+      <v-card-text class="text-center" elevation="0">
         <table style="width: 100%; margin: auto" class="table-payslip">
           <!-- <tr>
               <td class="text-center">{{ company_payload.name }}</td>
@@ -22,6 +22,7 @@
                         height: 60px;
                         padding-top: 30px;
                         padding-left: 10px;
+                        line-height: 18px;
                       "
                     >
                       <!-- <div class="outer-wrapper">
@@ -35,18 +36,18 @@
                         </div> -->
                       <img
                         :src="this.company_payload.logo"
-                        style="width: 150px"
+                        style="width: 150px; max-height: 100px"
                       />
                     </span>
-                    <span style="float: left1"
+                    <span style="float: left1; line-height: 16px"
                       ><div class="ml-3 mt-0">
                         <div style="border-top: 1px solid white">
                           <strong>{{ this.company_payload.name }}</strong>
                         </div>
-                        <div class="w-10">
+                        <div class="w-10" style="font-size: 12px">
                           {{ this.company_payload.location }},
                         </div>
-                        <div class="w-10">
+                        <div class="w-10" style="font-size: 12px">
                           {{ this.company_payload.p_o_box_no }}
                         </div>
                       </div></span
@@ -69,21 +70,38 @@
                         </div>
                       </div> -->
                   </td>
-                  <td style="text-align: right">
-                    <div>
-                      <div style="font-weight: bold; font-size: 18px">
-                        Payslip
-                      </div>
-                      <div style="border-top: 1px solid white">
+                  <td style="text-align: right; line-height: 1.6">
+                    <table style="width: 100%; text-align: right">
+                      <tr>
+                        <td style="font-size: 28px; text-align: right">
+                          Payslip
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: right; font-size: 12px">
+                          Date: {{ data.date }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: right; font-size: 12px">
+                          Month: {{ data.payslip_month_year }}
+                        </td>
+                      </tr>
+                    </table>
+                    <!-- <div>
+                      <div style="border-top: 1px solid white; font-size: 13px">
                         <strong>
                           {{ data.payslip_number }}
-                          <!-- {{ empCode }}{{ month }}{{ year }} -->
+                           
                         </strong>
                       </div>
-                      <div style="border-top: 1px solid white">
-                        <strong> {{ currentMonth }} {{ currentYear }} </strong>
+                      <div style="border-top: 1px solid white; font-size: 13px">
+                        <strong>Date: {{ data.date }} </strong>
                       </div>
-                    </div>
+                      <div style="border-top: 1px solid white; font-size: 13px">
+                        <strong> {{ data.payslip_month_year }} </strong>
+                      </div>
+                    </div> -->
                   </td>
                 </tr>
               </table>
@@ -95,20 +113,25 @@
                 border: 0px solid #ddd;
                 padding-left: 10px;
                 padding-top: 20px;
+                line-height: 18px;
               "
             >
               <table style="width: 100%">
                 <tr>
                   <td>
-                    <div style="font-weight: bold">Employee To :</div>
-                    <span v-if="employee && employee.first_name">{{
-                      employee.first_name
-                    }}</span>
-                    <span v-if="employee && employee.last_name">{{
-                      employee.last_name
-                    }}</span>
+                    <div style="font-weight: bold">Pay To :</div>
+                    <span
+                      v-if="employee && employee.first_name"
+                      style="font-size: 12px"
+                      >{{ employee.first_name }}</span
+                    >
+                    <span
+                      v-if="employee && employee.last_name"
+                      style="font-size: 12px"
+                      >{{ employee.last_name }}</span
+                    >
 
-                    <div>
+                    <div style="font-size: 12px">
                       #{{ empCode }} ,
                       {{
                         caps(employee.department && employee.department.name) ||
@@ -116,7 +139,7 @@
                       }}
                     </div>
                     <div></div>
-                    <div>
+                    <div style="font-size: 12px">
                       {{
                         caps(
                           employee.designation && employee.designation.name
@@ -224,9 +247,9 @@
               >
                 <tr
                   style="
-                    background-color: #4d71bf;
+                    background-color: #4d5973;
                     color: #fff;
-                    font-weight: bold;
+
                     height: 38px;
                   "
                 >
@@ -238,8 +261,8 @@
                   </td>
                 </tr>
                 <tr>
-                  <td style="width: 100%; padding-right: 20px">
-                    <table style="width: 100%">
+                  <td style="width: 100%; padding-right: 0px">
+                    <table style="width: 100%; padding-right: 40px">
                       <tr>
                         <td
                           colspan="2"
@@ -256,7 +279,9 @@
                             caps(item.label)
                           }}
                         </td>
-                        <td style="text-align: right">{{ item.value }}</td>
+                        <td style="text-align: right; padding-right: 40px">
+                          {{ item.value }}
+                        </td>
                       </tr>
 
                       <tr style="font-weight: bold">
@@ -271,7 +296,13 @@
                         >
                           Total Earnings
                         </td>
-                        <td style="text-align: right; padding-bottom: 20px">
+                        <td
+                          style="
+                            text-align: right;
+                            padding-bottom: 20px;
+                            padding-right: 40px;
+                          "
+                        >
                           {{ data.salary_and_earnings }}
                         </td>
                       </tr>
@@ -280,22 +311,28 @@
                 </tr>
                 <tr
                   style="
-                    background-color: #4d71bf;
+                    background-color: #4d5973;
                     color: #fff;
-                    font-weight: bold;
                     margin-top: 20px;
                     height: 30px;
+                    line-height: 20px;
                   "
                 >
-                  <td style="padding-left: 10px; text-align: left">
+                  <td
+                    style="
+                      padding-left: 10px;
+                      text-align: left;
+                      line-height: 20px;
+                    "
+                  >
                     # Deductions
                   </td>
-                  <td style="text-align: right">
+                  <td style="text-align: right; line-height: 30px">
                     <!-- <span style="">AED</span> -->
                   </td>
                 </tr>
                 <tr>
-                  <td style="width: 100%; padding-right: 20px">
+                  <td style="width: 100%; padding-right: 0px">
                     <table style="width: 100%; line-height: 30px">
                       <tr>
                         <td
@@ -312,7 +349,9 @@
                           {{ index + 1 }} &nbsp;&nbsp;&nbsp;&nbsp;
                           {{ caps(item.label) }}
                         </td>
-                        <td style="text-align: right">{{ item.value }}</td>
+                        <td style="text-align: right; padding-right: 40px">
+                          {{ item.value }}
+                        </td>
                       </tr>
 
                       <tr style="font-weight: bold">
@@ -327,30 +366,35 @@
                         >
                           Total Deductions
                         </td>
-                        <td style="text-align: right; padding-bottom: 20px">
+                        <td
+                          style="
+                            text-align: right;
+                            padding-bottom: 20px;
+                            padding-right: 40px;
+                          "
+                        >
                           {{ data.deductedSalary }}
                         </td>
                       </tr>
                     </table>
                   </td>
                 </tr>
-                <tr
-                  style="
-                    background-color: #4d71bf;
-                    color: #fff;
-                    font-weight: bold;
-                    height: 30px;
-                  "
-                >
-                  <td style="padding-left: 10px; text-align: left">
+                <tr style="background-color: #4d5973; color: #fff">
+                  <td
+                    style="
+                      padding-left: 10px;
+                      text-align: left;
+                      line-height: 30px;
+                    "
+                  >
                     Salary Summary
                   </td>
-                  <td style="text-align: right">
+                  <td style="text-align: right; line-height: 30px">
                     <!-- <span style="">AED</span> -->
                   </td>
                 </tr>
                 <tr>
-                  <td style="width: 100%; padding-right: 20px">
+                  <td style="width: 100%; padding-right: 0px">
                     <table style="width: 100%">
                       <tr>
                         <td
@@ -362,7 +406,7 @@
                         <td style="padding-left: 10px; text-align: left">
                           Total Earnings
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; padding-right: 40px">
                           {{ data.salary_and_earnings }}
                         </td>
                       </tr>
@@ -370,7 +414,7 @@
                         <td style="padding-left: 10px; text-align: left">
                           Total Deductions
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; padding-right: 40px">
                           - {{ data.deductedSalary }}
                         </td>
                       </tr>
@@ -380,9 +424,16 @@
                         <td style="padding-left: 10px; text-align: left">
                           Net Salary
                         </td>
-                        <td style="text-align: right">
-                          ({{ data.final_salary_in_words }} )
+                        <td style="text-align: right; padding-right: 40px">
                           {{ numberRound(data.finalSalary) }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td
+                          colspan="2"
+                          style="text-align: right; padding-right: 40px"
+                        >
+                          {{ data.final_salary_in_words }}
                         </td>
                       </tr>
 
@@ -394,10 +445,19 @@
                 </tr>
 
                 <tr>
-                  <td style="padding-left: 10px">
-                    Note: This payslip is generated automatically. If you notice
-                    any discrepancies or missing information, please contact the
-                    HR team.
+                  <td
+                    style="
+                      padding-left: 10px;
+                      font-size: 14px;
+                      line-height: 14px;
+                    "
+                  >
+                    Note:
+                    <div>
+                      This payslip is generated automatically. If you notice any
+                      discrepancies or missing information, please contact the
+                      HR team.
+                    </div>
                   </td>
                 </tr>
                 <tr style="font-weight: bold">
@@ -479,7 +539,7 @@ export default {
 
   methods: {
     numberRound(val) {
-      if (val) return val.toFixed(2);
+      if (val) return val.toFixed(0);
     },
     can(per) {
       return this.$pagePermission.can(per, this);

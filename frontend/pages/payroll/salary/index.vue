@@ -242,8 +242,8 @@
       width="800px"
     >
       <v-card>
-        <v-card-title dense class="primary popup_background">
-          Payslip
+        <v-card-title dense class="primary1 popup_background_white">
+          <!-- Payslip -->
           <v-spacer></v-spacer>
           <v-icon @click="viewPayslipDialog = false" outlined dark>
             mdi mdi-close-circle

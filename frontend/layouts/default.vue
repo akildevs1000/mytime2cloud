@@ -1369,7 +1369,14 @@ header i {
   padding: 5px 6px 5px !important;
   color: #fff !important;
 }
-
+.v-dialog > .v-card > .popup_background_white {
+  background-color: #fff !important  ;
+  padding: 5px 6px 5px !important;
+  color: black !important;
+}
+.popup_background_white .v-icon {
+  color: black !important;
+}
 .popup_background_noviolet .v-tabs-bar {
   background-color: #ecf0f4 !important;
 }
@@ -1833,7 +1840,7 @@ button {
 .table-payslip table,
 .table-payslip div {
   border-collapse: collapse;
-  font-size: 16px;
+  font-size: 13px;
   color: black;
 }
 
