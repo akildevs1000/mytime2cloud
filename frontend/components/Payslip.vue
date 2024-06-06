@@ -219,7 +219,7 @@
                   border: 0px solid #ddd;
                   padding-left: 0px;
                   margin-top: 10px;
-                  line-height: 30px;
+                  line-height: 40px;
                 "
               >
                 <tr
@@ -227,7 +227,7 @@
                     background-color: #4d71bf;
                     color: #fff;
                     font-weight: bold;
-                    height: 25px;
+                    height: 38px;
                   "
                 >
                   <td style="padding-left: 10px; text-align: left">
@@ -284,6 +284,7 @@
                     color: #fff;
                     font-weight: bold;
                     margin-top: 20px;
+                    height: 30px;
                   "
                 >
                   <td style="padding-left: 10px; text-align: left">
@@ -338,6 +339,7 @@
                     background-color: #4d71bf;
                     color: #fff;
                     font-weight: bold;
+                    height: 30px;
                   "
                 >
                   <td style="padding-left: 10px; text-align: left">
