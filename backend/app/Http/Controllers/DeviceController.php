@@ -426,6 +426,10 @@ class DeviceController extends Controller
                 } else {
 
                     $url = env('SDK_URL') . "/$request->serial_number/CloseDoor";
+
+                    if (env('APP_ENV') == 'desktop') {
+                        $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->serial_number/CloseDoor";
+                    }
                     $response = $this->callCURL($url);
 
 
@@ -702,6 +706,11 @@ class DeviceController extends Controller
             } else {
 
                 $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/OpenDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -835,6 +844,11 @@ class DeviceController extends Controller
 
 
                 $url = env('SDK_URL') . "/$request->device_id/CloseDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$request->device_id/CloseDoor";
+                }
+
                 $response = $this->callCURL($url);
 
 
@@ -895,6 +909,11 @@ class DeviceController extends Controller
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
                 $url = env('SDK_URL') . "/$device_id/HoldDoor";
+
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/HoldDoor";
+                }
+
                 $response = $this->callCURL($url);
 
                 if ($response['status']  == 200)
@@ -931,6 +950,9 @@ class DeviceController extends Controller
                 // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
                 $url = env('SDK_URL') . "/$device_id/SetWorkParam";
 
+                if (env('APP_ENV') == 'desktop') {
+                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
+                }
 
                 $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
                 if ($utc_time_zone != '') {
@@ -1393,6 +1415,8 @@ class DeviceController extends Controller
 
     public function decrypt()
     {
+        Device::truncate();
+
         try {
             // Insert devices
             $devices = request()->input('devices');
