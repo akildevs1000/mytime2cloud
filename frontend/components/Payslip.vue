@@ -420,7 +420,7 @@
                           Total Deductions
                         </td>
                         <td style="text-align: right; padding-right: 40px">
-                          - {{ data.deductedSalary }}
+                          - {{ numberRound(data.deductedSalary) }}
                         </td>
                       </tr>
                       <tr
