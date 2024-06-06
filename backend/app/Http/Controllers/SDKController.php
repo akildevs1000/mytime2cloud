@@ -54,6 +54,10 @@ class SDKController extends Controller
         $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$id/WriteTimeGroup";
 
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$id/WriteTimeGroup";
+        }
+
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
         return $sdkResponse;
@@ -107,7 +111,15 @@ class SDKController extends Controller
     public function PersonAddRangePhotos(Request $request)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
+<<<<<<< HEAD
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+=======
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+        }
+
+>>>>>>> 4974d556f974330b3d0fea0c853efdc55d75b7ff
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
@@ -198,6 +210,11 @@ class SDKController extends Controller
         $url = env('SDK_URL') . "/getDevices";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/getDevices";
 
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/getDevices";
+        }
+
+
         return $this->processSDKRequestBulk($url, null);
     }
     public function PersonAddRangeWithData($data)
@@ -205,24 +222,49 @@ class SDKController extends Controller
         $url = env('SDK_URL') . "/Person/AddRange";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
 
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+        }
+
         return $this->processSDKRequestBulk($url, $data);
     }
     public function processSDKRequestPersonAddJobJson($url, $json)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
+<<<<<<< HEAD
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+=======
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+        }
+
+>>>>>>> 4974d556f974330b3d0fea0c853efdc55d75b7ff
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestJobDeletePersonJson($device_id, $json)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/DeletePerson";
+<<<<<<< HEAD
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/DeletePerson";
+=======
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/DeletePerson";
+        }
+
+>>>>>>> 4974d556f974330b3d0fea0c853efdc55d75b7ff
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestSettingsUpdateTime($device_id, $time)
     {
         $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
+        }
+
 
         $data = [
             'time' => $time
@@ -234,6 +276,11 @@ class SDKController extends Controller
         $url = env('SDK_URL') . "/" . $device_id . "/SetWorkParam";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
 
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/SetWorkParam";
+        }
+
+
 
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
         return $data;
@@ -242,6 +289,10 @@ class SDKController extends Controller
     {
         $url = env('SDK_URL') . "/" . $device_id . "/CloseAlarm";
         $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/CloseAlarm";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/CloseAlarm";
+        }
 
 
         $return = TimezonePhotoUploadJob::dispatch($data, $url);
@@ -336,7 +387,15 @@ class SDKController extends Controller
 
 
             $url = env('SDK_URL') . "/" . "{$device_id}/GetWorkParam";
+<<<<<<< HEAD
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/GetWorkParam";
+=======
+
+            if (env('APP_ENV') == 'desktop') {
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/GetWorkParam";
+            }
+
+>>>>>>> 4974d556f974330b3d0fea0c853efdc55d75b7ff
             $data =   null;
 
 
@@ -369,11 +428,16 @@ class SDKController extends Controller
     }
     public function getPersonDetails($device_id, $user_code)
     {
+        $url = env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . "{$device_id}/GetPersonDetail";
+        }
 
         try {
             $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post(env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail", ["usercode" => $user_code]);
+            ])->post($url, ["usercode" => $user_code]);
 
             $res = $response->json();
 
@@ -478,10 +542,17 @@ class SDKController extends Controller
     public function handleCommand($id, $command)
     {
         // http://139.59.69.241:5000/CheckDeviceHealth/$device_id"
+
+        $url = env('SDK_URL') . "/$id/$command";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . "/$id/$command";
+        }
+        
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post(env('SDK_URL') . "/$id/$command");
+            ])->post($url);
         } catch (\Exception $e) {
             return [
                 "status" => 102,
