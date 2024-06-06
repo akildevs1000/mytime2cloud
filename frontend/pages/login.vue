@@ -206,7 +206,7 @@
           </div>
           <div class="text-center">Don't Have an Account? Contact Admin</div>
 
-          <v-row class="text-center" style="font-size: 13px">
+          <!-- <v-row class="text-center" style="font-size: 13px">
             <v-col class="pa-5">
               For Technical Support :
               <a
@@ -220,8 +220,8 @@
                 >+971 52 904 8025</a
               ></v-col
             >
-          </v-row>
-          <v-row class="text-center" style="font-size: 13px">
+          </v-row> -->
+          <!-- <v-row class="text-center" style="font-size: 13px">
             <v-col class="pa-5">
               <a
                 style="text-decoration: none; color: black"
@@ -229,7 +229,7 @@
                 >support@mytime2cloud.com</a
               ></v-col
             >
-          </v-row>
+          </v-row> -->
         </div>
       </v-col>
       <v-col
@@ -269,7 +269,7 @@
             <li>Custom Dashboards</li>
             <li>Email and Whatsapp Notifications</li>
           </ul>
-          <v-row class="text-left pt-10">
+          <!-- <v-row class="text-left pt-10">
             <v-col class="pa-5">
               <h3>Technical Support</h3>
 
@@ -292,7 +292,7 @@
                 >support@mytime2cloud.com</a
               >
             </v-col>
-          </v-row>
+          </v-row> -->
         </div>
       </v-col>
     </v-row>
