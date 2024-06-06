@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use NumberFormatter;
 
 class PayslipController extends Controller
 {
@@ -249,6 +250,8 @@ class PayslipController extends Controller
             ];
 
 
+
+
             Payslips::updateOrCreate([
                 'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
                 'month' => $month, 'year' => $year,
@@ -271,10 +274,14 @@ class PayslipController extends Controller
 
         $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "payroll_formula"])
             ->with(["employee" => function ($q) {
-                $q->withOut(["user","schedule"]);
+                $q->withOut(["user", "schedule"]);
             }])
             ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
         $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
+
+
+        $days_countdate = DateTime::createFromFormat('Y-m-d', date('y') . '-' . date('m') . '-01');
+        $Payroll->total_month_days = $days_countdate->format('t');
 
         $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
 
@@ -297,6 +304,7 @@ class PayslipController extends Controller
         $Payroll->absent = $attendances->where('status', 'A')->count();
         $Payroll->missing = $attendances->where('status', 'M')->count();
         $Payroll->off = $attendances->where('status', 'O')->count();
+        $Payroll->late = $attendances->where('status', 'L')->count();
 
 
         $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
@@ -320,6 +328,10 @@ class PayslipController extends Controller
         $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
 
         $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+
+        $formatter = new NumberFormatter('en_US', NumberFormatter::SPELLOUT);
+        $Payroll->final_salary_in_words  = ucfirst($formatter->format($Payroll->finalSalary));
+
 
         return $Payroll;
     }

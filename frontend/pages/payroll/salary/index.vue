@@ -235,6 +235,25 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog
+      persistent
+      v-model="viewPayslipDialog"
+      :fullscreen="false"
+      width="1000px"
+    >
+      <v-card>
+        <v-card-title dense class="primary popup_background">
+          Payslip
+          <v-spacer></v-spacer>
+          <v-icon @click="viewPayslipDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <Payslip :paySlipInput="popupPayslipInput" :key="key"
+        /></v-card-text>
+      </v-card>
+    </v-dialog>
 
     <div v-if="can(`payroll_view`)">
       <v-row>
@@ -723,11 +742,11 @@
                     </v-img>
                   </v-col>
                   <v-col style="padding: 10px">
-                    <div style="font-size:13px;">
+                    <div style="font-size: 13px">
                       {{ item.first_name ? item.first_name : "---" }}
-                      {{ item.last_name ? item.last_name : "---" }}</div
-                    >
-                    <div style="font-size:11px;">
+                      {{ item.last_name ? item.last_name : "---" }}
+                    </div>
+                    <div style="font-size: 11px">
                       {{
                         item.designation ? caps(item.designation.name) : "---"
                       }}
@@ -737,28 +756,32 @@
               </template>
 
               <template v-slot:item.department.name.id="{ item }">
-                <div style="font-size:13px;">{{ caps(item.department.name) }}</div>
-                <div style="font-size:11px;">{{ caps(item.sub_department.name) }}</div>
+                <div style="font-size: 13px">
+                  {{ caps(item.department.name) }}
+                </div>
+                <div style="font-size: 11px">
+                  {{ caps(item.sub_department.name) }}
+                </div>
               </template>
-              <template v-slot:item.employee_id="{ item }">
+              <!-- <template v-slot:item.employee_id="{ item }">
                 <div style="font-size:13px;">
                   {{ item.employee_id }}
                 </div>
-              </template>
+              </template> -->
               <template v-slot:item.year_month="{ item }">
-                <div style="font-size:13px;">
+                <div style="font-size: 13px">
                   {{ item.payroll_month }} / {{ item.payroll_year }}
                 </div>
-              </template> 
+              </template>
 
               <template v-slot:item.payroll.basic_salary="{ item }">
-                <div style="font-size:13px;">
+                <div style="font-size: 13px">
                   {{ item.payroll && item.payroll.basic_salary }}
                 </div>
               </template>
 
               <template v-slot:item.payroll.net_salary="{ item }">
-                <div style="font-size:13px;">
+                <div style="font-size: 13px">
                   {{ item.payroll && item.payroll.net_salary }}
                 </div>
               </template>
@@ -829,6 +852,9 @@ import Back from "../../../components/Snippets/Back.vue";
 export default {
   components: { Back },
   data: () => ({
+    key: 1,
+    popupPayslipInput: "",
+    viewPayslipDialog: false,
     branchesList: [],
     filterLoader: false,
     filters: {},
@@ -886,7 +912,6 @@ export default {
       { text: "Actions", align: "center", value: "action", sortable: false },
     ],
     headers_table: [
-      
       {
         text: "Name",
         align: "left",
@@ -1151,8 +1176,13 @@ export default {
     },
 
     navigateToViewPDF(id) {
-      let path = `/payroll/salary/${id}_${this.payslip_month}_${this.payslip_year}`;
-      this.$router.push(path);
+      // let path = `/payroll/salary/${id}_${this.payslip_month}_${this.payslip_year}`;
+      // this.$router.push(path);
+
+      this.popupPayslipInput = `${id}_${this.payslip_month}_${this.payslip_year}`;
+      console.log("popupPayslipInput", this.popupPayslipInput);
+      this.key = this.key + 1;
+      this.viewPayslipDialog = true;
     },
 
     lastTenYears() {

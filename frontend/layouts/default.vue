@@ -1824,6 +1824,37 @@ button {
 .employee-schedule-search-box .v-input__icon {
   height: 17px !important;
 }
+.table-payslip td {
+  text-align: left;
+  padding: 0px;
+
+  line-height: 30px;
+}
+.table-payslip table,
+.table-payslip div {
+  border-collapse: collapse;
+  font-size: 16px;
+  color: black;
+}
+
+.outer-wrapper {
+  display: inline-block;
+  margin: 0px;
+}
+.frame {
+  width: 50px;
+  height: auto;
+  border: 1px solid black;
+  vertical-align: middle;
+  text-align: center;
+  display: table-cell;
+}
+.img1 {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
+}
 </style>
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->
