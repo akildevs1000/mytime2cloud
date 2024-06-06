@@ -74,7 +74,12 @@
                     <table style="width: 100%; text-align: right">
                       <tr>
                         <td style="font-size: 28px; text-align: right">
-                          Payslip
+                          PAYSLIP
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="text-align: right; font-size: 12px">
+                          Ref:{{ data.payslip_number }}
                         </td>
                       </tr>
                       <tr>
@@ -119,15 +124,15 @@
               <table style="width: 100%">
                 <tr>
                   <td>
-                    <div style="font-weight: bold">Pay To :</div>
+                    <div style="">Pay To :</div>
                     <span
                       v-if="employee && employee.first_name"
-                      style="font-size: 12px"
+                      style="font-size: 12px; font-weight: bold"
                       >{{ employee.first_name }}</span
                     >
                     <span
                       v-if="employee && employee.last_name"
-                      style="font-size: 12px"
+                      style="font-size: 12px; font-weight: bold"
                       >{{ employee.last_name }}</span
                     >
 
@@ -241,8 +246,8 @@
                   width: 100%;
                   border: 0px solid #ddd;
                   padding-left: 0px;
-                  margin-top: 10px;
-                  line-height: 40px;
+                  margin-top: 15px;
+                  line-height: 30px;
                 "
               >
                 <tr
@@ -253,9 +258,7 @@
                     height: 38px;
                   "
                 >
-                  <td style="padding-left: 10px; text-align: left">
-                    # Earnings
-                  </td>
+                  <td style="padding-left: 10px; text-align: left">Earnings</td>
                   <td style="text-align: right">
                     <!-- <span style="">AED</span> -->
                   </td>
@@ -314,7 +317,7 @@
                     background-color: #4d5973;
                     color: #fff;
                     margin-top: 20px;
-                    height: 30px;
+                    height: 25px;
                     line-height: 20px;
                   "
                 >
@@ -325,7 +328,7 @@
                       line-height: 20px;
                     "
                   >
-                    # Deductions
+                    Deductions
                   </td>
                   <td style="text-align: right; line-height: 30px">
                     <!-- <span style="">AED</span> -->
@@ -379,12 +382,14 @@
                     </table>
                   </td>
                 </tr>
-                <tr style="background-color: #4d5973; color: #fff">
+                <tr
+                  style="background-color: #4d5973; color: #fff; height: 20px"
+                >
                   <td
                     style="
                       padding-left: 10px;
                       text-align: left;
-                      line-height: 30px;
+                      line-height: 25px;
                     "
                   >
                     Salary Summary
@@ -425,7 +430,7 @@
                           Net Salary
                         </td>
                         <td style="text-align: right; padding-right: 40px">
-                          {{ numberRound(data.finalSalary) }}
+                          AED {{ numberRound(data.finalSalary) }}
                         </td>
                       </tr>
                       <tr>
@@ -433,7 +438,7 @@
                           colspan="2"
                           style="text-align: right; padding-right: 40px"
                         >
-                          {{ data.final_salary_in_words }}
+                          AED {{ data.final_salary_in_words }} only
                         </td>
                       </tr>
 
