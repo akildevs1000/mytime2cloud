@@ -113,7 +113,7 @@
                 border: 0px solid #ddd;
                 padding-left: 10px;
                 padding-top: 20px;
-                line-height: 18px;
+                line-height: 16px;
               "
             >
               <table style="width: 100%">
