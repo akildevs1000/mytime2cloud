@@ -38,7 +38,12 @@ class Company extends Model
 
     public function contact()
     {
-        return $this->hasOne(CompanyContact::class);
+        return $this->hasOne(CompanyContact::class)->withDefault([
+            'name' => "-------",
+            'number' => "-------",
+            'position' => "-------",
+            'whatsapp' => "-------",
+        ]);
     }
 
     public function user()
