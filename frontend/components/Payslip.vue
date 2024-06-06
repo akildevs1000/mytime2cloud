@@ -373,7 +373,7 @@
                             padding-right: 40px;
                           "
                         >
-                          {{ data.deductedSalary }}
+                          {{ numberRound(data.deductedSalary) }}
                         </td>
                       </tr>
                     </table>
