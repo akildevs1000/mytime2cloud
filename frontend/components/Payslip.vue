@@ -544,6 +544,7 @@ export default {
 
   methods: {
     numberRound(val) {
+      if (val == 0) return val;
       if (val) return val.toFixed(0);
     },
     can(per) {
