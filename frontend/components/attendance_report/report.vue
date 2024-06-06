@@ -619,7 +619,7 @@
             <span class="headline white--text"> Render Report </span>
             <v-spacer></v-spacer>
             <v-icon class="gray" dark @click="reportSync = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <RenderAttendance
@@ -637,7 +637,7 @@
             <span class="headline white--text"> Generate Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <v-card-text>

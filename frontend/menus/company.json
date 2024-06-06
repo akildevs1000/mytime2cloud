@@ -56,9 +56,10 @@
     "submenu": "visitors",
     "module": "dashboard"
   },
+
   {
     "icon": "mdi-domain",
-    "title": "Profile",
+    "title": "Company",
     "to": "/companies",
     "menu": "setting_access",
     "class": "submenutitle",
@@ -234,7 +235,7 @@
     "menu": "payroll_access",
     "module": "payroll"
   },
-  
+
   {
     "icon": "mdi mdi-clock-time-four-outline",
     "title": "Timezones",

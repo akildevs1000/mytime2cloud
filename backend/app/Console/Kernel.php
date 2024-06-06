@@ -2,15 +2,11 @@
 
 namespace App\Console;
 
-use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
-use App\Models\DeviceActivesettings;
 use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Artisan;
 
 class Kernel extends ConsoleKernel
 {
@@ -28,9 +24,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('task:sync_attendance_logs')->everyMinute();
 
-        $schedule->command('task:sync_attendance_camera_logs')->everyMinute();
-
-        $schedule->command('task:sync_alarm_logs')->everyMinute();
+        $schedule->command('task:update_company_ids')->everyMinute();
 
 
         $companyIds = Company::pluck("id");

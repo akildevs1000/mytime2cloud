@@ -24,18 +24,94 @@ class ScheduleEmployeeController extends Controller
     }
     public function employeesWithScheduleCount(Request $request)
     {
-        $model = Employee::with(["branch"])
+        $model = Employee::with(["branch", "sub_department",  "department.branch", "sub_department", "schedule"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
             });
 
+        $model->with([
+            "schedule.shift:id,name",
+        ]);
+
 
         $model->with([
-            'schedule_active' => function ($q) use ($request) {
+            'schedule_active.shift' => function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
             }
         ]);
+        $model->when($request->filled('common_search'), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->Where('system_user_id', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('employee_id', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('first_name', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('last_name', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('full_name', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('phone_number', 'ILIKE', "%$request->common_search%");
+                $q->orWhere('local_email', 'ILIKE', "%$request->common_search%");
+
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+                // $q->orWhereHas('schedule.shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id)->where('company_id', $request->company_id));
+
+                $q->orWhereHas('schedule_active.shift', fn (Builder $query) => $query->where('name', 'ILIKE',  "$request->common_search%")
+
+                    ->where('company_id', $request->company_id));
+            });
+        });
+        // $model->when($request->filled('common_search'), function ($q) use ($request) {
+        //     $q->Where('system_user_id', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('employee_id', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('first_name', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('last_name', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('full_name', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('phone_number', 'ILIKE', "%$request->common_search%");
+        //     $q->orWhere('local_email', 'ILIKE', "%$request->common_search%");
+
+        //     $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+        //     $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+        //     $q->orWhereHas('schedule.shift', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id)->where('company_id', $request->company_id));
+
+        //     $q->WhereHas('schedule_active.shift', fn (Builder $query) => $query->where('name',  "$request->common_search")
+
+        //         ->where('company_id', $request->company_id));
+        //     // $q->whereHas('schedule_active', function ($q) use ($request) {
+        //     //     $q->where('company_id', $request->company_id);
+        //     // });
+        //     // $q->whereHas('schedule_active.shift', function ($q) use ($request) {
+
+
+        //     //     $q->where('name', "$request->common_search");
+        //     //     $q->where('company_id', $request->company_id);
+        //     // });
+        // });
+
+
+
+
+
+
+
+
+
+        if ($request->department_ids) {
+            if (!in_array("---", $request->department_ids)) {
+                $model->whereIn("department_id", $request->department_ids);
+            }
+
+
+            $model->with("department", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
+            $model->with("sub_department", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
+
+            $model->with("schedule", function ($q) use ($request) {
+                $q->whereCompanyId($request->company_id);
+            });
+        }
+
 
 
         //$model->has('schedule_active.shift_type_id', '>', 2);
@@ -46,7 +122,11 @@ class ScheduleEmployeeController extends Controller
 
         if ($request->filled('schedules_count')) {
             if ($request->schedules_count == 0) {
-                $model->doesntHave('schedule_active', 'and', function ($q) use ($request) {
+                $model->whereDoesntHave('schedule_active', function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id);
+                });
+            } elseif ($request->schedules_count == 1) {
+                $model->whereHas('schedule_active', function ($q) use ($request) {
                     $q->where('company_id', $request->company_id);
                 });
             }

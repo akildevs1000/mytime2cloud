@@ -29,6 +29,10 @@ npm install data-uri-to-buffer
 npm install xml2js 
 
 
+npm install crypto-js
+
+
+
 <v-dialog v-model="dialogVisible" max-width="500px">
   <v-card flat dense class="white--text">
     <v-card-title class="background">

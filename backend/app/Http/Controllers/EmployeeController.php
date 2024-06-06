@@ -11,6 +11,7 @@ use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\StoreRequest;
 use App\Http\Requests\Employee\UpdateRequest;
+use App\Imports\excelEmployeesData;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\CompanyBranch;
@@ -34,6 +35,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EmployeeController extends Controller
 {
@@ -202,7 +204,10 @@ class EmployeeController extends Controller
             throw $th;
         }
     }
-
+    public function readExcel()
+    {
+        $reader = new ReaderXlsx();
+    }
     public function employeeSingle($id)
     {
         return Employee::with("user")->find($id);
@@ -918,8 +923,10 @@ class EmployeeController extends Controller
             'status' => true,
         ], 200);
     }
-    public function import(EmployeeImportRequest $request)
+    public function import(Request $request)
     {
+
+
         $file = $request->file('employees');
         $rowCount = file($file);
 
@@ -971,6 +978,7 @@ class EmployeeController extends Controller
                         "errors" => $validator->errors()->all(),
                     ];
                 }
+                $imageName = '';
 
                 $employee = [
                     'title' => trim($data['title']),
@@ -982,7 +990,20 @@ class EmployeeController extends Controller
                     'system_user_id' => trim($data['employee_device_id']),
                     'department_id' => trim($data['department_code']),
                     'branch_id' => trim($branch_id),
+
                 ];
+
+                if ($data['profile_picture'] != '') {
+                    if (file_exists($data['profile_picture'])) {
+                        $imageName = time() . ".png";
+                        $newFileLocation = public_path('media/employee/profile_picture/') . '/' . $imageName;
+                        copy($data['profile_picture'], $newFileLocation);
+
+                        $employee["profile_picture"] = trim($imageName);
+                    }
+                }
+
+
 
                 $record = null;
 
@@ -1268,6 +1289,7 @@ class EmployeeController extends Controller
             "last_name",
             "email",
             "department_code",
+            "profile_picture",
         ];
         $header = null;
         $data = [];

@@ -10,6 +10,7 @@ use App\Http\Controllers\DeviceCameraController;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\KeyGeneratorController;
+use App\Http\Controllers\SDKController;
 use App\Http\Controllers\Shift\AutoShiftController;
 use App\Http\Controllers\Shift\FiloShiftController;
 use App\Http\Controllers\Shift\MultiInOutShiftController;
@@ -21,6 +22,7 @@ use App\Mail\ReportNotificationMail;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Device;
+use App\Models\DeviceActivesettings;
 use App\Models\Employee;
 use App\Models\ReportNotification;
 use App\Models\Shift;
@@ -428,6 +430,148 @@ Route::get('/open_door_always_old', function (Request $request) {
 
     // return "Awesome APIs";
 });
+
+Route::get('/test_device_timeslots', function (Request $request) {
+    //Schedule Device Access Control 
+
+
+    return  $result = (new SDKController)->handleCommand("FC-8300T20094123", "HoldDoor");;
+
+    $date = date('Y-m-d');
+    $devices =  DeviceActivesettings::with(["devices"])->where(function ($q) {
+        $q->orWhere('date_from', ">=", date("Y-m-d"));
+        $q->orWhere('date_to', "<=", date("Y-m-d"));
+    })->get();
+
+    $weekDays = [0 => "Mon", 1 => "Tue", 2 => "Wed", 3 => "Thu", 4 => "Fri", 5 => "Sat", 6 => "Sun"];
+
+    foreach ($devices as $key => $device) {
+
+        $openJson =  $device['open_json'];
+
+        $openJsonArray = json_decode($openJson, true);
+
+        foreach ($openJsonArray as  $key => $time) {
+
+            if (isset($time[0])) {
+                $key1 = $time[0];
+                if (count($time) == 1) {
+                    $key1 = 0;
+                }
+
+
+                if ($weekDays[$key1] == date("D")) {
+
+
+
+
+
+                    // $schedule
+                    //     ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+                    //     // ->everyThirtyMinutes()
+                    //     ->everyMinute()
+                    //     ->dailyAt($time)
+                    //     ->withoutOverlapping()
+                    //     ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                }
+            }
+        }
+        //
+
+        $closeJson =  $device['close_json'];
+
+        $closeJsonArray = json_decode($closeJson, true);
+
+        foreach ($closeJsonArray as  $key => $time) {
+            if (isset($time[0])) {
+                $key1 = $time[0];
+                if (count($time) == 1) {
+                    $key1 = 0;
+                }
+
+                if ($weekDays[$key1] == date("D")) {
+                    // $schedule
+                    //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+                    //     // ->everyThirtyMinutes()
+                    //     ->everyMinute()
+                    //     ->dailyAt($time)
+                    //     ->withoutOverlapping()
+                    //     ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                    //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                }
+            }
+        }
+    }
+    return;
+
+    $jsonString = '{"2":"01:00"}';
+
+    // Step 2: Decode the JSON string
+    $decodedArray = json_decode($jsonString, true);
+    // return $decodedArray[2];
+
+    $date = date('Y-m-d');
+    $devices =  DeviceActivesettings::where(function ($q) {
+        $q->orWhere('date_from', ">=", date("Y-m-d"));
+        $q->orWhere('date_to', "<=", date("Y-m-d"));
+    })->get();
+
+    $weekDays = [0 => "Mon", 1 => "Tue", 2 => "Wed", 3 => "Thu", 4 => "Fri", 5 => "Sat", 6 => "Sun"];
+
+    foreach ($devices as $key => $device) {
+
+        $openJson =  $device['open_json'];
+
+        $openJsonArray = json_decode($openJson, true);
+
+        foreach ($openJsonArray as  $key => $time) {
+
+            if ($weekDays[$key] == date("D")) {
+
+
+
+
+
+                // $schedule
+                //     ->command("task:AccessControlTimeSlots {$device->device_id} HoldDoor")
+                //     // ->everyThirtyMinutes()
+                //     ->everyMinute()
+                //     ->dailyAt($time)
+                //     ->withoutOverlapping()
+                //     ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+        }
+        //
+
+        $closeJson =  $device['close_json'];
+
+        $closeJsonArray = json_decode($closeJson);
+
+        foreach ($closeJsonArray as  $key => $time) {
+
+            if ($weekDays[$key] == date("D")) {
+                // $schedule
+                //     ->command("task:AccessControlTimeSlots {$device->device_id} CloseDoor")
+                //     // ->everyThirtyMinutes()
+                //     ->everyMinute()
+                //     ->dailyAt($time)
+                //     ->withoutOverlapping()
+                //     ->appendOutputTo(storage_path("logs/$date-access-control-time-slot-logs.log"))
+                //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            }
+        }
+    }
+
+    return $devices;
+});
+
+
+// $date = date("M-Y");
+
+// $devices = AccessControlTimeSlot::get();
+
 
 Route::get('/check_device_health_old', function (Request $request) {
 

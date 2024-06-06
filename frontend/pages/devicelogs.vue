@@ -82,7 +82,7 @@
             <v-spacer></v-spacer>
             <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
+            <!--  <v-btn
               v-if="can(`logs_create`)"
               title="Attendance Log"
               x-small
@@ -90,9 +90,42 @@
               text
               @click="generateLogsDialog = true"
             >
-              <v-icon class="">mdi mdi-plus-circle</v-icon>
-            </v-btn>
+              <v-icon class="">mdi mdi-plus-circle</v-icon> 
+            </v-btn>-->
             <v-btn
+              v-if="can(`logs_create`)"
+              style="margin-top: -6px"
+              class="primary"
+              small
+              @click="generateLogsDialog = true"
+              >+ Manual Log</v-btn
+            >
+            <v-btn
+              v-if="can(`logs_create`)"
+              style="margin-left: 5px; margin-top: -6px"
+              class="primary"
+              small
+              @click="missingLogsDialog = true"
+            >
+              <div style="height: 17px; width: 17px">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 512 512"
+                  class="icon align-text-top"
+                >
+                  <path
+                    fill="#FFF"
+                    d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                  ></path>
+                  <path
+                    fill="#FFF"
+                    d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                  ></path>
+                </svg>
+              </div>
+              &nbsp; Missing Logs</v-btn
+            >
+            <!-- <v-btn
               v-if="can(`logs_create`)"
               title="Attendance Log"
               x-small
@@ -101,7 +134,7 @@
               @click="missingLogsDialog = true"
             >
               <v-icon class="">mdi mdi-head-cog-outline</v-icon>
-            </v-btn>
+            </v-btn> -->
             <!-- </template>
               <span> Attendance Log</span>
             </v-tooltip> -->

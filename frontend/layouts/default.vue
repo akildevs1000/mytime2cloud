@@ -143,13 +143,54 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="font-size: 16px;font-weight: 600;">
+                <b style="font-size: 16px; font-weight: 600">
                   {{ items.title }}
                 </b>
               </v-btn>
             </v-col>
           </v-row>
         </template>
+      </span>
+
+      <span>
+        <!-- <v-icon
+          class="violet--text"
+          @click="showGlobalsearchPopup"
+          style="text-align: center"
+          >mdi-magnify</v-icon
+        > -->
+        <!-- <v-text-field
+          style="
+            width: 200px;
+            margin-top: 100px !important;
+            max-height: 30px !important;
+          "
+          max-height="10px"
+          class="custom-text-field-height mt-10 global-search-textbox"
+          color="black"
+          outlined
+          dense
+          height:="20px"
+          border-color="black"
+          append-icon="mdi-magnify"
+          v-model="globalsearch"
+        ></v-text-field> -->
+        <v-text-field
+          @keyup.enter="showGlobalsearchPopup"
+          @keydown="showGlobalsearchPopup"
+          @keyup="showGlobalsearchPopup"
+          style="width: 220px; padding-left: 50px"
+          height="26px"
+          class="custom-text-field-height pt-7 global-search-textbox"
+          @click="showGlobalsearchPopup"
+          color="black"
+          outlined
+          dense
+          border-color="black"
+          prepend-inner-icon="mdi-magnify"
+          placeholder="Search"
+          v-model="globalsearch"
+        ></v-text-field>
       </span>
 
       <v-spacer></v-spacer>
@@ -174,7 +215,7 @@
         <v-list light nav dense>
           <v-list-item-group color="primary">
             <v-list-item
-              v-if="this.$auth && this.$auth.user.user_type == 'company'"
+              v-if="$auth && $auth.user.user_type == 'company'"
               @click="goToCompany()"
             >
               <v-list-item-icon>
@@ -225,7 +266,7 @@
         >
       </v-btn>  -->
 
-      <v-btn
+      <!-- <v-btn
         v-if="getLoginType == 'company' || getLoginType == 'branch'"
         icon
         plan
@@ -234,7 +275,7 @@
         ><v-icon class="violet--text" style="text-align: center"
           >mdi-cog</v-icon
         ></v-btn
-      >
+      > -->
 
       <v-menu
         bottom
@@ -343,8 +384,24 @@
           </v-btn>
         </template>
       </v-snackbar>
+      <v-dialog v-model="globalSearchPopup" :width="globalSearchPopupWidth">
+        <v-card>
+          <v-card-title dense class="popup_background">
+            Global Search
+            <v-spacer></v-spacer>
+            <v-icon @click="globalSearchPopup = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <v-card-text>
+            <GlobalSearchForm
+              :key="key"
+              @global-search-results-updated="GlobalSearchResultsUpdated"
+            />
+          </v-card-text>
+        </v-card>
+      </v-dialog>
       <v-dialog
-        persistent
         v-model="alarmNotificationStatus"
         transition="dialog-top-transition"
         max-width="800"
@@ -362,6 +419,10 @@
                 color: #fff !important;
               "
               >Attention :Fire Alarm Notification
+              <v-spacer></v-spacer>
+              <v-icon color="white" @click="alarmNotificationStatus = false"
+                >mdi-close-circle-outline</v-icon
+              >
             </v-toolbar>
             <v-card-text>
               <v-row
@@ -559,6 +620,7 @@ import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
 import employee_top_menu from "../menus/employee_modules_top.json";
+import GlobalSearchForm from "../components/Globalsearch/GlobalSearchForm.vue";
 
 export default {
   head() {
@@ -571,8 +633,14 @@ export default {
       ],
     };
   },
+  components: {
+    GlobalSearchForm,
+  },
   data() {
     return {
+      globalSearchPopupWidth: "500px",
+      globalsearch: "",
+      globalSearchPopup: false,
       notificationsMenuItems: [
         {
           title: "Leaves Pending (0)",
@@ -702,6 +770,7 @@ export default {
 
       inactivityTimeout: null,
       alarmNotificationStatus: false,
+      key: 1,
     };
   },
   created() {
@@ -820,6 +889,12 @@ export default {
     },
   },
   methods: {
+    showGlobalsearchPopup() {
+      this.key = this.key + 1;
+      this.globalSearchPopupWidth = "500px";
+      this.globalSearchPopup = true;
+      //this.$refs.globalSearchTextbox.focus();
+    },
     toggleTheme() {
       this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
 
@@ -1145,6 +1220,10 @@ export default {
         this.$auth.logout();
       });
     },
+    GlobalSearchResultsUpdated(value) {
+      if (value > 0) this.globalSearchPopupWidth = "1400px";
+      else this.globalSearchPopupWidth = "500px";
+    },
   },
   beforeDestroy() {
     // Cleanup: Remove event listeners
@@ -1235,6 +1314,7 @@ header i {
 .whitebackground--text {
   background-color: #ecf0f4;
 }
+
 /* New Theme  popup_background*/
 .v-application .popup_background {
   background-color: #ecf0f4 !important;
@@ -1275,6 +1355,29 @@ header i {
 }
 .popup_background .v-icon {
   color: black !important;
+}
+
+.v-dialog > .v-card > .popup_background {
+  background-color: #6946dd !important;
+  padding: 5px 6px 5px !important;
+  color: #fff !important;
+}
+.popup_background_white {
+}
+.v-dialog > .v-card > .popup_background_noviolet {
+  background-color: #ecf0f4 !important  ;
+  padding: 5px 6px 5px !important;
+  color: #fff !important;
+}
+
+.popup_background_noviolet .v-tabs-bar {
+  background-color: #ecf0f4 !important;
+}
+.noviolet {
+  background-color: #ecf0f4 !important   ;
+}
+.v-dialog > .v-card > .popup_background > .mdi-close-circle {
+  color: #fff !important;
 }
 
 /* .theme--dark.v-toolbar.v-sheet {
@@ -1669,6 +1772,57 @@ button {
 
 .no-border:before {
   border-color: #fff !important;
+}
+
+.global-search-textbox fieldset,
+.global-search-textbox .v-label,
+.global-search-textbox .v-icon,
+.global-search-textbox .theme--dark.v-input textarea {
+  color: black !important;
+}
+.global-search-textbox.v-text-field--enclosed:not(.v-text-field--rounded)
+  > .v-input__control
+  > .v-input__slot {
+  padding: 0 4px;
+}
+.global-search-textbox.v-input input::placeholder {
+  color: black !important;
+}
+
+.global-search-textbox .v-input__slot {
+  padding: 0 3px !important;
+}
+.company-profile-picture .v-image__image--cover {
+  background-size: contain;
+}
+.custom-text-field-height .v-input__slot {
+  min-height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.custom-text-field-height .v-label {
+  top: 6px !important;
+}
+.custom-text-field-height .v-input__append-inner {
+  margin-top: 3px !important;
+}
+.custom-text-field-height .v-input__prepend-inner {
+  margin-top: 3px !important;
+}
+
+.employee-schedule-cropdown .mdi-menu-down {
+  padding-top: 7px;
+}
+
+.employee-schedule-search-box .v-input__slot {
+  min-height: 30px !important;
+}
+.employee-schedule-search-box .v-label {
+  line-height: 11px !important;
+}
+.employee-schedule-search-box .v-input__icon {
+  height: 17px !important;
 }
 </style>
 

@@ -152,59 +152,40 @@ class MultiShiftController extends Controller
                 if ($nextLog && $nextLog['device']['function'] == "In") {
                     $i++;
                     $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                }
-
-                else if ($currentLog && $currentLog['device']['function'] == "Out") {
+                } else if ($currentLog && $currentLog['device']['function'] == "Out") {
                     $i++;
                     $currentLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
                 }
 
                 $minutes = 0;
 
-                if (
-                    isset($currentLog["device"]["function"]) &&
-                    (strtolower($currentLog["device"]["function"]) != "out")
-                    && $nextLog
-                    && isset($nextLog["device"]["function"])
-                    && (strtolower($nextLog["device"]["function"]) != "in")
-                ) {
+
+                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
 
 
-                    if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
+                    $parsed_out = strtotime($nextLog['time'] ?? 0);
+                    $parsed_in = strtotime($currentLog['time'] ?? 0);
 
-
-                        $parsed_out = strtotime($nextLog['time'] ?? 0);
-                        $parsed_in = strtotime($currentLog['time'] ?? 0);
-
-                        if ($parsed_in > $parsed_out) {
-                            //$item["extra"] = $nextLog['time'];
-                            $parsed_out += 86400;
-                        }
-
-                        $diff = $parsed_out - $parsed_in;
-
-                        $minutes =  ($diff / 60);
-
-                        //$totalMinutes += $minutes > 0 ? $minutes : 0;
-
-                        $totalMinutes += $minutes;
+                    if ($parsed_in > $parsed_out) {
+                        //$item["extra"] = $nextLog['time'];
+                        $parsed_out += 86400;
                     }
+
+                    $diff = $parsed_out - $parsed_in;
+
+                    $minutes =  ($diff / 60);
+
+                    //$totalMinutes += $minutes > 0 ? $minutes : 0;
+
+                    $totalMinutes += $minutes;
                 }
 
-
-
-                $logsJson[] =  [
-                    "in" => isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] != "Out") ?  $currentLog['time'] : "---",
-                    "out" => $nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] != "In") ?  $nextLog['time'] : "---",
-
-                    // "in" => $currentLog['log_type'] != "out" ?  $currentLog['time'] : "---",
-                    // "out" =>  $nextLog && $nextLog['log_type'] != "in" ?  $nextLog['time'] : "---",
-
-                    // "diff" => $nextLog ? $this->minutesToHoursNEW($currentLog['time'], $nextLog['time']) : "---",
-                    "device_in" => $currentLog['device']['short_name'] ?? $currentLog['device']['name'] ??  "---",
-                    "device_out" => $nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---",
-
-                    "total_minutes" =>  $this->minutesToHours($minutes),
+                $logsJson[] = [
+                    "in" => (isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "auto")) || (isset($currentLog["DeviceID"]) && $currentLog["DeviceID"] == "Manual") ? $currentLog['time'] : "---",
+                    "out" => ($nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "auto")) || ($nextLog && isset($nextLog["DeviceID"]) && $nextLog["DeviceID"] == "Manual") ? $nextLog['time'] : "---",
+                    "device_in" => isset($currentLog['device']) ? ($currentLog['device']['short_name'] ?? $currentLog['device']['name'] ?? "---") : "---",
+                    "device_out" => isset($nextLog['device']) ? ($nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---") : "---",
+                    "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);

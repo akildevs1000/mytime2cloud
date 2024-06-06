@@ -453,7 +453,7 @@
           <v-card-title class="popup_background">
             <span class="headline"> Re-Generate Report </span>
             <v-spacer></v-spacer>
-            <v-icon dark @click="reportSync = false">mdi-close-box</v-icon>
+            <v-icon dark @click="reportSync = false">mdi-close-circle</v-icon>
           </v-card-title>
           <RenderAttendance
             :key="key"
@@ -474,7 +474,7 @@
             <span class="headline">Employee Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <v-card-text>
@@ -498,7 +498,7 @@
             <span class="headline">Employee Manual Multi Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-box</v-icon
+              >mdi-close-circle</v-icon
             >
           </v-card-title>
           <v-card-text>

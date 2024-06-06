@@ -6,13 +6,10 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="editDialog" :width="schedulePopupWidth">
+    <v-dialog persistent v-model="editDialog" width="900">
       <v-card>
         <v-card-title dense dark class="popup_background">
-          <div v-if="!empId">Add Schedule</div>
-          <div v-else>
-            {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
-          </div>
+          {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
           <v-spacer></v-spacer>
 
           <v-icon @click="editDialog = false" outlined dark>
@@ -21,166 +18,13 @@
         </v-card-title>
 
         <v-card-text>
-          <br />
-
-          <v-row v-if="!empId"> </v-row>
-
-          <!-- <v-row>
-            <v-col class="text-right">
-              <v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
-                <b>Add +</b>
-              </v-btn>
-            </v-col>
-          </v-row> -->
+          <v-col col="3" text-right class="text-right"
+            ><v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
+              <b>Add +</b>
+            </v-btn></v-col
+          >
 
           <v-row v-for="(item, i) in schedules_temp_list" :key="i">
-            <v-col md="2" v-if="!empId">
-              <v-select
-                label="Branch"
-                @change="filterDepartmentsByBranch()"
-                cols="1"
-                :hide-details="true"
-                item-value="id"
-                item-text="branch_name"
-                v-model="filterPopupBranchId"
-                outlined
-                dense
-                clearable
-                :items="branchesList"
-              ></v-select>
-            </v-col>
-
-            <v-col md="2" v-if="!empId">
-              <v-autocomplete
-                label="Departments"
-                height="40px"
-                class="announcement-dropdown1"
-                outlined
-                dense
-                @change="employeesByDepartment"
-                v-model="filterDepartmentIds"
-                :items="departments"
-                multiple
-                item-text="name"
-                item-value="id"
-                placeholder="Departments"
-              >
-                <template v-if="departments.length" #prepend-item>
-                  <v-list-item @click="toggleDepartmentSelection">
-                    <v-list-item-action>
-                      <v-checkbox
-                        @click="toggleDepartmentSelection"
-                        v-model="selectAllDepartment"
-                        :indeterminate="isIndeterminateDepartment"
-                        :true-value="true"
-                        :false-value="false"
-                      ></v-checkbox>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{
-                          selectAllDepartment ? "Unselect All" : "Select All"
-                        }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item, index }">
-                  <span v-if="index === 0 && filterDepartmentIds.length == 1">{{
-                    item.name
-                  }}</span>
-                  <span
-                    v-else-if="
-                      index === 1 &&
-                      filterDepartmentIds.length == departments.length
-                    "
-                    class=" "
-                  >
-                    All Selected
-                  </span>
-                  <span v-else-if="index === 1" class=" ">
-                    {{ filterDepartmentIds.length }} Seleted
-                    <!-- Selected {{ filterDepartmentIds.length }} Department(s) -->
-                  </span>
-                </template>
-              </v-autocomplete>
-            </v-col>
-            <v-col md="2" v-if="!empId">
-              <v-select
-                label="All Employees"
-                @change="getEmployeesByScheduleFilter()"
-                cols="1"
-                :hide-details="true"
-                v-model="filterPopupEmployeeSchedule"
-                outlined
-                dense
-                clearable
-                item-value="id"
-                item-text="name"
-                :items="[
-                  { id: 2, name: 'All Employees' },
-                  { id: 0, name: 'Unscheduled' },
-                  { id: 1, name: 'Scheduled' },
-                ]"
-              ></v-select>
-            </v-col>
-            <v-col md="2" v-if="!empId">
-              <v-autocomplete
-                label="Employees"
-                height="40px"
-                class="announcement-dropdown1"
-                outlined
-                dense
-                v-model="filterEmployeeIds"
-                :items="employees_dialog"
-                multiple
-                item-text="name_with_user_id"
-                item-value="system_user_id"
-                placeholder="Employees"
-                :error-messages="
-                  errors && errors.employees ? errors.employees[0] : ''
-                "
-                color="background"
-              >
-                <template v-if="employees_dialog.length" #prepend-item>
-                  <v-list-item @click="toggleEmployeeSelection">
-                    <v-list-item-action>
-                      <v-checkbox
-                        @click="toggleEmployeeSelection"
-                        v-model="selectAllEmployee"
-                        :indeterminate="isIndeterminateEmployee"
-                        :true-value="true"
-                        :false-value="false"
-                      ></v-checkbox>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ selectAllEmployee ? "Unselect All" : "Select All" }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item, index }">
-                  <span v-if="index === 0 && filterEmployeeIds.length == 1"
-                    >{{ item.first_name }} {{ item.last_name }}
-                    {{ item.schedules_count }}</span
-                  >
-                  <span
-                    v-else-if="
-                      index === 1 &&
-                      filterEmployeeIds.length == employees_dialog.length
-                    "
-                    class=" "
-                  >
-                    All Selected
-                  </span>
-                  <span v-else-if="index === 1" class=" ">
-                    {{ filterEmployeeIds.length }} Seleted
-                    <!-- Selected  Employee(s) -->
-                  </span>
-                </template>
-              </v-autocomplete>
-            </v-col>
             <!-- <v-col md="12">
               <v-checkbox
                 :readonly="!isEdit"
@@ -189,28 +33,9 @@
                 label="Auto Shift"
               ></v-checkbox>
             </v-col> -->
-
-            <!-- <v-col>
-              <v-select
-                multiple
-                style="width: 250px"
-                cols="1"
-                :hide-details="true"
-                item-value="id"
-                item-text="branch_name"
-                outlined
-                dense
-                clearable
-                :items="[
-                  { branch_name: `All Employees`, id: `` },
-                  ...employeesList,
-                ]"
-              ></v-select>
-            </v-col> -->
-            <v-col :md="!empId ? 2 : 4">
-              <!-- <div>Shift Name</div> -->
+            <v-col md="3">
+              <div class="">Shift Name</div>
               <v-autocomplete
-                label="Shift Name"
                 placeholder="Shift Name"
                 :error="errors && errors.shift_id"
                 :error-messages="
@@ -223,27 +48,14 @@
                 x-small
                 :items="[
                   { shift_id: `AutoShift`, name: `Auto Shift` },
-                  ...filterShifts,
+                  ...shifts,
                 ]"
                 item-value="shift_id"
                 item-text="name"
                 :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
-            <v-col :md="!empId ? 2 : 4">
-              <CustomFilter
-                :disabled="!isEdit"
-                class="mt-0"
-                @filter-attr="filterAttr($event, item)"
-                :default_date_from="item.from_date"
-                :default_date_to="item.to_date"
-                :defaultFilterType="1"
-                style="float: right; width: 100%"
-                :height="40"
-                :key="key + i"
-              />
-            </v-col>
-            <!-- <v-col md="3">
+            <v-col md="3">
               <div class="mb-6">
                 <div>From</div>
 
@@ -276,7 +88,21 @@
                     scrollable
                     @input="from_menu[i] = false"
                   >
-                     
+                    <!-- <v-spacer></v-spacer>
+                    <v-btn text color="primary" @click="from_menu[i] = false">
+                      Cancel
+                    </v-btn>
+                    <v-btn
+                      text
+                      color="primary"
+                      @click="
+                        isEdit
+                          ? set_date_save($refs.from_menu[i], item.from_date, i)
+                          : ''
+                      "
+                    >
+                      OK
+                    </v-btn> -->
                   </v-date-picker>
                 </v-menu>
               </div>
@@ -314,45 +140,39 @@
                   ></v-date-picker>
                 </v-menu>
               </div>
-            </v-col> -->
-            <v-col :md="!empId ? 2 : 4" v-if="empId">
-              <v-row>
-                <v-col class="pt-5" style="max-width: 100px">OT Allowed?</v-col>
-
-                <v-col class="pl-0" style="max-width: 50px">
-                  <v-switch
-                    :disabled="!isEdit"
-                    color="primary align-left"
-                    class="mt-0 ml-0 pt-2"
-                    v-model="item.is_over_time"
-                    @change="item.is_over_time = true"
-                  ></v-switch>
-                </v-col>
-              </v-row>
-              <!-- <v-checkbox
+            </v-col>
+            <v-col md="2">
+              <div>
+                Ot Allowed
+                <v-checkbox
                   :readonly="!isEdit"
-                  style="margin-top: 4px"
+                  style="margin-top: -8px"
                   v-model="item.is_over_time"
-                ></v-checkbox> -->
+                ></v-checkbox>
+              </div>
+            </v-col>
+            <v-col md="1" v-if="isEdit">
+              <div></div>
+              <v-icon @click="removeItem(i, item)" color="error"
+                >mdi-delete</v-icon
+              >
             </v-col>
           </v-row>
         </v-card-text>
         <v-divider></v-divider>
-        <v-card-actions class="text-center">
-          <!-- <v-spacer></v-spacer> -->
+        <v-card-actions>
+          <v-spacer></v-spacer>
           <!-- <v-btn dark small color="grey" @click="editDialog = false">
               Close
             </v-btn> -->
-          <div style="width: 100%">
-            <v-btn v-if="isEdit" dark small color="primary" @click="update">
-              Submit
-            </v-btn>
-          </div>
+          <v-btn v-if="isEdit" dark small color="primary" @click="update">
+            Submit
+          </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog" width="1300">
+    <v-dialog persistent v-model="dialog" width="1300">
       <v-card>
         <v-card-title class="text-h5">
           Schedule Employees
@@ -546,25 +366,24 @@
 
     <v-card elevation="0" class="mt-2">
       <v-toolbar class="mb-2 white--text" color="white" dense flat>
-        <v-toolbar-title class="black--text">
-          <span> Schedule List</span>
-        </v-toolbar-title>
-        <!-- <span class="black--text"> Schedule List1</span> -->
-
-        <v-btn
-          dense
-          class="ma-0 px-0"
-          x-small
-          :ripple="false"
-          text
-          title="Reload"
+        <v-toolbar-title class="black--text"
+          ><span> Schedule List</span></v-toolbar-title
         >
-          <v-icon class="ml-2" @click="clearFilters" dark
-            >mdi mdi-reload</v-icon
+        <span>
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Reload"
           >
-        </v-btn>
-
-        <!--  <span>
+            <v-icon class="ml-2" @click="clearFilters" dark
+              >mdi mdi-reload</v-icon
+            >
+          </v-btn>
+        </span>
+        <span>
           <v-btn
             dense
             class="ma-0 px-0"
@@ -576,6 +395,18 @@
             <v-icon class="ml-2" @click="toggleFilter" dark
               >mdi mdi-filter</v-icon
             >
+          </v-btn>
+        </span>
+        <span>
+          <v-btn
+            dense
+            class="ma-2 px-1 primary"
+            fill
+            dark
+            small
+            @click="openScheduleDialog"
+          >
+            Apply Schedules
           </v-btn>
         </span>
 
@@ -593,110 +424,31 @@
             clearable
             :items="[{ branch_name: `All Branches`, id: `` }, ...branchesList]"
           ></v-select
-        ></v-col> -->
+        ></v-col>
+
+        <v-col cols="6"> </v-col>
 
         <v-spacer></v-spacer>
-        <span cols="4" class="mt-8" style="width: 220px">
-          <v-text-field
-            style="width: 200px"
-            height="20"
-            class="employee-schedule-search-box"
-            @input="getDataFromApi()"
-            v-model="commonSearch"
-            label="Search (min 3)"
-            dense
-            outlined
-            type="text"
-            append-icon="mdi-magnify"
-          ></v-text-field>
-        </span>
-        <span cols="4" class="mt-1" style="width: 190px">
-          <v-select
-            height="30px"
-            style="width: 180px"
-            class="custom-text-field-height employee-schedule-cropdown"
-            :hide-details="true"
-            @change="filterEmployees()"
-            item-value="id"
-            item-text="name"
-            v-model="filterScheduledEmp"
-            outlined
-            dense
-            :items="[
-              { name: `All Employees  `, id: `` },
-              { name: `Scheduled Only`, id: `1` },
-              { name: `Un-Scheduled`, id: `0` },
-            ]"
-          ></v-select>
-        </span>
-        <span cols="2" class="mt-1" style="max-width: 140px">
-          <v-btn
-            dense
-            class="ma-2 px-1 primary"
-            fill
-            dark
-            small
-            @click="openScheduleDialog"
-          >
-            + Add Schedule
-          </v-btn>
-        </span>
-        <!-- <input
-          class="custom-input"
-          type="text"
-          placeholder="Search"
-          @input="getDataFromApi()"
-          v-model="commonSearch"
-        /> -->
-        <!-- <v-col cols="12" class="text-right">
-          <v-row>
-            <v-col cols="7"></v-col>
-            <v-col cols="2" class="text-left" style="max-width: 200px">
-              <v-text-field
-                height="20"
-                @input="getDataFromApi()"
-                v-model="commonSearch"
-                label="Display Name"
-                dense
-                outlined
-                type="text"
-                append-icon="mdi-magnify"
-              ></v-text-field>
-             
-            </v-col>
-            <v-col cols="2" style="max-width: 200px">
-              <v-select
-                class="custom-text-field-height employee-schedule-cropdown"
-                height="40px"
-                cols="1"
-                :hide-details="true"
-                @change="filterEmployees()"
-                item-value="id"
-                item-text="name"
-                v-model="filterScheduledEmp"
-                outlined
-                dense
-                :items="[
-                  { name: `All Employees  `, id: `` },
-                  { name: `Scheduled Only`, id: `1` },
-                  { name: `Un-Scheduled`, id: `0` },
-                ]"
-              ></v-select>
-            </v-col>
-            <v-col cols="1" class="text-left" style="max-width: 100px">
-              <v-btn
-                dense
-                class="ma-2 px-1 primary"
-                fill
-                dark
-                small
-                @click="openScheduleDialog"
-              >
-                + New
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col> -->
+        <v-label></v-label>
+        <v-select
+          label="Scheduled Employees"
+          style="width: 250px"
+          cols="1"
+          :hide-details="true"
+          @change="filterEmployees()"
+          item-value="id"
+          item-text="name"
+          v-model="filterScheduledEmp"
+          outlined
+          dense
+          clearable
+          :items="[
+            { name: `All Scheduled Employees`, id: `` },
+            { name: `Scheduled`, id: `1` },
+            { name: `Un-Scheduled`, id: `0` },
+          ]"
+        ></v-select>
+
         <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
             <template v-slot:activator="{ on, attrs }"> -->
         <!-- <v-btn
@@ -729,6 +481,7 @@
         </template>
       </v-snackbar>
       <v-data-table
+        show-select
         dense
         :headers="headers_table"
         :items="employees"
@@ -989,15 +742,11 @@
         <template v-slot:item.branch_id="{ item }">
           {{ item.branch && item.branch.branch_name }}
         </template>
-        <template v-slot:item.department.name="{ item }">
+        <template v-slot:item.department.name.id="{ item }">
           <strong>{{ caps(item.department.name) }}</strong>
-
           <div class="secondary-value">
             {{ caps(item.sub_department.name) }}
           </div>
-        </template>
-        <template v-slot:item.contact_number="{ item }">
-          {{ item.phone_number }}
         </template>
         <!-- <template v-slot:item.employee_id="{ item }">
             {{ caps(item?.employee_id || "") }}
@@ -1007,7 +756,7 @@
             {{ caps(item.last_name && item.last_name) }}
           </template> -->
 
-        <template v-slot:item.schedules="{ item }">
+        <template v-slot:item.schedules_count="{ item }">
           {{
             item.schedule?.isAutoShift
               ? "Auto"
@@ -1015,12 +764,7 @@
               ? item.schedule.shift.name
               : "---"
           }}
-          <div class="secondary-value" title="Schedule Date Range">
-            {{ item.schedule.from_date }} - {{ item.schedule.to_date }}
-          </div>
-        </template>
-        <template v-slot:item.schedules_count="{ item }">
-          <div title="Total Assigned Shift count">
+          <div class="secondary-value" title="Total Assigned Shift count">
             {{ item.schedule_all.length }}
           </div>
         </template>
@@ -1082,25 +826,8 @@
   <NoAccess v-else />
 </template>
 <script>
-import { extensions } from "@tiptap/vue-2";
-
 export default {
   data: () => ({
-    schedulePopupWidth: "70%",
-    commonSearch: "",
-    key: 1,
-    date_from: "",
-    date_to: "",
-    filterPopupEmployeeSchedule: 2,
-    selectAllEmployee: false,
-    filterEmployeeIds: "",
-
-    selectAllDepartment: false,
-    filterDepartmentIds: "",
-    filterPopupBranchId: "",
-
-    filterShifts: [],
-
     filterBranchId: "",
     employeesSelected: [],
     filterScheduledEmp: "",
@@ -1167,13 +894,21 @@ export default {
     total_dialog: 0,
 
     headers_table: [
-      // {
-      //   text: "#",
-      //   align: "left",
-      //   sortable: false,
-      //   value: "sno",
-      //   filterable: false,
-      // },
+      {
+        text: "#",
+        align: "left",
+        sortable: false,
+        value: "sno",
+        filterable: false,
+      },
+      {
+        text: "Emp Id",
+        align: "left",
+        sortable: true,
+        value: "employee_id",
+        filterable: true,
+        filterName: "employee_id",
+      },
       {
         text: "Name",
         align: "left",
@@ -1182,45 +917,18 @@ export default {
         filterable: true,
         filterName: "employee_first_name",
       },
-      {
-        text: "Emp Id/Device Id",
-        align: "left",
-        sortable: true,
-        value: "employee_id",
-        filterable: true,
-        filterName: "employee_id",
-      },
+
+      // {
+      //   text: "Department",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "department.name",
+      //   filterable: true,
+      //   filterName: "employee_first_name",
+      // },
 
       {
-        text: "Department",
-        align: "left",
-        sortable: true,
-        value: "department.name",
-        filterable: true,
-        filterName: "employee_first_name",
-      },
-
-      {
-        text: "Mobile Number",
-        align: "left",
-        sortable: true,
-        value: "contact_number",
-        filterable: true,
-        filterName: "contact_number",
-        filterSpecial: true,
-      },
-
-      {
-        text: "Active Schedules",
-        align: "left",
-        sortable: true,
-        value: "schedules",
-        filterable: true,
-        filterName: "schedules",
-        filterSpecial: true,
-      },
-      {
-        text: "Total Schedules",
+        text: "Schedules",
         align: "left",
         sortable: true,
         value: "schedules_count",
@@ -1305,17 +1013,16 @@ export default {
     headers_ids: [],
     headers_dialog: [
       {
-        text: "Name",
-        sortable: true,
-        value: "employee.first_name",
-      },
-      {
         text: "E.ID",
         align: "left",
         sortable: false,
         value: "system_user_id",
       },
-
+      {
+        text: "Name",
+        sortable: true,
+        value: "employee.first_name",
+      },
       {
         text: "Department",
         sortable: false,
@@ -1329,49 +1036,9 @@ export default {
     branch_id: "",
   }),
 
-  computed: {
-    isIndeterminateDepartment() {
-      return (
-        this.filterDepartmentIds.length > 0 &&
-        this.filterDepartmentIds.length < this.departments.length
-      );
-    },
-    isIndeterminateEmployee() {
-      return (
-        this.filterEmployeeIds.length > 0 &&
-        this.filterEmployeeIds.length < this.employees_dialog.length
-      );
-    },
-  },
+  computed: {},
 
   watch: {
-    filterDepartmentIds(value) {
-      this.filterEmployeeIds = [];
-      /////this.employeesByDepartment();
-    },
-    filterEmployeeIds(value) {
-      //this.employeesByDepartment();
-    },
-
-    selectAllDepartment(value) {
-      if (value) {
-        this.filterDepartmentIds = this.departments.map((e) => e.id);
-        this.employeesByDepartment();
-      } else {
-        this.filterDepartmentIds = [];
-
-        this.employeesByDepartment();
-      }
-    },
-    selectAllEmployee(value) {
-      if (value) {
-        this.filterEmployeeIds = this.employees_dialog.map(
-          (e) => e.system_user_id
-        );
-      } else {
-        this.filterEmployeeIds = [];
-      }
-    },
     dialog(val) {
       val || this.close();
       this.errors = [];
@@ -1402,10 +1069,6 @@ export default {
     },
   },
   created() {
-    const today = new Date();
-
-    this.date_from = today.toISOString().slice(0, 10);
-    this.date_to = today.toISOString().slice(0, 10);
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
         {
@@ -1418,7 +1081,7 @@ export default {
           filterSpecial: true,
         },
       ];
-      this.headers_table.splice(2, 0, ...branch_header);
+      this.headers_table.splice(1, 0, ...branch_header);
     }
     this.loading = true;
     this.loading_dialog = true;
@@ -1433,98 +1096,9 @@ export default {
 
     this.getShiftsForFilter();
     this.getbranchesList();
-
-    this.filterDepartmentsByBranch();
   },
 
   methods: {
-    filterAttr(data, item) {
-      this.date_from = data.from;
-      this.date_to = data.to;
-      item.from_date = data.from;
-      item.to_date = data.to;
-    },
-    toggleDepartmentSelection() {
-      this.selectAllDepartment = !this.selectAllDepartment;
-    },
-    toggleEmployeeSelection() {
-      this.selectAllEmployee = !this.selectAllEmployee;
-    },
-    // filterEmployeesByDepartment() {
-    //   this.selectAllEmployee = false;
-    //   //this.getEmployees();
-    //   this.loading_dialog = true;
-    //   const { page, itemsPerPage } = this.options_dialog;
-
-    //   let options = {
-    //     params: {
-    //       department_ids: this.filterDepartmentIds,
-
-    //       company_id: this.$auth.user.company_id,
-    //     },
-    //   };
-    //   this.employees_dialog = [];
-    //   if (!this.filterDepartmentIds.length) {
-    //     this.getEmployees();
-    //     return;
-    //   }
-
-    //   this.$axios
-    //     .get("employeesByDepartmentForAnnoucements", options)
-    //     .then(({ data }) => {
-    //       this.employees_dialog = data.data;
-    //       this.loading_dialog = false;
-
-    //       this.toggleEmployeeSelection();
-    //     });
-    // },
-    getEmployees(url = "employee") {
-      this.loading = true;
-
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
-      this.$axios.get(url, options).then(({ data }) => {
-        this.employees_dialog = data.data;
-        this.loading = false;
-      });
-    },
-    filterDepartmentsByBranch() {
-      this.selectAllDepartment = false;
-
-      // this.shifts_branch_wise = this.shifts.filter(
-      //   (e) => e.branch_id == this.filterPopupBranchId
-      // );
-      this.employeesSelected = [];
-
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          branch_id:
-            this.filterPopupBranchId != "" ? this.filterPopupBranchId : null,
-        },
-      };
-      this.getDepartments(options);
-
-      this.getShifts();
-    },
-    // getDepartments(branch_id = null) {
-    //   let options = {
-    //     params: {
-    //       per_page: 10,
-    //       company_id: this.$auth.user.company_id,
-    //       branch_id: branch_id,
-    //       //department_ids: this.$auth.user.assignedDepartments,
-    //     },
-    //   };
-    //   this.$axios.get(`department-list`, options).then(({ data }) => {
-    //     this.departments = data;
-    //     this.departments.unshift({ name: "All Departments", id: "" });
-    //   });
-    // },
     applyBranchFilter() {
       this.branch_id = this.filterBranchId;
       this.filters["branch_id"] = this.branch_id;
@@ -1538,7 +1112,6 @@ export default {
     filterEmployees() {
       this.filters["schedules_count"] = this.filterScheduledEmp;
       this.getDataFromApi();
-      this.filterEmployeeIds = [];
     },
     updateIndex(page) {
       this.currentPage = page;
@@ -1555,8 +1128,6 @@ export default {
 
       this.$axios.get(`branches_list`, this.payloadOptions).then(({ data }) => {
         this.branchesList = data;
-        this.filterPopupBranchId = data[0]["id"];
-        this.filterDepartmentsByBranch();
       });
     },
     applyFilter() {
@@ -1601,11 +1172,8 @@ export default {
         (e) => e.branch_id == this.branch_id
       );
       this.schedules_temp_list = [];
-      this.addRow(0);
+      this.addRow(1);
       this.isEdit = true;
-
-      this.filterDepartmentIds = [];
-      this.filterEmployeeIds = [];
       this.editDialog = true;
     },
     ScheduleItem(item, type) {
@@ -1630,19 +1198,13 @@ export default {
           this.schedules_temp_list = data;
 
           if (data.length == 0) {
-            this.addRow(0);
+            this.addRow(1);
           }
 
           this.schedules_temp_list.forEach((object) => {
             object.branch_id = item.branch_id;
           });
           this.editDialog = true;
-
-          if (this.schedules_temp_list.length == 1) {
-            this.schedulePopupWidth = "70%";
-          } else {
-            this.schedulePopupWidth = "900px";
-          }
         });
     },
 
@@ -1669,12 +1231,6 @@ export default {
         alert("Atleast one Shift is required");
         return false;
       }
-
-      if (!this.empId && this.filterEmployeeIds.length == 0) {
-        alert("Atleast Select One Employee  ");
-        return false;
-      }
-      var continueSavedata = true;
       this.schedules_temp_list.forEach((element) => {
         let shiftsSelected = this.shifts.filter(
           (e) => e.shift_id == element.shift_id
@@ -1682,31 +1238,19 @@ export default {
 
         if (shiftsSelected[0])
           element.shift_type_id = shiftsSelected[0].shift_type_id;
-
-        if (element.shift_id == 0) {
-          alert("Please select Shift Name");
-          continueSavedata = false;
-          return false;
-        }
       });
-      if (!continueSavedata) return false;
 
       let payload = {
         //employee_ids: [this.empId],
-        // employee_ids: this.empId
-        //   ? [this.empId]
-        //   : this.employeesSelected.map((e) => e.system_user_id),
-        employee_ids: this.empId ? [this.empId] : this.filterEmployeeIds,
-
+        employee_ids: this.empId
+          ? [this.empId]
+          : this.employeesSelected.map((e) => e.system_user_id),
         schedules: this.schedules_temp_list,
         company_id: this.$auth.user.company_id,
         replace_schedules: this.empId ? true : false,
-        // branch_id: this.empId
-        //   ? this.schedules_temp_list[0] && this.schedules_temp_list[0].branch_id
-        //   : this.filterBranchId,
         branch_id: this.empId
           ? this.schedules_temp_list[0] && this.schedules_temp_list[0].branch_id
-          : this.filterPopupBranchId,
+          : this.filterBranchId,
       };
 
       this.process(this.$axios.post(`schedule_employees`, payload));
@@ -1723,18 +1267,12 @@ export default {
       let item = {
         shift_id: id,
         shift_type_id: 1,
-        from_date: new Date().toJSON().slice(0, 10),
-        to_date: new Date().toJSON().slice(0, 10),
+        from_date: "", // new Date().toJSON().slice(0, 10),
+        to_date: "", //new Date().toJSON().slice(0, 10),
         is_over_time: false,
       };
       if (this.schedules_temp_list.length < 5) {
         this.schedules_temp_list.push(item);
-      }
-
-      if (this.schedules_temp_list.length == 1) {
-        this.schedulePopupWidth = "80%";
-      } else {
-        this.schedulePopupWidth = "900px";
       }
     },
 
@@ -1750,22 +1288,13 @@ export default {
     getShifts(shift_type_id) {
       let options = {
         params: {
+          per_page: 1000,
           company_id: this.$auth.user.company_id,
-          branch_id: this.filterPopupBranchId,
+          branch_id: this.branch_id,
         },
       };
       this.$axios.get("shift", options).then(({ data }) => {
         this.shifts = data.data
-          .filter((e) => e.isAutoShift == false)
-          .map((e) => ({
-            shift_id: e.id,
-            name: e.name,
-            shift_type_id: e.shift_type_id,
-            from_date: e.from_date,
-            to_date: e.to_date,
-            branch_id: e.branch_id,
-          }));
-        this.filterShifts = data.data
           .filter((e) => e.isAutoShift == false)
           .map((e) => ({
             shift_id: e.id,
@@ -1847,66 +1376,37 @@ export default {
         .get("departments", options)
         .then(({ data }) => {
           this.departments = data.data;
-          // this.departments.unshift({ id: "---", name: "Select All" });
+          this.departments.unshift({ id: "---", name: "Select All" });
         })
         .catch((err) => console.log(err));
-    },
-
-    getEmployeesByScheduleFilter() {
-      this.employeesByDepartment();
-      this.selectAllEmployee = false;
-      this.filterEmployeeIds = [];
     },
 
     employeesByDepartment() {
       this.loading_dialog = true;
 
       const { page, itemsPerPage } = this.options_dialog;
-      //this.perPage = 1000; //this.itemsPerPage;
+      this.perPage = itemsPerPage;
       let options = {
         params: {
-          department_ids: this.filterDepartmentIds,
-          per_page: 10000,
-          page: 1,
+          department_ids: this.department_ids,
+          per_page: itemsPerPage,
+          page: page,
           company_id: this.$auth.user.company_id,
         },
       };
 
-      if (!this.filterDepartmentIds.length) {
+      if (!this.department_ids.length) {
         this.employees_dialog = [];
         this.total_dialog = 0;
         this.loading_dialog = false;
         return;
       }
 
-      this.$axios
-        .get("employees_with_schedule_count", options)
-        .then(({ data }) => {
-          this.employees_dialog = data.data;
-
-          this.employees_dialog_raw = this.employees_dialog;
-          this.total_dialog = data.total;
-          this.loading_dialog = false;
-
-          if (this.filterPopupEmployeeSchedule == 0) {
-            //unschedule
-            this.employees_dialog = this.employees_dialog_raw.filter(
-              (e) => e.schedule_active.id == null
-            );
-          } else if (this.filterPopupEmployeeSchedule == 1) {
-            //schedule
-
-            this.employees_dialog = this.employees_dialog_raw.filter(
-              (e) => e.schedule_active.id != null
-            );
-          } else if (this.filterPopupEmployeeSchedule == 2) {
-            //schedule
-
-            this.employees_dialog = this.employees_dialog_raw;
-          }
-
-          //filterEmployeesBySchedule
-        });
+      this.$axios.get("employeesByDepartment", options).then(({ data }) => {
+        this.employees_dialog = data.data;
+        this.total_dialog = data.total;
+        this.loading_dialog = false;
+      });
     },
 
     getEmployeesBySubDepartment() {
@@ -1979,9 +1479,6 @@ export default {
     },
     //main
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
-      if (this.commonSearch != "" && this.commonSearch.length < 3) {
-        return false;
-      }
       this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -1992,7 +1489,6 @@ export default {
       let options = {
         params: {
           page: page,
-          common_search: this.commonSearch != "" ? this.commonSearch : null,
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
@@ -2014,7 +1510,6 @@ export default {
           //   this.loading = false;
           //   return false;
           // }
-
           this.employees = data.data;
           this.totalRowsCount = data.total;
 
@@ -2139,7 +1634,6 @@ export default {
         alert("Atleast 1 Employee must be selected");
         return;
       }
-
       this.errors = [];
 
       let payload = {

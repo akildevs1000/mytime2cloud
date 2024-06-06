@@ -69,35 +69,35 @@ class SDKController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00",
+                        "end" => "23:59",
                     ],
                 ],
             ];
@@ -160,7 +160,7 @@ class SDKController extends Controller
     {
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-        $Devices = Device::where('model_number', "MEGVII")->get()->all();
+        $Devices = Device::where('model_number', "OX-900")->get()->all();
 
 
 
@@ -168,6 +168,7 @@ class SDKController extends Controller
             return in_array($item['device_id'], $snList);
         });
         $message = [];
+
         foreach ($filteredCameraArray as  $value) {
 
             foreach ($request->personList as  $persons) {
@@ -175,11 +176,13 @@ class SDKController extends Controller
 
                     //$personProfilePic = $persons['faceImage'];
                     $personProfilePic = public_path('media/employee/profile_picture/' . $persons['profile_picture_raw']);
+                    //$personProfilePic = public_path('media/employee/profile_picture/' .  "1666962517.jpg");
+
                     if ($personProfilePic != '') {
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string);
+                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id']);
                     }
                 }
             }
@@ -367,42 +370,33 @@ class SDKController extends Controller
     public function getPersonDetails($device_id, $user_code)
     {
 
-        // $device_id = $request->device_id;
-        // $user_code = $request->user_code;
-        if ($device_id != '' && $user_code != '') {
+        try {
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post(env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail", ["usercode" => $user_code]);
+
+            $res = $response->json();
 
 
-            $url = env('SDK_URL') . "/" . "{$device_id}/GetPersonDetail";
-            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $device_id . "/GetPersonDetail";
-            $data =   ["usercode" => $user_code];
+            // $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $res["data"]["faceImage"]));
+            // $imageName = time() . ".png";
+            // $publicDirectory = public_path("test");
+            // if (!file_exists($publicDirectory)) {
+            //     mkdir($publicDirectory, 0777, true);
+            // }
+            // file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
-            // return [$url, $data];
-            try {
-                $return = Http::timeout(3600)->withoutVerifying()->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])->post($url, $data);
+            //unset($res["data"]["faceImage"]);
 
-                $return = json_decode($return, true);
-                if (array_key_exists($return['status'], $this->SDKResponseArray)) {
-                    $return['message'] =  $this->SDKResponseArray[$return['status']];
-                }
-
-                return json_encode($return);
-            } catch (\Exception $e) {
-                return [
-                    "status" => 102,
-                    "message" => $e->getMessage(),
-                ];
-            }
-        } else {
+            return $res;
+        } catch (\Exception $e) {
             return [
                 "status" => 102,
-                "message" => "Invalid Details",
+                "message" => $e->getMessage(),
             ];
         }
-        // You can log the error or perform any other necessary actions here
-
     }
+
     public function processSDKRequestBulk($url, $data)
     {
 
@@ -487,7 +481,7 @@ class SDKController extends Controller
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("http://139.59.69.241:5000/$id/$command");
+            ])->post(env('SDK_URL') . "/$id/$command");
         } catch (\Exception $e) {
             return [
                 "status" => 102,

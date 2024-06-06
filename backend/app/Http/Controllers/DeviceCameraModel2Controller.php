@@ -16,68 +16,148 @@ class DeviceCameraModel2Controller extends Controller
 {
     public  $camera_sdk_url = '';
     public  $sxdmToken = '7VOarATI4IfbqFWLF38VdWoAbHUYlpAY';
-    public  $sxdmSn = 'M014200892105001731';
+    public  $sxdmSn = '';
 
 
-    public function __construct($camera_sdk_url)
+    public function __construct($camera_sdk_url, $sxdmSn = '')
     {
         $this->camera_sdk_url = $camera_sdk_url;
+        $this->sxdmSn = $sxdmSn;
     }
 
 
 
 
+    public function getPersonDetails($system_user_id)
+    {
 
+        $data = [];
+        $json = '{
+            "cmd": "person_list_query",
+            
+            "limit": 10,
+            "offset": 0,
+            "sort": "asc",
+            "query_string": "' . $system_user_id . '"
+          }';
+        $response = $this->postCURL('/api/persons/query', $json);
+
+        foreach ($response['data'] as $key => $personList) {
+
+
+
+            $person = $this->getCURL('/api/persons/item/' . $personList['id']);
+
+            if (isset($person['picture_data'])) {
+
+                $picture_data = $person['picture_data'];
+                $picture_data = str_replace("data:image/jpg;base64,", "", $picture_data);
+
+                $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" => $picture_data, "timeGroup" => "0"];
+            }
+        }
+
+        return $data;
+    }
 
 
 
     public function openDoor($device)
     {
-        $this->sxdmSn = $device->device_id;
-        $json = '{
-            "tips": {
-                "text": "welcome",
-                "person_type": "staff"
-            }
-        }';
-        $response = $this->postCURL('/api/devices/io', $json);
+
+        $this->openDoorAlways($device);
+        // $this->resetDoorStatus($device);
+        // $this->sxdmSn = $device->device_id;
+        // $json = '{
+        //     "tips": {
+        //         "text": "Door Open",
+        //         "person_type": "admin-software"
+        //     }
+        // }';
+        // $response = $this->postCURL('/api/devices/io', $json);
     }
     public function closeDoor($device)
     {
-
+        $this->resetDoorStatus($device);
         //reset the always open door settings and then close the door automatically after 1 sec 
-        $this->sxdmSn = $device->device_id;
-        $json = '{             
-                "door_open_stat": "none"                 
-            
-        }';
-        $response = $this->putCURL('/api/devices/door', $json);
+
         $this->sxdmSn = $device->device_id;
         $json = '{
             "tips": {
-                "text": "welcome",
-                "person_type": "staff"
+                "text": "Door Closed",
+                "person_type": "admin-software"
             }
         }';
         $response = $this->postCURL('/api/devices/io', $json);
     }
-
     public function openDoorAlways($device)
     {
+        //$this->resetDoorStatus($device);
+
         $this->sxdmSn = $device->device_id;
         $json = '{             
                 "door_open_stat": "open"                 
             
         }';
         $response = $this->putCURL('/api/devices/door', $json);
+
+        $this->sxdmSn = $device->device_id;
+        $json = '{
+            "tips": {
+                "text": "Door Open",
+                "person_type": "admin-software"
+            }
+        }';
+        $response = $this->postCURL('/api/devices/io', $json);
+    }
+
+    public function resetDoorStatus($device)
+    {
+        $this->sxdmSn = $device->device_id;
+        $json = '{             
+                "door_open_stat": "none"   
+
+
+        }';
+        //     $json = '{             
+        //         "door_open_stat": "close" //it will close permanent   
+
+
+        // }';
+        $response = $this->putCURL('/api/devices/door', $json);
     }
     public function updateSettings($request)
     {
         $this->sxdmSn = $request->deviceSettings['device_id'];
         $json = '{             
-                "voice_volume": ' . round($request->deviceSettings['voice_volume']) . '              
-            
-        }';
+                "voice_volume": ' . round($request->deviceSettings['voice_volume']) . '   }';
+        $response = $this->putCURL('/api/devices/profile', $json);
+        //---------------------------
+
+
+        $data["verification_mode"] = $request->deviceSettings['verification_mode'];
+        $data["open_duration"] = $request->deviceSettings['open_duration']  * 1000;
+
+        $response1  = $this->putCURL('/api/devices/door', json_encode($data));
+        //---------------------------
+        $json = '{             
+            "recognition_mode": "' .  ($request->deviceSettings['recognition_mode']) . '"}';
+        $response = $this->putCURL('/api/devices/recognition', $json);
+
+        return $response1;
+    }
+
+    public function updateAttendanceSDKData($device_id, $json)
+    {
+        $this->sxdmSn = $device_id;
+
+        $response = $this->putCURL('/api/custom/attendance', $json);
+    }
+
+    public function updateSDKData($device_id, $json)
+    {
+        $this->sxdmSn = $device_id;
+
         $response = $this->putCURL('/api/devices/profile', $json);
     }
     public function getSettings($device)
@@ -91,6 +171,17 @@ class DeviceCameraModel2Controller extends Controller
             $door = $this->getCURL('/api/devices/door');
             $network = $this->getCURL('/api/devices/network');
             $server = $this->getCURL('/api/devices/server');
+            $recognition = $this->getCURL('/api/devices/recognition');
+
+            $json = '{
+                "cmd": "person_list_query",
+                 
+                "limit": 100,
+                "offset": 0,
+                "sort": "asc",
+               
+              }';
+            $persons = $this->postCURL('/api/groups/query', $json);
 
             $row['model_spec'] = $status['model_spec'];
             $row['voice_volume'] = $profile['voice_volume'];
@@ -99,7 +190,15 @@ class DeviceCameraModel2Controller extends Controller
             $row['wifi_ip'] = $network['wifi']['ip'];
             $row['lan_ip'] = $network['lan']['ip'];
             $row['ipaddr'] = $server['ipaddr'];
+            $row['open_duration'] =   $door['open_duration'] / 1000;
+            $row['verification_mode'] = $door['verification_mode'];
+            $row['recognition_mode'] = $recognition['recognition_mode'];
 
+            $persons_count = 0;
+            foreach ($persons['data'] as $key => $value) {
+                $persons_count = $persons_count + $value['person_count'];
+            }
+            $row['persons_count'] =  ($persons_count);
 
 
             $inputDateString = $row['local_time'];
@@ -111,12 +210,12 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id)
     {
 
         try {
 
-
+            $this->sxdmSn = $device_id;
             $sessionId = $this->getActiveSessionId();
             if ($sessionId != '') {
 
@@ -132,27 +231,30 @@ class DeviceCameraModel2Controller extends Controller
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                     CURLOPT_CUSTOMREQUEST => 'POST',
                     CURLOPT_POSTFIELDS => '{
-                    "recognition_type": "staff",
-                    "is_admin": false,
-                    "person_name": "' . $name . '",
-                    "id": ' . $system_user_id . ',
-                    "password": "123456",
-                    "card_number": ' . $system_user_id . ',
-                    "person_code":' . $system_user_id . ',
-                    "visit_begin_time": "' . date('Y-m-d 00:00:00') . '",
-                    "visit_end_time": "' .  date('Y-m-d 00:00:00', strtotime(date("Y-m-d 23:00:00") . " + 365 day")) . '",
-                    "phone_num":"18686868686",
-                    "group_list": [
-                      1
-                    ],
-                    "feature_version":"8903",
-                    "face_list": [
-                      {
-                        "idx": 3,
-                        "data": "' . $base65Image . '"
-                      }
-                    ]
-                  }',
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id": "",
+                        "card_number": "",
+                        "id_number": "",
+                        "pass": "",
+                        "password": "",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                        "face_list": [
+                          {
+                            "idx": 0,
+                            "data":  "' . $base65Image . ' "
+                          }
+                        ]
+                      }',
                     CURLOPT_HTTPHEADER => array(
                         'Content-Type: application/json',
                         'Cookie: sessionID=' . $sessionId,
@@ -161,10 +263,33 @@ class DeviceCameraModel2Controller extends Controller
                     ),
                 ));
 
+                // CURLOPT_POSTFIELDS => '{
+                //     "recognition_type": "staff",
+                //     "is_admin": false,
+                //     "person_name": "' . $name . '",
+                //     "id": ' . $system_user_id . ',
+                //     "password": "123456",
+                //     "card_number": ' . $system_user_id . ',
+                //     "person_code":' . $system_user_id . ',
+                //     "visit_begin_time": "' . date('Y-m-d 00:00:00') . '",
+                //     "visit_end_time": "' .  date('Y-m-d 00:00:00', strtotime(date("Y-m-d 23:00:00") . " + 365 day")) . '",
+                //     "phone_num":"18686868686",
+                //     "group_list": [
+                //       1
+                //     ],
+                //     "feature_version":"8903",
+                //     "face_list": [
+                //       {
+                //         "idx": 3,
+                //         "data": "' . $base65Image . '"
+                //       }
+                //     ]
+                //   }',
+
                 $response = curl_exec($curl);
 
                 curl_close($curl);
-                //return $response;
+
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
             } else {
@@ -216,8 +341,9 @@ class DeviceCameraModel2Controller extends Controller
     }
     public function getCameraDeviceLiveStatus($company_id)
     {
+        //139.59.69.241:8888
         $online_devices_count = 0;
-        $devices = Device::where('company_id', $company_id)->where('model_number', "MEGVII");
+        $devices = Device::where('company_id', $company_id)->where('model_number', "OX-900"); //OX-900
 
         $devices->clone()->update(["status_id" => 2]);
 

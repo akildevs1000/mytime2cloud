@@ -6,6 +6,7 @@
     v-model="time3"
     @change="CustomFilter()"
     range
+    :disabled="disabled ? disabled : false"
   ></date-picker>
 </template>
 
@@ -17,6 +18,7 @@ export default {
     DatePicker,
   },
   props: [
+    "disabled",
     "defaultFilterType",
     "height",
     "width",
@@ -44,17 +46,33 @@ export default {
       this.showTimePanel = true;
       this.FilterData();
     },
- 
   },
 
   mounted() {
     if (this.filterType == 5) document.querySelector(".mx-input").focus();
 
     const elementsArray = document.getElementsByClassName("mx-input");
-
-    if (this.height && this.height != "") {
-      elementsArray[0].style.height = this.height;
+    // Loop through the elements and change their height
+    for (let i = 0; i < elementsArray.length; i++) {
+      const element = elementsArray[i];
+      // Set the height to 50 pixels (adjust as needed)
+      element.style.height = this.height + "px";
     }
+    // if (this.height && this.height != "") {
+    //    elementsArray[0].style.height = this.height;
+    //   //elementsArray[0].height = "500"; //this.height;
+    //   console.log(this.height, "elementsArray[0] ", elementsArray[0]);
+    //   console.log(
+    //     this.height,
+    //     "elementsArray[0].height",
+    //     elementsArray[0].height
+    //   );
+    //   console.log(
+    //     this.height,
+    //     "elementsArray[0].style.height",
+    //     elementsArray[0].style.height
+    //   );
+    // }
     if (this.width && this.width != "") {
       elementsArray[0].style.width = this.width;
     }

@@ -1,5 +1,19 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
+    <v-dialog v-model="missingLogsDialog" width="auto">
+      <v-card>
+        <v-card-title dark class="popup_background">
+          <span dense>Missing Device Logs </span>
+          <v-spacer></v-spacer>
+          <v-icon dark @click="missingLogsDialog = false" outlined>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <missingrecords />
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-card
       class="mt-5 pa-2"
       elevation="0"
@@ -252,13 +266,22 @@
               class="black--text slidegroup1"
             >
               <span style="font-size: 12px"
-                ><v-icon small>mdi-pencil-outline</v-icon> Manual</span
+                ><v-icon small>mdi-plus</v-icon> Manual Log</span
               >
             </v-tab>
 
-            <v-tab style="height: 30px" class="black--text slidegroup1">
+            <!-- <v-tab style="height: 30px" class="black--text slidegroup1">
               <span style="font-size: 12px"
                 ><v-icon small>mdi-mail</v-icon> Send</span
+              >
+            </v-tab> -->
+            <v-tab
+              style="height: 30px"
+              class="black--text slidegroup1"
+              @click="openMissingPopup"
+            >
+              <span style="font-size: 12px"
+                ><v-icon small>mdi-download</v-icon> Missing Logs</span
               >
             </v-tab>
 
@@ -376,13 +399,15 @@ import AttendanceReport from "../../components/attendance_report/reportComponent
 import generalHeaders from "../../headers/general.json";
 import multiHeaders from "../../headers/multi.json";
 import doubleHeaders from "../../headers/double.json";
+import missingrecords from "../../components/attendance_report/missingrecords.vue";
 
 export default {
-  components: { AttendanceReport },
+  components: { AttendanceReport, missingrecords },
 
   props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
+    missingLogsDialog: false,
     selectFile: null,
     key: 1,
     payload11: {},
@@ -654,6 +679,9 @@ export default {
     },
     openGenerateLogPopup() {
       this.$refs.attendanceReportRef.generateLogsDialog = true;
+    },
+    openMissingPopup() {
+      this.missingLogsDialog = true;
     },
 
     process_file_in_child_comp(val) {

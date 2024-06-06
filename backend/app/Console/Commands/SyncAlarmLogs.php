@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\AlarmLogsController;
-use App\Http\Controllers\AttendanceLogCameraController;
+
 use Illuminate\Console\Command;
 
 class SyncAlarmLogs extends Command

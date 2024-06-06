@@ -20,8 +20,14 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-card elevation="1" class="mt-2" style="height: auto">
-      <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
+    <div v-if="totalRowsCount == 0">No Records found</div>
+    <v-card
+      elevation="1"
+      class="mt-2"
+      style="height: auto"
+      v-if="totalRowsCount"
+    >
+      <!-- <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">
             {{ title }}</span
@@ -54,19 +60,11 @@
             >
           </v-btn>
         </span>
-        <!-- <v-tooltip top color="primary">
-              <template v-slot:activator="{ on, attrs }"> -->
-
+        
         <v-spacer></v-spacer>
-        <!-- <CustomFilter
-          style="margin-bottom: 5px"
-          @filter-attr="filterAttr"
-          :defaultFilterType="1"
-          :height="'40px'"
-          :default_date_from="from_date"
-          :default_date_to="to_date"
-        /> -->
-      </v-toolbar>
+         
+      </v-toolbar> -->
+
       <v-data-table
         dense
         :headers="headers_table"
@@ -588,6 +586,8 @@ export default {
     "isDashboard",
     "statsFilterValue",
     "defaultDates",
+    "data",
+    "totalRowsCount",
   ],
   components: { Visitorinfo },
   data: () => ({
@@ -629,7 +629,7 @@ export default {
     cumulativeIndex: 1,
     perPage: 10,
     currentPage: 1,
-    totalRowsCount: 0,
+
     options: { perPage: 10 },
     status_id: 0,
     response_image: "/sucess.png",
@@ -639,7 +639,7 @@ export default {
     changeRequestDialog: false,
     Model: "Visitor Request",
     endpoint: "visitor",
-    data: [],
+
     from_date: "",
     to_date: "",
     headers_table: [
@@ -744,13 +744,12 @@ export default {
     visitorUploadedDevicesInfo: [],
   }),
   watch: {
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true,
-    },
-
+    // options: {
+    //   handler() {
+    //     this.getDataFromApi();
+    //   },
+    //   deep: true,
+    // },
     // filterValue: {
     //   handler(val) {
     //     this.getDataFromApi(val);
@@ -760,17 +759,13 @@ export default {
   },
   created() {
     const today = new Date();
-
     this.from_date = today.toISOString().slice(0, 10);
     this.to_date = today.toISOString().slice(0, 10);
-
     if (this.defaultDates && this.defaultDates.length) {
       this.from_date = this.defaultDates[0];
       this.to_date = this.defaultDates[1];
     }
-
-    this.getDataFromApi();
-
+    //this.getDataFromApi();
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
         {
@@ -789,7 +784,6 @@ export default {
       this.headers_table = this.headers_table.filter(
         (item) => item.value != "visitor_company_name"
       );
-
       let rejected_header = [
         {
           text: "Reason",

@@ -14,7 +14,7 @@
       </v-toolbar> -->
       <v-card-text>
         <v-row>
-          <v-col cols="3">
+          <v-col cols="5">
             <v-autocomplete
               v-model="payload.device_id"
               label="Select Device"
@@ -33,7 +33,7 @@
               errors.device_id[0]
             }}</span>
           </v-col>
-          <v-col cols="3">
+          <v-col cols="5">
             <v-menu
               v-model="from_menu"
               :close-on-content-click="false"
@@ -76,25 +76,22 @@
       >
     </v-card>
 
-    <v-card class="mt-5">
+    <v-card class="mt-5" v-if="snackbarMessage">
       <v-toolbar dense flat>
-        <span
-          class="bold text--green"
-          style="color: green"
-          v-if="snackbarMessage"
-        >
+        <span class="bold text--green" style="color: green">
           Message: {{ snackbarMessage }}
         </span>
       </v-toolbar>
       <v-card-text>
         <v-data-table
+          v-if="data.length > 0"
           dense
           :headers="headers"
           :items="data"
           :loading="loading"
           class="elevation-0"
           model-value="data.id"
-          height="500"
+          height="auto"
           no-data-text="No Data available.  "
           :footer-props="{
             itemsPerPageOptions: [100, 500, 1000],

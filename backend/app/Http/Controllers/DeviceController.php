@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Console\Scheduling\Schedule;
 
 class DeviceController extends Controller
 {
@@ -144,14 +146,114 @@ class DeviceController extends Controller
     public function getDevicePersonDetails(Request $request)
     {
         if ($request->system_user_id > 0) {
-            $deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
+            $deviceName = '';
+            //$deviceName = Device::where('device_id', $request->device_id)->pluck('name')[0];
+            $device = Device::where('device_id', $request->device_id)->get()->first();
+            $responseData = [];
+            if (isset($device["name"])) {
+                $deviceName = $device["name"];
 
-            $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+                if ($device["model_number"] == 'OX-900') {
+                    $responseData['data'] = (new DeviceCameraModel2Controller($device["camera_sdk_url"], $device["serial_number"]))->getPersonDetails($request->system_user_id);
+                } else {
+                    $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
+                }
 
-            return ["SDKresponseData" => json_decode($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id];
+                $employeeDetails = Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->first();
+            }
+
+            if (isset($responseData['data']['faceImage'])) {
+                return ["SDKresponseData" => ($responseData), "deviceName" => $deviceName, "device_id" => $request->device_id,  "employee" => $employeeDetails];
+            }
+            return ["SDKresponseData" => "", "message" => "User ID is not available on  Device  ", "deviceName" => $deviceName, "device_id" => $request->device_id];
         } else {
-            return ["SDKresponseData" => "", "message" => "Visitor Device id is not avaialble ", "deviceName" => false, "device_id" => $request->device_id];
+            // return ["SDKresponseData" => "", "message" => "User ID is not available on  Device ", "deviceName" => $deviceName, "device_id" => $request->device_id];
         }
+    }
+    public function copytoProfilePicture(Request $request)
+    {
+
+        if ($request->system_user_id > 0) {
+
+            $employeeDetails = Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->get();
+            if (count($employeeDetails) > 0) {
+                $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
+                $imageName = $request->system_user_id . '.jpg';
+                file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+
+                $data = ["profile_picture" => $imageName];
+
+                Employee::where("company_id", $request->company_id)->where("system_user_id", $request->system_user_id)->update($data);
+
+                return $this->response('Profile Picture is successfully Updated', null, true);
+            } else {
+                return $this->response('Employee Details are not Avaiallbe. Create Employees Data', null, false);
+            }
+        }
+    }
+    public function downloadProfilePictureSdk(Request $request)
+    {
+
+
+        $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
+        $imageName = time() . ".png";
+        $publicDirectory = public_path("temp");
+        if (!file_exists($publicDirectory)) {
+            mkdir($publicDirectory, 0777, true);
+        }
+        file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
+
+        // Define the path to the file in the public folder
+        $filePath =  $publicDirectory . '/' . $imageName;
+
+
+        return $imageName;
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $imageName);
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            return 'File not found';
+        }
+
+
+        // if ($request->id > 0) {
+        //     $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->faceImage)));
+        //     $imageName = $request->id . '.jpg';
+        //     file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+        // }
+
+
+
+    }
+    public function downloadProfilePicture(Request $request)
+    {
+
+
+        $imageName = $request->image;
+        $publicDirectory = public_path("temp");
+
+        $filePath =  $publicDirectory . '/' . $imageName;
+
+        // Check if the file exists
+        if (file_exists($filePath)) {
+            // Create a response to download the file
+            return response()->download($filePath, $imageName);
+        } else {
+            // Return a 404 Not Found response if the file doesn't exist
+            return 'File not found';
+        }
+
+
+        // if ($request->id > 0) {
+        //     $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->faceImage)));
+        //     $imageName = $request->id . '.jpg';
+        //     file_put_contents(public_path('media/employee/profile_picture/') . '/' . $imageName, $base64Image);
+        // }
+
+
+
     }
     public function store(StoreRequest $request)
     {
@@ -180,9 +282,11 @@ class DeviceController extends Controller
 
             $data = $request->validated();
 
+            if ($data["model_number"] == "OX-900") {
+                $data["camera_sdk_url"] = env('OX900_SDK_URL');
+            }
 
-
-
+            $data["serial_number"] = $data["device_id"];
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
             $record = $model->create($data);
@@ -294,7 +398,7 @@ class DeviceController extends Controller
             return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
         }
     }
-    public function updateDeviceAlarmToSDK(Request $request)
+    public function AlarmOffToDeviceSDK(Request $request)
     {
 
 
@@ -316,32 +420,39 @@ class DeviceController extends Controller
                     if ($device->model_number == 'CAMERA1') {
                         //(new DeviceCameraController())->updateTimeZone();
                     }
-                } else  if ($device->model_number == 'MEGVII') {
+                } else  if ($device->model_number == 'OX-900') {
+
+                    (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
                 } else {
 
-                    $data = [
-                        "IllegalVerificationAlarm" => false,
-                        "PasswordAlarm" => false,
-                        "DoorMagneticAlarm" => false,
-                        "BlacklistAlarm" => false,
-                        "FireAlarm" => true,
-                        "OpenDoorTimeoutAlarm" => false,
-                        "AntiDisassemblyAlarm" => false,
-                    ];
-                    if ($request->status == 0) {
-                        (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
-                        //always open the door till close manually
-                        $this->CallAlwaysOpenDoor($request->serial_number);
+                    $url = env('SDK_URL') . "/$request->serial_number/CloseDoor";
+                    $response = $this->callCURL($url);
 
-                        $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
-                        Device::where("serial_number", $request->serial_number)->update($data);
 
-                        $data = ["status" => 0, "device_id" => $request->serial_number, "log_time" => date('Y-m-d H:i:s')];
-                        AlarmLogs::create($data);
 
-                        return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
-                    }
+                    // $data = [
+                    //     "IllegalVerificationAlarm" => false,
+                    //     "PasswordAlarm" => false,
+                    //     "DoorMagneticAlarm" => false,
+                    //     "BlacklistAlarm" => false,
+                    //     "FireAlarm" => true,
+                    //     "OpenDoorTimeoutAlarm" => false,
+                    //     "AntiDisassemblyAlarm" => false,
+                    // ];
+                    // if ($request->status == 0) {
+                    //     (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+                    //     //always open the door till close manually
+                    //     $this->CallAlwaysOpenDoor($request->serial_number);
+                    // }
                 }
+
+                $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
+                Device::where("serial_number", $request->serial_number)->update($data);
+
+                $data = ["status" => 0, "device_id" => $request->serial_number, "log_time" => date('Y-m-d H:i:s')];
+                AlarmLogs::create($data);
+
+                return $this->response('Device Alarm OFF status Updated Successfully',  null, true);
             } catch (\Exception $e) {
                 return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
             }
@@ -371,7 +482,7 @@ class DeviceController extends Controller
             $device_settings = [
                 // "name" => $request->deviceSettings['name'] ?? '',
                 "name" =>  '',
-                "door" => $request->deviceSettings['door'] ?? '1',
+                // "door" => $request->deviceSettings['door'] ?? '1',
 
 
                 "language" => $request->deviceSettings['language'] ?? '2',
@@ -484,6 +595,21 @@ class DeviceController extends Controller
         try {
             $record = $Device->update($request->validated());
 
+            //update to Device 
+            if ($request->model_number == 'OX-900') {
+                $json = '{             
+                        "enable": ' .  $request->function == 'Auto'  ? 'true' : 'false' . '  
+                    }';
+                (new DeviceCameraModel2Controller($request->camera_sdk_url))->updateAttendanceSDKData($request->device_id, $json);
+            } else {
+
+                $device_settings = [
+                    "door" => $request->function == 'In' ? 0 : '1'
+
+                ];
+                (new SDKController)->processSDKRequestSettingsUpdate($request->device_id, $device_settings);
+            }
+
 
 
             $this->updateDevicesJson();
@@ -571,7 +697,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'MEGVII') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoor($device);
                 return $this->response('Open Door Command Successfull',  null, true);
             } else {
@@ -590,6 +716,105 @@ class DeviceController extends Controller
             return $this->response("Unkown Error. Please retry again after 1 min or contact   technical team", null, false);
         }
     }
+
+    public function deviceAccessControllAllwaysOpen($schedule)
+    {
+
+        $date = date('Y-m-d');
+        $devices =  DeviceActivesettings::where(function ($q) {
+            $q->orWhere('date_from', ">=", date("Y-m-d"));
+            $q->orWhere('date_to', "<=", date("Y-m-d"));
+        })->get();
+
+
+
+
+        $weekDays = [0 => "Sun", 1 => "Mon", 2 => "Tue", 3 => "Wed", 4 => "Thu", 5 => "Fri", 6 => "Sat"];
+        // $file_name_raw = "kernal_logs/$date-device-access.log";
+        // Storage::append($file_name_raw,  date("d-m-Y H:i:s") .   '_door_open_logs.log');
+
+        foreach ($devices as $key => $device) {
+
+
+
+            $openJson =  $device['open_json'];
+
+            $openJsonArray = json_decode($openJson, true);
+
+            foreach ($openJsonArray as  $key => $time) {
+
+
+                if (count($time) > 0) {
+                    foreach ($time as $keyDay => $timeValue) {
+
+
+                        if ($weekDays[$keyDay] == date("D")) {
+
+                            $timeArray = explode(":", $timeValue);
+                            if (date("H:i") == $timeValue) {
+                                $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s")  . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
+
+
+                                if ($device["devices"]->model_number == 'OX-900') {
+                                    (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->openDoorAlways($device["devices"]);
+                                    $this->response('Always Open  Command is Successfull',  null, true);
+                                } else
+
+                                    $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
+                            }
+
+
+                            $schedule
+                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                ->withoutOverlapping()
+                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                        }
+                    }
+                }
+            }
+            //
+
+            $closeJson =  $device['close_json'];
+
+            $closeJsonArray = json_decode($closeJson, true);
+
+            foreach ($closeJsonArray as  $key => $time) {
+                if (count($time) > 0) {
+                    foreach ($time as $keyDay => $timeValue) {
+
+
+
+                        if ($weekDays[$keyDay] == date("D")) {
+                            // $file_name_raw = "kernal_logs/$date-device-close-access.log";
+                            // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
+
+                            $timeArray = explode(":", $timeValue);
+
+                            if (date("H:i") == $timeValue) {
+                                $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
+                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
+                                if ($device["devices"]->model_number == 'OX-900') {
+                                    (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->closeDoor($device["devices"]);
+                                    $this->response('Always Open  Command is Successfull',  null, true);
+                                } else
+                                    $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+                            }
+
+                            $schedule
+                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                ->withoutOverlapping()
+                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                        }
+                    }
+                }
+            }
+        }
+    }
     public function closeDoor(Request $request)
     {
 
@@ -605,7 +830,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'MEGVII') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
                 return $this->response('Close Door Command Successfull',  null, true);
             } else {
@@ -631,6 +856,21 @@ class DeviceController extends Controller
     {
         return  $devices = Device::with(["branch", "zone"])->where("company_id", $request->company_id)->where("alarm_status", 1)->get();
     }
+    public function triggerAllDeviceAlarmSDK(Request $request)
+    {
+        $company_ids = Device::where("device_id", $request->device_id)->pluck('company_id');
+        $branch_ids = Device::where("device_id", $request->device_id)->pluck('branch_id');
+        $devices_to_call = Device::wherein("company_id", $company_ids)->wherein("branch_id", $branch_ids)->where("serial_number", "!=", null)->get();
+        $return = [];
+        foreach ($devices_to_call as $key => $device) {
+            try {
+                $return[] =  (new DeviceController())->CallAlwaysOpenDoor($device->serial_number);
+                $data = ["alarm_status" => 1, "alarm_start_datetime" => date('Y-m-d H:i:s')];
+                Device::where("serial_number", $device->serial_number)->update($data);
+            } catch (\Exception $e) {
+            }
+        }
+    }
     public function openDoorAlways(Request $request)
     {
         if ($request->filled("device_id"))
@@ -653,7 +893,7 @@ class DeviceController extends Controller
                 if ($device->model_number == 'CAMERA1') {
                     //(new DeviceCameraController())->updateTimeZone();
                 }
-            } else  if ($device->model_number == 'MEGVII') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoorAlways($device);
                 return $this->response('Always Open  Command is Successfull',  null, true);
             } else {
@@ -686,7 +926,7 @@ class DeviceController extends Controller
                 } catch (\Exception $e) {
                     return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
                 }
-            } else  if ($device->model_number == 'MEGVII') {
+            } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
 
 
@@ -771,16 +1011,22 @@ class DeviceController extends Controller
     {
         $model =  DeviceActivesettings::where('company_id', $request->company_id)
             ->where('device_id', $key_id)
-            ->where('date_from', $request->date_from)
-            ->where('date_to', $request->date_to)
+            // ->where('date_from', $request->date_from)
+            // ->where('date_to', $request->date_to)
             ->get();
         $input_time_slots = $request->input_time_slots;
 
         $open_array = [];
+        $date_from = '';
+        $date_to = '';
+
         if (isset($model[0])) {
 
             $open_json = $model[0]->open_json;
             $open_array = json_decode($open_json, true);
+
+            $date_from = $model[0]->date_from;
+            $date_to = $model[0]->date_to;
         }
         $return_araay = [];
 
@@ -793,7 +1039,7 @@ class DeviceController extends Controller
         }
 
 
-        return $return_araay;
+        return ["data" => $return_araay, "date_from" => $date_from, "date_to" => $date_to];
     }
     public function checkDeviceHealth(Request $request)
     {
@@ -857,7 +1103,7 @@ class DeviceController extends Controller
         } catch (\Exception $e) {
         }
         try {
-
+            //139.59.69.241:8888
             $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
 
             $online_devices_count = $online_devices_count +  $count;

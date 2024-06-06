@@ -25,10 +25,10 @@
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="uploadedUserInfoDialog" max-width="500px">
+    <v-dialog v-model="uploadedUserInfoDialog" max-width="600px">
       <v-card :loading="loadingDeviceData">
         <v-card-title class="popup_background">
-          <span>Find User ID on Device </span>
+          <span>Find User ID on Device - {{ popupDeviceName }}</span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="uploadedUserInfoDialog = false"
@@ -115,11 +115,56 @@
                       <td>Timezone Group Id</td>
                       <td>: {{ visitor.SDKresponseData.data.timeGroup }}</td>
                     </tr>
+                    <tr>
+                      <td>
+                        <v-btn
+                          v-if="visitor.SDKresponseData.data"
+                          dense
+                          small
+                          class="primary mt-2"
+                          @click="
+                            downloadImage(
+                              visitor.SDKresponseData.data.faceImage,
+                              visitor.SDKresponseData.data.userCode
+                            )
+                          "
+                        >
+                          Download Image
+                        </v-btn>
+                      </td>
+                      <td>
+                        <v-btn
+                          v-if="
+                            visitor.SDKresponseData.data && visitor.employee
+                          "
+                          dense
+                          small
+                          class="primary mt-2"
+                          @click="
+                            copyToProfileimage(
+                              visitor.SDKresponseData.data.faceImage,
+                              visitor.SDKresponseData.data.userCode
+                            )
+                          "
+                        >
+                          Copy to Profile Image
+                        </v-btn>
+                      </td>
+                    </tr>
+                    <tr v-if="!visitor.employee">
+                      <td colspan="2" style="color: red">
+                        {{ visitor.SDKresponseData.data.userCode }} is not Exist
+                        in Employees/Users List. <br />
+                        Create and Copy Image after create user Details
+                      </td>
+                    </tr>
                   </v-simple-table>
                 </v-col>
               </v-row>
 
-              <div v-else>{{ visitor.SDKresponseData.message }}</div>
+              <div v-else style="color: red">
+                Message: {{ visitorUploadedDevicesInfo[0].message }}
+              </div>
 
               <!-- <v-row>
                 <v-col cols="12">
@@ -136,6 +181,9 @@
               </v-row> -->
             </v-card-text>
           </v-card>
+          <!-- <div v-if="visitorUploadedDevicesInfo.length == 0">
+            User Information is not available On Device
+          </div> -->
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -208,7 +256,7 @@
                       </td>
                     </tr> -->
 
-                    <tr>
+                    <!-- <tr>
                       <td>Door</td>
                       <td>
                         <v-select
@@ -226,7 +274,7 @@
                           label="Entry or exit"
                         ></v-select>
                       </td>
-                    </tr>
+                    </tr> -->
 
                     <tr>
                       <td>Language</td>
@@ -278,7 +326,6 @@
                       <td>
                         <v-text-field
                           type="number"
-                          :rules="menu_password"
                           class="pb-0"
                           v-model="deviceSettings.menuPassword"
                           placeholder="min 4 to  max 8 numbers"
@@ -410,7 +457,7 @@
     <v-dialog v-model="DialogDeviceMegviiSettings" max-width="800px">
       <v-card>
         <v-card-title class="popup_background">
-          <span>Camera Device MEGVII Settings </span>
+          <span>Device - OXSAI Settings </span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="DialogDeviceMegviiSettings = false"
@@ -421,7 +468,7 @@
         <v-card-text class="mt-2">
           <v-row class="100%" style="margin: auto; line-height: 36px">
             <v-col cols="12" style="padding: 0px">
-              <v-simple-table>
+              <table style="width: 100%">
                 <tr>
                   <td colspan="2">
                     <v-btn
@@ -435,7 +482,7 @@
                         )
                       "
                     >
-                      Reload
+                      Reload <br />
                     </v-btn>
                     <br />
                     <div v-if="loadingDeviceData" style="color: red">
@@ -446,8 +493,8 @@
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <td>Device Model</td>
+                <!-- <tr>
+                  <td style="width: 30%">Model</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -458,23 +505,69 @@
                       dense
                     ></v-text-field>
                   </td>
-                </tr>
+                </tr> -->
 
                 <tr>
-                  <td>Device Time</td>
+                  <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
+                    <v-select
+                      :disable="loadingDeviceData"
+                      :readOnly="loadingDeviceData"
                       class="pb-0"
-                      v-model="deviceCAMVIISettings.local_time"
-                      placeholder="Device Time"
+                      v-model="deviceCAMVIISettings.recognition_mode"
+                      placeholder="Mode"
+                      @change="UpdateverificationModeItems()"
+                      :items="[
+                        { name: 'Single Person', value: 'single' },
+                        {
+                          name: 'Multi Person Attendance',
+                          value: 'double',
+                        },
+                      ]"
+                      item-value="value"
+                      item-text="name"
                       outlined
                       dense
-                    ></v-text-field>
+                      label="Persons Entry"
+                    ></v-select>
                   </td>
                 </tr>
                 <tr>
-                  <td>Device Always Open Status</td>
+                  <td>Door Open</td>
+                  <td>
+                    <v-row>
+                      <v-col cols="6">
+                        <v-select
+                          :disable="loadingDeviceData"
+                          class="pb-0"
+                          v-model="deviceCAMVIISettings.verification_mode"
+                          placeholder="Mode"
+                          :items="verificationModeItems"
+                          item-value="value"
+                          item-text="name"
+                          outlined
+                          dense
+                          label="Open Mode"
+                        ></v-select>
+                      </v-col>
+                      <v-col cols="6">
+                        <v-select
+                          :disable="loadingDeviceData"
+                          class="pb-0"
+                          v-model="deviceCAMVIISettings.open_duration"
+                          placeholder="Mode"
+                          :items="oneTOsixty"
+                          outlined
+                          dense
+                          label="Duration - Seconds"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                  </td>
+                </tr>
+
+                <!-- <tr>
+                  <td>Always Open Status</td>
                   <td>
                     <v-switch
                       :disabled="true"
@@ -488,7 +581,7 @@
                       value="green"
                       hide-details
                     ></v-switch>
-                    <!-- <v-text-field
+                      <v-text-field
                       :disabled="true"
                       class="pb-0"
                       v-model="deviceCAMVIISettings.door_open_stat"
@@ -496,12 +589,49 @@
                       outlined
                       dense
                       label="Device Always Open Status  "
+                    ></v-text-field> 
+                  </td>
+                </tr> -->
+                <tr>
+                  <td>Volume</td>
+                  <td>
+                    <v-progress-linear
+                      style="cursor: pointer"
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      height="25"
+                    >
+                      <strong
+                        >{{ Math.ceil(deviceCAMVIISettings.voice_volume) }}%
+                      </strong>
+                    </v-progress-linear>
+
+                    (Click on color Bar to change the Volume)<br /><br />
+                    <!-- <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.voice_volume"
+                      placeholder="Device Volume"
+                      outlined
+                      dense
+                      label="Device Volume  "
                     ></v-text-field> -->
                   </td>
                 </tr>
-
                 <tr>
-                  <td>Device Wifi IP</td>
+                  <td>Time</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.local_time"
+                      placeholder="Device Time"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Wifi IP</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -514,7 +644,7 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>Device LAN IP</td>
+                  <td>LAN IP</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -527,7 +657,20 @@
                   </td>
                 </tr>
                 <tr>
-                  <td>Device Server IP address</td>
+                  <td>Persons Count</td>
+                  <td>
+                    <v-text-field
+                      :disabled="true"
+                      class="pb-0"
+                      v-model="deviceCAMVIISettings.persons_count"
+                      placeholder="Persons count on Device"
+                      outlined
+                      dense
+                    ></v-text-field>
+                  </td>
+                </tr>
+                <!-- <tr>
+                  <td>Server IP address</td>
                   <td>
                     <v-text-field
                       :disabled="true"
@@ -538,31 +681,7 @@
                       dense
                     ></v-text-field>
                   </td>
-                </tr>
-                <tr>
-                  <td>Device Volume</td>
-                  <td>
-                    <v-progress-linear
-                      v-model="deviceCAMVIISettings.voice_volume"
-                      height="25"
-                    >
-                      <strong
-                        >{{
-                          Math.ceil(deviceCAMVIISettings.voice_volume)
-                        }}%</strong
-                      >
-                    </v-progress-linear>
-                    <!-- <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.voice_volume"
-                      placeholder="Device Volume"
-                      outlined
-                      dense
-                      label="Device Volume  "
-                    ></v-text-field> -->
-                  </td>
-                </tr>
+                </tr> -->
 
                 <tr>
                   <td></td>
@@ -577,7 +696,7 @@
                     >
                   </td>
                 </tr>
-              </v-simple-table>
+              </table>
             </v-col>
           </v-row>
         </v-card-text>
@@ -698,7 +817,7 @@
               class="pb-0"
               :hide-details="!payload.model_number"
               v-model="payload.model_number"
-              :items="[`OX-866`, `OX-886`, `OX-966`]"
+              :items="[`OX-866`, `OX-886`, `OX-966`, `OX-900`]"
               label="Model Number *"
               placeholder="Model Number"
             ></v-select>
@@ -1177,7 +1296,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-else-if="can(`device_edit`) && item.model_number == 'MEGVII'"
+                v-else-if="can(`device_edit`) && item.model_number == 'OX-900'"
                 @click="showDeviceMegviiSettings(item)"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -1216,7 +1335,8 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
-    deviceCAMVIISettings: {},
+    oneTOsixty: [],
+    deviceCAMVIISettings: { voice_volume: 0 },
     DialogDeviceMegviiSettings: false,
     valid: false,
     rules: [(value) => (value || "").length <= 10 || "Max 10 characters"],
@@ -1230,6 +1350,15 @@ export default {
       (value) => (value || "").length <= 8 || "Max 8 characters",
     ],
     sdk_message: "",
+    verificationModeItems: [
+      { name: "Face", value: "face" },
+      { name: "Face Or Card", value: "face_or_card" },
+      { name: "Face and Card", value: "face_and_card" },
+      {
+        name: "Face and Password",
+        value: "face_and_pass",
+      },
+    ],
     DialogDeviceSettings: false,
     deviceSettings: { maker: {} },
     to_menu_filter: false,
@@ -1240,6 +1369,7 @@ export default {
     visitor_status_list: [],
     inputFindDeviceUserId: "",
     popupDeviceId: null,
+    popupDeviceName: null,
     uploadedUserInfoDialog: false,
     dialogAccessSettings: false,
     popup_device_id: "",
@@ -1421,6 +1551,7 @@ export default {
     isCompany: true,
     timeZoneOptions: [],
     editedItem: null,
+    downloadProfileLink: null,
   }),
 
   computed: {
@@ -1454,6 +1585,9 @@ export default {
     }, 1000 * 60);
   },
   async created() {
+    for (let index = 1; index <= 60; index++) {
+      this.oneTOsixty.push(index);
+    }
     this.loading = true;
 
     if (this.$auth.user.branch_id) {
@@ -1495,6 +1629,68 @@ export default {
   },
 
   methods: {
+    copyToProfileimage(faceImage, userId) {
+      if (
+        confirm("Are you sure? It will override the Software Profile picture ")
+      ) {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            face_image: faceImage,
+            system_user_id: userId,
+          },
+        };
+        this.$axios
+          .post(`/copy-to-profilepic`, options.params)
+          .then(({ data }) => {
+            this.response = "Device Image is copied to Profile Picture";
+            this.snackbar = true;
+          })
+          .catch((e) => console.log(e));
+      }
+    },
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
+    UpdateverificationModeItems() {
+      if (this.deviceCAMVIISettings.recognition_mode == "single") {
+        this.verificationModeItems = [
+          { name: "Face", value: "face" },
+          { name: "Face Or Card", value: "face_or_card" },
+          { name: "Face and Card", value: "face_and_card" },
+          {
+            name: "Face and Password",
+            value: "face_and_pass",
+          },
+        ];
+      } else {
+        this.verificationModeItems = [
+          { name: "Face", value: "face" },
+          { name: "Face Or Card", value: "face_or_card" },
+        ];
+      }
+    },
     UpdateAlarmStatus(item, status) {
       if (status == 0) {
         if (confirm("Are you sure you want to TURN OFF the Alarm")) {
@@ -1507,7 +1703,7 @@ export default {
           };
           this.loading = true;
           this.$axios
-            .post(`/update-device-alarm-status`, options.params)
+            .post(`/update-device-alarm-status-off`, options.params)
             .then(({ data }) => {
               this.getDataFromApi();
               if (!data.status) {
@@ -1622,7 +1818,9 @@ export default {
       }
     },
     findUser(item) {
+      this.visitorUploadedDevicesInfo = [];
       this.popupDeviceId = item.device_id;
+      this.popupDeviceName = item.name;
       this.uploadedUserInfoDialog = true;
     },
 
@@ -1655,6 +1853,8 @@ export default {
             } else {
               this.deviceCAMVIISettings = data.SDKresponseData.data;
               this.deviceCAMVIISettings.device_id = device_id;
+
+              this.UpdateverificationModeItems();
 
               return;
             }
@@ -1691,10 +1891,10 @@ export default {
               this.deviceSettings = data.SDKresponseData.data;
               this.deviceSettings.device_id = device_id;
 
-              this.deviceSettings.time = this.deviceSettings.time.replace(
-                "T",
-                " "
-              );
+              // this.deviceSettings.time = this.deviceSettings.time.replace(
+              //   "T",
+              //   " "
+              // );
 
               return;
             }
