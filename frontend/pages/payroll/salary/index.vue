@@ -239,7 +239,7 @@
       persistent
       v-model="viewPayslipDialog"
       :fullscreen="false"
-      width="1000px"
+      width="800px"
     >
       <v-card>
         <v-card-title dense class="primary popup_background">
@@ -250,6 +250,7 @@
           </v-icon>
         </v-card-title>
         <v-card-text>
+          <!-- {{ key }} {{ popupPayslipInput }} -->
           <Payslip :paySlipInput="popupPayslipInput" :key="key"
         /></v-card-text>
       </v-card>

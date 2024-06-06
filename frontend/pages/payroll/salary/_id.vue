@@ -372,7 +372,7 @@
       </v-card-text>
     </v-card>
 
-    <v-card
+    <!-- <v-card
       v-if="company_payload && company_payload.name"
       class="mx-auto"
       justify="center"
@@ -409,7 +409,7 @@
                 <div style="border-top: 1px solid white">
                   <strong
                     >Payslip No: {{ data.payslip_number }}
-                    <!-- {{ empCode }}{{ month }}{{ year }} -->
+                    
                   </strong>
                 </div>
                 <div style="border-top: 1px solid white">
@@ -741,7 +741,7 @@
                       </th>
                     </tr>
 
-                    <!-- Add more deductions rows if needed -->
+                   
                   </tbody>
                 </table>
               </v-card-text>
@@ -758,9 +758,9 @@
           </v-col>
         </v-row>
       </v-card-text>
-    </v-card>
+    </v-card> 
 
-    <Preloader v-else />
+    <Preloader v-else />-->
   </div>
 </template>
 

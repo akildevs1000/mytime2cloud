@@ -1828,7 +1828,7 @@ button {
   text-align: left;
   padding: 0px;
 
-  line-height: 30px;
+  /* line-height: 30px; */
 }
 .table-payslip table,
 .table-payslip div {

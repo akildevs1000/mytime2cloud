@@ -5,11 +5,11 @@
     "working_hours": "09:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "weekend1" : "Not Applicable",
-    "weekend2" : "Not Applicable",
-    "monthly_flexi_holidays" :  0,
-    "halfday" : "Not Applicable",
-    "halfday_working_hours" : "HH:MM"
+    "weekend1": "Not Applicable",
+    "weekend2": "Not Applicable",
+    "monthly_flexi_holidays": 0,
+    "halfday": "Not Applicable",
+    "halfday_working_hours": "HH:MM"
   },
   "2": {
     "on_duty_time": "00:01",
@@ -17,11 +17,11 @@
     "working_hours": "09:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "weekend1" : "Not Applicable",
-    "weekend2" : "Not Applicable",
-    "monthly_flexi_holidays" : 0,
-    "halfday" : "Not Applicable",
-    "halfday_working_hours" : "HH:MM"
+    "weekend1": "Not Applicable",
+    "weekend2": "Not Applicable",
+    "monthly_flexi_holidays": 0,
+    "halfday": "Not Applicable",
+    "halfday_working_hours": "HH:MM"
   },
   "4": {
     "on_duty_time": "20:00",
@@ -29,9 +29,9 @@
     "working_hours": "12:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "weekend1" : "Not Applicable",
-    "weekend2" : "Not Applicable",
-    "monthly_flexi_holidays" : 0,
+    "weekend1": "Not Applicable",
+    "weekend2": "Not Applicable",
+    "monthly_flexi_holidays": 0,
     "beginning_in": "19:00",
     "beginning_out": "22:00",
     "ending_in": "06:00",
@@ -40,8 +40,8 @@
     "early_time": "00:15",
     "absent_min_in": "01:00",
     "absent_min_out": "01:00",
-    "halfday" : "Not Applicable",
-    "halfday_working_hours" : "HH:MM"
+    "halfday": "Not Applicable",
+    "halfday_working_hours": "HH:MM"
   },
   "6": {
     "on_duty_time": "09:00",
@@ -49,9 +49,9 @@
     "working_hours": "09:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "weekend1" : "Not Applicable",
-    "weekend2" : "Not Applicable",
-    "monthly_flexi_holidays" : 0,
+    "weekend1": "Not Applicable",
+    "weekend2": "Not Applicable",
+    "monthly_flexi_holidays": 0,
     "beginning_in": "06:00",
     "beginning_out": "13:00",
     "ending_in": "15:00",
@@ -60,8 +60,8 @@
     "early_time": "00:15",
     "absent_min_in": "01:00",
     "absent_min_out": "01:00",
-    "halfday" : "Not Applicable",
-    "halfday_working_hours" : "HH:MM"
+    "halfday": "Not Applicable",
+    "halfday_working_hours": "HH:MM"
   },
   "5": {
     "name": "",
@@ -72,9 +72,9 @@
     "working_hours": "09:00",
     "overtime_interval": "00:30",
     "days": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-    "weekend1" : "Not Applicable",
-    "weekend2" : "Not Applicable",
-    "monthly_flexi_holidays" : 0,
+    "weekend1": "Not Applicable",
+    "weekend2": "Not Applicable",
+    "monthly_flexi_holidays": 0,
     "on_duty_time": "09:00",
     "off_duty_time": "14:00",
 
@@ -92,8 +92,8 @@
 
     "ending_in1": "20:00",
     "ending_out1": "23:59",
-    
-    "halfday" : "Not Applicable",
-    "halfday_working_hours" : "HH:MM"
+
+    "halfday": "Not Applicable",
+    "halfday_working_hours": "HH:MM"
   }
 }

@@ -2,7 +2,7 @@
   <div>
     <v-card>
       <v-card-text class="text-center">
-        <table style="width: 900px; margin: auto" class="table-payslip">
+        <table style="width: 100%; margin: auto" class="table-payslip">
           <!-- <tr>
               <td class="text-center">{{ company_payload.name }}</td>
             </tr>
@@ -16,7 +16,14 @@
               <table style="width: 100%">
                 <tr>
                   <td style="width: 50%">
-                    <span style="float: left; height: 100px; padding-top: 30px">
+                    <span
+                      style="
+                        float: left1;
+                        height: 60px;
+                        padding-top: 30px;
+                        padding-left: 10px;
+                      "
+                    >
                       <!-- <div class="outer-wrapper">
                           <div class="frame">
                             <img
@@ -28,11 +35,11 @@
                         </div> -->
                       <img
                         :src="this.company_payload.logo"
-                        style="height: 50px"
+                        style="width: 150px"
                       />
                     </span>
-                    <span style="float: left"
-                      ><div class="ml-3 mt-3">
+                    <span style="float: left1"
+                      ><div class="ml-3 mt-0">
                         <div style="border-top: 1px solid white">
                           <strong>{{ this.company_payload.name }}</strong>
                         </div>
@@ -64,9 +71,12 @@
                   </td>
                   <td style="text-align: right">
                     <div>
+                      <div style="font-weight: bold; font-size: 18px">
+                        Payslip
+                      </div>
                       <div style="border-top: 1px solid white">
-                        <strong
-                          >Payslip No: {{ data.payslip_number }}
+                        <strong>
+                          {{ data.payslip_number }}
                           <!-- {{ empCode }}{{ month }}{{ year }} -->
                         </strong>
                       </div>
@@ -80,7 +90,13 @@
             </td>
           </tr>
           <tr>
-            <td style="border: 1px solid #ddd; padding-left: 10px">
+            <td
+              style="
+                border: 0px solid #ddd;
+                padding-left: 10px;
+                padding-top: 20px;
+              "
+            >
               <table style="width: 100%">
                 <tr>
                   <td>
@@ -95,14 +111,16 @@
                     <div>
                       #{{ empCode }} ,
                       {{
-                        (employee.department && employee.department.name) || " "
+                        caps(employee.department && employee.department.name) ||
+                        " "
                       }}
                     </div>
                     <div></div>
                     <div>
                       {{
-                        (employee.designation && employee.designation.name) ||
-                        " "
+                        caps(
+                          employee.designation && employee.designation.name
+                        ) || " "
                       }}
                     </div>
                   </td>
@@ -198,9 +216,10 @@
               <table
                 style="
                   width: 100%;
-                  border: 1px solid #ddd;
+                  border: 0px solid #ddd;
                   padding-left: 0px;
-                  margin-top: 5px;
+                  margin-top: 10px;
+                  line-height: 30px;
                 "
               >
                 <tr
@@ -208,10 +227,11 @@
                     background-color: #4d71bf;
                     color: #fff;
                     font-weight: bold;
+                    height: 25px;
                   "
                 >
                   <td style="padding-left: 10px; text-align: left">
-                    Gross Earnings
+                    # Earnings
                   </td>
                   <td style="text-align: right">
                     <!-- <span style="">AED</span> -->
@@ -226,9 +246,15 @@
                           style="text-align: center; font-weight: bold"
                         ></td>
                       </tr>
-                      <tr v-for="(item, index) in data.earnings" :key="index">
+                      <tr
+                        v-for="(item, index) in data.earnings"
+                        :key="index"
+                        style="border-bottom: 1px solid #ddd"
+                      >
                         <td style="text-align: left; padding-left: 10px">
-                          {{ caps(item.label) }}
+                          {{ index + 1 }} &nbsp;&nbsp;&nbsp;&nbsp;{{
+                            caps(item.label)
+                          }}
                         </td>
                         <td style="text-align: right">{{ item.value }}</td>
                       </tr>
@@ -240,11 +266,12 @@
                             text-align: left;
                             padding-left: 10px;
                             font-weight: bold;
+                            padding-bottom: 20px;
                           "
                         >
                           Total Earnings
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; padding-bottom: 20px">
                           {{ data.salary_and_earnings }}
                         </td>
                       </tr>
@@ -256,10 +283,11 @@
                     background-color: #4d71bf;
                     color: #fff;
                     font-weight: bold;
+                    margin-top: 20px;
                   "
                 >
                   <td style="padding-left: 10px; text-align: left">
-                    Gross Deductions
+                    # Deductions
                   </td>
                   <td style="text-align: right">
                     <!-- <span style="">AED</span> -->
@@ -267,15 +295,20 @@
                 </tr>
                 <tr>
                   <td style="width: 100%; padding-right: 20px">
-                    <table style="width: 100%">
+                    <table style="width: 100%; line-height: 30px">
                       <tr>
                         <td
                           colspan="2"
                           style="text-align: center; font-weight: bold"
                         ></td>
                       </tr>
-                      <tr v-for="(item, index) in data.deductions" :key="index">
+                      <tr
+                        v-for="(item, index) in data.deductions"
+                        :key="index"
+                        style="border-bottom: 1px solid #ddd"
+                      >
                         <td style="text-align: left; padding-left: 10px">
+                          {{ index + 1 }} &nbsp;&nbsp;&nbsp;&nbsp;
                           {{ caps(item.label) }}
                         </td>
                         <td style="text-align: right">{{ item.value }}</td>
@@ -288,11 +321,12 @@
                             text-align: left;
                             padding-left: 10px;
                             font-weight: bold;
+                            padding-bottom: 20px;
                           "
                         >
                           Total Deductions
                         </td>
-                        <td style="text-align: right">
+                        <td style="text-align: right; padding-bottom: 20px">
                           {{ data.deductedSalary }}
                         </td>
                       </tr>
@@ -322,7 +356,7 @@
                           colspan="2"
                         ></td>
                       </tr>
-                      <tr style="">
+                      <tr style="border-bottom: 1px solid #ddd">
                         <td style="padding-left: 10px; text-align: left">
                           Total Earnings
                         </td>
@@ -330,7 +364,7 @@
                           {{ data.salary_and_earnings }}
                         </td>
                       </tr>
-                      <tr style="">
+                      <tr style="border-bottom: 1px solid #ddd">
                         <td style="padding-left: 10px; text-align: left">
                           Total Deductions
                         </td>
@@ -338,7 +372,9 @@
                           - {{ data.deductedSalary }}
                         </td>
                       </tr>
-                      <tr style="font-weight: bold">
+                      <tr
+                        style="font-weight: bold; border-bottom: 1px solid #ddd"
+                      >
                         <td style="padding-left: 10px; text-align: left">
                           Net Salary
                         </td>
@@ -349,7 +385,7 @@
                       </tr>
 
                       <tr style="font-weight: bold">
-                        <td style="height: 60px"></td>
+                        <td style="height: 50px"></td>
                       </tr>
                     </table>
                   </td>
@@ -363,7 +399,7 @@
                   </td>
                 </tr>
                 <tr style="font-weight: bold">
-                  <td style="height: 60px"></td>
+                  <td style="height: 30px"></td>
                 </tr>
               </table>
             </td>
@@ -415,20 +451,29 @@ export default {
     // },
   },
   created() {
-    setTimeout(() => {
-      let today = new Date();
-      let y = today.getFullYear();
-      let m = today.getMonth() + 1;
+    let today = new Date();
+    let y = today.getFullYear();
+    let m = today.getMonth() + 1;
 
-      this.currentYear = y;
-      this.currentMonth = today.toLocaleString("default", { month: "long" });
+    this.currentYear = y;
+    this.currentMonth = today.toLocaleString("default", { month: "long" });
 
-      this.getDataFromApi();
-      this.getCompanyDataFromApi();
-    }, 2000);
+    this.getDataFromApi();
+    this.getCompanyDataFromApi();
+
     // this.loading = true;
   },
-  mounted() {},
+  mounted() {
+    let today = new Date();
+    let y = today.getFullYear();
+    let m = today.getMonth() + 1;
+
+    this.currentYear = y;
+    this.currentMonth = today.toLocaleString("default", { month: "long" });
+
+    this.getDataFromApi();
+    this.getCompanyDataFromApi();
+  },
 
   methods: {
     numberRound(val) {
@@ -450,6 +495,8 @@ export default {
       //let id = this.$route.params.id;
       let [employee_id, month, year] = this.paySlipInput.split("_"); // this.$route.params.id.split("_");
       this.empCode = employee_id;
+
+      console.log(this.paySlipInput);
 
       this.$axios
         .get(`/payslip/${employee_id}`, {
