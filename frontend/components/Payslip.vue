@@ -128,12 +128,12 @@
                     <span
                       v-if="employee && employee.first_name"
                       style="font-size: 12px; font-weight: bold"
-                      >{{ employee.first_name }}</span
+                      >{{ caps(employee.first_name) }}</span
                     >
                     <span
                       v-if="employee && employee.last_name"
                       style="font-size: 12px; font-weight: bold"
-                      >{{ employee.last_name }}</span
+                      >{{ caps(employee.last_name) }}</span
                     >
 
                     <div style="font-size: 12px">
