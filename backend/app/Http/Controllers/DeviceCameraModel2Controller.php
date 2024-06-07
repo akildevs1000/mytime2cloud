@@ -214,8 +214,8 @@ class DeviceCameraModel2Controller extends Controller
     {
 
         try {
-
-            $this->sxdmSn = $device_id;
+            if ($this->sxdmSn == '')
+                $this->sxdmSn = $device_id;
             $sessionId = $this->getActiveSessionId();
             if ($sessionId != '') {
 
