@@ -436,7 +436,7 @@ class PayslipController extends Controller
         $data->year = $request->year;
 
 
-        // Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->stream();
+        return  Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->stream();
         $fileName = $data->payslip_number . '_' . $data->employee->first_name . '_' . $data->employee->last_name . '_' . $data->employee->employee_id . '_' . $data->payslip_month_year . '.pdf';
         return Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->download($fileName);
     }

@@ -129,7 +129,7 @@
             <td style="
                 border: 0px solid #ddd;
                 padding-left: 10px;
-                padding-top: 20px;
+                padding-top:30px;
                 line-height: 16px;
               ">
                 <table style="width: 100%">
@@ -193,7 +193,7 @@
 
                     
                   ">
-                        <td style="padding-left: 10px; text-align: left;vertical-align:middle;height: 38px;">Earnings</td>
+                        <td style="padding-left: 10px; text-align: left;vertical-align:middle;height: 35px;">Earnings</td>
                         <td style="text-align: right">
                             <!-- <span style="">AED</span> -->
                         </td>
