@@ -465,9 +465,9 @@ class DeviceCameraModel2Controller extends Controller
     {
 
 
-        if ($this->sxdmSn == '') {
-            return "Device Serial Number is empty";
-        }
+        // if ($this->sxdmSn == '') {
+        //     return "Device Serial Number is empty";
+        // }
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
