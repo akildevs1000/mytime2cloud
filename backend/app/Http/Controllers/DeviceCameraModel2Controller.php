@@ -237,9 +237,9 @@ class DeviceCameraModel2Controller extends Controller
                         "recognition_type": "staff",
                         "person_name":  "' . $name . '",
                         "person_id": "",
-                        "id": "",
+                        "id":  ' . $system_user_id . ', 
                         "card_number": "",
-                        "id_number": "",
+                        "id_number": "", 
                         "pass": "",
                         "password": "",
                         "phone_num": "",
@@ -292,9 +292,15 @@ class DeviceCameraModel2Controller extends Controller
 
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
+
+                return $response;
             } else {
 
+
+
                 $this->devLog("camera-megeye-error", "Unable to Generate session");
+
+                return "Unable to Generate session";
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -458,6 +464,10 @@ class DeviceCameraModel2Controller extends Controller
     public function getActiveSessionId()
     {
 
+
+        if ($this->sxdmSn == '') {
+            return "Device Serial Number is empty";
+        }
         $curl = curl_init();
 
         curl_setopt_array($curl, array(

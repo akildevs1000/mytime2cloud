@@ -1,7 +1,7 @@
-import QRCode from 'qrcode';
+import QRCode from "qrcode";
 
 export default ({ app }, inject) => {
-  inject('qrcode', {
+  inject("qrcode", {
     generate: (text, options) => {
       return new Promise((resolve, reject) => {
         QRCode.toDataURL(text, options, (error, dataURL) => {
@@ -12,6 +12,6 @@ export default ({ app }, inject) => {
           }
         });
       });
-    }
+    },
   });
 };

@@ -13,7 +13,7 @@ class Visitor extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display', 'time_in_display', 'time_out_display'];
+    protected $appends = ['full_name',  "raw_logo", 'name_with_user_id', 'status', 'from_date_display', 'to_date_display', 'time_in_display', 'time_out_display'];
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
@@ -27,6 +27,16 @@ class Visitor extends Model
             return null;
         }
         return asset('media/visitor/logo/' . $value);
+    }
+    public function getRawLogoAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+
+        $arr = explode('media/visitor/logo/', $this->logo);
+        return    $arr[1] ?? '';
     }
 
     /**

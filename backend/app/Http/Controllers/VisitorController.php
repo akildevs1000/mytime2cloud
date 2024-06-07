@@ -471,7 +471,7 @@ class VisitorController extends Controller
     public function updateVisitorToZone(Request $request)
     {
 
-
+        $sdkResponse = '';
         try {
 
             $ifVisitorExist = Visitor::where("id", "!=", $request->visitor_id)
@@ -524,10 +524,11 @@ class VisitorController extends Controller
                         $visitorData = Visitor::where("id", $request->visitor_id)->get();
                     }
 
+
                     $isCameraDevice = $device['device_category_name'] == "CAMERA" ? true : false;
 
 
-                    if ($isCameraDevice) {
+                    if ($device['device_category_name'] == "CAMERA") {
 
 
 
@@ -546,6 +547,31 @@ class VisitorController extends Controller
 
                             $message[] = (new DeviceCameraController($device['camera_sdk_url']))->pushUserToCameraDevice($visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"],  $visitorData[0]['system_user_id'], $md5string);
                         } catch (\Throwable $th) {
+                        }
+                    } else if ($device['model_number'] == "OX-900") {
+
+
+                        if ($visitorData[0]["logo"] != '') {
+
+
+
+
+                            if (env("APP_ENV") == "local") {
+                                $visitorData[0]["logo"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
+
+                                $imageData = file_get_contents("https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg");
+                            } else {
+                                $imageData = file_get_contents($visitorData[0]['logo']);
+                            }
+                            $md5string = base64_encode($imageData);;
+
+
+                            $sdkResponse = (new DeviceCameraModel2Controller($device['camera_sdk_url']))->pushUserToCameraDevice($visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"],  $request->system_user_id, $md5string, $device['device_id']);
+
+
+                            return  $sdkResponse;
+
+                            exit;
                         }
                     } else {
 
