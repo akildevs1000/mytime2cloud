@@ -312,11 +312,37 @@ class PayslipController extends Controller
         $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
+        //OT calculations
+        $OTHours = 0;
+        $totalOTMinutes = 0;
+        $OTSalary = 0;
+        foreach ($attendances as $attendance) {
+
+            $OT =  $attendance->ot;
+            if ($OT != '---') {
+                list($hours, $minutes) = explode(':', $OT);
+                $totalOTMinutes = $totalOTMinutes + ($hours * 60 + $minutes);
+            }
+        }
+        if ($totalOTMinutes > 0) {
+            $OTHours = round($totalOTMinutes / 60);
+        }
+        if ($OTHours > 0) {
+            $OTSalary = round($Payroll->perHourSalary * $OTHours);
+        }
+
+        //--------------------------
+        $OTSalaryEarning = [
+            "label" => "OT",
+            "value" => $OTSalary,
+        ];
         $extraEarnings = [
             "label" => "Basic",
             "value" => $Payroll->SELECTEDSALARY,
         ];
-        $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
+
+        $Earnings = array_merge($Payroll->earnings, [$OTSalaryEarning]);
+        $Payroll->earnings = array_merge([$extraEarnings], $Earnings);
 
         $Payroll->deductions = [
             [
@@ -325,8 +351,8 @@ class PayslipController extends Controller
             ],
         ];
 
-        $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary);
-        $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
+        $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary;
+        $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary;
 
         $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
 
@@ -408,6 +434,10 @@ class PayslipController extends Controller
         $data = $this->show($request, $request->employee_id);
         $data->month = date('F', mktime(0, 0, 0, $request->month, 1));
         $data->year = $request->year;
-        return Pdf::loadView('pdf.payslip', compact('data'))->download();
+
+
+        // Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->stream();
+        $fileName = $data->payslip_number . '_' . $data->employee->first_name . '_' . $data->employee->last_name . '_' . $data->employee->employee_id . '_' . $data->payslip_month_year . '.pdf';
+        return Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->download($fileName);
     }
 }
