@@ -6,6 +6,32 @@
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+    <v-dialog v-model="DialogQrCode" width="300">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Visitor QR Code - {{ item && item.full_name }}
+          <v-spacer></v-spacer>
+          <v-icon @click="DialogQrCode = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center">
+          <img :src="item.qr_code" :key="key" style="width: 100%" />
+
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            small
+            color="primary"
+            @click="downloadImage(item.qr_code, item.system_user_id)"
+          >
+            <v-icon class="mx-1 ml-2">mdi mdi-download</v-icon>
+            Download
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="viewDialog" width="1400">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -278,6 +304,12 @@
             {{ item.rejected_reason }}
           </div>
         </template>
+        <template v-slot:item.qrcode="{ item }">
+          <v-icon size="30" color="black" @click="viewDialogQrCode(item)">
+            mdi-qrcode-scan</v-icon
+          >
+        </template>
+
         <template v-slot:item.status_id="{ item }">
           <span :style="'color:' + getRelatedColor(item)"
             >{{ item.status }}
@@ -350,7 +382,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_number"
-                label="RFID Card Number"
+                label="RFID Card Number (Optional)"
                 required
                 outlined
                 dense
@@ -358,7 +390,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_password"
-                label="Password"
+                label="Password/PIN (Optional)"
                 required
                 outlined
                 dense
@@ -591,6 +623,8 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    key: 1,
+    DialogQrCode: false,
     loadingDeviceData: false,
     overlay: false,
     snackbar: false,
@@ -716,6 +750,14 @@ export default {
         filterSpecial: true,
       },
       {
+        text: "QR",
+        align: "left",
+        sortable: true,
+        value: "qrcode",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
         text: "Status",
         align: "left",
         sortable: true,
@@ -804,9 +846,61 @@ export default {
     }
   },
   methods: {
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
+    async viewDialogQrCode(item) {
+      this.key = this.key + 1;
+      this.item = item;
+
+      const date = new Date(item.visit_to + " " + item.time_out);
+      const visitTime = Math.floor(date.getTime() / 1000);
+
+      item.qr_code = await this.$qrcode.generate(
+        "qrc:1;" + item.system_user_id + ";" + visitTime + ";1;",
+        {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: "#000000", // Black dots
+            light: "#FFFFFF", // White background
+          },
+        }
+      );
+
+      this.DialogQrCode = true;
+    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
+    // async getQRCode(item) {
+    //   try {
+    //     item.qr_code = await this.$qrcode.generate("test");
+    //   } catch (error) {
+    //     console.error("Error generating QR code:", error);
+    //   }
+    // },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
@@ -1004,9 +1098,10 @@ export default {
         // }, 3000);
       }
     },
-    viewInfo(item) {
+    async viewInfo(item) {
       this.viewDialog = true;
       this.item = item;
+      this.item.qr_code = await this.$qrcode.generate("test");
     },
     filterAttr(data) {
       if (data != null) {
@@ -1113,7 +1208,7 @@ export default {
       };
       return colors[item.status_id || "UNKNOWN"];
     },
-    getDataFromApi(filterValue = null) {
+    async getDataFromApi(filterValue = null) {
       this.loading = true;
 
       // if (this.filterValue == "Total Visitor") {
@@ -1151,6 +1246,10 @@ export default {
       this.perPage = itemsPerPage;
       this.$axios.get(this.endpoint, options).then(({ data }) => {
         this.data = data.data;
+
+        // this.data.forEach(async (element) => {
+        //   element.qr_code = await this.$qrcode.generate("test");
+        // });
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
