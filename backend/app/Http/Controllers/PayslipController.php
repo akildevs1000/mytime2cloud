@@ -309,7 +309,7 @@ class PayslipController extends Controller
 
 
         $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
-        $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
+        $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
         //OT calculations
@@ -347,14 +347,14 @@ class PayslipController extends Controller
         $Payroll->deductions = [
             [
                 "label" => "Abents",
-                "value" => $Payroll->deductedSalary,
+                "value" => round($Payroll->deductedSalary),
             ],
         ];
 
-        $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary;
-        $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary;
+        $Payroll->earnedSubTotal = round(($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary);
+        $Payroll->salary_and_earnings = round(($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary);
 
-        $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+        $Payroll->finalSalary = round(($Payroll->salary_and_earnings) - $Payroll->deductedSalary);
 
         $formatter = new NumberFormatter('en_US', NumberFormatter::SPELLOUT);
         $Payroll->final_salary_in_words  = ucfirst($formatter->format(round($Payroll->finalSalary)));
