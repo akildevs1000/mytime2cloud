@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -228,6 +229,27 @@ class Visitor extends Model
         });
 
         //----------------------
+
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Expected')
+                $q->WhereIn('status_id',  [2, 4, 5]);
+
+            else if ($request->statsFilterValue == 'Checked In')
+                $q->Where('status_id', 6);
+
+            else  if ($request->statsFilterValue == 'Checked Out')
+                $q->Where('status_id', 7);
+
+            else  if ($request->statsFilterValue == 'Pending')
+                $q->Where('status_id', 1);
+            else  if ($request->statsFilterValue == 'Approved')
+                $q->WhereIn('status_id',  [2, 4, 5, 6, 7]);
+            else  if ($request->statsFilterValue == 'Rejected')
+                $q->Where('status_id', 3);
+            else  if ($request->statsFilterValue == 'Over Stayed')
+                $q->whereHas('attendances', fn (EloquentBuilder $q) => $q->where("visitor_attendances.over_stay", "!=", "---"));
+        });
+
 
         // $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
         //     if ($request->statsFilterValue == 'all_approved') {

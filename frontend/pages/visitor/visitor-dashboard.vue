@@ -81,7 +81,7 @@
             <h3>Statistics</h3>
             <v-row class="pt-10">
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.statusCounts[0].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="black" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
@@ -102,7 +102,7 @@
               </v-col>
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.visitorCounts[0].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#033F9B" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
@@ -123,7 +123,7 @@
               </v-col>
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.visitorCounts[3].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#ff0000" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
@@ -145,7 +145,7 @@
               <v-divider vertical></v-divider>
 
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.statusCounts[1].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="green" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
@@ -166,7 +166,7 @@
               </v-col>
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.statusCounts[3].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="red" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
@@ -187,7 +187,7 @@
               </v-col>
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
+                <v-row @click="viewPopupInfo(items.statusCounts[2].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#9b9b00" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
