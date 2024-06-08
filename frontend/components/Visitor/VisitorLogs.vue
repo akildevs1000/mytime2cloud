@@ -284,9 +284,9 @@
                 </td>
               </tr>
             </template>
-            <template v-slot:item.UserID="{ item }">
+            <!-- <template v-slot:item.UserID="{ item }">
               <strong> {{ item.UserID ? item.UserID : "---" }}</strong>
-            </template>
+            </template> -->
             <template v-slot:item.visitor_full_name="{ item, index }">
               <v-row no-gutters>
                 <v-col
@@ -318,7 +318,8 @@
                     {{ item.visitor ? item.visitor.last_name : "---" }}</strong
                   >
                   <div>
-                    {{ item.visitor ? caps(item?.visitor?.zone.name) : "---" }}
+                    {{ item.UserID ? item.UserID : "---" }}
+                    <!-- {{ item.visitor ? caps(item?.visitor?.zone.name) : "---" }} -->
                   </div>
                 </v-col>
               </v-row>
@@ -326,15 +327,51 @@
             <!-- <template v-slot:item.LogTime="{ item }">
                 {{ item.visitor ? item.visitor.reason : "---" }}
               </template> -->
+            <template v-slot:item.host="{ item }">
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: auto;
+                      width: 50px;
+                      max-width: 50px;
+                    "
+                    :src="
+                      item.visitor?.host?.employee &&
+                      item.visitor?.host?.employee.profile_picture
+                        ? item.visitor?.host?.employee.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{ item.visitor?.host?.employee.first_name || "---" }} -
+                    {{
+                      item.visitor?.host?.employee.last_name || "---"
+                    }}</strong
+                  >
+                  <div class="secondary-value">
+                    {{ item.visitor?.host?.floor_number || "---" }} -
+                    {{ item.visitor?.host?.flat_number || "---" }}
+                  </div>
+                </v-col>
+              </v-row>
+            </template>
             <template v-slot:item.branch_id="{ item }">
               {{
                 (item.visitor?.branch && item.visitor.branch.branch_name) ||
                 "---"
               }}
-              <div class="secondary-value">
-                {{ item.visitor?.host?.floor_number || "---" }} -
-                {{ item.visitor?.host?.flat_number || "---" }}
-              </div>
             </template>
             <template v-slot:item.purpose_id="{ item }">
               {{ item.visitor?.purpose.name || "---" }}
@@ -348,6 +385,9 @@
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
+              <div class="secondary-value">
+                {{ item.device ? caps(item.device.location) : "---" }}
+              </div>
             </template>
             <template v-slot:item.device.location="{ item }">
               {{ item.device ? caps(item.device.location) : "---" }}
@@ -435,16 +475,6 @@ export default {
     snackbar: false,
     headers: [
       {
-        text: "Visitor ID",
-        align: "left",
-        sortable: true,
-        key: "UserID",
-        value: "UserID",
-        width: "150px",
-        filterable: true,
-        filterSpecial: false,
-      },
-      {
         text: "Visitor",
         align: "left",
         sortable: true,
@@ -454,6 +484,27 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
+      {
+        text: "Host",
+        align: "left",
+        sortable: true,
+        key: "host",
+        value: "host",
+
+        filterable: true,
+        filterSpecial: false,
+      },
+      // {
+      //   text: "Visitor ID",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "UserID",
+      //   value: "UserID",
+      //   width: "150px",
+      //   filterable: true,
+      //   filterSpecial: false,
+      // },
+
       {
         text: "Purpose",
         align: "left",
@@ -478,15 +529,6 @@ export default {
         sortable: true,
         key: "device",
         value: "device.name",
-        filterable: true,
-        filterSpecial: true,
-      },
-      {
-        text: "Device Location",
-        align: "left",
-        sortable: true,
-        key: "devicelocation",
-        value: "device.location",
         filterable: true,
         filterSpecial: true,
       },
