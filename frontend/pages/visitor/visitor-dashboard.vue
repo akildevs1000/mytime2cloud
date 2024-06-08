@@ -103,6 +103,7 @@
                       style="
                         font-size: 15px;
                         text-align: center;
+                        color: black;
                         font-weight: 600;
                       "
                     >
@@ -138,6 +139,7 @@
                       style="
                         font-size: 15px;
                         text-align: center;
+                        color: #033f9b;
                         font-weight: 600;
                       "
                     >
@@ -195,6 +197,7 @@
                         font-size: 15px;
                         text-align: center;
                         font-weight: 600;
+                        color: #ff0000;
                       "
                     >
                       Over Stay
@@ -249,6 +252,7 @@
                         font-size: 15px;
                         text-align: center;
                         font-weight: 600;
+                        color: green;
                       "
                     >
                       Approved
@@ -303,6 +307,7 @@
                         font-size: 15px;
                         text-align: center;
                         font-weight: 600;
+                        color: red;
                       "
                     >
                       Rejected
@@ -356,6 +361,7 @@
                       style="
                         font-size: 15px;
                         text-align: center;
+                        color: #9b9b00;
                         font-weight: 600;
                       "
                     >
