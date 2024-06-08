@@ -353,11 +353,13 @@ class DeviceCameraModel2Controller extends Controller
 
         $devices->clone()->update(["status_id" => 2]);
 
+
+
         foreach ($devices->get() as $device) {
 
             $this->sxdmSn = $device->device_id;
-            $url = $device->camera_sdk_url ?? gethostbyname(gethostname());
-            $this->camera_sdk_url = "$url:8888";
+            $url = $device->camera_sdk_url ?? gethostbyname(gethostname()) . ':8888';
+            $this->camera_sdk_url = "$url";
 
 
             $response = $this->getCURL('/api/devices/status');
