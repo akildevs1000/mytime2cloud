@@ -143,6 +143,14 @@ class VisitorAttendanceRenderController extends Controller
                 $visitor_over_stay_inMin = (strtotime($lastLog["time"]) - strtotime($logs[0]['visitor']["time_out"]));
 
 
+
+                //Duration 
+                $time1 = new DateTime($firstLog["time"]);
+                $time2 = new DateTime($lastLog["time"]);
+                $interval = $time1->diff($time2);
+                $item["total_hrs"] = $interval->format("%H:%I");
+
+
                 if ($visitor_over_stay_inMin > 0) {
                     $item["over_stay"] =  gmdate("H:i:s", $visitor_over_stay_inMin);;
                 }
