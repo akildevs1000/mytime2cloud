@@ -396,8 +396,8 @@
       </v-row>
 
       <v-row>
-        <v-col md="12">
-          <v-card class="pa-2" style="height: 354px; overflow: hidden">
+        <v-col md="12" class="pt-0">
+          <v-card class="pt-0" style="height: 250px; overflow: hidden">
             <v-row background fill>
               <v-col
                 lg="3"
@@ -485,15 +485,15 @@
                 <VisitorHourChart
                   :name="'visitor'"
                   :branch_id="null"
-                  :height="300"
+                  :height="250"
                 ></VisitorHourChart>
               </v-col>
             </v-row>
           </v-card>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col lg="12" md="12" sm="12" xs="12">
+      <v-row class="pt-0">
+        <v-col lg="12" md="12" sm="12" xs="12" class="pt-0">
           <v-card
             class="py-2"
             style="height: 600px; overflow-x: hidden; overflow-y: scroll"

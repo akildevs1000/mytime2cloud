@@ -8,7 +8,7 @@
         margin: auto;
         text-align: center;
         vertical-align: middle;
-        height: 300px;
+        height: 250px;
         padding-top: 36%;
       "
     >
@@ -52,7 +52,7 @@ export default {
           },
           width: "100%", //200 //275
           type: "donut",
-          height: 350,
+          height: 250,
         },
         customTotalValue: 0,
         plotOptions: {

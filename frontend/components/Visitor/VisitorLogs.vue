@@ -112,7 +112,11 @@
       <v-col>
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title><span> Visitor Device Logs</span></v-toolbar-title>
+            <v-toolbar-title
+              ><span style="font-size: 16; font-weight: bold; font-size: 16px">
+                Visitor Device Logs</span
+              ></v-toolbar-title
+            >
             <!-- <v-tooltip top color="primary">
                 <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
@@ -158,7 +162,7 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }"
-            class="elevation-1"
+            class="elevation-0"
             :server-items-length="totalRowsCount"
           >
             <template v-slot:header="{ props: { headers } }">
