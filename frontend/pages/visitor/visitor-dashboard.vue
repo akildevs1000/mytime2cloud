@@ -83,6 +83,27 @@
               <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row>
                   <v-col cols="3" class="text-center">
+                    <v-avatar size="45" color="black" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-account-details</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <h3>Total Visitors</h3>
+                    <div
+                      class="bold"
+                      style="font-size: 30px; margin-top: -5px; color: black"
+                    >
+                      {{ items.statusCounts[0].value }}
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-divider vertical></v-divider>
+              <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row>
+                  <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#033F9B" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
                         >mdi-account-supervisor</v-icon
@@ -122,27 +143,7 @@
                 </v-row>
               </v-col>
               <v-divider vertical></v-divider>
-              <v-col cols="2" class="card1 rounded-5 text-left">
-                <v-row>
-                  <v-col cols="3" class="text-center">
-                    <v-avatar size="45" color="black" class="text-center">
-                      <v-icon size="35" class="pa-2" style="color: #fff"
-                        >mdi-account-details</v-icon
-                      >
-                    </v-avatar>
-                  </v-col>
-                  <v-col class="text-left pa-2" cols="9">
-                    <h3>Total Visitors</h3>
-                    <div
-                      class="bold"
-                      style="font-size: 30px; margin-top: -5px; color: black"
-                    >
-                      {{ items.statusCounts[0].value }}
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-divider vertical></v-divider>
+
               <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row>
                   <v-col cols="3" class="text-center">

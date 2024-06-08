@@ -13,9 +13,9 @@
           <span class="bold"> Visitor </span>
 
           <span style="float: right">
-            <span :style="'color:' + getRelatedColor(item)">{{
-              item.status
-            }}</span></span
+            <span :style="'color:' + getRelatedColor(item)"
+              >Status: {{ item.status }}</span
+            ></span
           >
           <v-row class="100%" style="margin: auto; line-height: 36px">
             <v-col cols="4" style="padding: 0px">

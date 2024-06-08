@@ -296,8 +296,42 @@
         </template>
 
         <template v-slot:item.host_company_id="{ item }">
-          {{ item.host?.employee.first_name || "---" }}
-          {{ item.host?.employee.last_name }}
+          <v-row no-gutters>
+            <v-col
+              style="
+                padding: 5px;
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+              "
+            >
+              <v-img
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 50%;
+                  height: auto;
+                  width: 50px;
+                  max-width: 50px;
+                  height: 50px;
+                "
+                :src="
+                  item.host?.employee && item.host?.employee.profile_picture
+                    ? item.visitor?.host?.employee.profile_picture
+                    : '/no-profile-image.jpg'
+                "
+              >
+              </v-img>
+            </v-col>
+            <v-col style="padding: 10px">
+              <strong>
+                {{ item.host?.employee.first_name || "---" }}
+                {{ item.host?.employee.last_name }}</strong
+              >
+              <div class="secondary-value">
+                {{ item ? item.host?.employee.phone_number : "---" }}
+              </div>
+            </v-col>
+          </v-row>
         </template>
         <template v-slot:item.rejected_reason="{ item }">
           <div style="color: red">
