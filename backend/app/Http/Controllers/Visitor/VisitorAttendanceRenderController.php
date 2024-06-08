@@ -85,9 +85,10 @@ class VisitorAttendanceRenderController extends Controller
 
             $lastLog = collect($logs)->filter(function ($record) {
                 return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all"  || $record["device"]["function"] == "auto");
-            })->first();
-
-
+            })->last();
+            echo $firstLog["time"] . '---' . $lastLog["time"];
+            //print_r($lastLog);
+            //exit;
             // $schedule = $firstLog["schedule"] ?? false;
             // $shift = $schedule["shift"] ?? false;
 
@@ -148,7 +149,9 @@ class VisitorAttendanceRenderController extends Controller
                 $time1 = new DateTime($firstLog["time"]);
                 $time2 = new DateTime($lastLog["time"]);
                 $interval = $time1->diff($time2);
+
                 $item["total_hrs"] = $interval->format("%H:%I");
+                echo $item["total_hrs"];
 
 
                 if ($visitor_over_stay_inMin > 0) {
@@ -174,6 +177,8 @@ class VisitorAttendanceRenderController extends Controller
             $model->where("date", $date);
             $model->delete();
             $model->insert($items);
+
+            print_r($items);
 
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);
