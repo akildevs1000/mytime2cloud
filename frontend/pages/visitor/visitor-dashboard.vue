@@ -34,7 +34,7 @@
       </v-dialog>
       <v-row class="pb-0">
         <v-col cols="2">
-          <v-card class="pa-2" style="height: 150px; overflow: hidden">
+          <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
               <v-col cols="7">
                 <h3>Checked In</h3>
@@ -48,28 +48,26 @@
               <v-col cols="5" class="text-right">
                 <img
                   src="../../static/checked-in2.png"
-                  style="width: 100px; padding: 14%"
+                  style="width: 49px; /* padding: 17%; */ padding-top: 26px"
                 />
               </v-col>
             </v-row>
           </v-card>
         </v-col>
         <v-col cols="2">
-          <v-card class="pa-2" style="height: 150px; overflow: hidden">
+          <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
               <v-col cols="7">
                 <h3>Checked Out</h3>
-
-                <v-col class="text-left pa-0" cols="12">
-                  <div class="bold" style="font-size: 40px; color: #b91e20">
-                    {{ items.visitorCounts[2].value }}
-                  </div>
-                </v-col>
+                <div class="bold" style="font-size: 40px; color: #b91e20">
+                  {{ items.visitorCounts[2].value }}
+                </div>
+                <v-col class="text-left pa-0" cols="12"> </v-col>
               </v-col>
               <v-col cols="5" class="text-right">
                 <img
                   src="../../static/checked-out.png"
-                  style="width: 100px; padding: 14%"
+                  style="width: 80px; padding: 14%"
                 />
               </v-col>
             </v-row>
@@ -77,12 +75,12 @@
         </v-col>
 
         <v-col cols="8">
-          <v-card class="pa-2" style="height: 150px; overflow: hidden">
-            <h3>Statistics</h3>
-            <v-row class="pt-10">
+          <v-card class="pa-2" style="height: 120px; overflow: hidden">
+            <!-- <h3>Statistics</h3> -->
+            <v-row class="pt-5">
               <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.statusCounts[0].title)">
-                  <v-col cols="3" class="text-center">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
                     <v-avatar size="45" color="black" class="text-center">
                       <v-icon size="35" class="pa-2" style="color: #fff"
                         >mdi-account-details</v-icon
@@ -90,18 +88,66 @@
                     </v-avatar>
                   </v-col>
                   <v-col class="text-left pa-2" cols="9">
-                    <h3>Total Visitors</h3>
                     <div
                       class="bold"
-                      style="font-size: 30px; margin-top: -5px; color: black"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: black;
+                        text-align: center;
+                      "
                     >
                       {{ items.statusCounts[0].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Total Visitors
                     </div>
                   </v-col>
                 </v-row>
               </v-col>
               <v-divider vertical></v-divider>
+
               <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row @click="viewPopupInfo(items.visitorCounts[0].title)">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
+                    <v-avatar size="45" color="#033F9B" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-account-supervisor</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <div
+                      class="bold"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: #033f9b;
+                        text-align: center;
+                      "
+                    >
+                      {{ items.visitorCounts[0].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Expecting
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+
+              <!-- <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.visitorCounts[0].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#033F9B" class="text-center">
@@ -120,9 +166,43 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-col>
+              </v-col> -->
               <v-divider vertical></v-divider>
+
               <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row @click="viewPopupInfo(items.visitorCounts[3].title)">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
+                    <v-avatar size="45" color="#ff0000" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-timer-sand-full</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <div
+                      class="bold"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: #ff0000;
+                        text-align: center;
+                      "
+                    >
+                      {{ items.visitorCounts[3].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Over Stay
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <!-- <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.visitorCounts[3].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#ff0000" class="text-center">
@@ -141,10 +221,42 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-col>
+              </v-col> -->
               <v-divider vertical></v-divider>
-
               <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row @click="viewPopupInfo(items.statusCounts[1].title)">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
+                    <v-avatar size="45" color="green" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-account-multiple-check</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <div
+                      class="bold"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: green;
+                        text-align: center;
+                      "
+                    >
+                      {{ items.statusCounts[1].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Approved
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <!-- <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.statusCounts[1].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="green" class="text-center">
@@ -163,9 +275,42 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-col>
+              </v-col> -->
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row @click="viewPopupInfo(items.statusCounts[3].title)">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
+                    <v-avatar size="45" color="red" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-account-multiple-remove</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <div
+                      class="bold"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: red;
+                        text-align: center;
+                      "
+                    >
+                      {{ items.statusCounts[3].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Rejected
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <!-- <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.statusCounts[3].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="red" class="text-center">
@@ -184,9 +329,42 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-col>
+              </v-col> -->
               <v-divider vertical></v-divider>
               <v-col cols="2" class="card1 rounded-5 text-left">
+                <v-row @click="viewPopupInfo(items.statusCounts[2].title)">
+                  <v-col cols="3" class="text-center" style="padding-top: 18px">
+                    <v-avatar size="45" color="#9b9b00" class="text-center">
+                      <v-icon size="35" class="pa-2" style="color: #fff"
+                        >mdi-account-question</v-icon
+                      >
+                    </v-avatar>
+                  </v-col>
+                  <v-col class="text-left pa-2" cols="9">
+                    <div
+                      class="bold"
+                      style="
+                        font-size: 30px;
+                        margin-top: -5px;
+                        color: #9b9b00;
+                        text-align: center;
+                      "
+                    >
+                      {{ items.statusCounts[2].value }}
+                    </div>
+                    <div
+                      style="
+                        font-size: 15px;
+                        text-align: center;
+                        font-weight: 600;
+                      "
+                    >
+                      Pending
+                    </div>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <!-- <v-col cols="2" class="card1 rounded-5 text-left">
                 <v-row @click="viewPopupInfo(items.statusCounts[2].title)">
                   <v-col cols="3" class="text-center">
                     <v-avatar size="45" color="#9b9b00" class="text-center">
@@ -205,7 +383,7 @@
                     </div>
                   </v-col>
                 </v-row>
-              </v-col>
+              </v-col> -->
             </v-row>
           </v-card>
         </v-col>
