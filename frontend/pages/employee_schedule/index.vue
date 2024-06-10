@@ -11,7 +11,7 @@
         <v-card-title dense dark class="popup_background">
           <div v-if="!empId">Add Schedule</div>
           <div v-else>
-            {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
+            {{ !isEdit ? "View Schedule(s)" : "Update Schedule(s)" }}
           </div>
           <v-spacer></v-spacer>
 
@@ -317,7 +317,7 @@
             </v-col> -->
             <v-col :md="!empId ? 2 : 4" v-if="empId">
               <v-row>
-                <v-col class="pt-5" style="max-width: 100px">OT Allowed?</v-col>
+                <v-col class="pt-5" style="max-width: 100px">OT </v-col>
 
                 <v-col class="pl-0" style="max-width: 50px">
                   <v-switch

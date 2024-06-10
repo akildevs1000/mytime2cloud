@@ -7,6 +7,7 @@ use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
+use App\Mail\VisitorQRNotificationMail;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class VisitorController extends Controller
 {
@@ -568,10 +570,54 @@ class VisitorController extends Controller
 
                             $sdkResponse = (new DeviceCameraModel2Controller($device['camera_sdk_url']))->pushUserToCameraDevice($visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"],  $request->system_user_id, $md5string, $device['device_id']);
 
+                            if ($request->qr_code_binary != '') {
+                                $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->qr_code_binary)));
+                                $imageName = $request->company_id . '_' . $request->system_user_id . ".png";
+                                $publicDirectory = public_path("visitor_qr_cdoes");
+                                if (!file_exists($publicDirectory)) {
+                                    mkdir($publicDirectory, 0777, true);
+                                }
+
+                                $filePath = $publicDirectory . '/' . $imageName;
+                                file_put_contents($filePath, $base64Image);
+
+
+                                $attachments = [];
+                                $attachments["media_url"] =  env('BASE_URL') . '\visitor_qr_cdoes/' . $imageName;
+                                $attachments["filename"] = $imageName;
+                                $company = Company::where('id', 2)->first();
+                                if ($visitorData[0]["phone_number"] != "") {
+                                    //whatsapp
+
+                                    $message  = "*Hi " .  $visitor["first_name"] . ' ' . $visitor["last_name"] . ',*\n\n';
+                                    $message  =  $message . "Your Visit Details as fallows.\n";
+                                    $message  =  $message . "Visit Date and Time:  " . $visitor['visit_from'] . " - " . $visitor['time_in']  . "\n";
+                                    $message  =  $message . "Till Date and Time  :  " . $visitor['visit_to'] . " - " . $visitor['time_out']  . "\n";
+                                    $message  =  $message . "Use QR Code (attached with this mail) as access card.\n";
+                                    $message  =  $message . " \n\n";
+                                    $message  =  $message . " \n\n";
+                                    $message  =  $message . "Regards,\n";
+                                    $message  =  $message . "*" . $company["name"] . "*\n";
+                                    (new WhatsappController())->sendWhatsappNotification($company, $message, $visitorData[0]["phone_number"], $attachments);
+                                }
+
+                                if ($visitorData[0]["email"] != '') {
+                                    $model = [
+                                        "subject" => "Visitor Details with QR Code on  " . $visitorData[0]["visit_from"],
+                                        "file" =>  $filePath,
+                                        "mail_content" => "mail_content",
+                                        "name" => $visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"],
+                                        "visitor" =>  $visitorData[0],
+                                        "company" =>  $company
+                                    ];
+                                    Mail::to($visitorData[0]["email"])
+                                        ->send(new VisitorQRNotificationMail($model));
+                                }
+                            }
+
+
 
                             return  $sdkResponse;
-
-                            exit;
                         }
                     } else {
 

@@ -120,7 +120,7 @@
       </span>
       <v-spacer></v-spacer>
 
-      <span style="100%">
+      <span style="100%" class="header-menu">
         <template
           v-if="
             getLoginType == 'company' ||
@@ -130,9 +130,14 @@
               $auth.user.role?.role_type.toLowerCase() != 'host')
           "
         >
-          <v-row align="center" justify="space-around" class="">
-            <v-col v-for="(items, index) in company_top_menu" :key="index">
+          <v-row align="center" justify="space-around" class="header-menu-row">
+            <v-col
+              v-for="(items, index) in company_top_menu"
+              :key="index"
+              class="header-menu-box"
+            >
               <v-btn
+                class="header-menu-item"
                 small
                 text
                 :elevation="0"
@@ -143,7 +148,7 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="font-size: 16px; font-weight: 600">
+                <b style="">
                   {{ items.title }}
                 </b>
               </v-btn>
@@ -1862,6 +1867,22 @@ button {
   display: block;
   margin: 0 auto;
 }
+.header-menu-item {
+  font-size: 16px;
+  font-weight: 600;
+}
 </style>
+
+<!-- <style>
+@media (max-width: 1300px) {
+  .header-menu,
+  .header-menu-item,
+  .header-menu-box {
+    font-size: 10px !important;
+    font-weight: 400;
+    padding: 0px;
+  }
+}
+</style> -->
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->
