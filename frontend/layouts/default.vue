@@ -148,7 +148,7 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="">
+                <b style="font-size: 16px; font-weight: 600">
                   {{ items.title }}
                 </b>
               </v-btn>
