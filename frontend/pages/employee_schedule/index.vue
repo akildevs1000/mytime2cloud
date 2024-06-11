@@ -317,7 +317,7 @@
             </v-col> -->
             <v-col :md="!empId ? 2 : 4" v-if="empId">
               <v-row>
-                <v-col class="pt-5" style="max-width: 50px">OT </v-col>
+                <v-col class="pt-5" style="max-width: 100px">Over Time </v-col>
 
                 <v-col class="pl-0 pt-1" style="max-width: 80px">
                   <!-- {{ item.is_over_time }} -->

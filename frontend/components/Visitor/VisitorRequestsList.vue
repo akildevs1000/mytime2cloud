@@ -47,7 +47,7 @@
       </v-card>
     </v-dialog>
     <v-card elevation="1" class="mt-2" style="height: auto">
-      <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
+      <v-toolbar class="mb-2 popup_background1" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">
             {{ title }}</span
@@ -66,7 +66,8 @@
             <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
           </v-btn>
         </span>
-        <span>
+
+        <!-- <span>
           <v-btn
             dense
             class="ma-0 px-0"
@@ -79,11 +80,26 @@
               >mdi mdi-filter</v-icon
             >
           </v-btn>
-        </span>
+        </span> -->
         <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
 
         <v-spacer></v-spacer>
+        <span cols="4" class="mt-8" style="width: 220px">
+          <v-text-field
+            style="width: 200px"
+            height="20"
+            class="employee-schedule-search-box"
+            @input="getDataFromApi()"
+            v-model="commonSearch"
+            label="Search (min 3)"
+            dense
+            outlined
+            type="text"
+            append-icon="mdi-magnify"
+            clearable
+          ></v-text-field>
+        </span>
         <!-- <CustomFilter
           style="margin-bottom: 5px"
           @filter-attr="filterAttr"
@@ -664,6 +680,7 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    commonSearch: "",
     key: 1,
     DialogQrCode: false,
     loadingDeviceData: false,
@@ -1289,6 +1306,13 @@ export default {
       return colors[item.status_id || "UNKNOWN"];
     },
     async getDataFromApi(filterValue = null) {
+      if (
+        this.commonSearch &&
+        this.commonSearch != "" &&
+        this.commonSearch.length < 3
+      ) {
+        return false;
+      }
       this.loading = true;
 
       // if (this.filterValue == "Total Visitor") {
@@ -1320,6 +1344,7 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: this.statsFilterValue,
+          common_search: this.commonSearch != "" ? this.commonSearch : null,
         },
       };
       this.currentPage = page;

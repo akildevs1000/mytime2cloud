@@ -813,7 +813,7 @@ export default {
           filterSpecial: true,
         },
       ];
-      this.headers.splice(1, 0, ...branch_header);
+      this.headers.splice(2, 0, ...branch_header);
     }
     this.loading = false;
     this.boilerplate = true;

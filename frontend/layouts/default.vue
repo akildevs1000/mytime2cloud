@@ -189,7 +189,7 @@
           @keyup.enter="showGlobalsearchPopup"
           @keydown="showGlobalsearchPopup"
           @keyup="showGlobalsearchPopup"
-          style="width: 220px; padding-left: 50px"
+          style="width: 170px; padding-left: 50px"
           height="26px"
           class="custom-text-field-height pt-7 global-search-textbox"
           @click="showGlobalsearchPopup"
@@ -1898,7 +1898,7 @@ button {
 @media (min-width: 1000px) and (max-width: 1300px) {
   .header-menu,
   .header-menu-item {
-    font-size: 10px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
     padding: 0px;
   }
@@ -1906,7 +1906,7 @@ button {
     padding: 0px !important;
   }
   .header-menu-button {
-    padding: 0px 3px !important;
+    padding: 0px 0px !important;
   }
   .logo-image {
     width: 100px !important;
@@ -1915,15 +1915,15 @@ button {
 @media (min-width: 1301px) and (max-width: 1400px) {
   .header-menu,
   .header-menu-item {
-    font-size: 11px !important;
-    font-weight: bold !important;
-    padding: 4px;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 6px !important;
   }
   .header-menu-box {
-    padding: 0px;
+    padding: 0px !important;
   }
   .header-menu-button {
-    padding: 0px 3px !important;
+    padding: 0px 6px !important;
   }
   .logo-image {
     width: 100px !important;
@@ -1932,12 +1932,12 @@ button {
 @media (min-width: 1401px) and (max-width: 1600px) {
   .header-menu,
   .header-menu-item {
-    font-size: 12px !important;
+    font-size: 14px !important;
     font-weight: bold !important;
-    padding: 2px;
+    padding: 6px !important;
   }
   .header-menu-box {
-    padding: 0px;
+    padding: 0px !important;
   }
   .header-menu-button {
     padding: 0px 8px !important;

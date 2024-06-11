@@ -860,7 +860,55 @@
             </template>
 
             <template v-slot:item.host_id="{ item, index }">
-              <div>
+              <v-row no-gutters>
+                <v-col
+                  style="
+                    padding: 5px;
+                    padding-left: 0px;
+                    width: 50px;
+                    max-width: 50px;
+                  "
+                >
+                  <v-img
+                    style="
+                      border-radius: 50%;
+                      height: auto;
+                      width: 50px;
+                      max-width: 50px;
+                      height: 50px;
+                      border: 1px solid #ddd;
+                    "
+                    :src="
+                      item.visitor.host && item.visitor.host.employee
+                        ? item.visitor.host.employee.profile_picture
+                        : '/no-profile-image.jpg'
+                    "
+                  >
+                  </v-img>
+                </v-col>
+                <v-col style="padding: 10px">
+                  <strong>
+                    {{
+                      item.visitor.host
+                        ? item.visitor.host.employee?.first_name
+                        : "---"
+                    }}
+                    {{
+                      item.visitor.host
+                        ? item.visitor.host.employee?.last_name
+                        : "---"
+                    }}</strong
+                  >
+                  <div class="secondary-value">
+                    {{
+                      item.visitor.host
+                        ? item.visitor.host.employee?.phone_number
+                        : "---"
+                    }}
+                  </div>
+                </v-col>
+              </v-row>
+              <!-- <div>
                 {{
                   item.visitor.host
                     ? item.visitor.host.employee?.first_name
@@ -879,7 +927,7 @@
                     ? item.visitor.host.employee?.phone_number
                     : "---"
                 }}
-              </div>
+              </div> -->
             </template>
 
             <template v-slot:item.options="{ item }">
@@ -1136,14 +1184,6 @@ export default {
         value: "sno",
       },
       {
-        text: "Date",
-        align: "left",
-        sortable: true,
-        filterable: false,
-        filterSpecial: true,
-        value: "date",
-      },
-      {
         text: "Visitor  ",
         align: "left",
         sortable: false,
@@ -1152,6 +1192,15 @@ export default {
         value: "visitor_first_name",
         key: "item.visitor",
       },
+      {
+        text: "Date",
+        align: "left",
+        sortable: true,
+        filterable: false,
+        filterSpecial: true,
+        value: "date",
+      },
+
       {
         text: "Host",
         align: "left",
