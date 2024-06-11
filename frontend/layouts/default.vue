@@ -137,7 +137,7 @@
               class="header-menu-box"
             >
               <v-btn
-                class="header-menu-item"
+                class="header-menu-button"
                 small
                 text
                 :elevation="0"
@@ -148,7 +148,7 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="font-size: 16px; font-weight: 600">
+                <b class="header-menu-item">
                   {{ items.title }}
                 </b>
               </v-btn>
@@ -1873,16 +1873,22 @@ button {
 }
 </style>
 
-<!-- <style>
-@media (max-width: 1300px) {
+<style>
+/*  //ipad 1300 to 1600  */
+@media (max-width: 1600px) {
   .header-menu,
-  .header-menu-item,
-  .header-menu-box {
+  .header-menu-item {
     font-size: 10px !important;
-    font-weight: 400;
+    font-weight: bold !important;
     padding: 0px;
   }
+  .header-menu-box {
+    padding: 0px;
+  }
+  .header-menu-button {
+    padding: 0px 3px !important;
+  }
 }
-</style> -->
+</style>
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->
