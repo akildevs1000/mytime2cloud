@@ -32,8 +32,27 @@
           style="width: 100%; height: 600px"
         ></iframe>
       </v-dialog>
-      <v-row class="pb-0">
-        <v-col cols="2">
+      <v-row class="pb-0"
+        ><v-col cols="2">
+          <v-card class="pa-2" style="height: 120px; overflow: hidden">
+            <v-row>
+              <v-col cols="6">
+                <h3>Checked In</h3>
+                <div class="bold" style="font-size: 40px; color: #b91e20">
+                  {{ items.visitorCounts[1].value }}
+                </div>
+                <v-col class="text-left pa-0" cols="12"> </v-col>
+              </v-col>
+              <v-col cols="6" class="text-right">
+                <img
+                  src="../../static/checked-in2.png"
+                  style="width: 80px; padding: 14%"
+                />
+              </v-col>
+            </v-row>
+          </v-card>
+        </v-col>
+        <!-- <v-col cols="2">
           <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
               <v-col cols="7">
@@ -48,23 +67,23 @@
               <v-col cols="5" class="text-right">
                 <img
                   src="../../static/checked-in2.png"
-                  style="width: 49px; /* padding: 17%; */ padding-top: 26px"
+                  style="width: 49px;   padding-top: 26px"
                 />
               </v-col>
             </v-row>
           </v-card>
-        </v-col>
+        </v-col> -->
         <v-col cols="2">
           <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
-              <v-col cols="7">
+              <v-col cols="6">
                 <h3>Checked Out</h3>
                 <div class="bold" style="font-size: 40px; color: #b91e20">
                   {{ items.visitorCounts[2].value }}
                 </div>
                 <v-col class="text-left pa-0" cols="12"> </v-col>
               </v-col>
-              <v-col cols="5" class="text-right">
+              <v-col cols="6" class="text-right">
                 <img
                   src="../../static/checked-out.png"
                   style="width: 80px; padding: 14%"
@@ -105,6 +124,7 @@
                         text-align: center;
                         color: black;
                         font-weight: 600;
+                        padding-left: 6px;
                       "
                     >
                       Total Visitors
