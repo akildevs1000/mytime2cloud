@@ -1929,7 +1929,7 @@ button {
     padding: 0px;
   }
   .header-menu-button {
-    padding: 0px 3px !important;
+    padding: 0px 8px !important;
   }
 }
 </style>
