@@ -12,6 +12,20 @@
         </template>
       </v-snackbar>
     </div>
+    <v-dialog v-model="viewDialog" width="1400">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Visitor Information - {{ item && item.full_name }}
+          <v-spacer></v-spacer>
+          <v-icon @click="viewDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text>
+          <Visitorinfo :key="item && item.id" :item="item"></Visitorinfo>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-row justify="center">
       <v-dialog persistent v-model="generateLogsDialog" max-width="700px">
         <v-card>
@@ -377,6 +391,12 @@
                 "---"
               }}
             </template>
+            <template v-slot:item.company="{ item }">
+              {{ item.visitor?.host.company_name || "---" }}
+              <div class="secondary-value">
+                {{ item.visitor?.host.number || "---" }}
+              </div>
+            </template>
             <template v-slot:item.purpose_id="{ item }">
               {{ item.visitor?.purpose.name || "---" }}
             </template>
@@ -396,6 +416,23 @@
             <template v-slot:item.device.location="{ item }">
               {{ item.device ? caps(item.device.location) : "---" }}
             </template>
+            <template v-slot:item.options="{ item }">
+              <v-menu bottom left>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list width="150" dense>
+                  <v-list-item @click="viewInfo(item)">
+                    <v-list-item-title style="cursor: pointer">
+                      <v-icon color="green" small> mdi-eye </v-icon>
+                      View
+                    </v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </template>
           </v-data-table>
         </v-card>
       </v-col>
@@ -412,8 +449,12 @@
 </template>
 
 <script>
+import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
 export default {
+  components: { Visitorinfo },
   data: () => ({
+    item: null,
+    viewDialog: false,
     purposeList: [],
     branchesList: [],
     id: "",
@@ -508,7 +549,15 @@ export default {
       //   filterable: true,
       //   filterSpecial: false,
       // },
-
+      {
+        text: "Company",
+        align: "left",
+        sortable: false,
+        key: "company", //sorting
+        value: "company", //edit purpose
+        filterable: true,
+        filterSpecial: true,
+      },
       {
         text: "Purpose",
         align: "left",
@@ -535,6 +584,13 @@ export default {
         value: "device.name",
         filterable: true,
         filterSpecial: true,
+      },
+      {
+        text: "Options",
+        align: "left",
+        sortable: false,
+        value: "options",
+        filterable: false,
       },
     ],
   }),
@@ -566,6 +622,10 @@ export default {
     },
   },
   methods: {
+    viewInfo(item) {
+      this.item = item.visitor;
+      this.viewDialog = true;
+    },
     getDepartments() {
       let options = {
         params: {
