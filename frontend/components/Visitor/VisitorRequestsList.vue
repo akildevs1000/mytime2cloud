@@ -331,8 +331,8 @@
                   height: 50px;
                 "
                 :src="
-                  item.host?.employee && item.host?.employee.profile_picture
-                    ? item.visitor?.host?.employee.profile_picture
+                  item.host?.employee && item.host?.employee?.profile_picture
+                    ? item.visitor?.host?.employee?.profile_picture
                     : '/no-profile-image.jpg'
                 "
               >
@@ -340,11 +340,11 @@
             </v-col>
             <v-col style="padding: 10px">
               <strong>
-                {{ item.host?.employee.first_name || "---" }}
-                {{ item.host?.employee.last_name }}</strong
+                {{ item.host?.employee?.first_name || "---" }}
+                {{ item.host?.employee?.last_name }}</strong
               >
               <div class="secondary-value">
-                {{ item ? item.host?.employee.phone_number : "---" }}
+                {{ item ? item.host?.employee?.phone_number : "---" }}
               </div>
             </v-col>
           </v-row>
