@@ -601,9 +601,20 @@ class DeviceController extends Controller
 
             //update to Device 
             if ($request->model_number == 'OX-900') {
+
+                $status = $request->function == 'auto'  ? 'true' : 'false';
                 $json = '{             
-                        "enable": ' .  $request->function == 'Auto'  ? 'true' : 'false' . '  
+             
+                 
+                "custom_enable": false,
+                "function_keys": [],
+                 
+                        "enable":  ' . $status . ' 
+                        
+                         
                     }';
+
+                // return  $json;
                 (new DeviceCameraModel2Controller($request->camera_sdk_url))->updateAttendanceSDKData($request->device_id, $json);
             } else {
 
