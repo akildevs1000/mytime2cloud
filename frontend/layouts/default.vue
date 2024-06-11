@@ -116,7 +116,12 @@
         style="cursor: pointer"
         @click="gotoHomePage()"
       >
-        <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
+        <img
+          class="logo-image"
+          title="My Time Cloud "
+          :src="logo_src"
+          style="width: 150px"
+        />
       </span>
       <v-spacer></v-spacer>
 
@@ -1903,11 +1908,14 @@ button {
   .header-menu-button {
     padding: 0px 3px !important;
   }
+  .logo-image {
+    width: 100px !important;
+  }
 }
 @media (min-width: 1301px) and (max-width: 1400px) {
   .header-menu,
   .header-menu-item {
-    font-size: 12px !important;
+    font-size: 11px !important;
     font-weight: bold !important;
     padding: 4px;
   }
@@ -1916,6 +1924,9 @@ button {
   }
   .header-menu-button {
     padding: 0px 3px !important;
+  }
+  .logo-image {
+    width: 100px !important;
   }
 }
 @media (min-width: 1401px) and (max-width: 1600px) {
@@ -1930,6 +1941,9 @@ button {
   }
   .header-menu-button {
     padding: 0px 8px !important;
+  }
+  .logo-image {
+    width: 100px !important;
   }
 }
 </style>
