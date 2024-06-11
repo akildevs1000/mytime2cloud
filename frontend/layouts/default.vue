@@ -1875,12 +1875,55 @@ button {
 
 <style>
 /*  //ipad 1300 to 1600  */
-@media (max-width: 1600px) {
+/* @media (max-width: 1600px) {
   .header-menu,
   .header-menu-item {
     font-size: 10px !important;
     font-weight: bold !important;
     padding: 0px;
+  }
+  .header-menu-box {
+    padding: 0px;
+  }
+  .header-menu-button {
+    padding: 0px 3px !important;
+  }
+} */
+
+@media (min-width: 1000px) and (max-width: 1300px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 10px !important;
+    font-weight: bold !important;
+    padding: 0px;
+  }
+  .header-menu-box {
+    padding: 0px !important;
+  }
+  .header-menu-button {
+    padding: 0px 3px !important;
+  }
+}
+@media (min-width: 1301px) and (max-width: 1400px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    padding: 4px;
+  }
+  .header-menu-box {
+    padding: 0px;
+  }
+  .header-menu-button {
+    padding: 0px 3px !important;
+  }
+}
+@media (min-width: 1401px) and (max-width: 1600px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 12px !important;
+    font-weight: bold !important;
+    padding: 2px;
   }
   .header-menu-box {
     padding: 0px;
