@@ -37,7 +37,7 @@
           <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
               <v-col cols="6">
-                <h3>Checked In</h3>
+                <h3 style="font-size: 14px">Checked In</h3>
                 <div class="bold" style="font-size: 40px; color: #b91e20">
                   {{ items.visitorCounts[1].value }}
                 </div>
@@ -77,7 +77,7 @@
           <v-card class="pa-2" style="height: 120px; overflow: hidden">
             <v-row>
               <v-col cols="6">
-                <h3>Checked Out</h3>
+                <h3 style="font-size: 14px">Checked Out</h3>
                 <div class="bold" style="font-size: 40px; color: #b91e20">
                   {{ items.visitorCounts[2].value }}
                 </div>
@@ -120,7 +120,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         color: black;
                         font-weight: 600;
@@ -157,7 +157,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         color: #033f9b;
                         font-weight: 600;
@@ -214,7 +214,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         font-weight: 600;
                         color: #ff0000;
@@ -269,7 +269,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         font-weight: 600;
                         color: green;
@@ -324,7 +324,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         font-weight: 600;
                         color: red;
@@ -379,7 +379,7 @@
                     </div>
                     <div
                       style="
-                        font-size: 15px;
+                        font-size: 14px;
                         text-align: center;
                         color: #9b9b00;
                         font-weight: 600;
