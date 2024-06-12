@@ -86,13 +86,20 @@ class AttendanceLogCameraController extends Controller
 
 
 
-            $records[] = [
+            $baseRecord = [
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],
                 "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
-                "SerialNumber" => $columns[3],
-                "log_type" => $columns[4] != '' ?? null
+                "SerialNumber" => $columns[3]
             ];
+
+            // Conditionally add the "log_type" if it is not empty
+            if ($columns[4] != '') {
+                $baseRecord["log_type"] = $columns[4];
+            }
+
+            // Add the record to the $records array
+            $records[] = $baseRecord;
         }
 
         try {
