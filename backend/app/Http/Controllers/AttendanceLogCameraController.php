@@ -94,7 +94,7 @@ class AttendanceLogCameraController extends Controller
             ];
 
 
-            if (trim($columns[4]) != '') {
+            if (trim($columns[4])  == "Out" || trim($columns[4])  == "In") {
                 $baseRecord["log_type"] = $columns[4];
             }
 
