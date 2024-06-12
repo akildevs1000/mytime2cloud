@@ -108,13 +108,13 @@ class SingleShiftController extends Controller
             $lastLog = collect($logs)->filter(function ($record) {
                 return $record["log_type"] == "Out";
             })->last();
-            if (count($firstLog) == 0) {
+            if ($firstLog == null) {
 
                 $firstLog = collect($logs)->filter(function ($record) {
                     return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
                 })->first();
             }
-            if (count($lastLog) == 0) {
+            if ($lastLog == null) {
                 $lastLog = collect($logs)->filter(function ($record) {
                     return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
                 })->last();
