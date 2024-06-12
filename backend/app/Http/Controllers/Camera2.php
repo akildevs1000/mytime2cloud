@@ -30,8 +30,10 @@ class Camera2 extends Controller
         $timestamp = $request->timestamp;
         $recognition_score = $request->recognition_score;
 
-        $clock_status = $request->clock_status;
-        $clock_status = $request->clock_status == 'Clock On' ? 'in' : 'out';
+        $clock_status = '';
+
+        if ($request->clock_status == 'Clock On') $clock_status = "In";
+        else if ($request->clock_status == 'Clock Off') $clock_status = "Out";
 
         //----Raw--------
         $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";

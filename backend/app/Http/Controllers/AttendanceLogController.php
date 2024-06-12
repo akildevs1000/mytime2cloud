@@ -403,7 +403,7 @@ class AttendanceLogController extends Controller
     {
 
 
-        return;
+
         // return 282+499+245+257+335+209;
         // get device ids with company ids = 0
         $model = AttendanceLog::query();
