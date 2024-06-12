@@ -93,8 +93,8 @@ class AttendanceLogCameraController extends Controller
                 "SerialNumber" => $columns[3]
             ];
 
-            // Conditionally add the "log_type" if it is not empty
-            if ($columns[4] != '') {
+
+            if (trim($columns[4]) != '') {
                 $baseRecord["log_type"] = $columns[4];
             }
 
