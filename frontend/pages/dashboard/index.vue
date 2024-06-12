@@ -35,9 +35,13 @@
                   class="d-xs-flex pa-2"
                   style="border-left: 1px solid #ddd"
                 >
-                  <DashboardlLastMonthStatistics
+                  <!-- <DashboardlLastMonthStatistics
                     :branch_id="branch_id"
                     name="LastMonthStatistics"
+                  /> -->
+                  <DashboardlTodayStatistics
+                    :branch_id="branch_id"
+                    name="DashboardlTodayStatistics"
                   />
                 </v-col>
               </v-row>
@@ -202,6 +206,8 @@
 <script>
 import DashboardAttendanceChart from "../../components/dashboard2/DashboardAttendanceChartV1.vue";
 import DashboardlLastMonthStatistics from "../../components/dashboard2/DashboardlLastMonthStatisticsV1.vue";
+import DashboardlTodayStatistics from "../../components/dashboard2/DashboardlTodayStatisticsV1.vue";
+
 import DashboardRealTimeLogTableview from "../../components/dashboard2/DashboardRealTimeLogTableviewV1.vue";
 import DashboardRightsideStaticstics from "../../components/dashboard2/DashboardRightsideStaticsticsV1.vue";
 import DashboardAnnouncment from "../../components/dashboard2/DashboardAnnouncmentV1.vue";
@@ -213,6 +219,7 @@ export default {
   components: {
     DashboardAttendanceChart,
     DashboardlLastMonthStatistics,
+    DashboardlTodayStatistics,
     DashboardRealTimeLogTableview,
     DashboardAnnouncment,
     DashboardLoginActivities,

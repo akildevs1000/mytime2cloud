@@ -2,7 +2,8 @@
   <div class="bordertop">
     <v-row>
       <v-col md="10" sm="10" xs="10">
-        <h4>Previous Week Attendance</h4>
+        <h4>Today Attendance</h4>
+        <!-- {{ data }} -->
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -37,11 +38,11 @@
         class="text-red bold text-h3 red--text text-center laptop-padding"
         align-self="center"
       >
-        {{ data && data.absentCount }}</v-col
+        {{ (data && data.missingCount + data.presentCount) || 0 }}</v-col
       >
       <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
-        >Absents</v-col
-      >
+        >Total
+      </v-col>
     </v-row>
     <v-row>
       <v-col lg="2" md="2" sm="2" xs="2" class="pt-md-5">
@@ -57,10 +58,10 @@
         xs="6"
         class="text-red bold text-h3 blue--text text-center laptop-padding"
         align-self="center"
-        >{{ data && data.leaveCount }}</v-col
+        >{{ (data && data.missingCount) || 0 }}</v-col
       >
       <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
-        >Leaves</v-col
+        >Inside</v-col
       >
     </v-row>
     <v-row>
@@ -76,10 +77,10 @@
         xs="6"
         class="text-red bold text-h3 orange--text text-center laptop-padding"
         align-self="center"
-        >{{ data && data.missingCount }}</v-col
+        >{{ (data && data.presentCount) || 0 }}</v-col
       >
       <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
-        >Missing</v-col
+        >Logout</v-col
       >
     </v-row>
 
@@ -110,7 +111,7 @@ export default {
   }),
   watch: {
     branch_id() {
-      this.$store.commit("dashboard/previous_week_attendance_count", null);
+      this.$store.commit("dashboard/attendance_count", null);
       this.getDataFromApi();
     },
   },
@@ -129,26 +130,39 @@ export default {
       this.$router.push("/attendance_report");
     },
     getDataFromApi() {
-      if (this.$store.state.dashboard.previous_week_attendance_count) {
-        this.data = this.$store.state.dashboard.previous_week_attendance_count;
-        return;
-      }
-      let options = {
-        params: {
-          branch_id: this.branch_id > 0 ? this.branch_id : null,
-        },
-      };
       this.$axios
-        .get(
-          `previous_week_attendance_count/${this.$auth.user.company_id}`,
-          options
-        )
+        .get("dashbaord_attendance_count", {
+          params: {
+            company_id: this.$auth.user.company_id,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
+          },
+        })
         .then(({ data }) => {
           this.data = data;
-          this.$store.commit("dashboard/previous_week_attendance_count", data);
-        })
-        .catch(({ message }) => console.log(message));
+          this.$store.commit("dashboard/attendance_count", data);
+        });
     },
+    // getDataFromApi() {
+    //   if (this.$store.state.dashboard.previous_week_attendance_count) {
+    //     this.data = this.$store.state.dashboard.previous_week_attendance_count;
+    //     return;
+    //   }
+    //   let options = {
+    //     params: {
+    //       branch_id: this.branch_id > 0 ? this.branch_id : null,
+    //     },
+    //   };
+    //   this.$axios
+    //     .get(
+    //       `previous_week_attendance_count/${this.$auth.user.company_id}`,
+    //       options
+    //     )
+    //     .then(({ data }) => {
+    //       this.data = data;
+    //       this.$store.commit("dashboard/previous_week_attendance_count", data);
+    //     })
+    //     .catch(({ message }) => console.log(message));
+    // },
   },
 };
 </script>
