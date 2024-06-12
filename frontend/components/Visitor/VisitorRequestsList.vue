@@ -6,6 +6,32 @@
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+    <v-dialog v-model="DialogQrCode" width="300">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          Visitor QR Code - {{ item && item.full_name }}
+          <v-spacer></v-spacer>
+          <v-icon @click="DialogQrCode = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center">
+          <img :src="item.qr_code" :key="key" style="width: 100%" />
+
+          <v-btn
+            dense
+            class="ma-0 px-0"
+            x-small
+            small
+            color="primary"
+            @click="downloadImage(item.qr_code, item.system_user_id)"
+          >
+            <v-icon class="mx-1 ml-2">mdi mdi-download</v-icon>
+            Download
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="viewDialog" width="1400">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -21,7 +47,7 @@
       </v-card>
     </v-dialog>
     <v-card elevation="1" class="mt-2" style="height: auto">
-      <v-toolbar class="mb-2 popup_background" dense flat v-if="!isDashboard">
+      <v-toolbar class="mb-2 popup_background1" dense flat v-if="!isDashboard">
         <v-toolbar-title>
           <span style="color: black" class="page-title-display">
             {{ title }}</span
@@ -40,7 +66,8 @@
             <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
           </v-btn>
         </span>
-        <span>
+
+        <!-- <span>
           <v-btn
             dense
             class="ma-0 px-0"
@@ -53,11 +80,26 @@
               >mdi mdi-filter</v-icon
             >
           </v-btn>
-        </span>
+        </span> -->
         <!-- <v-tooltip top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
 
         <v-spacer></v-spacer>
+        <span cols="4" class="mt-8" style="width: 220px">
+          <v-text-field
+            style="width: 200px"
+            height="20"
+            class="employee-schedule-search-box"
+            @input="getDataFromApi()"
+            v-model="commonSearch"
+            label="Search (min 3)"
+            dense
+            outlined
+            type="text"
+            append-icon="mdi-magnify"
+            clearable
+          ></v-text-field>
+        </span>
         <!-- <CustomFilter
           style="margin-bottom: 5px"
           @filter-attr="filterAttr"
@@ -270,14 +312,54 @@
         </template>
 
         <template v-slot:item.host_company_id="{ item }">
-          {{ item.host?.employee.first_name || "---" }}
-          {{ item.host?.employee.last_name }}
+          <v-row no-gutters>
+            <v-col
+              style="
+                padding: 5px;
+                padding-left: 0px;
+                width: 50px;
+                max-width: 50px;
+              "
+            >
+              <v-img
+                style="
+                  border: 1px solid #ddd;
+                  border-radius: 50%;
+                  height: auto;
+                  width: 50px;
+                  max-width: 50px;
+                  height: 50px;
+                "
+                :src="
+                  item.host?.employee && item.host?.employee?.profile_picture
+                    ? item.visitor?.host?.employee?.profile_picture
+                    : '/no-profile-image.jpg'
+                "
+              >
+              </v-img>
+            </v-col>
+            <v-col style="padding: 10px">
+              <strong>
+                {{ item.host?.employee?.first_name || "---" }}
+                {{ item.host?.employee?.last_name }}</strong
+              >
+              <div class="secondary-value">
+                {{ item ? item.host?.employee?.phone_number : "---" }}
+              </div>
+            </v-col>
+          </v-row>
         </template>
         <template v-slot:item.rejected_reason="{ item }">
           <div style="color: red">
             {{ item.rejected_reason }}
           </div>
         </template>
+        <template v-slot:item.qrcode="{ item }">
+          <v-icon size="30" color="black" @click="viewDialogQrCode(item)">
+            mdi-qrcode-scan</v-icon
+          >
+        </template>
+
         <template v-slot:item.status_id="{ item }">
           <span :style="'color:' + getRelatedColor(item)"
             >{{ item.status }}
@@ -336,7 +418,14 @@
     <div class="text-center">
       <v-dialog v-model="uploadUserToDeviceDialog" max-width="500px">
         <v-card>
-          <v-card-title class="headline">Upload Visitor</v-card-title>
+          <v-card-title class="headline popup_background"
+            >Upload Visitor
+
+            <v-spacer></v-spacer>
+            <v-icon @click="uploadUserToDeviceDialog = false" outlined dark>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
           <v-card-text class="mt-2">
             <v-form ref="form" v-model="valid">
               <v-text-field
@@ -350,7 +439,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_number"
-                label="RFID Card Number"
+                label="RFID Card Number (Optional)"
                 required
                 outlined
                 dense
@@ -358,7 +447,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_password"
-                label="Password"
+                label="Password/PIN (Optional)"
                 required
                 outlined
                 dense
@@ -437,7 +526,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
-            <v-btn dark color="purple" @click="save" :disabled="!valid"
+            <v-btn dark color="purple" @click="save()" :disabled="!valid"
               >Save</v-btn
             >
           </v-card-actions>
@@ -591,6 +680,9 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    commonSearch: "",
+    key: 1,
+    DialogQrCode: false,
     loadingDeviceData: false,
     overlay: false,
     snackbar: false,
@@ -716,6 +808,14 @@ export default {
         filterSpecial: true,
       },
       {
+        text: "QR",
+        align: "left",
+        sortable: true,
+        value: "qrcode",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
         text: "Status",
         align: "left",
         sortable: true,
@@ -804,9 +904,73 @@ export default {
     }
   },
   methods: {
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
+    async viewDialogQrCode(item) {
+      this.key = this.key + 1;
+      this.item = item;
+
+      const today = new Date();
+      const targetDate = new Date(item.visit_to);
+      let QRDate = today;
+
+      if (today <= targetDate) {
+        QRDate = today.toISOString().slice(0, 10);
+      } else {
+        QRDate = targetDate.toISOString().slice(0, 10);
+      }
+
+      //    this.to_date = today.toISOString().slice(0, 10);
+
+      const date = new Date(QRDate + " " + item.time_out);
+      const visitTime = Math.floor(date.getTime() / 1000);
+
+      item.qr_code = await this.$qrcode.generate(
+        "qrc:1;" + item.system_user_id + ";" + visitTime + ";1;",
+        {
+          width: 200,
+          margin: 2,
+          color: {
+            dark: "#000000", // Black dots
+            light: "#FFFFFF", // White background
+          },
+        }
+      );
+
+      this.DialogQrCode = true;
+    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
+    // async getQRCode(item) {
+    //   try {
+    //     item.qr_code = await this.$qrcode.generate("test");
+    //   } catch (error) {
+    //     console.error("Error generating QR code:", error);
+    //   }
+    // },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
@@ -938,7 +1102,7 @@ export default {
           });
       });
     },
-    uploadVisitorInfo(item) {
+    async uploadVisitorInfo(item) {
       this.response = "";
       this.selectedVisitor = item;
       //this.uploadVisitorId = item.id;
@@ -951,8 +1115,34 @@ export default {
     cancel() {
       this.uploadUserToDeviceDialog = false;
     },
-    save() {
+    async save() {
+      console.log(this.selectedVisitor);
+
       if (this.$refs.form.validate()) {
+        const today = new Date();
+        const targetDate = new Date(this.selectedVisitor.visit_to);
+        let QRDate = targetDate.toISOString().slice(0, 10);
+        if (today <= targetDate) {
+          QRDate = today.toISOString().slice(0, 10);
+        }
+        const date = new Date(QRDate + " " + this.selectedVisitor.time_out);
+        const visitTime = Math.floor(date.getTime() / 1000);
+        let qr_code = await this.$qrcode.generate(
+          "qrc:1;" +
+            this.selectedVisitor.system_user_id +
+            ";" +
+            visitTime +
+            ";1;",
+          {
+            width: 200,
+            margin: 2,
+            color: {
+              dark: "#000000", // Black dots
+              light: "#FFFFFF", // White background
+            },
+          }
+        );
+
         //this.uploadUserToDeviceDialog = false;
 
         let options = {
@@ -963,6 +1153,7 @@ export default {
             zone_id: this.payload.zone_id,
             card_rfid_number: this.payload.card_rfid_number,
             card_rfid_password: this.payload.card_rfid_password,
+            qr_code_binary: qr_code,
           },
         };
 
@@ -1004,9 +1195,10 @@ export default {
         // }, 3000);
       }
     },
-    viewInfo(item) {
+    async viewInfo(item) {
       this.viewDialog = true;
       this.item = item;
+      this.item.qr_code = await this.$qrcode.generate("test");
     },
     filterAttr(data) {
       if (data != null) {
@@ -1113,7 +1305,14 @@ export default {
       };
       return colors[item.status_id || "UNKNOWN"];
     },
-    getDataFromApi(filterValue = null) {
+    async getDataFromApi(filterValue = null) {
+      if (
+        this.commonSearch &&
+        this.commonSearch != "" &&
+        this.commonSearch.length < 3
+      ) {
+        return false;
+      }
       this.loading = true;
 
       // if (this.filterValue == "Total Visitor") {
@@ -1145,12 +1344,17 @@ export default {
           to_date: this.to_date,
           ...this.filters,
           statsFilterValue: this.statsFilterValue,
+          common_search: this.commonSearch != "" ? this.commonSearch : null,
         },
       };
       this.currentPage = page;
       this.perPage = itemsPerPage;
       this.$axios.get(this.endpoint, options).then(({ data }) => {
         this.data = data.data;
+
+        // this.data.forEach(async (element) => {
+        //   element.qr_code = await this.$qrcode.generate("test");
+        // });
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;

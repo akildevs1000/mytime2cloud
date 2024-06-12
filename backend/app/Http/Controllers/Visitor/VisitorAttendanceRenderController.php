@@ -74,18 +74,21 @@ class VisitorAttendanceRenderController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
+
+
             // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
             // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all");
+                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all" || $record["device"]["function"] == "auto");
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all");
-            })->first();
-
-
+                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all"  || $record["device"]["function"] == "auto");
+            })->last();
+            //echo $firstLog["time"] . '---' . $lastLog["time"];
+            //print_r($lastLog);
+            //exit;
             // $schedule = $firstLog["schedule"] ?? false;
             // $shift = $schedule["shift"] ?? false;
 
@@ -121,8 +124,7 @@ class VisitorAttendanceRenderController extends Controller
                 "status" => "M",
                 "total_hrs" => '---',
                 "over_stay" => '---',
-                "late_coming" => "---",
-                "early_going" => "---",
+
             ];
 
 
@@ -140,6 +142,16 @@ class VisitorAttendanceRenderController extends Controller
                 }
 
                 $visitor_over_stay_inMin = (strtotime($lastLog["time"]) - strtotime($logs[0]['visitor']["time_out"]));
+
+
+
+                //Duration 
+                $time1 = new DateTime($firstLog["time"]);
+                $time2 = new DateTime($lastLog["time"]);
+                $interval = $time1->diff($time2);
+
+                $item["total_hrs"] = $interval->format("%H:%I");
+                //echo $item["total_hrs"];
 
 
                 if ($visitor_over_stay_inMin > 0) {
@@ -165,6 +177,8 @@ class VisitorAttendanceRenderController extends Controller
             $model->where("date", $date);
             $model->delete();
             $model->insert($items);
+
+            //print_r($items);
 
             if (!$custom_render) {
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true]);

@@ -43,6 +43,7 @@ export default {
           },
           type: "bar",
           width: "98%",
+          height: 200,
         },
         plotOptions: {
           bar: {
@@ -93,7 +94,7 @@ export default {
     this.getDataFromApi();
   },
   mounted() {
-    this.chartOptions.chart.height = this.height;
+    //this.chartOptions.chart.height = this.height;
     this.chartOptions.series = this.series;
     // new ApexCharts(
     //   document.querySelector("#" + this.name),

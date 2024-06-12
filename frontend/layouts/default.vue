@@ -116,11 +116,16 @@
         style="cursor: pointer"
         @click="gotoHomePage()"
       >
-        <img title="My Time Cloud " :src="logo_src" style="width: 150px" />
+        <img
+          class="logo-image"
+          title="My Time Cloud "
+          :src="logo_src"
+          style="width: 150px"
+        />
       </span>
       <v-spacer></v-spacer>
 
-      <span style="100%">
+      <span style="100%" class="header-menu">
         <template
           v-if="
             getLoginType == 'company' ||
@@ -130,9 +135,14 @@
               $auth.user.role?.role_type.toLowerCase() != 'host')
           "
         >
-          <v-row align="center" justify="space-around" class="">
-            <v-col v-for="(items, index) in company_top_menu" :key="index">
+          <v-row align="center" justify="space-around" class="header-menu-row">
+            <v-col
+              v-for="(items, index) in company_top_menu"
+              :key="index"
+              class="header-menu-box"
+            >
               <v-btn
+                class="header-menu-button"
                 small
                 text
                 :elevation="0"
@@ -143,7 +153,7 @@
                 fill
                 @click="setSubLeftMenuItems(items.menu, items.to)"
               >
-                <b style="font-size: 16px; font-weight: 600">
+                <b class="header-menu-item">
                   {{ items.title }}
                 </b>
               </v-btn>
@@ -179,7 +189,7 @@
           @keyup.enter="showGlobalsearchPopup"
           @keydown="showGlobalsearchPopup"
           @keyup="showGlobalsearchPopup"
-          style="width: 220px; padding-left: 50px"
+          style="width: 170px; padding-left: 50px"
           height="26px"
           class="custom-text-field-height pt-7 global-search-textbox"
           @click="showGlobalsearchPopup"
@@ -1369,7 +1379,14 @@ header i {
   padding: 5px 6px 5px !important;
   color: #fff !important;
 }
-
+.v-dialog > .v-card > .popup_background_white {
+  background-color: #fff !important  ;
+  padding: 5px 6px 5px !important;
+  color: black !important;
+}
+.popup_background_white .v-icon {
+  color: black !important;
+}
 .popup_background_noviolet .v-tabs-bar {
   background-color: #ecf0f4 !important;
 }
@@ -1823,6 +1840,111 @@ button {
 }
 .employee-schedule-search-box .v-input__icon {
   height: 17px !important;
+}
+.table-payslip td {
+  text-align: left;
+  padding: 0px;
+
+  /* line-height: 30px; */
+}
+.table-payslip table,
+.table-payslip div {
+  border-collapse: collapse;
+  font-size: 13px;
+  color: black;
+}
+
+.outer-wrapper {
+  display: inline-block;
+  margin: 0px;
+}
+.frame {
+  width: 50px;
+  height: auto;
+  border: 1px solid black;
+  vertical-align: middle;
+  text-align: center;
+  display: table-cell;
+}
+.img1 {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
+}
+.header-menu-item {
+  font-size: 16px;
+  font-weight: 600;
+}
+</style>
+
+<style>
+/*  //ipad 1300 to 1600  */
+/* @media (max-width: 1600px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 10px !important;
+    font-weight: bold !important;
+    padding: 0px;
+  }
+  .header-menu-box {
+    padding: 0px;
+  }
+  .header-menu-button {
+    padding: 0px 3px !important;
+  }
+} */
+
+@media (min-width: 1000px) and (max-width: 1300px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    padding: 0px;
+  }
+  .header-menu-box {
+    padding: 0px !important;
+  }
+  .header-menu-button {
+    padding: 0px 0px !important;
+  }
+  .logo-image {
+    width: 100px !important;
+  }
+}
+@media (min-width: 1301px) and (max-width: 1400px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    padding: 6px !important;
+  }
+  .header-menu-box {
+    padding: 0px !important;
+  }
+  .header-menu-button {
+    padding: 0px 6px !important;
+  }
+  .logo-image {
+    width: 100px !important;
+  }
+}
+@media (min-width: 1401px) and (max-width: 1600px) {
+  .header-menu,
+  .header-menu-item {
+    font-size: 14px !important;
+    font-weight: bold !important;
+    padding: 6px !important;
+  }
+  .header-menu-box {
+    padding: 0px !important;
+  }
+  .header-menu-button {
+    padding: 0px 8px !important;
+  }
+  .logo-image {
+    width: 100px !important;
+  }
 }
 </style>
 

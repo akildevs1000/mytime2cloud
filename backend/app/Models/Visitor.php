@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Carbon\Carbon;
-use Illuminate\Contracts\Database\Eloquent\Builder;
+// use Illuminate\Contracts\Database\Eloquent\Builder;
+// use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class Visitor extends Model
 {
@@ -13,7 +15,7 @@ class Visitor extends Model
 
     protected $guarded = [];
 
-    protected $appends = ['full_name', 'name_with_user_id', 'status', 'from_date_display', 'to_date_display', 'time_in_display', 'time_out_display'];
+    protected $appends = ['full_name',  "raw_logo", 'name_with_user_id', 'status', 'from_date_display', 'to_date_display', 'time_in_display', 'time_out_display'];
 
     protected $casts = [
         "created_at" => "datetime:d-M-Y",
@@ -27,6 +29,16 @@ class Visitor extends Model
             return null;
         }
         return asset('media/visitor/logo/' . $value);
+    }
+    public function getRawLogoAttribute($value)
+    {
+        if (!$value) {
+            return null;
+        }
+
+
+        $arr = explode('media/visitor/logo/', $this->logo);
+        return    $arr[1] ?? '';
     }
 
     /**
@@ -159,19 +171,22 @@ class Visitor extends Model
         // $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '<=', $request->input("from_date")));
 
         // $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '>=', $request->input("to_date")));
-        $startDate = Carbon::parse($request->from_date);
-        $endDate = Carbon::parse($request->to_date);
+
+        if (!$request->filled('common_search')) {
+            $startDate = Carbon::parse($request->from_date);
+            $endDate = Carbon::parse($request->to_date);
 
 
-        $model = $model->where(function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('visit_from', [$startDate, $endDate])
-                ->orWhereBetween('visit_to', [$startDate, $endDate])
-                ->orWhere(function ($query) use ($startDate, $endDate) {
-                    $query->whereDate('visit_from', '<=', $startDate)
-                        ->whereDate('visit_to', '>=', $endDate);
-                });
-        });
 
+            $model = $model->where(function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('visit_from', [$startDate, $endDate])
+                    ->orWhereBetween('visit_to', [$startDate, $endDate])
+                    ->orWhere(function ($query) use ($startDate, $endDate) {
+                        $query->whereDate('visit_from', '<=', $startDate)
+                            ->whereDate('visit_to', '>=', $endDate);
+                    });
+            });
+        }
         $model->when($request->filled('host_company_id'), fn ($q) => $q->Where('host_company_id',   $request->input("host_company_id")));
 
         $model->when($request->filled('purpose_id'), fn ($q) => $q->Where('purpose_id',   $request->input("purpose_id")));
@@ -204,10 +219,12 @@ class Visitor extends Model
                 $q->orWhere('email', 'ILIKE', "$request->phone_number_or_email%");
                 $q->orWhere('first_name', 'ILIKE', "$request->phone_number_or_email%");
                 $q->orWhere('last_name', 'ILIKE', "$request->phone_number_or_email%");
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
             });
         });
 
-        $model->with(["host" => fn ($q) => $q->withOut(["user", "employee"])]);
+        // $model->with(["host" => fn ($q) => $q->withOut(["user", "employee"])]);
+        $model->with(["host"]); // => fn ($q) => $q->withOut(["user", "employee"])]);
 
         $model->orderBy("id", "DESC");
 
@@ -218,6 +235,59 @@ class Visitor extends Model
         });
 
         //----------------------
+
+        $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
+            if ($request->statsFilterValue == 'Expected')
+                $q->WhereIn('status_id',  [2, 4, 5]);
+
+            else if ($request->statsFilterValue == 'Checked In')
+                $q->Where('status_id', 6);
+
+            else  if ($request->statsFilterValue == 'Checked Out')
+                $q->Where('status_id', 7);
+
+            else  if ($request->statsFilterValue == 'Pending')
+                $q->Where('status_id', 1);
+            else  if ($request->statsFilterValue == 'Approved')
+                $q->WhereIn('status_id',  [2, 4, 5, 6, 7]);
+            else  if ($request->statsFilterValue == 'Rejected')
+                $q->Where('status_id', 3);
+            else  if ($request->statsFilterValue == 'Over Stayed')
+                $q->whereHas('attendances', fn (Builder $q) => $q->where("visitor_attendances.over_stay", "!=", "---"));
+        });
+
+        $model->when($request->filled('common_search'), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+                $q->Where('phone_number', 'ILIKE', "$request->common_search%");
+                $q->orWhere('email', 'ILIKE', "$request->common_search%");
+                $q->orWhere('first_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('last_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('visit_from', 'ILIKE', "$request->common_search%");
+                $q->orWhere('visit_to', 'ILIKE', "$request->common_search%");
+                $q->orWhere('visitor_company_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('id_type', 'ILIKE', "$request->common_search%");
+                $q->orWhere('id_number', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_first_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_last_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_email', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_phone_number', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_first_name', 'ILIKE', "$request->common_search%");
+                $q->orWhere('time_in', 'ILIKE', "$request->common_search%");
+                $q->orWhere('time_out', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_flat_number', 'ILIKE', "$request->common_search%");
+                $q->orWhere('host_company_name', 'ILIKE', "$request->common_search%");
+
+                $q->orWhereHas('host.employee', fn (Builder $query) => $query->where('first_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+
+                $q->orWhereHas('host.employee', fn (Builder $query) => $query->where('last_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+
+                $q->orWhereHas('host.employee', fn (Builder $query) => $query->where('email', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+                $q->orWhereHas('host.employee', fn (Builder $query) => $query->where('phone_number', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->common_search%")->where('company_id', $request->company_id));
+            });
+        });
+
 
         // $model->when($request->filled('statsFilterValue'), function ($q) use ($request) {
         //     if ($request->statsFilterValue == 'all_approved') {

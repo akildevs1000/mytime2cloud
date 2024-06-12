@@ -214,8 +214,8 @@ class DeviceCameraModel2Controller extends Controller
     {
 
         try {
-
-            $this->sxdmSn = $device_id;
+            if ($this->sxdmSn == '')
+                $this->sxdmSn = $device_id;
             $sessionId = $this->getActiveSessionId();
             if ($sessionId != '') {
 
@@ -237,9 +237,9 @@ class DeviceCameraModel2Controller extends Controller
                         "recognition_type": "staff",
                         "person_name":  "' . $name . '",
                         "person_id": "",
-                        "id": "",
+                        "id":  ' . $system_user_id . ', 
                         "card_number": "",
-                        "id_number": "",
+                        "id_number": "", 
                         "pass": "",
                         "password": "",
                         "phone_num": "",
@@ -292,9 +292,15 @@ class DeviceCameraModel2Controller extends Controller
 
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
+
+                return $response;
             } else {
 
+
+
                 $this->devLog("camera-megeye-error", "Unable to Generate session");
+
+                return "Unable to Generate session";
             }
         } catch (\Throwable $th) {
             //throw $th;
@@ -347,11 +353,13 @@ class DeviceCameraModel2Controller extends Controller
 
         $devices->clone()->update(["status_id" => 2]);
 
+
+
         foreach ($devices->get() as $device) {
 
             $this->sxdmSn = $device->device_id;
-            $url = $device->camera_sdk_url ?? gethostbyname(gethostname());
-            $this->camera_sdk_url = "$url:8888";
+            $url = $device->camera_sdk_url ?? gethostbyname(gethostname()) . ':8888';
+            $this->camera_sdk_url = "$url";
 
 
             $response = $this->getCURL('/api/devices/status');
@@ -458,6 +466,10 @@ class DeviceCameraModel2Controller extends Controller
     public function getActiveSessionId()
     {
 
+
+        // if ($this->sxdmSn == '') {
+        //     return "Device Serial Number is empty";
+        // }
         $curl = curl_init();
 
         curl_setopt_array($curl, array(

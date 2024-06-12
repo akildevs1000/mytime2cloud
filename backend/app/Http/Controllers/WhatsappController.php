@@ -186,7 +186,7 @@ class WhatsappController extends Controller
         } else {
             Log::channel('whatsapp_logs')->info($response->body());
         }
-        return $message;
+        return $response->body();
     }
     public function prepareSummary($id)
     {

@@ -11,7 +11,7 @@
         <v-card-title dense dark class="popup_background">
           <div v-if="!empId">Add Schedule</div>
           <div v-else>
-            {{ !isEdit ? "View Schedule(s)" : "Manage Schedule(s)" }}
+            {{ !isEdit ? "View Schedule(s)" : "Update Schedule(s)" }}
           </div>
           <v-spacer></v-spacer>
 
@@ -317,16 +317,34 @@
             </v-col> -->
             <v-col :md="!empId ? 2 : 4" v-if="empId">
               <v-row>
-                <v-col class="pt-5" style="max-width: 100px">OT Allowed?</v-col>
+                <v-col class="pt-5" style="max-width: 100px">Over Time </v-col>
 
-                <v-col class="pl-0" style="max-width: 50px">
-                  <v-switch
+                <v-col class="pl-0 pt-1" style="max-width: 80px">
+                  <!-- {{ item.is_over_time }} -->
+                  <v-img
+                    class="ele1"
+                    v-if="!item.is_over_time"
+                    src="/off.png"
+                    style="width: 60px"
+                    @click="
+                      isEdit ? (item.is_over_time = !item.is_over_time) : null
+                    "
+                  ></v-img>
+                  <v-img
+                    class="ele1"
+                    v-if="item.is_over_time"
+                    src="/on.png"
+                    style="width: 60px"
+                    @click="
+                      isEdit ? (item.is_over_time = !item.is_over_time) : null
+                    "
+                  ></v-img>
+                  <!-- <v-switch
                     :disabled="!isEdit"
                     color="primary align-left"
                     class="mt-0 ml-0 pt-2"
                     v-model="item.is_over_time"
-                    @change="item.is_over_time = true"
-                  ></v-switch>
+                  ></v-switch> -->
                 </v-col>
               </v-row>
               <!-- <v-checkbox
@@ -1061,7 +1079,7 @@
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Manage Schedules
+                  Edit
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
@@ -1641,7 +1659,11 @@ export default {
           if (this.schedules_temp_list.length == 1) {
             this.schedulePopupWidth = "70%";
           } else {
-            this.schedulePopupWidth = "900px";
+            this.schedulePopupWidth = "700px";
+          }
+
+          if (type == "edit") {
+            this.schedulePopupWidth = "700px";
           }
         });
     },
@@ -1734,7 +1756,7 @@ export default {
       if (this.schedules_temp_list.length == 1) {
         this.schedulePopupWidth = "80%";
       } else {
-        this.schedulePopupWidth = "900px";
+        this.schedulePopupWidth = "700px";
       }
     },
 
@@ -2192,3 +2214,20 @@ export default {
   },
 };
 </script>
+<style scoped>
+.ele {
+  animation: 2s fadeIn;
+  animation-fill-mode: forwards;
+
+  visibility: hidden;
+}
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    visibility: visible;
+    opacity: 1;
+  }
+}
+</style>

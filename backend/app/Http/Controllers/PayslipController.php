@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use NumberFormatter;
 
 class PayslipController extends Controller
 {
@@ -249,6 +250,8 @@ class PayslipController extends Controller
             ];
 
 
+
+
             Payslips::updateOrCreate([
                 'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
                 'month' => $month, 'year' => $year,
@@ -271,10 +274,15 @@ class PayslipController extends Controller
 
         $Payroll = Payroll::where(["employee_id" => $id])->with(["company", "payroll_formula"])
             ->with(["employee" => function ($q) {
-                $q->withOut(["user","schedule"]);
+                $q->withOut(["user", "schedule"]);
             }])
             ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
         $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
+
+
+        //$days_countdate = DateTime::createFromFormat('Y-m-d', date('y') . '-' . date('m') . '-01');
+        $days_countdate = DateTime::createFromFormat('Y-m-d', $request->year . '-' . $request->month  . '-01');
+        $Payroll->total_month_days = $days_countdate->format('t');
 
         $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
 
@@ -297,29 +305,61 @@ class PayslipController extends Controller
         $Payroll->absent = $attendances->where('status', 'A')->count();
         $Payroll->missing = $attendances->where('status', 'M')->count();
         $Payroll->off = $attendances->where('status', 'O')->count();
+        $Payroll->late = $attendances->where('status', 'L')->count();
 
 
         $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
-        $Payroll->deductedSalary = $Payroll->absent * $Payroll->perDaySalary;
+        $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
+        //OT calculations
+        $OTHours = 0;
+        $totalOTMinutes = 0;
+        $OTSalary = 0;
+        foreach ($attendances as $attendance) {
+
+            $OT =  $attendance->ot;
+            if ($OT != '---') {
+                list($hours, $minutes) = explode(':', $OT);
+                $totalOTMinutes = $totalOTMinutes + ($hours * 60 + $minutes);
+            }
+        }
+        if ($totalOTMinutes > 0) {
+            $OTHours = round($totalOTMinutes / 60);
+        }
+        if ($OTHours > 0) {
+            $OTSalary = round($Payroll->perHourSalary * $OTHours);
+        }
+
+        //--------------------------
+        $OTSalaryEarning = [
+            "label" => "OT",
+            "value" => $OTSalary,
+        ];
         $extraEarnings = [
             "label" => "Basic",
             "value" => $Payroll->SELECTEDSALARY,
         ];
-        $Payroll->earnings = array_merge([$extraEarnings], $Payroll->earnings);
+
+        $Earnings = array_merge($Payroll->earnings, [$OTSalaryEarning]);
+        $Payroll->earnings = array_merge([$extraEarnings], $Earnings);
 
         $Payroll->deductions = [
             [
                 "label" => "Abents",
-                "value" => $Payroll->deductedSalary,
+                "value" => round($Payroll->deductedSalary),
             ],
         ];
 
-        $Payroll->earnedSubTotal = ($Payroll->earningsCount) + ($Payroll->earnedSalary);
-        $Payroll->salary_and_earnings = ($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY);
+        $Payroll->earnedSubTotal = round(($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary);
+        $Payroll->salary_and_earnings = round(($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary);
 
-        $Payroll->finalSalary = ($Payroll->salary_and_earnings) - $Payroll->deductedSalary;
+        $Payroll->finalSalary = round(($Payroll->salary_and_earnings) - $Payroll->deductedSalary);
+
+        $formatter = new NumberFormatter('en_US', NumberFormatter::SPELLOUT);
+        $Payroll->final_salary_in_words  = ucfirst($formatter->format(round($Payroll->finalSalary)));
+        $Payroll->payslip_month_year = $days_countdate->format('F Y');
+
 
         return $Payroll;
     }
@@ -394,6 +434,10 @@ class PayslipController extends Controller
         $data = $this->show($request, $request->employee_id);
         $data->month = date('F', mktime(0, 0, 0, $request->month, 1));
         $data->year = $request->year;
-        return Pdf::loadView('pdf.payslip', compact('data'))->download();
+
+
+        return  Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->stream();
+        $fileName = $data->payslip_number . '_' . $data->employee->first_name . '_' . $data->employee->last_name . '_' . $data->employee->employee_id . '_' . $data->payslip_month_year . '.pdf';
+        return Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->download($fileName);
     }
 }
