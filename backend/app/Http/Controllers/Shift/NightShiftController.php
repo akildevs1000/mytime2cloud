@@ -88,9 +88,21 @@ class NightShiftController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
+            // $firstLog = collect($logs)->filter(function ($record) {
+            //     return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
+            // })->first();
+
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
+                return $record["log_type"] == "In";
             })->first();
+
+
+            if ($firstLog == null) {
+
+                $firstLog = collect($logs)->filter(function ($record) {
+                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
+                })->first();
+            }
 
 
             $schedule = $firstLog["schedule"] ?? false;
