@@ -91,7 +91,7 @@ class AttendanceLogCameraController extends Controller
                 "DeviceID" => $columns[1],
                 "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
                 "SerialNumber" => $columns[3],
-                "log_type" => $columns[4]
+                "log_type" => $columns[4] != '' ?? null
             ];
         }
 
