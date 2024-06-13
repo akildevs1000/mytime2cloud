@@ -25,7 +25,7 @@
                   <th class="text-center">Face</th>
                   <th class="text-center">RFID</th>
                   <th class="text-center">PIN</th>
-                  <th class="text-center"></th>
+                  <th class="text-center">Delete</th>
                 </tr>
               </thead>
               <tbody>
@@ -49,12 +49,16 @@
                     <v-icon color="" v-else>mdi-minus</v-icon>
                   </td>
                   <td class="text-center">
-                    <v-icon color="green" v-if="d.IsRFID">mdi-check</v-icon>
-                    <v-icon color="" v-else>mdi-minus</v-icon>
+                    <v-icon v-if="d.IsRFID == '' || d.IsRFID == '0'"
+                      >mdi-minus</v-icon
+                    >
+                    <v-icon color="green" v-else>mdi-check</v-icon>
                   </td>
                   <td class="text-center">
-                    <v-icon color="green" v-if="d.IsPIN">mdi-check</v-icon>
-                    <v-icon color="" v-else>mdi-minus</v-icon>
+                    <v-icon v-if="d.IsPIN == '' || d.IsPIN == 'FFFFFFFF'"
+                      >mdi-minus</v-icon
+                    >
+                    <v-icon color="green" v-else>mdi-check</v-icon>
                   </td>
                   <td class="text-center">
                     <v-icon
@@ -67,9 +71,9 @@
                   </td>
                 </tr>
 
-                <tr v-if="!loading && !data.length" class="pt-5">
+                <!-- <tr v-if="!loading && !data.length" class="pt-5">
                   <td colspan="5" class="text-center">No Data available</td>
-                </tr>
+                </tr> -->
               </tbody>
             </template>
           </v-simple-table>
@@ -184,8 +188,9 @@ export default {
         .then(({ data }) => {
           this.data = [];
 
-          this.loading = true;
           this.devices = data.forEach((e) => {
+            this.loading = true;
+
             this.$axios
               .get(
                 `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
@@ -193,18 +198,27 @@ export default {
               .then(({ data: { data } }) => {
                 this.loading = false;
 
-                this.data.push({
-                  device_id: e.device_id,
-                  name: e.name,
-                  location: e.location,
-                  IsFace: (data && data.face) || false,
-                  IsRFID: data && data.cardData !== "" && data.cardData !== "0",
-                  IsPIN:
-                    data &&
-                    data.password !== "" &&
-                    data.password !== "FFFFFFFF",
-                  system_user_id: this.system_user_id,
-                });
+                if (data == null) {
+                  this.data.push({
+                    device_id: e.device_id,
+                    name: `No Response (${e.device_id})`,
+                    location: "---  ",
+                    IsFace: false,
+                    IsRFID: false,
+                    IsPIN: false,
+                    system_user_id: this.system_user_id,
+                  });
+                } else {
+                  this.data.push({
+                    device_id: e.device_id,
+                    name: e.name,
+                    location: e.location,
+                    IsFace: data.face,
+                    IsRFID: data.cardData,
+                    IsPIN: data.password,
+                    system_user_id: this.system_user_id,
+                  });
+                }
               })
               .catch((e) => {
                 this.loading = false;
