@@ -42,7 +42,7 @@
 
                 <tr v-for="(d, index) in data" :key="index">
                   <td class="text-center">{{ d.system_user_id }}</td>
-                  <td class="text-center">{{ d.name }}</td>
+                  <td class="text-center">{{ d.name }} <span class="red--text" v-if="d.noResponse">(No Response)</span></td>
                   <td class="text-center">{{ d.location }}</td>
                   <td class="text-center">
                     <v-icon color="green" v-if="d.IsFace">mdi-check</v-icon>
@@ -201,11 +201,12 @@ export default {
                 if (data == null) {
                   this.data.push({
                     device_id: e.device_id,
-                    name: `No Response (${e.device_id})`,
+                    name: e.name,
                     location: "---  ",
                     IsFace: false,
                     IsRFID: false,
                     IsPIN: false,
+                    noResponse: true,
                     system_user_id: this.system_user_id,
                   });
                 } else {
