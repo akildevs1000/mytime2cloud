@@ -25,16 +25,16 @@
 
           <v-row v-if="!empId"> </v-row>
 
-          <!-- <v-row>
+          <v-row>
             <v-col class="text-right">
               <v-btn class="primary" v-if="isEdit" small @click="addRow(1)">
                 <b>Add +</b>
               </v-btn>
             </v-col>
-          </v-row> -->
+          </v-row>
 
-          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
-            <v-col md="2" v-if="!empId">
+          <v-row>
+            <v-col md="3" v-if="!empId">
               <v-select
                 label="Branch"
                 @change="filterDepartmentsByBranch()"
@@ -50,7 +50,7 @@
               ></v-select>
             </v-col>
 
-            <v-col md="2" v-if="!empId">
+            <v-col md="3" v-if="!empId">
               <v-autocomplete
                 label="Departments"
                 height="40px"
@@ -105,7 +105,7 @@
                 </template>
               </v-autocomplete>
             </v-col>
-            <v-col md="2" v-if="!empId">
+            <v-col md="3" v-if="!empId">
               <v-select
                 label="All Employees"
                 @change="getEmployeesByScheduleFilter()"
@@ -124,7 +124,7 @@
                 ]"
               ></v-select>
             </v-col>
-            <v-col md="2" v-if="!empId">
+            <v-col md="3" v-if="!empId">
               <v-autocomplete
                 label="Employees"
                 height="40px"
@@ -181,6 +181,9 @@
                 </template>
               </v-autocomplete>
             </v-col>
+          </v-row>
+
+          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
             <!-- <v-col md="12">
               <v-checkbox
                 :readonly="!isEdit"
@@ -207,7 +210,8 @@
                 ]"
               ></v-select>
             </v-col> -->
-            <v-col :md="!empId ? 2 : 4">
+            <!-- {{ empId ? "not empty" : "Empty" }} -->
+            <v-col :md="!empId ? 3 : 4">
               <!-- <div>Shift Name</div> -->
               <v-autocomplete
                 label="Shift Name"
@@ -230,7 +234,7 @@
                 :disabled="!isEdit"
               ></v-autocomplete>
             </v-col>
-            <v-col :md="!empId ? 2 : 4">
+            <v-col :md="!empId ? 3 : 4">
               <CustomFilter
                 :disabled="!isEdit"
                 class="mt-0"
@@ -315,7 +319,7 @@
                 </v-menu>
               </div>
             </v-col> -->
-            <v-col :md="!empId ? 2 : 4" v-if="empId">
+            <v-col :md="!empId ? 6 : 4">
               <v-row>
                 <v-col class="pt-5" style="max-width: 100px">Over Time </v-col>
 
@@ -345,6 +349,17 @@
                     class="mt-0 ml-0 pt-2"
                     v-model="item.is_over_time"
                   ></v-switch> -->
+                </v-col>
+
+                <v-col>
+                  <v-icon
+                    v-if="schedules_temp_list.length > 1"
+                    @click="removeItem(i, item)"
+                    class="ml-2 pt-3"
+                    color="black"
+                    dark
+                    >mdi mdi-delete</v-icon
+                  >
                 </v-col>
               </v-row>
               <!-- <v-checkbox
@@ -1104,7 +1119,7 @@ import { extensions } from "@tiptap/vue-2";
 
 export default {
   data: () => ({
-    schedulePopupWidth: "70%",
+    schedulePopupWidth: "60%",
     commonSearch: "",
     key: 1,
     date_from: "",
@@ -1656,14 +1671,21 @@ export default {
           });
           this.editDialog = true;
 
-          if (this.schedules_temp_list.length == 1) {
-            this.schedulePopupWidth = "70%";
-          } else {
-            this.schedulePopupWidth = "700px";
-          }
+          // if (this.schedules_temp_list.length == 1) {
+          //   this.schedulePopupWidth = "70%";
+          // } else {
+          //   this.schedulePopupWidth = "800px";
+          // }
 
-          if (type == "edit") {
-            this.schedulePopupWidth = "700px";
+          // if (type == "edit") {
+          //   this.schedulePopupWidth = "800px";
+          // } else if (!this.empId) {
+          //   this.schedulePopupWidth = "70%";
+          // }
+          if (!this.empId) {
+            this.schedulePopupWidth = "60%";
+          } else {
+            this.schedulePopupWidth = "800px";
           }
         });
     },
@@ -1753,11 +1775,20 @@ export default {
         this.schedules_temp_list.push(item);
       }
 
-      if (this.schedules_temp_list.length == 1) {
-        this.schedulePopupWidth = "80%";
+      if (!this.empId) {
+        this.schedulePopupWidth = "60%";
       } else {
-        this.schedulePopupWidth = "700px";
+        this.schedulePopupWidth = "800px";
       }
+      // if (this.schedules_temp_list.length == 1) {
+      //   this.schedulePopupWidth = "80%";
+      // } else {
+      //   this.schedulePopupWidth = "800px";
+      // }
+
+      // if (!this.empId) {
+      //   this.schedulePopupWidth = "70%";
+      // }
     },
 
     runShiftTypeFunction() {
