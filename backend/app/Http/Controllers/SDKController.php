@@ -431,7 +431,7 @@ class SDKController extends Controller
             // }
             // file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
-            //unset($res["data"]["faceImage"]);
+            unset($res["data"]["faceImage"]);
 
             return $res;
         } catch (\Exception $e) {
