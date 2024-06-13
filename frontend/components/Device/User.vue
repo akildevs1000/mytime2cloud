@@ -14,7 +14,6 @@
         <v-icon @click="dialog = false">mdi-close</v-icon>
       </v-toolbar>
       <v-card-text>
-        <!-- <pre>{{ json }}</pre> -->
         <v-container>
           <v-simple-table dense>
             <template v-slot:default>
@@ -159,7 +158,6 @@ export default {
     ],
     response: "",
     errors: [],
-    json: {},
   }),
 
   watch: {
@@ -177,7 +175,6 @@ export default {
 
   methods: {
     async getDataFromApi() {
-      this.data = [];
       await this.$axios
         .get(`device-list`, {
           params: {
@@ -185,36 +182,43 @@ export default {
           },
         })
         .then(({ data }) => {
-          this.loading = true;
-          this.devices = data
-            .filter((el) => el.status_id == 1)
-            .forEach((e) => {
-              this.$axios
-                .get(
-                  `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
-                )
-                .then(({ data: { data } }) => {
-                  this.loading = false;
-                  const { face, cardData, password } = data;
+          this.data = [];
 
-                  this.data.push({
-                    device_id: e.device_id,
-                    name: e.name,
-                    location: e.location,
-                    IsFace: Boolean(face),
-                    IsRFID: cardData !== "" && cardData !== "0",
-                    IsPIN: password !== "" && password !== "FFFFFFFF",
-                    system_user_id: this.system_user_id,
-                  });
-                  this.json = data;
+          this.loading = true;
+          this.devices = data.forEach((e) => {
+            this.$axios
+              .get(
+                `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
+              )
+              .then(({ data: { data } }) => {
+                this.loading = false;
+
+                this.data.push({
+                  device_id: e.device_id,
+                  name: e.name,
+                  location: e.location,
+                  IsFace: (data && data.face) || false,
+                  IsRFID: data && data.cardData !== "" && data.cardData !== "0",
+                  IsPIN:
+                    data &&
+                    data.password !== "" &&
+                    data.password !== "FFFFFFFF",
+                  system_user_id: this.system_user_id,
                 });
-            });
+              })
+              .catch((e) => {
+                this.loading = false;
+                console.log(e);
+              });
+          });
         });
     },
 
     deleteUserFromDevice(device_id, system_user_id) {
       this.$axios
-        .delete(`/SDK/delete-device-person-details/${device_id}`, {params:{ userCodeArray: [system_user_id] }})
+        .delete(`/SDK/delete-device-person-details/${device_id}`, {
+          params: { userCodeArray: [system_user_id] },
+        })
         .then(({ data }) => {
           this.loading = false;
           this.getDataFromApi();
