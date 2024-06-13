@@ -1,16 +1,10 @@
 <template>
   <v-dialog v-model="dialog" max-width="1100">
     <template v-slot:activator="{ on, attrs }">
-      <v-icon
-        v-bind="attrs"
-        v-on="on"
-        :color="iconColor"
-        :small="iconSize == 'small'"
-        :large="iconSize == 'large'"
-        :x-large="iconSize == 'x-large'"
-        >mdi-cellphone-text</v-icon
-      >
-      {{ iconText }}
+      <span v-bind="attrs" v-on="on">
+        <v-icon :color="iconColor" :size="iconSize">mdi-cellphone-text</v-icon>
+        {{ iconText }}
+      </span>
     </template>
     <v-card>
       <v-toolbar dense flat color="primary" dark>
@@ -32,6 +26,7 @@
                   <th class="text-center">Face</th>
                   <th class="text-center">RFID</th>
                   <th class="text-center">PIN</th>
+                  <th class="text-center"></th>
                 </tr>
               </thead>
               <tbody>
@@ -52,15 +47,24 @@
                   <td class="text-center">{{ d.location }}</td>
                   <td class="text-center">
                     <v-icon color="green" v-if="d.IsFace">mdi-check</v-icon>
-                    <v-icon color="error" v-else>mdi-close</v-icon>
+                    <v-icon color="" v-else>mdi-minus</v-icon>
                   </td>
                   <td class="text-center">
                     <v-icon color="green" v-if="d.IsRFID">mdi-check</v-icon>
-                    <v-icon color="error" v-else>mdi-close</v-icon>
+                    <v-icon color="" v-else>mdi-minus</v-icon>
                   </td>
                   <td class="text-center">
                     <v-icon color="green" v-if="d.IsPIN">mdi-check</v-icon>
-                    <v-icon color="error" v-else>mdi-close</v-icon>
+                    <v-icon color="" v-else>mdi-minus</v-icon>
+                  </td>
+                  <td class="text-center">
+                    <v-icon
+                      color="red"
+                      @click="
+                        deleteUserFromDevice(d.device_id, d.system_user_id)
+                      "
+                      >mdi-close</v-icon
+                    >
                   </td>
                 </tr>
 
@@ -175,16 +179,15 @@ export default {
     async getDataFromApi() {
       this.data = [];
       await this.$axios
-        .get(`device`, {
+        .get(`device-list`, {
           params: {
-            per_page: 1000,
             company_id: this.$auth.user.company_id,
           },
         })
         .then(({ data }) => {
           this.loading = true;
-          this.devices = data.data
-            .filter((el) => el.status.name == "active")
+          this.devices = data
+            .filter((el) => el.status_id == 1)
             .forEach((e) => {
               this.$axios
                 .get(
@@ -192,30 +195,34 @@ export default {
                 )
                 .then(({ data: { data } }) => {
                   this.loading = false;
-                  if (!data) {
-                    this.data.push({
-                      name: e.name || "---",
-                      location: e.location || "---",
-                      IsFace: false,
-                      IsRFID: false,
-                      IsPIN: false,
-                      system_user_id: this.system_user_id,
-                    });
-                  } else {
-                    const { face, cardData, password } = data;
-                    this.data.push({
-                      name: e.name || "---",
-                      location: e.location || "---",
-                      IsFace: Boolean(face) || false,
-                      IsRFID: (cardData !== "" && cardData !== "0") || false,
-                      IsPIN:
-                        (password !== "" && password !== "FFFFFFFF") || false,
-                      system_user_id: this.system_user_id,
-                    });
-                    this.json = data;
-                  }
+                  const { face, cardData, password } = data;
+
+                  this.data.push({
+                    device_id: e.device_id,
+                    name: e.name,
+                    location: e.location,
+                    IsFace: Boolean(face),
+                    IsRFID: cardData !== "" && cardData !== "0",
+                    IsPIN: password !== "" && password !== "FFFFFFFF",
+                    system_user_id: this.system_user_id,
+                  });
+                  this.json = data;
                 });
             });
+        });
+    },
+
+    deleteUserFromDevice(device_id, system_user_id) {
+      this.$axios
+        .delete(`/SDK/delete-device-person-details/${device_id}`, {params:{ userCodeArray: [system_user_id] }})
+        .then(({ data }) => {
+          this.loading = false;
+          this.getDataFromApi();
+        })
+        .catch((e) => {
+          alert("Record cannot delete");
+          console.log(e);
+          this.loading = false;
         });
     },
   },
