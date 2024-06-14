@@ -880,7 +880,7 @@ class EmployeeController extends Controller
 
         $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
 
-        if (count($isRFIdExist) == 0) {
+        if (count($isRFIdExist) == 0 || $data['rfid_card_number'] == '') {
 
             try {
 
