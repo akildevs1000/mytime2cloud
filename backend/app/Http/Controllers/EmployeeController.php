@@ -870,17 +870,42 @@ class EmployeeController extends Controller
         //     return $this->response('RFID card and password are required', null, false);
         // }
         $data = [];
+
+        $updateData = true;
         if ($request->rfid_card_number != '') {
+
+            $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
+
+            if (count($isRFIdExist) > 0) {
+
+                return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
+            }
+        }
+
+        try {
             $data['rfid_card_number'] = $request->rfid_card_number;
-        }
-        if ($request->rfid_card_password != '') {
             $data['rfid_card_password'] = $request->rfid_card_password;
+            if (count($data)) {
+                $user = Employee::where("id",   $request->employee_id)->update($data);
+
+                if (!$user) {
+                    return $this->response('Employee cannot update.', null, false);
+                }
+            } else {
+                return $this->response('Employee successfully updated.', null, true);
+            }
+            return $this->response('Employee successfully updated.', null, true);
+        } catch (\Throwable $th) {
+            throw $th;
         }
+
+
+
 
 
         $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
 
-        if (count($isRFIdExist) == 0 || isset($data['rfid_card_password'])) {
+        if (count($isRFIdExist) == 0) {
 
             try {
 
