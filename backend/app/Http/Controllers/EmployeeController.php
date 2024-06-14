@@ -901,6 +901,8 @@ class EmployeeController extends Controller
             if ($request->rfid_card_number != '')
                 return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
         }
+
+        return $this->response('Employee successfully updated.', null, true);
     }
 
     public function updateContact(Employee $model, EmployeeUpdateContact $request, $id)
