@@ -431,9 +431,25 @@ class SDKController extends Controller
             // }
             // file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
-            //unset($res["data"]["faceImage"]);
+            unset($res["data"]["faceImage"]);
 
             return $res;
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function deletePersonDetails($device_id, Request $request)
+    {
+        try {
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post(env('SDK_URL') . "/" . "{$device_id}/DeletePerson", ["userCodeArray" => $request->userCodeArray]);
+
+            return $response->json();
         } catch (\Exception $e) {
             return [
                 "status" => 102,
@@ -529,7 +545,7 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . "/$id/$command";
         }
-        
+
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',

@@ -36,6 +36,8 @@ class DeviceController extends Controller
     {
         $model = Device::query();
         $model->where('company_id', request('company_id'));
+        $model->where("status_id", self::ONLINE_STATUS_ID);
+        $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name", "location", "device_id", "device_type"]);
