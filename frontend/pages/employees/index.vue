@@ -1181,9 +1181,9 @@ export default {
       return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
     },
     searchData() {
-      if (this.search.length == 0 || this.search.length > 3) {
-        this.getDataFromApi();
-      }
+      //if (this.search.length == 0 || this.search.length >= 1) {
+      this.getDataFromApi();
+      //}
     },
     closePopup2() {
       this.editDialog = false;
