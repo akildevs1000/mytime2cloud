@@ -84,7 +84,7 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2" v-if="branchList.length > 1">
+        <v-card class="py-2 mb-2" v-if="branchList.length > 1 && $auth.user.user_type !== 'department'">
           <!-- <v-row>
             <v-col md="12" class="text-center"> 2222 </v-col>
           </v-row> -->
@@ -114,69 +114,6 @@
             </v-col>
           </v-row>
         </v-card>
-        <!-- <v-menu
-          v-if="
-            this.$auth &&
-            this.$auth.user.user_type == 'company' &&
-            this.$route.name == 'dashboard2'
-          "
-          nudge-bottom="50"
-          transition="scale-transition"
-          origin="center center"
-          bottom
-          left
-          min-width="200"
-          nudge-left="20"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <label
-              style="min-width: 150px"
-              class="px-2 text-overflow"
-              v-bind="attrs"
-              v-on="on"
-            >
-              {{ selectedBranchName != "All Branches" ? "Branch: " : "" }}
-              {{ selectedBranchName }}
-            </label>
-          </template>
-
-          <v-list light nav dense>
-            <v-list-item-group color="primary">
-              <v-list-item
-                @click="filterBranch(branch)"
-                v-for="branch in branchList"
-              >
-                <v-list-item-content class="text-left">
-                  <v-list-item-title class="black--text">
-                    <img
-                      v-if="branch.logo"
-                      :src="branch.logo"
-                      style="vertical-align: middle; max-width: 25px"
-                    />
-
-                    <img
-                      v-else
-                      src="/no-image.PNG"
-                      style="vertical-align: middle; max-width: 25px"
-                    />
-
-                    <span style="">{{ branch.branch_name }}</span>
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-              <v-list-item v-if="selectedBranchName != 'All Branches'">
-                <v-list-item-content
-                  class="text-center"
-                  @click="filterBranch(null)"
-                >
-                  <v-list-item-title class="black--text">
-                    <span style="">All Branches</span>
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
-        </v-menu> -->
         <DashboardRightsideStaticstics :branch_id="branch_id" />
 
         <v-row>
@@ -334,13 +271,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-.theme--light.v-text-field > .v-input__control > .v-input__slot:before {
-  border-color: #fff !important;
-}
-
-.no-border:before {
-  border-color: #fff !important;
-}
-</style>
