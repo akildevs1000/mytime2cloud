@@ -921,49 +921,12 @@ export default {
       this.tableHeight = window.innerHeight - 370;
     });
   },
-  async created() {
-    // let data = [
-    //   "[2023-11-21 13:42:26] Filo Shift. Log(s) have been rendered. Affected Ids: [1001] ",
-    //   "[2023-11-21 13:42:26] Single Shift: No data found",
-    //   "[2023-11-21 13:42:26] Dual Shift. Log(s) have been rendered. Affected Ids: [] 1001 has No Logs to render",
-    //   "[2023-11-21 13:42:26] Multi Shift. Log(s) have been rendered. Affected Ids: [] 1001 : has No Logs to render",
-    // ];
-    // let message = "";
-    // data.forEach((element) => {
-    //   message = message + " \n  " + element + " \n  ";
-    // });
-    // this.snackbar = true;
-    // this.response = data
-    //   .map(
-    //     (message) =>
-    //       message.replace(/^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] /, "") +
-    //       "<br>"
-    //   )
-    //   .join("");
-    // // this.loading = true;
-    // // this.setMonthlyDateRange();
-    // this.payload.daily_date = new Date().toJSON().slice(0, 10);
-    // this.payload.department_ids = this.$auth.user.assignedDepartments;
-    // let options = {
-    //   params: {
-    //     per_page: 1000,
-    //     company_id: this.$auth.user.company_id,
-    //     //department_ids: this.$auth.user.assignedDepartments,
-    //   },
-    // };
-    // this.getDepartments(options);
-    // this.getDeviceList(options);
-    // let dt = new Date();
-    // let y = dt.getFullYear();
-    // let m = dt.getMonth() + 1;
-    // let dd = new Date(dt.getFullYear(), m, 0);
-    // m = m < 10 ? "0" + m : m;
-    // this.payload.from_date = `${y}-${m}-01`;
-    // this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-    // // this.from_date = this.payload.daily_date;
-    // // this.to_date = this.payload.daily_date;
-    // // this.payload.from_date = this.payload.daily_date;
-    // // this.payload.to_date = this.payload.daily_date;
+
+  created() {
+    this.payload = {
+      ...this.payload,
+      ...this.payload1,
+    };
   },
 
   methods: {

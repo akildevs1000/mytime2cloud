@@ -27,7 +27,31 @@ class DepartmentRequest extends FormRequest
     {
         return [
             'name' => 'required|min:4|max:50',
-            'company_id' => 'required'
+            'branch_id' => 'required',
+            'company_id' => 'required',
+
+            'managers' => 'required|array',
+            'managers.*.role_id' => 'required',
+            'managers.*.name' => 'required|string|max:255',
+            'managers.*.email' => 'required|email|max:255|unique:users',
+            'managers.*.password' => 'required|string|min:8',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'managers.*.name.required' => 'The manager name is required.',
+            'managers.*.name.string' => 'The manager name must be a string.',
+            'managers.*.name.max' => 'The manager name may not be greater than 255 characters.',
+            'managers.*.email.required' => 'The manager email is required.',
+            'managers.*.email.email' => 'The manager email must be a valid email address.',
+            'managers.*.email.max' => 'The manager email may not be greater than 255 characters.',
+            'managers.*.email.unique' => 'The manager email has already been taken.',
+            'managers.*.password.required' => 'The manager password is required.',
+            'managers.*.password.string' => 'The manager password must be a string.',
+            'managers.*.password.min' => 'The manager password must be at least 8 characters.',
+            'managers.*.role_id.required' => 'The manager role is required.',
         ];
     }
 }

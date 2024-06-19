@@ -410,7 +410,7 @@ export default {
     missingLogsDialog: false,
     selectFile: null,
     key: 1,
-    payload11: {},
+    payload11: null,
     selectAllDepartment: false,
     selectAllEmployees: false,
     branches: [],
@@ -659,7 +659,6 @@ export default {
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
     setTimeout(() => {
       this.getDepartments(options);
-      this.commonMethod();
     }, 1000);
 
     setTimeout(() => {
@@ -908,6 +907,9 @@ export default {
           this.departments = data.data;
           // this.payload.department_ids = [data.data[0].id];
           this.toggleDepartmentSelection();
+          setTimeout(() => {
+            this.commonMethod();
+          }, 3000);
         }
       } catch (error) {
         console.error("Error fetching departments:", error);

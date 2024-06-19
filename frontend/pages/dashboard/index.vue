@@ -246,8 +246,13 @@ export default {
     // if (this.$auth.user.user_type == "employee") {
     //   this.$router.push(`/dashboard/employee`);
     // }
+    let user = this.$auth.user;
 
-    if (this.$auth.user.branch_id == 0 && this.$auth.user.is_master == false) {
+    if (
+      user.branch_id == 0 &&
+      user.is_master == false &&
+      user.user_type !== "department"
+    ) {
       alert("You do not have permission to access this branch");
       //this.$router.push("/login");
       this.$axios.get(`/logout`).then(({ res }) => {
@@ -260,7 +265,13 @@ export default {
     }
   },
   async created() {
-    if (this.$auth.user.branch_id == 0 && this.$auth.user.is_master == false) {
+    let user = this.$auth.user;
+
+    if (
+      user.branch_id == 0 &&
+      user.is_master == false &&
+      user.user_type !== "department"
+    ) {
       alert("You do not have permission to access this branch");
       //this.$router.push("/login");
       this.$axios.get(`/logout`).then(({ res }) => {

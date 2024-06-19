@@ -40,6 +40,11 @@ class CompanyBranch extends Model
         return $this->hasMany(Department::class, "branch_id", "id");
     }
 
+    public function department()
+    {
+        return $this->hasOne(Department::class, "branch_id", "id");
+    }
+
     public function devices()
     {
         return $this->hasMany(Device::class, "branch_id", "id");
