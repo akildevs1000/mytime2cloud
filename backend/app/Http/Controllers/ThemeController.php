@@ -125,7 +125,7 @@ class ThemeController extends Controller
             $q->where("id", $request->department_id);
         });
         
-        $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        return $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
         foreach ($departments as $department) {
