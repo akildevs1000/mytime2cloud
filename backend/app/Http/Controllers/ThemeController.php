@@ -113,6 +113,9 @@ class ThemeController extends Controller
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
             })
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            })
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
@@ -123,6 +126,9 @@ class ThemeController extends Controller
                 ->where("LogTime", date("Y-m-d"))
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
                 })
                 ->groupBy("UserID")
 
