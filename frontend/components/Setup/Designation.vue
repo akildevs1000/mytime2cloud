@@ -164,7 +164,7 @@
               :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }"
-              class="elevation-1"
+              class="elevation-0"
               :server-items-length="totalRowsCount"
             >
               <template v-slot:item.options="{ item }">

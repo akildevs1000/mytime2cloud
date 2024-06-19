@@ -130,8 +130,8 @@
           v-if="
             getLoginType == 'company' ||
             getLoginType == 'branch' ||
-            (getLoginType == 'employee' &&
-              $auth.user.role?.role_type.toLowerCase() != 'guard' &&
+            getLoginType == 'department' ||
+            ($auth.user.role?.role_type.toLowerCase() != 'guard' &&
               $auth.user.role?.role_type.toLowerCase() != 'host')
           "
         >
@@ -235,22 +235,6 @@
                 <v-list-item-title class="black--text"
                   >Profile</v-list-item-title
                 >
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item
-              v-if="$auth.user.user_type != 'company'"
-              @click="changeLoginType()"
-            >
-              <v-list-item-icon>
-                <v-icon>mdi-account-multiple-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title class="black--text">
-                  Login Into employee
-                  <!-- {{
-                    caps(getLoginType == "branch" ? "employee" : "branch")
-                  }} -->
-                </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -629,6 +613,7 @@ import guard_menus from "../menus/guard.json";
 import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
+
 import employee_top_menu from "../menus/employee_modules_top.json";
 import GlobalSearchForm from "../components/Globalsearch/GlobalSearchForm.vue";
 
@@ -891,11 +876,7 @@ export default {
       return logosrc;
     },
     getLoginType() {
-      return this.$store.state.loginType;
-    },
-
-    hasDepartments() {
-      return this.$auth.user && this.$auth.user.assignedDepartments.length > 0;
+      return this.$auth.user.user_type || "company";
     },
   },
   methods: {
@@ -921,8 +902,10 @@ export default {
       }
     },
     updateTopmenu() {
-      //update company Top menu
-      //filter Display Modules From Company Settings
+      if (this.$auth.user.user_type == "department") {
+        this.company_top_menu = require("../menus/department_modules_top.json");
+        return;
+      }
 
       try {
         if (this.$auth.user.company.display_modules) {
@@ -1088,37 +1071,9 @@ export default {
     },
 
     setMenus() {
-      if (this.$auth.user.role.role_type == 0) {
-        {
-          alert("Invalid User Type");
-          this.logout();
-        }
-
-        return "";
-      }
-      let roleType = this.$auth.user.role.role_type.toLowerCase();
-
-      if (this.getLoginType === "company" || this.getLoginType === "branch") {
-        // this.items = this.company_menus;
-        this.items = this.company_menus.filter(
-          (item) => item.module === this.topMenu_Selected
-        );
-
-        return;
-      } else if (this.getLoginType === "employee") {
-        if (/guard/.test(roleType)) {
-          this.items = this.guard_menus;
-          return;
-        } else if (/host/.test(roleType)) {
-          this.items = this.host_menus;
-          return;
-        } else {
-          this.items = this.company_menus.filter(
-            (item) => item.module === this.topMenu_Selected
-          );
-          return;
-        }
-      }
+      this.items = this.company_menus.filter(
+        (item) => item.module === this.topMenu_Selected
+      );
     },
 
     changeLoginType() {
@@ -1200,7 +1155,7 @@ export default {
       this.$router.push("/leaves");
     },
     goToCompany() {
-      this.$router.push(`/companies/${this.$auth.user?.company_id}`);
+      this.$router.push(`/companies`);
     },
     getCompanyDetails() {
       this.$axios
