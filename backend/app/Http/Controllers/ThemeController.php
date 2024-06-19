@@ -125,13 +125,13 @@ class ThemeController extends Controller
             $q->where("id", $request->department_id);
         });
         
-        return $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
         foreach ($departments as $department) {
 
 
-            $return[$department->name] =   [
+            return $return[$department->name] =   [
 
                 "presentCount" => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
                 "absentCount" => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
