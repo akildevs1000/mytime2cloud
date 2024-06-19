@@ -630,21 +630,11 @@ export default {
     // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.payload.department_ids = [];
-    if (this.$auth.user.assignedDepartments)
-      this.payload.department_ids = this.$auth.user.assignedDepartments;
 
-    let options = {
-      params: {
-        per_page: 1000,
-        company_id: this.$auth.user.company_id,
-        //department_ids: this.$auth.user.assignedDepartments,
-      },
-    };
     this.getAttendanceTabs();
     setTimeout(() => {
       this.getBranches();
       this.getScheduledEmployees();
-      this.getDeviceList(options);
     }, 3000);
 
     let dt = new Date();
@@ -658,7 +648,7 @@ export default {
     this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
     setTimeout(() => {
-      this.getDepartments(options);
+      this.getDepartments();
     }, 1000);
 
     setTimeout(() => {
@@ -702,9 +692,6 @@ export default {
       this.from_date = data.from;
       this.to_date = data.to;
       this.filterType = "Monthly"; // data.type;
-
-      //this.search = data.search;
-      // if (this.from_date && this.to_date) this.commonMethod();
     },
 
     commonMethod(id = 0) {
@@ -734,25 +721,9 @@ export default {
         key: this.key++,
       };
 
+      this.getScheduledEmployees();
+
       this.getAttendanceTabs();
-    },
-    getFirstAndLastDay() {
-      const currentDate = new Date();
-      const day = currentDate.getDate();
-      const month = (currentDate.getMonth() + 1).toString().padStart(2, "0");
-      const year = currentDate.getFullYear();
-      const last = new Date(year, month, 0)
-        .getDate()
-        .toString()
-        .padStart(2, "0");
-
-      let firstDay = `${year}-${month}-0${1}`;
-
-      let lastDayFirst = last > 9 ? `${last}` : `0${last}`;
-
-      let lastDay = `${year}-${month}-${lastDayFirst}`;
-
-      return [firstDay, lastDay];
     },
     week() {
       const today = new Date();
@@ -841,21 +812,7 @@ export default {
         this.setThirtyDays(this.payload.from_date);
       }
     },
-    setFromDate() {
-      if (this.payload.from_date == null) {
-        const dt = new Date();
-        const y = dt.getFullYear();
-        const m = dt.getMonth() + 1;
-        const formattedMonth = m < 10 ? "0" + m : m;
-        this.payload.from_date = `${y}-${formattedMonth}-01`;
-      }
-    },
 
-    getDeviceList(options) {
-      this.$axios.get(`/device_list`, options).then(({ data }) => {
-        this.devices = data;
-      });
-    },
     getBranches() {
       if (this.$auth.user.branch_id) {
         this.payload.branch_id = this.$auth.user.branch_id;
@@ -890,31 +847,15 @@ export default {
           this.payload.showTabs = data;
         });
     },
-    setDailyDate() {
-      this.payload.daily_date = new Date().toJSON().slice(0, 10);
-      delete this.payload.from_date;
-      delete this.payload.to_date;
-    },
-    async getDepartments(options) {
-      const { employee, user_type } = this.$auth.user;
-
-      let url = "departments";
+    async getDepartments() {
 
       try {
-        if (user_type === "employee") {
-          const id = employee.id;
-          url = "assigned-department-employee";
-          const { data } = await this.$axios.get(`${url}/${id}`, options);
-          this.departments = data;
-        } else {
-          const { data } = await this.$axios.get(url, options);
-          this.departments = data.data;
-          // this.payload.department_ids = [data.data[0].id];
-          this.toggleDepartmentSelection();
-          setTimeout(() => {
-            this.commonMethod();
-          }, 3000);
-        }
+        const { data } = await this.$axios.get(`department-list`);
+        this.departments = data;
+        this.toggleDepartmentSelection();
+        setTimeout(() => {
+          this.commonMethod();
+        }, 3000);
       } catch (error) {
         console.error("Error fetching departments:", error);
       }
