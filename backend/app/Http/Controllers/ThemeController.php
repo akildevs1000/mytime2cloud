@@ -125,13 +125,12 @@ class ThemeController extends Controller
             $q->where("id", $request->department_id);
         });
         
-        $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        $data = $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
-        $arr = [];
-        foreach ($departments as $department) {
+        $return = [];
+        foreach ($data as $department) {
 
-
-            return $arr[$department->name] =   [
+            $return[$department->name] =  [
 
                 "presentCount" => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
                 "absentCount" => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
@@ -143,7 +142,7 @@ class ThemeController extends Controller
             ];
         }
 
-        return  $arr;
+        return  $return;
     }
     public function previousWeekAttendanceCount(Request $request, $id)
     {
