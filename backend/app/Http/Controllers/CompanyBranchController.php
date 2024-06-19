@@ -50,13 +50,19 @@ class CompanyBranchController extends Controller
     {
         $model = CompanyBranch::where('company_id', $request->company_id);
 
-        $model =  $model->when($request->filled("branch_id"), function ($q) use ($request) {
+        $model->when($request->filled("branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->branch_id);
         });
 
-        $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+        $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->filter_branch_id);
         });
+
+        $model->when($request->user_type == "department", function ($q) use ($request) {
+            $q->whereHas("department", fn ($qu) => $qu->where("id", $request->department_id));
+        });
+
+
         return $model->orderBy('branch_name', 'asc')->get();
     }
     public function store(CompanyBranch $model, StoreRequest $request)

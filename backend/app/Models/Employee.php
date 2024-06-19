@@ -451,6 +451,10 @@ class Employee extends Model
     {
         $model = self::query();
 
+        if ($request->user_type == "department") {
+            $model->whereHas("department", fn ($q) => $q->where("id", $request->department_id));
+        }
+
         $model->with([
             "user" => function ($q) {
                 return $q->with(["branchLogin", "role"]);
