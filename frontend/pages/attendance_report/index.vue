@@ -720,6 +720,10 @@ export default {
         filterDay = "Daily";
       }
 
+      if (this.$auth.user.user_type == "department") {
+        this.payload.department_ids = [this.$auth.user.department_id];
+      }
+
       this.payload11 = {
         ...this.payload,
         report_type: "Monthly", //filterDay,
