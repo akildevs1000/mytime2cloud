@@ -144,7 +144,7 @@ class ThemeController extends Controller
                 //     $q->whereIn("department_id", $request->department_ids);
                 // })
                 ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+                    $q->where("department_id", $request->department_id);
                 })
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->where("branch_id", $request->branch_id);
