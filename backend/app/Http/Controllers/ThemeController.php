@@ -124,7 +124,7 @@ class ThemeController extends Controller
         $departments->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
             $q->where("id", $request->department_id);
         });
-        
+
         $data = $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
@@ -323,6 +323,9 @@ class ThemeController extends Controller
             $model = AttendanceLog::with(["employee"])->where('company_id', $request->company_id)
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
                 })
                 // ->whereDate('LogTime', $date)
 
