@@ -221,7 +221,12 @@ class DeviceCameraModel2Controller extends Controller
                 $card_number = $persons['cardData'];
             }
         }
-
+        $password = "";
+        if ($persons) {
+            if (isset($persons['password'])) {
+                $password = $persons['password'];
+            }
+        }
         try {
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
@@ -250,7 +255,7 @@ class DeviceCameraModel2Controller extends Controller
                         "card_number": ' . $card_number . ',
                         "id_number": "", 
                         "pass": "",
-                        "password": "",
+                        "password": ' . $password . ',
                         "phone_num": "",
                         "is_admin": false,
                         "enabled": false,
