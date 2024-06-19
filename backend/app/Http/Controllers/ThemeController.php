@@ -114,10 +114,18 @@ class ThemeController extends Controller
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
             })
-
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            })
             ->get();
 
-        $departments = Department::where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        $departments = Department::query();
+
+        $departments->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+            $q->where("id", $request->department_id);
+        });
+        
+        $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
         foreach ($departments as $department) {
