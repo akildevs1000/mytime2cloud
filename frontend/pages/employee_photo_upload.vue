@@ -1068,7 +1068,7 @@ export default {
         });
 
         setTimeout(() => {
-          location.reload();
+          //location.reload();
         }, 1000);
       } else {
         this.loading_dialog = false;

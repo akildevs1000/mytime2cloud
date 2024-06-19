@@ -213,9 +213,20 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null)
     {
-
+        $card_number = "";
+        if ($persons) {
+            if (isset($persons['cardData'])) {
+                $card_number = $persons['cardData'];
+            }
+        }
+        $password = "";
+        if ($persons) {
+            if (isset($persons['password'])) {
+                $password = $persons['password'];
+            }
+        }
         try {
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
@@ -241,10 +252,10 @@ class DeviceCameraModel2Controller extends Controller
                         "person_name":  "' . $name . '",
                         "person_id": "",
                         "id":  ' . $system_user_id . ', 
-                        "card_number": "",
+                        "card_number": ' . $card_number . ',
                         "id_number": "", 
                         "pass": "",
-                        "password": "",
+                        "password": ' . $password . ',
                         "phone_num": "",
                         "is_admin": false,
                         "enabled": false,
