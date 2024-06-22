@@ -30,15 +30,16 @@
       </v-col>
 
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 red--text text-center laptop-padding"
         align-self="center"
-        >{{ data && data.absentCount }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
+        {{ data && data.absentCount }}</v-col
+      >
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
         >Absents</v-col
       >
     </v-row>
@@ -50,15 +51,15 @@
       </v-col>
 
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 blue--text text-center laptop-padding"
         align-self="center"
         >{{ data && data.leaveCount }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
         >Leaves</v-col
       >
     </v-row>
@@ -69,15 +70,15 @@
         </v-avatar>
       </v-col>
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 orange--text text-center laptop-padding"
         align-self="center"
         >{{ data && data.missingCount }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
         >Missing</v-col
       >
     </v-row>

@@ -48,31 +48,23 @@
     </v-dialog>
     <v-dialog persistent v-model="employeeDialog" width="900">
       <v-card>
-        <v-card-title dark class="popup_background" style="font-weight: 400">
+        <v-toolbar dark dense class="primary" style="font-weight: 400">
           Add {{ Model }}
           <v-spacer></v-spacer>
 
           <v-icon
             outlined
             dark
-            color="black"
             class="mr-5"
-            title="Save Employee"
             :loading="loading"
             @click="store_data"
           >
-            mdi mdi-content-save-all
+            mdi-content-save-all
           </v-icon>
-          <v-icon
-            title="Close"
-            @click="employeeDialog = false"
-            outlined
-            dark
-            color="black"
-          >
-            mdi mdi-close-circle
+          <v-icon @click="employeeDialog = false" outlined dark>
+            mdi-close-circle
           </v-icon>
-        </v-card-title>
+        </v-toolbar>
         <v-card-text>
           <v-row>
             <v-col md="6" sm="12" cols="12" class="mt-5" dense>
@@ -306,10 +298,7 @@
                   </v-select>
                 </v-col>
 
-                <v-col cols="6">
-                  <!-- <label class="col-form-label"
-                    >Department <span class="text-danger">*</span></label
-                  > -->
+                <v-col cols="6" v-if="$auth.user.user_type !== 'department'">
                   <v-autocomplete
                     label="Department"
                     :items="departments"
@@ -339,7 +328,7 @@
                   style="
                     width: 100%;
                     height: 200px;
-                    border: 1px solid #5fafa3;
+                    border: 1px solid #6946dd;
                     border-radius: 50%;
                     margin: 0 auto;
                   "
@@ -375,6 +364,7 @@
         <v-divider></v-divider>
 
         <v-card-actions>
+          <!-- <pre>{{ employee }}</pre> -->
           <v-spacer></v-spacer>
           <!-- <v-btn small color="grey white--text" @click="employeeDialog = false">
               Close
@@ -1181,9 +1171,9 @@ export default {
       return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
     },
     searchData() {
-      if (this.search.length == 0 || this.search.length > 3) {
-        this.getDataFromApi();
-      }
+      //if (this.search.length == 0 || this.search.length >= 1) {
+      this.getDataFromApi();
+      //}
     },
     closePopup2() {
       this.editDialog = false;
@@ -1220,6 +1210,13 @@ export default {
       this.employee = {};
       this.departments = [];
       this.employeeDialog = true;
+
+      if (this.$auth.user.user_type == "department") {
+        this.isCompany = false;
+        this.employee.department_id = this.$auth.user.department_id;
+        this.employee.branch_id = this.$auth.user.branch_id;
+        return;
+      }
 
       if (this.$auth.user.branch_id) {
         await this.getDepartments(this.$auth.user.branch_id);
@@ -1631,7 +1628,7 @@ export default {
   border: 1px solid grey;
   font-size: 16px;
   transition: border-color 0.3s ease-in-out;
-  outline: none; /* Remove default outline */
+  outline: none;
 }
 
 .custom-input:focus {

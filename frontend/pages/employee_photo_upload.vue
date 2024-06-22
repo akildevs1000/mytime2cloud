@@ -1,7 +1,7 @@
 <template>
   <div
     style="width: 100% !important"
-    v-if="can(`employee_device_photo_upload`)"
+    v-if="can(`employee_device_photo_upload_access`)"
   >
     <div class="text-center ma-2">
       <v-snackbar
@@ -26,7 +26,7 @@
             </v-toolbar-title>
           </v-toolbar>
         </v-col>
-        <v-col cols="4" class="text-right">
+        <v-col v-if="$auth.user.user_type !== 'department'" cols="4" class="text-right">
           <v-toolbar dense flat>
             <v-select
               v-if="isCompany"
@@ -455,6 +455,7 @@
       </v-row>
     </v-card>
   </div>
+  <NoAccess v-else/>  
 </template>
 
 <script>
@@ -1067,7 +1068,7 @@ export default {
         });
 
         setTimeout(() => {
-          location.reload();
+          //location.reload();
         }, 1000);
       } else {
         this.loading_dialog = false;

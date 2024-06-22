@@ -2,7 +2,8 @@
   <div class="bordertop">
     <v-row>
       <v-col md="10" sm="10" xs="10">
-        <h4>Previous Week Attendance</h4>
+        <h4>Today Attendance</h4>
+        <!-- {{ data }} -->
       </v-col>
 
       <v-col md="2" sm="2" xs="2" class="text-end">
@@ -30,17 +31,18 @@
       </v-col>
 
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 red--text text-center laptop-padding"
         align-self="center"
-        >{{ data.absentCount }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
-        >Absents</v-col
+        {{ (data && data.missingCount + data.presentCount) || 0 }}</v-col
       >
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
+        >Total
+      </v-col>
     </v-row>
     <v-row>
       <v-col lg="2" md="2" sm="2" xs="2" class="pt-md-5">
@@ -50,16 +52,16 @@
       </v-col>
 
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 blue--text text-center laptop-padding"
         align-self="center"
-        >{{ data.leaveCount }}</v-col
+        >{{ (data && data.missingCount) || 0 }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
-        >Leaves</v-col
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
+        >Inside</v-col
       >
     </v-row>
     <v-row>
@@ -69,16 +71,16 @@
         </v-avatar>
       </v-col>
       <v-col
-        lg="4"
-        md="4"
-        sm="4"
-        xs="4"
+        lg="6"
+        md="6"
+        sm="6"
+        xs="6"
         class="text-red bold text-h3 orange--text text-center laptop-padding"
         align-self="center"
-        >{{ data.missingCount }}</v-col
+        >{{ (data && data.presentCount) || 0 }}</v-col
       >
-      <v-col lg="6" md="6" sm="6" xs="6" class=" " align-self="center"
-        >Missing</v-col
+      <v-col lg="4" md="4" sm="4" xs="4" class=" " align-self="center"
+        >Logout</v-col
       >
     </v-row>
 
@@ -98,20 +100,26 @@
 </template>
 <script>
 export default {
+  props: ["branch_id"],
   data: () => ({
     options: {},
 
     loading: false,
     dataLength: 0,
 
-    data: { absentCount: 0, leaveCount: 0, missingCount: 0 },
+    data: null,
   }),
-  mounted() {
+  watch: {
+    branch_id() {
+      this.$store.commit("dashboard/attendance_count", null);
+      this.getDataFromApi();
+    },
+  },
+  created() {
     setTimeout(() => {
       this.getDataFromApi();
-    }, 1000 * 6);
+    }, 1000 * 15);
   },
-  created() {},
 
   methods: {
     goToReports() {
@@ -122,18 +130,39 @@ export default {
       this.$router.push("/attendance_report");
     },
     getDataFromApi() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
-
       this.$axios
-        .get("dashboard_get_count_previous_month", options)
+        .get("dashbaord_attendance_count", {
+          params: {
+            company_id: this.$auth.user.company_id,
+            branch_id: this.branch_id > 0 ? this.branch_id : null,
+          },
+        })
         .then(({ data }) => {
-          this.data = data[0];
+          this.data = data;
+          this.$store.commit("dashboard/attendance_count", data);
         });
     },
+    // getDataFromApi() {
+    //   if (this.$store.state.dashboard.previous_week_attendance_count) {
+    //     this.data = this.$store.state.dashboard.previous_week_attendance_count;
+    //     return;
+    //   }
+    //   let options = {
+    //     params: {
+    //       branch_id: this.branch_id > 0 ? this.branch_id : null,
+    //     },
+    //   };
+    //   this.$axios
+    //     .get(
+    //       `previous_week_attendance_count/${this.$auth.user.company_id}`,
+    //       options
+    //     )
+    //     .then(({ data }) => {
+    //       this.data = data;
+    //       this.$store.commit("dashboard/previous_week_attendance_count", data);
+    //     })
+    //     .catch(({ message }) => console.log(message));
+    // },
   },
 };
 </script>

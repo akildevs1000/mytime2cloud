@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can('visitor_view')">
     <v-row justify="center">
       <v-dialog persistent v-model="previewImage" max-width="500px">
         <v-card>
@@ -165,6 +165,7 @@
       </v-col>
     </v-row>
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -316,6 +317,9 @@ export default {
   },
 
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     filterAttr(data) {
       this.from_date = data.from;
       this.to_date = data.to;

@@ -922,7 +922,12 @@ export default {
       this.tableHeight = window.innerHeight - 370;
     });
   },
-  async created() {
+
+  created() {
+    this.payload = {
+      ...this.payload,
+      ...this.payload1,
+    };
     this.baseURL = `http://${window.location.hostname ?? "localhost"}:8000/api`;
   },
 

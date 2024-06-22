@@ -49,14 +49,6 @@
     "module": "dashboard"
   },
   {
-    "icon": "mdi-calendar-today",
-    "title": "Reports",
-    "to": "/attendance_report",
-    "menu": "true",
-    "submenu": "attendance",
-    "module": "dashboard"
-  },
-  {
     "icon": "mdi-domain",
     "title": "Company",
     "to": "/companies",

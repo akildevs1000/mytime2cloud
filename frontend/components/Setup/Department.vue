@@ -6,90 +6,149 @@
       </v-snackbar>
     </div>
     <div>
-      <v-dialog
-        persistent
-        v-model="dialogFormSubdepartment"
-        :fullscreen="false"
-        width="500px"
+      <v-navigation-drawer
+        v-model="dialogNew"
+        bottom
+        temporary
+        right
+        fixed
+        style="width: 300px"
       >
         <v-card>
           <v-card-title dense class="popup_background">
-            <span>New Department</span>
+            New Department
             <v-spacer></v-spacer>
-            <v-icon @click="dialogFormSubdepartment = false" outlined>
+            <v-icon @click="dialogNew = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
-          <v-card-text>
+          <v-card-text class="mt-4">
             <v-container>
-              <v-row class="mt-2">
+              <v-row>
+                <v-col cols="12">
+                  <v-autocomplete
+                    class="pb-0"
+                    v-model="payload.branch_id"
+                    :items="branchesList"
+                    dense
+                    placeholder="Select Branch"
+                    outlined
+                    item-value="id"
+                    item-text="branch_name"
+                    label="Branch"
+                    :hide-details="!errors.branch_id"
+                    :error-messages="
+                      errors && errors.branch_id && errors.branch_id[0]
+                    "
+                  >
+                  </v-autocomplete>
+                </v-col>
                 <v-col cols="12">
                   <v-text-field
-                    hide-details
-                    v-model="New_sub_DepartmentName"
-                    placeholder="Department"
+                    v-model="payload.name"
+                    label="Department Name"
                     outlined
                     dense
+                    :hide-details="!errors.name"
+                    :error-messages="errors && errors.name && errors.name[0]"
                   ></v-text-field>
-                  <span v-if="errors && errors.name" class="error--text">{{
-                    errors.name[0]
-                  }}</span>
                 </v-col>
 
-                <v-card-actions>
-                  <v-btn class="primary" @click="saveSubDepartment">Save</v-btn>
-                </v-card-actions>
-              </v-row>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-      <v-dialog
-        persistent
-        v-model="dialogForm"
-        :fullscreen="false"
-        width="350px"
-      >
-        <v-card>
-          <v-card-title dense class="popup_background">
-            <span>{{ formTitle }} {{ Model }}</span>
-            <v-spacer></v-spacer>
-            <v-icon @click="dialogForm = false" outlined>
-              mdi mdi-close-circle
-            </v-icon>
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row class="">
-                <v-col md="12" sm="12" cols="12" small dense class="pt-0">
-                  <v-text-field
-                    label="Department Name"
-                    dense
-                    outlined
-                    :hide-details="!errors.name"
-                    type="text"
-                    v-model="editedItem.name"
-                    :error="errors.name"
-                    :error-messages="
-                      errors && errors.name ? errors.name[0] : ''
-                    "
-                    placeholder="Department Name"
-                  ></v-text-field>
+                <v-col cols="12" class="pb-0 mb-0"><b>Add Manager(s)</b></v-col>
+
+                <v-col cols="12">
+                  <v-row
+                    no-gutters
+                    v-for="(item, index) in payload.managers"
+                    :key="index"
+                  >
+                    <v-col cols="12">
+                      <v-text-field
+                        class="my-2"
+                        dense
+                        outlined
+                        v-model="item.name"
+                        label="Manager Name"
+                        :hide-details="!errors[`managers.${index}.name`]"
+                        :error-messages="
+                          errors &&
+                          errors[`managers.${index}.name`] &&
+                          errors[`managers.${index}.name`][0]
+                        "
+                      ></v-text-field>
+
+                      <v-text-field
+                        class="my-2"
+                        dense
+                        outlined
+                        type="email"
+                        v-model="item.email"
+                        label="Email"
+                        :hide-details="!errors[`managers.${index}.email`]"
+                        :error-messages="
+                          errors &&
+                          errors[`managers.${index}.email`] &&
+                          errors[`managers.${index}.email`][0]
+                        "
+                      ></v-text-field>
+
+                      <v-text-field
+                        class="mt-2"
+                        dense
+                        outlined
+                        v-model="item.password"
+                        label="Password"
+                        :hide-details="!errors[`managers.${index}.password`]"
+                        :error-messages="
+                          errors &&
+                          errors[`managers.${index}.password`] &&
+                          errors[`managers.${index}.password`][0]
+                        "
+                      ></v-text-field>
+
+                      <v-autocomplete
+                        class="mt-2"
+                        label="Role"
+                        :items="roles"
+                        item-text="name"
+                        item-value="id"
+                        placeholder="Select"
+                        v-model="item.role_id"
+                        :hide-details="!errors[`managers.${index}.role_id`]"
+                        :error-messages="
+                          errors &&
+                          errors[`managers.${index}.role_id`] &&
+                          errors[`managers.${index}.role_id`][0]
+                        "
+                        dense
+                        outlined
+                      ></v-autocomplete>
+                    </v-col>
+                    <v-col cols="12" class="mt-3">
+                      <v-divider></v-divider>
+                    </v-col>
+                  </v-row>
+                </v-col>
+                <v-col cols="12" class="text-right">
+                  <v-icon @click="removeItem(index)" title="Delete"
+                    >mdi-trash-can-outline</v-icon
+                  >
+                  <v-icon
+                    v-if="payload && payload.managers"
+                    title="Add - Maximum 3 managers"
+                    :disabled="payload.managers.length >= 3"
+                    @click="addItem"
+                    >mdi-plus-circle-outline</v-icon
+                  >
                 </v-col>
                 <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-col md="12" sm="12" cols="12" class="pa-0 text-right">
-                    <!-- <v-btn small dark class="background" @click="close">
-                          Cancel
-                        </v-btn> -->
-                    <v-btn small class="primary" @click="save">Save</v-btn>
-                  </v-col>
+                  <v-btn class="primary" @click="submit">Save</v-btn>
                 </v-card-actions>
               </v-row>
             </v-container>
           </v-card-text>
         </v-card>
-      </v-dialog>
+      </v-navigation-drawer>
       <v-row>
         <v-col md="12" lg="12">
           <!-- <Back color="primary" /> -->
@@ -136,7 +195,7 @@
               &nbsp;
               <v-btn
                 v-if="can(`sub_department_create`)"
-                @click="newSubDepartment"
+                @click="newDepartment"
                 small
                 class="primary"
               >
@@ -162,9 +221,79 @@
               :footer-props="{
                 itemsPerPageOptions: [10, 50, 100, 500, 1000],
               }"
-              class="elevation-1"
+              class="elevation-0"
               :server-items-length="totalRowsCount"
             >
+              <template v-slot:item.manager1="{ item }">
+                {{
+                  (item.managers &&
+                    item.managers[0] &&
+                    item.managers[0].name) ||
+                  "---"
+                }}
+                <div class="secondary-value">
+                  {{
+                    (item.managers &&
+                      item.managers[0] &&
+                      item.managers[0].email) ||
+                    "---"
+                  }}
+                  <br />
+                  {{
+                    (item.managers &&
+                      item.managers[0] &&
+                      item.managers[0].whatsapp_number) ||
+                    "---"
+                  }}
+                </div>
+              </template>
+              <template v-slot:item.manager2="{ item }">
+                {{
+                  (item.managers &&
+                    item.managers[1] &&
+                    item.managers[1].name) ||
+                  "---"
+                }}
+                <div class="secondary-value">
+                  {{
+                    (item.managers &&
+                      item.managers[1] &&
+                      item.managers[1].email) ||
+                    "---"
+                  }}
+                  <br />
+                  {{
+                    (item.managers &&
+                      item.managers[1] &&
+                      item.managers[1].whatsapp_number) ||
+                    "---"
+                  }}
+                </div>
+              </template>
+              <template v-slot:item.manager3="{ item }">
+                {{
+                  (item.managers &&
+                    item.managers[2] &&
+                    item.managers[2].name) ||
+                  "---"
+                }}
+                <div class="secondary-value">
+                  {{
+                    (item.managers &&
+                      item.managers[2] &&
+                      item.managers[2].email) ||
+                    "---"
+                  }}
+                  <br />
+                  {{
+                    (item.managers &&
+                      item.managers[2] &&
+                      item.managers[2].whatsapp_number) ||
+                    "---"
+                  }}
+                </div>
+              </template>
+
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
@@ -205,6 +334,13 @@
 <script>
 export default {
   data: () => ({
+    payload: {
+      branch_id: 0,
+      name: "",
+      managers: [{ name: "", email: "", password: "", role_id: 0 }],
+    },
+    branchesList: [],
+    dialogNew: false,
     show1: false,
     dialogFormDesignation: false,
     showFilters: false,
@@ -218,7 +354,6 @@ export default {
 
     New_sub_DepartmentName: "",
     Newdepartment_id: "",
-    dialogFormSubdepartment: false,
     datatable_search_textbox: "",
     filter_employeeid: "",
     snack: false,
@@ -260,12 +395,32 @@ export default {
       {
         text: "Department",
         align: "left",
-        sortable: false,
         value: "name",
+      },
+      {
+        text: "Manager 1",
+        align: "left",
+        value: "manager1",
+      },
+      {
+        text: "Manager 2",
+        align: "left",
+        value: "manager2",
+      },
+      {
+        text: "Manager 3",
+        align: "left",
+        value: "manager3",
+      },
+      {
+        text: "Last Updated Date",
+        align: "left",
+        value: "updated_at",
       },
       { text: "Options", align: "left", sortable: false, value: "options" },
     ],
     branchesList: [],
+    roles: [],
   }),
 
   computed: {
@@ -291,10 +446,50 @@ export default {
 
   created() {
     this.loading = true;
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
+
+    this.$axios
+      .get(`role`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.roles = data.data;
+      });
+
+    this.headers_table.splice(1, 0, {
+      text: "Branch",
+      align: "left",
+      sortable: true,
+      key: "branch_id",
+      value: "branch.branch_name",
+      filterable: true,
+      width: "10%",
+      filterSpecial: true,
+    });
+
     this.getDataFromApi();
   },
 
   methods: {
+    addItem() {
+      this.payload.managers.push({ name: "", email: "", password: "" });
+    },
+    removeItem(index) {
+      this.payload.managers.splice(index, 1);
+    },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -308,14 +503,9 @@ export default {
       return this.$pagePermission.can(per, this);
     },
 
-    newItem() {
-      this.dialogForm = true;
-    },
-    newSubDepartment() {
-      this.dialogFormSubdepartment = true;
-    },
-    newDesignation() {
-      this.dialogFormDesignation = true;
+    newDepartment() {
+      this.editedIndex = -1;
+      this.dialogNew = true;
     },
     caps(str) {
       if (str == "" || str == null) {
@@ -394,33 +584,8 @@ export default {
 
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      //this.dialog = true;
-      this.dialogForm = true;
-    },
-    gotoSubdepartments(item) {
-      this.$router.push(`/department?id=${item.id}`);
-    },
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
-          })
-          .then((res) => {
-            if (!res.data.status) {
-              this.errors = res.data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = res.data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch((err) => console.log(err));
+      this.payload = Object.assign({}, item);
+      this.dialogNew = true;
     },
 
     deleteItem(item) {
@@ -439,77 +604,51 @@ export default {
     },
 
     close() {
+      this.errors = [];
       //this.dialog = false;
-      this.dialogForm = false;
-      this.dialogFormSubdepartment = false;
+      this.dialogNew = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
     },
-    saveSubDepartment() {
-      let payload = {
-        name: this.New_sub_DepartmentName,
-        department_id: 0,
-        company_id: this.$auth.user.company_id,
-      };
+    submit() {
+      this.errors = [];
+      this.editedIndex === -1 ? this.store() : this.update();
+    },
+
+    store() {
+      this.payload.company_id = this.$auth.user.company_id;
 
       this.$axios
-        .post("departments", payload)
+        .post(this.endpoint, this.payload)
         .then(({ data }) => {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.getDataFromApi();
             this.snackbar = data.status;
             this.response = data.message;
+            this.getDataFromApi();
             this.close();
-            this.errors = [];
-            this.search = "";
-            this.New_sub_DepartmentName = "";
-            this.Newdepartment_id = "";
-            his.dialogFormSubdepartment = false;
           }
         })
         .catch((res) => console.log(res));
     },
-    save() {
-      let payload = {
-        name: this.editedItem.name,
-      };
-      if (this.editedIndex > -1) {
-        this.$axios
-          .put(this.endpoint + "/" + this.editedItem.id, payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-              this.dialogForm = false;
-            }
-          })
-          .catch((err) => console.log(err));
-      } else {
-        this.$axios
-          .post(this.endpoint, payload)
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.response = data.message;
-              this.close();
-              this.errors = [];
-              this.search = "";
-              this.dialogForm = false;
-            }
-          })
-          .catch((res) => console.log(res));
-      }
+
+    update() {
+      this.$axios
+        .put(`${this.endpoint}/${this.payload.id}`, this.payload)
+        .then(({ data }) => {
+          if (!data.status) {
+            this.errors = data.errors;
+          } else {
+            this.snackbar = data.status;
+            this.response = data.message;
+            this.getDataFromApi();
+            this.close();
+          }
+        })
+        .catch((res) => console.log(res));
     },
   },
 };
