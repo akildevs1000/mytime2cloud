@@ -79,13 +79,33 @@ class VisitorAttendanceRenderController extends Controller
             // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
             // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
 
+            // $firstLog = collect($logs)->filter(function ($record) {
+            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all" || $record["device"]["function"] == "auto");
+            // })->first();
+
+            // $lastLog = collect($logs)->filter(function ($record) {
+            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all"  || $record["device"]["function"] == "auto");
+            // })->last();
+
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "all" || $record["device"]["function"] == "auto");
+                return $record["log_type"] == "In";
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "all"  || $record["device"]["function"] == "auto");
+                return $record["log_type"] == "Out";
             })->last();
+            if ($firstLog == null) {
+
+                $firstLog = collect($logs)->filter(function ($record) {
+                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
+                })->first();
+            }
+            if ($lastLog == null) {
+                $lastLog = collect($logs)->filter(function ($record) {
+                    return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+                })->last();
+            }
+
             //echo $firstLog["time"] . '---' . $lastLog["time"];
             //print_r($lastLog);
             //exit;

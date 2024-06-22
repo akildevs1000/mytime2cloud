@@ -32,6 +32,11 @@ class ActivityController extends Controller
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             $q->whereHas("user.employee", fn ($q) => $q->where("branch_id", $request->branch_id));
         });
+
+        $model->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+            $q->whereHas("user.employee", fn ($q) => $q->where("department_id", $request->department_id));
+        });
+
         $model->when($request->filled("action"), fn ($q) => $q->where("action", $request->action));
         $model->when($request->filled("type"), fn ($q) => $q->where("type", $request->type));
 

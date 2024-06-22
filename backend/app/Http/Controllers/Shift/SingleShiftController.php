@@ -102,12 +102,30 @@ class SingleShiftController extends Controller
             // })->first();
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
+                return $record["log_type"] == "In";
             })->first();
 
             $lastLog = collect($logs)->filter(function ($record) {
-                return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+                return $record["log_type"] == "Out";
             })->last();
+            if ($firstLog == null) {
+
+                $firstLog = collect($logs)->filter(function ($record) {
+                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
+                })->first();
+            }
+            if ($lastLog == null) {
+                $lastLog = collect($logs)->filter(function ($record) {
+                    return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+                })->last();
+            }
+
+            // if ($firstLog && ($firstLog["log_type"] == "in" || $firstLog["log_type"] == "auto")) {
+            //     $item["in"] = $firstLog["time"];
+            //     $item["device_id_in"] = $firstLog["DeviceID"];
+            // }
+
+
 
 
 
@@ -183,6 +201,8 @@ class SingleShiftController extends Controller
             $this->devLog("render-manual-log", $message);
             return $message;
         }
+
+
 
         try {
 

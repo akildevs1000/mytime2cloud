@@ -43,61 +43,6 @@ class ThemeController extends Controller
     {
         return $this->getCounts($request->company_id, $request);
     }
-    public function getCounts_old($id = 0, $request): array
-    {
-
-
-        $model = Attendance::with("employee")->where('company_id', $id)
-
-            ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
-                $q->with(["employee" =>  function ($q) use ($request) {
-                    $q->whereHas('department', fn (Builder $query) => $query->whereIn('department_id', $request->department_ids));
-                }]);
-            })
-            ->when($request->filled("branch_id"), function ($q) use ($request) {
-                $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
-            })
-            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
-            ->whereDate('date', date("Y-m-d"))
-            ->select('status')
-            ->get();
-        $attendanceCounts = 0;
-        try {
-            $attendanceCounts = AttendanceLog::with(["employee"])->where("company_id", $id)
-                ->whereDate("LogTime", date("Y-m-d"))
-                ->when($request->filled("branch_id"), function ($q) use ($request) {
-                    $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
-                })
-                ->groupBy("UserID")
-
-                ->selectRaw('"UserID", COUNT(*) as count')
-                ->get();
-        } catch (\Exception $e) {
-        }
-
-        $countsByParity = $attendanceCounts->groupBy(fn ($item) => $item->count % 2 === 0 ? 'even' : 'odd')->map->count();
-
-        return [
-            "employeeCount" => Employee::where("company_id", $id)
-                ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
-                    $q->whereIn("department_id", $request->department_ids);
-                })
-
-                ->when($request->filled("branch_id"), function ($q) use ($request) {
-                    $q->where("branch_id", $request->branch_id);
-                })
-                ->count() ?? 0,
-            'totalIn' => $countsByParity->get('odd', 0),
-            'totalOut' => $countsByParity->get('even', 0),
-            "presentCount" => $model->where('status', 'P')->count(),
-            "absentCount" => $model->where('status', 'A')->count(),
-            "missingCount" => $model->where('status', 'M')->count(),
-            "offCount" => $model->where('status', 'O')->count(),
-            "holidayCount" => $model->where('status', 'H')->count(),
-            "leaveCount" => $model->where('status', 'L')->count(),
-            "vaccationCount" => $model->where('status', 'V')->count(),
-        ];
-    }
 
     public function getCounts($id = 0, $request)
     {
@@ -113,6 +58,9 @@ class ThemeController extends Controller
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
             })
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            })
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
@@ -123,6 +71,9 @@ class ThemeController extends Controller
                 ->where("LogTime", date("Y-m-d"))
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
                 })
                 ->groupBy("UserID")
 
@@ -137,7 +88,9 @@ class ThemeController extends Controller
                 // ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
                 //     $q->whereIn("department_id", $request->department_ids);
                 // })
-
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->where("department_id", $request->department_id);
+                })
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->where("branch_id", $request->branch_id);
                 })
@@ -161,16 +114,23 @@ class ThemeController extends Controller
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
             })
-
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            })
             ->get();
 
-        $departments = Department::where('company_id', $request->company_id)->orderBy("name", "asc")->get();
+        $departments = Department::query();
+
+        $departments->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+            $q->where("id", $request->department_id);
+        });
+
+        $data = $departments->where('company_id', $request->company_id)->orderBy("name", "asc")->get();
 
         $return = [];
-        foreach ($departments as $department) {
+        foreach ($data as $department) {
 
-
-            $return[$department->name] =   [
+            $return[$department->name] =  [
 
                 "presentCount" => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
                 "absentCount" => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
@@ -311,6 +271,9 @@ class ThemeController extends Controller
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
                 })
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+                })
                 ->when($request->filled("system_user_id"), function ($q) use ($request) {
                     $q->where("employee_id", $request->system_user_id);
                 })
@@ -363,6 +326,9 @@ class ThemeController extends Controller
             $model = AttendanceLog::with(["employee"])->where('company_id', $request->company_id)
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+                })
+                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                    $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
                 })
                 // ->whereDate('LogTime', $date)
 

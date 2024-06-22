@@ -36,6 +36,8 @@ class DeviceController extends Controller
     {
         $model = Device::query();
         $model->where('company_id', request('company_id'));
+        $model->where("status_id", self::ONLINE_STATUS_ID);
+        $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name", "location", "device_id", "device_type"]);
@@ -342,6 +344,9 @@ class DeviceController extends Controller
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
         });
+        $model->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+            $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+        });
         $model->whereIn('UserID', function ($query) use ($request) {
             // $model1 = Employee::query();
             // $model1->select("system_user_id")->where('employees.company_id', $request->company_id);
@@ -602,7 +607,7 @@ class DeviceController extends Controller
             //update to Device 
             if ($request->model_number == 'OX-900') {
 
-                $status = $request->function == 'auto'  ? 'true' : 'false';
+                $status = $request->function == 'manual'  ? 'true' : 'false';
                 $json = '{             
              
                  

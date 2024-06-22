@@ -31,6 +31,9 @@ class AnnouncementController extends Controller
             ->when($request->filled("branch_id"), function ($q) use ($request) {
                 $q->where("branch_id", $request->branch_id);
             })
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->whereHas("employees", fn ($q) => $q->where("department_id", $request->department_id));
+            })
 
             ->paginate(4);
     }

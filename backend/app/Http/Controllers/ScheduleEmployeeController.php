@@ -26,14 +26,9 @@ class ScheduleEmployeeController extends Controller
     {
         $model = Employee::with(["branch", "sub_department",  "department.branch", "sub_department", "schedule"])
             ->where('company_id', $request->company_id)
-            ->when($request->filled('branch_id'), function ($q) use ($request) {
-                $q->where('branch_id', $request->branch_id);
-            });
-
-        $model->with([
-            "schedule.shift:id,name",
-        ]);
-
+            ->when($request->filled('department_id'), fn ($q) => $q->where('department_id', $request->department_id))
+            ->when($request->filled('branch_id'), fn ($q) => $q->where('branch_id', $request->branch_id))
+            ->with(["schedule.shift:id,name"]);
 
         $model->with([
             'schedule_active.shift' => function ($q) use ($request) {

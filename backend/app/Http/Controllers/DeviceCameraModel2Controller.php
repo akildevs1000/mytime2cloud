@@ -22,6 +22,9 @@ class DeviceCameraModel2Controller extends Controller
     public function __construct($camera_sdk_url, $sxdmSn = '')
     {
         $this->camera_sdk_url = $camera_sdk_url;
+
+        $url = $this->camera_sdk_url ?? gethostbyname(gethostname()) . ':8888';
+        $this->camera_sdk_url = "$url";
         $this->sxdmSn = $sxdmSn;
     }
 
@@ -210,8 +213,21 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null)
     {
+        $card_number = "";
+        if ($persons) {
+            if (isset($persons['cardData'])) {
+                $card_number = $persons['cardData'];
+            }
+        }
+        $password = "";
+        if ($persons) {
+            if (isset($persons['password'])) {
+                $password = $persons['password'];
+            }
+        }
+        //          
 
         try {
             if ($this->sxdmSn == '')
@@ -238,10 +254,10 @@ class DeviceCameraModel2Controller extends Controller
                         "person_name":  "' . $name . '",
                         "person_id": "",
                         "id":  ' . $system_user_id . ', 
-                        "card_number": "",
+                        "card_number": ' . $card_number . ',
                         "id_number": "", 
                         "pass": "",
-                        "password": "",
+                        "password": "' . $password . '",
                         "phone_num": "",
                         "is_admin": false,
                         "enabled": false,
@@ -378,7 +394,7 @@ class DeviceCameraModel2Controller extends Controller
     {
         $sessionId = $this->getActiveSessionId();
 
-
+        //return $this->camera_sdk_url . $serviceCall;
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -465,7 +481,10 @@ class DeviceCameraModel2Controller extends Controller
 
     public function getActiveSessionId()
     {
-
+        // return array(
+        //     'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+        //     'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+        // );
 
         // if ($this->sxdmSn == '') {
         //     return "Device Serial Number is empty";
@@ -482,8 +501,8 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
             CURLOPT_HTTPHEADER => array(
-                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
-                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+                'sxdmToken:' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:' . $this->sxdmSn //get from Device serial number
             ),
         ));
 

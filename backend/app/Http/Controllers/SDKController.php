@@ -192,8 +192,11 @@ class SDKController extends Controller
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id']);
+                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons);
                     }
+                } else {
+
+                    $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], "", $value['device_id'], $persons);
                 }
             }
         }
@@ -431,9 +434,25 @@ class SDKController extends Controller
             // }
             // file_put_contents($publicDirectory . '/' . $imageName, $base64Image);
 
-            //unset($res["data"]["faceImage"]);
+            unset($res["data"]["faceImage"]);
 
             return $res;
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function deletePersonDetails($device_id, Request $request)
+    {
+        try {
+            $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
+                'Content-Type' => 'application/json',
+            ])->post(env('SDK_URL') . "/" . "{$device_id}/DeletePerson", ["userCodeArray" => $request->userCodeArray]);
+
+            return $response->json();
         } catch (\Exception $e) {
             return [
                 "status" => 102,
@@ -529,7 +548,7 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . "/$id/$command";
         }
-        
+
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',

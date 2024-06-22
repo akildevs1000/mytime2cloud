@@ -19,6 +19,11 @@ class Department extends Model
         return $this->belongsTo(Company::class);
     }
 
+    public function managers()
+    {
+        return $this->hasMany(User::class)->orderBy("id","asc")->where("user_type", "department");
+    }
+
     /**
      * Get all of the sub_departments for the Department
      *
@@ -48,6 +53,7 @@ class Department extends Model
 
     protected $casts = [
         'created_at' => 'datetime:d-M-y',
+        'updated_at' => 'datetime:d-M-y',
     ];
 
     // protected static function boot()
@@ -66,9 +72,7 @@ class Department extends Model
 
         $model = self::query();
         $model->where('company_id', $request->company_id);
-        $model->with('children');
-        $model->with('branch');
-        $model->with('designations');
+        $model->with(['children','branch','designations','managers']);
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('id'), function ($q) use ($request) {
@@ -109,9 +113,6 @@ class Department extends Model
         $model =  $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
             return $q->where("branch_id", $request->filter_branch_id);
         });
-        if (!$request->sortBy) {
-            $model->orderBy('name', 'asc');
-        }
 
         return $model;
     }
