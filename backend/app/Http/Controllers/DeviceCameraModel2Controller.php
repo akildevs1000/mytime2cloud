@@ -17,6 +17,7 @@ class DeviceCameraModel2Controller extends Controller
     public  $camera_sdk_url = '';
     public  $sxdmToken = '7VOarATI4IfbqFWLF38VdWoAbHUYlpAY';
     public  $sxdmSn = '';
+    public  $session_id_local = '';
 
 
     public function __construct($camera_sdk_url, $sxdmSn = '')
@@ -213,7 +214,7 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = null)
     {
         $card_number = "";
         if ($persons) {
@@ -232,7 +233,26 @@ class DeviceCameraModel2Controller extends Controller
         try {
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
-            $sessionId = $this->getActiveSessionId();
+
+            if ($session_id) {
+                $sessionId = $session_id;
+            } else
+                $sessionId = $this->getActiveSessionId();
+
+            if ($sessionId == '') {
+                sleep(5);
+                $sessionId = $this->getActiveSessionId();
+            }
+
+
+            // if ($this->session_id_local == '') {
+            //     $sessionId = $this->getActiveSessionId();
+            //     $this->session_id_local = $sessionId;
+            // } else {
+            //     $sessionId = $this->session_id_local; // = $sessionId;
+            // }
+
+
             if ($sessionId != '') {
 
                 $curl = curl_init();

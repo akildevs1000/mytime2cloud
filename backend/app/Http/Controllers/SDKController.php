@@ -117,7 +117,8 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
-
+        $cameraResponse1 = "";
+        $cameraResponse2 = "";
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
@@ -179,7 +180,17 @@ class SDKController extends Controller
         });
         $message = [];
 
+
+
+
         foreach ($filteredCameraArray as  $value) {
+
+
+            $camera2Object = new DeviceCameraModel2Controller($value['camera_sdk_url']);
+
+            if ($camera2Object->sxdmSn == '')
+                $camera2Object->sxdmSn = $value['device_id'];
+            $sessionId = $camera2Object->getActiveSessionId();
 
             foreach ($request->personList as  $persons) {
                 if (isset($persons['profile_picture_raw'])) {
@@ -192,7 +203,7 @@ class SDKController extends Controller
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons);
+                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
                         //sleep(10);
                     }
