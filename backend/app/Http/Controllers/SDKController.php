@@ -7,6 +7,7 @@ use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -203,8 +204,27 @@ class SDKController extends Controller
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
+                        $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
+
+                        $message[] = $response;
+
+                        try {
+                            if ($response != '') {
+                                $json = json_decode($response, true);
+                                if (isset($json["id_number"])) {
+                                } else {
+                                    if ($camera2Object->sxdmSn == '')
+                                        $camera2Object->sxdmSn = $value['device_id'];
+                                    $sessionId = $camera2Object->getActiveSessionId();
+                                }
+                            }
+                        } catch (Exception $e) {
+                            if ($camera2Object->sxdmSn == '')
+                                $camera2Object->sxdmSn = $value['device_id'];
+                            $sessionId = $camera2Object->getActiveSessionId();
+                            //sleep(10);
+                        }
                         //sleep(10);
                     }
                 } else {
