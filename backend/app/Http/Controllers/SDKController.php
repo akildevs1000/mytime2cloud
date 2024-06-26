@@ -194,7 +194,7 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons);
 
-                        sleep(1000 * 10);
+                        sleep(10);
                     }
                 } else {
 
