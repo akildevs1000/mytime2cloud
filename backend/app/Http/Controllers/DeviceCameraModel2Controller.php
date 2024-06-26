@@ -254,7 +254,7 @@ class DeviceCameraModel2Controller extends Controller
                         "person_name":  "' . $name . '",
                         "person_id": "",
                         "id":  ' . $system_user_id . ', 
-                        "card_number": ' . $card_number . ',
+                        "card_number": "' . $card_number . '",
                         "id_number": "", 
                         "pass": "",
                         "password": "' . $password . '",
