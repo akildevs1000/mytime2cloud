@@ -207,25 +207,31 @@ class SDKController extends Controller
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
 
-                        $message[] = $response;
+
 
                         try {
                             if ($response != '') {
                                 $json = json_decode($response, true);
-                                if (isset($json["id_number"])) {
-                                } else {
+                                if (!isset($json["id_number"])) {
+
                                     if ($camera2Object->sxdmSn == '')
                                         $camera2Object->sxdmSn = $value['device_id'];
                                     $sessionId = $camera2Object->getActiveSessionId();
+
+                                    $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                                 }
                             }
                         } catch (Exception $e) {
                             if ($camera2Object->sxdmSn == '')
                                 $camera2Object->sxdmSn = $value['device_id'];
                             $sessionId = $camera2Object->getActiveSessionId();
+
+                            $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                             //sleep(10);
                         }
                         //sleep(10);
+
+                        $message[] = $response;
                     }
                 } else {
 
