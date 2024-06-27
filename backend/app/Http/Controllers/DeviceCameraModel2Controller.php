@@ -279,7 +279,27 @@ class DeviceCameraModel2Controller extends Controller
                           }
                         ]
                       }';
-            $return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $this->camera_sdk_url);
+            $json2_withourimage = '{
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id":  ' . $system_user_id . ', 
+                        "card_number": "' . $card_number . '",
+                        "id_number": "", 
+                        "pass": "",
+                        "password": "' . $password . '",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                         
+                      }';
+            $return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $json2_withourimage, $this->camera_sdk_url);
 
             return;
 

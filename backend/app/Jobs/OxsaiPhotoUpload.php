@@ -20,15 +20,16 @@ class OxsaiPhotoUpload implements ShouldQueue
      * @return void
      */
 
-    public $sessionId, $sxdmToken, $sxdmSn, $json, $camera_sdk_url;
+    public $sessionId, $sxdmToken, $sxdmSn, $json, $camera_sdk_url, $json2_withourimage;
 
-    public function __construct($sessionId, $sxdmToken, $sxdmSn, $json, $camera_sdk_url)
+    public function __construct($sessionId, $sxdmToken, $sxdmSn, $json, $camera_sdk_url, $json2_withourimage)
     {
         $this->sessionId = $sessionId;
         $this->sxdmToken = $sxdmToken;
         $this->sxdmSn = $sxdmSn;
         $this->json = $json;
         $this->camera_sdk_url = $camera_sdk_url;
+        $this->json2_withourimage = $json2_withourimage;
     }
 
     /**
@@ -78,38 +79,8 @@ class OxsaiPhotoUpload implements ShouldQueue
 
         ];
 
-        Log::channel('jobs')->info('OXsai900 '   . $this->camera_sdk_url . " - Request:" . $this->json . " - Response:" . $response);
+        Log::channel('jobs')->info('OXsai900 '   . $this->camera_sdk_url . " - Request:" . $this->json2_withourimage . " - Response:" . $response);
 
         return $returnContent;
-    }
-
-    public function mergeDevicePersonslist($data)
-    {
-        $mergedData = [];
-
-        foreach ($data as $item) {
-            $sn = $item['sn'];
-            $userList = $item['userList'];
-
-            if (array_key_exists($sn, $mergedData)) {
-                if (!empty($userList)) {
-                    $mergedData[$sn] = array_merge($mergedData[$sn], $userList);
-                }
-            } else {
-                $mergedData[$sn] = $item;
-            }
-        }
-
-        $mergedList = [];
-
-        foreach ($mergedData as $sn => $userList) {
-            $mergedList[] = [
-                "sn" => $sn,
-                "state" => $userList['state'],
-                "message" => $userList['message'],
-                "userList" => $userList['userList'],
-            ];
-        }
-        return $mergedList;
     }
 }
