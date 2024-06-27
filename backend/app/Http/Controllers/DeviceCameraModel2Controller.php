@@ -384,7 +384,7 @@ class DeviceCameraModel2Controller extends Controller
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
 
-                return [$response, $sessionId];
+                return $response;
             } else {
 
 
