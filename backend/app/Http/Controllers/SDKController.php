@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Exception;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class SDKController extends Controller
 {
 
 
-    protected $SDKResponseArray;
+    protected $SDKResponseArray, $storagePath;
 
     public function __construct()
     {
@@ -29,6 +30,7 @@ class SDKController extends Controller
         $this->SDKResponseArray['100'] = 'Timeout or The device is not connected to the server. Try again';
         $this->SDKResponseArray['102'] = 'offline or not connected to this server';
         $this->SDKResponseArray['200'] = 'Successful';
+        $this->storagePath = storage_path('app/camera_log_session_values.json');
     }
     public function processTimeGroup(Request $request, $id)
     {
@@ -168,6 +170,45 @@ class SDKController extends Controller
 
         return  $message;
     }
+    protected function getAllData()
+    {
+        if (!File::exists($this->storagePath)) {
+            // Return an empty array if the file doesn't exist
+            return [];
+        }
+
+        $json = File::get($this->storagePath);
+        return json_decode($json, true);
+    }
+    public function storeSessionid($id, $value)
+    {
+        $data = $this->getAllData();
+        $data[$id] = $value;
+
+        // // Create the file if it doesn't exist
+        // if (!File::exists($this->storagePath)) {
+        //     File::put($this->storagePath, json_encode([]));
+        // }
+        File::put($this->storagePath, json_encode($data));
+    }
+
+    public function getSessionid($id)
+    {
+        $data = $this->getAllData();
+        return $data[$id] ?? null;
+    }
+    protected function getSessionusingDeviceIdData($id)
+    {
+        if (!File::exists($this->storagePath)) {
+            return '';
+        }
+
+        $json = File::get($this->storagePath);
+
+
+        $data = json_decode($json, true);
+        return $data[$id] ?? '';
+    }
     public function filterCameraModel2Devices($request)
     {
         $snList = $request->snList;
@@ -191,7 +232,18 @@ class SDKController extends Controller
 
             if ($camera2Object->sxdmSn == '')
                 $camera2Object->sxdmSn = $value['device_id'];
-            $sessionId = $camera2Object->getActiveSessionId();
+
+
+            $sessionId = $this->getSessionusingDeviceIdData($value['device_id']);
+            if ($sessionId == '') {
+                $sessionId = $camera2Object->getActiveSessionId();
+                //$_SESSION[$value['device_id']] = $sessionId;
+
+                $this->storeSessionid($value['device_id'], $sessionId);
+            }
+
+
+
 
             foreach ($request->personList as  $persons) {
                 if (isset($persons['profile_picture_raw'])) {
@@ -206,9 +258,9 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
+                        $message[] = $response;
 
-
-
+                        continue;;
                         try {
                             if ($response != '') {
                                 $json = json_decode($response, true);
@@ -216,7 +268,7 @@ class SDKController extends Controller
 
                                     if ($camera2Object->sxdmSn == '')
                                         $camera2Object->sxdmSn = $value['device_id'];
-                                    $sessionId = $camera2Object->getActiveSessionId();
+                                    // $sessionId = $camera2Object->getActiveSessionId();
 
                                     $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                                 }
@@ -224,7 +276,7 @@ class SDKController extends Controller
                         } catch (Exception $e) {
                             if ($camera2Object->sxdmSn == '')
                                 $camera2Object->sxdmSn = $value['device_id'];
-                            $sessionId = $camera2Object->getActiveSessionId();
+                            //$sessionId = $camera2Object->getActiveSessionId();
 
                             $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                             //sleep(10);
