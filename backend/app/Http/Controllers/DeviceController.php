@@ -1008,6 +1008,8 @@ class DeviceController extends Controller
     public function devcieCountByStatus($company_id)
     {
 
+
+        $company_id = (int)$company_id;
         if ($company_id > 0) {
             $statusCounts = Device::where('company_id', $company_id)
                 ->whereIn('status_id', [1, 2])
