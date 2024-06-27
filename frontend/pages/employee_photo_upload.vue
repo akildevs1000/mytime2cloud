@@ -1015,10 +1015,11 @@ export default {
           name: `${item.first_name} ${item.last_name}`,
           userCode: parseInt(item.system_user_id),
           profile_picture_raw: item.profile_picture_raw,
-          faceImage:
-            process.env.APP_ENV != "local"
-              ? item.profile_picture
-              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1706172456.jpg",
+          // faceImage:
+          //   process.env.APP_ENV != "local"
+          //     ? item.profile_picture
+          //     : "https://backend.mytime2cloud.com/media/employee/profile_picture/1706172456.jpg",
+          faceImage: item.profile_picture,
         };
 
         if (item.rfid_card_number) {
@@ -1038,33 +1039,35 @@ export default {
         };
 
         try {
-          const response = await this.$axios.post(
-            `/Person/AddRange/Photos`,
-            payload
-          );
+          setTimeout(async () => {
+            const response = await this.$axios.post(
+              `/Person/AddRange/Photos`,
+              payload
+            );
 
-          let cameraResponse = response.data.cameraResponse2[0];
-          console.log(cameraResponse);
-          if (
-            cameraResponse == "Unable to Conenct Device" ||
-            cameraResponse == ""
-          ) {
-            this.snackbar.show = true;
-            this.response = person.name + " - Unable to Conenct Device";
-          } else {
-            cameraResponse = JSON.parse(cameraResponse);
-            if (cameraResponse.errors) {
-              console.log(cameraResponse.errors[0].detail);
+            let cameraResponse = response.data.cameraResponse2[0];
+            console.log(cameraResponse);
+            if (
+              cameraResponse == "Unable to Conenct Device" ||
+              cameraResponse == ""
+            ) {
               this.snackbar.show = true;
-              this.response =
-                person.name + " - " + cameraResponse.errors[0].detail;
+              this.response = person.name + " - Unable to Conenct Device";
             } else {
-              this.snackbar.show = true;
-              if (cameraResponse.person_name) {
-                this.response = cameraResponse.person_name + " Uploaded";
+              cameraResponse = JSON.parse(cameraResponse);
+              if (cameraResponse.errors) {
+                console.log(cameraResponse.errors[0].detail);
+                this.snackbar.show = true;
+                this.response =
+                  person.name + " - " + cameraResponse.errors[0].detail;
+              } else {
+                this.snackbar.show = true;
+                if (cameraResponse.person_name) {
+                  this.response = cameraResponse.person_name + " Uploaded";
+                }
               }
             }
-          }
+          }, 5000);
         } catch (error) {
           // Handle error response for each employee
           console.log(`Error for ${person.name}:`, error);
