@@ -228,6 +228,9 @@ class DeviceCameraModel2Controller extends Controller
             if (isset($persons['password'])) {
 
                 $password = $persons['password'];
+                if (strlen($password) < 6) {
+                    $password = '';
+                }
             }
         }
         //          
@@ -299,9 +302,9 @@ class DeviceCameraModel2Controller extends Controller
                         ],
                          
                       }';
-            $return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $json2_withourimage, $this->camera_sdk_url);
+            //$return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $json2_withourimage, $this->camera_sdk_url);
 
-            return;
+            //return;
 
             if ($sessionId != '') {
 
