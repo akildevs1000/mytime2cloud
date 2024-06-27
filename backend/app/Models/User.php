@@ -52,6 +52,15 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = [
+        "show_password",
+    ];
+
+    public function getShowPasswordAttribute()
+    {
+        return "********";
+    }
+
     /**
      * The attributes that should be cast.
      *
