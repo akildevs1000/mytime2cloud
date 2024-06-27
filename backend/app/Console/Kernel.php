@@ -406,7 +406,7 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('01:00')
                 // ->runInBackground()
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("kernal_logs/$monthYear-leaves-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("kernal_logs/$monthYear-leaves.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_holidays $companyId")
@@ -414,14 +414,14 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('01:30')
                 // ->runInBackground()
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("kernal_logs/$monthYear-holidays-$companyId.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->appendOutputTo(storage_path("kernal_logs/$monthYear-holidays.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             $schedule
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
 
                 ->dailyAt('02:00')
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("kernal_logs/$monthYear-monthly-flexible-holidays-$companyId.log"))
+                ->appendOutputTo(storage_path("kernal_logs/$monthYear-monthly-flexible-holidays.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
@@ -430,7 +430,7 @@ class Kernel extends ConsoleKernel
 
                 ->dailyAt('02:00')
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("kernal_logs/$monthYear-sync-off-by-day-$companyId.log"))
+                ->appendOutputTo(storage_path("kernal_logs/$monthYear-sync-off-by-day.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
@@ -439,7 +439,7 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
                 //->withoutOverlapping()
-                ->appendOutputTo(storage_path("kernal_logs/$monthYear-visitor-set-expire-date-$companyId.log"))
+                ->appendOutputTo(storage_path("kernal_logs/$monthYear-visitor-set-expire-date.log"))
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             // $schedule
