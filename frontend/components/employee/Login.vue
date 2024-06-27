@@ -250,6 +250,11 @@ export default {
         .get(`employee-single/${id}`)
         .then(({ data }) => {
           this.employee = data.user;
+
+          if (!data.user.email || data.user.email !== "---") {
+            this.employee.password = "********";
+            this.employee.password_confirmation = "********";
+          }
           this.employee.employee_id = id;
           this.employee.company_id = this.$auth.user.company_id;
           this.loading = false;
