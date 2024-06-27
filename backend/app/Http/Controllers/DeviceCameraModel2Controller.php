@@ -246,6 +246,8 @@ class DeviceCameraModel2Controller extends Controller
 
             $sessionId = $session_id;
 
+            return $session_id;
+
             // if ($sessionId == '') {
             //     sleep(5);
             //     $sessionId = $this->getActiveSessionId();
