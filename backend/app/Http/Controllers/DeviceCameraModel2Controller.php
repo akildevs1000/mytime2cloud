@@ -244,10 +244,10 @@ class DeviceCameraModel2Controller extends Controller
             } else
                 $sessionId = $this->getActiveSessionId();
 
-            if ($sessionId == '') {
-                sleep(5);
-                $sessionId = $this->getActiveSessionId();
-            }
+            // if ($sessionId == '') {
+            //     sleep(5);
+            //     $sessionId = $this->getActiveSessionId();
+            // }
 
 
             // if ($this->session_id_local == '') {
@@ -382,18 +382,18 @@ class DeviceCameraModel2Controller extends Controller
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
 
-                return $response;
+                return [$response, $sessionId];
             } else {
 
 
 
-                $this->devLog("camera-megeye-error", "Unable to Generate session");
+                $this->devLog("camera-megeye-error", "Unable to Conenct Device");
 
-                return "Unable to Generate session";
+                return "Unable to Conenct Device";
             }
         } catch (\Throwable $th) {
             //throw $th;
-            $this->devLog("camera-megeye-error", "Exception - Unable to Generate session" . $th);
+            $this->devLog("camera-megeye-error", "Exception - Unable to Conenct Device" . $th);
 
             return "Expection failed" . $th;
         }

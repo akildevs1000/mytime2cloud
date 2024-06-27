@@ -1046,17 +1046,18 @@ export default {
           let cameraResponse = response.data.cameraResponse2[0];
           console.log(cameraResponse);
           if (
-            cameraResponse == "Unable to Generate session" ||
+            cameraResponse == "Unable to Conenct Device" ||
             cameraResponse == ""
           ) {
             this.snackbar.show = true;
-            this.response = "Unable to Generate session";
+            this.response = person.name + " - Unable to Conenct Device";
           } else {
             cameraResponse = JSON.parse(cameraResponse);
             if (cameraResponse.errors) {
               console.log(cameraResponse.errors[0].detail);
               this.snackbar.show = true;
-              this.response = cameraResponse.errors[0].detail;
+              this.response =
+                person.name + " - " + cameraResponse.errors[0].detail;
             } else {
               this.snackbar.show = true;
               if (cameraResponse.person_name) {
