@@ -226,8 +226,8 @@ class DeviceCameraModel2Controller extends Controller
         $password = "";
         if ($persons) {
             if (isset($persons['password'])) {
-                if (count($persons['password']) >= 6)
-                    $password = $persons['password'];
+
+                $password = $persons['password'];
             }
         }
         //          
