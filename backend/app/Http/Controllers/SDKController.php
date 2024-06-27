@@ -30,7 +30,7 @@ class SDKController extends Controller
         $this->SDKResponseArray['100'] = 'Timeout or The device is not connected to the server. Try again';
         $this->SDKResponseArray['102'] = 'offline or not connected to this server';
         $this->SDKResponseArray['200'] = 'Successful';
-        $this->storagePath = storage_path('app/camera_log_session_values.json');
+        $this->storagePath = storage_path('app/oxsaicamera_log_session_values.json');
 
 
         $this->expirationTime =  60 * 4; //5 minutes 
