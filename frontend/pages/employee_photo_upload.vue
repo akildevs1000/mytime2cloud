@@ -1042,7 +1042,11 @@ export default {
             `/Person/AddRange/Photos`,
             payload
           );
-          // Handle success response for each employee
+
+          this.loading_dialog = false;
+
+          this.snackbar.show = true;
+          this.response = data1.cameraResponse2[0];
         } catch (error) {
           // Handle error response for each employee
           console.error(error);
