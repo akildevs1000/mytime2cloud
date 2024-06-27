@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\OxsaiPhotoUpload;
 use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
@@ -17,6 +18,7 @@ class DeviceCameraModel2Controller extends Controller
     public  $camera_sdk_url = '';
     public  $sxdmToken = '7VOarATI4IfbqFWLF38VdWoAbHUYlpAY';
     public  $sxdmSn = '';
+    public  $session_id_local = '';
 
 
     public function __construct($camera_sdk_url, $sxdmSn = '')
@@ -213,7 +215,7 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = null)
     {
         $card_number = "";
         if ($persons) {
@@ -224,7 +226,11 @@ class DeviceCameraModel2Controller extends Controller
         $password = "";
         if ($persons) {
             if (isset($persons['password'])) {
+
                 $password = $persons['password'];
+                if (strlen($password) != 6) {
+                    $password = '';
+                }
             }
         }
         //          
@@ -232,7 +238,74 @@ class DeviceCameraModel2Controller extends Controller
         try {
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
-            $sessionId = $this->getActiveSessionId();
+
+            if ($session_id) {
+                $sessionId = $session_id;
+            } else
+                $sessionId = $this->getActiveSessionId();
+
+            // if ($sessionId == '') {
+            //     sleep(5);
+            //     $sessionId = $this->getActiveSessionId();
+            // }
+
+
+            // if ($this->session_id_local == '') {
+            //     $sessionId = $this->getActiveSessionId();
+            //     $this->session_id_local = $sessionId;
+            // } else {
+            //     $sessionId = $this->session_id_local; // = $sessionId;
+            // }
+
+            $json = '{
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id":  ' . $system_user_id . ', 
+                        "card_number": "' . $card_number . '",
+                        "id_number": "", 
+                        "pass": "",
+                        "password": "' . $password . '",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                        "face_list": [
+                          {
+                            "idx": 0,
+                            "data":  "' . $base65Image . ' "
+                          }
+                        ]
+                      }';
+            $json2_withourimage = '{
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id":  ' . $system_user_id . ', 
+                        "card_number": "' . $card_number . '",
+                        "id_number": "", 
+                        "pass": "",
+                        "password": "' . $password . '",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                         
+                      }';
+            //$return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $json2_withourimage, $this->camera_sdk_url);
+
+            //return;
+
             if ($sessionId != '') {
 
                 $curl = curl_init();
@@ -254,7 +327,7 @@ class DeviceCameraModel2Controller extends Controller
                         "person_name":  "' . $name . '",
                         "person_id": "",
                         "id":  ' . $system_user_id . ', 
-                        "card_number": ' . $card_number . ',
+                        "card_number": "' . $card_number . '",
                         "id_number": "", 
                         "pass": "",
                         "password": "' . $password . '",
@@ -309,18 +382,20 @@ class DeviceCameraModel2Controller extends Controller
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
 
-                return $response;
+                return [$response, $sessionId];
             } else {
 
 
 
-                $this->devLog("camera-megeye-error", "Unable to Generate session");
+                $this->devLog("camera-megeye-error", "Unable to Conenct Device");
 
-                return "Unable to Generate session";
+                return "Unable to Conenct Device";
             }
         } catch (\Throwable $th) {
             //throw $th;
-            $this->devLog("camera-megeye-error", "Exception - Unable to Generate session" . $th);
+            $this->devLog("camera-megeye-error", "Exception - Unable to Conenct Device" . $th);
+
+            return "Expection failed" . $th;
         }
     }
     public function updateTimeZone($device)

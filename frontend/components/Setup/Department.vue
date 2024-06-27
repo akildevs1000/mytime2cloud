@@ -393,6 +393,11 @@ export default {
     errors: [],
     headers_table: [
       {
+        text: "Ref #",
+        align: "left",
+        value: "id",
+      },
+      {
         text: "Department",
         align: "left",
         value: "name",

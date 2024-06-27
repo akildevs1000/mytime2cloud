@@ -7,6 +7,7 @@ use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -117,7 +118,8 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
-
+        $cameraResponse1 = "";
+        $cameraResponse2 = "";
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
@@ -179,7 +181,17 @@ class SDKController extends Controller
         });
         $message = [];
 
+
+
+
         foreach ($filteredCameraArray as  $value) {
+
+
+            $camera2Object = new DeviceCameraModel2Controller($value['camera_sdk_url']);
+
+            if ($camera2Object->sxdmSn == '')
+                $camera2Object->sxdmSn = $value['device_id'];
+            $sessionId = $camera2Object->getActiveSessionId();
 
             foreach ($request->personList as  $persons) {
                 if (isset($persons['profile_picture_raw'])) {
@@ -192,7 +204,34 @@ class SDKController extends Controller
                         //$imageData = file_get_contents($personProfilePic);
                         $imageData = file_get_contents($personProfilePic);
                         $md5string = base64_encode($imageData);;
-                        $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons);
+                        $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
+
+
+
+
+                        try {
+                            if ($response != '') {
+                                $json = json_decode($response, true);
+                                if (!isset($json["id_number"])) {
+
+                                    if ($camera2Object->sxdmSn == '')
+                                        $camera2Object->sxdmSn = $value['device_id'];
+                                    $sessionId = $camera2Object->getActiveSessionId();
+
+                                    $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
+                                }
+                            }
+                        } catch (Exception $e) {
+                            if ($camera2Object->sxdmSn == '')
+                                $camera2Object->sxdmSn = $value['device_id'];
+                            $sessionId = $camera2Object->getActiveSessionId();
+
+                            $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
+                            //sleep(10);
+                        }
+                        //sleep(10);
+
+                        $message[] = $response;
                     }
                 } else {
 

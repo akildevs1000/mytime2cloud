@@ -248,7 +248,6 @@
                                 <v-text-field
                                   label="Company Name"
                                   color="grey"
-                                  readonly
                                   filled
                                   dense
                                   outlined
@@ -267,7 +266,6 @@
                                 <v-text-field
                                   label="Company Email"
                                   color="grey"
-                                  readonly
                                   filled
                                   dense
                                   outlined
