@@ -832,7 +832,7 @@ class EmployeeController extends Controller
                 return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             }
         }
-        if ($request->password != '') {
+        if ($request->password != '' || $request->password != "********") {
             $arr['password'] = Hash::make($request->password ?? "secret");
         }
 
