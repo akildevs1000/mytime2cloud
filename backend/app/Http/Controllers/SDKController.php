@@ -211,6 +211,9 @@ class SDKController extends Controller
     }
     public function filterCameraModel2Devices($request)
     {
+        File::put($this->storagePath, '');
+
+
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
         $Devices = Device::where('model_number', "OX-900")->get()->all();
