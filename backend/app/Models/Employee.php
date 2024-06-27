@@ -469,6 +469,16 @@ class Employee extends Model
             }])
             ->where('company_id', $request->company_id)
 
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where('branch_id', '=', $request->branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
+            })
+            ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+                $q->where('branch_id', '=', $request->filter_branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
+            })
+
+
 
             ->when($request->filled('search'), function ($q) use ($request) {
                 $q->Where('system_user_id', 'ILIKE', "%$request->search%");
