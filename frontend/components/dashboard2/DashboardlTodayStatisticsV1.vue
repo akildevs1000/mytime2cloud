@@ -75,7 +75,7 @@
         md="6"
         sm="6"
         xs="6"
-        class="text-red bold text-h3 blue--texttext-center laptop-padding"
+        class="text-red bold text-h3 blue--text text-center laptop-padding"
         align-self="center"
         >{{ (data && data.presentCount) || 0 }}</v-col
       >
