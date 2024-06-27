@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\OxsaiPhotoUpload;
 use App\Models\Attendance;
 use App\Models\Device;
 use App\Models\Employee;
@@ -252,6 +253,34 @@ class DeviceCameraModel2Controller extends Controller
             //     $sessionId = $this->session_id_local; // = $sessionId;
             // }
 
+            $json = '{
+                        "person_code": ' . $system_user_id . ', 
+                        "visit_begin_time": "",
+                        "visit_end_time": "",
+                        "recognition_type": "staff",
+                        "person_name":  "' . $name . '",
+                        "person_id": "",
+                        "id":  ' . $system_user_id . ', 
+                        "card_number": "' . $card_number . '",
+                        "id_number": "", 
+                        "pass": "",
+                        "password": "' . $password . '",
+                        "phone_num": "",
+                        "is_admin": false,
+                        "enabled": false,
+                        "group_list": [
+                          "1"
+                        ],
+                        "face_list": [
+                          {
+                            "idx": 0,
+                            "data":  "' . $base65Image . ' "
+                          }
+                        ]
+                      }';
+            $return = OxsaiPhotoUpload::dispatch($sessionId, $this->sxdmToken, $this->sxdmSn,  $json, $this->camera_sdk_url);
+
+            return;
 
             if ($sessionId != '') {
 
