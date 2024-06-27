@@ -1039,35 +1039,37 @@ export default {
         };
 
         try {
-          setTimeout(async () => {
-            const response = await this.$axios.post(
-              `/Person/AddRange/Photos`,
-              payload
-            );
+          // setTimeout(async () => {
+          const response = await this.$axios.post(
+            `/Person/AddRange/Photos`,
+            payload
+          );
 
-            let cameraResponse = response.data.cameraResponse2[0];
-            console.log(cameraResponse);
-            if (
-              cameraResponse == "Unable to Conenct Device" ||
-              cameraResponse == ""
-            ) {
+          let cameraResponse = response.data.cameraResponse2[0];
+          console.log(cameraResponse);
+          if (
+            cameraResponse == "Unable to Conenct Device" ||
+            cameraResponse == ""
+          ) {
+            this.snackbar.show = true;
+            this.response =
+              person.name +
+              " - Unable to Conenct Device. Try again after some time.";
+          } else {
+            cameraResponse = JSON.parse(cameraResponse);
+            if (cameraResponse.errors) {
+              console.log(cameraResponse.errors[0].detail);
               this.snackbar.show = true;
-              this.response = person.name + " - Unable to Conenct Device";
+              this.response =
+                person.name + " - " + cameraResponse.errors[0].detail;
             } else {
-              cameraResponse = JSON.parse(cameraResponse);
-              if (cameraResponse.errors) {
-                console.log(cameraResponse.errors[0].detail);
-                this.snackbar.show = true;
-                this.response =
-                  person.name + " - " + cameraResponse.errors[0].detail;
-              } else {
-                this.snackbar.show = true;
-                if (cameraResponse.person_name) {
-                  this.response = cameraResponse.person_name + " Uploaded";
-                }
+              this.snackbar.show = true;
+              if (cameraResponse.person_name) {
+                this.response = cameraResponse.person_name + " Uploaded";
               }
             }
-          }, 5000);
+          }
+          // }, 5000);
         } catch (error) {
           // Handle error response for each employee
           console.log(`Error for ${person.name}:`, error);
