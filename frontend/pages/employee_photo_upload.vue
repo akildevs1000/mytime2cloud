@@ -1042,8 +1042,9 @@ export default {
             `/Person/AddRange/Photos`,
             payload
           );
-          console.log(response.data.cameraResponse2[0]);
+
           let cameraResponse = response.data.cameraResponse2[0];
+          console.log(cameraResponse);
           if (
             cameraResponse == "Unable to Generate session" ||
             cameraResponse == ""
@@ -1052,10 +1053,16 @@ export default {
             this.response = "Unable to Generate session";
           } else {
             cameraResponse = JSON.parse(cameraResponse);
-
-            console.log(cameraResponse.errors[0].detail);
-            this.snackbar.show = true;
-            this.response = cameraResponse.errors[0].detail;
+            if (cameraResponse.errors) {
+              console.log(cameraResponse.errors[0].detail);
+              this.snackbar.show = true;
+              this.response = cameraResponse.errors[0].detail;
+            } else {
+              this.snackbar.show = true;
+              if (cameraResponse.person_name) {
+                this.response = cameraResponse.person_name + " Uploaded";
+              }
+            }
           }
         } catch (error) {
           // Handle error response for each employee
