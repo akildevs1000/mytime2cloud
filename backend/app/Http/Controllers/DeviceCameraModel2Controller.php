@@ -215,7 +215,7 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = null)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = '')
     {
         $card_number = "";
         if ($persons) {
@@ -239,7 +239,7 @@ class DeviceCameraModel2Controller extends Controller
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
 
-            if ($session_id) {
+            if ($session_id != '') {
                 $sessionId = $session_id;
             } else
                 $sessionId = $this->getActiveSessionId();
