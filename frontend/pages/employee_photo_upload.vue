@@ -1010,26 +1010,26 @@ export default {
 
       let personListArray = [];
 
-      this.rightEmployees.forEach((item) => {
+      for (const item of this.rightEmployees) {
         let person = {
-          name: item.first_name + " " + item.last_name,
-
+          name: `${item.first_name} ${item.last_name}`,
           userCode: parseInt(item.system_user_id),
           profile_picture_raw: item.profile_picture_raw,
-          //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
           faceImage:
             process.env.APP_ENV != "local"
               ? item.profile_picture
               : "https://backend.mytime2cloud.com/media/employee/profile_picture/1706172456.jpg",
         };
-        if (item.rfid_card_number != "") {
+
+        if (item.rfid_card_number) {
           person.cardData = item.rfid_card_number;
         }
-        if (item.rfid_card_password != "") {
+
+        if (item.rfid_card_password) {
           person.password = item.rfid_card_password;
         }
-        personListArray = [];
-        personListArray.push(person);
+
+        let personListArray = [person];
 
         let payload = {
           personList: personListArray,
@@ -1037,8 +1037,17 @@ export default {
           branch_id: this.branch_id,
         };
 
-        this.$axios.post(`/Person/AddRange/Photos`, payload);
-      });
+        try {
+          const { data1 } = await this.$axios.post(
+            `/Person/AddRange/Photos`,
+            payload
+          );
+          // Handle success response for each employee
+        } catch (error) {
+          // Handle error response for each employee
+          console.error(error);
+        }
+      }
 
       let payload = {
         personList: personListArray,
