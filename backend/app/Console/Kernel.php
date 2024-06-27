@@ -26,6 +26,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
+
         if (env('APP_ENV') == 'desktop') {
 
             $schedule->command('task:sync_attendance_logs')->everyMinute();
@@ -161,7 +162,7 @@ class Kernel extends ConsoleKernel
                 }
             }
 
-         
+
             return;
         }
         // $file_name_raw = "test.txt";
@@ -172,26 +173,6 @@ class Kernel extends ConsoleKernel
         //     Storage::append($file_name_raw,  date("d-m-Y H:i:s") . ' - Devices listed');
         // })->everyMinute()->appendOutputTo(storage_path("test.txt"));
         //-------------------------------------------------------------------------------------------------------------------------
-        //Schedule Device Access Control 
-        $schedule->call(function () {
-            exec('pm2 reload 3');
-            info("Camera Log listener restart");
-        })->everyMinute();
-
-        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
-
-
-
-        $schedule->call(function () {
-            exec('pm2 reload 3');
-            info("Camera Log listener restart");
-        })->dailyAt('00:00');
-
-
-        // $schedule->call(function () {
-        //     exec('pm2 reload 11');
-        //     info("Log listener backup restart");
-        // })->monthlyOn(1, "00:00");
 
         $schedule->call(function () {
             exec('pm2 reload 4');
@@ -201,12 +182,13 @@ class Kernel extends ConsoleKernel
 
         $monthYear = date("M-Y");
 
+
         $schedule
             ->command('task:sync_attendance_logs')
             ->everyMinute()
-
             //->withoutOverlapping()
-            ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-y") . "-attendance-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-y") . "-sync_attendance_logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
         $schedule
             ->command('task:sync_attendance_camera_logs')
             ->everyMinute()
@@ -220,12 +202,46 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path("kernal_logs/alarm/" . date("d-M-y") . "-alarm-logs-laravel.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
+
+
+        //Schedule Device Access Control 
+        $schedule->call(function () {
+            exec('pm2 reload 3');
+            info("Camera Log listener restarted");
+        })->everyMinute();
+
+        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
+
+
+
+        // $schedule->call(function () {
+        //     exec('pm2 reload 3');
+        //     info("Camera Log listener restart");
+        // })->dailyAt('00:00');
+
+
+        // $schedule->call(function () {
+        //     exec('pm2 reload 11');
+        //     info("Log listener backup restart");
+        // })->monthlyOn(1, "00:00");
+
+
+        // $schedule
+        //     ->command('task:sync_attendance_logs')
+        //     ->everyMinute()
+
+        //     //->withoutOverlapping()
+        //     //->appendOutputTo(storage_path("kernal_logs/" . date("d-M-y") . "-attendance-logs.log"))
+        // ; //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
+
         $schedule
             ->command('task:update_company_ids')
             // ->everyThirtyMinutes()
             ->everyMinute()
             //->withoutOverlapping()
-            ->appendOutputTo(storage_path("kernal_logs/$monthYear-logs.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->appendOutputTo(storage_path("kernal_logs/$monthYear-update_company_ids.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
         // $schedule
         //     ->command('task:alarm_update_company_ids')
         //     // ->everyThirtyMinutes()
