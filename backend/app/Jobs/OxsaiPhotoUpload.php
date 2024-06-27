@@ -78,7 +78,7 @@ class OxsaiPhotoUpload implements ShouldQueue
 
         ];
 
-        Log::channel('jobs')->info('OXsai900 '   . $this->camera_sdk_url . " - Request:" . $this->json . " - Response:" . json_encode($returnContent, true));
+        Log::channel('jobs')->info('OXsai900 '   . $this->camera_sdk_url . " - Request:" . $this->json . " - Response:" . $response);
 
         return $returnContent;
     }
