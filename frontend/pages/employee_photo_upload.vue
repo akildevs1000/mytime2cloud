@@ -26,7 +26,11 @@
             </v-toolbar-title>
           </v-toolbar>
         </v-col>
-        <v-col v-if="$auth.user.user_type !== 'department'" cols="4" class="text-right">
+        <v-col
+          v-if="$auth.user.user_type !== 'department'"
+          cols="4"
+          class="text-right"
+        >
           <v-toolbar dense flat>
             <v-select
               v-if="isCompany"
@@ -455,7 +459,7 @@
       </v-row>
     </v-card>
   </div>
-  <NoAccess v-else/>  
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -992,8 +996,103 @@ export default {
       this.leftSelectedDevices.pop(id);
       this.verifySubmitButton();
     },
-
     async onSubmit() {
+      this.displaybutton = false;
+      this.loading = true;
+      if (this.rightEmployees.length == 0) {
+        this.response = this.response + " Atleast select one Employee Details";
+      } else if (this.rightDevices.length == 0) {
+        this.response = this.response + " Atleast select one Device Details";
+      }
+
+      this.loading_dialog = true;
+      this.errors = [];
+
+      let personListArray = [];
+
+      this.rightEmployees.forEach((item) => {
+        let person = {
+          name: item.first_name + " " + item.last_name,
+
+          userCode: parseInt(item.system_user_id),
+          profile_picture_raw: item.profile_picture_raw,
+          //faceImage: `https://stagingbackend.ideahrms.com/media/employee/profile_picture/1686381362.jpg?t=786794`,
+          faceImage:
+            process.env.APP_ENV != "local"
+              ? item.profile_picture
+              : "https://backend.mytime2cloud.com/media/employee/profile_picture/1706172456.jpg",
+        };
+        if (item.rfid_card_number != "") {
+          person.cardData = item.rfid_card_number;
+        }
+        if (item.rfid_card_password != "") {
+          person.password = item.rfid_card_password;
+        }
+        personListArray = [];
+        personListArray.push(person);
+
+        let payload = {
+          personList: personListArray,
+          snList: this.rightDevices.map((e) => e.device_id),
+          branch_id: this.branch_id,
+        };
+
+        this.$axios.post(`/Person/AddRange/Photos`, payload);
+      });
+
+      let payload = {
+        personList: personListArray,
+        snList: this.rightDevices.map((e) => e.device_id),
+        branch_id: this.branch_id,
+      };
+
+      if (payload.snList && payload.snList.length === 0) {
+        alert(`Atleast one device must be selected`);
+        return false;
+      }
+
+      this.devices_dialog.forEach((e) => {
+        e.state = "---";
+        e.message = "---";
+      });
+
+      //try {
+      const { data } = await this.$axios.post(
+        `/Person/AddRange/Photos`,
+        payload
+      );
+
+      if (data.deviceResponse.status == 200) {
+        this.loading_dialog = false;
+
+        this.snackbar.show = true;
+        this.response = "Employee(s) Pictures  has been uploaded";
+
+        let jsrightEmployees = this.rightEmployees;
+        let SDKSuccessStatus = true;
+        jsrightEmployees.forEach((element) => {
+          element["sdkEmpResponse"] = "Success";
+        });
+        this.rightDevices.forEach((elementDevice) => {
+          elementDevice["sdkDeviceResponse"] = "Success";
+          this.errors = [];
+          this.loading = false;
+        });
+
+        setTimeout(() => {
+          //location.reload();
+        }, 1000);
+      } else {
+        this.loading_dialog = false;
+        this.snackbar.show = true;
+        this.response = data.message;
+
+        this.loading = false;
+      }
+
+      this.displaybutton = true;
+    },
+    /*async onSubmit() {
       this.displaybutton = false;
       this.loading = true;
       if (this.rightEmployees.length == 0) {
@@ -1079,7 +1178,7 @@ export default {
       }
 
       this.displaybutton = true;
-    },
+    },*/
   },
 };
 </script>
