@@ -46,7 +46,7 @@
     </v-row>
     <v-row>
       <v-col lg="2" md="2" sm="2" xs="2" class="pt-md-5">
-        <v-avatar color="#BBDEFB">
+        <v-avatar color="#FFE0B2">
           <v-icon>mdi-account</v-icon>
         </v-avatar>
       </v-col>
@@ -56,7 +56,7 @@
         md="6"
         sm="6"
         xs="6"
-        class="text-red bold text-h3 blue--text text-center laptop-padding"
+        class="text-red bold text-h3 orange--text text-center laptop-padding"
         align-self="center"
         >{{ (data && data.missingCount) || 0 }}</v-col
       >
@@ -66,7 +66,7 @@
     </v-row>
     <v-row>
       <v-col lg="2" md="2" sm="2" xs="2" class="pt-md-5">
-        <v-avatar color="#FFE0B2">
+        <v-avatar color="#BBDEFB">
           <v-icon>mdi-account-minus</v-icon>
         </v-avatar>
       </v-col>
@@ -75,7 +75,7 @@
         md="6"
         sm="6"
         xs="6"
-        class="text-red bold text-h3 orange--text text-center laptop-padding"
+        class="text-red bold text-h3 blue--texttext-center laptop-padding"
         align-self="center"
         >{{ (data && data.presentCount) || 0 }}</v-col
       >
