@@ -394,6 +394,8 @@ class DeviceCameraModel2Controller extends Controller
         } catch (\Throwable $th) {
             //throw $th;
             $this->devLog("camera-megeye-error", "Exception - Unable to Generate session" . $th);
+
+            return "Expection failed" . $th;
         }
     }
     public function updateTimeZone($device)

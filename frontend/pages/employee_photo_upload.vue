@@ -1038,72 +1038,86 @@ export default {
         };
 
         try {
-          const { data1 } = await this.$axios.post(
+          const response = await this.$axios.post(
             `/Person/AddRange/Photos`,
             payload
           );
+          console.log(response.data.cameraResponse2[0]);
+          let cameraResponse = response.data.cameraResponse2[0];
+          if (
+            cameraResponse == "Unable to Generate session" ||
+            cameraResponse == ""
+          ) {
+            this.snackbar.show = true;
+            this.response = "Unable to Generate session";
+          } else {
+            cameraResponse = JSON.parse(cameraResponse);
 
-          this.loading_dialog = false;
-
-          this.snackbar.show = true;
-          this.response = data1.cameraResponse2[0];
+            console.log(cameraResponse.errors[0].detail);
+            this.snackbar.show = true;
+            this.response = cameraResponse.errors[0].detail;
+          }
         } catch (error) {
           // Handle error response for each employee
-          console.error(error);
+          console.log(`Error for ${person.name}:`, error);
         }
       }
+      this.loading_dialog = false;
 
-      let payload = {
-        personList: personListArray,
-        snList: this.rightDevices.map((e) => e.device_id),
-        branch_id: this.branch_id,
-      };
-
-      if (payload.snList && payload.snList.length === 0) {
-        alert(`Atleast one device must be selected`);
-        return false;
-      }
-
-      this.devices_dialog.forEach((e) => {
-        e.state = "---";
-        e.message = "---";
-      });
-
-      //try {
-      const { data } = await this.$axios.post(
-        `/Person/AddRange/Photos`,
-        payload
-      );
-
-      if (data.deviceResponse.status == 200) {
-        this.loading_dialog = false;
-
-        this.snackbar.show = true;
-        this.response = "Employee(s) Pictures  has been uploaded";
-
-        let jsrightEmployees = this.rightEmployees;
-        let SDKSuccessStatus = true;
-        jsrightEmployees.forEach((element) => {
-          element["sdkEmpResponse"] = "Success";
-        });
-        this.rightDevices.forEach((elementDevice) => {
-          elementDevice["sdkDeviceResponse"] = "Success";
-          this.errors = [];
-          this.loading = false;
-        });
-
-        setTimeout(() => {
-          //location.reload();
-        }, 1000);
-      } else {
-        this.loading_dialog = false;
-        this.snackbar.show = true;
-        this.response = data.message;
-
-        this.loading = false;
-      }
+      this.loading = false;
 
       this.displaybutton = true;
+      // let payload = {
+      //   personList: personListArray,
+      //   snList: this.rightDevices.map((e) => e.device_id),
+      //   branch_id: this.branch_id,
+      // };
+
+      // if (payload.snList && payload.snList.length === 0) {
+      //   alert(`Atleast one device must be selected`);
+      //   return false;
+      // }
+
+      // this.devices_dialog.forEach((e) => {
+      //   e.state = "---";
+      //   e.message = "---";
+      // });
+
+      // //try {
+      // const { data } = await this.$axios.post(
+      //   `/Person/AddRange/Photos`,
+      //   payload
+      // );
+
+      // if (data.deviceResponse.status == 200) {
+      //   this.loading_dialog = false;
+
+      //   this.snackbar.show = true;
+      //   this.response = "Employee(s) Pictures  has been uploaded";
+
+      //   let jsrightEmployees = this.rightEmployees;
+      //   let SDKSuccessStatus = true;
+      //   jsrightEmployees.forEach((element) => {
+      //     element["sdkEmpResponse"] = "Success";
+      //   });
+      //   this.rightDevices.forEach((elementDevice) => {
+      //     elementDevice["sdkDeviceResponse"] = "Success";
+      //     this.errors = [];
+      //     this.loading = false;
+      //   });
+
+      //   setTimeout(() => {
+      //     //location.reload();
+      //   }, 1000);
+      // } else {
+      //   this.loading_dialog = false;
+      //   this.snackbar.show = true;
+      //   this.response = data.message;
+
+      //   this.loading = false;
+      // }
+
+      // this.displaybutton = true;
     },
     /*async onSubmit() {
       this.displaybutton = false;
