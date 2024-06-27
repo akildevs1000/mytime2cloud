@@ -239,10 +239,12 @@ class DeviceCameraModel2Controller extends Controller
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
 
-            if ($session_id != '') {
-                $sessionId = $session_id;
-            } else
-                $sessionId = $this->getActiveSessionId();
+            // if ($session_id != '') {
+            //     $sessionId = $session_id;
+            // } else
+            //     $sessionId = $this->getActiveSessionId();
+
+            $sessionId = $session_id;
 
             // if ($sessionId == '') {
             //     sleep(5);
