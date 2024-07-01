@@ -853,7 +853,7 @@
                 { id: 'auto', name: 'Auto' },
                 { id: 'In', name: 'In' },
                 { id: 'Out', name: 'Out' },
-                { id: 'manual', name: 'Ask In/Out' },
+                { id: 'manual', name: 'Manual Entry' },
               ]"
               item-value="id"
               item-text="name"
