@@ -218,13 +218,18 @@ class SDKController extends Controller
         }
 
         $session = $data[$id];
-
-        if ((time() - $session['timestamp']) > $this->expirationTime) {
-            // Session has expired
-            unset($data[$id]);
-            File::put($this->storagePath, json_encode($data)); // Update the file without the expired session
+        if (isset($session['timestamp'])) {
+            if ((time() - $session['timestamp']) > $this->expirationTime) {
+                // Session has expired
+                unset($data[$id]);
+                File::put($this->storagePath, json_encode($data)); // Update the file without the expired session
+                return null;
+            }
+        } else {
             return null;
         }
+
+
 
         return $session['value'];
     }
@@ -262,7 +267,7 @@ class SDKController extends Controller
 
 
             $sessionId = $this->getSessionusingDeviceIdData($value['device_id']);
-            if ($sessionId == '') {
+            if ($sessionId == '' || $sessionId == null) {
                 $sessionId = $camera2Object->getActiveSessionId();
                 //$_SESSION[$value['device_id']] = $sessionId;
 
