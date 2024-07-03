@@ -73,7 +73,7 @@ class HostController extends Controller
                 'employee',
                 fn (Builder $query) =>
 
-                $query->where('first_name', 'ILIKE', "$request->first_name%")
+                $query->where('first_name', env('WILD_CARD') ?? 'ILIKE', "$request->first_name%")
 
 
             );

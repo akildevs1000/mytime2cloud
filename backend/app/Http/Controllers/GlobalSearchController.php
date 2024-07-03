@@ -47,31 +47,31 @@ class GlobalSearchController extends Controller
 
 
         // ->when($request->filled('search_value'), function ($q) use ($request) {
-        //     $q->Where('system_user_id', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('employee_id', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('first_name', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('last_name', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('full_name', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('phone_number', 'ILIKE', "%$request->search_value%");
-        //     $q->orWhere('local_email', 'ILIKE', "%$request->search_value%");
+        //     $q->Where('system_user_id', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+        //     $q->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
 
-        //     $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search_value%"));
-        //     $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search_value%"));
+        //     $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%"));
+        //     $q->orWhereHas('department', fn (Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%"));
         // });
 
 
         $model->when($request->filled('search_value'), function ($q) use ($request) {
             $q->where(function ($q) use ($request) {
-                $q->Where('system_user_id', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('employee_id', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('first_name', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('last_name', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('full_name', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('phone_number', 'ILIKE', "%$request->search_value%");
-                $q->orWhere('local_email', 'ILIKE', "%$request->search_value%");
+                $q->Where('system_user_id', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
+                $q->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', "%$request->search_value%");
 
-                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search_value%"));
-                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search_value%"));
+                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%"));
+                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%"));
             });
         });
 
@@ -148,7 +148,7 @@ class GlobalSearchController extends Controller
 
         // foreach ($ilikeFields as $field) {
         //     $model->when($request->filled($field), function ($q) use ($field, $request) {
-        //         $q->when($request->filled('search_value'), fn ($q) => $q->where($field, 'ILIKE', $request->input($field) . '%'));
+        //         $q->when($request->filled('search_value'), fn ($q) => $q->where($field, env('WILD_CARD') ?? 'ILIKE', $request->input($field) . '%'));
         //     });
         // }
 
@@ -156,17 +156,17 @@ class GlobalSearchController extends Controller
 
         $model->when($request->filled('search_value'), function ($q) use ($first_name) {
             $q->where(function ($q) use ($first_name) {
-                $q->Where('first_name', 'ILIKE', "$first_name%");
-                $q->orWhere('last_name', 'ILIKE', "$first_name%");
+                $q->Where('first_name', env('WILD_CARD') ?? 'ILIKE', "$first_name%");
+                $q->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', "$first_name%");
             });
         });
 
         $model->when($request->filled('search_value'), function ($q) use ($request) {
             $q->where(function ($q) use ($request) {
-                $q->Where('phone_number', 'ILIKE', "$request->search_value%");
-                $q->orWhere('email', 'ILIKE', "$request->search_value%");
-                $q->orWhere('first_name', 'ILIKE', "$request->search_value%");
-                $q->orWhere('last_name', 'ILIKE', "$request->search_value%");
+                $q->Where('phone_number', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%");
+                $q->orWhere('email', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%");
+                $q->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%");
+                $q->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', "$request->search_value%");
             });
         });
 
