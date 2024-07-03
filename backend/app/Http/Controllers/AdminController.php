@@ -33,7 +33,7 @@ class AdminController extends Controller
             "company_id" => $validatedData['company_id'],
             "is_master" => 1,
             "first_login" => 1,
-            "user_type" => "company",
+            "user_type" => "admin",
         ];
 
         try {
