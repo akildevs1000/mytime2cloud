@@ -12,6 +12,7 @@ class AdminController extends Controller
     {
         return User::with("company")
             ->where("company_id", request("company_id", 0))
+            ->where("user_type", "admin")
             ->paginate(request("per_page", 15));
     }
 
@@ -33,7 +34,7 @@ class AdminController extends Controller
             "company_id" => $validatedData['company_id'],
             "is_master" => 1,
             "first_login" => 1,
-            "user_type" => "company",
+            "user_type" => "admin",
         ];
 
         try {

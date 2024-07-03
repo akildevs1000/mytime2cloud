@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`designation_access`)">
+  <div v-if="can(`admin_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -9,7 +9,6 @@
       <v-dialog
         persistent
         v-model="AdminDialog"
-        :fullscreen="false"
         width="500px"
       >
         <v-card>
@@ -72,7 +71,7 @@
                     "
                   ></v-text-field>
                 </v-col>
-                <!-- <v-col cols="12">
+                <v-col cols="12">
                   <v-autocomplete
                     :items="roles"
                     item-text="name"
@@ -83,7 +82,7 @@
                     dense
                     hide-details
                   ></v-autocomplete>
-                </v-col> -->
+                </v-col>
                 <v-col v-if="errResponse" cols="12" class="red--text">
                   {{ errResponse }}
                 </v-col>
@@ -114,15 +113,15 @@
                 :ripple="false"
                 text
                 title="Reload"
-                @click="getDataFromApi"
+                @click="getDataFromApi()"
               >
                 <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
               </v-btn>
               <v-spacer></v-spacer>
               &nbsp;
               <v-btn
-                v-if="can(`sub_designation_create`)"
-                @click="AdminDialog = true"
+                v-if="can(`admin_create`)"
+                @click="openDialog"
                 small
                 class="primary"
               >
@@ -139,6 +138,7 @@
               </template>
             </v-snackbar>
             <v-data-table
+            v-if="can(`admin_view`)"
               dense
               :headers="headers_table"
               :items="data"
@@ -159,13 +159,13 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item @click="editItem(item)">
+                    <v-list-item  v-if="can(`admin_edit`)" @click="editItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="deleteItem(item)">
+                    <v-list-item v-if="can(`admin_delete`)" @click="deleteItem(item)">
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="error" small> mdi-delete </v-icon>
                         Delete
@@ -203,10 +203,10 @@ export default {
     errResponse: null,
     editedIndex: -1,
     editedItem: {
-      name: "new madin",
-      email: "newAdmin@gmail.com",
-      password: "12345678",
-      password_confirmation: "12345678",
+      name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
     },
     defaultItem: {
       name: "",
@@ -307,8 +307,6 @@ export default {
           return false;
         }
 
-        data.data.pop();
-
         this.data = data.data;
         this.loading = false;
         this.totalRowsCount = data.total;
@@ -321,7 +319,10 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
+    openDialog() {
+      this.AdminDialog = true;
+      // this.editedItem = Object.assign({},this.editedItem);
+    },
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
