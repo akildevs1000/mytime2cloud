@@ -332,6 +332,7 @@ class PermissionSeeder extends Seeder
             ['module' => 'zone', 'title' => 'Zone edit', 'name' => 'zone_edit'],
             ['module' => 'zone', 'title' => 'Zone delete', 'name' => 'zone_delete'],
 
+            ['module' => 'change_attendance_report', 'title' => 'Change Requests', 'name' => 'change_request'],
 
             //['module' => 'access_control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
             //['module' => 'payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],
