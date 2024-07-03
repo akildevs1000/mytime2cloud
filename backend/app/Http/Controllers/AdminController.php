@@ -12,6 +12,7 @@ class AdminController extends Controller
     {
         return User::with("company")
             ->where("company_id", request("company_id", 0))
+            ->where("user_type", "admin")
             ->paginate(request("per_page", 15));
     }
 
