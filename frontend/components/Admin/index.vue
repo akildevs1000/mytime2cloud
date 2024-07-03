@@ -9,7 +9,6 @@
       <v-dialog
         persistent
         v-model="AdminDialog"
-        :fullscreen="false"
         width="500px"
       >
         <v-card>
@@ -72,7 +71,7 @@
                     "
                   ></v-text-field>
                 </v-col>
-                <!-- <v-col cols="12">
+                <v-col cols="12">
                   <v-autocomplete
                     :items="roles"
                     item-text="name"
@@ -83,7 +82,7 @@
                     dense
                     hide-details
                   ></v-autocomplete>
-                </v-col> -->
+                </v-col>
                 <v-col v-if="errResponse" cols="12" class="red--text">
                   {{ errResponse }}
                 </v-col>
@@ -122,7 +121,7 @@
               &nbsp;
               <v-btn
                 v-if="can(`sub_designation_create`)"
-                @click="AdminDialog = true"
+                @click="openDialog"
                 small
                 class="primary"
               >
@@ -203,10 +202,10 @@ export default {
     errResponse: null,
     editedIndex: -1,
     editedItem: {
-      name: "new madin",
-      email: "newAdmin@gmail.com",
-      password: "12345678",
-      password_confirmation: "12345678",
+      name: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
     },
     defaultItem: {
       name: "",
@@ -321,7 +320,10 @@ export default {
         this.getDataFromApi(`${this.endpoint}/search/${e}`);
       }
     },
-
+    openDialog() {
+      this.AdminDialog = true;
+      // this.editedItem = Object.assign({},this.editedItem);
+    },
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
