@@ -487,7 +487,9 @@ class Employee extends Model
 
                 // Add where clauses for various fields using ILIKE for case-insensitive matching
                 $q->where(function ($q) use ($request) {
-                    $searchTerm = "%{$request->search}%";
+                    //$searchTerm = "%{$request->search}%";
+                    $searchTerm = "{$request->search}%";
+
                     $q->where('system_user_id', 'ILIKE', $searchTerm)
                         ->orWhere('employee_id', 'ILIKE', $searchTerm)
                         ->orWhere('first_name', 'ILIKE', $searchTerm)
@@ -499,10 +501,12 @@ class Employee extends Model
 
                 // Add whereHas clauses for related models branch and department
                 $q->orWhereHas('branch', function ($query) use ($request) {
+                    $query->where('company_id', $request->company_id);
                     $query->where('branch_name', 'ILIKE', "{$request->search}%");
                 });
 
                 $q->orWhereHas('department', function ($query) use ($request) {
+                    $query->where('company_id', $request->company_id);
                     $query->where('name', 'ILIKE', "{$request->search}%");
                 });
             })
