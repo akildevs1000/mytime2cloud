@@ -97,8 +97,8 @@ class VisitorController extends Controller
         $model = $this->process_ilike_filter($model, $request, $fields);
         $model->when($request->filled('first_name'), function ($q) use ($request) {
             $q->where(function ($q) use ($request) {
-                $q->Where('first_name', 'ILIKE', "$request->first_name%");
-                $q->orWhere('last_name', 'ILIKE', "$request->first_name%");
+                $q->Where('first_name', env('WILD_CARD') ?? 'ILIKE', "$request->first_name%");
+                $q->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', "$request->first_name%");
             });
         });
 
