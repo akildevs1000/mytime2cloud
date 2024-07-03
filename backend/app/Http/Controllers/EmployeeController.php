@@ -479,8 +479,8 @@ class EmployeeController extends Controller
             $q->select($columns);
             $q->withOut(["schedule", "department"]);
         });
-
-        return $model->paginate($request->per_page);
+        $model->orderBy("first_name", "asc");
+        return $model->paginate(Employee::where('company_id', $request->company_id)->count());
     }
 
     public function employeeTodayAnnouncements(Request $request, $id)
@@ -832,7 +832,7 @@ class EmployeeController extends Controller
                 return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             }
         }
-        if ($request->password != '') {
+        if ($request->password != '' || $request->password != "********") {
             $arr['password'] = Hash::make($request->password ?? "secret");
         }
 

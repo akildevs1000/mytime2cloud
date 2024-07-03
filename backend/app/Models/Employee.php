@@ -449,8 +449,11 @@ class Employee extends Model
 
     public function filterV1($request)
     {
+
+
         $model = self::query();
 
+        $model = $model->where('company_id', $request->company_id);
         if ($request->user_type == "department") {
             $model->whereHas("department", fn ($q) => $q->where("id", $request->department_id));
         }
@@ -469,19 +472,54 @@ class Employee extends Model
             }])
             ->where('company_id', $request->company_id)
 
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where('branch_id', '=', $request->branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
+            })
+            ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+                $q->where('branch_id', '=', $request->filter_branch_id);
+                // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
+            })
 
             ->when($request->filled('search'), function ($q) use ($request) {
-                $q->Where('system_user_id', 'ILIKE', "%$request->search%");
-                $q->orWhere('employee_id', 'ILIKE', "%$request->search%");
-                $q->orWhere('first_name', 'ILIKE', "%$request->search%");
-                $q->orWhere('last_name', 'ILIKE', "%$request->search%");
-                $q->orWhere('full_name', 'ILIKE', "%$request->search%");
-                $q->orWhere('phone_number', 'ILIKE', "%$request->search%");
-                $q->orWhere('local_email', 'ILIKE', "%$request->search%");
+                // Add where clause for company_id
+                $q->where('company_id', $request->company_id);
 
-                $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search%"));
-                $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search%"));
+                // Add where clauses for various fields using ILIKE for case-insensitive matching
+                $q->where(function ($q) use ($request) {
+                    $searchTerm = "%{$request->search}%";
+                    $q->where('system_user_id', 'ILIKE', $searchTerm)
+                        ->orWhere('employee_id', 'ILIKE', $searchTerm)
+                        ->orWhere('first_name', 'ILIKE', $searchTerm)
+                        ->orWhere('last_name', 'ILIKE', $searchTerm)
+                        ->orWhere('full_name', 'ILIKE', $searchTerm)
+                        ->orWhere('phone_number', 'ILIKE', $searchTerm)
+                        ->orWhere('local_email', 'ILIKE', $searchTerm);
+                });
+
+                // Add whereHas clauses for related models branch and department
+                $q->orWhereHas('branch', function ($query) use ($request) {
+                    $query->where('branch_name', 'ILIKE', "{$request->search}%");
+                });
+
+                $q->orWhereHas('department', function ($query) use ($request) {
+                    $query->where('name', 'ILIKE', "{$request->search}%");
+                });
             })
+
+            // ->when($request->filled('search'), function ($q) use ($request) {
+
+            //     $q->Where('system_user_id', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('employee_id', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('first_name', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('last_name', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('full_name', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('phone_number', 'ILIKE', "%$request->search%");
+            //     $q->orWhere('local_email', 'ILIKE', "%$request->search%");
+
+            //     $q->orWhereHas('branch', fn (Builder $query) => $query->where('branch_name', 'ILIKE', "$request->search%"));
+            //     $q->orWhereHas('department', fn (Builder $query) => $query->where('name', 'ILIKE', "$request->search%"));
+            // });
 
 
             ->when($request->filled('sortBy'), function ($q) use ($request) {

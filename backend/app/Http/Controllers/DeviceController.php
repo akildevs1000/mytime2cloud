@@ -792,7 +792,7 @@ class DeviceController extends Controller
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
                                 ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                         }
                     }
@@ -830,7 +830,7 @@ class DeviceController extends Controller
                                 ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
                                 ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
                                 ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("logs/$date-device-access-control-time-slot-open-logs.log"))
+                                ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
                                 ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                         }
                     }
@@ -1008,6 +1008,8 @@ class DeviceController extends Controller
     public function devcieCountByStatus($company_id)
     {
 
+
+        $company_id = (int)$company_id;
         if ($company_id > 0) {
             $statusCounts = Device::where('company_id', $company_id)
                 ->whereIn('status_id', [1, 2])

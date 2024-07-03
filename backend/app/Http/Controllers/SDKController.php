@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Exception;
+use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -16,7 +17,7 @@ class SDKController extends Controller
 {
 
 
-    protected $SDKResponseArray;
+    protected $SDKResponseArray, $storagePath, $expirationTime;
 
     public function __construct()
     {
@@ -29,6 +30,10 @@ class SDKController extends Controller
         $this->SDKResponseArray['100'] = 'Timeout or The device is not connected to the server. Try again';
         $this->SDKResponseArray['102'] = 'offline or not connected to this server';
         $this->SDKResponseArray['200'] = 'Successful';
+        $this->storagePath = storage_path('app/oxsaicamera_log_session_values.json');
+
+
+        $this->expirationTime =  60 * 4; //5 minutes 
     }
     public function processTimeGroup(Request $request, $id)
     {
@@ -168,8 +173,76 @@ class SDKController extends Controller
 
         return  $message;
     }
+    protected function getAllData()
+    {
+        if (!File::exists($this->storagePath)) {
+            // Return an empty array if the file doesn't exist
+            return [];
+        }
+
+        try {
+            $json = File::get($this->storagePath);
+            return json_decode($json, true);
+        } catch (Exception $e) {
+            // Handle error (e.g., log it)
+            return [];
+        }
+    }
+
+    public function storeSessionid($id, $value)
+    {
+        $data = $this->getAllData();
+        $data[$id] = [
+            'value' => $value,
+            'timestamp' => time()
+        ];
+
+        try {
+            File::put($this->storagePath, json_encode($data));
+        } catch (Exception $e) {
+            // Handle error (e.g., log it)
+        }
+    }
+
+    public function getSessionid($id)
+    {
+        return $this->getSessionData($id);
+    }
+
+    protected function getSessionData($id)
+    {
+        $data = $this->getAllData();
+
+        if (!isset($data[$id])) {
+            return null;
+        }
+
+        $session = $data[$id];
+        if (isset($session['timestamp'])) {
+            if ((time() - $session['timestamp']) > $this->expirationTime) {
+                // Session has expired
+                unset($data[$id]);
+                File::put($this->storagePath, json_encode($data)); // Update the file without the expired session
+                return null;
+            }
+        } else {
+            return null;
+        }
+
+
+
+        return $session['value'];
+    }
+
+    public function getSessionusingDeviceIdData($id)
+    {
+        return $this->getSessionData($id);
+    }
     public function filterCameraModel2Devices($request)
     {
+
+
+
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
         $Devices = Device::where('model_number', "OX-900")->get()->all();
@@ -191,7 +264,18 @@ class SDKController extends Controller
 
             if ($camera2Object->sxdmSn == '')
                 $camera2Object->sxdmSn = $value['device_id'];
-            $sessionId = $camera2Object->getActiveSessionId();
+
+
+            $sessionId = $this->getSessionusingDeviceIdData($value['device_id']);
+            if ($sessionId == '' || $sessionId == null) {
+                $sessionId = $camera2Object->getActiveSessionId();
+                //$_SESSION[$value['device_id']] = $sessionId;
+
+                $this->storeSessionid($value['device_id'], $sessionId);
+            }
+
+
+
 
             foreach ($request->personList as  $persons) {
                 if (isset($persons['profile_picture_raw'])) {
@@ -206,9 +290,9 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
+                        $message[] = $response;
 
-
-
+                        continue;;
                         try {
                             if ($response != '') {
                                 $json = json_decode($response, true);
@@ -216,7 +300,7 @@ class SDKController extends Controller
 
                                     if ($camera2Object->sxdmSn == '')
                                         $camera2Object->sxdmSn = $value['device_id'];
-                                    $sessionId = $camera2Object->getActiveSessionId();
+                                    // $sessionId = $camera2Object->getActiveSessionId();
 
                                     $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                                 }
@@ -224,7 +308,7 @@ class SDKController extends Controller
                         } catch (Exception $e) {
                             if ($camera2Object->sxdmSn == '')
                                 $camera2Object->sxdmSn = $value['device_id'];
-                            $sessionId = $camera2Object->getActiveSessionId();
+                            //$sessionId = $camera2Object->getActiveSessionId();
 
                             $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
                             //sleep(10);
@@ -238,7 +322,7 @@ class SDKController extends Controller
                     $message[] = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], "", $value['device_id'], $persons);
                 }
             }
-        }
+        } //
 
         return  $message;
     }

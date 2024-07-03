@@ -215,7 +215,7 @@ class DeviceCameraModel2Controller extends Controller
         return  $row;
     }
 
-    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = null)
+    public function pushUserToCameraDevice($name,  $system_user_id, $base65Image, $device_id, $persons = null,  $session_id = '')
     {
         $card_number = "";
         if ($persons) {
@@ -239,10 +239,14 @@ class DeviceCameraModel2Controller extends Controller
             if ($this->sxdmSn == '')
                 $this->sxdmSn = $device_id;
 
-            if ($session_id) {
-                $sessionId = $session_id;
-            } else
-                $sessionId = $this->getActiveSessionId();
+            // if ($session_id != '') {
+            //     $sessionId = $session_id;
+            // } else
+            //     $sessionId = $this->getActiveSessionId();
+
+            $sessionId = $session_id;
+
+            // return $session_id;
 
             // if ($sessionId == '') {
             //     sleep(5);
@@ -382,7 +386,7 @@ class DeviceCameraModel2Controller extends Controller
 
                 $this->devLog("camera-megeye-info", "Successfully Added ID:" . $system_user_id . ", Name :  " . $name);
 
-                return [$response, $sessionId];
+                return $response;
             } else {
 
 
