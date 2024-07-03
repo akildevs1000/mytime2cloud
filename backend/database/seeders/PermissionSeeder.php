@@ -334,6 +334,13 @@ class PermissionSeeder extends Seeder
 
             ['module' => 'change_attendance_report', 'title' => 'Change Requests', 'name' => 'change_request'],
 
+            ['module' => 'admin', 'title' => 'Admin access', 'name' => 'admin_access'],
+            ['module' => 'admin', 'title' => 'Admin view', 'name' => 'admin_view'],
+            ['module' => 'admin', 'title' => 'Admin create', 'name' => 'admin_create'],
+            ['module' => 'admin', 'title' => 'Admin edit', 'name' => 'admin_edit'],
+            ['module' => 'admin', 'title' => 'Admin delete', 'name' => 'admin_delete'],
+
+
             //['module' => 'access_control', 'title' => 'Access Control access', 'name' => 'access_control_access'],
             //['module' => 'payslip', 'title' => 'Payslip Access', 'name' => 'payslip_access'],
             // ['module' => 'attendance_report', 'title' => 'Attendance Access', 'name' => 'attendance_access'],
