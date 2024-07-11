@@ -36,7 +36,7 @@ class ZoneController extends Controller
 
         $model->when($request->filled('devices'), function ($q) use ($request) {
 
-            $q->orWhereHas('devices', fn (Builder $query) => $query->where('short_name', 'ILIKE', $request->input("devices") . '%'));
+            $q->orWhereHas('devices', fn (Builder $query) => $query->where('short_name', env('WILD_CARD') ?? 'ILIKE', $request->input("devices") . '%'));
         });
 
         $model->where("company_id", $request->input("company_id"));

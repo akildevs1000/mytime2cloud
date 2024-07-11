@@ -134,7 +134,7 @@ class Controller extends BaseController
     {
         foreach ($fields as $field) {
             if ($request->filled($field)) {
-                $model->where($field, 'ILIKE', $request->input($field) . '%');
+                $model->where($field, env('WILD_CARD') ?? 'ILIKE', $request->input($field) . '%');
             }
         }
         return $model;

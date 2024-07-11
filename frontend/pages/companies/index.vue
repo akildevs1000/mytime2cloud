@@ -14,8 +14,6 @@
 
       <v-row>
         <v-col>
-          <!-- <Back color="primary" /> -->
-
           <v-card class="mt-2">
             <v-tabs class="pt-3" :vertical="vertical">
               <v-tabs-slider color="violet"></v-tabs-slider>
@@ -42,6 +40,10 @@
               <v-tab>
                 <v-icon left> mdi-lock </v-icon>
                 <span>Password</span>
+              </v-tab>
+              <v-tab>
+                <v-icon left> mdi-account-tie </v-icon>
+                <span>Admins</span>
               </v-tab>
 
               <!-- <v-tab>
@@ -757,8 +759,7 @@
               </v-tab-item>
 
               <v-tab-item>
-                <v-container>
-                  <v-row>
+                <v-row>
                     <v-col cols="3">
                       <v-col cols="12">
                         <!-- <label class="col-form-label"
@@ -853,11 +854,13 @@
                       </v-col>
                     </v-col>
                   </v-row>
-                </v-container>
               </v-tab-item>
 
+              
+
               <v-tab-item>
-                <v-container>
+                <Admin />
+                <!-- <v-container>
                   <div style="text-align: center">
                     <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
                       <img :src="qrCompanyCodeDataURL" alt="Avatar" />
@@ -868,7 +871,7 @@
                       {{ fullCompanyLink }}
                     </a>
                   </span>
-                </v-container>
+                </v-container> -->
               </v-tab-item>
             </v-tabs>
           </v-card>
@@ -881,10 +884,8 @@
 </template>
 
 <script>
-import Back from "../../components/Snippets/Back.vue";
 
 export default {
-  components: { Back },
 
   data: () => ({
     originalURL: process.env.APP_URL + "register/visitor/walkin/", //`https://mytime2cloud.com/register/visitor/walkin/`,
