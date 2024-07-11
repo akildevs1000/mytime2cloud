@@ -334,6 +334,11 @@ export default {
     },
   }),
   created() {
+    // try {
+    //   this.$axios.get(`/logout`).then(({ res }) => {
+    //     this.$auth.logout();
+    //   });
+    // } catch (e) {}
     // this.$store.commit("dashboard/resetState", null);
     this.$store.dispatch("dashboard/resetState");
     this.$store.dispatch("resetState");
@@ -341,6 +346,12 @@ export default {
     this.verifyToken();
   },
   mounted() {
+    // try {
+    //   this.$axios.get(`/logout`).then(({ res }) => {
+    //     this.$auth.logout();
+    //   });
+    // } catch (e) {}
+
     // setTimeout(() => {
     //   window.location.reload();
     // }, 1000 * 60 * 15); //15 minutes

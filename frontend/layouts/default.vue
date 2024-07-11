@@ -786,11 +786,15 @@ export default {
     }, 1000 * 10);
 
     setInterval(() => {
-      this.resetTimer();
-      this.verifyAlarmStatus();
+      if (this.$router.page != "login") {
+        this.resetTimer();
+        this.verifyAlarmStatus();
+      }
     }, 1000 * 60 * 1);
     setInterval(() => {
-      this.loadNotificationMenu();
+      if (this.$router.page != "login") {
+        this.loadNotificationMenu();
+      }
     }, 1000 * 60 * 2);
     //this.company_menus = [];
 

@@ -42,7 +42,12 @@
 
                 <tr v-for="(d, index) in data" :key="index">
                   <td class="text-center">{{ d.system_user_id }}</td>
-                  <td class="text-center">{{ d.name }} <span class="red--text" v-if="d.noResponse">(No Response)</span></td>
+                  <td class="text-center">
+                    {{ d.name }}
+                    <span class="red--text" v-if="d.noResponse"
+                      >(No Response)</span
+                    >
+                  </td>
                   <td class="text-center">{{ d.location }}</td>
                   <td class="text-center">
                     <v-icon color="green" v-if="d.IsFace">mdi-check</v-icon>
