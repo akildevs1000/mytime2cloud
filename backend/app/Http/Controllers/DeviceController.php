@@ -840,8 +840,6 @@ class DeviceController extends Controller
     }
     public function closeDoor(Request $request)
     {
-
-
         $device = Device::where("device_id", $request->device_id)->first();
         if ($device->status_id == 2) {
             return $this->response("Device is offline. Please Test Device Online status.", null, false);

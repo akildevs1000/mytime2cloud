@@ -111,7 +111,10 @@ class Company extends Model
     public function getLogoRawAttribute($value)
     {
         $arr = explode('upload/', $this->logo);
-        return   'upload/' . $arr[1] ?? '';
+        if (isset($arr[1]))
+            return   'upload/' . $arr[1] ?? '';
+
+        return '';
     }
     public function getLogoAttribute($value)
     {

@@ -39,12 +39,15 @@ class RenderController extends Controller
 
         $shift_type_id = $request->shift_type_id;
 
+        $fromdate = date('Y-m-d', strtotime('-1 day', strtotime($request->dates[0])));
+        $date1 = new DateTime($fromdate);
 
-        $date1 = new DateTime($request->dates[0]);
+        //$date1 = new DateTime($request->dates[0]);
         $date2 = new DateTime($request->dates[1]);
+
         $interval = $date1->diff($date2);
-        if ($interval->days > 5) {
-            return ["Limit  5 Days only  allowed between From and To Date."];
+        if ($interval->days > 8) {
+            return ["Limit  8 Days only  allowed between From and To Date."];
         }
 
 
