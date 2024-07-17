@@ -1,0 +1,83 @@
+12 july 2024 -> start
+
+<!-- Console Kernel -->
+    - backend/app/Console
+
+<!-- Models -->
+    - backend/app/Models/Company.php                     |   8 +-
+ 
+<!-- Controllers -->
+    - backend/app/Http/Controllers/DeviceController.php
+    - backend/app/Http/Controllers/DeviceController.php  |  26 +-
+
+
+<!-- Views -->
+
+    - .../pdf/access_control_reports/custom.blade.php    |  36 +-
+    - .../Template1-general-whatsapp.blade.php           |   4 +-
+    - .../attendance_reports/Template1-general.blade.php |   2 +-
+    - .../Template1-multi-in-out-whatsapp.blade.php      |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../pdf/attendance_reports/Template2.blade.php     | 682 ++++++++++-----------
+    - .../views/pdf/attendance_reports/daily.blade.php   |   2 +-
+    - .../views/pdf/attendance_reports/mimo.blade.php    |   2 +-
+    - .../Template1-general-whatsapp.blade.php           |   4 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../pdf/attendance_reports/Template2.blade.php     | 682 ++++++++++-----------
+    - .../views/pdf/attendance_reports/daily.blade.php   |   2 +-
+    - .../views/pdf/attendance_reports/mimo.blade.php    |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../pdf/attendance_reports/Template2.blade.php     | 682 ++++++++++-----------
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../pdf/attendance_reports/Template2.blade.php     | 682 ++++++++++-----------
+    - .../views/pdf/attendance_reports/daily.blade.php   |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports/Template1.blade_OLD2.php    |   2 +-
+    - .../pdf/attendance_reports/Template2.blade.php     | 682 ++++++++++-----------
+    - .../views/pdf/attendance_reports/daily.blade.php   |   2 +-
+    - .../views/pdf/attendance_reports/mimo.blade.php    |   2 +-
+    - .../Template1-general-whatsapp.blade.php           |   4 +-
+    - .../Template1-general.blade.php                    |   2 +-
+    - .../Template1-multi-in-out-whatsapp.blade.php      |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../views/pdf/attendance_reports/mimo.blade.php    |   2 +-
+    - .../Template1-general-whatsapp.blade.php           |   4 +-
+    - .../Template1-general.blade.php                    |   2 +-
+    - .../Template1-multi-in-out-whatsapp.blade.php      |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../Template1-general-whatsapp.blade.php           |   4 +-
+    - .../Template1-general.blade.php                    |   2 +-
+    - .../Template1-multi-in-out-whatsapp.blade.php      |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports_updated/Template2.blade.php |   2 +-
+    - .../Template1-multi-in-out-whatsapp.blade.php      |   2 +-
+    - .../Template1-multi-in-out.blade.php               |   2 +-
+    - .../attendance_reports_updated/Template2.blade.php |   2 +-
+    - .../attendance_reports_updated/Template2.blade.php |   2 +-
+    - .../pdf/attendance_reports_updated/daily.blade.php |   2 +-
+    - .../pdf/attendance_reports_updated/mimo.blade.php  |   2 +-
+    - .../views/pdf/document_expiry/custom.blade.php     | 136 ++--
+
+# Frontend
+
+    - frontend/components/Device/User.vue                |   7 +-
+    - frontend/layouts/default.vue                       |  10 +-
+    - frontend/pages/login.vue                           |  11 +
+    - frontend/components/Device/User.vue                |   7 +-
+    - frontend/layouts/default.vue                       |  10 +-
+    - frontend/pages/login.vue                           |  11 +
+    - frontend/pages/login.vue                           |  11 +
+
+
+12 july 2024 -> end
