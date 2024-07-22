@@ -1335,6 +1335,7 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    apiDeviceHealthcallStatus: false,
     oneTOsixty: [],
     deviceCAMVIISettings: { voice_volume: 0 },
     DialogDeviceMegviiSettings: false,
@@ -1574,10 +1575,6 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      this.updateDevicesHealth();
-    }, 1000 * 5);
-
     setInterval(() => {
       if (this.$route.name == "device") {
         this.getDataFromApi();
@@ -2118,6 +2115,10 @@ export default {
       this.totalRowsCount = data.total;
       this.loading = false;
 
+      setTimeout(() => {
+        this.updateDevicesHealth();
+      }, 1000 * 5);
+
       return;
 
       if (url == "") url = this.endpoint;
@@ -2163,19 +2164,23 @@ export default {
       });
     },
     async updateDevicesHealth() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
+      if (!this.apiDeviceHealthcallStatus) {
+        this.apiDeviceHealthcallStatus = true;
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+          },
+        };
 
-      await this.$axios
-        .get("/check_device_health", options)
-        .then(({ data }) => {
-          this.snackbar = true;
-          this.response = data;
-          this.getDataFromApi();
-        });
+        await this.$axios
+          .get("/check_device_health", options)
+          .then(({ data }) => {
+            this.apiDeviceHealthcallStatus = false;
+            this.snackbar = true;
+            this.response = data;
+            this.getDataFromApi();
+          });
+      }
     },
 
     searchIt(e) {

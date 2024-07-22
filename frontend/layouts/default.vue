@@ -633,6 +633,7 @@ export default {
   },
   data() {
     return {
+      apiCalNotificationInitiated: false,
       globalSearchPopupWidth: "500px",
       globalsearch: "",
       globalSearchPopup: false,
@@ -970,75 +971,81 @@ export default {
       location.href = location.href; // process.env.APP_URL + "/dashboard2";
     },
     loadNotificationMenu() {
-      let company_id = this.$auth.user?.company?.id || 0;
-      if (company_id == 0) {
-        return false;
+      if (this.apiCalNotificationInitiated == false) {
+        let company_id = this.$auth.user?.company?.id || 0;
+        if (company_id == 0) {
+          return false;
+        }
+        let options = {
+          params: {
+            company_id: company_id,
+          },
+        };
+        //this.pendingNotificationsCount = 0;
+        let pendingcount = 0;
+        this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
+          this.apiCalNotificationInitiated = true;
+          this.notificationsMenuItems = [
+            {
+              title: "Leaves Pending (0)",
+              click: "/leaves",
+              icon: "mdi-calendar-account",
+              key: "leaves",
+            },
+            {
+              title: "Visitors Pending (0)",
+              click: "/visitor/requests",
+              icon: "mdi-transit-transfer",
+              key: "visitors",
+            },
+          ];
+          pendingcount = 0;
+
+          if (data.employee_leaves_pending_count) {
+            pendingcount += data.employee_leaves_pending_count;
+            let leaves = this.notificationsMenuItems.find(
+              (e) => e.key == "leaves"
+            );
+            leaves.title =
+              "Leaves Pending (" + data.employee_leaves_pending_count + ")";
+          }
+          if (data.visitor_request_pending_count) {
+            pendingcount += data.visitor_request_pending_count;
+            let leaves = this.notificationsMenuItems.find(
+              (e) => e.key == "visitors"
+            );
+            leaves.title =
+              "Visitors Pending (" + data.visitor_request_pending_count + ")";
+          }
+
+          this.pendingNotificationsCount = pendingcount;
+        });
       }
-      let options = {
-        params: {
-          company_id: company_id,
-        },
-      };
-      //this.pendingNotificationsCount = 0;
-      let pendingcount = 0;
-      this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
-        this.notificationsMenuItems = [
-          {
-            title: "Leaves Pending (0)",
-            click: "/leaves",
-            icon: "mdi-calendar-account",
-            key: "leaves",
-          },
-          {
-            title: "Visitors Pending (0)",
-            click: "/visitor/requests",
-            icon: "mdi-transit-transfer",
-            key: "visitors",
-          },
-        ];
-        pendingcount = 0;
-
-        if (data.employee_leaves_pending_count) {
-          pendingcount += data.employee_leaves_pending_count;
-          let leaves = this.notificationsMenuItems.find(
-            (e) => e.key == "leaves"
-          );
-          leaves.title =
-            "Leaves Pending (" + data.employee_leaves_pending_count + ")";
-        }
-        if (data.visitor_request_pending_count) {
-          pendingcount += data.visitor_request_pending_count;
-          let leaves = this.notificationsMenuItems.find(
-            (e) => e.key == "visitors"
-          );
-          leaves.title =
-            "Visitors Pending (" + data.visitor_request_pending_count + ")";
-        }
-
-        this.pendingNotificationsCount = pendingcount;
-      });
     },
     verifyAlarmStatus() {
-      let company_id = this.$auth.user?.company?.id || 0;
-      if (company_id == 0) {
-        return false;
-      }
-      let options = {
-        params: {
-          company_id: company_id,
-        },
-      };
-      //this.pendingNotificationsCount = 0;
-      let pendingcount = 0;
-      this.$axios.get(`get_notifications_alarm`, options).then(({ data }) => {
-        if (data.length > 0) {
-          this.notificationAlarmDevices = data;
-
-          this.alarmNotificationStatus = true;
-        } else {
-          this.alarmNotificationStatus = false;
+      if (this.apiCalNotificationInitiated == false) {
+        let company_id = this.$auth.user?.company?.id || 0;
+        if (company_id == 0) {
+          return false;
         }
-      });
+        let options = {
+          params: {
+            company_id: company_id,
+          },
+        };
+        //this.pendingNotificationsCount = 0;
+        let pendingcount = 0;
+        this.$axios.get(`get_notifications_alarm`, options).then(({ data }) => {
+          this.apiCalNotificationInitiated = true;
+          if (data.length > 0) {
+            this.notificationAlarmDevices = data;
+
+            this.alarmNotificationStatus = true;
+          } else {
+            this.alarmNotificationStatus = false;
+          }
+        });
+      }
     },
 
     getBranchName() {

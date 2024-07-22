@@ -31,7 +31,28 @@ class DeviceCameraModel2Controller extends Controller
     }
 
 
+    public function deletePersonFromDevice($system_user_id)
+    {
+        $data = [];
+        $json = '{
+            "cmd": "person_list_query",
+            
+            "limit": 10,
+            "offset": 0,
+            "sort": "asc",
+            "query_string": "' . $system_user_id . '"
+          }';
+        $response = $this->postCURL('/api/persons/query', $json);
 
+        foreach ($response['data'] as $key => $personList) {
+
+
+
+            $person = $this->deleteCURL('/api/persons/item/' . $personList['id']);
+        }
+
+        return $person;
+    }
 
     public function getPersonDetails($system_user_id)
     {
@@ -59,6 +80,8 @@ class DeviceCameraModel2Controller extends Controller
                 $picture_data = str_replace("data:image/jpg;base64,", "", $picture_data);
 
                 $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" => $picture_data, "timeGroup" => "0"];
+            } else {
+                $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" =>  null, "timeGroup" => "0"];
             }
         }
 
@@ -318,7 +341,7 @@ class DeviceCameraModel2Controller extends Controller
                     CURLOPT_URL => $this->camera_sdk_url . '/api/persons/item',
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_MAXREDIRS => 1,
                     CURLOPT_TIMEOUT => 0,
                     CURLOPT_FOLLOWLOCATION => true,
                     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
@@ -468,7 +491,34 @@ class DeviceCameraModel2Controller extends Controller
 
         return  $online_devices_count;
     }
+    public function deleteCURL($serviceCall)
+    {
+        $sessionId = $this->getActiveSessionId();
 
+        //return $this->camera_sdk_url . $serviceCall;
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 59,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_HTTPHEADER => array(
+                'Cookie: sessionID=' . $sessionId,
+                'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
+                'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return  $response = json_decode($response, true);
+    }
     public function getCURL($serviceCall)
     {
         $sessionId = $this->getActiveSessionId();
@@ -480,8 +530,8 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 59,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',
@@ -508,8 +558,8 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 59,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'PUT',
@@ -538,8 +588,8 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_URL => $this->camera_sdk_url . $serviceCall,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 59,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -560,6 +610,7 @@ class DeviceCameraModel2Controller extends Controller
 
     public function getActiveSessionId()
     {
+        set_time_limit(120);
         // return array(
         //     'sxdmToken: ' . $this->sxdmToken, //get from Device manufacturer
         //     'sxdmSn:  ' . $this->sxdmSn //get from Device serial number
@@ -574,8 +625,8 @@ class DeviceCameraModel2Controller extends Controller
             CURLOPT_URL => $this->camera_sdk_url . '/api/auth/login/challenge?username=admin',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_MAXREDIRS => 1,
+            CURLOPT_TIMEOUT => 59,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'GET',

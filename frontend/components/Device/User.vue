@@ -39,7 +39,9 @@
                     </div>
                   </td>
                 </tr>
-
+                <!-- {{
+                  data
+                }} -->
                 <tr v-for="(d, index) in data" :key="index">
                   <td class="text-center">{{ d.system_user_id }}</td>
                   <td class="text-center">
@@ -167,6 +169,7 @@ export default {
     ],
     response: "",
     errors: [],
+    apiCallGetEmployeeDevice: false,
   }),
 
   watch: {
@@ -184,70 +187,86 @@ export default {
 
   methods: {
     async getDataFromApi() {
-      await this.$axios
-        .get(`device-list`, {
-          params: {
-            company_id: this.$auth.user.company_id,
-          },
-        })
-        .then(({ data }) => {
-          this.data = [];
+      this.loading = true;
 
-          this.devices = data.forEach((e) => {
-            this.loading = true;
+      const response = await this.$axios.get("device-list", {
+        params: {
+          company_id: this.$auth.user.company_id,
+        },
+      });
 
-            this.$axios
-              .get(
-                `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
-              )
-              .then(({ data: { data } }) => {
-                this.loading = false;
+      const data = response.data;
+      this.data = [];
 
-                if (data == null) {
-                  this.data.push({
-                    device_id: e.device_id,
-                    name: e.name,
-                    location: "---  ",
-                    IsFace: false,
-                    IsRFID: false,
-                    IsPIN: false,
-                    noResponse: true,
-                    system_user_id: this.system_user_id,
-                  });
-                } else {
-                  this.data.push({
-                    device_id: e.device_id,
-                    name: e.name,
-                    location: e.location,
-                    IsFace: data.face,
-                    IsRFID: data.cardData,
-                    IsPIN: data.password,
-                    system_user_id: this.system_user_id,
-                  });
-                }
-              })
-              .catch((e) => {
-                this.loading = false;
-                console.log(e);
-              });
+      if (data.length === 0) {
+        this.loading = false;
+        return;
+      }
+
+      for (const e of data) {
+        try {
+          const deviceResponse = await this.$axios.get(
+            `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
+          );
+          const deviceData = deviceResponse.data.data;
+
+          if (deviceData === null) {
+            this.data.push({
+              device_id: e.device_id,
+              name: e.name,
+              location: "---",
+              IsFace: false,
+              IsRFID: false,
+              IsPIN: false,
+              noResponse: true,
+              system_user_id: this.system_user_id,
+            });
+          } else {
+            this.data.push({
+              device_id: e.device_id,
+              name: e.name,
+              location: e.location,
+              IsFace: deviceData.face ?? "",
+              IsRFID: deviceData.cardData ? deviceData.cardData : "",
+              IsPIN: deviceData.password ?? "",
+              system_user_id: this.system_user_id,
+            });
+          }
+        } catch (error) {
+          this.loading = false;
+          this.data.push({
+            device_id: e.device_id,
+            name: e.name,
+            location: "---",
+            IsFace: false,
+            IsRFID: false,
+            IsPIN: false,
+            noResponse: true,
+            system_user_id: this.system_user_id,
           });
-        });
+          console.log(
+            `Error fetching device details for device ID ${e.device_id}:`,
+            error
+          );
+        }
+      }
     },
-
     deleteUserFromDevice(device_id, system_user_id) {
-      this.$axios
-        .delete(`/SDK/delete-device-person-details/${device_id}`, {
-          params: { userCodeArray: [system_user_id] },
-        })
-        .then(({ data }) => {
-          this.loading = false;
-          this.getDataFromApi();
-        })
-        .catch((e) => {
-          alert("Record cannot delete");
-          console.log(e);
-          this.loading = false;
-        });
+      if (confirm("Are you sure you want to delete Employee From Device"))
+        this.$axios
+          .delete(`/SDK/delete-device-person-details/${device_id}`, {
+            params: { userCodeArray: [system_user_id] },
+          })
+          .then(({ data }) => {
+            this.loading = false;
+            this.getDataFromApi();
+            alert("Employee Record  deleted ");
+          })
+          .catch((e) => {
+            alert("Record cannot delete");
+            console.log(e);
+            this.loading = false;
+          });
     },
   },
 };
