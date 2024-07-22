@@ -542,7 +542,7 @@ class SDKController extends Controller
             if ($response)
                 return  ["data" => $response];
             else
-                return [];
+                return ["data" => null];
         } else {
 
 
