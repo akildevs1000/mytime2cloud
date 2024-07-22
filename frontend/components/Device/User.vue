@@ -19,8 +19,10 @@
             <template v-slot:default>
               <thead>
                 <tr>
+                  <th class="text-left">#</th>
                   <th class="text-center">User Id</th>
                   <th class="text-center">Device Name</th>
+                  <th class="text-center">Employee Data</th>
                   <th class="text-center">Location</th>
                   <th class="text-center">Face</th>
                   <th class="text-center">RFID</th>
@@ -30,7 +32,7 @@
               </thead>
               <tbody>
                 <tr v-if="loading" class="pt-5">
-                  <td colspan="5" class="text-center pa-5">
+                  <td colspan="100" class="text-center pa-5">
                     <div class="text-center">
                       <v-progress-circular
                         color="primary"
@@ -43,12 +45,16 @@
                   data
                 }} -->
                 <tr v-for="(d, index) in data" :key="index">
+                  <td class="text-left">{{ index + 1 }}</td>
                   <td class="text-center">{{ d.system_user_id }}</td>
-                  <td class="text-center">
+                  <td class="text-left">
                     {{ d.name }}
+                  </td>
+                  <td class="text-center">
                     <span class="red--text" v-if="d.noResponse"
-                      >(No Response)</span
+                      >No Response From Device</span
                     >
+                    <span class="green--text" v-else>Avaialbe on Device</span>
                   </td>
                   <td class="text-center">{{ d.location }}</td>
                   <td class="text-center">
@@ -187,6 +193,7 @@ export default {
 
   methods: {
     async getDataFromApi() {
+      this.data = [];
       this.loading = true;
 
       const response = await this.$axios.get("device-list", {
@@ -205,6 +212,7 @@ export default {
 
       for (const e of data) {
         try {
+          this.loading = true;
           const deviceResponse = await this.$axios.get(
             `/SDK/get-device-person-details/${e.device_id}/${this.system_user_id}`
           );
@@ -226,9 +234,9 @@ export default {
               device_id: e.device_id,
               name: e.name,
               location: e.location,
-              IsFace: deviceData.face ?? "",
-              IsRFID: deviceData.cardData ? deviceData.cardData : "",
-              IsPIN: deviceData.password ?? "",
+              IsFace: deviceData?.face ? deviceData.face : "",
+              IsRFID: deviceData?.cardData ? deviceData.cardData : "",
+              IsPIN: deviceData?.password ? deviceData.password : "",
               system_user_id: this.system_user_id,
             });
           }
@@ -244,12 +252,14 @@ export default {
             noResponse: true,
             system_user_id: this.system_user_id,
           });
+
           console.log(
             `Error fetching device details for device ID ${e.device_id}:`,
             error
           );
         }
       }
+      this.loading = false;
     },
     deleteUserFromDevice(device_id, system_user_id) {
       if (confirm("Are you sure you want to delete Employee From Device"))

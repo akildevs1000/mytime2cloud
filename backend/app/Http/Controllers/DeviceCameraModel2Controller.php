@@ -67,24 +67,26 @@ class DeviceCameraModel2Controller extends Controller
             "query_string": "' . $system_user_id . '"
           }';
         $response = $this->postCURL('/api/persons/query', $json);
+        if (isset($response['data'])) {
+            foreach ($response['data'] as $key => $personList) {
 
-        foreach ($response['data'] as $key => $personList) {
 
 
+                $person = $this->getCURL('/api/persons/item/' . $personList['id']);
 
-            $person = $this->getCURL('/api/persons/item/' . $personList['id']);
+                if (isset($person['picture_data'])) {
 
-            if (isset($person['picture_data'])) {
+                    $picture_data = $person['picture_data'];
+                    $picture_data = str_replace("data:image/jpg;base64,", "", $picture_data);
 
-                $picture_data = $person['picture_data'];
-                $picture_data = str_replace("data:image/jpg;base64,", "", $picture_data);
-
-                $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" => $picture_data, "timeGroup" => "0"];
-            } else {
-                $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" =>  null, "timeGroup" => "0"];
+                    $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" => $picture_data, "timeGroup" => "0"];
+                } else {
+                    $data = ["name" => $person["person_name"], "userCode" => $system_user_id, "expiry" => '---',  "faceImage" =>  null, "timeGroup" => "0"];
+                }
             }
+        } else {
+            return $data;
         }
-
         return $data;
     }
 
