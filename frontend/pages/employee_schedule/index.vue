@@ -1844,7 +1844,7 @@ export default {
           }));
 
         this.filterShifts = [
-          { shift_id: 0, name: `Auto Shift` },
+          { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
           ...this.filterShifts,
         ];
       });
