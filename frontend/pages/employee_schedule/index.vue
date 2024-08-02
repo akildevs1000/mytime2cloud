@@ -1736,12 +1736,15 @@ export default {
           (e) => e.shift_id == element.shift_id
         );
 
-        console.log("shift", element);
+        console.log("shiftsSelected", shiftsSelected);
 
         if (shiftsSelected[0])
           element.shift_type_id = shiftsSelected[0].shift_type_id;
-
-        if (element.shift_id === "") {
+        else {
+          element.isAutoShift = true;
+          element.shift_type_id = 0;
+        }
+        if (element.shift_id === "" || element.shift_type_id === "") {
           alert("Please select Shift Name");
           continueSavedata = false;
           return false;
@@ -1842,9 +1845,12 @@ export default {
             to_date: e.to_date,
             branch_id: e.branch_id,
           }));
-
+        // this.shifts = [
+        //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
+        //   ...this.shifts,
+        // ];
         this.filterShifts = [
-          { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
+          { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
           ...this.filterShifts,
         ];
       });
