@@ -417,7 +417,7 @@ class AutoShiftController extends Controller
                 // $arr["shifts"] = $shifts;
                 // return $items[] = $arr;
 
-                ScheduleEmployee::where("company_id", $params['company_id'])
+                /*ScheduleEmployee::where("company_id", $params['company_id'])
                     ->where("employee_id", $UserID)
                     ->update([
                         "from_date" => $params['date'],
@@ -427,7 +427,7 @@ class AutoShiftController extends Controller
                         "shift_type_id" => $nearestShift['shift_type_id'],
                         "shift_id" => $nearestShift['id'],
                     ]);
-
+*/
 
 
                 $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
