@@ -1736,7 +1736,7 @@ export default {
           (e) => e.shift_id == element.shift_id
         );
 
-        console.log("shiftsSelected", shiftsSelected);
+        //console.log("shiftsSelected", shiftsSelected);
 
         if (shiftsSelected[0])
           element.shift_type_id = shiftsSelected[0].shift_type_id;
