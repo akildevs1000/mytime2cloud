@@ -1045,7 +1045,15 @@
           >
             {{ "Expired" }}
           </div>
-          <div v-else>{{ item.schedule?.isAutoShift ? "Auto" : "---" }}</div>
+          <div v-else>
+            {{
+              item.schedule?.isAutoShift
+                ? "Auto"
+                : item.schedule.shift
+                ? item.schedule.shift.name
+                : "---"
+            }}
+          </div>
 
           <div
             class="secondary-value"
