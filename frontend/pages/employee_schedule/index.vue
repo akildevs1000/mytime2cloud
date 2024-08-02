@@ -1039,15 +1039,14 @@
           </template> -->
 
         <template v-slot:item.schedules="{ item }">
-          {{
-            item.schedule?.isAutoShift
-              ? "Auto"
-              : item.schedule.shift
-              ? item.schedule.shift.name
-              : item.schedule_all.length > 0
-              ? "Expired"
-              : "---"
-          }}
+          <div
+            style="color: red"
+            v-if="!item.schedule.shift && item.schedule_all.length > 0"
+          >
+            {{ "Expired" }}
+          </div>
+          <div v-else>{{ item.schedule?.isAutoShift ? "Auto" : "---" }}</div>
+
           <div
             class="secondary-value"
             title="Schedule Date Range"
