@@ -126,7 +126,7 @@ class NightShiftController extends Controller
 
             if ($firstLog['LogTime'] < $beginningIn || $firstLog['LogTime'] > $beginningOut) {
                 $keys[] = $key;
-                $message .= "{$key} LogTime({$firstLog["LogTime"]}) is out of range ({$beginningIn} to {$beginningOut})";
+                $message .= "{$key} LogTime({$firstLog["LogTime"]}) OUT time  is out of range ({$beginningIn} to {$beginningOut})";
                 $message .= " Device: {$firstLog["DeviceID"]}";
                 continue;
             }
@@ -186,7 +186,7 @@ class NightShiftController extends Controller
 
                 if ($lastLog['LogTime'] < $endingIn || $lastLog['LogTime'] > $endingOut) {
                     $keys[] = $key;
-                    $message .= "{$key} LogTime({$lastLog["LogTime"]}) is out of range ({$endingIn} to {$endingOut})";
+                    $message .= "{$key} LogTime({$lastLog["LogTime"]}) IN time  is out of range ({$endingIn} to {$endingOut})";
                     $message .= " Device: {$lastLog["DeviceID"]}";
                     continue;
                 }

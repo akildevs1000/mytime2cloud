@@ -417,17 +417,17 @@ class AutoShiftController extends Controller
                 // $arr["shifts"] = $shifts;
                 // return $items[] = $arr;
 
-                /*ScheduleEmployee::where("company_id", $params['company_id'])
+                ScheduleEmployee::where("company_id", $params['company_id'])
                     ->where("employee_id", $UserID)
                     ->update([
-                        "from_date" => $params['date'],
+                        /////////  "from_date" => $params['date'],
                         //"to_date" => $params['date'],
-                        "to_date" =>  date("Y-m-d", strtotime(date("Y-m-d") . " +1 day")),
+                        ///// "to_date" =>  date("Y-m-d", strtotime(date("Y-m-d") . " +1 day")),
 
                         "shift_type_id" => $nearestShift['shift_type_id'],
                         "shift_id" => $nearestShift['id'],
                     ]);
-*/
+
 
 
                 $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
@@ -445,6 +445,7 @@ class AutoShiftController extends Controller
                 $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
 
                 $message .= " Nearest shift ({$nearestShift['name']})";
+                $message .= json_encode($result);
             }
         }
 

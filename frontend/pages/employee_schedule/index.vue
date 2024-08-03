@@ -1685,6 +1685,10 @@ export default {
 
           this.schedules_temp_list.forEach((object) => {
             object.branch_id = item.branch_id;
+
+            if (object.isAutoShift) {
+              object.shift_id = 0;
+            }
           });
           this.key += 1;
           this.CustomFilterDatekey += 1;
