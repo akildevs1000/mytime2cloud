@@ -692,7 +692,8 @@
                 <td>{{ log.LogTime }}</td>
                 <td>{{ log.DeviceID }}</td>
                 <td>
-                  <b v-if="log.device.function == 'In'">{{
+                  <b v-if="log.log_type">{{ log.log_type }}</b>
+                  <b v-else-if="log.device.function == 'In'">{{
                     log?.device?.function
                   }}</b>
                   <b v-else-if="log.device.function == 'Out'">{{
@@ -701,7 +702,7 @@
                   <b v-else-if="log.device.function == 'auto'">{{
                     log?.device?.function
                   }}</b>
-                  <b v-else>Unkown</b>
+                  <b v-else>{{ log.device.function }}</b>
                 </td>
               </tr>
             </table>
