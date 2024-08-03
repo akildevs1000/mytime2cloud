@@ -212,10 +212,10 @@ class AuthController extends Controller
 
         $found = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo as branch_logo")->first();
 
-        if ($found) {
-            $user->branch_name = $found->branch_name;
-            $user->branch_logo = $found->logo;
-            $user->branch_id = $found->id; //$user->id;
+        if ($found || $user->user_type == "employee") {
+            $user->branch_name = $found->branch_name ?? "";
+            $user->branch_logo = $found->logo ?? "";
+            $user->branch_id = $found->id ?? ""; //$user->id;
 
             $user->load(["employee" => function ($q) {
                 $q->select(
