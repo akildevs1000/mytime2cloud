@@ -14,6 +14,7 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Schedule;
 use App\Models\Shift;
+use Carbon\Carbon;
 
 class AutoShiftController extends Controller
 {
@@ -102,7 +103,7 @@ class AutoShiftController extends Controller
 
             if (!$model) {
                 $nearestShift = $this->findClosest($shifts, count($shifts), $logs[0]["show_log_time"], $date);
-
+                if ($nearestShift == null) return "Nearest Shift is not found " . $logs[0]["LogTime"];
                 $arr["shift_type_id"] = $nearestShift["shift_type_id"];
                 $arr["status"] = "P";
                 $arr["device_id_in"] = $logs[0]["DeviceID"];
@@ -217,6 +218,21 @@ class AutoShiftController extends Controller
         return strtotime($dateTime);
     }
     public function findClosest($arr, $n, $target, $date)
+    {
+        $current_time = date("H:i", $target);
+
+        $matching_shift = array_filter($arr, function ($shift) use ($current_time) {
+            return $current_time >= $shift['beginning_in'] && $current_time <= $shift['beginning_out'];
+        });
+
+        if (!empty($matching_shift)) {
+            $shift = array_values($matching_shift)[0]; // Get the first matching shift
+            return  $shift;
+        } else {
+            return null;
+        }
+    }
+    public function findClosest_old($arr, $n, $target, $date)
     {
         if (count($arr) == 0) return false;
 
@@ -401,10 +417,10 @@ class AutoShiftController extends Controller
 
             $shifts = ((new Shift)->getAutoShiftsAll($params["company_id"], $row[0]["employee"]["branch_id"]));
 
-
+            // date("Y-m-d H:i:s", $row[0]["show_log_time"]);
             if (count($shifts) > 0) {
                 $nearestShift = $this->findClosest($shifts, count($shifts), $row[0]["show_log_time"], $date);
-
+                if ($nearestShift == null) return "Nearest Shift is not found " . $row[0]["LogTime"];
                 $arr = [];
                 $arr["company_id"] = $params["company_id"];
                 $arr["date"] = $params["date"];
@@ -445,7 +461,7 @@ class AutoShiftController extends Controller
                 $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
 
                 $message .= " Nearest shift ({$nearestShift['name']})";
-                $message .= json_encode($result);
+                $message .= " Notes: " . json_encode($result);
             }
         }
 

@@ -91,7 +91,9 @@ class Shift extends Model
                     "working_hours",
                     "overtime_interval",
                     "early_time",
-                    "shift_type_id"
+                    "shift_type_id",
+                    "beginning_in",
+                    "beginning_out",
                 ]
 
             )->toArray();
