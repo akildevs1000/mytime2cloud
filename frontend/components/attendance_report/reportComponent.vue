@@ -690,7 +690,7 @@
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
                 <td>{{ log.LogTime }}</td>
-                <td>{{ log.DeviceID }}</td>
+                <td>{{ log.name }}</td>
                 <td>
                   <b v-if="log.log_type">{{ log.log_type }}</b>
                   <b v-else-if="log.device.function == 'In'">{{
