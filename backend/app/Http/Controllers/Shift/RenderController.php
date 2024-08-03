@@ -49,10 +49,23 @@ class RenderController extends Controller
         if ($interval->days > 8) {
             return ["Limit  8 Days only  allowed between From and To Date."];
         }
+        // $message = '';
+        // return   $automessage = (new AutoShiftController)->renderData($request);
+        // if ($automessage != 'Nearest Shift is not found') {
+        //     $message = [
+        //         (new FiloShiftController)->renderData($request),
+        //         (new SingleShiftController)->renderData($request),
+        //         (new SplitShiftController)->renderData($request),
+        //         (new MultiShiftController)->renderData($request),
+        //         (new NightShiftController)->renderData($request)
+        //     ];
+        // }
 
+        // return [$automessage, $message];
 
         return array_merge(
             (new AutoShiftController)->renderData($request),
+
             (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
             (new SplitShiftController)->renderData($request),
