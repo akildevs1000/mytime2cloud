@@ -685,7 +685,7 @@
             <table class="short-table">
               <tr>
                 <td>LogTime</td>
-                <td>Device Id</td>
+                <td>Device</td>
                 <td>Device Function</td>
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
