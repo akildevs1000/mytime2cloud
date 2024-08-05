@@ -575,7 +575,7 @@ export default {
         align: "left",
         sortable: true,
         key: "function",
-        value: "device",
+        value: "function",
         filterable: true,
         filterSpecial: true,
       },
