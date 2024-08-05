@@ -545,6 +545,6 @@ class AutoShiftController extends Controller
             6 => SingleShiftController::class,
         ];
 
-        return (new $arr[$shift_type_id])->render($params['company_id'], $params['date'], $shift_type_id, [$UserID], true);
+        return (new $arr[$shift_type_id])->render($params['company_id'], $params['date'], $shift_type_id, [$UserID], true, true);
     }
 }
