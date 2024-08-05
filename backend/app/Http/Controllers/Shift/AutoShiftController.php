@@ -465,25 +465,29 @@ class AutoShiftController extends Controller
             //return $row;
             if (count($shifts) > 0) {
                 $nearestShift = $this->findClosest($shifts, count($shifts), $row, $date);
+
+                //clear old Attendance shift data 
+                $itemData = [
+                    "total_hrs" => "---",
+                    "in" =>   "---",
+                    "out" =>  "---",
+                    "ot" => "---",
+                    "device_id_in" =>   "---",
+                    "device_id_out" => "---",
+                    "shift_type_id" =>   $nearestShift["shift_type_id"] ?? 0,
+                    "shift_id" =>   $nearestShift["shift_id"] ?? 0,
+
+                    "status" => "A",
+                    "late_coming" => "---",
+                    "early_going" => "---",
+
+                ];
+                Attendance::where("company_id", $id)
+                    ->where("employee_id", $UserID)
+                    ->where("date", $date)->update($itemData);
+
+                //------------
                 if ($nearestShift == null) {
-
-                    $itemData = [
-                        "total_hrs" => "---",
-                        "in" =>   "---",
-                        "out" =>  "---",
-                        "ot" => "---",
-                        "device_id_in" =>   "---",
-                        "device_id_out" => "---",
-
-                        "status" => "A",
-                        "late_coming" => "---",
-                        "early_going" => "---",
-
-                    ];
-                    Attendance::where("company_id", $id)
-                        ->where("employee_id", $UserID)
-                        ->where("date", $date)->update($itemData);
-
                     return "Nearest Shift is not found1 " . $date;
                 }
                 $arr = [];
@@ -512,7 +516,7 @@ class AutoShiftController extends Controller
 
 
 
-                return $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
+                $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
 
                 // if (!$params["custom_render"]) 
                 {
