@@ -367,12 +367,15 @@
             </template>
             <template v-slot:item.LogTime="{ item }">
               {{ item.LogTime }}
-              <div class="secondary-value">
-                {{ item.log_type ? item.log_type : "---" }}
-              </div>
+            </template>
+            <template v-slot:item.option="{ item }">
+              {{ item.log_type ? item.log_type : "---" }}
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
+              <div class="secondary-value">
+                {{ item.device.function ? item.device.function : "---" }}
+              </div>
             </template>
             <template v-slot:item.gps_location="{ item }">
               <!-- {{ item.gps_location || "---" }} -->
@@ -520,17 +523,17 @@ export default {
         filterSpecial: false,
       },
 
+      // {
+      //   text: "Department",
+      //   align: "left",
+      //   sortable: false,
+      //   key: "department", //sorting
+      //   value: "department.name.id", //edit purpose
+      //   filterable: true,
+      //   filterSpecial: true,
+      // },
       {
-        text: "Department",
-        align: "left",
-        sortable: false,
-        key: "department", //sorting
-        value: "department.name.id", //edit purpose
-        filterable: true,
-        filterSpecial: true,
-      },
-      {
-        text: "Date Range",
+        text: "Date  ",
         align: "left",
         sortable: false,
         key: "date_range",
@@ -538,6 +541,16 @@ export default {
         filterable: true,
         filterSpecial: true,
         fieldType: "date_range_picker",
+      },
+      {
+        text: "Option ",
+        align: "left",
+        sortable: false,
+        key: "option",
+        value: "option",
+        filterable: true,
+        filterSpecial: true,
+        fieldType: "option",
       },
       // {
       //   text: "Log Time",
