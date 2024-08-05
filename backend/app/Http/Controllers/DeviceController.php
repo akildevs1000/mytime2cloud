@@ -1086,7 +1086,7 @@ class DeviceController extends Controller
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
             ->where("device_id", "!=", "Manual")
             // ->where("device_type", "!=", "Manual")
-            ->where(DB::raw('device_id NOT ILIKE ?'), ['%mobile%'])
+            ->where('device_id', 'NOT ILIKE', '%mobile%')
 
 
             ->get()->count();;
@@ -1098,7 +1098,7 @@ class DeviceController extends Controller
             // ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
-            ->where(DB::raw('device_id NOT ILIKE ?'), ['%mobile%'])
+            ->where('device_id', 'NOT ILIKE', '%mobile%')
 
 
             ->Where(function ($q) {
