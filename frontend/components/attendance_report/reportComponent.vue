@@ -686,25 +686,20 @@
               <tr>
                 <td>LogTime</td>
                 <td>Device</td>
+
+                <td>Log Type</td>
                 <td>Device Function</td>
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
                 <td>{{ log.LogTime }}</td>
                 <td>{{ log.device.name }}</td>
                 <td>
-                  <b v-if="log.log_type">{{ log.log_type }}</b>
-                  <b v-else>{{
+                  <b>{{ log.log_type ?? "---" }}</b>
+                </td>
+                <td>
+                  <b>{{
                     log?.device?.function ? caps(log.device.function) : "---"
                   }}</b>
-
-                  <!--
-                  <b v-else-if="log.device.function == 'Out'">{{
-                    log?.device?.function
-                  }}</b>
-                  <b v-else-if="log.device.function == 'auto'">{{
-                    log?.device?.function
-                  }}</b>
-                  <b v-else>---</b> -->
                 </td>
               </tr>
             </table>
