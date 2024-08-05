@@ -127,9 +127,11 @@ class NightShiftController extends Controller
                 return $record["log_type"] == "In";
             })->first();
 
-            $lastLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "Out";
-            })->last();
+            $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
+                return $record["log_type"] == "Out" && $record["LogTime"] > $firstLog['LogTime'];
+            })->first();
+
+
 
             if ($isRequestFromAutoshift) {
 
@@ -139,9 +141,9 @@ class NightShiftController extends Controller
                     })->first();
                 }
                 if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out");
-                    })->last();
+                    $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
+                        return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out") && $record["LogTime"] > $firstLog['LogTime'];
+                    })->first();
                 }
             } else {
 
@@ -152,11 +154,13 @@ class NightShiftController extends Controller
                     })->first();
                 }
                 if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
-                    })->last();
+                    $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
+                        return isset($record["device"]["function"]) && ($record["device"]["function"] != "In") && $record["LogTime"] > $firstLog['LogTime'];
+                    })->first();
                 }
             }
+
+
             $schedule = $firstLog["schedule"] ?? false;
 
             $shift = $schedule["shift"] ?? false;
@@ -262,7 +266,8 @@ class NightShiftController extends Controller
                 $item["out"] = $lastLog["time"] ?? "---";
 
                 if ($item["out"] !== "---") {
-                    $item["total_hrs"] = $this->calculatedHours($item["in"], $item["out"]);
+                    //$item["total_hrs"] = $this->calculatedHours($item["in"], $item["out"]);
+                    $item["total_hrs"] = $this->calculatedHours($firstLog['LogTime'], $lastLog['LogTime']);
                 }
 
                 if ($schedule["isOverTime"] ?? false) {
@@ -350,7 +355,8 @@ class NightShiftController extends Controller
     public function calculatedHours($in, $out)
     {
 
-        $diff = abs(((strtotime($in)) - (strtotime($out) + 86400)));
+        //$diff = abs(((strtotime($in)) - (strtotime($out) + 86400)));
+        $diff =  strtotime($out) - strtotime($in);
         $h = floor($diff / 3600);
         $m = floor(($diff % 3600) / 60);
         return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));

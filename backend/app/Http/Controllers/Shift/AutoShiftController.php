@@ -91,7 +91,7 @@ class AutoShiftController extends Controller
         $arr = [];
         $arr["company_id"] = $companyId;
         $arr["date"] = $date;
-        return $data;
+
         foreach ($data as $UserID => $logs) {
 
 
@@ -104,7 +104,7 @@ class AutoShiftController extends Controller
             $model = $this->findAttendanceByUserId($arr);
 
             if (!$model) {
-                return  $nearestShift = $this->findClosest($shifts, count($shifts), $logs, $date);
+                $nearestShift = $this->findClosest($shifts, count($shifts), $logs, $date);
                 if ($nearestShift == null) {
 
                     $itemData = [
@@ -512,7 +512,7 @@ class AutoShiftController extends Controller
 
 
 
-                $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
+                return $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params);
 
                 // if (!$params["custom_render"]) 
                 {
