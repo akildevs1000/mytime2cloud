@@ -371,11 +371,11 @@
             <template v-slot:item.option="{ item }">
               {{ item.log_type ? item.log_type : "---" }}
             </template>
+            <template v-slot:item.function="{ item }">
+              {{ item.device.function ? item.device.function : "---" }}
+            </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
-              <div class="secondary-value">
-                {{ item.device.function ? item.device.function : "---" }}
-              </div>
             </template>
             <template v-slot:item.gps_location="{ item }">
               <!-- {{ item.gps_location || "---" }} -->
@@ -543,7 +543,7 @@ export default {
         fieldType: "date_range_picker",
       },
       {
-        text: "Option ",
+        text: "Option Value",
         align: "left",
         sortable: false,
         key: "option",
@@ -567,6 +567,15 @@ export default {
         sortable: true,
         key: "device",
         value: "device.name",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "Device Function",
+        align: "left",
+        sortable: true,
+        key: "function",
+        value: "device",
         filterable: true,
         filterSpecial: true,
       },
