@@ -702,7 +702,7 @@
                   <b v-else-if="log.device.function == 'auto'">{{
                     log?.device?.function
                   }}</b>
-                  <b v-else>{{ log.device.function }}</b>
+                  <b v-else>---</b>
                 </td>
               </tr>
             </table>
