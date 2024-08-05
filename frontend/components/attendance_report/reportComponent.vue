@@ -352,13 +352,20 @@
     <v-row justify="center">
       <v-dialog persistent v-model="dialog" max-width="300px">
         <v-card>
-          <v-card-title class="popup_background">
+          <v-card-title dark class="popup_background">
+            <span dense>Employee Manual Logs</span>
+            <v-spacer></v-spacer>
+            <v-icon dark @click="dialog = false" outlined>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+          <!-- <v-card-title class="popup_background">
             <span class="headline"> Employee Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon @click="dialog = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
-          </v-card-title>
+          </v-card-title> -->
           <v-card-text>
             <v-container>
               <v-row>
@@ -451,7 +458,7 @@
       <v-dialog persistent v-model="reportSync" max-width="800px">
         <v-card style="width: 100%">
           <v-card-title class="popup_background">
-            <span class="headline"> Re-Generate Report </span>
+            <span dense> Re-Generate Report </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="reportSync = false">mdi-close-circle</v-icon>
           </v-card-title>
@@ -471,7 +478,7 @@
       <v-dialog persistent v-model="generateLogsDialog" max-width="800px">
         <v-card>
           <v-card-title class="popup_background">
-            <span class="headline">Employee Manual Log </span>
+            <span dense>Employee Manual Log </span>
             <v-spacer></v-spacer>
             <v-icon dark @click="generateLogsDialog = false"
               >mdi-close-circle</v-icon
@@ -666,14 +673,22 @@
     <v-row justify="center">
       <v-dialog persistent v-model="log_details" max-width="800px">
         <v-card class="darken-1">
-          <v-toolbar class="popup_background">
-            <span class="text-h5 pa-2">Log Details</span>
+          <v-card-title dark class="popup_background">
+            <span dense>Log Details </span>
+            <v-spacer></v-spacer>
+            <v-icon dark @click="log_details = false" outlined>
+              mdi mdi-close-circle
+            </v-icon>
+          </v-card-title>
+
+          <!-- <v-toolbar class="popup_background">
+            <span class="headline">Log Details</span>
             <v-spacer></v-spacer>
 
             <v-icon color="white" @click="log_details = false"
               >mdi-close-circle-outline</v-icon
             >
-          </v-toolbar>
+          </v-toolbar> -->
           <v-toolbar flat dense>
             Employee Id: <b>{{ log_list?.item?.employee?.system_user_id }}</b>
             <v-spacer></v-spacer>
@@ -688,7 +703,7 @@
                 <td>Device</td>
 
                 <td>Log Type</td>
-                <td>Device Function</td>
+                <!-- <td>Device Function</td> -->
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
                 <td>{{ log.LogTime }}</td>
@@ -696,11 +711,11 @@
                 <td>
                   <b>{{ log.log_type ?? "---" }}</b>
                 </td>
-                <td>
+                <!-- <td>
                   <b>{{
                     log?.device?.function ? caps(log.device.function) : "---"
                   }}</b>
-                </td>
+                </td> -->
               </tr>
             </table>
           </v-card-text>

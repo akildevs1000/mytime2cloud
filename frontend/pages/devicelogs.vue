@@ -570,15 +570,16 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-      {
-        text: "Device Function",
-        align: "left",
-        sortable: true,
-        key: "function",
-        value: "function",
-        filterable: true,
-        filterSpecial: true,
-      },
+
+      // {
+      //   text: "Device Function",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "function",
+      //   value: "function",
+      //   filterable: true,
+      //   filterSpecial: true,
+      // },
       {
         text: "Location",
         align: "left",
