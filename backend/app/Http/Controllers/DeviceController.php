@@ -1131,18 +1131,30 @@ class DeviceController extends Controller
                 }
             }
             $company_id = $Device["company_id"];
+        } //for 
+
+        $array_unique = array_unique($companiesIds);
+        // Re-indexing the array to maintain a clean index sequence
+        $companiesIds = array_values($array_unique);
+        foreach ($companiesIds as $key => $company_id) {
+            # code...
 
             try {
 
                 $count = (new DeviceCameraController(''))->updateCameraDeviceLiveStatus($company_id);
-                $online_devices_count = $online_devices_count +  $count;
+
+
+                if ($count)
+                    $online_devices_count = $online_devices_count +  $count;
             } catch (\Exception $e) {
             }
             try {
-                //139.59.69.241:8888
-                $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
+                //139.59.69.241:8888 //OX-900
 
-                $online_devices_count = $online_devices_count +  $count;
+
+                $count = (new DeviceCameraModel2Controller(''))->getCameraDeviceLiveStatus($company_id);
+                if ($count)
+                    $online_devices_count = $online_devices_count +  $count;
             } catch (\Exception $e) {
             }
         }
@@ -1152,7 +1164,7 @@ class DeviceController extends Controller
         $offline_devices_count = $total_devices_count - $online_devices_count;
 
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
-        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_devices_count records found.";
+        return   " $online_devices_count Devices online. $offline_devices_count Devices offline. $total_devices_count records found.";
     }
     // public function checkDeviceHealth_old(Request $request)
     // {
