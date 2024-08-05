@@ -372,7 +372,7 @@
               {{ item.log_type ? item.log_type : "---" }}
             </template>
             <template v-slot:item.function="{ item }">
-              {{ item.device.function ? item.device.function : "---" }}
+              {{ item.device.function ? caps(item.device.function) : "---" }}
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
