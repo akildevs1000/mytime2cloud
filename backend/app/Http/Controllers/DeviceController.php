@@ -1153,7 +1153,7 @@ class DeviceController extends Controller
         if ($offline_devices_count < 0) $offline_devices_count = 0;
 
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
-        return   "$offline_devices_count Devices offline. $online_devices_count Devices online. $total_devices_count records found.";
+        return   "$online_devices_count Devices online. $offline_devices_count Devices offline.  ";
     }
     // public function checkDeviceHealth_old(Request $request)
     // {
