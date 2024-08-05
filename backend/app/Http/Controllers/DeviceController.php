@@ -1084,8 +1084,9 @@ class DeviceController extends Controller
     {
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
-            ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
+            // ->where("device_type", "!=", "Manual")
+            ->where(DB::raw('device_id NOT ILIKE ?'), ['%mobile%'])
 
 
             ->get()->count();;
@@ -1094,8 +1095,11 @@ class DeviceController extends Controller
 
         $companyDevices = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
-            ->where("device_type", "!=", "Manual")
+            // ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
+            ->where("device_id", "!=", "Manual")
+            ->where(DB::raw('device_id NOT ILIKE ?'), ['%mobile%'])
+
 
             ->Where(function ($q) {
                 $q->where('device_category_name', "!=", "CAMERA");
