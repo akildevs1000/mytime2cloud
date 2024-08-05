@@ -367,6 +367,9 @@
             </template>
             <template v-slot:item.LogTime="{ item }">
               {{ item.LogTime }}
+              <div class="secondary-value">
+                {{ item.log_type ? item.log_type : "---" }}
+              </div>
             </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
