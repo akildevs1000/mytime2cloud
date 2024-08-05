@@ -39,7 +39,7 @@ class Camera2 extends Controller
         $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";
         $message = $card_number . "," . $device_sn . "," . date("Y-m-d H:i:s", (($timestamp) / 1000)  + (60 * 60 * 4)) . "," . $recognition_score . "," . $clock_status;
         Storage::append($file_name_raw, json_encode($message));
-        Storage::append($file_name_raw, json_encode($request));
+        Storage::append($file_name_raw, json_encode($request->all()));
         //------Raw Data-------
 
 
