@@ -1119,7 +1119,7 @@
             src="/icons/function_out.png"
             style="width: 30px"
           />
-          <div v-else>{{ item.function }}</div>
+          <div v-else>{{ caps(item.function) }}</div>
         </template>
 
         <template v-slot:item.device_type="{ item }">
