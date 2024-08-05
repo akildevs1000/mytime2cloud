@@ -50,7 +50,7 @@ class NightShiftController extends Controller
         return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true);
     }
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false)
     {
         $params = [
             "company_id" => $id,
@@ -65,7 +65,17 @@ class NightShiftController extends Controller
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
 
-        $logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+        //$logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+
+        $logsEmployees = [];
+
+
+        if ($isRequestFromAutoshift) {
+            $logsEmployees =  (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params);
+        } else {
+            //$logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+            $logsEmployees =  (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
+        }
 
         //update atendance table with shift ID if shift with employee not found 
         if (count($logsEmployees) == 0) {
@@ -80,6 +90,8 @@ class NightShiftController extends Controller
                     $model1->whereIn("employee_id", $UserIds);
                     $model1->where("date", $params["date"]);
                     $model1->where("company_id", $params["company_id"]);
+                    $model1->where("shift_id", 0);
+                    $model1->where("shift_type_id", 0);
                     $model1->update($data1);
                 }
             }
@@ -97,7 +109,7 @@ class NightShiftController extends Controller
             //     return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
             // })->first();
 
-            $firstLog = collect($logs)->filter(function ($record) {
+            /*$firstLog = collect($logs)->filter(function ($record) {
                 return $record["log_type"] == "In";
             })->first();
 
@@ -108,8 +120,43 @@ class NightShiftController extends Controller
                     return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
                 })->first();
             }
+*/
+            $firstLog = null;
 
+            $firstLog = collect($logs)->filter(function ($record) {
+                return $record["log_type"] == "In";
+            })->first();
 
+            $lastLog = collect($logs)->filter(function ($record) {
+                return $record["log_type"] == "Out";
+            })->last();
+
+            if ($isRequestFromAutoshift) {
+
+                if ($firstLog == null) {
+                    $firstLog = collect($logs)->filter(function ($record) {
+                        return (isset($record["device"]["function"]) && ($record["device"]["function"] == "In"));
+                    })->first();
+                }
+                if ($lastLog == null) {
+                    $lastLog = collect($logs)->filter(function ($record) {
+                        return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out");
+                    })->last();
+                }
+            } else {
+
+                if ($firstLog == null) {
+
+                    $firstLog = collect($logs)->filter(function ($record) {
+                        return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
+                    })->first();
+                }
+                if ($lastLog == null) {
+                    $lastLog = collect($logs)->filter(function ($record) {
+                        return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
+                    })->last();
+                }
+            }
             $schedule = $firstLog["schedule"] ?? false;
 
             $shift = $schedule["shift"] ?? false;
@@ -169,7 +216,7 @@ class NightShiftController extends Controller
             //     $shift,
             //     $custom_render
             // );
-
+            /*
             $lastLog = collect($logs)->filter(function ($record) {
                 return $record["log_type"] == "Out";
             })->last();
@@ -180,7 +227,7 @@ class NightShiftController extends Controller
                 $lastLog = collect($logs)->filter(function ($record) {
                     return (isset($record["device"]["function"]) && ($record["device"]["function"] != "In"));
                 })->last();
-            }
+            }*/
 
             if ($lastLog) {
 
