@@ -670,7 +670,7 @@
             <span class="text-h5 pa-2">Log Details</span>
             <v-spacer></v-spacer>
 
-            <v-icon @click="log_details = false"
+            <v-icon color="white" @click="log_details = false"
               >mdi-close-circle-outline</v-icon
             >
           </v-toolbar>
