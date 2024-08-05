@@ -693,16 +693,18 @@
                 <td>{{ log.device.name }}</td>
                 <td>
                   <b v-if="log.log_type">{{ log.log_type }}</b>
-                  <b v-else-if="log.device.function == 'In'">{{
-                    log?.device?.function
+                  <b v-else>{{
+                    log?.device?.function ? caps(log.device.function) : "---"
                   }}</b>
+
+                  <!--
                   <b v-else-if="log.device.function == 'Out'">{{
                     log?.device?.function
                   }}</b>
                   <b v-else-if="log.device.function == 'auto'">{{
                     log?.device?.function
                   }}</b>
-                  <b v-else>---</b>
+                  <b v-else>---</b> -->
                 </td>
               </tr>
             </table>
