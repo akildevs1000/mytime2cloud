@@ -1150,6 +1150,8 @@ class DeviceController extends Controller
         // if ($online_devices_count > $total_devices_count) {
         //     $online_devices_count = $total_devices_count;
         // }
+
+        //sadsads 
         if ($offline_devices_count < 0) $offline_devices_count = 0;
 
         Company::whereIn("id", array_values($companiesIds))->update(["is_offline_device_notificaiton_sent" => false]);
