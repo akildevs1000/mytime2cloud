@@ -607,7 +607,7 @@ class DeviceController extends Controller
             //update to Device 
             if ($request->model_number == 'OX-900') {
 
-                $status = $request->function == 'manual'  ? 'true' : 'false';
+                $status = $request->function == 'option'  ? 'true' : 'false';
                 $json = '{             
              
                  
