@@ -709,7 +709,19 @@
                 <td>{{ log.LogTime }}</td>
                 <td>{{ log.device.name }}</td>
                 <td>
-                  <b>{{ log.log_type ?? "---" }}</b>
+                  <b
+                    ><div v-if="log.log_type != '---'">
+                      {{ log.log_type ?? "---" }}
+                    </div>
+                    <div v-else>
+                      {{
+                        log?.device?.function == "In" ||
+                        log?.device?.function == "Out"
+                          ? caps(log.device.function)
+                          : "---"
+                      }}
+                    </div>
+                  </b>
                 </td>
                 <!-- <td>
                   <b>{{
