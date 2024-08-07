@@ -710,7 +710,7 @@
                 <td>{{ log.device.name }}</td>
                 <td>
                   <b
-                    ><div v-if="log.log_type != '---'">
+                    ><div v-if="log.log_type">
                       {{ log.log_type ?? "---" }}
                     </div>
                     <div v-else>
