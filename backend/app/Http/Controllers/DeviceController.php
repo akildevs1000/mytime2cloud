@@ -38,7 +38,7 @@ class DeviceController extends Controller
         $model->where('company_id', request('company_id'));
         //$model->where("status_id", self::ONLINE_STATUS_ID);
         $model->excludeMobile();
-        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name", "location", "device_id", "device_type"]);
     }
@@ -342,10 +342,10 @@ class DeviceController extends Controller
         $model->with(['device']);
         $model->where('company_id', $id);
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
         });
         $model->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
         });
         $model->whereIn('UserID', function ($query) use ($request) {
             // $model1 = Employee::query();
@@ -439,20 +439,20 @@ class DeviceController extends Controller
 
 
 
-                    // $data = [
-                    //     "IllegalVerificationAlarm" => false,
-                    //     "PasswordAlarm" => false,
-                    //     "DoorMagneticAlarm" => false,
-                    //     "BlacklistAlarm" => false,
-                    //     "FireAlarm" => true,
-                    //     "OpenDoorTimeoutAlarm" => false,
-                    //     "AntiDisassemblyAlarm" => false,
-                    // ];
-                    // if ($request->status == 0) {
-                    //     (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
-                    //     //always open the door till close manually
-                    //     $this->CallAlwaysOpenDoor($request->serial_number);
-                    // }
+                    $data = [
+                        "IllegalVerificationAlarm" => false,
+                        "PasswordAlarm" => false,
+                        "DoorMagneticAlarm" => false,
+                        "BlacklistAlarm" => false,
+                        "FireAlarm" => true,
+                        "OpenDoorTimeoutAlarm" => false,
+                        "AntiDisassemblyAlarm" => false,
+                    ];
+                    if ($request->status == 0) {
+                        (new SDKController)->processSDKRequestCloseAlarm($request->serial_number, $data);
+                        //always open the door till close manually
+                        $this->CallAlwaysOpenDoor($request->serial_number);
+                    }
                 }
 
                 $data = ["alarm_status" => 0, "alarm_end_datetime" => date('Y-m-d H:i:s')];
@@ -674,7 +674,10 @@ class DeviceController extends Controller
         $model = Device::query();
 
         $fields = [
-            'name', 'device_id', 'location', 'short_name',
+            'name',
+            'device_id',
+            'location',
+            'short_name',
             'status' => ['name'],
             'company' => ['name'],
         ];
@@ -1083,7 +1086,7 @@ class DeviceController extends Controller
     public function checkDevicesHealthCompanyId($company_id = '')
     {
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
-            ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
+            ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
             ->where("device_id", "!=", "Manual")
             // ->where("device_type", "!=", "Manual")
             ->where('device_id', 'NOT ILIKE', '%mobile%')
@@ -1094,7 +1097,7 @@ class DeviceController extends Controller
         $devicesHealth = (new SDKController())->GetAllDevicesHealth();
 
         $companyDevices = Device::where("device_type", "!=", "Mobile")
-            ->when($company_id > 0, fn ($q) => $q->where('company_id', $company_id))
+            ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
             // ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
@@ -1284,7 +1287,12 @@ class DeviceController extends Controller
         $device_settings_id = '';
 
         $devices_active_settings_array = [
-            'device_id' => $device_id, 'company_id' =>  $request->company_id, 'date_from' => $request->date_from, 'date_to' => $request->date_to,   'open_json' => json_encode($open_time_array), 'close_json' => json_encode($closing_time_array)
+            'device_id' => $device_id,
+            'company_id' =>  $request->company_id,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+            'open_json' => json_encode($open_time_array),
+            'close_json' => json_encode($closing_time_array)
         ];
 
         $record = DeviceActivesettings::where("device_id", $device_id)->where("company_id", $request->company_id);
