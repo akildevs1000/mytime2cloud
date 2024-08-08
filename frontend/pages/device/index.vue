@@ -2118,9 +2118,9 @@ export default {
       this.totalRowsCount = data.total;
       this.loading = false;
 
-      setTimeout(() => {
-        this.updateDevicesHealth();
-      }, 1000 * 15);
+      // setTimeout(() => {
+      //   this.updateDevicesHealth();
+      // }, 1000 * 15);
 
       return;
 
