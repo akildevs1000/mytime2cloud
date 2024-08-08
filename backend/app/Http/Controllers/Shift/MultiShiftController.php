@@ -100,6 +100,9 @@ class MultiShiftController extends Controller
 
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
+            //  $logs = (new AttendanceLog)->getLogsForRender($params);
+
+
 
 
             $data = $logs[$row->system_user_id] ?? [];
