@@ -1,6 +1,7 @@
 const WebSocket = require("ws");
 const fs = require("fs");
 const { log } = require("console");
+const axios = require("axios");
 require("dotenv").config();
 
 const verification_methods = {
