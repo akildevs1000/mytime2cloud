@@ -4,7 +4,7 @@ use App\Http\Controllers\Alarm\Api\ApiAlarmControlController;
 use App\Http\Controllers\AlarmLogsController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\AnnouncementsCategoriesController;
-use AWS\CRT\HTTP\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // announcement
