@@ -18,5 +18,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/loadalarm_csv', function (Request $request) {
 
-    (new AlarmLogsController)->store();
+    return (new AlarmLogsController)->store();
 });
