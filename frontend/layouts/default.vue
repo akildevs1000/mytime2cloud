@@ -791,7 +791,7 @@ export default {
         this.resetTimer();
         this.verifyAlarmStatus();
       }
-    }, 1000 * 60 * 1);
+    }, 1000 * 20 * 1);
     setInterval(() => {
       if (this.$router.page != "login") {
         this.loadNotificationMenu();
@@ -1024,6 +1024,7 @@ export default {
     },
     verifyAlarmStatus() {
       if (this.apiCalNotificationInitiated == false) {
+        this.apiCalNotificationInitiated = true;
         let company_id = this.$auth.user?.company?.id || 0;
         if (company_id == 0) {
           return false;
@@ -1036,7 +1037,7 @@ export default {
         //this.pendingNotificationsCount = 0;
         let pendingcount = 0;
         this.$axios.get(`get_notifications_alarm`, options).then(({ data }) => {
-          this.apiCalNotificationInitiated = true;
+          this.apiCalNotificationInitiated = false;
           if (data.length > 0) {
             this.notificationAlarmDevices = data;
 
