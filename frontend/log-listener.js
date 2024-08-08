@@ -92,6 +92,7 @@ socket.onmessage = ({ data }) => {
       // console.log(data);
     }
     //Alarm Code
+    console.log(RecordCode);
     if (RecordCode == 19) {
       const alarm_logEntry = `${SN},${RecordDate}`;
       fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
