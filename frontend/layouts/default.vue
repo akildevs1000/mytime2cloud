@@ -971,7 +971,8 @@ export default {
       location.href = location.href; // process.env.APP_URL + "/dashboard2";
     },
     loadNotificationMenu() {
-      if (this.apiCalNotificationInitiated == false) {
+      //if (this.apiCalNotificationInitiated == false)
+      {
         let company_id = this.$auth.user?.company?.id || 0;
         if (company_id == 0) {
           return false;
@@ -1023,7 +1024,8 @@ export default {
       }
     },
     verifyAlarmStatus() {
-      if (this.apiCalNotificationInitiated == false) {
+      //if (this.apiCalNotificationInitiated == false)
+      {
         this.apiCalNotificationInitiated = true;
         let company_id = this.$auth.user?.company?.id || 0;
         if (company_id == 0) {

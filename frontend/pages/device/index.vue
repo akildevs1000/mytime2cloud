@@ -1577,7 +1577,7 @@ export default {
   },
   mounted() {
     setInterval(() => {
-      console.log(this.$route.name);
+      //console.log(this.$route.name);
 
       if (this.$route.name == "device") {
         this.getDataFromApi();
