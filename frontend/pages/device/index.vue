@@ -1699,10 +1699,12 @@ export default {
               status: status,
             },
           };
+          this.apiDeviceHealthcallStatus = true;
           this.loading = true;
           this.$axios
             .post(`/update-device-alarm-status-off`, options.params)
             .then(({ data }) => {
+              this.apiDeviceHealthcallStatus = false;
               this.getDataFromApi();
               if (!data.status) {
                 if (data.message == "undefined") {
