@@ -415,9 +415,9 @@ class DeviceController extends Controller
 
 
             $device = Device::where("serial_number", $request->serial_number)->first();
-            if ($device->status_id == 2) {
-                return $this->response("Device is offline. Please Check Device Online status.", null, false);
-            }
+            // if ($device->status_id == 2) {
+            //     return $this->response("Device is offline. Please Check Device Online status.", null, false);
+            // }
             try {
 
                 if ($device->device_category_name == 'CAMERA') {

@@ -404,8 +404,15 @@
           <v-btn color="primary" v-bind="attrs" v-on="on">From the top</v-btn>
         </template> -->
         <template v-slot:default="dialog">
-          <v-card>
+          <v-card :loading="loading">
+            <template slot="progress">
+              <v-progress-linear
+                color="black"
+                indeterminate
+              ></v-progress-linear>
+            </template>
             <v-toolbar
+              small
               color="error"
               style="
                 text-align: center;
@@ -431,17 +438,40 @@
                     Fire Alarm Triggered at :
                     {{ $dateFormat.format5(device.alarm_start_datetime) }}
                   </div>
-                  <div class="bold pa-1">Device Name :{{ device.name }}</div>
-                  <div class="bold pa-1">
-                    Branch Name :{{ device.branch.branch_name }}
-                  </div>
-                  <div class="bold pa-1">
-                    Device Location :{{ device.branch.location }}
-                  </div>
+                  <v-row>
+                    <v-col cols="8">
+                      <div class="bold pa-1">
+                        Device Name :{{ device.name }}
+                      </div>
+                      <div class="bold pa-1">
+                        Branch Name :{{ device.branch.branch_name }}
+                      </div>
+                      <div class="bold pa-1">
+                        Device Location :{{ device.branch.location }}
+                      </div>
+                    </v-col>
+                    <v-col cols="4" class="text-center align-center"
+                      ><v-icon
+                        size="50"
+                        class="alarm"
+                        @click="UpdateAlarmStatus(device, 0)"
+                        title="Click to Turn OFF Alarm "
+                        >mdi mdi-alarm-light</v-icon
+                      >
+                      <v-btn
+                        color="red"
+                        fill
+                        small
+                        dark
+                        @click="UpdateAlarmStatus(device, 0)"
+                      >
+                        Turn OFF Alarm
+                      </v-btn>
+                    </v-col>
+                  </v-row>
                 </v-col>
               </v-row>
 
-              <div></div>
               <div>
                 <div style="color: green">
                   <strong>Note: </strong>All Branch Level Doors are Opened
@@ -740,7 +770,7 @@ export default {
       sideBarcolor: "background",
       year: new Date().getFullYear(),
       dropdown_menus: [{ title: "setting" }, { title: "logout" }],
-
+      loading: false,
       clipped: false,
       open_menu: [],
       drawer: true,
@@ -791,7 +821,7 @@ export default {
         this.resetTimer();
         this.verifyAlarmStatus();
       }
-    }, 1000 * 20 * 1);
+    }, 1000 * 15 * 1);
     setInterval(() => {
       if (this.$router.page != "login") {
         this.loadNotificationMenu();
@@ -885,6 +915,66 @@ export default {
     },
   },
   methods: {
+    palysound() {
+      this.playAudioOnUserInteraction();
+    },
+    playAudioOnUserInteraction() {
+      if (!this.audio) {
+        this.audio = new Audio(
+          process.env.BACKEND_URL.replace("api", "") +
+            "alarm_sounds/alarm-sound1.mp3"
+        );
+      }
+      this.audio.play();
+    },
+    stopsound() {
+      if (!this.audio) {
+        this.audio = new Audio(
+          process.env.BACKEND_URL.replace("api", "") +
+            "alarm_sounds/alarm-sound1.mp3"
+        );
+      }
+      this.audio.pause();
+    },
+    async UpdateAlarmStatus(item, status) {
+      if (status == 0) {
+        if (confirm("Are you sure you want to TURN OFF the Alarm")) {
+          this.loading = true;
+          this.apiCalNotificationInitiated = true;
+          let options = {
+            params: {
+              company_id: this.$auth.user.company_id,
+              serial_number: item.serial_number,
+              status: status,
+            },
+          };
+          this.loading = true;
+          this.$axios
+            .post(`/update-device-alarm-status`, options.params)
+            .then(({ data }) => {
+              this.apiCalNotificationInitiated = false;
+              this.verifyAlarmStatus();
+              if (!data.status) {
+                if (data.message == "undefined") {
+                  this.response = "Try again. No connection available";
+                } else this.response = "Try again. " + data.message;
+                this.snackbar = true;
+
+                return;
+              } else {
+                setTimeout(() => {
+                  this.loading = false;
+                  this.response = data.message;
+                  this.snackbar = true;
+                }, 2000);
+
+                return;
+              }
+            })
+            .catch((e) => console.log(e));
+        }
+      }
+    },
     showGlobalsearchPopup() {
       this.key = this.key + 1;
       this.globalSearchPopupWidth = "500px";
@@ -971,7 +1061,6 @@ export default {
       location.href = location.href; // process.env.APP_URL + "/dashboard2";
     },
     loadNotificationMenu() {
-      //if (this.apiCalNotificationInitiated == false)
       {
         let company_id = this.$auth.user?.company?.id || 0;
         if (company_id == 0) {
@@ -985,7 +1074,6 @@ export default {
         //this.pendingNotificationsCount = 0;
         let pendingcount = 0;
         this.$axios.get(`get-notifications-count`, options).then(({ data }) => {
-          this.apiCalNotificationInitiated = true;
           this.notificationsMenuItems = [
             {
               title: "Leaves Pending (0)",
@@ -1023,9 +1111,8 @@ export default {
         });
       }
     },
-    verifyAlarmStatus() {
-      //if (this.apiCalNotificationInitiated == false)
-      {
+    async verifyAlarmStatus() {
+      if (!this.apiCalNotificationInitiated) {
         this.apiCalNotificationInitiated = true;
         let company_id = this.$auth.user?.company?.id || 0;
         if (company_id == 0) {
@@ -1038,16 +1125,23 @@ export default {
         };
         //this.pendingNotificationsCount = 0;
         let pendingcount = 0;
-        this.$axios.get(`get_notifications_alarm`, options).then(({ data }) => {
-          this.apiCalNotificationInitiated = false;
-          if (data.length > 0) {
-            this.notificationAlarmDevices = data;
+        await this.$axios
+          .get(`get_notifications_alarm`, options)
+          .then(({ data }) => {
+            if (data.length > 0) {
+              this.notificationAlarmDevices = data;
+              this.palysound();
+              this.alarmNotificationStatus = true;
+            } else {
+              this.loading = false;
+              this.stopsound();
+              this.alarmNotificationStatus = false;
+            }
 
-            this.alarmNotificationStatus = true;
-          } else {
-            this.alarmNotificationStatus = false;
-          }
-        });
+            setTimeout(() => {
+              this.apiCalNotificationInitiated = false;
+            }, 1000);
+          });
       }
     },
 
