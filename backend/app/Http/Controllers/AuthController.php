@@ -206,7 +206,7 @@ class AuthController extends Controller
     {
 
         // Check if the user type is one of the predefined types
-        if (in_array($user->user_type, ["company", "admin", "department"])) {
+        if (in_array($user->user_type, ["master", "company", "admin", "department"])) {
             return $user->user_type;
         }
 

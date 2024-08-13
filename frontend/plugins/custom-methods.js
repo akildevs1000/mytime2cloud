@@ -161,7 +161,11 @@ export default ({ app }, inject) => {
     can(per, thisobj) {
       let u = thisobj.$auth.user;
 
-      if (u.user_type == "company" || u.user_type == null) {
+      if (
+        u.user_type == "company" ||
+        u.user_type == "master" ||
+        u.user_type == null
+      ) {
         return true;
       }
       console.log(u && u.permissions.some((e) => e == per || per == "/"));

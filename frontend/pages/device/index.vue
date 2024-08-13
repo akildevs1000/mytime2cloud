@@ -853,7 +853,7 @@
                 { id: 'auto', name: 'Auto' },
                 { id: 'In', name: 'In' },
                 { id: 'Out', name: 'Out' },
-                { id: 'manual', name: 'Manual Entry' },
+                { id: 'option', name: 'Option' },
               ]"
               item-value="id"
               item-text="name"
@@ -1120,6 +1120,7 @@
             src="/icons/function_out.png"
             style="width: 30px"
           />
+          <div v-else>{{ caps(item.function) }}</div>
         </template>
 
         <template v-slot:item.device_type="{ item }">
@@ -1336,6 +1337,7 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    apiDeviceHealthcallStatus: false,
     oneTOsixty: [],
     deviceCAMVIISettings: { voice_volume: 0 },
     DialogDeviceMegviiSettings: false,
@@ -1575,15 +1577,13 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      this.updateDevicesHealth();
-    }, 1000 * 5);
-
     setInterval(() => {
+      //console.log(this.$route.name);
+
       if (this.$route.name == "device") {
         this.getDataFromApi();
       }
-    }, 1000 * 60);
+    }, 1000 * 20);
   },
   async created() {
     for (let index = 1; index <= 60; index++) {
@@ -1702,10 +1702,12 @@ export default {
               status: status,
             },
           };
+          this.apiDeviceHealthcallStatus = true;
           this.loading = true;
           this.$axios
             .post(`/update-device-alarm-status-off`, options.params)
             .then(({ data }) => {
+              this.apiDeviceHealthcallStatus = false;
               this.getDataFromApi();
               if (!data.status) {
                 if (data.message == "undefined") {
@@ -2119,6 +2121,10 @@ export default {
       this.totalRowsCount = data.total;
       this.loading = false;
 
+      // setTimeout(() => {
+      //   this.updateDevicesHealth();
+      // }, 1000 * 15);
+
       return;
 
       if (url == "") url = this.endpoint;
@@ -2164,19 +2170,23 @@ export default {
       });
     },
     async updateDevicesHealth() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-        },
-      };
+      if (!this.apiDeviceHealthcallStatus) {
+        this.apiDeviceHealthcallStatus = true;
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+          },
+        };
 
-      await this.$axios
-        .get("/check_device_health", options)
-        .then(({ data }) => {
-          this.snackbar = true;
-          this.response = data;
-          this.getDataFromApi();
-        });
+        await this.$axios
+          .get("/check_device_health", options)
+          .then(({ data }) => {
+            this.apiDeviceHealthcallStatus = false;
+            this.snackbar = true;
+            this.response = data;
+            this.getDataFromApi();
+          });
+      }
     },
 
     searchIt(e) {

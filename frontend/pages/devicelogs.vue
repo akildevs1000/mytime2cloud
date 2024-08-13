@@ -368,6 +368,12 @@
             <template v-slot:item.LogTime="{ item }">
               {{ item.LogTime }}
             </template>
+            <template v-slot:item.option="{ item }">
+              {{ item.log_type ? item.log_type : "---" }}
+            </template>
+            <template v-slot:item.function="{ item }">
+              {{ item.device.function ? caps(item.device.function) : "---" }}
+            </template>
             <template v-slot:item.device.name="{ item }">
               {{ item.device ? caps(item.device.name) : "---" }}
             </template>
@@ -517,17 +523,17 @@ export default {
         filterSpecial: false,
       },
 
+      // {
+      //   text: "Department",
+      //   align: "left",
+      //   sortable: false,
+      //   key: "department", //sorting
+      //   value: "department.name.id", //edit purpose
+      //   filterable: true,
+      //   filterSpecial: true,
+      // },
       {
-        text: "Department",
-        align: "left",
-        sortable: false,
-        key: "department", //sorting
-        value: "department.name.id", //edit purpose
-        filterable: true,
-        filterSpecial: true,
-      },
-      {
-        text: "Date Range",
+        text: "Date  ",
         align: "left",
         sortable: false,
         key: "date_range",
@@ -535,6 +541,16 @@ export default {
         filterable: true,
         filterSpecial: true,
         fieldType: "date_range_picker",
+      },
+      {
+        text: "Option Value",
+        align: "left",
+        sortable: false,
+        key: "option",
+        value: "option",
+        filterable: true,
+        filterSpecial: true,
+        fieldType: "option",
       },
       // {
       //   text: "Log Time",
@@ -554,6 +570,16 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
+
+      // {
+      //   text: "Device Function",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "function",
+      //   value: "function",
+      //   filterable: true,
+      //   filterSpecial: true,
+      // },
       {
         text: "Location",
         align: "left",

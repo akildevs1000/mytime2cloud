@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
 
-    <v-dialog v-model="editDialog" :width="schedulePopupWidth">
+    <v-dialog v-model="editDialog" :key="key" :width="schedulePopupWidth">
       <v-card>
         <v-card-title dense dark class="popup_background">
           <div v-if="!empId">Add Schedule</div>
@@ -183,7 +183,7 @@
             </v-col>
           </v-row>
 
-          <v-row v-for="(item, i) in schedules_temp_list" :key="i">
+          <v-row v-for="(item, i) in schedules_temp_list" :key="key + i">
             <!-- <v-col md="12">
               <v-checkbox
                 :readonly="!isEdit"
@@ -213,6 +213,7 @@
             <!-- {{ empId ? "not empty" : "Empty" }} -->
             <v-col :md="!empId ? 3 : 4">
               <!-- <div>Shift Name</div> -->
+
               <v-autocomplete
                 label="Shift Name"
                 placeholder="Shift Name"
@@ -225,10 +226,7 @@
                 dense
                 v-model="item.shift_id"
                 x-small
-                :items="[
-                  { shift_id: `AutoShift`, name: `Auto Shift` },
-                  ...filterShifts,
-                ]"
+                :items="filterShifts"
                 item-value="shift_id"
                 item-text="name"
                 :disabled="!isEdit"
@@ -244,7 +242,7 @@
                 :defaultFilterType="1"
                 style="float: right; width: 100%"
                 :height="40"
-                :key="key + i"
+                :key="CustomFilterDatekey + i"
               />
             </v-col>
             <!-- <v-col md="3">
@@ -1041,14 +1039,27 @@
           </template> -->
 
         <template v-slot:item.schedules="{ item }">
-          {{
-            item.schedule?.isAutoShift
-              ? "Auto"
-              : item.schedule.shift
-              ? item.schedule.shift.name
-              : "---"
-          }}
-          <div class="secondary-value" title="Schedule Date Range">
+          <div
+            style="color: red"
+            v-if="!item.schedule.shift && item.schedule_all.length > 0"
+          >
+            {{ "Expired" }}
+          </div>
+          <div v-else>
+            {{
+              item.schedule?.isAutoShift
+                ? "Auto"
+                : item.schedule.shift
+                ? item.schedule.shift.name
+                : "---"
+            }}
+          </div>
+
+          <div
+            class="secondary-value"
+            title="Schedule Date Range"
+            v-if="item.schedule.from_date"
+          >
             {{ item.schedule.from_date }} - {{ item.schedule.to_date }}
           </div>
         </template>
@@ -1122,6 +1133,7 @@ export default {
     schedulePopupWidth: "60%",
     commonSearch: "",
     key: 1,
+    CustomFilterDatekey: 1,
     date_from: "",
     date_to: "",
     filterPopupEmployeeSchedule: 2,
@@ -1358,6 +1370,7 @@ export default {
 
     deleteIds: [],
     schedules_temp_list: [],
+    schedules_temp_list_data: [],
     empId: "",
     branch_id: "",
   }),
@@ -1639,6 +1652,9 @@ export default {
 
       this.filterDepartmentIds = [];
       this.filterEmployeeIds = [];
+      this.key += 1;
+
+      this.CustomFilterDatekey += 1;
       this.editDialog = true;
     },
     ScheduleItem(item, type) {
@@ -1661,6 +1677,7 @@ export default {
         .then(({ data }) => {
           type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
           this.schedules_temp_list = data;
+          this.schedules_temp_list_data = data;
 
           if (data.length == 0) {
             this.addRow(0);
@@ -1668,7 +1685,13 @@ export default {
 
           this.schedules_temp_list.forEach((object) => {
             object.branch_id = item.branch_id;
+
+            if (object.isAutoShift) {
+              object.shift_id = 0;
+            }
           });
+          this.key += 1;
+          this.CustomFilterDatekey += 1;
           this.editDialog = true;
 
           // if (this.schedules_temp_list.length == 1) {
@@ -1724,10 +1747,15 @@ export default {
           (e) => e.shift_id == element.shift_id
         );
 
+        //console.log("shiftsSelected", shiftsSelected);
+
         if (shiftsSelected[0])
           element.shift_type_id = shiftsSelected[0].shift_type_id;
-
-        if (element.shift_id == 0) {
+        else {
+          element.isAutoShift = true;
+          element.shift_type_id = 0;
+        }
+        if (element.shift_id === "" || element.shift_type_id === "") {
           alert("Please select Shift Name");
           continueSavedata = false;
           return false;
@@ -1765,8 +1793,8 @@ export default {
 
     addRow(id) {
       let item = {
-        shift_id: id,
-        shift_type_id: 1,
+        shift_id: "",
+        shift_type_id: "",
         from_date: new Date().toJSON().slice(0, 10),
         to_date: new Date().toJSON().slice(0, 10),
         is_over_time: false,
@@ -1828,6 +1856,14 @@ export default {
             to_date: e.to_date,
             branch_id: e.branch_id,
           }));
+        // this.shifts = [
+        //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
+        //   ...this.shifts,
+        // ];
+        this.filterShifts = [
+          { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
+          ...this.filterShifts,
+        ];
       });
       // if (this.shift_type_id == 3) {
       //   this.shift_id = 0;
