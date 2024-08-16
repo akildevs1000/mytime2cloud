@@ -45,8 +45,8 @@ class DailyReports extends Command
             'shift_type_id' => $shift_type_id,
             'company_id' => $company_id,
             'report_type' => 'Monthly',
-            'from_date' => date("Y-m-d"),
-            'to_date' => date("Y-m-d"),
+            'from_date' => date("Y-m-d", strtotime("yesterday")),
+            'to_date' => date("Y-m-d", strtotime("yesterday")),
         ];
 
         $array = [
