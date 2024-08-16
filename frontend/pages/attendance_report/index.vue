@@ -38,12 +38,17 @@
           item-text="name"
           :hide-details="true"
         ></v-select>
-        <v-select
+        <v-autocomplete
           style="width: 150px"
           class="mx-1"
           v-if="isCompany"
           label="Branch"
-          @change="getScheduledEmployees"
+          @change="
+            () => {
+              getScheduledEmployees();
+              getDepartments();
+            }
+          "
           placeholder="Branch"
           outlined
           dense
@@ -54,7 +59,7 @@
           item-value="id"
           item-text="branch_name"
           :hide-details="true"
-        ></v-select>
+        ></v-autocomplete>
         <v-autocomplete
           style="width: 150px"
           class="mx-1"
@@ -647,9 +652,9 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-    setTimeout(() => {
-      this.getDepartments();
-    }, 1000);
+   // setTimeout(() => {
+    //  this.getDepartments();
+    //}, 1000);
 
     setTimeout(() => {
       this.tab = "tab-2";
@@ -848,9 +853,14 @@ export default {
         });
     },
     async getDepartments() {
-
+     let config = {
+      params:{
+        branch_id: this.payload.branch_id,
+        company_id:this.$auth.user.company_id
+      }
+     };
       try {
-        const { data } = await this.$axios.get(`department-list`);
+        const { data } = await this.$axios.get(`department-list`,config);
         this.departments = data;
         this.toggleDepartmentSelection();
         setTimeout(() => {

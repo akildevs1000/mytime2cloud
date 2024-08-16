@@ -419,6 +419,7 @@
                 @close-popup="closePopup2"
                 @eventFromChild="handleEventFromChild"
                 v-if="tab == item.value"
+                :currentItem="currentItem"
               />
             </v-tab-item>
           </v-tabs-items>
@@ -966,6 +967,7 @@ export default {
     ],
     tab: 0,
     employeeId: 0,
+    currentItem: {},
     employee_id: 0,
     employeeObject: {},
     attrs: [],
@@ -1445,6 +1447,7 @@ export default {
 
     editItem(item) {
       this.employeeId = item.id;
+      this.currentItem = item;
       this.editDialog = true;
     },
     viewItem(item) {
