@@ -366,7 +366,7 @@ class Kernel extends ConsoleKernel
 
         foreach ($models as $model) {
 
-            if ($model->company_id == 22 && $model->branch_id == 38) {
+            if ($model->company_id == 22) {
                 $schedule
                     ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
                     ->dailyAt('3:45')
