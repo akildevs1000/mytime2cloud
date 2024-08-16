@@ -35,7 +35,7 @@ class DailyReports extends Command
         $shift_type_id = 2;
 
         $apiUrl = env('BASE_URL') . '/api/multi_in_out_monthly_generate';
-        $apiUrl = 'https://mytime2cloud-backend.test' . '/api/multi_in_out_monthly_generate';
+        // $apiUrl = 'https://mytime2cloud-backend.test' . '/api/multi_in_out_monthly_generate';
 
 
         $params = [
