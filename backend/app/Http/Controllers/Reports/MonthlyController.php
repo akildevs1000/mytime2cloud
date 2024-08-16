@@ -140,7 +140,7 @@ class MonthlyController extends Controller
 
         $status = $request->status;
 
-        $file_path = "pdf/$id/$file_name.pdf";
+        $file_path = "pdf/$id/$file_name";
 
         Storage::disk('local')->put($file_path, $data);
 
