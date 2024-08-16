@@ -366,12 +366,10 @@ class Kernel extends ConsoleKernel
 
         foreach ($models as $model) {
 
-            if ($model->company_id == 22) {
-                $schedule
-                    ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
-                    ->dailyAt('3:45')
-                    ->appendOutputTo(storage_path("kernal_logs/$company_log-multi:daily_report.log"));
-            }
+            $schedule
+                ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
+                ->dailyAt('3:45')
+                ->appendOutputTo(storage_path("kernal_logs/$company_log-multi:daily_report.log"));
 
             //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
