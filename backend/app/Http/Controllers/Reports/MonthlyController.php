@@ -134,7 +134,7 @@ class MonthlyController extends Controller
     {
         $data = $this->processPDF($request)->output();
 
-        $file_name = 'daily_summary.pdf';
+        $file_name = $request->file_name;
 
         $id =  $request->company_id;
 
