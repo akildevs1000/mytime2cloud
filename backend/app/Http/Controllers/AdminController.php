@@ -61,6 +61,7 @@ class AdminController extends Controller
         $admin =  [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
+            "role_id" => $validatedData['role_id'],
         ];
 
 
