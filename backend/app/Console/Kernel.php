@@ -175,13 +175,6 @@ class Kernel extends ConsoleKernel
                     //->withoutOverlapping()
                     ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_weekly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                // $schedule
-                //     ->command("task:generate_monthly_report {$companyId} {$status}")
-
-                //     ->monthlyOn(1, "04:30")
-                //     // ->runInBackground()
-                //     //->withoutOverlapping()
-                //     ->appendOutputTo(storage_path("kernal_logs/$monthYear-generate_monthly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
             }
 
             $schedule->command("task:send_whatsapp_notification {$companyId}")
@@ -275,6 +268,15 @@ class Kernel extends ConsoleKernel
         $models = ReportNotification::get();
 
         foreach ($models as $model) {
+
+            $schedule
+                ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
+                ->dailyAt('3:45')
+                ->appendOutputTo(storage_path("kernal_logs/$company_log-multi:daily_report.log"));
+
+            //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+
+
             $command_name = "task:report_notification_crons";
 
             if ($model->type == "alert") {

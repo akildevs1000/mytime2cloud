@@ -13,9 +13,42 @@
             style="width: 100%"
           >
             <v-row>
-              <v-col md="6">
+              <v-col cols="3">
                 <v-autocomplete
-                  class="mt-5"
+                  label="Branch"
+                  @change="getDepartments"
+                  placeholder="Branch"
+                  outlined
+                  dense
+                  v-model="branch_id"
+                  x-small
+                  clearable
+                  :items="[
+                    { id: null, branch_name: 'All Branches' },
+                    ...branches,
+                  ]"
+                  item-value="id"
+                  item-text="branch_name"
+                  :hide-details="true"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="3">
+                <v-autocomplete
+                  @change="getEmployees"
+                  label="Departments"
+                  outlined
+                  dense
+                  v-model="department_id"
+                  x-small
+                  clearable
+                  :items="departments"
+                  item-text="name"
+                  item-value="id"
+                  :hide-details="true"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="3">
+                <v-autocomplete
                   placeholder="Employee Device Id"
                   v-model="editItems.UserIDs"
                   :items="employees"
@@ -65,55 +98,10 @@
                       Selected {{ editItems.UserIDs.length }} Employee(s)
                     </span>
                   </template>
-                  <!-- <template v-slot:selection="{ item, index }">
-
-                    <span v-if="index === 0">{{ item.first_name }} {{ item.last_name }}</span>
-
-                    <span v-else-if="index === 1" class="grey--text text-caption">
-                      (+{{ editedItem.employees.length - 1 }} others)
-                    </span>
-                  </template> -->
                 </v-autocomplete>
-
-                <!-- <v-text-field
-                  v-model="editItems.UserID"
-                  label="User Id"
-                ></v-text-field> -->
               </v-col>
-              <v-col md="6" class="pt-8">
+              <v-col cols="3">
                 <DateRangePickerCommon @selected-dates="handleDatesFilter" />
-                <!-- <v-menu
-                  ref="menu"
-                  v-model="menu"
-                  :close-on-content-click="false"
-                  :return-value.sync="date"
-                  transition="scale-transition"
-                  offset-y
-                  min-width="auto"
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-text-field
-                      v-model="editItems.date"
-                      label="Date"
-                      readonly
-                      v-bind="attrs"
-                      v-on="on"
-                    ></v-text-field>
-                  </template>
-                  <v-date-picker v-model="editItems.date" no-title scrollable>
-                    <v-spacer></v-spacer>
-                    <v-btn text color="primary" @click="menu = false">
-                      Cancel
-                    </v-btn>
-                    <v-btn
-                      text
-                      color="primary"
-                      @click="$refs.menu.save(editItems.date)"
-                    >
-                      Save
-                    </v-btn>
-                  </v-date-picker>
-                </v-menu> -->
               </v-col>
 
               <v-col cols="12">
@@ -176,6 +164,11 @@ export default {
       time: null,
     },
     employees: [],
+    branch_id: 0,
+    department_id: 0,
+    branches: [],
+    departments: [],
+    isCompany: true,
   }),
   computed: {
     isIndeterminateEmployee() {
@@ -195,25 +188,70 @@ export default {
     },
   },
   async created() {
-    try {
-      this.employees = await this.$store.dispatch("fetchDropDowns", {
-        key: "employeeList",
-        endpoint: "employee-list",
-        refresh: true,
-      });
-
-      if (this.system_user_id) {
-        const filteredEmployees = this.employees.filter(
-          (e) => e.system_user_id == this.system_user_id
-        );
-
-        this.employees = filteredEmployees;
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+    this.getBranches();
   },
   methods: {
+    getBranches() {
+      if (this.$auth.user.branch_id) {
+        this.branch_id = this.$auth.user.branch_id;
+
+        this.isCompany = false;
+        return;
+      }
+
+      this.$axios
+        .get("branch", {
+          params: {
+            per_page: 1000,
+            company_id: this.$auth.user.company_id,
+          },
+        })
+        .then(({ data }) => {
+          this.branches = data.data;
+        });
+    },
+
+    async getDepartments() {
+      let config = {
+        params: {
+          branch_id: this.branch_id,
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      try {
+        const { data } = await this.$axios.get(`department-list`, config);
+        this.departments = data;
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      }
+    },
+
+    async getEmployees() {
+      let config = {
+        params: {
+          order_by: "name",
+          company_id: this.$auth.user.company_id,
+          branch_id: this.branch_id,
+          department_id: this.department_id,
+        },
+      };
+
+      try {
+        const { data } = await this.$axios.get(`employee-list`, config);
+        this.employees = data;
+
+        if (this.system_user_id) {
+          const filteredEmployees = this.employees.filter(
+            (e) => e.system_user_id == this.system_user_id
+          );
+
+          this.employees = filteredEmployees;
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    },
+
     toggleEmployeeSelection() {
       this.selectAllEmployee = !this.selectAllEmployee;
     },
