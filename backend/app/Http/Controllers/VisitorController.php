@@ -102,8 +102,8 @@ class VisitorController extends Controller
             });
         });
 
-        $model->when($request->filled("from_date"), fn ($q) => $q->whereDate("visit_from", '>=', $request->from_date));
-        $model->when($request->filled("to_date"), fn ($q) => $q->whereDate("visit_to", '<=', $request->to_date));
+        $model->when($request->filled("from_date"), fn($q) => $q->whereDate("visit_from", '>=', $request->from_date));
+        $model->when($request->filled("to_date"), fn($q) => $q->whereDate("visit_to", '<=', $request->to_date));
 
 
         // $startDate = Carbon::parse($request->from_date);
@@ -496,10 +496,12 @@ class VisitorController extends Controller
 
             $visitorData = $visitor->clone()->get();; // Visitor::where("id", $request->visitor_id)->get();
 
-            $zoneDevices = Zone::with(["devices"])->find($request->zone_id);
+            $zoneDevices = Zone::with(["devices"])->where("id", $request->zone_id)->first();
             $counter = 0;
             foreach ($zoneDevices->devices as $key => $device) {
                 $preparedJson = '';
+
+
 
                 $date  = new DateTime("now", new DateTimeZone($device['utc_time_zone'] != '' ? $device['utc_time_zone'] : 'Asia/Dubai'));
                 $currentDateTime = $date->format('Y-m-d H:i:00');
@@ -589,10 +591,10 @@ class VisitorController extends Controller
                                 if ($visitorData[0]["phone_number"] != "") {
                                     //whatsapp
 
-                                    $message  = "*Hi " .  $visitor["first_name"] . ' ' . $visitor["last_name"] . ',*\n\n';
+                                    $message  = "*Hi " .  $visitorData[0]["first_name"] . ' ' . $visitorData[0]["last_name"] . ',*\n\n';
                                     $message  =  $message . "Your Visit Details as fallows.\n";
-                                    $message  =  $message . "Visit Date and Time:  " . $visitor['visit_from'] . " - " . $visitor['time_in']  . "\n";
-                                    $message  =  $message . "Till Date and Time  :  " . $visitor['visit_to'] . " - " . $visitor['time_out']  . "\n";
+                                    $message  =  $message . "Visit Date and Time:  " . $visitorData[0]['visit_from'] . " - " . $visitorData[0]['time_in']  . "\n";
+                                    $message  =  $message . "Till Date and Time  :  " . $visitorData[0]['visit_to'] . " - " . $visitorData[0]['time_out']  . "\n";
                                     $message  =  $message . "Use QR Code (attached with this mail) as access card.\n";
                                     $message  =  $message . " \n\n";
                                     $message  =  $message . " \n\n";
