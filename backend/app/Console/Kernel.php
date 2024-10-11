@@ -165,7 +165,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_multi_shift_night {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->hourly()
-                ->between('00:00', '05:59')
+                // ->between('00:00', '05:59')
                 ->runInBackground()
                 //->withoutOverlapping()
                 ->appendOutputTo(storage_path("kernal_logs/shifts/multi_night/$company_log.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
