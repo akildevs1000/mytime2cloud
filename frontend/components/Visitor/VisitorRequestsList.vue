@@ -1122,9 +1122,9 @@ export default {
         const today = new Date();
         const targetDate = new Date(this.selectedVisitor.visit_to);
         let QRDate = targetDate.toISOString().slice(0, 10);
-        if (today <= targetDate) {
-          QRDate = today.toISOString().slice(0, 10);
-        }
+        // if (today <= targetDate) {
+        //   QRDate = today.toISOString().slice(0, 10);
+        // }
         const date = new Date(QRDate + " " + this.selectedVisitor.time_out);
         const visitTime = Math.floor(date.getTime() / 1000);
         let qr_code = await this.$qrcode.generate(
