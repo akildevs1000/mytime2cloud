@@ -936,13 +936,13 @@ export default {
       const targetDate = new Date(item.visit_to);
       let QRDate = today;
 
-      if (today <= targetDate) {
-        QRDate = today.toISOString().slice(0, 10);
-      } else {
-        QRDate = targetDate.toISOString().slice(0, 10);
-      }
+      // if (today <= targetDate) {
+      //   QRDate = today.toISOString().slice(0, 10);
+      // } else {
+      QRDate = targetDate.toISOString().slice(0, 10);
+      //}
 
-      //    this.to_date = today.toISOString().slice(0, 10);
+      //this.to_date = today.toISOString().slice(0, 10);
 
       const date = new Date(QRDate + " " + item.time_out);
       const visitTime = Math.floor(date.getTime() / 1000);
@@ -1194,6 +1194,8 @@ export default {
 
         // }, 3000);
       }
+
+      this.overlay = false;
     },
     async viewInfo(item) {
       this.viewDialog = true;
