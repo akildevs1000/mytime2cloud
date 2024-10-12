@@ -1122,7 +1122,7 @@ export default {
       if (this.$refs.form.validate()) {
         const today = new Date();
         const targetDate = new Date(
-          this.selectedVisitor.visit_to + " " + selectedVisitor.time_out
+          this.selectedVisitor.visit_to + " " + this.selectedVisitor.time_out
         );
         let QRDate = targetDate.toISOString().slice(0, 10);
         // if (today <= targetDate) {
