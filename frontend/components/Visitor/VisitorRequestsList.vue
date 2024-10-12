@@ -527,7 +527,7 @@
             <v-spacer></v-spacer>
             <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
             <v-btn dark color="purple" @click="save()" :disabled="!valid"
-              >Save</v-btn
+              >Upload</v-btn
             >
           </v-card-actions>
         </v-card>
@@ -933,7 +933,7 @@ export default {
       this.item = item;
 
       const today = new Date();
-      const targetDate = new Date(item.visit_to);
+      const targetDate = new Date(item.visit_to + " " + item.time_out);
       let QRDate = today;
 
       // if (today <= targetDate) {
@@ -1114,13 +1114,16 @@ export default {
     },
     cancel() {
       this.uploadUserToDeviceDialog = false;
+      this.overlay = false;
     },
     async save() {
       console.log(this.selectedVisitor);
 
       if (this.$refs.form.validate()) {
         const today = new Date();
-        const targetDate = new Date(this.selectedVisitor.visit_to);
+        const targetDate = new Date(
+          this.selectedVisitor.visit_to + " " + selectedVisitor.time_out
+        );
         let QRDate = targetDate.toISOString().slice(0, 10);
         // if (today <= targetDate) {
         //   QRDate = today.toISOString().slice(0, 10);
