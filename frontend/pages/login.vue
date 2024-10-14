@@ -346,6 +346,14 @@ export default {
     this.verifyToken();
   },
   mounted() {
+    try {
+      const userType = this.$auth.user?.user_type;
+      if (userType) {
+        if (this.$route.name === "login") {
+          window.location.reload();
+        }
+      }
+    } catch (error) {}
     // try {
     //   this.$axios.get(`/logout`).then(({ res }) => {
     //     this.$auth.logout();
