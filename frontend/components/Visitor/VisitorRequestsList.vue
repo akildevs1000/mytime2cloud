@@ -948,7 +948,7 @@ export default {
       const visitTime = Math.floor(date.getTime() / 1000);
 
       item.qr_code = await this.$qrcode.generate(
-        "qrc:1;" + item.system_user_id + ";" + visitTime + ";1;",
+        "qrc:1;" + item.system_user_id + ";" + visitTime + ";2;",
         {
           width: 200,
           margin: 2,
