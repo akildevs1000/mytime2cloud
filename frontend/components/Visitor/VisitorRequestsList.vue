@@ -701,11 +701,7 @@ export default {
       fromTime: null,
       toTime: null,
     },
-    zoneList: [
-      { id: 1, name: "Zone 1" },
-      { id: 2, name: "Zone 2" },
-      // Add more zones as needed
-    ],
+    zoneList: [],
     hostList: [],
     item: { purpose: {} },
     viewDialog: false,
@@ -902,8 +898,23 @@ export default {
       ];
       this.headers_table.splice(7, 0, ...rejected_header);
     }
+    this.getZonesList();
   },
   methods: {
+    getZonesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`zone_list`, this.payloadOptions).then(({ data }) => {
+        this.zoneList = data;
+      });
+    },
+
     downloadImage(faceImage, userId) {
       let options = {
         params: {
