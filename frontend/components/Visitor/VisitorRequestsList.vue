@@ -1135,7 +1135,7 @@ export default {
             this.selectedVisitor.system_user_id +
             ";" +
             visitTime +
-            ";1;",
+            ";2;",
           {
             width: 200,
             margin: 2,
