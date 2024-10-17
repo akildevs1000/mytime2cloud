@@ -527,7 +527,7 @@
             <v-spacer></v-spacer>
             <v-btn dark color="grey" @click="cancel">Cancel</v-btn>
             <v-btn dark color="purple" @click="save()" :disabled="!valid"
-              >Save</v-btn
+              >Upload</v-btn
             >
           </v-card-actions>
         </v-card>
@@ -701,11 +701,7 @@ export default {
       fromTime: null,
       toTime: null,
     },
-    zoneList: [
-      { id: 1, name: "Zone 1" },
-      { id: 2, name: "Zone 2" },
-      // Add more zones as needed
-    ],
+    zoneList: [],
     hostList: [],
     item: { purpose: {} },
     viewDialog: false,
@@ -902,8 +898,23 @@ export default {
       ];
       this.headers_table.splice(7, 0, ...rejected_header);
     }
+    this.getZonesList();
   },
   methods: {
+    getZonesList() {
+      this.payloadOptions = {
+        params: {
+          company_id: this.$auth.user.company_id,
+
+          // branch_id: this.$auth.user.branch_id,
+        },
+      };
+
+      this.$axios.get(`zone_list`, this.payloadOptions).then(({ data }) => {
+        this.zoneList = data;
+      });
+    },
+
     downloadImage(faceImage, userId) {
       let options = {
         params: {
@@ -933,22 +944,22 @@ export default {
       this.item = item;
 
       const today = new Date();
-      const targetDate = new Date(item.visit_to);
+      const targetDate = new Date(item.visit_to + " " + item.time_out);
       let QRDate = today;
 
-      if (today <= targetDate) {
-        QRDate = today.toISOString().slice(0, 10);
-      } else {
-        QRDate = targetDate.toISOString().slice(0, 10);
-      }
+      // if (today <= targetDate) {
+      //   QRDate = today.toISOString().slice(0, 10);
+      // } else {
+      QRDate = targetDate.toISOString().slice(0, 10);
+      //}
 
-      //    this.to_date = today.toISOString().slice(0, 10);
+      //this.to_date = today.toISOString().slice(0, 10);
 
       const date = new Date(QRDate + " " + item.time_out);
       const visitTime = Math.floor(date.getTime() / 1000);
 
       item.qr_code = await this.$qrcode.generate(
-        "qrc:1;" + item.system_user_id + ";" + visitTime + ";1;",
+        "qrc:1;" + item.system_user_id + ";" + visitTime + ";2;",
         {
           width: 200,
           margin: 2,
@@ -1114,17 +1125,20 @@ export default {
     },
     cancel() {
       this.uploadUserToDeviceDialog = false;
+      this.overlay = false;
     },
     async save() {
       console.log(this.selectedVisitor);
 
       if (this.$refs.form.validate()) {
         const today = new Date();
-        const targetDate = new Date(this.selectedVisitor.visit_to);
+        const targetDate = new Date(
+          this.selectedVisitor.visit_to + " " + this.selectedVisitor.time_out
+        );
         let QRDate = targetDate.toISOString().slice(0, 10);
-        if (today <= targetDate) {
-          QRDate = today.toISOString().slice(0, 10);
-        }
+        // if (today <= targetDate) {
+        //   QRDate = today.toISOString().slice(0, 10);
+        // }
         const date = new Date(QRDate + " " + this.selectedVisitor.time_out);
         const visitTime = Math.floor(date.getTime() / 1000);
         let qr_code = await this.$qrcode.generate(
@@ -1132,7 +1146,7 @@ export default {
             this.selectedVisitor.system_user_id +
             ";" +
             visitTime +
-            ";1;",
+            ";2;",
           {
             width: 200,
             margin: 2,
@@ -1194,6 +1208,8 @@ export default {
 
         // }, 3000);
       }
+
+      this.overlay = false;
     },
     async viewInfo(item) {
       this.viewDialog = true;
