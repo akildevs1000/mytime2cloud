@@ -170,6 +170,11 @@ class Kernel extends ConsoleKernel
                 //->withoutOverlapping()
                 ->appendOutputTo(storage_path("kernal_logs/shifts/multi_night/$company_log.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+            $schedule
+                ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->everyMinute()
+                ->appendOutputTo(storage_path("kernal_logs/shifts/night_shift_new/$company_log.log"));
+
             // $schedule
             //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
             //     ->everyMinute()
