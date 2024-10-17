@@ -40,7 +40,7 @@ class RenderNightShift extends Command
             'company_ids' => [$id],
             'manual_entry' => true,
             'reason' => '',
-            'employee_ids' => ScheduleEmployee::where("shift_type_id", 4)->where("company_id", $id)->pluck("employee_id")->toArray(),
+            'employee_ids' => ScheduleEmployee::where("company_id", $id)->pluck("employee_id")->toArray(),
             'dates' => [$date, date("Y-m-d", strtotime($date . "+1 day"))],
             'shift_type_id' => 1
         ];
@@ -50,8 +50,9 @@ class RenderNightShift extends Command
         $response = Http::withoutVerifying()->get($url, $payload);
 
         if ($response->successful()) {
+            $this->info("render:night_shift executed with " . $id);
             // Get the response data
-            echo json_encode($response->json());
+            // echo json_encode($response->json());
             // Do something with the data
         } else {
             // Handle the error
