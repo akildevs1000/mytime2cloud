@@ -122,6 +122,7 @@ class NightShiftController extends Controller
             }
 */
             $firstLog = null;
+            $lastLog = null;
 
             $firstLog = collect($logs)->filter(function ($record) {
                 return $record["log_type"] == "In";
