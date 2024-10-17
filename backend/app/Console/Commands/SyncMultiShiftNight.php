@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Shift\MultiShiftController;
-use App\Http\Controllers\Shift\NightShiftController;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -37,7 +36,7 @@ class SyncMultiShiftNight extends Command
 
 
         try {
-            echo (new NightShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
+            echo (new MultiShiftController)->render($id, $date, $shift_type_id, [], false) . "\n";
         } catch (\Throwable $th) {
             //throw $th;
             $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_multi_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
