@@ -46,12 +46,16 @@ class RenderController extends Controller
         $date1 = new DateTime($fromdate);
 
         //$date1 = new DateTime($request->dates[0]);
-        $date2 = new DateTime($request->dates[1]);
+        if (isset($request->dates[1])) {
+            $date2 = new DateTime($request->dates[1]);
 
-        $interval = $date1->diff($date2);
-        if ($interval->days > 8) {
-            return ["Limit 8 Days only  allowed between From and To Date."];
+            $interval = $date1->diff($date2);
+            if ($interval->days > 8) {
+                return ["Limit 8 Days only  allowed between From and To Date."];
+            }
         }
+
+
 
 
         if (isset($request['employee_ids']) && count($request->employee_ids) > 20) {
