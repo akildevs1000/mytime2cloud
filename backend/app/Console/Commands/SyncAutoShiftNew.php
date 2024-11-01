@@ -71,7 +71,7 @@ class SyncAutoShiftNew extends Command
             echo json_encode((new RenderController())->renderLogs($renderRequest)) . '--------' . $auto_render;
         } catch (\Throwable $th) {
             //throw $th;
-            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th . json_encode($requestArray);
             Logger::channel("custom")->error($error_message);
             echo $error_message;
         }
