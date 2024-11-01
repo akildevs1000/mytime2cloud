@@ -52,6 +52,8 @@ class RenderController extends Controller
         if ($interval->days > 8) {
             return ["Limit 8 Days only  allowed between From and To Date."];
         }
+
+        return count($request->employee_ids);
         if (count($request->employee_ids) > 20) {
             return ["Limit  20 Employees  only "];
         }
