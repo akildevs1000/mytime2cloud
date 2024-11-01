@@ -36,7 +36,7 @@ class RenderController extends Controller
     public function renderLogs(Request $request)
     {
 
-        set_time_limit(120); // In seconds
+        set_time_limit(60); // In seconds
 
         // return (new ShiftRenderController)->renderData($request);
 
