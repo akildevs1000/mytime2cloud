@@ -50,8 +50,13 @@ class RenderController extends Controller
 
         $interval = $date1->diff($date2);
         if ($interval->days > 8) {
-            return ["Limit  8 Days only  allowed between From and To Date."];
+            return ["Limit 8 Days only  allowed between From and To Date."];
         }
+        if (count($request->employee_ids) > 20) {
+            return ["Limit  20 Employees  only "];
+        }
+
+
         // $message = '';
         // return   $automessage = (new AutoShiftController)->renderData($request);
         // if ($automessage != 'Nearest Shift is not found') {
