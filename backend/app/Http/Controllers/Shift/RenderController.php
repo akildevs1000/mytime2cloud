@@ -35,6 +35,9 @@ class RenderController extends Controller
 
     public function renderLogs(Request $request)
     {
+
+        set_time_limit(120); // In seconds
+
         // return (new ShiftRenderController)->renderData($request);
 
         $shift_type_id = $request->shift_type_id;
@@ -582,9 +585,7 @@ class RenderController extends Controller
         return ["logs" => $logs, "total_hrs" => $total_hrs, "ot" => $ot];
     }
 
-    public function storeOrUpdate($items)
-    {
-    }
+    public function storeOrUpdate($items) {}
 
     public function renderOff(Request $request)
     {
@@ -697,8 +698,8 @@ class RenderController extends Controller
                 //$q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
                 //$q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
 
-                $q->whereHas('shift', fn (Builder $query) =>  $query->where("from_date", "<=", $date));
-                $q->whereHas('shift', fn (Builder $query) =>  $query->where("to_date", ">=", $date));
+                $q->whereHas('shift', fn(Builder $query) =>  $query->where("from_date", "<=", $date));
+                $q->whereHas('shift', fn(Builder $query) =>  $query->where("to_date", ">=", $date));
 
 
                 $q->orderBy("to_date", "asc");
@@ -828,7 +829,7 @@ class RenderController extends Controller
 
         $model->where("company_id", $company_id);
 
-        $model->whereHas("shift", fn ($q) => $q->where("weekend1", "Not Applicable"));
+        $model->whereHas("shift", fn($q) => $q->where("weekend1", "Not Applicable"));
 
         $model->when($user_id, function ($q) use ($user_id) {
             return $q->where("employee_id", $user_id);
