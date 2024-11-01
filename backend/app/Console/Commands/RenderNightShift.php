@@ -57,7 +57,7 @@ class RenderNightShift extends Command
         } else {
             // Handle the error
             // $error = $response->status(); // or $response->body() for error details
-            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->body();
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in render:night_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->body();
             Logger::channel("custom")->error($error_message);
             echo "error";
         }
