@@ -828,6 +828,7 @@
           </v-col>
           <v-col md="12">
             <v-text-field
+              :disabled="true"
               class="pb-0"
               :hide-details="!payload.device_id"
               v-model="payload.device_id"
