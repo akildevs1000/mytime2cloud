@@ -15,7 +15,7 @@
     <v-dialog v-model="DialogQrCode" width="300">
       <v-card>
         <v-card-title dense class="popup_background">
-          QR Code -
+          QR Code - Employee Id -
           {{ currentItem && currentItem.system_user_id }}
           <v-spacer></v-spacer>
           <v-icon @click="DialogQrCode = false" outlined dark>
