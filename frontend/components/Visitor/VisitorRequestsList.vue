@@ -20,7 +20,7 @@
 
           <v-btn
             dense
-            class="ma-0 px-0"
+            class="ma-0"
             x-small
             small
             color="primary"

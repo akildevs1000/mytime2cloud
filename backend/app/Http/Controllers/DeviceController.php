@@ -241,7 +241,7 @@ class DeviceController extends Controller
         // Check if the file exists
         if (file_exists($filePath)) {
             // Create a response to download the file
-            return response()->download($filePath, $imageName);
+            return response()->download($filePath,  $request->name . "-" . $imageName)->deleteFileAfterSend(true);
         } else {
             // Return a 404 Not Found response if the file doesn't exist
             return 'File not found';
