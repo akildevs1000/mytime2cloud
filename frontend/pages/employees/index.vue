@@ -799,7 +799,7 @@
               </template>
               <template v-slot:item.qrcode="{ item }">
                 <v-icon
-                  v-if="item.rfid_card_number != ''"
+                  v-if="item.rfid_card_number && item.rfid_card_number != ''"
                   size="30"
                   color="black"
                   @click="viewDialogQrCode(item)"
