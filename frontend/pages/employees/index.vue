@@ -12,6 +12,38 @@
         </template>
       </v-snackbar>
     </div>
+    <v-dialog v-model="DialogQrCode" width="300">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          QR Code - Employee Id -
+          {{ currentItem && currentItem.system_user_id }}
+          <v-spacer></v-spacer>
+          <v-icon @click="DialogQrCode = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center">
+          <img :src="qr_codeImage" :key="key" style="width: 100%" />
+
+          <v-btn
+            dense
+            class="ma-0"
+            x-small
+            small
+            color="primary"
+            @click="
+              downloadImage(
+                qr_codeImage,
+                currentItem.system_user_id + ' QR Code'
+              )
+            "
+          >
+            <v-icon class="mx-1 ml-2">mdi mdi-download</v-icon>
+            Download
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent v-model="dialogCropping" width="500">
       <v-card style="padding-top: 20px">
         <v-card-text>
@@ -761,8 +793,21 @@
                 <div style="font-size: 13px">
                   {{ item.phone_number }}
                 </div>
+                <div style="font-size: 11px">
+                  {{ item.local_email }}
+                </div>
               </template>
-
+              <template v-slot:item.qrcode="{ item }">
+                <v-icon
+                  v-if="item.rfid_card_number && item.rfid_card_number != ''"
+                  size="30"
+                  color="black"
+                  @click="viewDialogQrCode(item)"
+                >
+                  mdi-qrcode-scan</v-icon
+                >
+                <div v-else>No RFID</div>
+              </template>
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
               </template>
@@ -843,6 +888,7 @@ import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
+import { getQrCode } from "@/utils/cardqrercode.js"; // Adjust the path as needed
 
 export default {
   head() {
@@ -890,6 +936,7 @@ export default {
     server_datatable_totalItems: 1000,
     snack: false,
     snackColor: "",
+    DialogQrCode: false,
     snackText: "",
     selectedItems: [],
     datatable_search_textbox: "",
@@ -995,6 +1042,7 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
+    qr_codeImage: null,
     employee: {
       title: "Mr",
       display_name: "",
@@ -1032,6 +1080,7 @@ export default {
     department_filter_id: "",
     dialogVisible: false,
     payloadOptions: {},
+    key: 1,
     headers_table: [
       {
         text: "Name",
@@ -1073,13 +1122,14 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
+
       {
-        text: "Email",
+        text: "QR(RFID)",
         align: "left",
         sortable: true,
         key: "email",
-        value: "local_email",
-        filterable: true,
+        value: "qrcode",
+        filterable: false,
         filterSpecial: false,
         width: "15%",
       },
@@ -1167,6 +1217,57 @@ export default {
     },
   },
   methods: {
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL +
+            "/download-profilepic-disk?image=" +
+            data +
+            "&name=" +
+            userId;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
+    async viewDialogQrCode(item) {
+      this.currentItem = item;
+      this.key++;
+      let year = new Date().getFullYear() + 1;
+      const date = new Date(year + "-12-31 23:00:00");
+      const cardNum = item.rfid_card_number;
+      const cardType = 1; // Use 1 for numeric card numbers, 2 for Chinese User IDs
+
+      let qrCodeResult = (
+        await getQrCode(date, cardNum, cardType)
+      ).toUpperCase();
+
+      this.qr_codeImage = await this.$qrcode.generate(qrCodeResult, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: "#000000", // Black dots
+          light: "#FFFFFF", // White background
+        },
+      });
+
+      this.DialogQrCode = true;
+    },
     generateRandomId() {
       const length = 8; // Adjust the length of the ID as needed
       const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number

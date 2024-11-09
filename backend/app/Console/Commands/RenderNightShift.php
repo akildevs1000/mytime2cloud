@@ -40,7 +40,7 @@ class RenderNightShift extends Command
             'company_ids' => [$id],
             'manual_entry' => true,
             'reason' => '',
-            'employee_ids' => ScheduleEmployee::where("company_id", $id)->pluck("employee_id")->toArray(),
+            'employee_ids' => ScheduleEmployee::where("company_id", $id)->limit(10)->pluck("employee_id")->toArray(),
             'dates' => [$date, date("Y-m-d", strtotime($date . "+1 day"))],
             'shift_type_id' => 1
         ];
@@ -57,8 +57,9 @@ class RenderNightShift extends Command
         } else {
             // Handle the error
             // $error = $response->status(); // or $response->body() for error details
-            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_auto_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->body();
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in render:night_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->body();
             Logger::channel("custom")->error($error_message);
+            Logger::channel("custom")->error($payload);
             echo "error";
         }
     }
