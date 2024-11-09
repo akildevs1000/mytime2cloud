@@ -78,9 +78,9 @@ class DeviceController extends Controller
 
         // array_push($cols, 'status.id');
 
-        $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
-            $q->select($cols);
-        });
+        //$model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
+            //$q->select($cols);
+        //});
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
             $sortDesc = $request->input('sortDesc');
