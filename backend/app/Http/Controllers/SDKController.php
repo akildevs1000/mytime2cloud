@@ -455,7 +455,8 @@ class SDKController extends Controller
         }
         $returnFinalMessage = $this->mergeDevicePersonslist($returnFinalMessage);
         $returnContent = [
-            "data" => $returnFinalMessage, "status" => 200,
+            "data" => $returnFinalMessage,
+            "status" => 200,
             "message" => "",
             "transactionType" => 0
         ];
@@ -732,6 +733,50 @@ class SDKController extends Controller
             return [
                 "status" => 102,
                 "message" => $e->getMessage(),
+            ];
+        }
+    }
+
+    public function getPersonAllV1($device_id)
+    {
+        $url = $this->buildUrl($device_id, 'GetPersonAll');
+        
+        return $this->sendRequest($url);
+    }
+    
+    public function getPersonDetailsV1($device_id, $user_code)
+    {
+        $url = $this->buildUrl($device_id, 'GetPersonDetail');
+        
+        return $this->sendRequest($url, ['usercode' => $user_code]);
+    }
+    
+    private function buildUrl($device_id, $endpoint)
+    {
+        $baseUrl = env('SDK_URL') . "/{$device_id}/{$endpoint}";
+        
+        if (env('APP_ENV') == 'desktop') {
+            $baseUrl = "http://" . gethostbyname(gethostname()) . ":" . env('SDK_PORT') . "/{$device_id}/{$endpoint}";
+        }
+        
+        return $baseUrl;
+    }
+    
+    private function sendRequest($url, $data = [])
+    {
+        try {
+            $response = Http::timeout(3600)
+                ->withoutVerifying()
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                ])->post($url, $data);
+            
+            return $response->json();
+        } catch (\Exception $e) {
+            return [
+                "status" => 102,
+                "message" => "Error: {$e->getMessage()}",
+                "trace" => $e->getTraceAsString(), // Optional: for debugging in development
             ];
         }
     }

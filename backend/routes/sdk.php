@@ -18,3 +18,7 @@ Route::post('/Person/AddRange/Photos', [SDKController::class, 'PersonAddRangePho
 Route::post('/SDK/{id}/{command}', [SDKController::class, 'handleCommand']);
 Route::get('/SDK/get-device-person-details/{device_id}/{user_code}', [SDKController::class, 'getPersonDetails']);
 Route::delete('/SDK/delete-device-person-details/{device_id}', [SDKController::class, 'deletePersonDetails']);
+
+
+Route::get('/SDK/get-person-all-v1/{device_id}', [SDKController::class, 'getPersonAllV1']);
+Route::get('/SDK/get-person-details-v1/{device_id}/{user_code}', [SDKController::class, 'getPersonDetailsV1']);
