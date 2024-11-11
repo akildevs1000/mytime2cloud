@@ -1549,8 +1549,8 @@ export default {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
-          branch_id:
-            this.filterPopupBranchId != "" ? this.filterPopupBranchId : null,
+          // branch_id:
+          //   this.filterPopupBranchId != "" ? this.filterPopupBranchId : null,
         },
       };
       this.getDepartments(options);
@@ -1832,7 +1832,7 @@ export default {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
-          branch_id: this.filterPopupBranchId,
+          //branch_id: this.filterPopupBranchId,
         },
       };
       this.$axios.get("shift", options).then(({ data }) => {
@@ -1849,7 +1849,7 @@ export default {
         let options = {
           params: {
             company_id: this.$auth.user.company_id,
-            branch_id: this.filterPopupBranchId,
+            //branch_id: this.filterPopupBranchId,
           },
         };
         this.$axios.get("shift_dropdownlist", options).then(({ data }) => {
