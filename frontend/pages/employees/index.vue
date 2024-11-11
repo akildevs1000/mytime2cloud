@@ -575,6 +575,7 @@
           </v-col>
           <v-col class="text-right">
             <div class="input-group" style="width: 100%">
+              <WidgetsEmployeeDowloadDialog @response="getDataFromApi" />
               <input
                 class="custom-input"
                 type="text"
