@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\ScheduleEmployee;
+use App\Models\ShiftType;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as Logger;
@@ -31,6 +32,7 @@ class RenderNightShift extends Command
     public function handle()
     {
         $id = $this->argument("company_id");
+
         $date = $this->argument("date");
 
         $payload = [
@@ -40,7 +42,7 @@ class RenderNightShift extends Command
             'company_ids' => [$id],
             'manual_entry' => true,
             'reason' => '',
-            'employee_ids' => ScheduleEmployee::where("company_id", $id)->limit(10)->pluck("employee_id")->toArray(),
+            'employee_ids' => ScheduleEmployee::whereIn("shift_type_id", [3, 4])->where("company_id", $id)->pluck("employee_id")->toArray(),
             'dates' => [$date, date("Y-m-d", strtotime($date . "+1 day"))],
             'shift_type_id' => 1
         ];
@@ -51,16 +53,10 @@ class RenderNightShift extends Command
 
         if ($response->successful()) {
             $this->info("render:night_shift executed with " . $id);
-            // Get the response data
-            // echo json_encode($response->json());
-            // Do something with the data
         } else {
-            // Handle the error
-            // $error = $response->status(); // or $response->body() for error details
-            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in render:night_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->body();
+            $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in render:night_shift  : Company Id :' . $id . ', : Date :' . $date . ', ' . $response->json();
             Logger::channel("custom")->error($error_message);
-            Logger::channel("custom")->error($payload);
-            echo "error";
+            $this->info("error");
         }
     }
 }
