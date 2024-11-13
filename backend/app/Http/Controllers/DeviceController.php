@@ -79,7 +79,7 @@ class DeviceController extends Controller
         // array_push($cols, 'status.id');
 
         //$model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
-            //$q->select($cols);
+        //$q->select($cols);
         //});
 
         $model->when($request->filled('sortBy'), function ($q) use ($request) {
@@ -198,7 +198,7 @@ class DeviceController extends Controller
 
 
         $base64Image = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', ($request->face_image)));
-        $imageName = time() . ".png";
+        $imageName = (time() + rand(10000, 20000)) . ".png";
         $publicDirectory = public_path("temp");
         if (!file_exists($publicDirectory)) {
             mkdir($publicDirectory, 0777, true);

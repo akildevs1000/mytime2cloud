@@ -1048,7 +1048,7 @@ class EmployeeController extends Controller
 
                 if ($data['profile_picture'] != '') {
                     if (file_exists($data['profile_picture'])) {
-                        $imageName = time() . ".png";
+                        $imageName = (time() + rand(10000, 20000)) . ".png";
                         $newFileLocation = public_path('media/employee/profile_picture/') . '/' . $imageName;
                         copy($data['profile_picture'], $newFileLocation);
 
