@@ -1846,24 +1846,33 @@ export default {
             to_date: e.to_date,
             branch_id: e.branch_id,
           }));
-        this.filterShifts = data.data
-          .filter((e) => e.isAutoShift == false)
-          .map((e) => ({
-            shift_id: e.id,
-            name: e.name,
-            shift_type_id: e.shift_type_id,
-            from_date: e.from_date,
-            to_date: e.to_date,
-            branch_id: e.branch_id,
-          }));
-        // this.shifts = [
-        //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
-        //   ...this.shifts,
-        // ];
-        this.filterShifts = [
-          { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
-          ...this.filterShifts,
-        ];
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            branch_id: this.filterPopupBranchId,
+          },
+        };
+        this.$axios.get("shift_dropdownlist", options).then(({ data }) => {
+          this.filterShifts = data
+            .filter((e) => e.isAutoShift == false)
+            .map((e) => ({
+              shift_id: e.id,
+              name: e.name,
+              shift_type_id: e.shift_type_id,
+              from_date: e.from_date,
+              to_date: e.to_date,
+              branch_id: e.branch_id,
+            }));
+
+          // this.shifts = [
+          //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
+          //   ...this.shifts,
+          // ];
+          this.filterShifts = [
+            { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
+            ...this.filterShifts,
+          ];
+        });
       });
       // if (this.shift_type_id == 3) {
       //   this.shift_id = 0;

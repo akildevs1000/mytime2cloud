@@ -168,6 +168,7 @@
                 <v-select
                   label="Branch"
                   v-model="employee.branch_id"
+                  @change="getDepartments()"
                   :hide-details="!errors.branch_id"
                   :error-messages="
                     errors && errors.branch_id ? errors.branch_id[0] : ''
@@ -203,7 +204,7 @@
               <v-col md="6" sm="12" cols="12">
                 <!-- <label class="col-form-label">Sub Department </label> -->
                 <v-select
-                  label="Sub Department "
+                  label="Sub Department  "
                   :items="sub_departments"
                   item-text="name"
                   item-value="id"
@@ -400,7 +401,6 @@ export default {
         },
       });
       this.branchesList = data;
-
     } catch (error) {
       // Handle the error
       console.error("Error fetching branch list", error);
@@ -467,6 +467,7 @@ export default {
           params: {
             per_page: 1000,
             company_id: this.$auth.user.company_id,
+            branch_id: this.employee.branch_id,
           },
         })
         .then(({ data }) => {
@@ -479,6 +480,7 @@ export default {
           params: {
             per_page: 1000,
             company_id: this.$auth.user.company_id,
+            department_id: this.employee.department_id,
           },
         })
         .then(({ data }) => {
