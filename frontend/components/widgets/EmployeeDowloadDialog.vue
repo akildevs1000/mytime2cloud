@@ -27,8 +27,12 @@
           item-value="device_id"
           item-text="name"
           :items="[{ name: `Select Device`, device_id: null }, ...devices]"
-          placeholder="Device"
+          placeholder="Device" hide-details
         ></v-autocomplete>
+
+        <div class="my-2">
+          <WidgetsProgress :total="totalEmployees" :engaged="engaged" />
+        </div>
 
         <div style="overflow-y: scroll; max-height: 400px">
           <v-simple-table dense>
@@ -101,6 +105,8 @@
 <script>
 export default {
   data: () => ({
+    totalEmployees: 0,
+    engaged:0,
     selectAll: false,
     dialog: false,
     devices: [],
@@ -164,15 +170,24 @@ export default {
       this.devices = data.data;
     },
     async getEmployeesIds(device_id) {
+      this.totalEmployees = 0;
+      this.engaged = 0;
       this.employees = [];
       if (!device_id) return;
       let { data } = await this.$axios.get(
         `/SDK/get-person-all-v1/${device_id}`
       );
-      this.getEmployees(
-        device_id,
-        data.data.map((e) => e.userCode)
-      );
+
+      let response = data.data;
+
+      if (data.status == 200) {
+        this.totalEmployees = response.length || 0;
+
+        this.getEmployees(
+          device_id,
+          response.map((e) => e.userCode)
+        );
+      }
     },
 
     async getEmployees(device_id, employeeIds) {
@@ -216,6 +231,7 @@ export default {
             isSelected: true,
           };
           this.employees.push(payload);
+          this.engaged++;
           this.loading = false;
           this.response = "loading....";
         } catch (error) {
