@@ -1620,6 +1620,19 @@ class EmployeeController extends Controller
             DB::transaction(function () use ($insertData, $palmArray, $fpArray) {
                 $company_id = array_column($insertData, "company_id")[0] ?? 0;
                 $employee_ids = array_column($insertData, "system_user_id");
+
+                // Check and delete records if count > 0
+                $fingerPrintCount = FingerPrint::whereIn("employee_id", $employee_ids)->count();
+                if ($fingerPrintCount > 0) {
+                    FingerPrint::whereIn("employee_id", $employee_ids)->delete();
+                }
+
+                $palmCount = Palm::whereIn("employee_id", $employee_ids)->count();
+                if ($palmCount > 0) {
+                    Palm::whereIn("employee_id", $employee_ids)->delete();
+                }
+
+
                 Employee::insert($insertData);
                 FingerPrint::insert($fpArray);
                 Palm::insert($palmArray);
