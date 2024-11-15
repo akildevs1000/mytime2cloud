@@ -746,20 +746,16 @@
                       max-width: 50px;
                     "
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="
-                        item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
+                    <v-avatar>
+                      <v-img
+                        :src="
+                          item.profile_picture
+                            ? item.profile_picture
+                            : '/no-profile-image.jpg'
+                        "
+                      >
+                      </v-img>
+                    </v-avatar>
                   </v-col>
                   <v-col style="padding: 10px">
                     <div style="font-size: 13px">
@@ -811,6 +807,19 @@
               </template>
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
+              </template>
+              <template v-slot:item.access="{ item }">
+                <span
+                  v-for="(icon, index) in getRelatedIcons(item)"
+                  :key="index"
+                >
+                  <v-avatar tile size="15" v-if="icon.type == 'image'"
+                    ><v-img :src="icon.name"></v-img
+                  ></v-avatar>
+                  <v-icon v-else small color="primary" class="mr-1">{{
+                    icon.name
+                  }}</v-icon>
+                </span>
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -1144,6 +1153,15 @@ export default {
         filterSpecial: true,
       },
       {
+        text: "Access",
+        align: "left",
+        sortable: true,
+        key: "access",
+        value: "access",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
         text: "Options",
         align: "left",
         sortable: false,
@@ -1218,6 +1236,36 @@ export default {
     },
   },
   methods: {
+    getRelatedIcons({
+      profile_picture,
+      rfid_card_number,
+      rfid_card_password,
+      finger_prints,
+      palms,
+    }) {
+      console.log("🚀 ~ finger_prints:", finger_prints.length);
+      let icons = [];
+
+      if (profile_picture) {
+        icons.push({ name: "mdi-face-recognition" });
+      }
+      if (rfid_card_number) {
+        icons.push({ name: "mdi-credit-card-scan" });
+      }
+      if (rfid_card_password) {
+        icons.push({ name: "mdi-lock" });
+      }
+      if (finger_prints.length) {
+        icons.push({ name: "mdi-fingerprint" });
+      }
+      if (palms.length > 0) {
+        icons.push({
+          type: "image",
+          name: "/icons/palm-scan.png",
+        });
+      }
+      return icons;
+    },
     downloadImage(faceImage, userId) {
       let options = {
         params: {
