@@ -1772,7 +1772,7 @@ export default {
   },
 };
 </script>
-<!-- <style scoped>
+<style scoped>
 .custom-input {
   padding: 6px 10px;
   height: 30px;
@@ -1787,4 +1787,4 @@ export default {
 .custom-input:focus {
   border-color: purple;
 }
-</style> -->
+</style>
