@@ -168,6 +168,9 @@ class SDKController extends Controller
 
     public function processUploadPersons($url, $device_id, $person)
     {
+        $image = public_path() . "/media/employee/profile_picture/" . $person["profile_picture_raw"];
+        $imageData = file_get_contents($image);
+        $person["faceImage"] = base64_encode($imageData);
 
         try {
             // Send HTTP POST request
