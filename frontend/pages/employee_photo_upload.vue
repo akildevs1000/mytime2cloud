@@ -458,8 +458,9 @@
 
           <UploadPersonResponse
             ref="UploadPersonRef"
-            :key="UploadPersonResponseCompKey"
-            :jsonResponse="jsonResponse"
+            :deviceResponses="deviceResponses"
+            :cameraResponses="cameraResponses"
+            :cameraResponses2="cameraResponses2"
           />
         </v-col>
       </v-row>
@@ -476,7 +477,10 @@ export default {
   data() {
     return {
       UploadPersonResponseCompKey: 1,
-      jsonResponse: null,
+      deviceResponses: [],
+      cameraResponses: [],
+      cameraResponses2: [],
+      uploadPersonResponseDialog: false,
       isCompany: true,
       branch_id: null,
       branchesList: [],
@@ -1005,6 +1009,12 @@ export default {
       this.verifySubmitButton();
     },
     async onSubmit() {
+      this.$refs["UploadPersonRef"]["uploadPersonResponseDialog"] = true;
+
+      this.deviceResponses = [];
+      this.cameraResponses = [];
+      this.cameraResponses2 = [];
+
       this.displaybutton = false;
       this.loading = true;
       if (this.rightEmployees.length == 0) {
@@ -1015,7 +1025,6 @@ export default {
 
       this.loading_dialog = true;
       this.errors = [];
-
       for (const item of this.rightEmployees) {
         let person = {
           name: `${item.first_name} ${item.last_name}`,
@@ -1049,20 +1058,21 @@ export default {
         };
 
         try {
-          this.UploadPersonResponseCompKey++;
-          // setTimeout(async () => {
           let { data } = await this.$axios.post(`/SDK/AddPerson`, payload);
-          this.jsonResponse = data;
-          this.$refs["UploadPersonRef"][
-            "uploadPersonResponseDialog"
-          ] = true;
-         
-          // }, 5000);
+          if (data.deviceResponse[0]) {
+            this.deviceResponses.push(data.deviceResponse[0]);
+          }
+          if (data.cameraResponse[0]) {
+            this.cameraResponses.push(data.cameraResponse[0]);
+          }
+          if (data.cameraResponse2[0]) {
+            this.cameraResponses2.push(data.cameraResponse2[0]);
+          }
         } catch (error) {
-          // Handle error response for each employee
           console.log(`Error for ${person.name}:`, error);
         }
       }
+
       this.loading_dialog = false;
 
       this.loading = false;
