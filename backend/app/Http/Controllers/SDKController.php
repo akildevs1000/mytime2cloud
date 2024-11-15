@@ -186,7 +186,7 @@ class SDKController extends Controller
                 "userCode" => $person["userCode"],
                 "device_id" => $device_id,
                 'status' => $response->status(),
-                // 'sdk_response' => $response->json(),
+                'sdk_response' => $response->json(),
             ];
         } catch (\Exception $e) {
             return [
@@ -194,7 +194,7 @@ class SDKController extends Controller
                 "userCode" => $person["userCode"],
                 "device_id" => $device_id,
                 'status' => 500,
-                // 'sdk_response' => $e->getMessage(),
+                'sdk_response' => $e->getMessage(),
             ];
         }
     }
