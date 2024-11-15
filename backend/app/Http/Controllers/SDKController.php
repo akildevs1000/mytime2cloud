@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\AddPerson;
 use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
-use App\Models\Employee;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Exception;
