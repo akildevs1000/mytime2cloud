@@ -816,7 +816,7 @@
                   <v-avatar tile size="15" v-if="icon.type == 'image'"
                     ><v-img :src="icon.name"></v-img
                   ></v-avatar>
-                  <v-icon v-else small color="primary" class="mr-1">{{
+                  <v-icon v-else small color="black" class="mr-1">{{
                     icon.name
                   }}</v-icon>
                 </span>
@@ -1243,7 +1243,6 @@ export default {
       finger_prints,
       palms,
     }) {
-      console.log("🚀 ~ finger_prints:", finger_prints.length);
       let icons = [];
 
       if (profile_picture) {
