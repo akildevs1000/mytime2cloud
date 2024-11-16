@@ -150,7 +150,7 @@ class SDKController extends Controller
         $deviceResponse = [];
 
         foreach ($snList as $device_id) {
-            $url = env('SDK_URL') . "$device_id/AddPerson";
+            $url = env('SDK_URL') . "/$device_id/AddPerson";
             if (env('APP_ENV') == 'desktop') {
                 $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/AddPerson";
             }
