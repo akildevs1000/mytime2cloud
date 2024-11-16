@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\AddPerson;
 use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
 use App\Models\Timezone;
@@ -156,8 +157,8 @@ class SDKController extends Controller
             }
 
             foreach ($personList as $person) {
-                // $deviceResponse[] = AddPerson::dispatch($url, $person);
-                $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
+                $deviceResponse[] = AddPerson::dispatch($url, $person);
+                // $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
             }
         }
 
