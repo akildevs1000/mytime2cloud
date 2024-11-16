@@ -583,7 +583,7 @@
                 @input="searchData"
                 v-model="search"
               />
-              <v-icon style="position: absolute; top: 16px; right: 107px"
+              <v-icon style="position: absolute; top: 14px; right: 107px"
                 >mdi-magnify</v-icon
               >
               <v-btn
@@ -794,7 +794,7 @@
                   {{ item.local_email }}
                 </div>
               </template>
-              <template v-slot:item.qrcode="{ item }">
+              <!-- <template v-slot:item.qrcode="{ item }">
                 <v-icon
                   v-if="item.rfid_card_number && item.rfid_card_number != ''"
                   size="30"
@@ -804,7 +804,7 @@
                   mdi-qrcode-scan</v-icon
                 >
                 <div v-else>No RFID</div>
-              </template>
+              </template> -->
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
               </template>
@@ -814,8 +814,8 @@
                   :key="index"
                 >
                   <v-avatar tile size="15" v-if="icon.type == 'image'"
-                    ><v-img :src="icon.name"></v-img
-                  ></v-avatar>
+                    ><img style="width: 100%" :src="icon.name"
+                  /></v-avatar>
                   <v-icon v-else small color="black" class="mr-1">{{
                     icon.name
                   }}</v-icon>
@@ -1109,7 +1109,7 @@ export default {
         key: "employee_id",
         value: "employee_id",
         filterable: true,
-        width: "10%",
+        width: "15%",
         filterSpecial: false,
       },
       {
@@ -1131,17 +1131,6 @@ export default {
         width: "10%",
         filterable: true,
         filterSpecial: false,
-      },
-
-      {
-        text: "QR(RFID)",
-        align: "left",
-        sortable: true,
-        key: "email",
-        value: "qrcode",
-        filterable: false,
-        filterSpecial: false,
-        width: "15%",
       },
       {
         text: "Timezone",
@@ -1246,13 +1235,13 @@ export default {
       let icons = [];
 
       if (profile_picture) {
-        icons.push({ name: "mdi-face-recognition" });
+        icons.push({ name: "mdi-emoticon-outline" });
       }
       if (rfid_card_number) {
-        icons.push({ name: "mdi-credit-card-scan" });
+        icons.push({ name: "mdi-card-outline" });
       }
       if (rfid_card_password) {
-        icons.push({ name: "mdi-lock" });
+        icons.push({ name: "mdi-lock-outline" });
       }
       if (finger_prints.length) {
         icons.push({ name: "mdi-fingerprint" });
@@ -1260,9 +1249,20 @@ export default {
       if (palms.length > 0) {
         icons.push({
           type: "image",
-          name: "/icons/palm-scan.png",
+          name: "/icons/palm-hand.png",
         });
       }
+
+      if (rfid_card_number && rfid_card_number != "") {
+        icons.push({
+          name: "mdi-qrcode-scan",
+        });
+      }
+      icons.push({
+        type: "image",
+        name: "/icons/palm-hand-2.png",
+      });
+
       return icons;
     },
     downloadImage(faceImage, userId) {

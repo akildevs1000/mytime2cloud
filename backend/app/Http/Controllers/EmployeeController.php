@@ -1566,77 +1566,71 @@ class EmployeeController extends Controller
 
     public function employeeStoreFromDevice(StoreRequestFromDevice $request)
     {
-        $employeesData = $request->validated()['employees'];
-        $insertData = [];
-        $results = [];
+        $employeeData = $request->validated();
+        $employeeData["display_name"] = $employeeData["full_name"];
+        $nameAsArray = explode(" ", $employeeData["full_name"], 2);
+        $employeeData["first_name"] = $nameAsArray[0];
+        $employeeData["last_name"] = $nameAsArray[1] ?? "";
 
+        // Save profile picture if available
+        if (!empty($employeeData["profile_picture"])) {
+            try {
+                $employeeData["profile_picture"] = $this->saveProfilePicture($employeeData);
+            } catch (\Exception $e) {
+                $results[] = [
+                    'status' => false,
+                    'message' => 'Failed to save profile picture: ' . $e->getMessage(),
+                    'employee' => $employeeData
+                ];
+            }
+        }
+
+
+        $results = [];
         $fpArray = [];
         $palmArray = [];
 
-        foreach ($employeesData as $employeeData) {
-            // Extract and set name fields
-            $nameAsArray = explode(" ", $employeeData["full_name"], 2);
-            $employeeData["display_name"] = $employeeData["full_name"];
-            $employeeData["first_name"] = $nameAsArray[0];
-            $employeeData["last_name"] = $nameAsArray[1] ?? "";
-
-            // Save profile picture if available
-            if (!empty($employeeData["profile_picture"])) {
-                try {
-                    $employeeData["profile_picture"] = $this->saveProfilePicture($employeeData);
-                } catch (\Exception $e) {
-                    $results[] = [
-                        'status' => false,
-                        'message' => 'Failed to save profile picture: ' . $e->getMessage(),
-                        'employee' => $employeeData
-                    ];
-                    continue;
-                }
-            }
-
-
-            foreach ($employeeData["fp"] as $value) {
-                $fpArray[] = [
-                    "fp" => $value,
-                    "employee_id" =>  $employeeData["employee_id"]
-                ];
-            }
-
-            foreach ($employeeData["palm"] as $value) {
-                $palmArray[] = [
-                    "palm" => $value,
-                    "employee_id" =>  $employeeData["employee_id"]
-                ];
-            }
-
-
-            unset($employeeData["fp"]);
-            unset($employeeData["palm"]);
-
-            $insertData[] = $employeeData;
+        foreach ($employeeData["fp"] as $value) {
+            $fpArray[] = [
+                "fp" => $value,
+                "employee_id" =>  $employeeData["employee_id"]
+            ];
         }
 
+        foreach ($employeeData["palm"] as $value) {
+            $palmArray[] = [
+                "palm" => $value,
+                "employee_id" =>  $employeeData["employee_id"]
+            ];
+        }
+
+
+        unset($employeeData["fp"]);
+        unset($employeeData["palm"]);
+
+
+
         try {
-            DB::transaction(function () use ($insertData, $palmArray, $fpArray) {
-                $company_id = array_column($insertData, "company_id")[0] ?? 0;
-                $employee_ids = array_column($insertData, "system_user_id");
+            DB::transaction(function () use ($employeeData, $palmArray, $fpArray) {
+                $company_id = $employeeData["company_id"];
+                $employee_id = $employeeData["system_user_id"];
 
                 // Check and delete records if count > 0
-                $fingerPrintCount = FingerPrint::whereIn("employee_id", $employee_ids)->count();
+                $fingerPrintCount = FingerPrint::where("employee_id", $employee_id)->count();
                 if ($fingerPrintCount > 0) {
-                    FingerPrint::whereIn("employee_id", $employee_ids)->delete();
+                    FingerPrint::where("employee_id", $employee_id)->delete();
                 }
 
-                $palmCount = Palm::whereIn("employee_id", $employee_ids)->count();
+                $palmCount = Palm::where("employee_id", $employee_id)->count();
                 if ($palmCount > 0) {
-                    Palm::whereIn("employee_id", $employee_ids)->delete();
+                    Palm::where("employee_id", $employee_id)->delete();
                 }
 
 
-                Employee::insert($insertData);
+                Employee::create($employeeData);
                 FingerPrint::insert($fpArray);
                 Palm::insert($palmArray);
-                (new AttendanceController)->seedDefaultData($company_id, $employee_ids);
+                (new AttendanceController)->seedDefaultData($company_id, [$employee_id]);
             });
 
             return $this->response("All employees successfully created.", true, true);
