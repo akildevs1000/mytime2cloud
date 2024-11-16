@@ -156,9 +156,10 @@ class SDKController extends Controller
                 $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/AddPerson";
             }
 
+            // $url = "https://sdk.mytime2cloud.com/OX-9662210080054/AddPerson";
+
             foreach ($personList as $person) {
-                $deviceResponse[] = AddPerson::dispatch($url, $person);
-                // $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
+                $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
             }
         }
 
@@ -172,32 +173,33 @@ class SDKController extends Controller
         $image = public_path() . "/media/employee/profile_picture/" . $person["profile_picture_raw"];
         $imageData = file_get_contents($image);
         $person["faceImage"] = base64_encode($imageData);
+        return AddPerson::dispatch($url, $person);
 
-        try {
-            // Send HTTP POST request
-            $response = Http::timeout(30)
-                ->withoutVerifying()
-                ->withHeaders([
-                    'Content-Type' => 'application/json',
-                ])
-                ->post($url, $person);
+        // try {
+        //     // Send HTTP POST request
+        //     $response = Http::timeout(30)
+        //         ->withoutVerifying()
+        //         ->withHeaders([
+        //             'Content-Type' => 'application/json',
+        //         ])
+        //         ->post($url, $person);
 
-            return [
-                "name" => $person["name"],
-                "userCode" => $person["userCode"],
-                "device_id" => $device_id,
-                'status' => $response->status(),
-                'sdk_response' => $response->json(),
-            ];
-        } catch (\Exception $e) {
-            return [
-                "name" => $person["name"],
-                "userCode" => $person["userCode"],
-                "device_id" => $device_id,
-                'status' => 500,
-                'sdk_response' => $e->getMessage(),
-            ];
-        }
+        //     return [
+        //         "name" => $person["name"],
+        //         "userCode" => $person["userCode"],
+        //         "device_id" => $device_id,
+        //         'status' => $response->status(),
+        //         'sdk_response' => $response->json(),
+        //     ];
+        // } catch (\Exception $e) {
+        //     return [
+        //         "name" => $person["name"],
+        //         "userCode" => $person["userCode"],
+        //         "device_id" => $device_id,
+        //         'status' => 500,
+        //         'sdk_response' => $e->getMessage(),
+        //     ];
+        // }
     }
     // public function PersonAddRange(Request $request)
     // {
