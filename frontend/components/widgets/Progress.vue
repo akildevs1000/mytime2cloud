@@ -31,7 +31,7 @@
         {{ engaged }}
       </div>
       <div class="progress-gray" :style="{ width: `${remainingPercentage}%` }">
-        0
+        {{ total - engaged }}
       </div>
     </div>
   </span>

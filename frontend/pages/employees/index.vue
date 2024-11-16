@@ -1258,10 +1258,10 @@ export default {
           name: "mdi-qrcode-scan",
         });
       }
-      icons.push({
-        type: "image",
-        name: "/icons/palm-hand-2.png",
-      });
+      // icons.push({
+      //   type: "image",
+      //   name: "/icons/palm-hand-2.png",
+      // });
 
       return icons;
     },
