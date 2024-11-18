@@ -415,6 +415,7 @@
       </v-card>
     </v-dialog>
     <v-dialog persistent v-model="editDialog" width="1400" :key="employeeId">
+      <WidgetsClose left="1370" @click="editDialog = false" />
       <v-card>
         <v-tabs
           v-model="tab"
@@ -429,17 +430,6 @@
             {{ item.text }}
             <v-icon>{{ item.icon }}</v-icon>
           </v-tab>
-
-          <v-icon
-            @click="editDialog = false"
-            style="margin-right: 4px"
-            text-right
-            outlined
-            dark
-            color="black"
-          >
-            mdi mdi-close-circle
-          </v-icon>
         </v-tabs>
 
         <v-card-text>
@@ -841,7 +831,7 @@
                       <v-icon>mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
-                  <v-list width="120" dense>
+                  <v-list dense>
                     <v-list-item
                       v-if="can('employee_profile_view')"
                       @click="viewItem(item)"
@@ -851,6 +841,11 @@
                         View
                       </v-list-item-title>
                     </v-list-item>
+                    <!-- <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <EmployeeProfileView />
+                      </v-list-item-title>
+                    </v-list-item> -->
                     <v-list-item
                       v-if="can('employee_edit')"
                       @click="editItem(item)"
@@ -860,6 +855,17 @@
                         Edit
                       </v-list-item-title>
                     </v-list-item>
+                    <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <WidgetsEmployeeDowloadDialogSingle
+                          :key="item.id"
+                          :id="item.id"
+                          :system_user_id="item.system_user_id"
+                          @response="getDataFromApi"
+                        />
+                      </v-list-item-title>
+                    </v-list-item>
+
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
@@ -1246,14 +1252,17 @@ export default {
       palms,
     }) {
       let icons = [];
+      console.log("🚀 ~ rfid_card_number:", rfid_card_number)
+      console.log("🚀 ~ rfid_card_password:", rfid_card_password)
+
 
       if (profile_picture) {
         icons.push({ name: "mdi-emoticon-outline" });
       }
-      if (rfid_card_number) {
+      if (rfid_card_number != "" && rfid_card_number != "0") {
         icons.push({ name: "mdi-card-outline" });
       }
-      if (rfid_card_password) {
+      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF") {
         icons.push({ name: "mdi-lock-outline" });
       }
       if (finger_prints.length) {
@@ -1266,7 +1275,7 @@ export default {
         });
       }
 
-      if (rfid_card_number && rfid_card_number != "") {
+      if (rfid_card_number != "" && rfid_card_number != "0") {
         icons.push({
           name: "mdi-qrcode-scan",
         });
