@@ -575,7 +575,6 @@
           </v-col>
           <v-col class="text-right">
             <div class="input-group" style="width: 100%">
-              <WidgetsEmployeeDowloadDialog @response="getDataFromApi" />
               <input
                 class="custom-input"
                 type="text"
@@ -595,7 +594,7 @@
                 >+ New</v-btn
               >
 
-              <v-menu offset-y :nudge-width="100">
+              <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     dark-2
@@ -707,6 +706,20 @@
                       <div style="margin: 4px 0 0 5px">
                         <span style="font-size: 12px">Download Employees</span>
                       </div>
+                    </v-list-item-title>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <WidgetsEmployeeDowloadDialog
+                        @response="getDataFromApi"
+                      />
                     </v-list-item-title>
                   </v-list-item>
                 </v-list>
