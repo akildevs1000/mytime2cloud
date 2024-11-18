@@ -2,7 +2,7 @@
   <v-dialog persistent v-model="dialog" width="800">
     <WidgetsClose left="790" @click="close" />
     <template v-slot:activator="{ on, attrs }">
-      <div style="display:flex;" v-bind="attrs" v-on="on">
+      <div style="display: flex" v-bind="attrs" v-on="on">
         <div style="height: 17px; width: 17px">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -20,7 +20,7 @@
           </svg>
         </div>
 
-        <div style="margin:2px 0 0 2px">
+        <div style="margin: 2px 0 0 2px">
           <span style="font-size: 12px">Download Employees From Device</span>
         </div>
       </div>
@@ -342,38 +342,58 @@ export default {
           const deviceData = data.data;
 
           if (!deviceData) {
-            alert(`Data not found`);
-            return;
+            let payload = {
+              company_id: this.company_id,
+              full_name: "---",
+              employee_id: employeeId,
+              system_user_id: employeeId,
+              profile_picture: "---",
+              rfid_card_number: "---",
+              rfid_card_password: "---",
+              fp: "---",
+              palm: "---",
+              face: "---",
+              fpCount: "---",
+              isFace: false,
+              isRFID: false,
+              isPIN: false,
+              isFP: false,
+              isPalm: false,
+              isSelected: false,
+            };
+            this.employees.push(payload);
+            this.engaged++;
+            this.loading = false;
+          } else {
+            let payload = {
+              company_id: this.company_id,
+              full_name: deviceData.name,
+              employee_id: deviceData.userCode,
+              system_user_id: deviceData.userCode,
+              profile_picture: deviceData.faceImage,
+              rfid_card_number: deviceData.cardData,
+              rfid_card_password: deviceData.password,
+              fp: deviceData.fp,
+              palm: deviceData.palm,
+              face: deviceData.face,
+              fpCount: deviceData.fpCount,
+              isFace: deviceData.face == 1 ? true : false,
+              isRFID:
+                deviceData.cardData == "" || deviceData.cardData == "0"
+                  ? false
+                  : true,
+              isPIN:
+                deviceData.password == "" || deviceData.password == "FFFFFFFF"
+                  ? false
+                  : true,
+              isFP: deviceData.fp ? true : false,
+              isPalm: deviceData.palm ? true : false,
+              isSelected: true,
+            };
+            this.employees.push(payload);
+            this.engaged++;
+            this.loading = false;
           }
-
-          let payload = {
-            company_id: this.company_id,
-            full_name: deviceData.name,
-            employee_id: deviceData.userCode,
-            system_user_id: deviceData.userCode,
-            profile_picture: deviceData.faceImage,
-            rfid_card_number: deviceData.cardData,
-            rfid_card_password: deviceData.password,
-            fp: deviceData.fp,
-            palm: deviceData.palm,
-            face: deviceData.face,
-            fpCount: deviceData.fpCount,
-            isFace: deviceData.face == 1 ? true : false,
-            isRFID:
-              deviceData.cardData == "" || deviceData.cardData == "0"
-                ? false
-                : true,
-            isPIN:
-              deviceData.password == "" || deviceData.password == "FFFFFFFF"
-                ? false
-                : true,
-            isFP: deviceData.fp ? true : false,
-            isPalm: deviceData.palm ? true : false,
-            isSelected: true,
-          };
-          this.employees.push(payload);
-          this.engaged++;
-          this.loading = false;
         } catch (error) {
           this.response = error;
         }
