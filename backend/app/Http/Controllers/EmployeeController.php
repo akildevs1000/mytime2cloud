@@ -1608,29 +1608,23 @@ class EmployeeController extends Controller
         unset($employeeData["fp"]);
         unset($employeeData["palm"]);
 
-
-
         try {
             DB::transaction(function () use ($employeeData, $palmArray, $fpArray) {
                 $company_id = $employeeData["company_id"];
-                $employee_id = $employeeData["system_user_id"];
+                $employee = Employee::create($employeeData);
 
-                // Check and delete records if count > 0
-                $fingerPrintCount = FingerPrint::where("employee_id", $employee_id)->count();
+                $fingerPrintCount = FingerPrint::where("employee_id", $employee->id)->count();
                 if ($fingerPrintCount > 0) {
-                    FingerPrint::where("employee_id", $employee_id)->delete();
+                    FingerPrint::where("employee_id", $employee->id)->delete();
                 }
-
-                $palmCount = Palm::where("employee_id", $employee_id)->count();
+                $palmCount = Palm::where("employee_id", $employee->id)->count();
                 if ($palmCount > 0) {
-                    Palm::where("employee_id", $employee_id)->delete();
+                    Palm::where("employee_id", $employee->id)->delete();
                 }
 
-
-                Employee::create($employeeData);
                 FingerPrint::insert($fpArray);
                 Palm::insert($palmArray);
-                (new AttendanceController)->seedDefaultData($company_id, [$employee_id]);
+                (new AttendanceController)->seedDefaultData($company_id, [$employeeData["system_user_id"]]);
             });
 
             return $this->response("All employees successfully created.", true, true);
