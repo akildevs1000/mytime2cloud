@@ -44,7 +44,7 @@
       <v-card-text>
         <div class="d-flex justify-space-between">
           <v-autocomplete
-            :disabled="totalEmployees !== engaged"
+            :disabled="totalEmployees !== engaged || loading"
             outlined
             dense
             x-small
@@ -57,7 +57,7 @@
           ></v-autocomplete>
           &nbsp;
           <v-btn
-            :loading="totalEmployees !== engaged"
+            :loading="totalEmployees !== engaged || loading"
             class="primary"
             @click="getEmployeesIds(selectedDeviceId)"
           >
@@ -133,7 +133,7 @@
           </div>
           <div class="pt-5">
             <v-btn
-              :disabled="totalEmployees !== engaged"
+              :disabled="totalEmployees !== engaged || loading"
               block
               class="primary"
               small
@@ -202,11 +202,11 @@ export default {
     employees: [],
     loading: false,
     response: null,
-    company_id: 2,
+    company_id: 1,
     responses: [],
   }),
   async created() {
-    this.company_id = 2;
+    this.company_id = this.$auth.user.company_id;
 
     //this.loading = true;
     // let page = this.pagination.current;
@@ -290,14 +290,12 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: 2,
+          company_id: this.company_id,
           sortBy: "name",
           cols: ["name", "device_id", "status:id"],
         },
       };
-      let { data } = await this.$axios.get(
-        `https://backend.mytime2cloud.com/api/device?company_id=2`
-      );
+      let { data } = await this.$axios.get(`/device`,options);
       this.devices = data.data;
       console.log("🚀 ~ getDevices ~ data:", data);
     },
@@ -318,7 +316,7 @@ export default {
 
       try {
         let { data } = await this.$axios.get(
-          `https://backend.mytime2cloud.com/api/SDK/get-person-all-v1/${device_id}`
+          `/SDK/get-person-all-v1/${device_id}`
         );
 
         let result = data.data;
@@ -366,7 +364,7 @@ export default {
         try {
           this.loading = true;
           const { data } = await this.$axios.get(
-            `https://backend.mytime2cloud.com/api/SDK/get-person-details-v1/${device_id}/${employeeId}`
+            `/SDK/get-person-details-v1/${device_id}/${employeeId}`
           );
 
           const deviceData = data.data;
