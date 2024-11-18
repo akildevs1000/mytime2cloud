@@ -42,20 +42,35 @@
       </v-alert>
 
       <v-card-text>
-        <v-autocomplete
-          outlined
-          dense
-          @change="getEmployeesIds"
-          x-small
-          item-value="device_id"
-          item-text="name"
-          :items="[{ name: `Select Device`, device_id: null }, ...devices]"
-          placeholder="Device"
-          hide-details
-        ></v-autocomplete>
+        <div class="d-flex justify-space-between">
+          <v-autocomplete
+            :disabled="totalEmployees !== engaged"
+            outlined
+            dense
+            x-small
+            item-value="device_id"
+            item-text="name"
+            :items="[{ name: `Select Device`, device_id: null }, ...devices]"
+            placeholder="Device"
+            hide-details
+            v-model="selectedDeviceId"
+          ></v-autocomplete>
+          &nbsp;
+          <v-btn
+            :loading="totalEmployees !== engaged"
+            class="primary"
+            @click="getEmployeesIds(selectedDeviceId)"
+          >
+            Fetch Data</v-btn
+          >
+        </div>
 
         <div class="my-2">
-          <WidgetsProgress :total="totalEmployees" :engaged="engaged" />
+          <WidgetsProgress
+            :key="selectedDeviceId"
+            :total="totalEmployees"
+            :engaged="engaged"
+          />
         </div>
 
         <span v-if="employees.length && !loading">
@@ -117,7 +132,14 @@
             </v-simple-table>
           </div>
           <div class="pt-5">
-            <v-btn block class="primary" small @click="submit">Submit</v-btn>
+            <v-btn
+              :disabled="totalEmployees !== engaged"
+              block
+              class="primary"
+              small
+              @click="submit"
+              >Submit</v-btn
+            >
           </div>
         </span>
         <div class="text-center" v-if="loading">
@@ -171,6 +193,7 @@
 import j2c from "../../utils/json-to-csv-downloader";
 export default {
   data: () => ({
+    selectedDeviceId: null,
     totalEmployees: 0,
     engaged: 0,
     selectAll: false,
@@ -179,11 +202,11 @@ export default {
     employees: [],
     loading: false,
     response: null,
-    company_id: 1,
+    company_id: 2,
     responses: [],
   }),
   async created() {
-    this.company_id = this.$auth.user.company_id;
+    this.company_id = 2;
 
     //this.loading = true;
     // let page = this.pagination.current;
@@ -267,17 +290,24 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          company_id: this.company_id,
+          company_id: 2,
           sortBy: "name",
           cols: ["name", "device_id", "status:id"],
         },
       };
-      let { data } = await this.$axios.get(`/device`, options);
+      let { data } = await this.$axios.get(
+        `https://backend.mytime2cloud.com/api/device?company_id=2`
+      );
       this.devices = data.data;
+      console.log("🚀 ~ getDevices ~ data:", data);
     },
     async getEmployeesIds(device_id) {
+      if (this.totalEmployees != this.engaged) {
+        alert("Previous data fetching not finished yet.");
+      }
       this.totalEmployees = 0;
       this.engaged = 0;
+      this.total = 0;
       this.employees = [];
       this.responses = [];
       this.response = null;
@@ -288,7 +318,7 @@ export default {
 
       try {
         let { data } = await this.$axios.get(
-          `/SDK/get-person-all-v1/${device_id}`
+          `https://backend.mytime2cloud.com/api/SDK/get-person-all-v1/${device_id}`
         );
 
         let result = data.data;
@@ -336,7 +366,7 @@ export default {
         try {
           this.loading = true;
           const { data } = await this.$axios.get(
-            `/SDK/get-person-details-v1/${device_id}/${employeeId}`
+            `https://backend.mytime2cloud.com/api/SDK/get-person-details-v1/${device_id}/${employeeId}`
           );
 
           const deviceData = data.data;
