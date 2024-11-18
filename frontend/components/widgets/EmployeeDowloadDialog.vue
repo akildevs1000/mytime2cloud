@@ -2,16 +2,28 @@
   <v-dialog persistent v-model="dialog" width="800">
     <WidgetsClose left="790" @click="close" />
     <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        style="margin-top: -5px"
-        small
-        color="primary "
-        dark
-        v-bind="attrs"
-        v-on="on"
-      >
-        Download Employees
-      </v-btn>
+      <div style="display:flex;" v-bind="attrs" v-on="on">
+        <div style="height: 17px; width: 17px">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            class="icon align-text-top"
+          >
+            <path
+              fill="#6946dd"
+              d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+            ></path>
+            <path
+              fill="#6946dd"
+              d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+            ></path>
+          </svg>
+        </div>
+
+        <div style="margin:2px 0 0 2px">
+          <span style="font-size: 12px">Download Employees From Device</span>
+        </div>
+      </div>
     </template>
 
     <v-card>
