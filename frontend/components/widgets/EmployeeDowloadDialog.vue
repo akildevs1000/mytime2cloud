@@ -97,7 +97,7 @@
                       <v-icon color="" v-else>mdi-minus</v-icon>
                     </td>
                   </tr>
-                  <tr v-if="loading">
+                  <tr v-if="response">
                     <td colspan="8" class="text-center">{{ response }}</td>
                   </tr>
                 </tbody>
@@ -108,7 +108,19 @@
             <v-btn block class="primary" small @click="submit">Submit</v-btn>
           </div>
         </span>
+        <div class="text-center" v-if="loading">
+          <v-progress-linear
+            color="deep-purple accent-4"
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+          <div class="mt-3">Loading, please wait...</div>
+        </div>
 
+        <div class="pt-5 red--text" v-if="response">
+          {{ response }}
+        </div>
         <span v-if="responses.length">
           <div style="overflow-y: auto; max-height: 400px" class="px-2">
             <v-simple-table dense>
@@ -134,9 +146,6 @@
                       <v-icon color="red" v-else>mdi-close</v-icon>
                     </td>
                   </tr>
-                  <tr>
-                    <td colspan="4" v-if="loading">Loading...</td>
-                  </tr>
                 </tbody>
               </template>
             </v-simple-table>
@@ -157,7 +166,7 @@ export default {
     devices: [],
     employees: [],
     loading: false,
-    response: "Loading...",
+    response: null,
     company_id: 1,
     responses: [],
   }),
@@ -259,20 +268,34 @@ export default {
       this.engaged = 0;
       this.employees = [];
       this.responses = [];
+      this.response = null;
+
       if (!device_id) return;
-      let { data } = await this.$axios.get(
-        `/SDK/get-person-all-v1/${device_id}`
-      );
 
-      let response = data.data;
+      this.loading = true;
 
-      if (data.status == 200) {
-        this.totalEmployees = response.length || 0;
-
-        this.getEmployees(
-          device_id,
-          response.map((e) => e.userCode)
+      try {
+        let { data } = await this.$axios.get(
+          `/SDK/get-person-all-v1/${device_id}`
         );
+
+        let result = data.data;
+
+        if (data.status === 200) {
+          this.totalEmployees = result.length || 0;
+
+          this.getEmployees(
+            device_id,
+            result.map((e) => e.userCode)
+          );
+          return;
+        }
+        this.response = data.message;
+        this.loading = false;
+      } catch (error) {
+        console.error("Error fetching employee IDs:", error);
+        this.response = "An error occurred while fetching employee data.";
+        this.loading = false;
       }
     },
     json_to_csv(data) {
@@ -339,7 +362,6 @@ export default {
           this.employees.push(payload);
           this.engaged++;
           this.loading = false;
-          this.response = "loading....";
         } catch (error) {
           this.response = error;
         }
