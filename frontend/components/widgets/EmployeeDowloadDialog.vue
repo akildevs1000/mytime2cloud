@@ -2,16 +2,28 @@
   <v-dialog persistent v-model="dialog" width="800">
     <WidgetsClose left="790" @click="close" />
     <template v-slot:activator="{ on, attrs }">
-      <v-btn
-        style="margin-top: -5px"
-        small
-        color="primary "
-        dark
-        v-bind="attrs"
-        v-on="on"
-      >
-        Download Employees
-      </v-btn>
+      <div style="display:flex;" v-bind="attrs" v-on="on">
+        <div style="height: 17px; width: 17px">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 512 512"
+            class="icon align-text-top"
+          >
+            <path
+              fill="#6946dd"
+              d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+            ></path>
+            <path
+              fill="#6946dd"
+              d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+            ></path>
+          </svg>
+        </div>
+
+        <div style="margin:2px 0 0 2px">
+          <span style="font-size: 12px">Download Employees From Device</span>
+        </div>
+      </div>
     </template>
 
     <v-card>
@@ -97,7 +109,7 @@
                       <v-icon color="" v-else>mdi-minus</v-icon>
                     </td>
                   </tr>
-                  <tr v-if="loading">
+                  <tr v-if="response">
                     <td colspan="8" class="text-center">{{ response }}</td>
                   </tr>
                 </tbody>
@@ -108,7 +120,19 @@
             <v-btn block class="primary" small @click="submit">Submit</v-btn>
           </div>
         </span>
+        <div class="text-center" v-if="loading">
+          <v-progress-linear
+            color="deep-purple accent-4"
+            indeterminate
+            rounded
+            height="6"
+          ></v-progress-linear>
+          <div class="mt-3">Loading, please wait...</div>
+        </div>
 
+        <div class="pt-5 red--text" v-if="response">
+          {{ response }}
+        </div>
         <span v-if="responses.length">
           <div style="overflow-y: auto; max-height: 400px" class="px-2">
             <v-simple-table dense>
@@ -134,9 +158,6 @@
                       <v-icon color="red" v-else>mdi-close</v-icon>
                     </td>
                   </tr>
-                  <tr>
-                    <td colspan="4" v-if="loading">Loading...</td>
-                  </tr>
                 </tbody>
               </template>
             </v-simple-table>
@@ -157,7 +178,7 @@ export default {
     devices: [],
     employees: [],
     loading: false,
-    response: "Loading...",
+    response: null,
     company_id: 1,
     responses: [],
   }),
@@ -259,20 +280,34 @@ export default {
       this.engaged = 0;
       this.employees = [];
       this.responses = [];
+      this.response = null;
+
       if (!device_id) return;
-      let { data } = await this.$axios.get(
-        `/SDK/get-person-all-v1/${device_id}`
-      );
 
-      let response = data.data;
+      this.loading = true;
 
-      if (data.status == 200) {
-        this.totalEmployees = response.length || 0;
-
-        this.getEmployees(
-          device_id,
-          response.map((e) => e.userCode)
+      try {
+        let { data } = await this.$axios.get(
+          `/SDK/get-person-all-v1/${device_id}`
         );
+
+        let result = data.data;
+
+        if (data.status === 200) {
+          this.totalEmployees = result.length || 0;
+
+          this.getEmployees(
+            device_id,
+            result.map((e) => e.userCode)
+          );
+          return;
+        }
+        this.response = data.message;
+        this.loading = false;
+      } catch (error) {
+        console.error("Error fetching employee IDs:", error);
+        this.response = "An error occurred while fetching employee data.";
+        this.loading = false;
       }
     },
     json_to_csv(data) {
@@ -339,9 +374,7 @@ export default {
           this.employees.push(payload);
           this.engaged++;
           this.loading = false;
-          this.response = "loading....";
         } catch (error) {
-          this.employees = [];
           this.response = error;
         }
       });
