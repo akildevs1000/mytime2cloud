@@ -341,7 +341,6 @@ export default {
           this.loading = false;
           this.response = "loading....";
         } catch (error) {
-          this.employees = [];
           this.response = error;
         }
       });
