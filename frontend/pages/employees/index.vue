@@ -1343,6 +1343,7 @@ export default {
           isFilter: this.isFilter,
           params: {
             company_id: this.$auth.user.company_id,
+            branch_id: filterBranchId,
           },
         };
         this.departments = await this.$store.dispatch(
