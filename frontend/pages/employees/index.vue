@@ -415,6 +415,7 @@
       </v-card>
     </v-dialog>
     <v-dialog persistent v-model="editDialog" width="1400" :key="employeeId">
+      <WidgetsClose left="1370" @click="editDialog = false" />
       <v-card>
         <v-tabs
           v-model="tab"
@@ -429,17 +430,6 @@
             {{ item.text }}
             <v-icon>{{ item.icon }}</v-icon>
           </v-tab>
-
-          <v-icon
-            @click="editDialog = false"
-            style="margin-right: 4px"
-            text-right
-            outlined
-            dark
-            color="black"
-          >
-            mdi mdi-close-circle
-          </v-icon>
         </v-tabs>
 
         <v-card-text>
@@ -575,7 +565,6 @@
           </v-col>
           <v-col class="text-right">
             <div class="input-group" style="width: 100%">
-              <WidgetsEmployeeDowloadDialog @response="getDataFromApi" />
               <input
                 class="custom-input"
                 type="text"
@@ -583,7 +572,7 @@
                 @input="searchData"
                 v-model="search"
               />
-              <v-icon style="position: absolute; top: 16px; right: 107px"
+              <v-icon style="position: absolute; top: 14px; right: 107px"
                 >mdi-magnify</v-icon
               >
               <v-btn
@@ -595,7 +584,7 @@
                 >+ New</v-btn
               >
 
-              <v-menu offset-y :nudge-width="100">
+              <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     dark-2
@@ -709,6 +698,20 @@
                       </div>
                     </v-list-item-title>
                   </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <WidgetsEmployeeDowloadDialog
+                        @response="getDataFromApi"
+                      />
+                    </v-list-item-title>
+                  </v-list-item>
                 </v-list>
               </v-menu>
             </div>
@@ -746,20 +749,16 @@
                       max-width: 50px;
                     "
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="
-                        item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
+                    <v-avatar>
+                      <v-img
+                        :src="
+                          item.profile_picture
+                            ? item.profile_picture
+                            : '/no-profile-image.jpg'
+                        "
+                      >
+                      </v-img>
+                    </v-avatar>
                   </v-col>
                   <v-col style="padding: 10px">
                     <div style="font-size: 13px">
@@ -798,7 +797,7 @@
                   {{ item.local_email }}
                 </div>
               </template>
-              <template v-slot:item.qrcode="{ item }">
+              <!-- <template v-slot:item.qrcode="{ item }">
                 <v-icon
                   v-if="item.rfid_card_number && item.rfid_card_number != ''"
                   size="30"
@@ -808,9 +807,22 @@
                   mdi-qrcode-scan</v-icon
                 >
                 <div v-else>No RFID</div>
-              </template>
+              </template> -->
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
+              </template>
+              <template v-slot:item.access="{ item }">
+                <span
+                  v-for="(icon, index) in getRelatedIcons(item)"
+                  :key="index"
+                >
+                  <v-avatar tile size="15" v-if="icon.type == 'image'"
+                    ><img style="width: 100%" :src="icon.name"
+                  /></v-avatar>
+                  <v-icon v-else small color="black" class="mr-1">{{
+                    icon.name
+                  }}</v-icon>
+                </span>
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -819,7 +831,7 @@
                       <v-icon>mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
-                  <v-list width="120" dense>
+                  <v-list dense>
                     <v-list-item
                       v-if="can('employee_profile_view')"
                       @click="viewItem(item)"
@@ -829,6 +841,11 @@
                         View
                       </v-list-item-title>
                     </v-list-item>
+                    <!-- <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <EmployeeProfileView />
+                      </v-list-item-title>
+                    </v-list-item> -->
                     <v-list-item
                       v-if="can('employee_edit')"
                       @click="editItem(item)"
@@ -838,6 +855,17 @@
                         Edit
                       </v-list-item-title>
                     </v-list-item>
+                    <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <WidgetsEmployeeDowloadDialogSingle
+                          :key="item.id"
+                          :id="item.id"
+                          :system_user_id="item.system_user_id"
+                          @response="getDataFromApi"
+                        />
+                      </v-list-item-title>
+                    </v-list-item>
+
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
@@ -1100,7 +1128,7 @@ export default {
         key: "employee_id",
         value: "employee_id",
         filterable: true,
-        width: "10%",
+        width: "15%",
         filterSpecial: false,
       },
       {
@@ -1123,23 +1151,21 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-
-      {
-        text: "QR(RFID)",
-        align: "left",
-        sortable: true,
-        key: "email",
-        value: "qrcode",
-        filterable: false,
-        filterSpecial: false,
-        width: "15%",
-      },
       {
         text: "Timezone",
         align: "left",
         sortable: true,
         key: "timezone_id",
         value: "timezone.name",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "Access",
+        align: "left",
+        sortable: true,
+        key: "access",
+        value: "access",
         filterable: true,
         filterSpecial: true,
       },
@@ -1218,6 +1244,49 @@ export default {
     },
   },
   methods: {
+    getRelatedIcons({
+      profile_picture,
+      rfid_card_number,
+      rfid_card_password,
+      finger_prints,
+      palms,
+    }) {
+      let icons = [];
+      console.log("🚀 ~ rfid_card_number:", rfid_card_number)
+      console.log("🚀 ~ rfid_card_password:", rfid_card_password)
+
+
+      if (profile_picture) {
+        icons.push({ name: "mdi-emoticon-outline" });
+      }
+      if (rfid_card_number != "" && rfid_card_number != "0") {
+        icons.push({ name: "mdi-card-outline" });
+      }
+      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF") {
+        icons.push({ name: "mdi-lock-outline" });
+      }
+      if (finger_prints.length) {
+        icons.push({ name: "mdi-fingerprint" });
+      }
+      if (palms.length > 0) {
+        icons.push({
+          type: "image",
+          name: "/icons/palm-hand.png",
+        });
+      }
+
+      if (rfid_card_number != "" && rfid_card_number != "0") {
+        icons.push({
+          name: "mdi-qrcode-scan",
+        });
+      }
+      // icons.push({
+      //   type: "image",
+      //   name: "/icons/palm-hand-2.png",
+      // });
+
+      return icons;
+    },
     downloadImage(faceImage, userId) {
       let options = {
         params: {
