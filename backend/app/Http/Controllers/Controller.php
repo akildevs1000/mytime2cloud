@@ -117,6 +117,7 @@ class Controller extends BaseController
             "All" => "All",
             "A" => "Absent",
             "M" => "Missing",
+            "ME" => "Missing",
             "P" => "Present",
             "O" => "Week Off",
             "L" => "Leave",
