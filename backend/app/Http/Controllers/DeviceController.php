@@ -279,7 +279,7 @@ class DeviceController extends Controller
             //$model->where("name", $request->name);
 
             if ($model->exists()) {
-                return $this->response('Device already exist.', null, true);
+                return $this->response('Device already exist.', null, false);
             }
 
             $data = $request->validated();
