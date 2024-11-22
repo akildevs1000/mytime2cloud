@@ -762,79 +762,81 @@ class DeviceController extends Controller
         foreach ($devices as $key => $device) {
 
 
+            if ($device["devices"]) {
 
-            $openJson =  $device['open_json'];
+                $openJson =  $device['open_json'];
 
-            $openJsonArray = json_decode($openJson, true);
+                $openJsonArray = json_decode($openJson, true);
 
-            foreach ($openJsonArray as  $key => $time) {
-
-
-                if (count($time) > 0) {
-                    foreach ($time as $keyDay => $timeValue) {
+                foreach ($openJsonArray as  $key => $time) {
 
 
-                        if ($weekDays[$keyDay] == date("D")) {
-
-                            $timeArray = explode(":", $timeValue);
-                            if (date("H:i") == $timeValue) {
-                                $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s")  . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
+                    if (count($time) > 0) {
+                        foreach ($time as $keyDay => $timeValue) {
 
 
-                                if ($device["devices"]->model_number == 'OX-900') {
-                                    (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->openDoorAlways($device["devices"]);
-                                    $this->response('Always Open  Command is Successfull',  null, true);
-                                } else
+                            if ($weekDays[$keyDay] == date("D")) {
 
-                                    $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
+                                $timeArray = explode(":", $timeValue);
+                                if (date("H:i") == $timeValue) {
+                                    $file_name_raw = "kernal_logs/$date-device-HoldDoor-access-live.log";
+                                    Storage::append($file_name_raw,  date("d-m-Y H:i:s")  . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_HoldDoor_logs-' . $timeValue);
+
+
+                                    if ($device["devices"]->model_number == 'OX-900') {
+                                        (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->openDoorAlways($device["devices"]);
+                                        $this->response('Always Open  Command is Successfull',  null, true);
+                                    } else
+
+                                        $result = (new SDKController)->handleCommand($device["devices"]->device_id, "HoldDoor");
+                                }
+
+
+                                $schedule
+                                    ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
+                                    ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                    ->withoutOverlapping()
+                                    ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
+                                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                             }
-
-
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} HoldDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                         }
                     }
                 }
-            }
-            //
+                //
 
-            $closeJson =  $device['close_json'];
+                $closeJson =  $device['close_json'];
 
-            $closeJsonArray = json_decode($closeJson, true);
+                $closeJsonArray = json_decode($closeJson, true);
 
-            foreach ($closeJsonArray as  $key => $time) {
-                if (count($time) > 0) {
-                    foreach ($time as $keyDay => $timeValue) {
-
+                foreach ($closeJsonArray as  $key => $time) {
+                    if (count($time) > 0) {
+                        foreach ($time as $keyDay => $timeValue) {
 
 
-                        if ($weekDays[$keyDay] == date("D")) {
-                            // $file_name_raw = "kernal_logs/$date-device-close-access.log";
-                            // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
 
-                            $timeArray = explode(":", $timeValue);
+                            if ($weekDays[$keyDay] == date("D")) {
+                                // $file_name_raw = "kernal_logs/$date-device-close-access.log";
+                                // Storage::append($file_name_raw,  date("d-m-Y H:i:s") . '_door_close_logs-' . $timeValue);
 
-                            if (date("H:i") == $timeValue) {
-                                $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
-                                Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
-                                if ($device["devices"]->model_number == 'OX-900') {
-                                    (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->closeDoor($device["devices"]);
-                                    $this->response('Always Open  Command is Successfull',  null, true);
-                                } else
-                                    $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+                                $timeArray = explode(":", $timeValue);
+
+                                if (date("H:i") == $timeValue) {
+                                    $file_name_raw = "kernal_logs/$date-device-closeDoor-access-live.log";
+                                    Storage::append($file_name_raw,  date("d-m-Y H:i:s") . $device["devices"]->model_number . '-' . $device["devices"]->device_id . '_door_closeDoor_logs-' . $timeValue);
+                                    if ($device["devices"]->model_number == 'OX-900') {
+                                        (new DeviceCameraModel2Controller($device["devices"]->camera_sdk_url))->closeDoor($device["devices"]);
+                                        $this->response('Always Open  Command is Successfull',  null, true);
+                                    } else
+                                        $result = (new SDKController)->handleCommand($device["devices"]->device_id, "CloseDoor");
+                                }
+
+                                $schedule
+                                    ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
+                                    ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
+                                    ->withoutOverlapping()
+                                    ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
+                                    ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                             }
-
-                            $schedule
-                                ->command("task:AccessControlTimeSlots {$device["devices"]->device_id} CloseDoor")
-                                ->cron($timeArray[1] . ' ' . $timeArray[0] . ' * * *')
-                                ->withoutOverlapping()
-                                ->appendOutputTo(storage_path("kernal_logs/$date-device-access-control-time-slot-open-logs.log"))
-                                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
                         }
                     }
                 }

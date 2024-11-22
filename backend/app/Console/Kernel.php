@@ -244,13 +244,13 @@ class Kernel extends ConsoleKernel
                     ->dailyAt('03:45')
                     ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_daily_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                $schedule
-                    ->command("task:generate_weekly_report {$companyId} {$status}")
+                // $schedule
+                //     ->command("task:generate_weekly_report {$companyId} {$status}")
 
-                    ->dailyAt('04:00')
-                    // ->runInBackground()
-                    //->withoutOverlapping()
-                    ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_weekly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                //     ->dailyAt('04:00')
+                //     // ->runInBackground()
+                //     //->withoutOverlapping()
+                //     ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_weekly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             }
 
@@ -390,11 +390,12 @@ class Kernel extends ConsoleKernel
 
             if ($model->frequency == "Daily") {
                 $scheduleCommand->dailyAt($model->time);
-            } elseif ($model->frequency == "Weekly") {
-                $scheduleCommand->weeklyOn($model->day, $model->time);
-            } elseif ($model->frequency == "Monthly") {
-                $scheduleCommand->monthlyOn($model->day, $model->time);
             }
+            // elseif ($model->frequency == "Weekly") {
+            //     $scheduleCommand->weeklyOn($model->day, $model->time);
+            // } elseif ($model->frequency == "Monthly") {
+            //     $scheduleCommand->monthlyOn($model->day, $model->time);
+            // }
         }
 
         // $date = date("M-Y");
