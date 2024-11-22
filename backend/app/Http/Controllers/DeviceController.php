@@ -276,7 +276,7 @@ class DeviceController extends Controller
             $model = Device::query();
             $model->where("company_id", $request->company_id);
             $model->where("device_id", $request->device_id);
-            $model->where("name", $request->name);
+            //$model->where("name", $request->name);
 
             if ($model->exists()) {
                 return $this->response('Device already exist.', null, true);
