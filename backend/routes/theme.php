@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 Route::apiResource('theme', ThemeController::class);
 Route::get('theme_count', [ThemeController::class, "theme_count"]);
 Route::get('dashbaord_attendance_count', [ThemeController::class, "dashboardCount"]);
+Route::post('attendance_today_stats_whatsapp', [ThemeController::class, "whatsappTodayStats"]);
 Route::get('dashboard_counts_last_7_days', [ThemeController::class, "dashboardGetCountslast7Days"]);
 Route::get('dashboard_get_count_department', [ThemeController::class, "dashboardGetCountDepartment"]);
 Route::get('previous_week_attendance_count/{id}', [ThemeController::class, "previousWeekAttendanceCount"]);
