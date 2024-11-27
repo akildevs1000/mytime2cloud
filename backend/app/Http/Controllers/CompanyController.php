@@ -378,6 +378,7 @@ class CompanyController extends Controller
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
             "whatsapp_instance_id" => $request->whatsapp_instance_id,
             "whatsapp_access_token" => $request->whatsapp_access_token,
+            "enable_desktop_whatsapp" => $request->enable_desktop_whatsapp,
         ];
 
 

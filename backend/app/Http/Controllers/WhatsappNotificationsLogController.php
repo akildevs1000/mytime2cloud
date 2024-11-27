@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\WhatsappNotificationsLog;
 use Illuminate\Http\Request;
 
@@ -86,13 +87,22 @@ class WhatsappNotificationsLogController extends Controller
     public function addNewMessage(Request $request)
     {
 
-        if ($request->filled("whatsapp_number") && $request->filled("message"))
-            WhatsappNotificationsLog::create([
-                "company_id" =>  $request->company_id,
-                "whatsapp_number" => $request->whatsapp_number,
-                "message" => $request->message
-            ]);
 
-        return $this->response("Whatsapp Request Created Successfully", null, true);
+        $company = Company::with(["contact"])->where("id", $request->company_id)->first();
+
+
+        if ($company->enable_desktop_whatsapp == true) {
+
+            if ($request->filled("whatsapp_number") && $request->filled("message"))
+                WhatsappNotificationsLog::create([
+                    "company_id" =>  $request->company_id,
+                    "whatsapp_number" => $request->whatsapp_number,
+                    "message" => $request->message
+                ]);
+
+            return $this->response("Whatsapp Request Created Successfully", null, true);
+        } else {
+            return $this->response("Desktop Whatsapp is not enabled", null, false);
+        }
     }
 }

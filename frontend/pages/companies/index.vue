@@ -383,13 +383,62 @@
                           <v-card-title>
                             <v-row>
                               <v-col> Contact Details </v-col>
-                              <v-col class="pull-right text-right">
-                                Verify Whatsapp
-                                <v-icon
-                                  color="green"
-                                  @click="sendToTestWhatsapp()"
-                                  >mdi-whatsapp</v-icon
-                                >
+                              <v-col
+                                class="pull-right text-right"
+                                style="font-size: 14px"
+                              >
+                                <div>
+                                  <v-row>
+                                    <v-col
+                                      v-if="
+                                        company_payload.enable_desktop_whatsapp
+                                      "
+                                      >Verify Whatsapp
+
+                                      <v-icon
+                                        color="green"
+                                        @click="sendToTestWhatsapp()"
+                                        >mdi-whatsapp</v-icon
+                                      ></v-col
+                                    >
+                                    <v-col
+                                      v-else="
+                                        company_payload.enable_desktop_whatsapp
+                                      "
+                                      >Desktop Whatsapp
+                                    </v-col>
+                                    <v-col cols="3">
+                                      <v-switch
+                                        disabled
+                                        color="success"
+                                        class="mt-0 ml-2"
+                                        v-model="
+                                          company_payload.enable_desktop_whatsapp
+                                        "
+                                      ></v-switch> </v-col
+                                  ></v-row>
+                                </div>
+                                <!-- <div style="font-size: 12px">
+                                  <v-row>
+                                    <v-col
+                                      >Desktop
+                                      <v-icon color="grey">mdi-whatsapp</v-icon>
+                                    </v-col>
+                                    <v-col>
+                                      {{
+                                        company_payload.enable_desktop_whatsapp
+                                      }}
+                                      <v-switch
+                                        disabled
+                                        color="success"
+                                        class="mt-0 ml-2"
+                                        v-model="
+                                          company_payload.enable_desktop_whatsapp
+                                        "
+                                      ></v-switch
+                                    ></v-col>
+                                  </v-row>
+                                </div> -->
                               </v-col>
                             </v-row>
                           </v-card-title>
@@ -987,7 +1036,8 @@ export default {
       );
 
       if (!data.status) {
-        this.errors = data.errors;
+        this.snackbar = true;
+        this.response = data.message;
       } else {
         this.snackbar = true;
         this.response = data.message;

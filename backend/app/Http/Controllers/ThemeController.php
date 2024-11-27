@@ -47,17 +47,22 @@ class ThemeController extends Controller
         $data = $this->getCounts($request->company_id, $request);
 
         $company = Company::with(["contact"])->where("id", $request->company_id)->first();
-        $message = "Company Name:" . $company["name"] . "\n\n";
-        $message .= "Total Employees:" . $data["employeeCount"] . "\n\n";
-        $message .= "Inside:" . $data["totalIn"] . "\n\n";
-        $message .= "Outside:" . $data["totalOut"] . "\n\n";
-        $message .= "Outside:" . $data["totalOut"] . "\n\n";
-        $message .= "Present:" . $data["presentCount"] . "\n\n";
 
 
-        WhatsappNotificationsLog::create(["company_id" =>  $request->company_id,  "whatsapp_number" => $company->contact->whatsapp, "message" => $message]);
+        if ($company->enable_desktop_whatsapp == true) {
+            $message = "Company Name:" . $company["name"] . "\n\n\n\n";
+            $message .= "Total Employees:" . $data["employeeCount"] . "\n\n";
+            $message .= "Inside:" . $data["totalIn"] . "\n\n";
+            $message .= "Outside:" . $data["totalOut"] . "\n\n";
+            $message .= "Outside:" . $data["totalOut"] . "\n\n";
+            $message .= "Present:" . $data["presentCount"] . "\n\n";
 
-        return $this->response("Whatsapp Request Created Successfully", null, true);
+
+            WhatsappNotificationsLog::create(["company_id" =>  $request->company_id,  "whatsapp_number" => $company->contact->whatsapp, "message" => $message]);
+            return $this->response("Whatsapp Request Created Successfully", null, true);
+        } else {
+            return $this->response("Desktop Whatsapp is not active", null, true);
+        }
     }
     public function dashboardCount(Request $request)
     {
