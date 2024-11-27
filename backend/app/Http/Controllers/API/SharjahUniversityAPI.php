@@ -33,8 +33,9 @@ class SharjahUniversityAPI extends Controller
                 'device_id_out'
             ])->toArray();
 
-            if ($attendance['company_id'] == 13) {
-                $logFile = "attendance_api_logs/{$attendance['company_id']}-" . now()->format('d-m-Y') . ".log";
+            // if ($attendance['company_id'] == 13) 
+            {
+                $logFile = "sharjah_attendance_api_logs/{$attendance['company_id']}-" . now()->format('d-m-Y') . ".log";
                 Storage::append($logFile, json_encode($data) . PHP_EOL);
             }
         }
