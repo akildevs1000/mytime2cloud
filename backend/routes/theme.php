@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ThemeController;
+use App\Http\Controllers\WhatsappNotificationsLogController;
+use App\Models\WhatsappNotificationsLog;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResource('theme', ThemeController::class);
@@ -14,3 +16,6 @@ Route::get('dashboard_Get_Counts_today_multi_general', [ThemeController::class, 
 Route::get('dashboard_get_counts_today_hour_in_out', [ThemeController::class, "dashboardGetCountsTodayHourInOut"]);
 
 Route::get('dashboard_get_visitor_counts_today_hour_in_out', [ThemeController::class, "dashboardGetVisitorCountsTodayHourInOut"]);
+
+
+Route::post('whatsapp_message_queue', [WhatsappNotificationsLogController::class, "addNewMessage"]);
