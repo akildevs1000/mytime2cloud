@@ -47,8 +47,8 @@ class ThemeController extends Controller
         $data = $this->getCounts($request->company_id, $request);
 
         $company = Company::with(["contact"])->where("id", $request->company_id)->first();
-
-        $message = "Total Employees:" . $data["employeeCount"] . "\n\n";
+        $message = "Company Name:" . $company["name"] . "\n\n";
+        $message .= "Total Employees:" . $data["employeeCount"] . "\n\n";
         $message .= "Inside:" . $data["totalIn"] . "\n\n";
         $message .= "Outside:" . $data["totalOut"] . "\n\n";
         $message .= "Outside:" . $data["totalOut"] . "\n\n";

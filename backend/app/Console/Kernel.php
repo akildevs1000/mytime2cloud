@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\SDKController;
+use App\Http\Controllers\ThemeController;
 use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
 use App\Models\DeviceActivesettings;
@@ -11,6 +12,7 @@ use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -310,6 +312,20 @@ class Kernel extends ConsoleKernel
             //     ->appendOutputTo(storage_path("kernal_logs/$monthYear-visitor-delete-expired-dates-$companyId.log"))
             //     ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+
+            /*------------------------ */
+            $schedule->call(function () use ($companyId) {
+                $requestArray = array(
+                    'company_id' => $companyId,
+                );
+                $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
+
+                return (new ThemeController)->whatsappTodayStats($renderRequest);
+            })->everyMinute()
+
+                ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-Y") . "-whatsapp-notifications-desktop.log"));
+
+            /*------------------------ */
         }
 
         $schedule
