@@ -82,4 +82,17 @@ class WhatsappNotificationsLogController extends Controller
     {
         //
     }
+
+    public function addNewMessage(Request $request)
+    {
+
+        if ($request->filled("whatsapp_number") && $request->filled("message"))
+            WhatsappNotificationsLog::create([
+                "company_id" =>  $request->company_id,
+                "whatsapp_number" => $request->whatsapp_number,
+                "message" => $request->message
+            ]);
+
+        return $this->response("Whatsapp Request Created Successfully", null, true);
+    }
 }
