@@ -21,7 +21,7 @@ class SharjahUniversityAPI extends Controller
     public function readAttendanceAfterRender($attendanceArray)
     {
         $logFile = "sharjah_attendance_api_logs/1-" . now()->format('d-m-Y') . ".log";
-        Storage::append($logFile, json_encode($attendanceArray) . PHP_EOL);
+        Storage::append($logFile, count($attendanceArray) . PHP_EOL);
         return "";
         foreach ($attendanceArray as $key => $attendance) {
 
