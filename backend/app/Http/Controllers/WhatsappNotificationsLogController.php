@@ -156,26 +156,17 @@ class WhatsappNotificationsLogController extends Controller
 
 
             if ($employee) {
-                $status = $attendace["out"] === '---' ? 'In' : 'Out';
-                $device_id = $status === 'In' ? $attendace["device_id_in"] : $attendace["device_id_out"];
+                $status = $attendace["out"] === '---' ? 'IN' : 'OUT';
+                $device_id = $status === 'IN' ? $attendace["device_id_in"] : $attendace["device_id_out"];
+
+                $time = $status === 'IN' ? $attendace["in"] : $attendace["out"];
 
                 // Fetch device details
                 $device = Device::where("serial_number", $device_id)->first();
 
                 // Compose the message
-                $message = sprintf(
-                    "Company: %s\n\n%s %s\n\nID: %s\nStatus: %s\nTime: %s %s\nDevice: %s\nShift: %s\nShiftTime: %s",
-                    $company->name,
-                    $employee->first_name,
-                    $employee->last_name, // Assuming you meant last name instead of repeating first name
-                    $employee->employee_id,
-                    $status,
-                    $attendace["date"],
-                    $status === 'In' ? $attendace["in"] : $attendace["out"],
-                    $device->name ?? 'Unknown Device',
-                    $shift ? $shift["name"] : '---',
-                    $shift ? $shift["on_duty_time"] . '-' . $shift["off_duty_time"] : '---',
-                );
+                $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $attendace["date"] . "  at " . $device->name;
+
 
                 // Send WhatsApp message
                 return $this->addMessage($company_id, $whatsapp_number, $message);
