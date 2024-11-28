@@ -50,12 +50,12 @@ class ThemeController extends Controller
 
 
         if ($company->enable_desktop_whatsapp == true) {
-            $message = "Company Name:" . $company["name"] . "\n\n\n\n";
-            $message .= "Total Employees:" . $data["employeeCount"] . "\n\n";
-            $message .= "Inside:" . $data["totalIn"] . "\n\n";
-            $message .= "Outside:" . $data["totalOut"] . "\n\n";
-            $message .= "Outside:" . $data["totalOut"] . "\n\n";
-            $message .= "Present:" . $data["presentCount"] . "\n\n";
+            $message = "Company Name:" . $company["name"] . "\n";
+            $message .= "Total Employees:" . $data["employeeCount"] . "\n";
+            $message .= "Inside:" . $data["totalIn"] . "\n";
+            $message .= "Outside:" . $data["totalOut"] . "\n";
+            $message .= "Outside:" . $data["totalOut"] . "\n";
+            $message .= "Present:" . $data["presentCount"] . "\n";
             (new WhatsappNotificationsLogController())->addMessage($request->company_id, $company->contact->whatsapp, $message);
 
             // WhatsappNotificationsLog::create(["company_id" =>  $request->company_id,  "whatsapp_number" => $company->contact->whatsapp, "message" => $message]);
