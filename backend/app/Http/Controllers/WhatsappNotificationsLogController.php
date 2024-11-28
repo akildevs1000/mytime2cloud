@@ -143,7 +143,7 @@ class WhatsappNotificationsLogController extends Controller
             $whatsapp_number = $company->contact['whatsapp'] ?? '971552205149';
 
             $employee = Employee::where("company_id", $company_id)
-                ->where("user_id", $attendace["employee_id"])
+                ->where("employee_id", $attendace["employee_id"])
                 ->first();
 
             if ($employee) {
@@ -168,6 +168,8 @@ class WhatsappNotificationsLogController extends Controller
 
                 // Send WhatsApp message
                 return $this->addMessage($company_id, $whatsapp_number, $message);
+            } else {
+                return "Employee Details are not exist";
             }
         }
     }
