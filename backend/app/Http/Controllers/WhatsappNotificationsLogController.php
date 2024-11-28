@@ -167,7 +167,7 @@ class WhatsappNotificationsLogController extends Controller
                 $device = Device::where("serial_number", $device_id)->first();
 
                 // Compose the message
-                $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $attendace["date"] . "  at " . $device->name;
+                $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $this->formatDateWithOrdinal($attendace["date"]) . "  at " . $device->name;
 
 
                 // Send WhatsApp message
@@ -176,5 +176,26 @@ class WhatsappNotificationsLogController extends Controller
                 return "Employee Details are not exist";
             }
         }
+    }
+
+    function formatDateWithOrdinal($date)
+    {
+        $timestamp = strtotime($date);
+        $day = date('j', $timestamp); // Day without leading zeros
+        $month = date('M', $timestamp); // Short month name
+        $year = date('Y', $timestamp); // Full year
+
+        // Get the ordinal suffix
+        if ($day % 10 == 1 && $day != 11) {
+            $ordinal = 'st';
+        } elseif ($day % 10 == 2 && $day != 12) {
+            $ordinal = 'nd';
+        } elseif ($day % 10 == 3 && $day != 13) {
+            $ordinal = 'rd';
+        } else {
+            $ordinal = 'th';
+        }
+
+        return "$month $day{$ordinal} $year";
     }
 }

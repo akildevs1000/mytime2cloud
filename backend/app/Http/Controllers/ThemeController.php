@@ -56,9 +56,9 @@ class ThemeController extends Controller
             $message .= "Outside:" . $data["totalOut"] . "\n\n";
             $message .= "Outside:" . $data["totalOut"] . "\n\n";
             $message .= "Present:" . $data["presentCount"] . "\n\n";
+            (new WhatsappNotificationsLogController())->addMessage($request->company_id, $company->contact->whatsapp, $message);
 
-
-            WhatsappNotificationsLog::create(["company_id" =>  $request->company_id,  "whatsapp_number" => $company->contact->whatsapp, "message" => $message]);
+            // WhatsappNotificationsLog::create(["company_id" =>  $request->company_id,  "whatsapp_number" => $company->contact->whatsapp, "message" => $message]);
             return $this->response("Whatsapp Request Created Successfully", null, true);
         } else {
             return $this->response("Desktop Whatsapp is not active", null, true);
