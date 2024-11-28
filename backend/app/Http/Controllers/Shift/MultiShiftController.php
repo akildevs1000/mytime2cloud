@@ -189,6 +189,8 @@ class MultiShiftController extends Controller
                     "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
+
+
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);
 
                 if ($params["isOverTime"]) {

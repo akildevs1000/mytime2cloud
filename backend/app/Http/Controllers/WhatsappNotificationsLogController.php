@@ -89,7 +89,7 @@ class WhatsappNotificationsLogController extends Controller
 
     public function addNewMessage(Request $request)
     {
-        $this->addMessage($request->company_id, $request->whatsapp_number, $request->message);
+        return $this->addMessage($request->company_id, $request->whatsapp_number, $request->message);
 
         // $company = Company::with(["contact"])->where("id", $request->company_id)->first();
 
@@ -159,9 +159,9 @@ class WhatsappNotificationsLogController extends Controller
                 ->where("employee_id", $attendace["employee_id"])
                 ->first();
 
-            $shift = Shift::where("id", $attendace["shift_id"])
+            // $shift = Shift::where("id", $attendace["shift_id"])
 
-                ->first();
+            //     ->first();
 
 
 

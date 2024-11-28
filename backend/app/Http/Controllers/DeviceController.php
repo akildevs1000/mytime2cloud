@@ -1088,6 +1088,7 @@ class DeviceController extends Controller
     public function checkDevicesHealthCompanyId($company_id = '')
     {
 
+
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
             ->where("device_id", "!=", "Manual")
@@ -1163,6 +1164,19 @@ class DeviceController extends Controller
         }
 
 
+        //get offline devices list 
+        $offlineDevices = Device::with(["company"])->where("status_id", 2)->get();
+
+        $test = [];
+        foreach ($offlineDevices as $key => $device) {
+            try {
+                $test[] = $message = "Company:" . $device->company->name . "  Device " . $device->name . " OFFLINE detected at  " . date("H:i:s d-m-Y ");
+                (new WhatsappNotificationsLogController())->addMessage($device->company_id, "", $message);
+            } catch (\Throwable $e) {
+                $test[] = $e;
+            }
+        }
+        return $test;
 
         $offline_devices_count = $total_devices_count - $online_devices_count;
 
