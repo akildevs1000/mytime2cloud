@@ -5,7 +5,9 @@ use App\Http\Controllers\AlarmLogsController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
+use App\Http\Controllers\CardQRCodeController;
 use App\Http\Controllers\DeviceCameraController;
+use App\Http\Controllers\DeviceCameraModel2Controller;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\KeyGeneratorController;
@@ -17,14 +19,19 @@ use App\Http\Controllers\Shift\NightShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\WhatsappController;
+use App\Imports\excelEmployeesData;
 use App\Mail\ReportNotificationMail;
+use App\Models\AlarmLogs;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
 use App\Models\Employee;
 use App\Models\ReportNotification;
 use App\Models\Shift;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -33,10 +40,118 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log as Logger;
+use Maatwebsite\Excel\Facades\Excel;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use SimpleSoftwareIO\QrCode\QrCodeServiceProvider;
+
+
+Route::get("update-alarm-logs-company-ids", function (Request $request) {
+
+    try {
+        $logs = AlarmLogs::with("devices")->where("company_id", null)->get()->groupBy("device_id");;
+        foreach ($logs as $key => $log) {
+
+            if (isset($log[0]))
+
+                AlarmLogs::where("company_id", null)->where("device_id", $key)->update(["company_id" => $log[0]["devices"]->company_id]);
+        }
+    } catch (\Throwable $th) {
+        //throw $th;
+    }
+});
+
+Route::get("test900device1", function (Request $request) {
+
+
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'http://47.88.11.117:8807/all/queryTransCmdJson?id=fsuiop00&access_token=c7499d5a-3167-472b-8d30-ca3d75a9bd89',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => '{
+	"Cmd":7101,
+	"Id":"fsuiop00",
+	"User":12345678,
+	"Def":"JSON_CMD_GET_VERSION"
+}',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        ),
+    ));
+
+    $response = curl_exec($curl);
+
+    curl_close($curl);
+    echo $response;
+});
 
 
 
 
+
+Route::get("test900device", function (Request $request) {
+
+    $device = Device::where("device_id", "M014200892110002626")->first();
+    return  $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
+});
+Route::get("test900device2", function (Request $request) {
+
+    $device = Device::where("device_id", "M014200892110002761")->first();
+    return  $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
+});
+Route::get("whatsappqrcode", function (Request $request) {
+
+    $device = Device::where("device_id", "M014200892110002761")->first();
+    return  $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
+
+    // phpinfo();
+    // exit;
+
+    QrCode::size(500)
+        ->format('png')
+        ->generate('www.google.com', storage_path('app/public/111.png'));
+    exit;
+
+    // exit;
+    // QrCode::size(250)->generate('www.google.com');
+    $url = 'https://example.com';
+    // $qrCode = QrCodeServiceProvider::format('png')->size(300)->generate($url);
+
+
+    $fileName = 'qrcode.png';
+    $filePath = storage_path('app/public/' . $fileName);
+
+    // Save the QR code to a file
+    // Storage::put('public/' . $fileName, $qrCode);
+
+    echo  QrCode::size(250)->generate('www.google.com', $filePath);
+    exit;
+    //send email notification and whatsapp notification
+    $attachments = [];
+    $attachments["media_url"] =  env('BASE_URL') . 'app/public/' . $fileName;
+    //$attachments["media_url"] =  "https://backend.mytime2cloud.com/api/donwload_storage_file?file_name=app%2Fpdf%2F2%2Fdaily_missing.pdf";
+
+    $attachments["filename"] = $fileName;
+
+
+    $company = Company::where('company_id', 2);
+    (new WhatsappController())->sendWhatsappNotification($company, $fileName, "971552205149", $attachments);
+});
+Route::get("compare2images", function (Request $request) {
+    $image1 = storage_path('venu2.jpeg');;
+    $image2 = storage_path('arav1.jpg');;
+
+    $imageComparator = new ImageComparator();
+
+    $similarity = $imageComparator->compare($image1, $image2);
+    return  $similarity;
+});
 Route::get("test111password", function (Request $request) {
     ///////return (new AttendanceLogController)->storemissing();
 
@@ -149,6 +264,12 @@ Route::get('/testAttendanceRender111test', function (Request $request) {
 
     Logger::channel('custom')->info(json_encode($request->request->all()));
 });
+
+// Route::get('/testAttendanceRender111test', function (Request $request) {
+
+//     Excel::import(new excelEmployeesData(), $request->file('file'));
+// });
+
 Route::post('/testAttendanceRender111test', function (Request $request) {
 
     Logger::channel('custom')->info(json_encode($request->request->all()));
@@ -197,6 +318,10 @@ Route::get('/testAttendanceRender111', function (Request $request) {
     return ((new RenderController())->renderLogs($renderRequest));
 });
 
+Route::get("getqrcode", function (Request $request) {
+    return (new CardQRCodeController())->generateQRCode($request);
+});
+
 Route::get("/testemployee", function (Request $request) {
 
     return Storage::url('8_3_8_2023_payslip.pdf');
@@ -218,6 +343,35 @@ Route::get('/donwloadfile', function (Request $request) {
         // Return a 404 Not Found response if the file doesn't exist
         abort(404);
     }
+});
+Route::get('/testapi1', function (Request $request) {
+
+
+
+
+
+
+
+
+    $items[] = [
+        "employee_id" => 1,
+        "in" => "17:25",
+        "out" => "---",
+        "device_id_in" => "M014200892110001534",
+        "device_id_out" => "---",
+        "date" => "2024-11-26",
+
+    ];
+    $items[] = [
+        "employee_id" => 1,
+        "in" => "17:25",
+        "out" => "20:25",
+        "device_id_in" => "M014200892110001534",
+        "device_id_out" => "M014200892110001534",
+        "date" => "2024-11-26",
+
+    ];
+    return (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
 });
 Route::get('/handleNotification', function (Request $request) {
 
