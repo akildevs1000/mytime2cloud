@@ -1165,7 +1165,11 @@ class DeviceController extends Controller
 
 
         //get offline devices list 
-        $offlineDevices = Device::with(["company"])->where("status_id", 2)->get();
+        $offlineDevices = Device::with(["company"])->where("device_type", "!=", "Mobile")
+            ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
+            ->where("device_id", "!=", "Manual")
+            ->where('device_id', "NOT " . (env('WILD_CARD') ?? 'ILIKE'), '%mobile%')
+            ->where("status_id", 2)->get();
 
         $test = [];
         foreach ($offlineDevices as $key => $device) {
