@@ -32,10 +32,10 @@ class SharjahUniversityAPI extends Controller
                 try {
                     if ($attendance['company_id'] == 13) {
 
-                        try {
-                            (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($attendance);
-                        } catch (\Throwable $e) {
-                        }
+                        // try {
+                        //     (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($attendance);
+                        // } catch (\Throwable $e) {
+                        // }
 
                         $data = collect($attendance)->only([
                             'employee_id',

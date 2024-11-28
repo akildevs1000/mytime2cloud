@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Alarm\DeviceSensorLogsController;
 use App\Http\Controllers\AlarmLogsController;
+use App\Http\Controllers\API\SharjahUniversityAPI;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\WhatsappController;
+use App\Http\Controllers\WhatsappNotificationsLogController;
 use App\Imports\excelEmployeesData;
 use App\Mail\ReportNotificationMail;
 use App\Models\AlarmLogs;
@@ -354,23 +356,30 @@ Route::get('/testapi1', function (Request $request) {
 
 
     $items[] = [
-        "employee_id" => 1,
+        "company_id" => 2,
+        "employee_id" => 4000,
         "in" => "17:25",
         "out" => "---",
-        "device_id_in" => "M014200892110001534",
+        "device_id_in" => "FC-8300T20094123",
         "device_id_out" => "---",
         "date" => "2024-11-26",
 
     ];
     $items[] = [
-        "employee_id" => 1,
+        "company_id" => 2,
+        "employee_id" => 4000,
         "in" => "17:25",
         "out" => "20:25",
-        "device_id_in" => "M014200892110001534",
-        "device_id_out" => "M014200892110001534",
+        "device_id_in" => "FC-8300T20094123",
+        "device_id_out" => "FC-8300T20094123",
         "date" => "2024-11-26",
 
     ];
+
+
+    (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($items[0]);
+    return (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($items[1]);
+
     return (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
 });
 Route::get('/handleNotification', function (Request $request) {

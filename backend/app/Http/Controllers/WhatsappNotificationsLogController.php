@@ -134,30 +134,41 @@ class WhatsappNotificationsLogController extends Controller
     {
         $company_id = $attendace["company_id"];
         $whatsapp_number = '';
-        $company = Company::with(["contact"])->where("id", $company_id)->first();
 
-        if ($whatsapp_number == '') {
-            $whatsapp_number = $company->contact['whatsapp'];
+        // Fetch company with contact details
+        $company = Company::with("contact")->find($company_id);
+
+        // Ensure company exists before proceeding
+        if ($company) {
+            $whatsapp_number = $company->contact['whatsapp'] ?? '971552205149';
+
+            $employee = Employee::where("company_id", $company_id)
+                ->where("user_id", $attendace["employee_id"])
+                ->first();
+
+            if ($employee) {
+                $status = $attendace["out"] === '---' ? 'In' : 'Out';
+                $device_id = $status === 'In' ? $attendace["device_id_in"] : $attendace["device_id_out"];
+
+                // Fetch device details
+                $device = Device::where("serial_number", $device_id)->first();
+
+                // Compose the message
+                $message = sprintf(
+                    "%s\n\n%s %s\n\nID: %s\n\n%s\n\nTime: %s %s\n\nDevice: %s\n\n",
+                    $company->name,
+                    $employee->first_name,
+                    $employee->last_name, // Assuming you meant last name instead of repeating first name
+                    $employee->user_id,
+                    $status,
+                    $attendace["date"],
+                    $status === 'In' ? $attendace["in"] : $attendace["out"],
+                    $device->name ?? 'Unknown Device'
+                );
+
+                // Send WhatsApp message
+                return $this->addMessage($company_id, $whatsapp_number, $message);
+            }
         }
-
-        $employee = Employee::where("company_id", $company_id)->where("user_id", $attendace["employee_id"])->first();
-        $device = null;
-        $status = "";
-
-        if ($attendace["out"] == '---') {
-            $device = Device::where("serial_number", $attendace["device_id_in"]);
-            $status = "In";
-        } else {
-            $device = Device::where("serial_number", $attendace["device_id_out"]);
-            $status = "Out";
-        }
-        $message = $company["name"] . "\n\n";
-        $message .= $employee["first_name"] . " " . $employee["first_name"] . "\n\n";
-        $message .= "ID: " . $company["user_id"] . "\n\n";
-        $message .=   $status . "\n\n";
-        $message .=   "Time: " . $attendace["logDate"] . "\n\n";
-
-
-        $this->addMessage($company_id, $whatsapp_number, $message);
     }
 }
