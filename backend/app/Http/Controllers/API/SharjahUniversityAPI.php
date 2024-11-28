@@ -27,7 +27,7 @@ class SharjahUniversityAPI extends Controller
         $postData = [];
         if ($token != '') {
             foreach ($attendanceArray as $key => $attendance) {
-                return $attendance;
+
                 try {
                     if ($attendance['company_id'] == 13) {
                         $data = collect($attendance)->only([
