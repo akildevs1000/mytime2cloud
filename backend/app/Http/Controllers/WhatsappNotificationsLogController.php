@@ -155,7 +155,7 @@ class WhatsappNotificationsLogController extends Controller
 
                 // Compose the message
                 $message = sprintf(
-                    "%s\n\n%s %s\n\nID: %s\n\n%s\n\nTime: %s %s\n\nDevice: %s\n\n",
+                    "%s\n\n%s %s\n\nID: %s\n\nStatus: %s\n\nTime: %s %s\n\nDevice: %s\n\n",
                     $company->name,
                     $employee->first_name,
                     $employee->last_name, // Assuming you meant last name instead of repeating first name
