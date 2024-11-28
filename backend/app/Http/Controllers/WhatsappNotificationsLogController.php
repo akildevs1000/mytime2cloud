@@ -140,7 +140,7 @@ class WhatsappNotificationsLogController extends Controller
 
         // Ensure company exists before proceeding
         if ($company) {
-            $whatsapp_number = $company->contact['whatsapp'] ?? '971552205149';
+            $whatsapp_number = "971552205149"; //$company->contact['whatsapp'] ?? '971552205149';
 
             $employee = Employee::where("company_id", $company_id)
                 ->where("employee_id", $attendace["employee_id"])
