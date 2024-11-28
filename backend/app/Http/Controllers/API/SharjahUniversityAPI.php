@@ -27,7 +27,7 @@ class SharjahUniversityAPI extends Controller
         $postData = [];
         if ($token != '') {
             foreach ($attendanceArray as $key => $attendance) {
-
+                Storage::append($logFile, date("Y-m-d H:i:s") . ' company_id :' . $attendance['company_id'] . PHP_EOL);
                 try {
                     if ($attendance['company_id'] == 13) {
                         $data = collect($attendance)->only([
