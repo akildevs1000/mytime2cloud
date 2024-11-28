@@ -314,16 +314,16 @@ class Kernel extends ConsoleKernel
 
 
             // /*------------------------ */
-            // $schedule->call(function () use ($companyId) {
-            //     $requestArray = array(
-            //         'company_id' => $companyId,
-            //     );
-            //     $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
+            $schedule->call(function () use ($companyId) {
+                $requestArray = array(
+                    'company_id' => $companyId,
+                );
+                $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
 
-            //     return (new ThemeController)->whatsappTodayStats($renderRequest);
-            // })->hourly()
+                return (new ThemeController)->whatsappTodayStats($renderRequest);
+            })->hourly()
 
-            //     ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-Y") . "-whatsapp-notifications-desktop.log"));
+                ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-Y") . "-whatsapp-notifications-desktop.log"));
 
             // /*------------------------ */
         }
