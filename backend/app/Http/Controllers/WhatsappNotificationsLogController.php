@@ -133,6 +133,8 @@ class WhatsappNotificationsLogController extends Controller
 
     public function addAttendanceMessageEmployeeId($attendace)
     {
+
+
         $company_id = $attendace["company_id"];
         $whatsapp_number = '';
 
@@ -171,8 +173,8 @@ class WhatsappNotificationsLogController extends Controller
                     $attendace["date"],
                     $status === 'In' ? $attendace["in"] : $attendace["out"],
                     $device->name ?? 'Unknown Device',
-                    $shift["name"],
-                    $shift["on_duty_time"] . '-' . $shift["off_duty_time"],
+                    $shift ? $shift["name"] : '---',
+                    $shift ? $shift["on_duty_time"] . '-' . $shift["off_duty_time"] : '---',
                 );
 
                 // Send WhatsApp message
