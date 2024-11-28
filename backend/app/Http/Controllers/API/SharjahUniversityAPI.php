@@ -30,12 +30,14 @@ class SharjahUniversityAPI extends Controller
             foreach ($attendanceArray as $key => $attendance) {
                 //Storage::append($logFile, date("Y-m-d H:i:s") . ' company_id :' . $attendance['company_id'] . PHP_EOL);
                 try {
+
+                    try {
+                        (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($attendance);
+                    } catch (\Throwable $e) {
+                    }
                     if ($attendance['company_id'] == 13) {
 
-                        // try {
-                        //     (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($attendance);
-                        // } catch (\Throwable $e) {
-                        // }
+
 
                         $data = collect($attendance)->only([
                             'employee_id',
