@@ -159,7 +159,7 @@ class WhatsappNotificationsLogController extends Controller
                     $company->name,
                     $employee->first_name,
                     $employee->last_name, // Assuming you meant last name instead of repeating first name
-                    $employee->user_id,
+                    $employee->employee_id,
                     $status,
                     $attendace["date"],
                     $status === 'In' ? $attendace["in"] : $attendace["out"],
