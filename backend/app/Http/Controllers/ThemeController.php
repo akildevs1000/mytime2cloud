@@ -51,6 +51,7 @@ class ThemeController extends Controller
 
         if ($company->enable_desktop_whatsapp == true) {
             $message = "Company Name:" . $company["name"] . "\n";
+            $message .= "Date:" .  date("Y-m-d") . "\n";
             $message .= "Total Employees:" . $data["employeeCount"] . "\n";
             $message .= "Inside:" . $data["totalIn"] . "\n";
             $message .= "Outside:" . $data["totalOut"] . "\n";

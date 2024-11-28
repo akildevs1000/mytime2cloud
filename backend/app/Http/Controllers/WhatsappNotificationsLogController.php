@@ -120,12 +120,20 @@ class WhatsappNotificationsLogController extends Controller
         $whatsapp_number = "971552205149";
         if ($company->enable_desktop_whatsapp == true) {
 
-            if ($whatsapp_number != '' && $message != '')
-                WhatsappNotificationsLog::create([
-                    "company_id" =>  $company_id,
-                    "whatsapp_number" => $whatsapp_number,
-                    "message" => $message
-                ]);
+            if ($whatsapp_number != '' && $message != '') {
+
+
+                $count = WhatsappNotificationsLog::where("whatsapp_number", $whatsapp_number)->where("company_id", $company_id)->where("message", $message)->count();
+
+                if ($count == 0) {
+                    WhatsappNotificationsLog::create([
+                        "company_id" =>  $company_id,
+                        "whatsapp_number" => $whatsapp_number,
+                        "message" => $message
+                    ]);
+                }
+            }
+
 
             return $this->response("Whatsapp Request Created Successfully", null, true);
         } else {
