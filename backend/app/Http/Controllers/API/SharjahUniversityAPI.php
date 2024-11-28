@@ -29,8 +29,7 @@ class SharjahUniversityAPI extends Controller
             foreach ($attendanceArray as $key => $attendance) {
 
                 try {
-                    // if ($attendance['company_id'] == 13)
-                    {
+                    if ($attendance['company_id'] == 13) {
                         $data = collect($attendance)->only([
                             'employee_id',
                             'logDate',
