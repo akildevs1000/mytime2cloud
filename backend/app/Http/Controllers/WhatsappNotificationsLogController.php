@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
+use App\Models\Shift;
 use App\Models\WhatsappNotificationsLog;
 use Illuminate\Http\Request;
 
@@ -146,6 +147,12 @@ class WhatsappNotificationsLogController extends Controller
                 ->where("employee_id", $attendace["employee_id"])
                 ->first();
 
+            $shift = Shift::where("id", $attendace["shift_id"])
+
+                ->first();
+
+
+
             if ($employee) {
                 $status = $attendace["out"] === '---' ? 'In' : 'Out';
                 $device_id = $status === 'In' ? $attendace["device_id_in"] : $attendace["device_id_out"];
@@ -155,7 +162,7 @@ class WhatsappNotificationsLogController extends Controller
 
                 // Compose the message
                 $message = sprintf(
-                    "Company: %s\n\n%s %s\n\nID: %s\nStatus: %s\nTime: %s %s\nDevice: %s\n\n",
+                    "Company: %s\n\n%s %s\n\nID: %s\nStatus: %s\nTime: %s %s\nDevice: %s\nShift: %s\nShiftTime: %s",
                     $company->name,
                     $employee->first_name,
                     $employee->last_name, // Assuming you meant last name instead of repeating first name
@@ -163,7 +170,9 @@ class WhatsappNotificationsLogController extends Controller
                     $status,
                     $attendace["date"],
                     $status === 'In' ? $attendace["in"] : $attendace["out"],
-                    $device->name ?? 'Unknown Device'
+                    $device->name ?? 'Unknown Device',
+                    $shift["name"],
+                    $shift["on_duty_time"] . '-' . $shift["off_duty_time"],
                 );
 
                 // Send WhatsApp message
