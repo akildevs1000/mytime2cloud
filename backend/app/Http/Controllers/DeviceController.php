@@ -1176,7 +1176,7 @@ class DeviceController extends Controller
                 $test[] = $e;
             }
         }
-        return $test;
+
 
         $offline_devices_count = $total_devices_count - $online_devices_count;
 
