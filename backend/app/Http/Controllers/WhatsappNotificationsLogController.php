@@ -153,7 +153,7 @@ class WhatsappNotificationsLogController extends Controller
 
         // Ensure company exists before proceeding
         if ($company && $attendace["date"] == date("Y-m-d")) {
-            $whatsapp_number = $company->contact['whatsapp'] ?? '971552205149';
+
 
             $employee = Employee::where("company_id", $company_id)
                 ->where("employee_id", $attendace["employee_id"])
@@ -166,6 +166,8 @@ class WhatsappNotificationsLogController extends Controller
 
 
             if ($employee) {
+
+                $whatsapp_number = $employee->whatsapp_number;
                 $status = $attendace["out"] === '---' ? 'IN' : 'OUT';
                 $device_id = $status === 'IN' ? $attendace["device_id_in"] : $attendace["device_id_out"];
 
@@ -177,7 +179,7 @@ class WhatsappNotificationsLogController extends Controller
                 // Compose the message
                 $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $this->formatDateWithOrdinal($attendace["date"]) . "  at " . $device->name;
 
-
+                $this->addMessage($company_id, "971552205149", $employee->whatsapp_number . "-" . $message);
                 // Send WhatsApp message
                 return $this->addMessage($company_id, $whatsapp_number, $message);
             } else {
