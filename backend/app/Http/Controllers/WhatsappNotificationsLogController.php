@@ -117,7 +117,7 @@ class WhatsappNotificationsLogController extends Controller
             $whatsapp_number = $company->contact['whatsapp'];
         }
 
-        $whatsapp_number = "971552205149";
+        //$whatsapp_number = "971552205149";
         if ($company->enable_desktop_whatsapp == true) {
 
             if ($whatsapp_number != '' && $message != '') {
