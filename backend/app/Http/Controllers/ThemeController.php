@@ -53,6 +53,7 @@ class ThemeController extends Controller
             $message = "" . $company["name"] . "\n";
             $message .= "Date:" .  date("H:i d M Y") . "\n";
             $message .= "Total Employees:" . $data["employeeCount"] . "\n";
+            $message .= "Total Present:" . $data["missingCount"] + $data["presentCount"] . "\n";
             $message .= "Inside:" . $data["missingCount"] . "\n";
             $message .= "Logout:" . $data["presentCount"] . "\n";
             (new WhatsappNotificationsLogController())->addMessage($request->company_id, $company->contact->whatsapp, $message);
