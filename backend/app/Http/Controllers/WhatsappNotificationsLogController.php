@@ -152,7 +152,8 @@ class WhatsappNotificationsLogController extends Controller
         $company = Company::with("contact")->find($company_id);
 
         // Ensure company exists before proceeding
-        if ($company && $attendace["date"] == date("Y-m-d")) {
+        if ($company) // && $attendace["date"] == date("Y-m-d"))
+        {
 
 
             $employee = Employee::where("company_id", $company_id)
