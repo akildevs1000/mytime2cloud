@@ -28,7 +28,7 @@
         >
           Attendance Reports
           <v-icon
-            title="Click To Send yesterday Report"
+            title="Click To Send Yesterday Report"
             color="green"
             @click="sendYesterdayReport()"
             >mdi-whatsapp</v-icon
@@ -678,21 +678,24 @@ export default {
 
   methods: {
     async sendYesterdayReport() {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          report_template: "Template1",
-          shift_type_id: "1",
-          report_type: "Daily",
-          status: "-1",
-          daily_date: this.getYesterdayDate(),
-        },
-      };
+      confirm("Are you sure want to send Yesterday report?");
+      {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            report_template: "Template1",
+            shift_type_id: "1",
+            report_type: "Daily",
+            status: "-1",
+            daily_date: this.getYesterdayDate(),
+          },
+        };
 
-      const { data } = await this.$axios.get("daily_generate_pdf", options);
+        const { data } = await this.$axios.get("daily_generate_pdf", options);
 
-      this.snackbar = true;
-      this.response = "Yesterday PDF Report is sent to whatsapp successfully";
+        this.snackbar = true;
+        this.response = "Yesterday PDF Report is sent to whatsapp successfully";
+      }
     },
     openRegeneratePopup() {
       this.$refs.attendanceReportRef.reportSync = true;
