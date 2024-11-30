@@ -474,11 +474,18 @@ class CompanyController extends Controller
         foreach ($rows as $arr) {
             try {
                 $i++;
-                AttendanceLog::where("DeviceID", $arr["DeviceID"])->update([
+
+                $logsModel = AttendanceLog::where("DeviceID", $arr["DeviceID"])->where("company_id", 0);
+
+                $logs = $logsModel->clone()->pluck("id");
+
+                $count =  $logsModel->update([
                     "company_id" => $arr["device"]["company_id"] ?? 0,
                     "gps_location" => $arr["device"]["location"],
                     //"log_type" => $arr["device"]["function"]
                 ]);
+
+                (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeIdLog($logs);
             } catch (\Throwable $th) {
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
@@ -487,8 +494,8 @@ class CompanyController extends Controller
                     'body' => $th,
                 ];
 
-                Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-                return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
+                // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
+                // return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
             }
         }
 

@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Shift;
 use App\Models\WhatsappNotificationsLog;
+use DateTime;
+use Exception;
 use Illuminate\Http\Request;
 
 class WhatsappNotificationsLogController extends Controller
@@ -140,7 +144,47 @@ class WhatsappNotificationsLogController extends Controller
             return $this->response("Desktop Whatsapp is not enabled", null, false);
         }
     }
+    public function addAttendanceMessageEmployeeIdLog($logIdsArray)
+    {
 
+
+        $records = AttendanceLog::with(["employee", "company", "device"])
+
+            ->whereIn("id", $logIdsArray)->get();
+
+
+        $whatsapp_number = '';
+
+        foreach ($records as $key => $record) {
+
+            if ($record->company && $record->employee && $record->device) {
+
+                try {
+                    $company_id = $record->company_id;
+                    $company_whatsapp_number = $record->company->contact->whatsapp;
+                    $whatsapp_number = $record->employee->whatsapp_number;
+                    $name = $record->employee->first_name . " " . $record->employee->last_name;
+                    if (strlen($whatsapp_number) != 12) {
+                        $whatsapp_number = $company_whatsapp_number;
+                    }
+                    $date = $record->LogTime;
+                    $datetime = new DateTime($date);
+                    $formattedDate = $datetime->format('H:i jS M Y');
+
+                    $message = $name . " ,  attendance recorded  @" . $formattedDate . "   at device name:" . $record->device->name;
+
+                    if (strlen($whatsapp_number) == 12) {
+                        $this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
+                        $this->addMessage($company_id, $whatsapp_number,  $message);
+                    }
+                } catch (\Throwable $e) {
+                    return $e;
+                }
+            } else {
+                return "empty";
+            }
+        }
+    }
     public function addAttendanceMessageEmployeeId($attendace)
     {
 
