@@ -30,8 +30,8 @@ class WhatsappNotificationsLogController extends Controller
             $q->where(function ($q) use ($request) {
 
 
-                $q->where('whatsapp_number', 'LIKE', "%$request->commonSearch%");
-                $q->orWhere('message', 'LIKE', "%$request->commonSearch%");
+                $q->where('whatsapp_number', 'ILIKE', "%$request->commonSearch%");
+                $q->orWhere('message', 'ILIKE', "%$request->commonSearch%");
             });
         });
 
