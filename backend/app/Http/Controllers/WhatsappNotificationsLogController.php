@@ -156,6 +156,7 @@ class WhatsappNotificationsLogController extends Controller
                 ->whereHas('employee', function ($q) use ($company_id) {
                     $q->where('company_id', $company_id); // Compare columns directly
                 })
+                ->where('company_id', $company_id)
                 ->whereIn('id', $logIdsArray)
                 ->get();
 
