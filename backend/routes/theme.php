@@ -19,3 +19,4 @@ Route::get('dashboard_get_visitor_counts_today_hour_in_out', [ThemeController::c
 
 
 Route::post('whatsapp_message_queue', [WhatsappNotificationsLogController::class, "addNewMessage"]);
+Route::get('whatsapp_messages_logs', [WhatsappNotificationsLogController::class, "index"]);

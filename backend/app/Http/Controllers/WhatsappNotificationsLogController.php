@@ -20,9 +20,25 @@ class WhatsappNotificationsLogController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $model = WhatsappNotificationsLog::where("company_id", $request->company_id)
+            ->whereBetween("created_datetime", [$request->date_from . ' 00:00:00', $request->date_to . ' 23:59:59']);
+
+
+        $model->when($request->filled("commonSearch"), function ($q) use ($request) {
+            $q->where(function ($q) use ($request) {
+
+
+                $q->where('whatsapp_number', 'LIKE', "%$request->commonSearch%");
+                $q->orWhere('message', 'LIKE', "%$request->commonSearch%");
+            });
+        });
+
+
+
+        return   $model->orderBy("created_at", "desc")
+            ->paginate($request->perPage);
     }
 
     /**
@@ -133,7 +149,8 @@ class WhatsappNotificationsLogController extends Controller
                     WhatsappNotificationsLog::create([
                         "company_id" =>  $company_id,
                         "whatsapp_number" => $whatsapp_number,
-                        "message" => $message
+                        "message" => $message,
+                        "created_datetime" => date("Y-m-d H:i:s")
                     ]);
                 }
             }
@@ -172,7 +189,7 @@ class WhatsappNotificationsLogController extends Controller
                         $company_id = $record->company_id;
                         $company_whatsapp_number = $record->company->contact->whatsapp;
                         $whatsapp_number = $record->employee->whatsapp_number;
-                        $name = $record->employee->first_name . " " . $record->employee->last_name;
+                        $name = ucfirst($record->employee->first_name)   . " " . ucfirst($record->employee->last_name);
                         if (strlen($whatsapp_number) != 12) {
                             $whatsapp_number = $company_whatsapp_number;
                         }
@@ -232,7 +249,7 @@ class WhatsappNotificationsLogController extends Controller
                 $device = Device::where("serial_number", $device_id)->first();
 
                 // Compose the message
-                $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $this->formatDateWithOrdinal($attendace["date"]) . "  at " . $device->name;
+                $message = ucfirst($employee->first_name) . " " . ucfirst($employee->first_name) . ", Clock " . $status . " @" . $time . " ,  " . $this->formatDateWithOrdinal($attendace["date"]) . "  at " . $device->name;
 
                 //$this->addMessage($company_id, "971552205149", $employee->whatsapp_number . "-" . $message);
                 // Send WhatsApp message

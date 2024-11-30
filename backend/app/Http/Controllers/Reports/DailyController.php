@@ -160,7 +160,7 @@ class DailyController extends Controller
             file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
             $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
             $link = env('BASE_URL') . "/daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf";
-            $message = "Hi, Click Link for Daily Report summary date: " . $request->daily_date . " \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
+            $message = "Hello , Click Link for Daily Report summary date: " . $request->daily_date . " \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
             (new WhatsappNotificationsLogController())->addMessage($request->company_id, "", $message);
         } catch (\Throwable $th) {
             throw $th;

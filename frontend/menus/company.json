@@ -411,5 +411,12 @@
     "to": "/document_expiry",
     "menu": "reports",
     "module": "reports"
+  },
+  {
+    "icon": "mdi-whatsapp",
+    "title": "Whatsapp Logs",
+    "to": "/whatsappreports",
+    "menu": "reports",
+    "module": "reports"
   }
 ]
