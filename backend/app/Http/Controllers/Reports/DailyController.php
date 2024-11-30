@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\ReportNotification;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\WhatsappNotificationsLogController;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -144,20 +145,26 @@ class DailyController extends Controller
         $file_path = "pdf/$id/daily_$file_name.pdf";
         Storage::disk('local')->put($file_path, $data);
 
-        // Define public path for saving the file
-        $public_file_path = public_path("daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf");
 
-        // Ensure directory exists
-        $publicDirectory = public_path('daily_pdf_reports');
-        if (!file_exists($publicDirectory)) {
-            mkdir($publicDirectory, 0777, true);
+
+
+        try {
+            // Define public path for saving the file
+            $public_file_path = public_path("daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf");
+            // Ensure directory exists
+            $publicDirectory = public_path('daily_pdf_reports');
+            if (!file_exists($publicDirectory)) {
+                mkdir($publicDirectory, 0777, true);
+            }
+            // Read content from local storage and write to public path
+            file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
+            $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
+            $link = env('BASE_URL') . "/daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf";
+            $message = "Hi, Click Link for Daily Report summary date: " . $request->daily_date . " \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
+            (new WhatsappNotificationsLogController())->addMessage($request->company_id, "", $message);
+        } catch (\Throwable $th) {
+            throw $th;
         }
-
-        // Read content from local storage and write to public path
-        file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
-
-
-        $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
 
         return $this->getMeta("Daily Report Generate", $msg) . "\n";
     }
