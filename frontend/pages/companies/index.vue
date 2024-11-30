@@ -1021,12 +1021,16 @@ export default {
     } catch (e) {}
   },
   methods: {
-    async sendToTestWhatsapp() {
+    async sendYesterdayReport() {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,
           whatsapp_number: this.contact_payload.whatsapp,
-          message: "Testing Whatsapp Message from " + this.company_payload.name,
+          message:
+            "Testing Whatsapp Message from " +
+            this.company_payload.name +
+            " at" +
+            this.$dateFormat.format5(new Date()),
         },
       };
 
