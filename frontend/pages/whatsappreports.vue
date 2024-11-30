@@ -168,6 +168,10 @@ export default {
     this.date_to = monthObj.last;
     //this.getDataFromApi();
     await this.getCustomersList();
+
+    setInterval(() => {
+      this.getDataFromApi();
+    }, 1000 * 60);
   },
 
   methods: {
