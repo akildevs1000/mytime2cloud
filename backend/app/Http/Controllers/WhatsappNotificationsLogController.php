@@ -171,7 +171,7 @@ class WhatsappNotificationsLogController extends Controller
                     $datetime = new DateTime($date);
                     $formattedDate = $datetime->format('H:i jS M Y');
 
-                    $message = $record->employee->title . " " . $name . " ,  your attendance recorded  @ " . $formattedDate . "  in " . $record->device->name;
+                    $message = $record->employee->title . " " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
 
                     if (strlen($whatsapp_number) == 12) {
                         $this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
