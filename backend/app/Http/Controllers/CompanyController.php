@@ -487,6 +487,8 @@ class CompanyController extends Controller
 
                 (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeIdLog($logs);
             } catch (\Throwable $th) {
+
+
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
                 $data = [

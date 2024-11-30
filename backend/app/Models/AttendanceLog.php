@@ -54,9 +54,7 @@ class AttendanceLog extends Model
     }
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "UserID", "system_user_id")->where(function ($query) {
-            $query->where('company_id', $this->company_id);
-        });
+        return $this->belongsTo(Employee::class, "UserID", "system_user_id");
     }
     public function branch()
     {

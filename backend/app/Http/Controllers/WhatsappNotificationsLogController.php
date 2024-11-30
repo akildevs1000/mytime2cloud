@@ -147,41 +147,50 @@ class WhatsappNotificationsLogController extends Controller
     public function addAttendanceMessageEmployeeIdLog($logIdsArray)
     {
 
+        $companies = Company::pluck("id");
+        foreach ($companies as $key => $company_id) {
+            # code...
 
-        $records = AttendanceLog::with(["employee", "company", "device"])
 
-            ->whereIn("id", $logIdsArray)->get();
+            $records = AttendanceLog::with(['employee', 'company', 'device'])
+                ->whereHas('employee', function ($q) use ($company_id) {
+                    $q->where('company_id', $company_id); // Compare columns directly
+                })
+                ->whereIn('id', $logIdsArray)
+                ->get();
 
 
-        $whatsapp_number = '';
 
-        foreach ($records as $key => $record) {
+            $whatsapp_number = '';
 
-            if ($record->company && $record->employee && $record->device) {
+            foreach ($records as $key => $record) {
 
-                try {
-                    $company_id = $record->company_id;
-                    $company_whatsapp_number = $record->company->contact->whatsapp;
-                    $whatsapp_number = $record->employee->whatsapp_number;
-                    $name = $record->employee->first_name . " " . $record->employee->last_name;
-                    if (strlen($whatsapp_number) != 12) {
-                        $whatsapp_number = $company_whatsapp_number;
+                if ($record->company && $record->employee && $record->device) {
+
+                    try {
+                        $company_id = $record->company_id;
+                        $company_whatsapp_number = $record->company->contact->whatsapp;
+                        $whatsapp_number = $record->employee->whatsapp_number;
+                        $name = $record->employee->first_name . " " . $record->employee->last_name;
+                        if (strlen($whatsapp_number) != 12) {
+                            $whatsapp_number = $company_whatsapp_number;
+                        }
+                        $date = $record->LogTime;
+                        $datetime = new DateTime($date);
+                        $formattedDate = $datetime->format('H:i jS M Y');
+
+                        $message = $record->employee->title . ". " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
+
+                        if (strlen($whatsapp_number) == 12) {
+                            //$this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
+                            $this->addMessage($company_id, $whatsapp_number,  $message);
+                        }
+                    } catch (\Throwable $e) {
+                        return $e;
                     }
-                    $date = $record->LogTime;
-                    $datetime = new DateTime($date);
-                    $formattedDate = $datetime->format('H:i jS M Y');
-
-                    $message = $record->employee->title . ". " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
-
-                    if (strlen($whatsapp_number) == 12) {
-                        //$this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
-                        $this->addMessage($company_id, $whatsapp_number,  $message);
-                    }
-                } catch (\Throwable $e) {
-                    return $e;
+                } else {
+                    return "empty";
                 }
-            } else {
-                return "empty";
             }
         }
     }
