@@ -174,7 +174,7 @@ class WhatsappNotificationsLogController extends Controller
                     $message = $record->employee->title . " " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
 
                     if (strlen($whatsapp_number) == 12) {
-                        $this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
+                        //$this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
                         $this->addMessage($company_id, $whatsapp_number,  $message);
                     }
                 } catch (\Throwable $e) {
@@ -224,7 +224,7 @@ class WhatsappNotificationsLogController extends Controller
                 // Compose the message
                 $message = $employee->first_name . " " . $employee->first_name . ", Clock " . $status . " @" . $time . " ,  " . $this->formatDateWithOrdinal($attendace["date"]) . "  at " . $device->name;
 
-                $this->addMessage($company_id, "971552205149", $employee->whatsapp_number . "-" . $message);
+                //$this->addMessage($company_id, "971552205149", $employee->whatsapp_number . "-" . $message);
                 // Send WhatsApp message
                 return $this->addMessage($company_id, $whatsapp_number, $message);
             } else {
