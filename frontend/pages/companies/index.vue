@@ -1021,7 +1021,7 @@ export default {
     } catch (e) {}
   },
   methods: {
-    async sendYesterdayReport() {
+    async sendToTestWhatsapp() {
       let options = {
         params: {
           company_id: this.$auth.user.company_id,

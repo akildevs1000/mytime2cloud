@@ -139,7 +139,7 @@ export default ({ app }, inject) => {
       };
       const formattedDate = inputDate.toLocaleDateString("en-US", options);
 
-      return `${formattedDate}  ${hours}:${minutes} `;
+      return `${formattedDate}  ${hours}:${minutes}:${seconds} `;
     },
     format_month_name_year: (inputdate) => {
       // Create a Date object with the date "2023-09-13"  Output: "23-09-13"
