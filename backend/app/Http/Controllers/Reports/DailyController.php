@@ -140,9 +140,22 @@ class DailyController extends Controller
 
         $file_name = $this->getFileNameByStatus($status);
 
+        // Save the file in local storage
         $file_path = "pdf/$id/daily_$file_name.pdf";
-
         Storage::disk('local')->put($file_path, $data);
+
+        // Define public path for saving the file
+        $public_file_path = public_path("daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf");
+
+        // Ensure directory exists
+        $publicDirectory = public_path('daily_pdf_reports');
+        if (!file_exists($publicDirectory)) {
+            mkdir($publicDirectory, 0777, true);
+        }
+
+        // Read content from local storage and write to public path
+        file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
+
 
         $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
 
