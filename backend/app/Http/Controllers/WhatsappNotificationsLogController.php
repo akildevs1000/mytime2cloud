@@ -153,9 +153,9 @@ class WhatsappNotificationsLogController extends Controller
 
 
             $records = AttendanceLog::with(['employee', 'company', 'device'])
-                ->whereHas('employee', function ($q) use ($company_id) {
-                    $q->where('company_id', $company_id); // Compare columns directly
-                })
+                ->with(["employee" => function ($q) use ($company_id) {
+                    $q->where('company_id', $company_id);
+                }])
                 ->where('company_id', $company_id)
                 ->whereIn('id', $logIdsArray)
                 ->get();
