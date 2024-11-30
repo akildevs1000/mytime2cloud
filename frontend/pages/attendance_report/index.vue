@@ -683,6 +683,7 @@ export default {
         let options = {
           params: {
             company_id: this.$auth.user.company_id,
+            company_name: this.$auth.user.company.name,
             report_template: "Template1",
             shift_type_id: "1",
             report_type: "Daily",
