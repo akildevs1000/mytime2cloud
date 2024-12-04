@@ -163,7 +163,12 @@ class DailyController extends Controller
             $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
             $link = env('BASE_URL') . "/" . $wahtsapp_file_path;
             $company_name = $request->company_name ?? '';
-            $message = "Hello " . $company_name . ", Click Link for Daily Report   date:" . $request->daily_date . "\nStatus:{$this->getStatusText($status)}  \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
+            $message = "Daily Report ({$company_name}) -  {$this->getStatusText($status)}\n" .
+                "Date: {$request->daily_date}\n" .
+                "Click Below Link for Daily Report\n\n" .
+                "{$link}\n\n" .
+
+                "Generated at: " . now()->format('d-m-Y H:i:s');
             (new WhatsappNotificationsLogController())->addMessage($request->company_id, "", $message);
         } catch (\Throwable $th) {
             throw $th;
