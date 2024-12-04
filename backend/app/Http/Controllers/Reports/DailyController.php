@@ -149,19 +149,21 @@ class DailyController extends Controller
 
 
         try {
-            // Define public path for saving the file
-            $public_file_path = public_path("daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf");
-            // Ensure directory exists
+
+            $wahtsapp_file_path = "daily_pdf_reports/Daily_Report_{$request->daily_date}_{$this->getStatusText($status)}_{$id}.pdf";
+
+            $public_file_path = public_path($wahtsapp_file_path);
+
             $publicDirectory = public_path('daily_pdf_reports');
             if (!file_exists($publicDirectory)) {
                 mkdir($publicDirectory, 0777, true);
             }
-            // Read content from local storage and write to public path
+
             file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
             $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
-            $link = env('BASE_URL') . "/daily_pdf_reports/pdf_{$id}_dailyreport_{$request->daily_date}.pdf";
+            $link = env('BASE_URL') . "/" . $wahtsapp_file_path;
             $company_name = $request->company_name ?? '';
-            $message = "Hello " . $company_name . ", Click Link for Daily Report summary date: " . $request->daily_date . " \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
+            $message = "Hello " . $company_name . ", Click Link for Daily Report   date:" . $request->daily_date . "\nStatus:{$this->getStatusText($status)}  \n" . $link . "\nGenerated at:" . date("d-m-Y H:i:s");
             (new WhatsappNotificationsLogController())->addMessage($request->company_id, "", $message);
         } catch (\Throwable $th) {
             throw $th;
