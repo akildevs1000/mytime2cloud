@@ -158,13 +158,13 @@ class DailyController extends Controller
             if (!file_exists($publicDirectory)) {
                 mkdir($publicDirectory, 0777, true);
             }
-
+            $dateformat = date('d-M-Y', strtotime($request->daily_date));
             file_put_contents($public_file_path, Storage::disk('local')->get($file_path));
             $msg = "Daily {$this->getStatusText($status)} has been generated for Company id: $id";
             $link = env('BASE_URL') . "/" . $wahtsapp_file_path;
             $company_name = $request->company_name ?? '';
             $message = "Daily Report -  {$this->getStatusText($status)}\n" .
-                "Date: {date('d-M-Y',strtotime($request->daily_date))}\n" .
+                "Date: {$dateformat}\n" .
                 "Click Below Link for Daily Report\n\n" .
                 "{$link}\n\n" .
 
