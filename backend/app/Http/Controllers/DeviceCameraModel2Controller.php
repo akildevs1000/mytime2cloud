@@ -155,7 +155,7 @@ class DeviceCameraModel2Controller extends Controller
         }';
         $response = $this->postCURL('/api/devices/io', $json);
     }
-    public function getHistory($json)
+    public function getHistory($deviceId, $json)
     {
 
         // return    $response = '{
@@ -192,7 +192,7 @@ class DeviceCameraModel2Controller extends Controller
         // }';
 
 
-        return  $response = $this->postCURL('/api/passes/query', $json);
+        return  $response = $this->postCURL('/api/passes/query', $json, $deviceId);
     }
     public function resetDoorStatus($device)
     {
@@ -639,11 +639,36 @@ class DeviceCameraModel2Controller extends Controller
         curl_close($curl);
         return  $response = json_decode($response, true);
     }
-    public function postCURL($serviceCall, $post_json)
+    public function postCURL($serviceCall, $post_json, $device_id = '')
     {
 
 
-        $sessionId = $this->getActiveSessionId();
+        //$sessionId = $this->getActiveSessionId();
+
+
+
+
+
+
+        $sessionId = (new SDKController())->getSessionusingDeviceIdData($device_id);
+        if ($sessionId == '' || $sessionId == null) {
+            $sessionId = $this->getActiveSessionId();
+            //$_SESSION[$value['device_id']] = $sessionId;
+            if ($sessionId != '') (new SDKController())->storeSessionid($device_id, $sessionId);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(

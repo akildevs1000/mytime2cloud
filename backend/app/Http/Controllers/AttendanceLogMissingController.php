@@ -103,7 +103,7 @@ class AttendanceLogMissingController  extends Controller
                   }';
 
 
-                    $finalResult[] = $responseArray = $deviceSession->getHistory($json);
+                    $finalResult[] = $responseArray = $deviceSession->getHistory($deviceId, $json);
 
 
                     if (isset($responseArray['data'])) {
