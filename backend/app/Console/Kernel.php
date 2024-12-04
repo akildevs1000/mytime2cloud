@@ -321,7 +321,7 @@ class Kernel extends ConsoleKernel
                 $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
 
                 return (new ThemeController)->whatsappTodayStats($renderRequest);
-            })->hourly()
+            })->everySixHours()
 
                 ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-Y") . "-whatsapp-notifications-desktop.log"));
 
