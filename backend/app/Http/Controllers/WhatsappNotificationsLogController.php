@@ -195,9 +195,19 @@ class WhatsappNotificationsLogController extends Controller
                         }
                         $date = $record->LogTime;
                         $datetime = new DateTime($date);
-                        $formattedDate = $datetime->format('H:i jS M Y');
+                        $formattedDate = $datetime->format('H:i');
+                        $formattedDate1 = $datetime->format('jS M Y');
 
-                        $message = $record->employee->title . ". " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
+                        // $message = $record->employee->title . ". " . $name . " ,  Your attendance log is received  @ " . $formattedDate . "  in " . $record->device->name;
+
+
+                        $message = "🌟 Attendance Notification 🌟\n";
+
+                        $message .= "Dear " . $record->employee->title . ". " . $name . ", \n\n";
+                        $message .= "✅ Your attendance has been logged at *" . $formattedDate . "* on " . $formattedDate1 . ", in *" . $record->device->name . "*.\n\n";
+
+                        $message .= "Thank you!\n";
+
 
                         if (strlen($whatsapp_number) == 12) {
                             //$this->addMessage($company_id, "971552205149",  $whatsapp_number . '-' . $message);
