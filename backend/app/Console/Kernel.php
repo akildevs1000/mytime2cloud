@@ -238,7 +238,9 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("kernal_logs/$company_log-default-attendance-seeder.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             //whatsapp reports 
-            $array = ['All', "P", "A", "M", "ME"];
+            // $array = ['All', "P", "A", "M", "ME"];
+            $array = ['All'];
+
             foreach ($array as $status) {
 
                 $schedule
