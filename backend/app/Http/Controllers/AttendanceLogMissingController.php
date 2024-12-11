@@ -66,7 +66,7 @@ class AttendanceLogMissingController  extends Controller
             $model_number = '';
             //if ($company_id == 0) 
             {
-                $device = Device::where("device_id", $deviceId)->first();
+                $device = Device::where("device_id", $deviceId)->where("company_id", $company_id)->first();
                 $company_id = $device["company_id"];
                 $model_number = $device["model_number"];
             }
@@ -167,6 +167,14 @@ class AttendanceLogMissingController  extends Controller
 
                 $indexSerialNumber = 0;
 
+                // return $indexSerialNumberModel = AttendanceLog::query()
+                //     ->where('company_id', $company_id)
+                //     // ->where('SerialNumber', '>', 0)
+                //     // ->where('DeviceID', $deviceId)
+                //     //->whereRaw("SerialNumber ~ '^[0-9]+$'") // Filters numeric values only
+                //     ->orderBy("id", "DESC") // Casts SerialNumber for sorting
+                //     ->first();
+
                 //find serial number 
                 $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
                     ->whereDate("LogTime", '<=', $date)
@@ -200,13 +208,15 @@ class AttendanceLogMissingController  extends Controller
 
                         return [
                             "status" => 100,
-                            "message" => "Device Office or Netwrok timeout Issue", // $records['message'],
+                            "message" =>   $records['message'],
                             "updated_records" => [],
                             "total_device_records" => [],
                             "indexSerialNumber" => $indexSerialNumber,
                         ];
                     }
                 $finalResult = [];
+                $finalAlreadyExist = [];
+
                 foreach ($records['data'] as $record) {
 
                     $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
@@ -231,6 +241,8 @@ class AttendanceLogMissingController  extends Controller
                         AttendanceLog::create($data);
 
                         $finalResult[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime, "SerialNumber" => $record['recordNumber']];
+                    } else {
+                        $finalAlreadyExist[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime, "SerialNumber" => $record['recordNumber'], "status" => "already exist"];
                     }
                     // $status = AttendanceLog::firstOrCreate(
                     //     $condition,
@@ -252,9 +264,11 @@ class AttendanceLogMissingController  extends Controller
                 // }
 
                 return [
+                    //"data" => $records['data'],
                     "status" => 200,
                     "message" => "success",
                     "updated_records" => $finalResult,
+                    "finalAlreadyExist" => $finalAlreadyExist,
                     "total_device_records" => count($records['data']),
                     "indexSerialNumber" => $indexSerialNumber,
                 ];
@@ -271,6 +285,25 @@ class AttendanceLogMissingController  extends Controller
 
     public function culrmethod($url, $data)
     {
+
+
+
+        // return $response = Http::timeout(120)
+        //     ->withoutVerifying()
+        //     ->withHeaders([
+        //         'Content-Type' => 'application/json',
+        //     ])
+        //     ->post($url, $data);
+
+
+
+
+        ini_set('max_execution_time', 300); // 300 seconds = 5 minutes
+
+
+
+
+
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
