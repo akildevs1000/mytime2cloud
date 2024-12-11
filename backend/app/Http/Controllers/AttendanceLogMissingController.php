@@ -66,7 +66,12 @@ class AttendanceLogMissingController  extends Controller
             $model_number = '';
             //if ($company_id == 0) 
             {
-                $device = Device::where("device_id", $deviceId)->where("company_id", $company_id)->first();
+                $device = Device::where("device_id", $deviceId)->orderBy("id", "DESC")->first();
+
+                if ($device == null)     return [
+                    "status" => 102,
+                    "message" =>  "Device Serial Number is not found",
+                ];;
                 $company_id = $device["company_id"];
                 $model_number = $device["model_number"];
             }
