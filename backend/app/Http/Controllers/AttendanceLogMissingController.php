@@ -288,13 +288,6 @@ class AttendanceLogMissingController  extends Controller
 
 
 
-        // return $response = Http::timeout(120)
-        //     ->withoutVerifying()
-        //     ->withHeaders([
-        //         'Content-Type' => 'application/json',
-        //     ])
-        //     ->post($url, $data);
-
 
 
 
