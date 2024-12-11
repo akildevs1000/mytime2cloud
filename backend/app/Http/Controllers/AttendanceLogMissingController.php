@@ -85,14 +85,14 @@ class AttendanceLogMissingController  extends Controller
                 $return = [];
                 while ($startTime->lessThan($endTime)) {
                     $beginTime = $startTime->toIso8601String();
-                    $endTimeCurrent = $startTime->copy()->addHours(3)->toIso8601String();
-                    $startTime->addHours(3); // Increment by one hour
+                    $endTimeCurrent = $startTime->copy()->addHours(1)->toIso8601String();
+                    $startTime->addHours(1); // Increment by one hour
 
 
 
                     $json = '{
                     "request_id": "87110c822b67e054f72b5c4d90fc51c2",
-                    "limit": 10000,
+                    "limit": 10,
                     "offset": 0,
                     "sort": "asc",
                     "begin_time": "' . $beginTime . '",
@@ -103,9 +103,19 @@ class AttendanceLogMissingController  extends Controller
                   }';
 
 
-                    return   $finalResult[] = $responseArray = $deviceSession->getHistory($deviceId, $json);
+                    $finalResult[] = $responseArray = $deviceSession->getHistory($deviceId, $json);
 
+                    if (isset($response['status'])) {
+                        $data = (new SDKController())->getAllData();
+                        unset($data[$deviceId]);
 
+                        (new SDKController())->clearSessionData($deviceId);
+
+                        $deviceSession = (new DeviceCameraModel2Controller($device->camera_sdk_url, $device->device_id));
+
+                        $finalResult[] = "Reset Session";
+                        $finalResult[] = $responseArray = $deviceSession->getHistory($deviceId, $json);
+                    }
                     if (isset($responseArray['data'])) {
                         foreach ($responseArray['data'] as $record) {
                             $timestamp = $record["timestamp"];
@@ -174,7 +184,7 @@ class AttendanceLogMissingController  extends Controller
                 //$url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
                 $data =  [
                     "TransactionType" => 1,
-                    "Quantity" => 60,
+                    "Quantity" => 20,
                     "ReadIndex" => $indexSerialNumber
                 ];
 
@@ -268,7 +278,7 @@ class AttendanceLogMissingController  extends Controller
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
+            CURLOPT_TIMEOUT => 60,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
