@@ -200,7 +200,7 @@ class AttendanceLogMissingController  extends Controller
 
                         return [
                             "status" => 100,
-                            "message" => "Timeout Error", // $records['message'],
+                            "message" => "Device Office or Netwrok timeout Issue", // $records['message'],
                             "updated_records" => [],
                             "total_device_records" => [],
                             "indexSerialNumber" => $indexSerialNumber,
