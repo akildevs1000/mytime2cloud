@@ -184,7 +184,7 @@ class AttendanceLogMissingController  extends Controller
                 //$url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
                 $data =  [
                     "TransactionType" => 1,
-                    "Quantity" => 20,
+                    "Quantity" => 10,
                     "ReadIndex" => $indexSerialNumber
                 ];
 
