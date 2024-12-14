@@ -61,7 +61,7 @@
             class="primary"
             @click="getEmployeesIds(selectedDeviceId)"
           >
-            Fetch Data</v-btn
+            Get Data</v-btn
           >
         </div>
 
@@ -138,7 +138,7 @@
               class="primary"
               small
               @click="submit"
-              >Submit</v-btn
+              >Save Device to Software</v-btn
             >
           </div>
         </span>

@@ -1252,9 +1252,6 @@ export default {
       palms,
     }) {
       let icons = [];
-      console.log("🚀 ~ rfid_card_number:", rfid_card_number)
-      console.log("🚀 ~ rfid_card_password:", rfid_card_password)
-
 
       if (profile_picture) {
         icons.push({ name: "mdi-emoticon-outline" });
@@ -1262,7 +1259,7 @@ export default {
       if (rfid_card_number != "" && rfid_card_number != "0") {
         icons.push({ name: "mdi-card-outline" });
       }
-      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF") {
+      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF" && rfid_card_password != null) {
         icons.push({ name: "mdi-lock-outline" });
       }
       if (finger_prints.length) {
