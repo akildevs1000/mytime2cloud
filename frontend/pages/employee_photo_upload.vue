@@ -441,11 +441,11 @@
           absolute
           color="primary"
         ></v-progress-linear>
-        <v-col cols="12" class="text-right">
+        <v-col cols="12" class="text-center">
           <span v-if="errors && errors.message" class="text-danger mt-2">{{
             errors.message
           }}</span>
-          <v-btn class="grey" @click="goback" small dark> Back </v-btn>
+          <!-- <v-btn class="grey" @click="goback" small dark> Back </v-btn> -->
           <v-btn
             small
             class="primary"
