@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shift;
 
+use App\Http\Controllers\API\SharjahUniversityAPI;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
@@ -165,7 +166,7 @@ class FiloShiftController extends Controller
                     $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                 }
 
-                if ($schedule["isOverTime"] ?? false) {
+                if ($schedule["isOverTime"] ?? false && isset($shift["working_hours"])) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
                 }
 
@@ -199,6 +200,12 @@ class FiloShiftController extends Controller
             //     $model->insert($chunk);
             // }
             $model->insert($items);
+
+
+            try {
+                (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
+            } catch (\Throwable $e) {
+            }
 
             //if (!$custom_render) 
             {

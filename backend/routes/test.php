@@ -2,11 +2,13 @@
 
 use App\Http\Controllers\Alarm\DeviceSensorLogsController;
 use App\Http\Controllers\AlarmLogsController;
+use App\Http\Controllers\API\SharjahUniversityAPI;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\DeviceCameraController;
+use App\Http\Controllers\DeviceCameraModel2Controller;
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\KeyGeneratorController;
@@ -18,14 +20,20 @@ use App\Http\Controllers\Shift\NightShiftController;
 use App\Http\Controllers\Shift\RenderController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\WhatsappController;
+use App\Http\Controllers\WhatsappNotificationsLogController;
+use App\Imports\excelEmployeesData;
 use App\Mail\ReportNotificationMail;
+use App\Models\AlarmLogs;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
 use App\Models\Employee;
 use App\Models\ReportNotification;
 use App\Models\Shift;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -151,6 +159,12 @@ Route::get('/testAttendanceRender111test', function (Request $request) {
 
     Logger::channel('custom')->info(json_encode($request->request->all()));
 });
+
+// Route::get('/testAttendanceRender111test', function (Request $request) {
+
+//     Excel::import(new excelEmployeesData(), $request->file('file'));
+// });
+
 Route::post('/testAttendanceRender111test', function (Request $request) {
 
     Logger::channel('custom')->info(json_encode($request->request->all()));
@@ -199,6 +213,10 @@ Route::get('/testAttendanceRender111', function (Request $request) {
     return ((new RenderController())->renderLogs($renderRequest));
 });
 
+Route::get("getqrcode", function (Request $request) {
+    return (new CardQRCodeController())->generateQRCode($request);
+});
+
 Route::get("/testemployee", function (Request $request) {
 
     return Storage::url('8_3_8_2023_payslip.pdf');
@@ -220,6 +238,42 @@ Route::get('/donwloadfile', function (Request $request) {
         // Return a 404 Not Found response if the file doesn't exist
         abort(404);
     }
+});
+Route::get('/testapi1', function (Request $request) {
+
+
+
+
+
+
+
+
+    $items[] = [
+        "company_id" => 2,
+        "employee_id" => 4000,
+        "in" => "17:25",
+        "out" => "---",
+        "device_id_in" => "FC-8300T20094123",
+        "device_id_out" => "---",
+        "date" => "2024-11-26",
+
+    ];
+    $items[] = [
+        "company_id" => 2,
+        "employee_id" => 4000,
+        "in" => "17:25",
+        "out" => "20:25",
+        "device_id_in" => "FC-8300T20094123",
+        "device_id_out" => "FC-8300T20094123",
+        "date" => "2024-11-26",
+
+    ];
+
+
+    (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($items[0]);
+    return (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeId($items[1]);
+
+    return (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
 });
 Route::get('/handleNotification', function (Request $request) {
 

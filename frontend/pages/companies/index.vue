@@ -378,7 +378,68 @@
                       </v-col>
                       <v-col cols="4">
                         <v-card elevation="2" style="height: 540px">
-                          <v-card-title>Contact Details</v-card-title>
+                          <v-card-title>
+                            <v-row>
+                              <v-col> Contact Details </v-col>
+                              <v-col
+                                class="pull-right text-right"
+                                style="font-size: 14px"
+                              >
+                                <div>
+                                  <v-row>
+                                    <v-col
+                                      v-if="
+                                        company_payload.enable_desktop_whatsapp
+                                      "
+                                      >Verify Whatsapp
+
+                                      <v-icon
+                                        color="green"
+                                        @click="sendToTestWhatsapp()"
+                                        >mdi-whatsapp</v-icon
+                                      ></v-col
+                                    >
+                                    <v-col
+                                      v-else="
+                                        company_payload.enable_desktop_whatsapp
+                                      "
+                                      >Desktop Whatsapp
+                                    </v-col>
+                                    <v-col cols="3">
+                                      <v-switch
+                                        disabled
+                                        color="success"
+                                        class="mt-0 ml-2"
+                                        v-model="
+                                          company_payload.enable_desktop_whatsapp
+                                        "
+                                      ></v-switch> </v-col
+                                  ></v-row>
+                                </div>
+                                <!-- <div style="font-size: 12px">
+                                  <v-row>
+                                    <v-col
+                                      >Desktop
+                                      <v-icon color="grey">mdi-whatsapp</v-icon>
+                                    </v-col>
+                                    <v-col>
+                                      {{
+                                        company_payload.enable_desktop_whatsapp
+                                      }}
+                                      <v-switch
+                                        disabled
+                                        color="success"
+                                        class="mt-0 ml-2"
+                                        v-model="
+                                          company_payload.enable_desktop_whatsapp
+                                        "
+                                      ></v-switch
+                                    ></v-col>
+                                  </v-row>
+                                </div> -->
+                              </v-col>
+                            </v-row>
+                          </v-card-title>
 
                           <v-card-text>
                             <v-row>
@@ -758,103 +819,99 @@
 
               <v-tab-item>
                 <v-row>
-                    <v-col cols="3">
-                      <v-col cols="12">
-                        <!-- <label class="col-form-label"
+                  <v-col cols="3">
+                    <v-col cols="12">
+                      <!-- <label class="col-form-label"
                           >Current Password
                           <span class="text-danger">*</span></label
                         > -->
-                        <v-text-field
-                          label="Current Password"
-                          dense
-                          outlined
-                          :hide-details="!errors.current_password"
-                          :append-icon="
-                            current_password_show ? 'mdi-eye' : 'mdi-eye-off'
-                          "
-                          :type="current_password_show ? 'text' : 'password'"
-                          v-model="payload.current_password"
-                          class="input-group--focused"
-                          @click:append="
-                            current_password_show = !current_password_show
-                          "
-                          :error="errors.current_password"
-                          :error-messages="
-                            errors && errors.current_password
-                              ? errors.current_password
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-                      <v-col md="12" sm="12" cols="12" dense>
-                        <!-- <label class="col-form-label"
+                      <v-text-field
+                        label="Current Password"
+                        dense
+                        outlined
+                        :hide-details="!errors.current_password"
+                        :append-icon="
+                          current_password_show ? 'mdi-eye' : 'mdi-eye-off'
+                        "
+                        :type="current_password_show ? 'text' : 'password'"
+                        v-model="payload.current_password"
+                        class="input-group--focused"
+                        @click:append="
+                          current_password_show = !current_password_show
+                        "
+                        :error="errors.current_password"
+                        :error-messages="
+                          errors && errors.current_password
+                            ? errors.current_password
+                            : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
+                    <v-col md="12" sm="12" cols="12" dense>
+                      <!-- <label class="col-form-label"
                           >Password <span class="text-danger">*</span></label
                         > -->
-                        <v-text-field
-                          label="New Password"
-                          dense
-                          outlined
-                          :hide-details="!errors.password"
-                          :append-icon="
-                            show_password ? 'mdi-eye' : 'mdi-eye-off'
-                          "
-                          :type="show_password ? 'text' : 'password'"
-                          v-model="payload.password"
-                          class="input-group--focused"
-                          @click:append="show_password = !show_password"
-                          :error="errors.password"
-                          :error-messages="
-                            errors && errors.password ? errors.password[0] : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
+                      <v-text-field
+                        label="New Password"
+                        dense
+                        outlined
+                        :hide-details="!errors.password"
+                        :append-icon="show_password ? 'mdi-eye' : 'mdi-eye-off'"
+                        :type="show_password ? 'text' : 'password'"
+                        v-model="payload.password"
+                        class="input-group--focused"
+                        @click:append="show_password = !show_password"
+                        :error="errors.password"
+                        :error-messages="
+                          errors && errors.password ? errors.password[0] : ''
+                        "
+                      ></v-text-field>
+                    </v-col>
 
-                      <v-col md="12" sm="12" cols="12" dense>
-                        <!-- <label class="col-form-label"
+                    <v-col md="12" sm="12" cols="12" dense>
+                      <!-- <label class="col-form-label"
                           >Confirm Password
                           <span class="text-danger">*</span></label
                         > -->
-                        <v-text-field
-                          label="Confirm New Password"
-                          dense
-                          outlined
-                          :hide-details="!errors.password_confirmation"
-                          :append-icon="
-                            show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
-                          "
-                          :type="show_password_confirm ? 'text' : 'password'"
-                          v-model="payload.password_confirmation"
-                          class="input-group--focused"
-                          @click:append="
-                            show_password_confirm = !show_password_confirm
-                          "
-                          :error="errors.show_password_confirm"
-                          :error-messages="
-                            errors && errors.show_password_confirm
-                              ? errors.show_password_confirm[0]
-                              : ''
-                          "
-                        ></v-text-field>
-                      </v-col>
-                      <v-col cols="12">
-                        <div class="text-right">
-                          <v-btn
-                            v-if="can('setting_company_change_password_access')"
-                            dark
-                            small
-                            :loading="loading_password"
-                            color="primary"
-                            @click="update_setting"
-                          >
-                            Submit
-                          </v-btn>
-                        </div>
-                      </v-col>
+                      <v-text-field
+                        label="Confirm New Password"
+                        dense
+                        outlined
+                        :hide-details="!errors.password_confirmation"
+                        :append-icon="
+                          show_password_confirm ? 'mdi-eye' : 'mdi-eye-off'
+                        "
+                        :type="show_password_confirm ? 'text' : 'password'"
+                        v-model="payload.password_confirmation"
+                        class="input-group--focused"
+                        @click:append="
+                          show_password_confirm = !show_password_confirm
+                        "
+                        :error="errors.show_password_confirm"
+                        :error-messages="
+                          errors && errors.show_password_confirm
+                            ? errors.show_password_confirm[0]
+                            : ''
+                        "
+                      ></v-text-field>
                     </v-col>
-                  </v-row>
+                    <v-col cols="12">
+                      <div class="text-right">
+                        <v-btn
+                          v-if="can('setting_company_change_password_access')"
+                          dark
+                          small
+                          :loading="loading_password"
+                          color="primary"
+                          @click="update_setting"
+                        >
+                          Submit
+                        </v-btn>
+                      </div>
+                    </v-col>
+                  </v-col>
+                </v-row>
               </v-tab-item>
-
-              
 
               <v-tab-item>
                 <Admin />
@@ -882,9 +939,7 @@
 </template>
 
 <script>
-
 export default {
-
   data: () => ({
     originalURL: process.env.APP_URL + "register/visitor/walkin/", //`https://mytime2cloud.com/register/visitor/walkin/`,
     fullCompanyLink: null,
@@ -964,6 +1019,32 @@ export default {
     } catch (e) {}
   },
   methods: {
+    async sendToTestWhatsapp() {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          whatsapp_number: this.contact_payload.whatsapp,
+          message:
+            "Testing Whatsapp Message from " +
+            this.company_payload.name +
+            " at" +
+            this.$dateFormat.format5(new Date()),
+        },
+      };
+
+      const { data } = await this.$axios.post(
+        "whatsapp_message_queue",
+        options.params
+      );
+
+      if (!data.status) {
+        this.snackbar = true;
+        this.response = data.message;
+      } else {
+        this.snackbar = true;
+        this.response = data.message;
+      }
+    },
     async generateCompanyQRCode(fullLink) {
       try {
         this.qrCompanyCodeDataURL = await this.$qrcode.generate(fullLink);

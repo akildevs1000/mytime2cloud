@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Shift;
 
+use App\Http\Controllers\API\SharjahUniversityAPI;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
@@ -122,14 +123,18 @@ class NightShiftController extends Controller
             }
 */
             $firstLog = null;
+            $lastLog = null;
 
             $firstLog = collect($logs)->filter(function ($record) {
                 return $record["log_type"] == "In";
             })->first();
 
-            $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
-                return $record["log_type"] == "Out" && $record["LogTime"] > $firstLog['LogTime'];
-            })->first();
+            if ($firstLog) {
+                $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
+                    return $record["log_type"] == "Out" && $record["LogTime"] > $firstLog['LogTime'];
+                })->first();
+            }
+
 
 
 
@@ -316,6 +321,12 @@ class NightShiftController extends Controller
             $model->delete();
             $model->insert($items);
 
+
+            try {
+                (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
+            } catch (\Throwable $e) {
+            }
+
             //if (!$custom_render) 
             {
                 // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
@@ -339,7 +350,7 @@ class NightShiftController extends Controller
 
 
         $model = AttendanceLog::query();
-        $model->when(!$custom_render, fn ($q) => $q->where("checked", false));
+        $model->when(!$custom_render, fn($q) => $q->where("checked", false));
         $model->where("company_id", $company_id);
         $model->where("UserID", $UserId);
         $model->where("LogTime", ">=", date("Y-m-d", strtotime($date . " +1 day")) . " " . $shift["ending_in"]);
@@ -347,7 +358,7 @@ class NightShiftController extends Controller
         $model->distinct("LogTime", "UserID", "company_id");
         $model->orderBy("LogTime", "desc");
         //$model->whereHas("device", fn ($q) => $q->whereIn("function", ["Out", "all"]));
-        $model->whereHas("device", fn ($q) => $q->whereIn("function", ["Out", "all"]));
+        $model->whereHas("device", fn($q) => $q->whereIn("function", ["Out", "all"]));
         $model->with(["schedule", "device"]);
         return $model->first();
     }

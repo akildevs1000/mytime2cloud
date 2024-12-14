@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-dialog persistent  v-model="dialog" max-width="900px">
+    <v-dialog persistent v-model="dialog" max-width="900px">
       <template v-slot:activator="{ on, attrs }">
         <v-icon color="black lighten-2" v-bind="attrs" v-on="on">
           mdi-account-plus mdi-flip-h
@@ -397,7 +397,7 @@ export default {
   // },
   async created() {
     this.branches_list = await this.$store.dispatch("branches_list");
-    console.log("sfdsfsdf");
+
     if (this.$auth.user.branch_id) {
       await this.getDepartments(this.$auth.user.branch_id);
     } else {
@@ -428,6 +428,7 @@ export default {
       this.timezones = await this.$store.dispatch("timezone_list", options);
     },
     async filterDepartmentsByBranch(filterBranchId) {
+      console.log(filterBranchId);
       await this.getDepartments(filterBranchId);
       await this.getTimezone(filterBranchId);
     },
