@@ -138,8 +138,8 @@ export default {
   },
 
   server: {
-    host: process.env.LOCAL_IP,
-    port: process.env.LOCAL_PORT,
+    host: 'localhost',
+    port: 4444,
   },
 
   env: {

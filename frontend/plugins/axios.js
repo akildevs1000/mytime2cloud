@@ -5,6 +5,7 @@ export default ({ $axios, store }, inject) => {
     if (user) {
       config.params = {
         ...config.params,
+        // company_id: user.company_id,
         company_id: user.company_id,
       };
     }

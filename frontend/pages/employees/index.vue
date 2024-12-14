@@ -843,10 +843,10 @@
                     </v-list-item>
                     <!-- <v-list-item>
                       <v-list-item-title style="cursor: pointer">
-                        <EmployeeProfileView />
+                        <EmployeeProfileView /> View
                       </v-list-item-title>
                     </v-list-item> -->
-                    <v-list-item
+                    <!-- <v-list-item
                       v-if="can('employee_edit')"
                       @click="editItem(item)"
                     >
@@ -854,7 +854,7 @@
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
-                    </v-list-item>
+                    </v-list-item> -->
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
                         <WidgetsEmployeeDowloadDialogSingle
