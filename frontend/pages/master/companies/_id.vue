@@ -819,6 +819,22 @@
                     <div class="row">
                       <v-col cols="12">
                         <label class="col-form-label">
+                          Desktop Whatsapp Notifications
+                        </label>
+
+                        <v-switch
+                          color="success"
+                          class="mt-0 ml-2"
+                          v-model="enable_desktop_whatsapp"
+                        ></v-switch>
+                        <span
+                          v-if="errors && errors.enable_desktop_whatsapp"
+                          class="text-danger mt-2"
+                          >{{ errors.enable_desktop_whatsapp[0] }}</span
+                        >
+                      </v-col>
+                      <v-col cols="12">
+                        <label class="col-form-label">
                           Whatsapp Login OTP for all users
                         </label>
 
@@ -989,7 +1005,7 @@ export default {
     modules: { access_control: true, community: true, visitors: true },
     enable_whatsapp_otp: "",
     whatsapp_instance_id: "",
-
+    enable_desktop_whatsapp: "",
     whatsapp_access_token: "",
     show_password: false,
     show_password_confirm: false,
@@ -1075,6 +1091,8 @@ export default {
         this.whatsapp_instance_id = this.company_payload.whatsapp_instance_id;
 
         this.enable_whatsapp_otp = this.company_payload.enable_whatsapp_otp;
+        this.enable_desktop_whatsapp =
+          this.company_payload.enable_desktop_whatsapp;
 
         this.geographic_payload = {
           lat: this.company_payload.lat,
@@ -1147,6 +1165,7 @@ export default {
           whatsapp_access_token: this.whatsapp_access_token,
           whatsapp_instance_id: this.whatsapp_instance_id,
           enable_whatsapp_otp: this.enable_whatsapp_otp,
+          enable_desktop_whatsapp: this.enable_desktop_whatsapp,
         },
         `Contact`
       );
