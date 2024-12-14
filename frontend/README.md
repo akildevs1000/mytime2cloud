@@ -133,3 +133,20 @@ function pushValueWithDelay() {
 // Start the process by calling the function for the first time
 pushValueWithDelay();
 
+
+
+
+{
+    "personList": [
+        {
+            "name": "Francis Gill",
+            "userCode": 5656,
+            "profile_picture_raw": "5656.jpg",
+            "faceImage": "https://backend.mytime2cloud.com/media/employee/profile_picture/5656.jpg"
+        }
+    ],
+    "snList": [
+        "OX-8862021010012"
+    ],
+    "branch_id": null
+}
