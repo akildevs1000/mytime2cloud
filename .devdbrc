@@ -1,0 +1,6 @@
+[
+  {
+    "type": "sqlite",
+    "path": "d:\\projects\\mytime2cloud\\cloud-app\\backend\\database\\database.sqlite"
+  }
+]
