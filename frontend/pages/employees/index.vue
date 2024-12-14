@@ -12,6 +12,38 @@
         </template>
       </v-snackbar>
     </div>
+    <v-dialog v-model="DialogQrCode" width="300">
+      <v-card>
+        <v-card-title dense class="popup_background">
+          QR Code - Employee Id -
+          {{ currentItem && currentItem.system_user_id }}
+          <v-spacer></v-spacer>
+          <v-icon @click="DialogQrCode = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center">
+          <img :src="qr_codeImage" :key="key" style="width: 100%" />
+
+          <v-btn
+            dense
+            class="ma-0"
+            x-small
+            small
+            color="primary"
+            @click="
+              downloadImage(
+                qr_codeImage,
+                currentItem.system_user_id + ' QR Code'
+              )
+            "
+          >
+            <v-icon class="mx-1 ml-2">mdi mdi-download</v-icon>
+            Download
+          </v-btn>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog persistent v-model="dialogCropping" width="500">
       <v-card style="padding-top: 20px">
         <v-card-text>
@@ -383,6 +415,7 @@
       </v-card>
     </v-dialog>
     <v-dialog persistent v-model="editDialog" width="1400" :key="employeeId">
+      <WidgetsClose left="1370" @click="editDialog = false" />
       <v-card>
         <v-tabs
           v-model="tab"
@@ -397,17 +430,6 @@
             {{ item.text }}
             <v-icon>{{ item.icon }}</v-icon>
           </v-tab>
-
-          <v-icon
-            @click="editDialog = false"
-            style="margin-right: 4px"
-            text-right
-            outlined
-            dark
-            color="black"
-          >
-            mdi mdi-close-circle
-          </v-icon>
         </v-tabs>
 
         <v-card-text>
@@ -550,7 +572,7 @@
                 @input="searchData"
                 v-model="search"
               />
-              <v-icon style="position: absolute; top: 16px; right: 107px"
+              <v-icon style="position: absolute; top: 14px; right: 107px"
                 >mdi-magnify</v-icon
               >
               <v-btn
@@ -562,7 +584,7 @@
                 >+ New</v-btn
               >
 
-              <v-menu offset-y :nudge-width="100">
+              <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
                   <v-btn
                     dark-2
@@ -676,6 +698,20 @@
                       </div>
                     </v-list-item-title>
                   </v-list-item>
+
+                  <v-list-item>
+                    <v-list-item-title
+                      style="
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                      "
+                    >
+                      <WidgetsEmployeeDowloadDialog
+                        @response="getDataFromApi"
+                      />
+                    </v-list-item-title>
+                  </v-list-item>
                 </v-list>
               </v-menu>
             </div>
@@ -713,20 +749,16 @@
                       max-width: 50px;
                     "
                   >
-                    <v-img
-                      style="
-                        border-radius: 50%;
-                        height: auto;
-                        width: 50px;
-                        max-width: 50px;
-                      "
-                      :src="
-                        item.profile_picture
-                          ? item.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
-                    </v-img>
+                    <v-avatar>
+                      <v-img
+                        :src="
+                          item.profile_picture
+                            ? item.profile_picture
+                            : '/no-profile-image.jpg'
+                        "
+                      >
+                      </v-img>
+                    </v-avatar>
                   </v-col>
                   <v-col style="padding: 10px">
                     <div style="font-size: 13px">
@@ -761,10 +793,36 @@
                 <div style="font-size: 13px">
                   {{ item.phone_number }}
                 </div>
+                <div style="font-size: 11px">
+                  {{ item.local_email }}
+                </div>
               </template>
-
+              <!-- <template v-slot:item.qrcode="{ item }">
+                <v-icon
+                  v-if="item.rfid_card_number && item.rfid_card_number != ''"
+                  size="30"
+                  color="black"
+                  @click="viewDialogQrCode(item)"
+                >
+                  mdi-qrcode-scan</v-icon
+                >
+                <div v-else>No RFID</div>
+              </template> -->
               <template v-slot:item.timezone.name="{ item }">
                 {{ item.timezone ? item.timezone.timezone_name : "" }}
+              </template>
+              <template v-slot:item.access="{ item }">
+                <span
+                  v-for="(icon, index) in getRelatedIcons(item)"
+                  :key="index"
+                >
+                  <v-avatar tile size="15" v-if="icon.type == 'image'"
+                    ><img style="width: 100%" :src="icon.name"
+                  /></v-avatar>
+                  <v-icon v-else small color="black" class="mr-1">{{
+                    icon.name
+                  }}</v-icon>
+                </span>
               </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
@@ -773,7 +831,7 @@
                       <v-icon>mdi-dots-vertical</v-icon>
                     </v-btn>
                   </template>
-                  <v-list width="120" dense>
+                  <v-list dense>
                     <v-list-item
                       v-if="can('employee_profile_view')"
                       @click="viewItem(item)"
@@ -783,6 +841,11 @@
                         View
                       </v-list-item-title>
                     </v-list-item>
+                    <!-- <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <EmployeeProfileView />
+                      </v-list-item-title>
+                    </v-list-item> -->
                     <v-list-item
                       v-if="can('employee_edit')"
                       @click="editItem(item)"
@@ -792,6 +855,17 @@
                         Edit
                       </v-list-item-title>
                     </v-list-item>
+                    <v-list-item>
+                      <v-list-item-title style="cursor: pointer">
+                        <WidgetsEmployeeDowloadDialogSingle
+                          :key="item.id"
+                          :id="item.id"
+                          :system_user_id="item.system_user_id"
+                          @response="getDataFromApi"
+                        />
+                      </v-list-item-title>
+                    </v-list-item>
+
                     <v-list-item>
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
@@ -843,6 +917,7 @@ import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding
 
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
+import { getQrCode } from "@/utils/cardqrercode.js"; // Adjust the path as needed
 
 export default {
   head() {
@@ -890,6 +965,7 @@ export default {
     server_datatable_totalItems: 1000,
     snack: false,
     snackColor: "",
+    DialogQrCode: false,
     snackText: "",
     selectedItems: [],
     datatable_search_textbox: "",
@@ -995,6 +1071,7 @@ export default {
     snackbar: false,
     btnLoader: false,
     max_employee: 0,
+    qr_codeImage: null,
     employee: {
       title: "Mr",
       display_name: "",
@@ -1032,6 +1109,7 @@ export default {
     department_filter_id: "",
     dialogVisible: false,
     payloadOptions: {},
+    key: 1,
     headers_table: [
       {
         text: "Name",
@@ -1050,7 +1128,7 @@ export default {
         key: "employee_id",
         value: "employee_id",
         filterable: true,
-        width: "10%",
+        width: "15%",
         filterSpecial: false,
       },
       {
@@ -1074,21 +1152,20 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Email",
-        align: "left",
-        sortable: true,
-        key: "email",
-        value: "local_email",
-        filterable: true,
-        filterSpecial: false,
-        width: "15%",
-      },
-      {
         text: "Timezone",
         align: "left",
         sortable: true,
         key: "timezone_id",
         value: "timezone.name",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "Access",
+        align: "left",
+        sortable: true,
+        key: "access",
+        value: "access",
         filterable: true,
         filterSpecial: true,
       },
@@ -1167,6 +1244,97 @@ export default {
     },
   },
   methods: {
+    getRelatedIcons({
+      profile_picture,
+      rfid_card_number,
+      rfid_card_password,
+      finger_prints,
+      palms,
+    }) {
+      let icons = [];
+
+      if (profile_picture) {
+        icons.push({ name: "mdi-emoticon-outline" });
+      }
+      if (rfid_card_number != "" && rfid_card_number != "0") {
+        icons.push({ name: "mdi-card-outline" });
+      }
+      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF" && rfid_card_password != null) {
+        icons.push({ name: "mdi-lock-outline" });
+      }
+      if (finger_prints.length) {
+        icons.push({ name: "mdi-fingerprint" });
+      }
+      if (palms.length > 0) {
+        icons.push({
+          type: "image",
+          name: "/icons/palm-hand.png",
+        });
+      }
+
+      if (rfid_card_number != "" && rfid_card_number != "0") {
+        icons.push({
+          name: "mdi-qrcode-scan",
+        });
+      }
+      // icons.push({
+      //   type: "image",
+      //   name: "/icons/palm-hand-2.png",
+      // });
+
+      return icons;
+    },
+    downloadImage(faceImage, userId) {
+      let options = {
+        params: {
+          company_id: this.$auth.user.company_id,
+          face_image: faceImage,
+          system_user_id: userId,
+        },
+      };
+      this.$axios
+        .post(`/download-profilepic-sdk`, options.params)
+        .then(({ data }) => {
+          this.downloadProfileLink =
+            process.env.BACKEND_URL +
+            "/download-profilepic-disk?image=" +
+            data +
+            "&name=" +
+            userId;
+
+          //this.$refs.goTo.click;
+
+          let path = this.downloadProfileLink;
+          let pdf = document.createElement("a");
+          pdf.setAttribute("href", path);
+          pdf.setAttribute("target", "_blank");
+          pdf.click();
+        })
+        .catch((e) => console.log(e));
+    },
+    async viewDialogQrCode(item) {
+      this.currentItem = item;
+      this.key++;
+      let year = new Date().getFullYear() + 1;
+      const date = new Date(year + "-12-31 23:00:00");
+      const cardNum = item.rfid_card_number;
+      const cardType = 1; // Use 1 for numeric card numbers, 2 for Chinese User IDs
+
+      let qrCodeResult = (
+        await getQrCode(date, cardNum, cardType)
+      ).toUpperCase();
+
+      this.qr_codeImage = await this.$qrcode.generate(qrCodeResult, {
+        width: 200,
+        margin: 2,
+        color: {
+          dark: "#000000", // Black dots
+          light: "#FFFFFF", // White background
+        },
+      });
+
+      this.DialogQrCode = true;
+    },
     generateRandomId() {
       const length = 8; // Adjust the length of the ID as needed
       const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number
@@ -1241,6 +1409,7 @@ export default {
           isFilter: this.isFilter,
           params: {
             company_id: this.$auth.user.company_id,
+            branch_id: filterBranchId,
           },
         };
         this.departments = await this.$store.dispatch(
