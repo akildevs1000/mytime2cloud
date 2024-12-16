@@ -19,14 +19,10 @@ export default {
       { hid: "description", name: "description", content: "" },
       { name: "format-detection", content: "telephone=no" },
     ],
-    css: [
-    ],
+    css: [],
 
-    link: [
-      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-    ],
-    script: [
-    ],
+    link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
+    script: [],
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
@@ -74,13 +70,24 @@ export default {
           logout: false,
           user: { url: "me", method: "get", propertyName: false },
         },
-        maxAge: 86400, // 24 hours
+        //////////maxAge: 86400, // 24 hours
+
+        refreshToken: true,
+
+        token: {
+          //property: "tokens.access.token",
+          global: true,
+          type: "Bearer",
+          maxAge: 60 * 60 * 24 * 365, // 8 Hours
+        },
+
+        autoLogout: false,
       },
     },
 
-    redirect: {
-      logout: "/login",
-    },
+    // redirect: {
+    //   logout: "/login",
+    // },
   },
 
   router: {

@@ -344,14 +344,21 @@ export default {
     this.$store.dispatch("resetState");
 
     this.verifyToken();
+
+    try {
+      const userType = this.$auth.user?.user_type;
+
+      if (userType) {
+        this.$router.push("/dashboard");
+      }
+    } catch (error) {}
   },
   mounted() {
     try {
       const userType = this.$auth.user?.user_type;
+
       if (userType) {
-        if (this.$route.name === "login") {
-          window.location.reload();
-        }
+        this.$router.push("/dashboard");
       }
     } catch (error) {}
     // try {
