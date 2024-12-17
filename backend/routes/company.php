@@ -317,6 +317,6 @@ Route::get('leave-group-list', [LeaveGroupsController::class, 'dropdownList']);
 Route::post('register', [RegisterController::class, 'store']);
 
 
-Route::post('sendWhatsappMessage', function (Request $request) {
+Route::post('send-whatsapp-wessage', function (Request $request) {
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
