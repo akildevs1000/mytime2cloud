@@ -1674,42 +1674,6 @@ class EmployeeController extends Controller
             }
         }
 
-<<<<<<< HEAD
-
-        $results = [];
-        $fpArray = [];
-        $palmArray = [];
-
-        foreach ($employeeData["fp"] as $value) {
-            $fpArray[] = [
-                "fp" => $value,
-                "employee_id" => $id
-            ];
-        }
-
-        foreach ($employeeData["palm"] as $value) {
-            $palmArray[] = [
-                "palm" => $value,
-                "employee_id" => $id
-            ];
-        }
-
-
-        unset($employeeData["fp"]);
-        unset($employeeData["palm"]);
-
-        try {
-            DB::transaction(function () use ($employeeData, $palmArray, $fpArray, $id) {
-                $company_id = $employeeData["company_id"];
-
-                Employee::where("id", $id)->update([
-                    'full_name' => $employeeData["full_name"],
-                    'company_id' => $employeeData["company_id"],
-                    'profile_picture' => $employeeData["profile_picture"],
-                    'rfid_card_number' => $employeeData["rfid_card_number"] ?? null,
-                    'rfid_card_password' => $employeeData["rfid_card_password"] ?? null,
-                ]);
-=======
         // Populate palm data
         if (!empty($employeeData["palm"])) {
             foreach ($employeeData["palm"] as $value) {
@@ -1730,17 +1694,12 @@ class EmployeeController extends Controller
                     "full_name" => $employeeData["full_name"],
                     "profile_picture" => $employeeData["profile_picture"]
                 ];
->>>>>>> 3a1130e2b5acfe7cacead9c7a5415e8f2c64494f
 
                 // Add RFID card data if valid
                 if (!empty($employeeData["rfid_card_number"]) && $employeeData["rfid_card_number"] != "0") {
                     $employeePayload["rfid_card_number"] = $employeeData["rfid_card_number"];
                 }
 
-<<<<<<< HEAD
-                FingerPrint::insert($fpArray);
-                Palm::insert($palmArray);
-=======
                 if (!empty($employeeData["rfid_card_password"]) && $employeeData["rfid_card_password"] != "FFFFFFFF") {
                     $employeePayload["rfid_card_password"] = $employeeData["rfid_card_password"];
                 }
@@ -1759,7 +1718,6 @@ class EmployeeController extends Controller
                 if (!empty($palmArray)) {
                     Palm::insert($palmArray);
                 }
->>>>>>> 3a1130e2b5acfe7cacead9c7a5415e8f2c64494f
             });
 
             return $this->response("Employee successfully updated.", true, true);
