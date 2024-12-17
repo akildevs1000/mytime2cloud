@@ -1586,57 +1586,54 @@ class EmployeeController extends Controller
             }
         }
 
-
         $results = [];
-
-
-      
 
         try {
             DB::transaction(function () use ($employeeData) {
                 $company_id = $employeeData["company_id"];
-
                 $fp = $employeeData["fp"];
                 $palm = $employeeData["palm"];
+                $system_user_id = $employeeData["system_user_id"]; // Assuming this is unique for each employee
 
                 unset($employeeData["fp"]);
                 unset($employeeData["palm"]);
 
-                $employee = Employee::create($employeeData);
+                // Find existing employee by system_user_id, or create a new one
+                $employee = Employee::updateOrCreate(
+                    ['system_user_id' => $system_user_id],
+                    $employeeData
+                );
 
-                $fingerPrintCount = FingerPrint::where("employee_id", $employee->id)->count();
-                if ($fingerPrintCount > 0) {
-                    FingerPrint::where("employee_id", $employee->id)->delete();
-                }
-                $palmCount = Palm::where("employee_id", $employee->id)->count();
-                if ($palmCount > 0) {
-                    Palm::where("employee_id", $employee->id)->delete();
-                }
+                // Delete existing fingerprints and palms for this employee
+                FingerPrint::where("employee_id", $employee->id)->delete();
+                Palm::where("employee_id", $employee->id)->delete();
 
+                // Prepare new fingerprint and palm data
                 $fpArray = [];
-                $palmArray = [];
-        
-
                 foreach ($fp as $value) {
                     $fpArray[] = [
                         "fp" => $value,
-                        "employee_id" =>  $employee->id
+                        "employee_id" => $employee->id,
                     ];
                 }
-        
+
+                $palmArray = [];
                 foreach ($palm as $value) {
                     $palmArray[] = [
                         "palm" => $value,
-                        "employee_id" =>  $employee->id
+                        "employee_id" => $employee->id,
                     ];
                 }
 
+                // Insert new fingerprint and palm data
                 FingerPrint::insert($fpArray);
                 Palm::insert($palmArray);
-                (new AttendanceController)->seedDefaultData($company_id, [$employeeData["system_user_id"]]);
+
+                // Seed default attendance data for the company and employee
+                (new AttendanceController)->seedDefaultData($company_id, [$employee->system_user_id]);
             });
 
-            return $this->response("All employees successfully created.", true, true);
+            return $this->response("Employee successfully created or updated.", true, true);
         } catch (\Exception $e) {
             // Rollback is automatically handled by DB::transaction() in case of exception
             return $this->response("An error occurred: " . $e->getMessage(), false, false);
@@ -1693,7 +1690,7 @@ class EmployeeController extends Controller
                 $employee = Employee::where("id", $id)->update($employeeData);
 
                 $fingerPrintCount = FingerPrint::where("employee_id", $id)->count();
-                
+
                 if ($fingerPrintCount > 0) {
                     FingerPrint::where("employee_id", $id)->delete();
                 }

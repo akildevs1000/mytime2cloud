@@ -4,7 +4,7 @@
     <template v-slot:activator="{ on, attrs }">
       <span v-bind="attrs" v-on="on">
         <v-icon color="black" :size="`small`">mdi-cellphone-text</v-icon>
-        Update On Device
+        Update From Device
       </span>
     </template>
 
