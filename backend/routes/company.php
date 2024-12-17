@@ -318,5 +318,5 @@ Route::post('register', [RegisterController::class, 'store']);
 
 
 Route::post('sendWhatsappMessage', function (Request $request) {
-    (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
+    return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
