@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class SharjahUniversityAPI extends Controller
 {
@@ -22,7 +23,7 @@ class SharjahUniversityAPI extends Controller
     public function readAttendanceAfterRender($attendanceArray)
     {
 
-        $token = "test"; // $this->getToken();
+        $token = $this->getToken();
         $logFile = "sharjah_attendance_api_logs/"   . now()->format('d-m-Y') . ".log";
 
         $postData = [];
@@ -38,7 +39,7 @@ class SharjahUniversityAPI extends Controller
                     //     }
                     // }
 
-                    if ($attendance['company_id'] == 13) {
+                    if ($attendance['company_id'] == 1) {
 
 
 
@@ -100,7 +101,8 @@ class SharjahUniversityAPI extends Controller
 
                 try {
                     Storage::append($logFile, date("Y-m-d H:i:s") . ' Data :' . json_encode($postData) . PHP_EOL);
-                    $response =  $this->pushToHydersparkAPI($postData);
+                    //$response =  $this->pushToHydersparkAPI($postData);
+                    $response =  $this->pushToAPI($token, $postData);
 
                     Storage::append($logFile, date("Y-m-d H:i:s") . ' Response :' . $response . PHP_EOL);
                     Storage::append($logFile, "----------------------------------------------------------" . PHP_EOL);
@@ -140,6 +142,7 @@ class SharjahUniversityAPI extends Controller
     }
     public function pushToAPI($token, $postData)
     {
+        $logFile = "sharjah_attendance_api_logs/"   . now()->format('d-m-Y') . ".log";
 
         $curl = curl_init();
 
@@ -158,12 +161,31 @@ class SharjahUniversityAPI extends Controller
         ));
 
         $response = curl_exec($curl);
+        Storage::append($logFile, date("Y-m-d H:i:s") . ' Response :' . $response . PHP_EOL);
 
         curl_close($curl);
         return  $response;
     }
     public function getToken()
     {
+        $logFile = "sharjah_attendance_api_logs/"   . now()->format('d-m-Y') . ".log";
+
+
+
+        $response = Http::timeout(300)
+            ->withoutVerifying()
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post("https://aquhrsys.alqasimia.ac.ae/HRENDPointAtt/api/login", [
+                "userName" => "attendanceuser",
+                "password" => "AQU@Password123",
+                "key" => "7112484a-e08b-11ea-87d0-0242ac130003"
+            ]);
+
+        // Storage::append($logFile, date("Y-m-d H:i:s") . ' Response :' . $response . PHP_EOL);
+
+        /*
 
         $curl = curl_init();
 
@@ -173,7 +195,7 @@ class SharjahUniversityAPI extends Controller
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 10,  // Fixed timeout at 10 seconds
+            CURLOPT_TIMEOUT => 120,  // Fixed timeout at 10 seconds
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => 'POST',
@@ -188,7 +210,10 @@ class SharjahUniversityAPI extends Controller
         $response = curl_exec($curl);
 
         curl_close($curl);
+		
+		*/
 
+        // Storage::append($logFile, date("Y-m-d H:i:s") . ' Response :' . $response . PHP_EOL);
 
         $data = json_decode($response, true);
 
