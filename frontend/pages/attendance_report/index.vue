@@ -1,5 +1,8 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
+    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+      {{ response }}
+    </v-snackbar>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -24,6 +27,12 @@
           style="font-size: 18px; font-weight: 600; width: 200px"
         >
           Attendance Reports
+          <v-icon
+            title="Click To Send Yesterday Report"
+            color="green"
+            @click="sendYesterdayReport()"
+            >mdi-whatsapp</v-icon
+          >
         </v-toolbar-title>
         <v-select
           style="width: 150px"
@@ -652,7 +661,7 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-   // setTimeout(() => {
+    // setTimeout(() => {
     //  this.getDepartments();
     //}, 1000);
 
@@ -668,6 +677,27 @@ export default {
   },
 
   methods: {
+    async sendYesterdayReport() {
+      confirm("Are you sure want to send Yesterday report?");
+      {
+        let options = {
+          params: {
+            company_id: this.$auth.user.company_id,
+            company_name: this.$auth.user.company.name,
+            report_template: "Template1",
+            shift_type_id: "1",
+            report_type: "Daily",
+            status: "-1",
+            daily_date: this.getYesterdayDate(),
+          },
+        };
+
+        const { data } = await this.$axios.get("daily_generate_pdf", options);
+
+        this.snackbar = true;
+        this.response = "Yesterday PDF Report is sent to whatsapp successfully";
+      }
+    },
     openRegeneratePopup() {
       this.$refs.attendanceReportRef.reportSync = true;
     },
@@ -729,6 +759,16 @@ export default {
       this.getScheduledEmployees();
 
       this.getAttendanceTabs();
+    },
+    getYesterdayDate() {
+      const today = new Date();
+      today.setDate(today.getDate() - 1); // Subtract one day to get yesterday's date
+
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1
+      const day = String(today.getDate()).padStart(2, "0"); // Pad single-digit day with zero
+
+      return `${year}-${month}-${day}`;
     },
     week() {
       const today = new Date();
@@ -853,14 +893,14 @@ export default {
         });
     },
     async getDepartments() {
-     let config = {
-      params:{
-        branch_id: this.payload.branch_id,
-        company_id:this.$auth.user.company_id
-      }
-     };
+      let config = {
+        params: {
+          branch_id: this.payload.branch_id,
+          company_id: this.$auth.user.company_id,
+        },
+      };
       try {
-        const { data } = await this.$axios.get(`department-list`,config);
+        const { data } = await this.$axios.get(`department-list`, config);
         this.departments = data;
         this.toggleDepartmentSelection();
         setTimeout(() => {

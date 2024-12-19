@@ -660,6 +660,8 @@ class EmployeeController extends Controller
                 $record->delete();
                 User::where('id', $user_id)->delete();
                 ScheduleEmployee::where('employee_id', $employee_id)->delete();
+                FingerPrint::where('employee_id', $record->system_user_id)->delete();
+                Palm::where('employee_id', $record->system_user_id)->delete();
             });
 
             return response()->json(['message' => 'Employee successfully deleted.', 'status' => true], 200);
@@ -1049,7 +1051,7 @@ class EmployeeController extends Controller
 
                 if ($data['profile_picture'] != '') {
                     if (file_exists($data['profile_picture'])) {
-                        $imageName = time() . ".png";
+                        $imageName = (time() + rand(10000, 20000)) . ".png";
                         $newFileLocation = public_path('media/employee/profile_picture/') . '/' . $imageName;
                         copy($data['profile_picture'], $newFileLocation);
 
@@ -1586,57 +1588,54 @@ class EmployeeController extends Controller
             }
         }
 
-
         $results = [];
-
-
-      
 
         try {
             DB::transaction(function () use ($employeeData) {
                 $company_id = $employeeData["company_id"];
-
                 $fp = $employeeData["fp"];
                 $palm = $employeeData["palm"];
+                $system_user_id = $employeeData["system_user_id"]; // Assuming this is unique for each employee
 
                 unset($employeeData["fp"]);
                 unset($employeeData["palm"]);
 
-                $employee = Employee::create($employeeData);
+                // Find existing employee by system_user_id, or create a new one
+                $employee = Employee::updateOrCreate(
+                    ['system_user_id' => $system_user_id],
+                    $employeeData
+                );
 
-                $fingerPrintCount = FingerPrint::where("employee_id", $employee->id)->count();
-                if ($fingerPrintCount > 0) {
-                    FingerPrint::where("employee_id", $employee->id)->delete();
-                }
-                $palmCount = Palm::where("employee_id", $employee->id)->count();
-                if ($palmCount > 0) {
-                    Palm::where("employee_id", $employee->id)->delete();
-                }
+                // Delete existing fingerprints and palms for this employee
+                FingerPrint::where("employee_id", $system_user_id)->delete();
+                Palm::where("employee_id", $system_user_id)->delete();
 
+                // Prepare new fingerprint and palm data
                 $fpArray = [];
-                $palmArray = [];
-        
-
                 foreach ($fp as $value) {
                     $fpArray[] = [
                         "fp" => $value,
-                        "employee_id" =>  $employee->id
+                        "employee_id" => $system_user_id,
                     ];
                 }
-        
+
+                $palmArray = [];
                 foreach ($palm as $value) {
                     $palmArray[] = [
                         "palm" => $value,
-                        "employee_id" =>  $employee->id
+                        "employee_id" => $system_user_id,
                     ];
                 }
 
+                // Insert new fingerprint and palm data
                 FingerPrint::insert($fpArray);
                 Palm::insert($palmArray);
-                (new AttendanceController)->seedDefaultData($company_id, [$employeeData["system_user_id"]]);
+
+                // Seed default attendance data for the company and employee
+                (new AttendanceController)->seedDefaultData($company_id, [$employee->system_user_id]);
             });
 
-            return $this->response("All employees successfully created.", true, true);
+            return $this->response("Employee successfully created or updated.", true, true);
         } catch (\Exception $e) {
             // Rollback is automatically handled by DB::transaction() in case of exception
             return $this->response("An error occurred: " . $e->getMessage(), false, false);
@@ -1650,76 +1649,83 @@ class EmployeeController extends Controller
         $nameAsArray = explode(" ", $employeeData["full_name"], 2);
         $employeeData["first_name"] = $nameAsArray[0];
         $employeeData["last_name"] = $nameAsArray[1] ?? "";
+        $system_user_id = $employeeData["system_user_id"]; // Assuming this is unique for each employee
+
 
         // Save profile picture if available
         if (!empty($employeeData["profile_picture"])) {
             try {
                 $employeeData["profile_picture"] = $this->saveProfilePicture($employeeData);
             } catch (\Exception $e) {
-                $results[] = [
-                    'status' => false,
-                    'message' => 'Failed to save profile picture: ' . $e->getMessage(),
-                    'employee' => $employeeData
+                return $this->response("Failed to save profile picture: " . $e->getMessage(), false, false);
+            }
+        }
+
+        $fpArray = [];
+        $palmArray = [];
+
+        // Populate fingerprint data
+        if (!empty($employeeData["fp"])) {
+            foreach ($employeeData["fp"] as $value) {
+                $fpArray[] = [
+                    "fp" => $value,
+                    "employee_id" => $system_user_id
                 ];
             }
         }
 
-
-        $results = [];
-        $fpArray = [];
-        $palmArray = [];
-
-        foreach ($employeeData["fp"] as $value) {
-            $fpArray[] = [
-                "fp" => $value,
-                "employee_id" =>  $employeeData["employee_id"]
-            ];
+        // Populate palm data
+        if (!empty($employeeData["palm"])) {
+            foreach ($employeeData["palm"] as $value) {
+                $palmArray[] = [
+                    "palm" => $value,
+                    "employee_id" => $system_user_id
+                ];
+            }
         }
 
-        foreach ($employeeData["palm"] as $value) {
-            $palmArray[] = [
-                "palm" => $value,
-                "employee_id" =>  $employeeData["employee_id"]
-            ];
-        }
-
-
-        unset($employeeData["fp"]);
-        unset($employeeData["palm"]);
+        // Remove unnecessary keys from employee data
+        unset($employeeData["fp"], $employeeData["palm"]);
 
         try {
             DB::transaction(function () use ($employeeData, $palmArray, $fpArray, $id) {
-                $company_id = $employeeData["company_id"];
-                $employee = Employee::where("id", $id)->update($employeeData);
+                // Update employee data
+                $employeePayload = [
+                    "full_name" => $employeeData["full_name"],
+                    "profile_picture" => $employeeData["profile_picture"]
+                ];
 
-                $fingerPrintCount = FingerPrint::where("employee_id", $id)->count();
-                
-                if ($fingerPrintCount > 0) {
-                    FingerPrint::where("employee_id", $id)->delete();
-                }
-                $palmCount = Palm::where("employee_id", $id)->count();
-                if ($palmCount > 0) {
-                    Palm::where("employee_id", $id)->delete();
+                // Add RFID card data if valid
+                if (!empty($employeeData["rfid_card_number"]) && $employeeData["rfid_card_number"] != "0") {
+                    $employeePayload["rfid_card_number"] = $employeeData["rfid_card_number"];
                 }
 
-                FingerPrint::insert($fpArray);
-                Palm::insert($palmArray);
-                (new AttendanceController)->seedDefaultData($company_id, [$employeeData["system_user_id"]]);
+                if (!empty($employeeData["rfid_card_password"]) && $employeeData["rfid_card_password"] != "FFFFFFFF") {
+                    $employeePayload["rfid_card_password"] = $employeeData["rfid_card_password"];
+                }
+
+                Employee::where("id", $id)->update($employeePayload);
+
+                // // Delete existing fingerprints and palms
+                // FingerPrint::where("employee_id", $id)->delete();
+                // Palm::where("employee_id", $id)->delete();
+
+                // Insert new fingerprints and palms if they exist
+                if (!empty($fpArray)) {
+                    FingerPrint::insert($fpArray);
+                }
+
+                if (!empty($palmArray)) {
+                    Palm::insert($palmArray);
+                }
             });
 
-            return $this->response("All employees successfully created.", true, true);
+            return $this->response("Employee successfully updated.", true, true);
         } catch (\Exception $e) {
-            // Rollback is automatically handled by DB::transaction() in case of exception
+            // Log the error
             return $this->response("An error occurred: " . $e->getMessage(), false, false);
         }
     }
-
-    /**
-     * Save the base64 profile picture to the server.
-     *
-     * @param string $base64Image
-     * @return string The saved image name
-     */
     private function saveProfilePicture($employeeData)
     {
         // Decode and save the base64 image

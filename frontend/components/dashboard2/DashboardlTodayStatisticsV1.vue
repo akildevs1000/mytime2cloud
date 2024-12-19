@@ -1,11 +1,18 @@
 <template>
   <div class="bordertop">
+    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
+      {{ response }}
+    </v-snackbar>
     <v-row>
-      <v-col md="10" sm="10" xs="10">
+      <v-col md="8" sm="8" xs="8">
         <h4>Today Attendance</h4>
         <!-- {{ data }} -->
       </v-col>
-
+      <v-col md="2" sm="2" xs="2" class="text-end"
+        ><v-icon color="green" @click="sendToWhatsapp()"
+          >mdi-whatsapp</v-icon
+        ></v-col
+      >
       <v-col md="2" sm="2" xs="2" class="text-end">
         <v-menu bottom left>
           <template v-slot:activator="{ on, attrs }">
@@ -106,7 +113,8 @@ export default {
 
     loading: false,
     dataLength: 0,
-
+    snackbar: false,
+    response: "",
     data: null,
   }),
   watch: {
@@ -122,6 +130,17 @@ export default {
   },
 
   methods: {
+    async sendToWhatsapp() {
+      let options = { params: { company_id: this.$auth.user.company_id } };
+
+      const { data } = await this.$axios.post(
+        "attendance_today_stats_whatsapp",
+        options.params
+      );
+
+      this.snackbar = true;
+      this.response = data.message;
+    },
     goToReports() {
       this.$router.push("/attendance_report");
     },

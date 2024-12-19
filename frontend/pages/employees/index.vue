@@ -1252,34 +1252,39 @@ export default {
       palms,
     }) {
       let icons = [];
-      console.log("🚀 ~ rfid_card_number:", rfid_card_number)
-      console.log("🚀 ~ rfid_card_password:", rfid_card_password)
-
 
       if (profile_picture) {
         icons.push({ name: "mdi-emoticon-outline" });
       }
-      if (rfid_card_number != "" && rfid_card_number != "0") {
-        icons.push({ name: "mdi-card-outline" });
-      }
-      if (rfid_card_password != "" && rfid_card_password != "FFFFFFFF") {
+
+      if (
+        rfid_card_password != "" &&
+        rfid_card_password != "FFFFFFFF" &&
+        rfid_card_password != null
+      ) {
         icons.push({ name: "mdi-lock-outline" });
       }
       if (finger_prints.length) {
         icons.push({ name: "mdi-fingerprint" });
       }
-      if (palms.length > 0) {
+      if (palms.length) {
         icons.push({
           type: "image",
           name: "/icons/palm-hand.png",
         });
       }
 
-      if (rfid_card_number != "" && rfid_card_number != "0") {
+      if (
+        rfid_card_number != "" &&
+        rfid_card_number != "0" &&
+        rfid_card_number != null
+      ) {
+        icons.push({ name: "mdi-card-outline" });
         icons.push({
           name: "mdi-qrcode-scan",
         });
       }
+
       // icons.push({
       //   type: "image",
       //   name: "/icons/palm-hand-2.png",
@@ -1350,7 +1355,7 @@ export default {
     },
     closePopup2() {
       this.editDialog = false;
-      this.getDataFromApi();
+      // this.getDataFromApi();
     },
     async handleChangeEvent() {
       this.branchList = await this.$store.dispatch("fetchDropDowns", {
@@ -1412,6 +1417,7 @@ export default {
           isFilter: this.isFilter,
           params: {
             company_id: this.$auth.user.company_id,
+            branch_id: filterBranchId,
           },
         };
         this.departments = await this.$store.dispatch(

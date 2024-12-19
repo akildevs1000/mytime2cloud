@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\SDKController;
+use App\Http\Controllers\ThemeController;
 use App\Models\AccessControlTimeSlot;
 use App\Models\Company;
 use App\Models\DeviceActivesettings;
@@ -11,6 +12,7 @@ use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
@@ -236,7 +238,9 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("kernal_logs/$company_log-default-attendance-seeder.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             //whatsapp reports 
-            $array = ['All', "P", "A", "M", "ME"];
+            // $array = ['All', "P", "A", "M", "ME"];
+            $array = ['All'];
+
             foreach ($array as $status) {
 
                 $schedule
@@ -244,13 +248,13 @@ class Kernel extends ConsoleKernel
                     ->dailyAt('03:45')
                     ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_daily_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-                $schedule
-                    ->command("task:generate_weekly_report {$companyId} {$status}")
+                // $schedule
+                //     ->command("task:generate_weekly_report {$companyId} {$status}")
 
-                    ->dailyAt('04:00')
-                    // ->runInBackground()
-                    //->withoutOverlapping()
-                    ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_weekly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                //     ->dailyAt('04:00')
+                //     // ->runInBackground()
+                //     //->withoutOverlapping()
+                //     ->appendOutputTo(storage_path("kernal_logs/$company_log-generate_weekly_report.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
             }
 
@@ -310,6 +314,20 @@ class Kernel extends ConsoleKernel
             //     ->appendOutputTo(storage_path("kernal_logs/$monthYear-visitor-delete-expired-dates-$companyId.log"))
             //     ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
+
+            // /*------------------------ */
+            $schedule->call(function () use ($companyId) {
+                $requestArray = array(
+                    'company_id' => $companyId,
+                );
+                $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
+
+                return (new ThemeController)->whatsappTodayStats($renderRequest);
+            })->everySixHours()
+
+                ->appendOutputTo(storage_path("kernal_logs/" . date("d-M-Y") . "-whatsapp-notifications-desktop.log"));
+
+            // /*------------------------ */
         }
 
         $schedule
@@ -390,11 +408,12 @@ class Kernel extends ConsoleKernel
 
             if ($model->frequency == "Daily") {
                 $scheduleCommand->dailyAt($model->time);
-            } elseif ($model->frequency == "Weekly") {
-                $scheduleCommand->weeklyOn($model->day, $model->time);
-            } elseif ($model->frequency == "Monthly") {
-                $scheduleCommand->monthlyOn($model->day, $model->time);
             }
+            // elseif ($model->frequency == "Weekly") {
+            //     $scheduleCommand->weeklyOn($model->day, $model->time);
+            // } elseif ($model->frequency == "Monthly") {
+            //     $scheduleCommand->monthlyOn($model->day, $model->time);
+            // }
         }
 
         // $date = date("M-Y");

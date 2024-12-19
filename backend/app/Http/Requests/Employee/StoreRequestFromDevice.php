@@ -35,8 +35,8 @@ class StoreRequestFromDevice extends FormRequest
             'rfid_card_password' => 'nullable',
             'fp' => 'array',
             'palm' => 'array',
-            'employee_id' => ['required', $controller->uniqueRecord("employees", $employee)],
-            'system_user_id' => ['required', $controller->uniqueRecord("employees", $employeeDevice), 'regex:/^[1-9][0-9]*$/'],
+            'employee_id' => ['required'],
+            'system_user_id' => ['required', 'regex:/^[1-9][0-9]*$/'],
         ];
     }
 
