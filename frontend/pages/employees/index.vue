@@ -1355,7 +1355,7 @@ export default {
     },
     closePopup2() {
       this.editDialog = false;
-      // this.getDataFromApi();
+      this.getDataFromApi();
     },
     async handleChangeEvent() {
       this.branchList = await this.$store.dispatch("fetchDropDowns", {
