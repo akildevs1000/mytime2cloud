@@ -59,11 +59,11 @@ class DeleteOldLogFiles extends Command
         WhatsappNotificationsLog::where("created_at", "<=", $previousDate . " 00:00:00")->delete();
 
 
-        $previousDate = date('Y-m-d', strtotime('-366 days'));
-        AttendanceLog::where("created_at", "<=", $previousDate . " 00:00:00")->delete();
+        // $previousDate = date('Y-m-d', strtotime('-366 days'));
+        // AttendanceLog::where("created_at", "<=", $previousDate . " 00:00:00")->delete();
 
-        $previousDate = date('Y-m-d', strtotime('-180 days'));
-        Attendance::where("date", "<=", $previousDate)->delete();
+        // $previousDate = date('Y-m-d', strtotime('-180 days'));
+        // Attendance::where("date", "<=", $previousDate)->delete();
     }
 
     public function deleteAttendanceLogFiles($path)
