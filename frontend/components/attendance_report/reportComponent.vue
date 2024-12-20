@@ -791,7 +791,6 @@ export default {
     time_menu: false,
     manual_time_menu: false,
     Model: "Attendance Reports",
-    endpoint: "report",
     search: "",
     snackbar: false,
     add_manual_log: false,
@@ -1230,7 +1229,7 @@ export default {
       this.isFilter = false;
       this.getDataFromApi();
     },
-    getDataFromApi(filter_column = "", filter_value = "") {
+    getDataFromApi() {
       if (!this.payload.from_date) return false;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -1240,25 +1239,27 @@ export default {
 
       this.loading = true;
 
-      let options = {
-        params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
-          per_page: itemsPerPage,
-          company_id: this.$auth.user.company_id,
-          report_type: this.report_type,
-          shift_type_id: this.shift_type_id,
-          overtime: this.overtime ? 1 : 0,
-          ...this.filters,
-          ...this.payload,
-        },
+      let payload = {
+        page: page,
+        sortBy: sortedBy,
+        sortDesc: sortedDesc,
+        per_page: itemsPerPage,
+        company_id: this.$auth.user.company_id,
+        report_type: this.report_type,
+        shift_type_id: this.shift_type_id,
+        overtime: this.overtime ? 1 : 0,
+        ...this.filters,
+        ...this.payload,
       };
 
-      if (filter_column != "") options.params[filter_column] = filter_value;
+      let endpoint = `attendance-report-old`;
 
-      this.$axios.get(this.endpoint, options).then(({ data }) => {
-        if (filter_column != "" && data.data.length == 0) {
+      if (process.env.STATE == "NEW") {
+        endpoint = `attendance-report-new`;
+      }
+
+      this.$axios.post(endpoint, payload).then(({ data }) => {
+        if (data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";
           this.snackText = "No Results Found";
