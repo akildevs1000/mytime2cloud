@@ -1232,17 +1232,13 @@ export default {
     getDataFromApi() {
       if (!this.payload.from_date) return false;
 
-      let { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      let { page, itemsPerPage } = this.options;
 
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
 
       this.loading = true;
 
       let payload = {
         page: page,
-        sortBy: sortedBy,
-        sortDesc: sortedDesc,
         per_page: itemsPerPage,
         company_id: this.$auth.user.company_id,
         report_type: this.report_type,
