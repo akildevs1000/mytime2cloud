@@ -43,7 +43,7 @@ class pdfGenerate extends Command
             "status_slug" => (new Controller)->getStatusSlug("-1")
         ];
 
-        $employees = Employee::whereCompanyId($requestPayload["company_id"])->take(1)->get();
+        $employees = Employee::whereCompanyId($requestPayload["company_id"])->get();
 
         $totalEmployees = $employees->count();
 
