@@ -1035,7 +1035,7 @@ class MonthlyController extends Controller
             $pdfFiles = [];
             foreach ($employeeIds as $value) {
                 if (glob($filesDirectory . "/$value.pdf")) {
-                    return $pdfFiles[] = glob($filesDirectory . "/$value.pdf")[0];
+                    $pdfFiles[] = glob($filesDirectory . "/$value.pdf")[0];
                 }
             }
         }
@@ -1044,11 +1044,10 @@ class MonthlyController extends Controller
         if (empty($pdfFiles)) {
             return 'No PDF files found';
         }
-
         if ($action == "I") {
             return (new Controller)->mergePdfFiles($pdfFiles, $action);
         }
 
-        return true;
+        return (new Controller)->mergePdfFiles($pdfFiles, $action);
     }
 }
