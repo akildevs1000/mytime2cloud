@@ -21,6 +21,8 @@ Route::get('/process_reports', [DailyController::class, 'process_reports']);
 
 
 Route::get('report', [ReportController::class, 'index']);
+Route::post('attendance-report-old', [ReportController::class, 'fetchDataOLD']);
+Route::post('attendance-report-new', [ReportController::class, 'fetchDataNEW']);
 
 
 //daily
