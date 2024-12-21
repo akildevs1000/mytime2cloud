@@ -1045,7 +1045,7 @@ class MonthlyController extends Controller
             return 'No PDF files found';
         }
 
-        if ($action) {
+        if ($action == "I") {
             return (new Controller)->mergePdfFiles($pdfFiles, $action);
         }
 
