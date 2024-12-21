@@ -120,8 +120,9 @@ class Kernel extends ConsoleKernel
         $companyIds = Company::pluck("id");
         //step 1 ;
 
-        foreach ($companyIds as $companyId) {
+        $schedule->command("pdf:generate 22")->dailyAt('03:35')->runInBackground();
 
+        foreach ($companyIds as $companyId) {
 
             $company_log = date("Y-m-d") . "-C" . $companyId;
             $schedule
