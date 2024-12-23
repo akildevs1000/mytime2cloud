@@ -31,9 +31,9 @@ class GenerateAttendanceReport implements ShouldQueue
     {
         $employeeId = $this->employeeId;
 
-        echo "\ntotalEmployees = {$this->totalEmployees}\n";
+        // echo "\ntotalEmployees = {$this->totalEmployees}\n";
 
-        echo "\ncounter = {$this->counter}, employee_id = {$employeeId}\n";
+        // echo "\ncounter = {$this->counter}, employee_id = {$employeeId}\n";
 
 
         // if ($this->counter >= $this->totalEmployees) {
@@ -72,6 +72,9 @@ class GenerateAttendanceReport implements ShouldQueue
             'info' => $info,
             "employee" => $this->employee
         ];
+
+        echo $this->company->logo;
+        echo "\n";
 
         $company_id = $this->requestPayload["company_id"];
         $status_slug = $this->requestPayload["status_slug"];
