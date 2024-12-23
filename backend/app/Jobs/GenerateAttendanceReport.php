@@ -23,14 +23,10 @@ class GenerateAttendanceReport implements ShouldQueue
         public $company,
         public $employee,
         public $requestPayload,
+        public $template,
     ) {}
 
     public function handle()
-    {
-        $this->generateOutPut("Template1");
-    }
-
-    public function generateOutPut($template)
     {
         $model = $this->getModel($this->requestPayload);
 
@@ -55,12 +51,14 @@ class GenerateAttendanceReport implements ShouldQueue
             'data' => $data,
             'company' => $this->company,
             'info' => $info,
-            "employee" => $this->employee
+            "employee" => $this->employee,
+            "shift_type_id" => $this->employee->schedule->shift_type_id ?? 0
         ];
 
         $company_id = $this->requestPayload["company_id"];
         $status_slug = $this->requestPayload["status_slug"];
         $employeeId = $this->employeeId;
+        $template = $this->template;
 
         $filesPath = public_path("reports/companies/$company_id/$template/$status_slug");
 
@@ -68,7 +66,7 @@ class GenerateAttendanceReport implements ShouldQueue
             mkdir($filesPath, 0777, true);
         }
 
-        $output = Pdf::loadView("pdf.attendance_reports.$template-multi-new", $arr)->output();
+        $output = Pdf::loadView("pdf.attendance_reports.$template-new", $arr)->output();
 
         $file_name = "$employeeId.pdf";
 

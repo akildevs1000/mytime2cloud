@@ -47,7 +47,8 @@ class pdfGenerate extends Command
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
         foreach ($employees as $employee) {
-            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template1");
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2");
         }
 
         $this->info("Report generating in background for {$this->argument('company_id', 0)}");
