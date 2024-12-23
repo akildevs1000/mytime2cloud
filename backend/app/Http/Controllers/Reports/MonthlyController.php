@@ -1016,13 +1016,13 @@ class MonthlyController extends Controller
             $employeeIds = is_array($employee_id) ? $employee_id : explode(",", $employee_id);
         }
 
-        if (count($employeeIds) > 100) {
-            return 'Only 100 Employee allowed';
-        }
+        // if (count($employeeIds) > 100) {
+        //     return 'Only 100 Employee allowed';
+        // }
 
         $template = request("report_template", 0);
 
-        $filesDirectory = public_path("reports/companies/$company_id/$status/$template");
+        $filesDirectory = public_path("reports/companies/$company_id/$template/$status");
 
         // Check if the directory exists
         if (!is_dir($filesDirectory)) {
