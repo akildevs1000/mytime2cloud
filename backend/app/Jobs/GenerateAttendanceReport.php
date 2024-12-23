@@ -73,9 +73,6 @@ class GenerateAttendanceReport implements ShouldQueue
             "employee" => $this->employee
         ];
 
-        echo $this->company->logo;
-        echo "\n";
-
         $company_id = $this->requestPayload["company_id"];
         $status_slug = $this->requestPayload["status_slug"];
         $employeeId = $this->employeeId;

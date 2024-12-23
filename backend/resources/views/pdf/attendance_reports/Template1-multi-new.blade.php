@@ -92,12 +92,8 @@
             <td style="border: nonse" colspan="8">
                 <div class="col-12" style="text-align:center;height:85px;  ">
 
-                    @if (env('APP_ENV') !== 'local')
-                        <img src="{{ $company->logo }}" style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @else
-                        <img src="{{ getcwd() . '/' . $company->logo_raw }}"
-                            style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                    @endif
+                    <img src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
+                        style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
                 </div>
                 <div style="clear:both">
                     <table style="text-align: left; border :none;  ">
