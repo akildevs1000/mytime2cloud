@@ -39,22 +39,15 @@ class pdfGenerate extends Command
         $requestPayload = [
             'company_id' => $this->argument("company_id"),
             'status' => "-1",
-            'date' => date("Y-m-d", strtotime("-1 day")), // Yesterday's date
             "status_slug" => (new Controller)->getStatusSlug("-1")
         ];
 
         $employees = Employee::whereCompanyId($requestPayload["company_id"])->get();
 
-        $totalEmployees = $employees->count();
-
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-        $company['report_type'] = (new Controller)->getStatusText($requestPayload['status']);
 
-        foreach ($employees as $index => $employee) {
-
-            $employeeId = $employee->system_user_id;
-
-            GenerateAttendanceReport::dispatch($index + 1, $employeeId, $company, $employee, $requestPayload, $totalEmployees);
+        foreach ($employees as $employee) {
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload);
         }
 
         $this->info("Report generating in background for {$this->argument('company_id', 0)}");

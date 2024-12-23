@@ -19,30 +19,15 @@ class GenerateAttendanceReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     public function __construct(
-        public $counter,
         public $employeeId,
         public $company,
         public $employee,
         public $requestPayload,
-        public $totalEmployees,
     ) {}
 
     public function handle()
     {
-        $employeeId = $this->employeeId;
-
-        // echo "\ntotalEmployees = {$this->totalEmployees}\n";
-
-        // echo "\ncounter = {$this->counter}, employee_id = {$employeeId}\n";
-
-
-        // if ($this->counter >= $this->totalEmployees) {
-        //     $this->PDFMerge();
-        // }
-
         $this->generateOutPut("Template1");
-
-        // $this->generateOutPut("Template2");
     }
 
     public function generateOutPut($template)
@@ -63,7 +48,7 @@ class GenerateAttendanceReport implements ShouldQueue
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
-            'total_leave' => 0,
+            'report_type' => $this->requestPayload["status_slug"],
         ];
 
         $arr = [
@@ -77,7 +62,7 @@ class GenerateAttendanceReport implements ShouldQueue
         $status_slug = $this->requestPayload["status_slug"];
         $employeeId = $this->employeeId;
 
-        $filesPath = public_path("reports/companies/$company_id/$status_slug/$template");
+        $filesPath = public_path("reports/companies/$company_id/$template/$status_slug");
 
         if (!file_exists($filesPath)) {
             mkdir($filesPath, 0777, true);

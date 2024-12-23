@@ -90,17 +90,11 @@ class RenderController extends Controller
             ->whereIn("system_user_id", $request->employee_ids)
             ->get();
 
-        $totalEmployees = $employees->count();
-
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $company['report_type'] = (new Controller)->getStatusText($requestPayload['status']);
+        foreach ($employees as $employee) {
 
-        foreach ($employees as $index => $employee) {
-
-            $employeeId = $employee->system_user_id;
-
-            GenerateAttendanceReport::dispatch($index + 1, $employeeId, $company, $employee, $requestPayload, $totalEmployees);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload);
         }
 
         return array_merge(
