@@ -122,9 +122,9 @@ class PDFController extends Controller
 
         $model->where("company_id", $request->company_id);
 
-        $model->where('LogTime', '>=', $request->filled("from_date") && $request->from_date !== 'null' ? $request->from_date : date("Y-m-d"));
+        $model->where('LogTime', '>=', request()->filled("from_date") && request("from_date") !== 'null' ? request("from_date") . " 00:00:00" : date("Y-m-d 00:00:00"));
 
-        $model->where('LogTime', '<=', $request->filled("to_date") && $request->to_date !== 'null' ? $request->to_date : date("Y-m-d"));
+        $model->where('LogTime', '<=', request()->filled("to_date") && request("to_date") !== 'null' ? request("to_date") .  " 23:59:59" : date("Y-m-d 23:59:59"));
 
         $model->whereHas('device', fn ($q) => $q->whereIn('device_type', ["all", "Access Control"]));
 
