@@ -243,7 +243,7 @@ class AutoShiftController extends Controller
     public function findClosest($shifts, $count, $logs, $date)
     {
         foreach ($logs as $logTime) {
-            if ($logTime["log_type"] == "In" || $logTime["device"]["function"] == "In") {
+            if ($logTime["log_type"] == null || $logTime["log_type"] == "Auto" || $logTime["log_type"] == "In"  || $logTime["device"]["function"] == "In") {
                 $current_time = date("H:i", strtotime($logTime["LogTime"]));
 
                 $matching_shift = array_filter($shifts, function ($shift) use ($current_time) {
@@ -260,23 +260,6 @@ class AutoShiftController extends Controller
         }
 
         return null;
-
-
-
-
-
-        // $current_time = date("H:i", $log_time);
-
-        // $matching_shift = array_filter($shifts, function ($shift) use ($current_time) {
-        //     return $current_time >= $shift['beginning_in'] && $current_time <= $shift['beginning_out'];
-        // });
-
-        // if (!empty($matching_shift)) {
-        //     $shift = array_values($matching_shift)[0]; // Get the first matching shift
-        //     return  $shift;
-        // } else {
-        //     return null;
-        // }
     }
     public function findClosest_old($arr, $n, $target, $date)
     {
@@ -476,7 +459,7 @@ class AutoShiftController extends Controller
                     "device_id_in" =>   "---",
                     "device_id_out" => "---",
                     "shift_type_id" =>   $nearestShift["shift_type_id"] ?? 0,
-                    "shift_id" =>   $nearestShift["shift_id"] ?? 0,
+                    "shift_id" =>   $nearestShift["id"] ?? 0,
 
                     "status" => "A",
                     "late_coming" => "---",
