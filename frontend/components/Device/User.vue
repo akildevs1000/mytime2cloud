@@ -181,14 +181,18 @@ export default {
   watch: {
     options: {
       handler() {
-        this.getDataFromApi();
+        if (this.dialog == true) {
+          this.getDataFromApi();
+        }
       },
       deep: true,
     },
   },
   async created() {
     this.loading = true;
-    await this.getDataFromApi();
+    if (this.dialog == true) {
+      this.getDataFromApi();
+    }
   },
 
   methods: {

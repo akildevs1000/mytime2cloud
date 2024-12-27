@@ -672,6 +672,11 @@
             + Add Schedule
           </v-btn>
         </span>
+        <span cols="2" class="mt-1" style="max-width: 140px">
+          <ScheduleEmployeeDelete
+            @response="handleScheduleEmployeeDeleteResponse"
+          />
+        </span>
         <!-- <input
           class="custom-input"
           type="text"
@@ -1484,6 +1489,14 @@ export default {
   },
 
   methods: {
+    handleScheduleEmployeeDeleteResponse(message) {
+
+      this.response = message;
+
+      this.snackbar = true;
+
+      this.getDataFromApi();
+    },
     filterAttr(data, item) {
       this.date_from = data.from;
       this.date_to = data.to;
