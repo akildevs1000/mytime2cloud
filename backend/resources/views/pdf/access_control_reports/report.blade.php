@@ -176,11 +176,6 @@
                 <td class="text-center border-none col-4 uppercase">
                     <div>
                         <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
-                        <div class="border-top border-bottom">
-                            {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
-                            {{ date('d-M-Y', strtotime($params['to_date'])) }}
-
-                        </div>
                     </div>
                 </td>
                 <td class="text-right border-none col-4">
