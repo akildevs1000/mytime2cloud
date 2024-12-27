@@ -49,7 +49,7 @@ class GenerateAccessControlReport implements ShouldQueue
 
         $date = $this->date;
 
-        $filesPath = public_path("access_control_reports/companies/$company_id/$date");
+        $filesPath = public_path("access_control_reports/companies/$company_id");
 
         // Generate the PDF
         $output = Pdf::loadView('pdf.access_control_reports.report', [
@@ -94,14 +94,14 @@ class GenerateAccessControlReport implements ShouldQueue
             }
 
 
-            $outputFilePath = $filesPath . '/report.pdf';
+            $outputFilePath = $filesPath . "/$date.pdf";
 
             $pdf->Output($outputFilePath, 'F');
 
             echo $outputFilePath;
 
             foreach ($pdfFiles as $file) {
-                if (basename($file) !== 'report.pdf') { // Check if the file is not report.pdf
+                if (basename($file) !== "$date.pdf") { // Check if the file is not report.pdf
                     unlink($file); // Delete the file
                 }
             }
