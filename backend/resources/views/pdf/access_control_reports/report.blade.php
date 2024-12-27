@@ -120,7 +120,9 @@
         }
 
         .page-break {
-            page-break-after: always;
+            page-break-before: auto;
+            page-break-after: auto;
+            /* Add this for proper page breaks */
         }
 
         footer {
@@ -155,99 +157,70 @@
         .pageCounter span {
             counter-increment: pageTotal;
         }
-
-        #pageNumbers span:before {
-            counter-increment: currentPage;
-            content: "Page " counter(currentPage) "/";
-        }
     </style>
 </head>
 
 <body>
     <div>
 
-        @foreach ($chunks as $chunk)
-            <div id="footer">
-                <div class="pageCounter">
-                    <p></p>
-                    @php
-                        $p = count($chunks);
-                        if ($p <= 1) {
-                            echo '<span></span>';
-                        } else {
-                            for ($a = 1; $a <= $p; $a++) {
-                                echo '<span></span>';
-                            }
-                    } @endphp
-                </div>
+        <table>
+            <tr>
+                <td class="text-left border-none col-4">
+                    <div class="logo pt">
+                        <img height="75" width="75"
+                            src="{{ !empty($company->logo_raw) ? env('BASE_URL') . '/' . $company->logo_raw : '' }}"
+                            alt="Company Logo" />
 
-            </div>
-            <table>
-                <tr>
-                    <td class="text-left border-none col-4">
-                        <div class="logo pt">
-                            @if (env('APP_ENV') == 'local')
-                                <img style="width: 100%" src="https://amc.mytime2cloud.com/mail-logo.png"
-                                    alt="Company Logo" />
-                            @else
-                                <img style="width: 100%" src="{{ $company->logo }}" alt="Company Logo" />
-                            @endif
-                        </div>
-                    </td>
-                    <td class="text-center border-none col-4 uppercase">
-                        <div>
-                            <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
-                            <div class="border-top border-bottom">
-                                {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
-                                {{ date('d-M-Y', strtotime($params['to_date'])) }}
+                    </div>
+                </td>
+                <td class="text-center border-none col-4 uppercase">
+                    <div>
+                        <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
+                        <div class="border-top border-bottom">
+                            {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
+                            {{ date('d-M-Y', strtotime($params['to_date'])) }}
 
-                            </div>
                         </div>
-                    </td>
-                    <td class="text-right border-none col-4">
-                        <div class="company-info">
-                            <h3>{{ $company->name ?? '---' }}</h3>
-                            <p>{{ $company->location ?? '---' }}</p>
-                            <p>{{ $company->contact->number ?? '---' }}, {{ $company->user->email ?? '---' }}</p>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-            <table class="mt-5">
-                <tr>
-                    <th>S.NO</th>
-                    <th>Name</th>
-                    <th>Branch/Department</th>
-                    <th>Phone</th>
-                    <th>Door</th>
-                    <th>DateTime</th>
-                    <th>In</th>
-                    <th>Out</th>
-                    <th>Mode</th>
-                    <th>Status</th>
-                    <th>User Type</th>
-                </tr>
-                @foreach ($chunk as $key => $data)
-                    @if (array_key_exists('employee', $data) && $data['employee'])
+                    </div>
+                </td>
+                <td class="text-right border-none col-4">
+                    <div class="company-info">
+                        <h3>{{ $company->name ?? '---' }}</h3>
+                        <p>{{ $company->location ?? '---' }}</p>
+                        <p>{{ $company->contact->number ?? '---' }}, {{ $company->user->email ?? '---' }}</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <th>S.NO</th>
+                <th>Name</th>
+                <th>Branch/Department</th>
+                <th>Phone</th>
+                <th>Door</th>
+                <th>DateTime</th>
+                <th>In</th>
+                <th>Out</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>User Type</th>
+            </tr>
+            @foreach ($chunk as $key => $data)
+                @if (array_key_exists('employee', $data) && $data['employee'])
                     <tr>
                         <td style="width:10px;">{{ $key + 1 }}</td>
 
                         <td>
-                            @php
-                                $pic = 'https://i.pinimg.com/originals/df/5f/5b/df5f5b1b174a2b4b6026cc6c8f9395c1.jpg';
-
-                                if ($data['employee']['profile_picture_raw']) {
-                                    $pic = getcwd() . '/media/employee/profile_picture/' . $data['employee']['profile_picture_raw'];
-                                }
-
-                            @endphp
-
                             <table>
                                 <tr>
-                                    <td style="width:20px;" class="border-none">
-                                        <img alt="{{ $pic }}"
-                                            style="border-radius: 50%;width:40px;padding-top:5px;"src="{{ $pic }}" />
-                                    </td>
+                                    @if (!empty($data['employee']['profile_picture_raw']))
+                                        <td style="width:15px;" class="border-none">
+                                            <img style="border-radius: 50%; width:40px; padding-top:5px;"
+                                                src="{{ env('BASE_URL') . '/media/employee/profile_picture/' . $data['employee']['profile_picture_raw'] }}" />
+                                        </td>
+                                    @endif
+
                                     <td class="border-none">
                                         <b style="margin-left:5px; padding-top:-30px;">
                                             {{ $data['employee']['first_name'] ?? '---' }}
@@ -258,11 +231,11 @@
                                             style="margin-left:5px;">EID:{{ $data['employee']['employee_id'] ?? '---' }}</small>
 
                                         {{-- <br>
-                                        <small style="margin-left:5px;">Branch:
-                                            {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
-                                        <br>
-                                        <small style="margin-left:5px;">Department:
-                                            {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
+                                    <small style="margin-left:5px;">Branch:
+                                        {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
+                                    <br>
+                                    <small style="margin-left:5px;">Department:
+                                        {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
                                     </td>
                                 </tr>
                             </table>
@@ -287,34 +260,33 @@
                         <td>{{ $data['status'] }}</td>
                         <td>Employee</td>
                     </tr>
-                    @endif
-                @endforeach
-            </table>
-            <footer class="page page-break">
+                @endif
+            @endforeach
+        </table>
+        <footer class="page page-break">
 
-                <hr class="mt-1" style="color:#dddddd;">
-                <table>
-                    <tr>
-                        <td class="text-left border-none col-4">
-                            <div>
-                                Printed On {{ date('d M Y') }}
-                            </div>
-                        </td>
-                        <td class="text-center border-none col-4 ">
-                            <div>
-                                This is system generated report
-                            </div>
-                        </td>
-                        <td class="text-right border-none col-4">
-                            <div id="pageNumbers" class="company-info">
-                                <span class="page-number"></span>
-                                {{ count($chunks) }}
-                            </div>
-                        </td>
-                    </tr>
-                </table>
-            </footer>
-        @endforeach
+            <hr class="mt-1" style="color:#dddddd;">
+            <table>
+                <tr>
+                    <td class="text-left border-none col-4">
+                        <div>
+                            Printed On {{ date('d M Y') }}
+                        </div>
+                    </td>
+                    <td class="text-center border-none col-4 ">
+                        <div>
+                            This is system generated report
+                        </div>
+                    </td>
+                    <td class="text-right border-none col-4">
+                        <div class="company-info">
+                            {{ $currentPage }} / {{ $totalPages }}
+
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </footer>
     </div>
 </body>
 

@@ -178,11 +178,18 @@ class Employee extends Model
     }
     public function getProfilePictureRawAttribute()
     {
-        $arr = explode('media/employee/profile_picture/', $this->profile_picture);
-        return    $arr[1] ?? '';
-        // return asset(env('BUCKET_URL') . '/' . $value);
+        // Ensure profile_picture exists and is not empty
+        if (empty($this->profile_picture)) {
+            return ''; // Return an empty string if profile_picture is not set
+        }
 
+        // Split the path string
+        $arr = explode('media/employee/profile_picture/', $this->profile_picture);
+
+        // Return the part after 'media/employee/profile_picture/' or an empty string if not found
+        return isset($arr[1]) ? $arr[1] : '';
     }
+
     public function getCreatedAtAttribute($value): string
     {
         return date('d M Y', strtotime($value));
@@ -236,12 +243,18 @@ class Employee extends Model
         return $this->hasMany(Attendance::class, "employee_id", "system_user_id");
     }
 
+
     public function today_absent()
     {
         return $this->hasOne(Attendance::class, "employee_id", "system_user_id")->where("status", "A")->whereDate("date", date("Y-m-d"));
     }
 
     public function attendance_logs()
+    {
+        return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");
+    }
+
+    public function today_logs()
     {
         return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");
     }
