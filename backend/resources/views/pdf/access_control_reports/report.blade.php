@@ -176,11 +176,9 @@
                 <td class="text-center border-none col-4 uppercase">
                     <div>
                         <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
-                        <div class="border-top border-bottom">
-                            {{ date('d-M-Y', strtotime($params['from_date'])) }} TO
-                            {{ date('d-M-Y', strtotime($params['to_date'])) }}
-
-                        </div>
+                    </div>
+                    <div>
+                        <b>{{ date("d M y", strtotime($date)) }} </b>
                     </div>
                 </td>
                 <td class="text-right border-none col-4">
@@ -192,7 +190,7 @@
                 </td>
             </tr>
         </table>
-        <table>
+        <table class="mt-5">
             <tr>
                 <th>S.NO</th>
                 <th>Name</th>
@@ -210,7 +208,6 @@
                 @if (array_key_exists('employee', $data) && $data['employee'])
                     <tr>
                         <td style="width:10px;">{{ $key + 1 }}</td>
-
                         <td>
                             <table>
                                 <tr>
@@ -227,15 +224,7 @@
                                             {{ $data['employee']['last_name'] ?? '---' }}
                                         </b>
                                         <br>
-                                        <small
-                                            style="margin-left:5px;">EID:{{ $data['employee']['employee_id'] ?? '---' }}</small>
-
-                                        {{-- <br>
-                                    <small style="margin-left:5px;">Branch:
-                                        {{ $data['employee']['branch']['branch_name'] ?? '---' }}</small>
-                                    <br>
-                                    <small style="margin-left:5px;">Department:
-                                        {{ $data['employee']['department']['name'] ?? '---' }}</small> --}}
+                                        <small style="margin-left:5px;">EID:{{ $data['UserID'] ?? '---' }}</small>
                                     </td>
                                 </tr>
                             </table>
@@ -260,11 +249,46 @@
                         <td>{{ $data['status'] }}</td>
                         <td>Employee</td>
                     </tr>
+                @else
+                    <tr>
+                        <td style="width:10px;">{{ $key + 1 }}</td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <td class="border-none">
+                                        <b style="margin-left:5px; padding-top:-30px;">
+                                            ---
+                                        </b>
+                                        <br>
+                                        <small style="margin-left:5px;">EID:{{ $data['UserID'] ?? '---' }}</small>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+
+                        <td>
+                            <b>---</b>
+                            <br>
+                            ---
+                        </td>
+                        <td>---</td>
+                        <td>{{ $data['device']['location'] ?? '---' }}</td>
+                        <td>{{ $data['date'] }} {{ $data['time'] }}</td>
+                        <td>
+                            {{ strtolower($data['device']['function']) !== 'out' ? 'In' : '---' }}
+                        </td>
+                        <td>
+                            {{ strtolower($data['device']['function']) == 'out' ? 'Out' : '---' }}
+                        </td>
+                        </td>
+                        <td>{{ $data['device']['mode'] ?? '---' }}</td>
+                        <td>{{ $data['status'] }}</td>
+                        <td>{{ $data['visitor']['full_name'] ?? '---' }}</td>
+                    </tr>
                 @endif
             @endforeach
         </table>
         <footer class="page page-break">
-
             <hr class="mt-1" style="color:#dddddd;">
             <table>
                 <tr>
