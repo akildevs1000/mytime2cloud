@@ -42,21 +42,29 @@ class PDFReport extends Command
 
         $model->where('LogTime', '<=', "$date 23:59:59");
 
-        $model->whereHas('device', fn($q) => $q->whereIn('device_type', ["all", "Access Control"]));
+        $model->whereHas('device', function ($q) use ($company_id) {
+            $q->whereIn('device_type', ["all", "Access Control"]);
+            $q->where('company_id', $company_id);
+        });
 
-        $model
-            ->with('device', function ($q) use ($company_id) {
-                $q->where('company_id', $company_id);
-            })
-            ->with('employee', function ($q) use ($company_id) {
-                $q->where('company_id', $company_id);
-            });
+        $model->with([
+            'device'    => fn($q) => $q->where('company_id', $company_id),
+            'employee'  => fn($q) => $q->where('company_id', $company_id),
+            'visitor'   => fn($q) => $q->where('company_id', $company_id),
+        ]);
 
-        $data = $model->take(100)->get()->toArray();
+
+        $data = $model->take(105)->get()->toArray();
 
         $company = Company::whereId(request("company_id") ?? 0)->first();
 
         $chunks = array_chunk($data, 10);
+
+        // echo "<pre>";
+
+        // info(json_encode($chunks));
+
+        // die;
 
         $params = ["report_type" => "Date Wise Report"];
 
@@ -64,7 +72,7 @@ class PDFReport extends Command
 
             $batchKey = $index + 1;
 
-            GenerateAccessControlReport::dispatch($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks), count($data));
+            GenerateAccessControlReport::dispatch($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks));
         };
     }
 }

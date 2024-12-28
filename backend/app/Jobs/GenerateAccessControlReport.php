@@ -8,32 +8,22 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\File;
 
 class GenerateAccessControlReport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $chunk;
-    protected $companyId;
-    protected $date;
-    protected $params;
-    protected $batchKey;
-    protected $company;
-    protected $totalPages;
-    protected $totalRecord;
 
-    public function __construct($chunk, $companyId, $date, $params,  $company, $batchKey, $totalPages, $totalRecord)
-    {
-        $this->chunk = $chunk;
-        $this->companyId = $companyId;
-        $this->date = $date;
-
-        $this->params = $params;
-        $this->batchKey = $batchKey;
-        $this->company = $company;
-        $this->totalPages = $totalPages;
-        $this->totalRecord = $totalRecord;
-    }
+    public function __construct(
+        public $chunk,
+        public $companyId,
+        public $date,
+        public $params,
+        public $company,
+        public $batchKey,
+        public $totalPages
+    ) {}
     /**
      * Execute the job.
      *
@@ -41,70 +31,88 @@ class GenerateAccessControlReport implements ShouldQueue
      */
     public function handle()
     {
-        ini_set('memory_limit', '512M'); // Adjust to the required value
-
-        set_time_limit(120);
-
         $company_id = $this->companyId;
 
         $date = $this->date;
 
-        $filesPath = public_path("access_control_reports/companies/$company_id");
+        $filesPath = public_path("access_control_reports/companies/$company_id/$date");
 
-        // Generate the PDF
-        $output = Pdf::loadView('pdf.access_control_reports.report', [
+        if (!file_exists($filesPath)) {
+            mkdir($filesPath, 0777, true);
+        }
+
+        $payload = [
             "chunk" => $this->chunk,
             "company" => $this->company,
             "params" => $this->params,
             "currentPage" => $this->batchKey,
             "totalPages" => $this->totalPages,
-        ])->output();
+        ];
+
+        $output = Pdf::loadView('pdf.access_control_reports.report', $payload)->output();
 
         $file_name = $this->batchKey . '.pdf';
 
         file_put_contents($filesPath . '/' . $file_name, $output);
 
+        if ($payload["currentPage"] >= $payload["totalPages"]) {
 
-        if ($this->batchKey >= $this->totalPages) {
+            $this->MergeAllGenerateFiles($company_id, $date);
 
-            echo $this->batchKey .  "-" . $this->totalPages . "\n";
+            $message = "\n Access control report has been generated. Company id = $company_id, date = $date";
 
-            $pdfFiles = glob($filesPath . '/*.pdf');
+            echo $message;
 
-            // Initialize FPDI
-            $pdf = new \setasign\Fpdi\Fpdi();
+            info($message);
+        }
+    }
 
-            // Loop through each PDF file
-            foreach ($pdfFiles as $file) {
-                $pageCount = $pdf->setSourceFile($file);
+    public function MergeAllGenerateFiles($company_id, $date)
+    {
+        $filesPath = public_path("access_control_reports/companies/$company_id/$date");
 
-                // Add each page from the source PDF to the final output
-                for ($i = 1; $i <= $pageCount; $i++) {
-                    $tplId = $pdf->importPage($i);
-                    $size = $pdf->getTemplateSize($tplId);  // Get the page size of the imported PDF
+        $pdfFiles = glob($filesPath . '/*.pdf');
 
-                    // Adjust orientation based on the original page's width and height
-                    $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';  // Auto-detect orientation
+        usort($pdfFiles, function ($a, $b) {
+            // Extract the numeric part from the file names
+            $numA = (int)pathinfo($a, PATHINFO_FILENAME);
+            $numB = (int)pathinfo($b, PATHINFO_FILENAME);
 
-                    // Add a new page with the detected orientation
-                    $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+            // Compare numerically
+            return $numA <=> $numB;
+        });
 
-                    $pdf->useTemplate($tplId);
-                }
+        // Initialize FPDI
+        $pdf = new \setasign\Fpdi\Fpdi();
+
+        // Loop through each PDF file
+        foreach ($pdfFiles as $file) {
+            $pageCount = $pdf->setSourceFile($file);
+
+            // Add each page from the source PDF to the final output
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tplId = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tplId);  // Get the page size of the imported PDF
+
+                // Adjust orientation based on the original page's width and height
+                $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';  // Auto-detect orientation
+
+                // Add a new page with the detected orientation
+                $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+
+                $pdf->useTemplate($tplId);
             }
+        }
 
+        $outputPath = public_path("access_control_reports/companies/$company_id/");
 
-            $outputFilePath = $filesPath . "/$date.pdf";
+        $outputFilePath = $outputPath . "$date.pdf";
 
-            $pdf->Output($outputFilePath, 'F');
+        $pdf->Output($outputFilePath, 'F');
 
-            echo $outputFilePath;
-
-            foreach ($pdfFiles as $file) {
-                if (basename($file) !== "$date.pdf") { // Check if the file is not report.pdf
-                    unlink($file); // Delete the file
-                }
-            }
+        // Delete the directory and its contents
+        if (File::exists($filesPath)) {
+            File::deleteDirectory($filesPath);
         }
     }
 }
