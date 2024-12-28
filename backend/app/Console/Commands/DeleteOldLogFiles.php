@@ -55,8 +55,8 @@ class DeleteOldLogFiles extends Command
 
         // Delete Old logs from database 
         //delete whatsapp notification logs 
-        $previousDate = date('Y-m-d', strtotime('-30 days'));
-        WhatsappNotificationsLog::where("created_at", "<=", $previousDate . " 00:00:00")->delete();
+        $previousDate = date('Y-m-d', strtotime('-5 days'));
+        WhatsappNotificationsLog::where("sent_status", true)->where("created_at", "<=", $previousDate . " 00:00:00")->delete();
 
 
         // $previousDate = date('Y-m-d', strtotime('-366 days'));
