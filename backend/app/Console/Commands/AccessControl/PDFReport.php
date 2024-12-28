@@ -54,7 +54,7 @@ class PDFReport extends Command
         ]);
 
 
-        $data = $model->take(105)->get()->toArray();
+        $data = $model->get()->toArray();
 
         $company = Company::whereId($company_id)->first();
 
