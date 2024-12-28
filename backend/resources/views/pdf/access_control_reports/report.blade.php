@@ -177,6 +177,9 @@
                     <div>
                         <b>{{ $params['report_type'] ?? 'Access Control Report' }} </b>
                     </div>
+                    <div>
+                        <b>{{ date("d M y", strtotime($date)) }} </b>
+                    </div>
                 </td>
                 <td class="text-right border-none col-4">
                     <div class="company-info">
@@ -187,7 +190,7 @@
                 </td>
             </tr>
         </table>
-        <table>
+        <table class="mt-5">
             <tr>
                 <th>S.NO</th>
                 <th>Name</th>

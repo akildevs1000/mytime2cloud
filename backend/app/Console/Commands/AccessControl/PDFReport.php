@@ -56,15 +56,9 @@ class PDFReport extends Command
 
         $data = $model->take(105)->get()->toArray();
 
-        $company = Company::whereId(request("company_id") ?? 0)->first();
+        $company = Company::whereId($company_id)->first();
 
         $chunks = array_chunk($data, 10);
-
-        // echo "<pre>";
-
-        // info(json_encode($chunks));
-
-        // die;
 
         $params = ["report_type" => "Date Wise Report"];
 

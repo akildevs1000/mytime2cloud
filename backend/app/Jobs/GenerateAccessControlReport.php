@@ -47,6 +47,7 @@ class GenerateAccessControlReport implements ShouldQueue
             "params" => $this->params,
             "currentPage" => $this->batchKey,
             "totalPages" => $this->totalPages,
+            "date" => $date
         ];
 
         $output = Pdf::loadView('pdf.access_control_reports.report', $payload)->output();
