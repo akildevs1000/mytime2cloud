@@ -161,7 +161,7 @@ class SharjahUniversityAPI extends Controller
             ->withHeaders([
                 'Content-Type' => 'application/json',
             ])
-            ->post("https: //aquhrsys.alqasimia.ac.ae/hrendpoint/api/login", [
+            ->post("https://aquhrsys.alqasimia.ac.ae/hrendpoint/api/login", [
                 "userName" => "attendanceuser",
                 "password" => "AQU@Password123",
                 "key" => "7112484a-e08b-11ea-87d0-0242ac130003"
