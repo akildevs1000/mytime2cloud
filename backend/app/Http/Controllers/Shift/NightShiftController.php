@@ -131,7 +131,7 @@ class NightShiftController extends Controller
 
             if ($firstLog) {
                 $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
-                    return ($record["log_type"] == "Out" || $record["log_type"] == null || $record["log_type"] == "Auto") && $record["LogTime"] > $firstLog['LogTime'];
+                    return ($record["log_type"] == "Out" || $record["log_type"] == null || $record["log_type"] == "Auto" || $record["log_type"] == "auto") && $record["LogTime"] > $firstLog['LogTime'];
                 })->first();
             }
 
@@ -214,7 +214,7 @@ class NightShiftController extends Controller
                     $item["status"] = "LC";
                 }
             }
-            //commented because last log is not exist dual to device type is manual 
+            //commented because last log is not exist dual to device type is manual
             // $lastLog = $this->getLogsForOutOnly(
             //     $item["company_id"],
             //     $key,
@@ -324,7 +324,7 @@ class NightShiftController extends Controller
             } catch (\Throwable $e) {
             }
 
-            //if (!$custom_render) 
+            //if (!$custom_render)
             {
                 // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
