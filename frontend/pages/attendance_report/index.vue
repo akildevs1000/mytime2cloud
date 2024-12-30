@@ -362,7 +362,6 @@
           <v-tab-item value="tab-1">
             <AttendanceReport
               ref="attendanceReportRef"
-              v-if="showTabs.single == true"
               :key="1"
               title="General Reports"
               shift_type_id="1"
@@ -376,7 +375,6 @@
           <v-tab-item value="tab-2">
             <AttendanceReport
               ref="attendanceReportRef"
-              v-if="showTabs.double == true"
               title="Split Reports"
               shift_type_id="5"
               :headers="doubleHeaders"
@@ -390,7 +388,6 @@
           <v-tab-item value="tab-3">
             <AttendanceReport
               ref="attendanceReportRef"
-              v-if="showTabs.multi == true"
               :key="3"
               title="Multi In/Out Reports"
               shift_type_id="2"
