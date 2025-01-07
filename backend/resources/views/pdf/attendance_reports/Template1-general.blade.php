@@ -45,7 +45,6 @@
 
 
     @php
-        $statusColor = '';
         $i = 0;
         $pageBreak = 'true';
 
@@ -191,9 +190,8 @@
                             <table class=" summary-table" style="backgroudnd-color:red; margin-top:10px">
                                 <tr class="summary-header" style="border: none;background-color:#eeeeee">
                                     <th style="text-align: center; border :none; padding:5px">EID</th>
-                                    <th style="text-align: center; border :none">Name</th>
+                                    <th colspan="2" style="text-align: center; border :none">Name</th>
                                     <th style="text-align: center; border :none">Department</th>
-                                    <th style="text-align: center; border :none">Report Type</th>
                                 </tr>
                                 <tr style="border: none">
                                     <td style="text-align: center; border :none; padding:5px;font-size:11px">
@@ -201,7 +199,7 @@
                                             {{ $empID ?? '---' }}
                                         @endif
                                     </td>
-                                    <td style="text-align: center; border:none;font-size:11px">
+                                    <td colspan="2" style="text-align: center; border:none;font-size:11px">
                                         @if ($interval->format('%a') >= $pageBreakDaysDifference)
                                             {{ $empName ?? '---' }}
                                         @endif
@@ -211,9 +209,7 @@
                                             {{ $singleEmployee->department->name ?? '---' }}
                                         @endif
                                     </td>
-                                    <td style="text-align: center; border:none;font-size:11px">
-                                        General
-                                    </td>
+
                                 </tr>
                                 <tr class="summary-header" style="border: none;background-color:#eeeeee">
                                     <th style="text-align: center; border :none; padding:5px">Present</th>
@@ -237,46 +233,25 @@
                                     </td>
                                 </tr>
                                 <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                                    <th style="text-align: center; border :none">Holidays</th>
-                                    <th style="text-align: center; border :none">Missing</th>
-
-                                    <th style="text-align: center; border :none; padding:5px">Work Hours</th>
-                                    <th style="text-align: center; border :none">OT Hours</th>
-
-                                    {{-- <th style="text-align: center; border :none">Department</th> --}}
+                                    <th style="text-align: center; border :none">Work Hours</th>
+                                    <th style="text-align: center; border :none">OT</th>
+                                    <th style="text-align: center; border :none">Late</th>
+                                    <th style="text-align: center; border :none">Early</th>
                                 </tr>
                                 <tr style="border: none">
-                                    <td style="text-align: center; border :none;color:pink">
-                                        {{ getStatus($employee->toArray())['H'] ?? 0 }}
-                                    </td>
-                                    <td style="text-align: center; border :none;color:orange">
-                                        {{ getStatus($employee->toArray())['M'] ?? 0 }}
-                                    </td>
-                                    <td style="text-align: center; border :none; padding:5px;color:black">
+                                    <td style="text-align: center; border :none;color:black">
                                         {{ $empTotWrkHrs ?? 0 }}
                                     </td>
                                     <td style="text-align: center; border :none;color:black">
                                         {{ $empTotOtHrs ?? 0 }}
                                     </td>
-                                </tr>
-
-                                <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                                    <th colspan="2" style="text-align: center; border :none; padding:5px">Late
-                                        Coming Hours</th>
-                                    <th colspan="2" style="text-align: center; border :none">Early Going Hours</th>
-
-                                    {{-- <th style="text-align: center; border :none">Department</th> --}}
-                                </tr>
-                                <tr style="border: none">
-                                    <td colspan="2"
-                                        style="text-align: center; border :none; padding:5px;color:black">
+                                    <td style="text-align: center; border :none;color:black">
                                         {{ $empTotLCHrs ?? 0 }}
                                     </td>
-                                    <td colspan="2" style="text-align: center; border :none;color:black">
+                                    <td style="text-align: center; border :none;color:black">
                                         {{ $empTotEGHrs ?? 0 }}
                                     </td>
                                 </tr>
-
                                 <tr style="border: none">
                                     <th style="text-align: center; border :none" colspan="4">
                                         <hr>
@@ -317,14 +292,16 @@
                 @endif
                 @foreach ($employee as $date)
                     @php
-
+                        $statusColor = '';
                         $employee = $date[0];
-                        if ($employee->status == 'P') {
+                        $statusName = $employee->status;
+
+                        if ($employee->status == 'P' || $employee->status == 'LC' || $employee->status == 'EG') {
                             $statusColor = 'green';
-                        } elseif ($employee->status == 'A') {
+                            $statusName = 'P';
+                        } elseif ($employee->status == 'A' || $employee->status == 'M') {
                             $statusColor = 'red';
-                        } elseif ($employee->status == 'M') {
-                            $statusColor = 'orange';
+                            $statusName = 'A';
                         } elseif ($employee->status == 'O') {
                             $statusColor = 'gray';
                         } elseif ($employee->status == 'L') {
@@ -432,10 +409,10 @@
                             </td>
                             <td colspan="1" style="text-align:  center;"> {{ $employee->ot ?? '---' }} </td>
                             <td colspan="1" style="text-align:  center; color:{{ $statusColor }}">
-                                {{ str_replace('O', 'W', $employee->status) ?? '---' }}
 
                                 <div class="secondary-value" style="font-size:6px">
-                                    @if ($employee['shift'] && $employee->status == 'P')
+                                    {{ $statusName }}
+                                    @if ($employee['shift'] && $statusName == 'P')
                                         @php
                                             $shiftWorkingHours = $employee['shift']['working_hours'];
                                             $employeeHours = $employee['total_hrs'];
@@ -453,6 +430,7 @@
                                                 $employeeHours = $hours * 60 + $minutes;
 
                                                 if ($employeeHours < $shiftWorkingHours) {
+                                                    echo '<br>';
                                                     echo 'Short Shift';
                                                 }
                                         } @endphp
@@ -489,42 +467,44 @@
 
         function getStatus($employeeData)
         {
-            $countA = 0;
-            $countP = 0;
-            $countM = 0;
-            $countO = 0;
-            $countL = 0;
-            $countH = 0;
+            // Validate input: check if employeeData is an array and non-empty
+            if (!is_array($employeeData) || empty($employeeData)) {
+                throw new InvalidArgumentException('Invalid employee data: must be a non-empty array.');
+            }
+
+            // Define status mappings and initialize counts
+            $statusMapping = [
+                'A' => ['A', 'M'], // Absent: Includes Missing
+                'P' => ['P', 'LC', 'EG'], // Present: Includes Late Coming and Early Going
+                'O' => ['O'], // Other
+                'L' => ['L'], // Leave
+                'H' => ['H'], // Holiday
+            ];
+
+            // Initialize status counts
+            $statusCounts = array_fill_keys(array_keys($statusMapping), 0);
 
             foreach ($employeeData as $employee) {
-                if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+                // Ensure each employee has valid data
+                if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['status'])) {
                     throw new InvalidArgumentException(
-                        "Invalid employee data: each employee must be an array with a 'total_hrs' key",
+                        "Invalid employee data: each employee must be an array with a 'status' key",
                     );
                 }
-                $status = $employee[0]['status'];
-                if ($status == 'A') {
-                    $countA++;
-                } elseif ($status == 'P') {
-                    $countP++;
-                } elseif ($status == 'M') {
-                    $countM++;
-                } elseif ($status == 'O') {
-                    $countO++;
-                } elseif ($status == 'L') {
-                    $countL++;
-                } elseif ($status == 'H') {
-                    $countH++;
+
+                // Normalize status to uppercase
+                $status = strtoupper($employee[0]['status']);
+
+                // Find and increment the corresponding category
+                foreach ($statusMapping as $category => $statuses) {
+                    if (in_array($status, $statuses)) {
+                        $statusCounts[$category]++;
+                        break;
+                    }
                 }
             }
-            return [
-                'A' => $countA,
-                'P' => $countP,
-                'M' => $countM,
-                'O' => $countO,
-                'L' => $countL,
-                'H' => $countH,
-            ];
+
+            return $statusCounts;
         }
 
         function getTotalHours($employeeData, $type)
