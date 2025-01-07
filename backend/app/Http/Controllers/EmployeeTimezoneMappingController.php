@@ -46,8 +46,16 @@ class EmployeeTimezoneMappingController extends Controller
     public function store(StoreRequest $request)
     {
 
+        $slots = Timezone::where("timezone_id", $request->timezone_id)->value("intervals_raw_data") ?? [];
+
+        $slotsCount = count(json_decode($slots));
+
+        $payload = $request->validated();
+
+        $payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
+
         try {
-            $record = EmployeeTimezoneMapping::create($request->validated());
+            $record = EmployeeTimezoneMapping::create($payload);
 
             if ($record) {
 
@@ -134,19 +142,20 @@ class EmployeeTimezoneMappingController extends Controller
     }
     public function update(UpdateRequest $request, EmployeeTimezoneMapping $EmployeeTimezoneMapping)
     {
+        $slots = Timezone::where("timezone_id", $request->timezone_id)->value("intervals_raw_data") ?? [];
+
+        $slotsCount = count(json_decode($slots));
+
+        $payload = $request->all();
+
+        $payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
+
         try {
-
-            //updating default timezone id which are already exist in TimezoneName
-            if ($request->timezone_id) {
-                Employee::where('timezone_id', $request->timezone_id)
-                    ->update(['timezone_id' => 1]);
-            }
-
-            $record = $EmployeeTimezoneMapping->update($request->all());
+            $record = $EmployeeTimezoneMapping->update($payload);
 
             if ($record) {
 
-                $SDKjsonRequest = $this->prepareSDKrequestjson($request->all());
+                $SDKjsonRequest = $this->prepareSDKrequestjsonForUpdate($payload);
 
                 $SDKObj = new SDKController;
                 //$SDKresponse = ($SDKObj->processSDKRequest("localhost:5000/Person/AddRange", $SDKjsonRequest));
@@ -310,5 +319,35 @@ class EmployeeTimezoneMappingController extends Controller
 
             ->with(["timezone", "branch"])
             ->paginate($request->per_page);
+    }
+
+    public function prepareSDKrequestjsonForUpdate($phpArray)
+    {
+
+        $finalArray = [];
+        if (!isJson($phpArray)) {
+            $phpArray = json_decode($phpArray, true);
+        } else {
+            $phpArray = $phpArray;
+        }
+
+        $personsListArray = [];
+        $snListArray = array_column($phpArray['device_id'], 'device_id');
+
+        foreach ($phpArray['employee_id'] as $list) {
+            Employee::where("id", $list['id'])->update(['timezone_id' => $phpArray['timezone_id']]);
+            //$row['expiry'] = "2089-12-31 23:59:59";
+            $personsListArray[] = [
+                "name" => $list['display_name'],
+                "userCode" => $list['system_user_id'],
+                "timeGroup" => $phpArray['timezone_id'],
+                "cardData" => $list['rfid_card_number'],
+                "password" => $list['rfid_card_password'],
+            ];
+        }
+
+        $finalArray['snList'] = $snListArray;
+        $finalArray['personList'] = $personsListArray;
+        return $finalArray;
     }
 }
