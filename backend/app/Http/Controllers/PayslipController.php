@@ -245,16 +245,25 @@ class PayslipController extends Controller
             //company details
 
             $payslips = [
-                'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
-                'month' => $month, 'year' => $year, 'basic_salary' => $payroll->basic_salary, 'net_salary' => $payroll->net_salary, 'final_salary' => $payroll->finalSalary
+                'company_id' => $employee->payroll->company_id,
+                'employee_id' => $employee->employee_id,
+                'employee_table_id' => $employee->id,
+                'month' => $month,
+                'year' => $year,
+                'basic_salary' => $payroll->basic_salary,
+                'net_salary' => $payroll->net_salary,
+                'final_salary' => $payroll->finalSalary
             ];
 
 
 
 
             Payslips::updateOrCreate([
-                'company_id' => $employee->payroll->company_id, 'employee_id' => $employee->employee_id, 'employee_table_id' => $employee->id,
-                'month' => $month, 'year' => $year,
+                'company_id' => $employee->payroll->company_id,
+                'employee_id' => $employee->employee_id,
+                'employee_table_id' => $employee->id,
+                'month' => $month,
+                'year' => $year,
             ], $payslips);
 
 
@@ -298,18 +307,21 @@ class PayslipController extends Controller
 
         $attendances = Attendance::where($conditions)
             ->whereMonth('date', '=', $request->month <= 9 ? "0" . $request->month : date("m"))
-            ->whereIn('status', ['P', 'A', 'M', 'O'])
+            ->whereIn('status', ['P', 'A', 'M', 'O', "LC", "EG"])
             ->get();
 
-        $Payroll->present = $attendances->whereIn('status', 'P')->count();
+        $Payroll->present = $attendances->where('status', 'P')->count();
         $Payroll->absent = $attendances->where('status', 'A')->count();
         $Payroll->missing = $attendances->where('status', 'M')->count();
         $Payroll->off = $attendances->where('status', 'O')->count();
-        $Payroll->late = $attendances->where('status', 'L')->count();
 
+        $Payroll->late_coming = $attendances->where('status', 'LC')->count();
+        $Payroll->early_going = $attendances->where('status', 'EG')->count();
 
         $Payroll->earnedSalary = ($Payroll->present + $Payroll->off) * $Payroll->perDaySalary;
+
         $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
+
         $Payroll->earningsCount = $Payroll->net_salary - $Payroll->basic_salary;
 
         //OT calculations
@@ -342,6 +354,7 @@ class PayslipController extends Controller
         ];
 
         $Earnings = array_merge($Payroll->earnings, [$OTSalaryEarning]);
+
         $Payroll->earnings = array_merge([$extraEarnings], $Earnings);
 
         $Payroll->deductions = [
@@ -352,7 +365,14 @@ class PayslipController extends Controller
         ];
 
         $Payroll->earnedSubTotal = round(($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary);
-        $Payroll->salary_and_earnings = round(($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary);
+
+
+        if ($Payroll->earningsCount > 0) {
+            $Payroll->salary_and_earnings = round(($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary);
+        } else {
+            $Payroll->salary_and_earnings = round(($Payroll->earningsCount) + $OTSalary);
+        }
+
 
         $Payroll->finalSalary = round(($Payroll->salary_and_earnings) - $Payroll->deductedSalary);
 
