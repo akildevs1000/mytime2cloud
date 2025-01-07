@@ -240,21 +240,21 @@ Route::get('shift_by_type', [ShiftController::class, 'shift_by_type']);
 Route::get('shift_by_types', [ShiftController::class, 'shift_by_types']);
 Route::get('list_with_out_multi_in_out', [ShiftController::class, 'list_with_out_multi_in_out']);
 
-Route::apiResource('time_table', TimeTableController::class);
+//Route::apiResource('time_table', TimeTableController::class);
 
 Route::apiResource('shift_type', ShiftTypeController::class);
 
-Route::get('custom_report', [ReportController::class, 'custom_report']);
+// Route::get('custom_report', [ReportController::class, 'custom_report']);
 
-Route::get('manual_report', [ManualReportController::class, 'custom_report']);
-Route::post('manual_report', [ManualReportController::class, 'store']);
-Route::get('auto_report', [AutoReportController::class, 'custom_report']);
-Route::post('auto_report', [AutoReportController::class, 'store']);
-Route::get('SyncDefaultAttendance', [AutoReportController::class, 'SyncDefaultAttendance']);
+// Route::get('manual_report', [ManualReportController::class, 'custom_report']);
+// Route::post('manual_report', [ManualReportController::class, 'store']);
+// Route::get('auto_report', [AutoReportController::class, 'custom_report']);
+// Route::post('auto_report', [AutoReportController::class, 'store']);
+// Route::get('SyncDefaultAttendance', [AutoReportController::class, 'SyncDefaultAttendance']);
 
-Route::get('no_report', [ReportController::class, 'no_report']);
-Route::get('overnight_report', [ReportController::class, 'overnight_report']);
-Route::get('odd_even_report', [ReportController::class, 'odd_even_report']);
+// Route::get('no_report', [ReportController::class, 'no_report']);
+// Route::get('overnight_report', [ReportController::class, 'overnight_report']);
+// Route::get('odd_even_report', [ReportController::class, 'odd_even_report']);
 
 Route::get('attendance_logs_details', [AttendanceLogController::class, 'AttendanceLogsDetails']);
 
@@ -279,8 +279,8 @@ Route::apiResource('report_notification_logs', ReportNotificationLogsController:
 Route::apiResource('device_notifications', DeviceNotificationsController::class);
 Route::apiResource('device_notifications_logs', DeviceNotificationsLogController::class);
 Route::get('testmail', [ReportNotificationController::class, 'testmail']);
-Route::get('/auto_shift', [AutoShiftController::class, 'index']);
-Route::post('/auto_shift', [AutoShiftController::class, 'store']);
+// Route::get('/auto_shift', [AutoShiftController::class, 'index']);
+// Route::post('/auto_shift', [AutoShiftController::class, 'store']);
 Route::apiResource('roster', RosterController::class);
 Route::get('/roster_list', [RosterController::class, 'getRosterList']);
 Route::post('/store_schedule_arrange', [RosterController::class, 'storeScheduleArrange']);

@@ -433,6 +433,7 @@ die();
                 @foreach ($employee as $date)
                 @php
                 $date[0] = $date[0];
+                $statusColor = null;
                 if ($date[0]->status == 'P') {
                 $statusColor = 'green';
                 } elseif ($date[0]->status == 'A') {
