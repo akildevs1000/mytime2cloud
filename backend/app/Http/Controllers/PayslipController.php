@@ -554,10 +554,6 @@ class PayslipController extends Controller
 
         $Payroll->earnedSalary =    round(($Payroll->present + $Payroll->week_off) * $Payroll->perDaySalary);
 
-        if ($Payroll->present == 0) {
-            $Payroll->earnedSalary = 0;
-        }
-
         $Payroll->deductedSalary =  round($Payroll->absent * $Payroll->perDaySalary);
 
         $OTHours = $Payroll->otHours["hours"];
@@ -595,6 +591,10 @@ class PayslipController extends Controller
         $Payroll->totalDeductions = ($Payroll->deductedSalary + $shortHours);
 
         $Payroll->salary_and_earnings = array_sum(array_column($Payroll->earnings, "value"));
+
+        if ($Payroll->present == 0) {
+            $Payroll->salary_and_earnings = 0;
+        }
 
         $Payroll->finalSalary = (($Payroll->salary_and_earnings) - $Payroll->totalDeductions);
 
