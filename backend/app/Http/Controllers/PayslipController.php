@@ -453,6 +453,7 @@ class PayslipController extends Controller
     {
         $id = $request->employee_id;
 
+
         // $data = $this->show($request, $request->employee_id);
 
         $Payroll = Payroll::where(["employee_id" => $id])
@@ -461,6 +462,11 @@ class PayslipController extends Controller
                 $q->withOut(["user", "schedule"]);
             }])
             ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id"]);
+
+        if (!$Payroll) {
+            return "No Data Found";
+        }
+
 
         $Payroll->payslip_number = "#" . $id . (int) date("m") - 1 . (int) date("y");
 
@@ -547,6 +553,10 @@ class PayslipController extends Controller
         $Payroll->week_off = $attendanceCounts["O"];
 
         $Payroll->earnedSalary =    round(($Payroll->present + $Payroll->week_off) * $Payroll->perDaySalary);
+
+        if ($Payroll->present == 0) {
+            $Payroll->earnedSalary = 0;
+        }
 
         $Payroll->deductedSalary =  round($Payroll->absent * $Payroll->perDaySalary);
 
