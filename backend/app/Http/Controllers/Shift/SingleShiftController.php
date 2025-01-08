@@ -108,30 +108,68 @@ class SingleShiftController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
-            // Find the first log based on the schedule and previous shift
-            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShifts) {
-                $previousShift = $previousShifts->get($key);
+            $previousShift = $previousShifts->get($key);
 
-                // Validate against previous shift's out time if shift type is 4
-                if ($previousShift && $previousShift->shift_type_id == 4) {
-                    return $previousShift->out != $record["time"];
-                }
+            $alreadyAssignedTimes = collect(); // Initialize a collection to store assigned times dynamically
 
-                // Validate against schedule timings
+            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShift, &$alreadyAssignedTimes) {
                 $beginning_in = $record["schedule"]["shift"]["beginning_in"] ?? false;
                 $beginning_out = $record["schedule"]["shift"]["beginning_out"] ?? false;
+                $currentTime = $record["time"];
 
-                return $beginning_in && $beginning_out && $record["time"] >= $beginning_in && $record["time"] <= $beginning_out;
+                // Skip times that are already assigned
+                if ($alreadyAssignedTimes->contains($currentTime)) {
+                    return false;
+                }
+
+                // Check for previous shift condition
+                if ($previousShift && $previousShift->shift_type_id == 4) {
+                    if ($previousShift->out < $currentTime) {
+                        $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
+                        return true;
+                    }
+                    return false;
+                }
+
+                // Check the beginning_in and beginning_out condition
+                if ($beginning_in && $beginning_out && $currentTime >= $beginning_in && $currentTime <= $beginning_out) {
+                    $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
+                    return true;
+                }
+
+                return false;
             });
 
-            $lastLog = collect($logs)->last(function ($record) {
-                return in_array($record["log_type"], ["Out", "Auto", "auto", null], true);
-            });
 
+            // These are row logs
+            // 2025-01-01 06:03	Boys Hostel C	
+            // ---
+            // 2025-01-01 06:05	Boys Hostel C	
+            // ---
+            // 2025-01-01 06:06	Boys Hostel C 	
+            // ---
+            // 2025-01-01 13:56	Boys Hostel C	
+            // ---
+            // 2025-01-01 22:01	Boys Hostel A	
+            // ---
+
+            //in my case 06:06 value already assigned to night shfit so i want only next avilable  time which 13:56
+
+            $lastLog = null;
+
+            if ($firstLog) {
+                // $lastLog = collect($logs)->filter(function ($record) {
+                //     $ending_in = $record["schedule"]["shift"]["ending_in"] ?? false;
+                //     $ending_out = $record["schedule"]["shift"]["ending_out"] ?? false;
+                //     $currentTime = $record["time"];
+                //     return $currentTime >= $ending_in && $currentTime <= $ending_out;
+                // })->last();
+
+                $lastLog = collect($logs)->last();
+            }
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
-
 
             if (!$schedule) continue;
 
@@ -151,7 +189,6 @@ class SingleShiftController extends Controller
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",
-
             ];
 
 
@@ -201,8 +238,6 @@ class SingleShiftController extends Controller
             $this->devLog("render-manual-log", $message);
             return $message;
         }
-
-
 
         try {
 

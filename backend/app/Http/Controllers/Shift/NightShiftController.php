@@ -102,69 +102,31 @@ class NightShiftController extends Controller
         $items = [];
         $keys = [];
         $message = "";
+
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
 
-            // $firstLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
-            // })->first();
-
-            /*$firstLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "In";
-            })->first();
-
-
-            if ($firstLog == null) {
-
-                $firstLog = collect($logs)->filter(function ($record) {
-                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
-                })->first();
-            }
-*/
             $firstLog = null;
             $lastLog = null;
 
             $firstLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "In" || $record["log_type"] == null || $record["log_type"] == "Auto";
+                $beginning_in = $record["schedule"]["shift"]["beginning_in"] ?? false;
+                $beginning_out = $record["schedule"]["shift"]["beginning_out"] ?? false;
+                $currentTime = $record["time"];
+                return $currentTime >= $beginning_in && $currentTime <= $beginning_out;
             })->first();
 
             if ($firstLog) {
-                $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
-                    return ($record["log_type"] == "Out" || $record["log_type"] == null || $record["log_type"] == "Auto" || $record["log_type"] == "auto") && $record["LogTime"] > $firstLog['LogTime'];
-                })->first();
+                $lastLog = collect($logs)->filter(function ($record) {
+                    $ending_in = $record["schedule"]["shift"]["ending_in"] ?? false;
+                    $ending_out = $record["schedule"]["shift"]["ending_out"] ?? false;
+                    $currentTime = $record["time"];
+                    return $currentTime >= $ending_in && $currentTime <= $ending_out;
+                })->last();
             }
-
-            if ($isRequestFromAutoshift) {
-
-                if ($firstLog == null) {
-                    $firstLog = collect($logs)->filter(function ($record) {
-                        return (isset($record["device"]["function"]) && ($record["device"]["function"] == "In"));
-                    })->first();
-                }
-                if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out") && $record["LogTime"] > $firstLog['LogTime'];
-                    })->first();
-                }
-            } else {
-
-                if ($firstLog == null) {
-
-                    $firstLog = collect($logs)->filter(function ($record) {
-                        return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
-                    })->first();
-                }
-                if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) use ($firstLog) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] != "In") && $record["LogTime"] > $firstLog['LogTime'];
-                    })->first();
-                }
-            }
-
 
             $schedule = $firstLog["schedule"] ?? false;
-
             $shift = $schedule["shift"] ?? false;
 
             if (!$schedule) {
@@ -207,33 +169,11 @@ class NightShiftController extends Controller
                 "early_going" => "---",
             ];
 
-            if ($shift && $item["shift_type_id"] == 4) {
-                $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
+            $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
 
-                if ($item["late_coming"] != "---") {
-                    $item["status"] = "LC";
-                }
+            if ($item["late_coming"] != "---") {
+                $item["status"] = "LC";
             }
-            //commented because last log is not exist dual to device type is manual
-            // $lastLog = $this->getLogsForOutOnly(
-            //     $item["company_id"],
-            //     $key,
-            //     $item["date"],
-            //     $shift,
-            //     $custom_render
-            // );
-            /*
-            $lastLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "Out";
-            })->last();
-
-
-            if ($lastLog == null) {
-
-                $lastLog = collect($logs)->filter(function ($record) {
-                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "In"));
-                })->last();
-            }*/
 
             if ($lastLog) {
 
@@ -253,15 +193,12 @@ class NightShiftController extends Controller
                 $endingIn =  date("Y-m-d", strtotime($params['date'] . " +1 day")) . " " . $lastLogShift["ending_in"];
                 $endingOut =  date("Y-m-d", strtotime($params['date'] . " +1 day")) . " " . $lastLogShift["ending_out"];
 
-
                 if ($lastLog['LogTime'] < $endingIn || $lastLog['LogTime'] > $endingOut) {
                     $keys[] = $key;
                     $message .= "{$key} LogTime({$lastLog["LogTime"]}) IN time  is out of range ({$endingIn} to {$endingOut})";
                     $message .= " Device: {$lastLog["DeviceID"]}";
                     continue;
                 }
-
-
 
                 $item["status"] = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
@@ -317,7 +254,6 @@ class NightShiftController extends Controller
             $model->where("date", $date);
             $model->delete();
             $model->insert($items);
-
 
             try {
                 (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
