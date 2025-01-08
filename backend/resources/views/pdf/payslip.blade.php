@@ -175,6 +175,16 @@
                                     <td>Week Off</td>
                                     <td>{{ $data->week_off }}</td>
                                 </tr>
+
+                                <tr>
+                                    <td>Late Hours</td>
+                                    <td>{{ $data->lateHours['hm'] }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td>Early Hours</td>
+                                    <td>{{ $data->earlyHours['hm'] }}</td>
+                                </tr>
                             </table>
                         </td>
                     </tr>

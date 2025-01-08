@@ -475,10 +475,10 @@ class PayslipController extends Controller
         $Payroll->date = date('j F Y');
 
         $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary : $Payroll->net_salary;
-
         $Payroll->perDaySalary = number_format($Payroll->SELECTEDSALARY / $Payroll->total_month_days, 2);
-
+        info('Per Day Salary:', ['perDaySalary' => $Payroll->perDaySalary]);
         $Payroll->perHourSalary = number_format($Payroll->perDaySalary / 8, 2);
+        info('Per Hour Salary:', ['perHourSalary' => $Payroll->perHourSalary]);
 
         $conditions = [
             "company_id" => $request->company_id,
@@ -502,37 +502,29 @@ class PayslipController extends Controller
 
         $otherCalculations = $attendances;
 
-        $totalofLateHours = $otherCalculations->filter(function ($attendance) {
+        $lateHours = $otherCalculations->filter(function ($attendance) {
             return $attendance->late_coming !== '---';
         })->pluck('late_coming')->toArray();
 
-
-
-        $totalofEarlyHours = $otherCalculations->filter(function ($attendance) {
+        $earlyHours = $otherCalculations->filter(function ($attendance) {
             return $attendance->early_going !== '---'; // Exclude records where 'late_coming' is '---'
         })->pluck('early_going')->toArray();
 
+        $otHours = $otherCalculations->filter(function ($attendance) {
+            return $attendance->ot !== '---'; // Exclude records where 'late_coming' is '---'
+        })->pluck('ot')->toArray();
 
-
-        $shortHours = array_merge(
-            $totalofLateHours,
-            $totalofEarlyHours
-        );
-
-        $totalMinutes = array_reduce($shortHours, function ($carry, $time) {
-            list($hours, $minutes) = explode(':', $time); // Split 'hh:mm'
-            return $carry + ($hours * 60) + $minutes; // Convert to total minutes and add to carry
-        }, 0);
-
-        $totalHours = intdiv($totalMinutes, 60); // Calculate total hours
-        $remainingMinutes = $totalMinutes % 60; // Calculate remaining minutes
+        $Payroll->lateHours = $this->calculateHoursAndMinutes($lateHours);
+        $Payroll->earlyHours = $this->calculateHoursAndMinutes($earlyHours);
+        $Payroll->otHours = $this->calculateHoursAndMinutes($otHours);
+        $shortHours = array_merge($lateHours, $earlyHours);
+        $Payroll->combimedShortHours = $this->calculateHoursAndMinutes($shortHours);
+        $totalMinutes = $Payroll->combimedShortHours;
+        $totalHours = $Payroll->combimedShortHours["hours"] ?? 0; // Calculate total hours
+        $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00"; // Calculate remaining minutes
         $decimalHours = $totalHours + ($remainingMinutes / 60);
-        // info("Total time: {$totalHours} hours and {$remainingMinutes} minutes");
-
         $rate = $Payroll->perHourSalary;
-        // Calculate total amount
         $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
-
 
         $grouByStatus = $attendances
             ->groupBy('status')  // Group by 'status'
@@ -558,38 +550,26 @@ class PayslipController extends Controller
 
         $Payroll->deductedSalary =  round($Payroll->absent * $Payroll->perDaySalary);
 
-        //OT calculations
-        $OTHours = 0;
-        $totalOTMinutes = 0;
-        $OTSalary = 0;
-        foreach ($attendances as $attendance) {
+        $OTHours = $Payroll->otHours["hours"];
 
-            $OT =  $attendance->ot;
-            if ($OT != '---') {
-                list($hours, $minutes) = explode(':', $OT);
-                $totalOTMinutes = $totalOTMinutes + ($hours * 60 + $minutes);
-            }
-        }
-        if ($totalOTMinutes > 0) {
-            $OTHours = round($totalOTMinutes / 60);
-        }
-        if ($OTHours > 0) {
-            $OTSalary = round($Payroll->perHourSalary * $OTHours);
-        }
+        $totalOTMinutes = $Payroll->otHours["minutes"];
 
-        //--------------------------
-        $OTSalaryEarning = [
-            "label" => "OT",
-            "value" => $OTSalary,
-        ];
-        $extraEarnings = [
-            "label" => "Basic",
-            "value" => $Payroll->SELECTEDSALARY,
-        ];
+        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
 
-        $Earnings = array_merge($Payroll->earnings, [$OTSalaryEarning]);
+        $Payroll->earnings = array_merge(
+            [
+                [
+                    "label" => "Basic",
+                    "value" => (int) $Payroll->SELECTEDSALARY,
+                ],
+                [
+                    "label" => "OT",
+                    "value" => $OTEarning,
+                ],
 
-        $Payroll->earnings = array_merge([$extraEarnings], $Earnings);
+            ],
+            $Payroll->earnings,
+        );
 
         $Payroll->deductions = [
             [
@@ -604,9 +584,7 @@ class PayslipController extends Controller
 
         $Payroll->totalDeductions = ($Payroll->deductedSalary + $shortHours);
 
-        $Payroll->earnedSubTotal = (($Payroll->earningsCount) + ($Payroll->earnedSalary) + $OTSalary);
-
-        $Payroll->salary_and_earnings = (($Payroll->earningsCount) + ($Payroll->SELECTEDSALARY) + $OTSalary);
+        $Payroll->salary_and_earnings = array_sum(array_column($Payroll->earnings, "value"));
 
         $Payroll->finalSalary = (($Payroll->salary_and_earnings) - $Payroll->totalDeductions);
 
@@ -617,39 +595,34 @@ class PayslipController extends Controller
         $data = $Payroll;
 
         $data->month = date('F', mktime(0, 0, 0, $request->month, 1));
+
         $data->year = $request->year;
-
-
-
-       // info("Salary: " . number_format($Payroll->SELECTEDSALARY));
-       // info("Per Day Salary " . $Payroll->perDaySalary);
-       // info("Per Hour Salary " . $Payroll->perHourSalary);
-
-        $totalMinutes = array_reduce($totalofLateHours, function ($carry, $time) {
-            list($hours, $minutes) = explode(':', $time); // Split 'hh:mm'
-            return $carry + ($hours * 60) + $minutes; // Convert to total minutes and add to carry
-        }, 0);
-
-        $totalHours = intdiv($totalMinutes, 60); // Calculate total hours
-        $remainingMinutes = $totalMinutes % 60; // Calculate remaining minutes
-
-       // info("Total Late Hours " . $totalHours . ":" . $remainingMinutes);
-
-
-        $totalMinutes = array_reduce($totalofEarlyHours, function ($carry, $time) {
-            list($hours, $minutes) = explode(':', $time); // Split 'hh:mm'
-            return $carry + ($hours * 60) + $minutes; // Convert to total minutes and add to carry
-        }, 0);
-
-        $totalHours = intdiv($totalMinutes, 60); // Calculate total hours
-        $remainingMinutes = $totalMinutes % 60; // Calculate remaining minutes
-
-       // info("Total Early Hours " . $totalHours . ":" . $remainingMinutes);
-       // info("Short Hours: " .  number_format($shortHours));
-
 
         return  Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->stream();
         $fileName = $data->payslip_number . '_' . $data->employee->first_name . '_' . $data->employee->last_name . '_' . $data->employee->employee_id . '_' . $data->payslip_month_year . '.pdf';
         return Pdf::loadView('pdf.payslip', compact('data'))->setPaper('A4', 'portrait')->download($fileName);
+    }
+
+
+    public function calculateHoursAndMinutes(array $timeStrings): array
+    {
+        $totalMinutes = array_reduce($timeStrings, function ($carry, $time) {
+            // Ensure the time is in the correct format
+            if (preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+                list($hours, $minutes) = explode(':', $time);
+                return $carry + ($hours * 60) + $minutes; // Convert to total minutes
+            }
+
+            throw new \InvalidArgumentException("Invalid time format: {$time}. Expected 'hh:mm'.");
+        }, 0);
+
+        $hours = intdiv($totalMinutes, 60);
+        $minutes = $totalMinutes % 60;
+
+        return [
+            "hours" => $hours,
+            "minutes" => $minutes,
+            "hm" => sprintf("%02d:%02d", $hours, $minutes), // Format as 'hh:mm'
+        ];
     }
 }
