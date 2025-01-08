@@ -218,7 +218,7 @@
 
             <v-tab
               v-if="showTabs.single == true"
-              :key="1"
+              :key="shift_type_id"
               style="height: 30px"
               href="#tab-1"
               class="black--text slidegroup1"
@@ -228,7 +228,7 @@
 
             <v-tab
               v-if="showTabs.double == true"
-              :key="2"
+              :key="shift_type_id"
               @click="commonMethod(2)"
               style="height: 30px"
               href="#tab-2"
@@ -239,7 +239,7 @@
 
             <v-tab
               v-if="showTabs.multi == true"
-              :key="3"
+              :key="shift_type_id"
               @click="commonMethod(3)"
               style="height: 30px"
               href="#tab-3"
@@ -362,9 +362,9 @@
           <v-tab-item value="tab-1">
             <AttendanceReport
               ref="attendanceReportRef"
-              :key="1"
+              :key="shift_type_id"
               title="General Reports"
-              shift_type_id="1"
+              :shift_type_id="shift_type_id"
               :headers="generalHeaders"
               :report_template="report_template"
               :payload1="payload11"
@@ -376,21 +376,21 @@
             <AttendanceReport
               ref="attendanceReportRef"
               title="Split Reports"
-              shift_type_id="5"
+              :shift_type_id="shift_type_id"
               :headers="doubleHeaders"
               :report_template="report_template"
               :payload1="payload11"
               process_file_endpoint="multi_in_out_"
               render_endpoint="render_multi_inout_report"
-              :key="2"
+              :key="shift_type_id"
             />
           </v-tab-item>
           <v-tab-item value="tab-3">
             <AttendanceReport
               ref="attendanceReportRef"
-              :key="3"
+              :key="shift_type_id"
               title="Multi In/Out Reports"
-              shift_type_id="2"
+              :shift_type_id="shift_type_id"
               :headers="multiHeaders"
               :report_template="report_template"
               :payload1="payload11"
@@ -415,7 +415,7 @@ import missingrecords from "../../components/attendance_report/missingrecords.vu
 export default {
   components: { AttendanceReport, missingrecords },
 
-  props: ["title", "shift_type_id", "render_endpoint", "process_file_endpoint"],
+  props: ["title", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
     missingLogsDialog: false,
@@ -643,6 +643,7 @@ export default {
     this.payload.department_ids = [];
 
     this.getAttendanceTabs();
+
     setTimeout(() => {
       this.getBranches();
       this.getScheduledEmployees();
@@ -887,6 +888,18 @@ export default {
         .then(({ data }) => {
           this.showTabs = data;
           this.payload.showTabs = data;
+
+          const valuesMap = {
+            multi: 2,
+            dual: 5,
+            single: 6,
+          };
+          // Find the first key in `json` that is true and retrieve its value from the map
+          const result = Object.entries(data).find(
+            ([key, value]) => value
+          )?.[0];
+
+          this.shift_type_id = valuesMap[result] || 2;
         });
     },
     async getDepartments() {

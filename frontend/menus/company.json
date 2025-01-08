@@ -131,7 +131,7 @@
 
   {
     "icon": "mdi mdi-calculator",
-    "title": "Settings",
+    "title": "Payroll Settings",
     "to": "/payroll/create",
     "menu": "payroll_settings_access",
     "open_menu": false,
