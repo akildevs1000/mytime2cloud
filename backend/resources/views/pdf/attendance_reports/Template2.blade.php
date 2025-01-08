@@ -206,6 +206,10 @@ die();
         @php
             $empTotWrkHrs = getTotalHours($employee->toArray(), 'total_hrs');
             $empTotOtHrs = getTotalHours($employee->toArray(), 'ot');
+
+            $empTotLCHrs = getTotalHours($employee->toArray(), 'late_coming');
+            $empTotEGHrs = getTotalHours($employee->toArray(), 'early_going');
+
             $singleEmployee = $employee[key(reset($employee))][0]->employee;
             $empName = $singleEmployee->display_name ?? '';
 
@@ -234,6 +238,12 @@ die();
                 </td>
                 <td style="text-align: left; color:grey">
                     <b>Week Off</b>:{{ getStatus($employee->toArray())['O'] ?? 0 }}
+                </td>
+                <td style="text-align: left;">
+                    <b>Late</b>:{{ $empTotLCHrs ?? 0 }}
+                </td>
+                <td style="text-align: left;">
+                    <b>Early</b>:{{ $empTotEGHrs ?? 0 }}
                 </td>
             </tr>
         </table>
