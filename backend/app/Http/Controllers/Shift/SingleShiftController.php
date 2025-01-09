@@ -76,7 +76,7 @@ class SingleShiftController extends Controller
 
 
 
-        //update atendance table with shift ID if shift with employee not found 
+        //update atendance table with shift ID if shift with employee not found
         if (count($logsEmployees) == 0) {
             $employees = (new Employee())->GetEmployeeWithShiftDetails($params);
             foreach ($employees as $key => $value) {
@@ -98,76 +98,78 @@ class SingleShiftController extends Controller
 
         $items = [];
 
+        $previousShifts = Attendance::where("company_id", $params["company_id"])
+            ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))
+            ->where("shift_type_id", 4)
+            ->get()
+            ->keyBy("employee_id");
+
         foreach ($logsEmployees as $key => $logs) {
-
-
 
             $logs = $logs->toArray() ?? [];
 
-            // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
-            // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
+            $previousShift = $previousShifts->get($key);
 
-            // $firstLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "In" || $record["device"]["function"] == "auto");
-            // })->first();
+            $alreadyAssignedTimes = collect(); // Initialize a collection to store assigned times dynamically
 
-            // $lastLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out" || $record["device"]["function"] == "auto");
-            // })->first();
-            $firstLog = null;
+            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShift, &$alreadyAssignedTimes) {
+                $beginning_in = $record["schedule"]["shift"]["beginning_in"] ?? false;
+                $beginning_out = $record["schedule"]["shift"]["beginning_out"] ?? false;
+                $currentTime = $record["time"];
 
-            $firstLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "In" || $record["log_type"] == null || $record["log_type"] == "Auto";
-            })->first();
-
-            $lastLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "Out" || $record["log_type"] == null || $record["log_type"] == "Auto";
-            })->last();
-
-            if ($isRequestFromAutoshift) {
-
-                if ($firstLog == null) {
-                    $firstLog = collect($logs)->filter(function ($record) {
-                        return (isset($record["device"]["function"]) && ($record["device"]["function"] == "In"));
-                    })->first();
+                // Skip times that are already assigned
+                if ($alreadyAssignedTimes->contains($currentTime)) {
+                    return false;
                 }
-                if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] == "Out");
-                    })->last();
+
+                // Check for previous shift condition
+                if ($previousShift && $previousShift->shift_type_id == 4) {
+                    if ($previousShift->out < $currentTime) {
+                        $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
+                        return true;
+                    }
+                    return false;
                 }
-            } else {
 
-
-
-                if ($firstLog == null) {
-
-                    $firstLog = collect($logs)->filter(function ($record) {
-                        return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
-                    })->first();
+                // Check the beginning_in and beginning_out condition
+                if ($beginning_in && $beginning_out && $currentTime >= $beginning_in && $currentTime <= $beginning_out) {
+                    $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
+                    return true;
                 }
-                if ($lastLog == null) {
-                    $lastLog = collect($logs)->filter(function ($record) {
-                        return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
-                    })->last();
-                }
+
+                return false;
+            });
+
+
+            // These are row logs
+            // 2025-01-01 06:03	Boys Hostel C	
+            // ---
+            // 2025-01-01 06:05	Boys Hostel C	
+            // ---
+            // 2025-01-01 06:06	Boys Hostel C 	
+            // ---
+            // 2025-01-01 13:56	Boys Hostel C	
+            // ---
+            // 2025-01-01 22:01	Boys Hostel A	
+            // ---
+
+            //in my case 06:06 value already assigned to night shfit so i want only next avilable  time which 13:56
+
+            $lastLog = null;
+
+            if ($firstLog) {
+                // $lastLog = collect($logs)->filter(function ($record) {
+                //     $ending_in = $record["schedule"]["shift"]["ending_in"] ?? false;
+                //     $ending_out = $record["schedule"]["shift"]["ending_out"] ?? false;
+                //     $currentTime = $record["time"];
+                //     return $currentTime >= $ending_in && $currentTime <= $ending_out;
+                // })->last();
+
+                $lastLog = collect($logs)->last();
             }
-
-
-
-
-            // if ($firstLog && ($firstLog["log_type"] == "in" || $firstLog["log_type"] == "auto")) {
-            //     $item["in"] = $firstLog["time"];
-            //     $item["device_id_in"] = $firstLog["DeviceID"];
-            // }
-
-
-
-
 
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
-
 
             if (!$schedule) continue;
 
@@ -187,7 +189,6 @@ class SingleShiftController extends Controller
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",
-
             ];
 
 
@@ -237,8 +238,6 @@ class SingleShiftController extends Controller
             $this->devLog("render-manual-log", $message);
             return $message;
         }
-
-
 
         try {
 

@@ -130,7 +130,7 @@ class MonthlyController extends Controller
     public function multi_in_out_monthly_pdf(Request $request)
     {
 
-        if (request("company_id", 0) == 22) {
+        if (request("shift_type_id", 0) == 2) {
             return $this->PDFMerge();
         }
 

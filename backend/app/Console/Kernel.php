@@ -125,6 +125,9 @@ class Kernel extends ConsoleKernel
 
             $schedule->command("pdf:generate $companyId")->dailyAt('03:35')->runInBackground();
 
+            $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->dailyAt('04:35')->runInBackground();
+
             $company_log = date("Y-m-d") . "-C" . $companyId;
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
