@@ -235,6 +235,13 @@ export default {
           ],
         },
 
+        {
+          icon: "mdi-whatsapp",
+          title: "Whatsapp",
+          to: "/whatsapp",
+          permission: this.can("/"),
+        },
+
         // {
         //   icon: "mdi-account",
         //   title: "User Management",
@@ -295,9 +302,10 @@ export default {
     },
 
     getLogo() {
-      return Array.from(
-        this.$auth.user && this.$auth.user.name
-      )[0].toUpperCase();
+      if (this.$auth.user?.name) {
+        return this.$auth.user.name.charAt(0).toUpperCase(); // Get the first character and convert it to uppercase
+      }
+      return ""; // Return an empty string if user or name is not defined
     },
   },
 };
