@@ -213,7 +213,7 @@ class AttendanceLogMissingController  extends Controller
 
                         return [
                             "status" => 100,
-                            "message" =>   $records['message'],
+                            "message" => $this->trasformResponseFromChineesetoEnglish($records['message'] ?? ""),
                             "updated_records" => [],
                             "total_device_records" => [],
                             "indexSerialNumber" => $indexSerialNumber,
@@ -286,6 +286,15 @@ class AttendanceLogMissingController  extends Controller
             ];
             // You can log the error or perform any other necessary actions here
         }
+    }
+
+    public function trasformResponseFromChineesetoEnglish($message)
+    {
+        // if ($message == '设备未连接到服务器或者未注册') {
+        //     return "Device Offline";
+        // }
+
+        return "Device Offline";
     }
 
     public function culrmethod($url, $data)
