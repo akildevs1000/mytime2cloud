@@ -168,7 +168,7 @@ export default ({ app }, inject) => {
     },
 
     can(per, thisobj) {
-      let u = thisobj.$auth.user;
+      let u = thisobj.$auth && thisobj.$auth.user;
 
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) ||
@@ -180,7 +180,10 @@ export default ({ app }, inject) => {
 
   inject("pagePermission", {
     can(per, thisobj) {
-      let u = thisobj.$auth.user;
+      let u = thisobj.$auth && thisobj.$auth.user;
+      if (!u) {
+        return false;
+      }
 
       if (
         u.user_type == "company" ||
@@ -189,8 +192,6 @@ export default ({ app }, inject) => {
       ) {
         return true;
       }
-      console.log(u && u.permissions.some((e) => e == per || per == "/"));
-
       return u && u.permissions.some((e) => e == per || per == "/");
     },
   });
