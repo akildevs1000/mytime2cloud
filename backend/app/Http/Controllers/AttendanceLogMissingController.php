@@ -290,11 +290,11 @@ class AttendanceLogMissingController  extends Controller
 
     public function trasformResponseFromChineesetoEnglish($message)
     {
-        // if ($message == '设备未连接到服务器或者未注册') {
-        //     return "Device Offline";
-        // }
+        if ($message == '设备未连接到服务器或者未注册') {
+            return "Device Offline";
+        }
 
-        return "Device Offline";
+        return "Device Offline. Check device settings";
     }
 
     public function culrmethod($url, $data)
