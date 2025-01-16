@@ -97,7 +97,7 @@ class SingleShiftController extends Controller
 
         $items = [];
 
-        $shifts = Shift::where("company_id", $params["company_id"])->get()->toArray();
+        $shifts = Shift::where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
 
         $previousShifts = Attendance::where("company_id", $params["company_id"])
             ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))

@@ -84,7 +84,7 @@ class FiloShiftController extends Controller
             }
         }
 
-        $shifts = Shift::where("company_id", $params["company_id"])->get()->toArray();
+        $shifts = Shift::where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
 
         $items = [];
         $message = "";
