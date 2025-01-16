@@ -21,13 +21,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        if (env('APP_ENV') != 'desktop') {
-            $schedule->call(function () {
-                exec('pm2 reload 4');
-                info("MyTime2Cloud SDK Production");
-            })->dailyAt('05:15');
-        }
-
         $monthYear = date("M-Y");
 
 
@@ -48,19 +41,7 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             //->withoutOverlapping()
             ->appendOutputTo(storage_path("kernal_logs/alarm/" . date("d-M-y") . "-alarm-logs-laravel.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-
-
-        //Schedule Device Access Control 
-        if (env('APP_ENV') != 'desktop') {
-            $schedule->call(function () {
-                exec('pm2 reload 3');
-                //info("Camera Log listener restarted");
-            })
-                ->everyMinute()
-                ->appendOutputTo(storage_path("kernal_logs/camera_log_listner/" . date("d-M-y") . "-camera-log-listner.log"));
-        }
+       
         (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
         $schedule
@@ -232,14 +213,6 @@ class Kernel extends ConsoleKernel
             // Artisan::call('cache:clear');
             // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
         })->hourly();
-        if (env('APP_ENV') != 'desktop') {
-            $schedule->call(function () {
-                exec('pm2 reload 1');
-                // Artisan::call('cache:clear');
-                // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
-            })->everyThreeHours();
-        }
-
 
         $schedule
             ->command('task:check_device_health')
