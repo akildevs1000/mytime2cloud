@@ -91,7 +91,15 @@ class Kernel extends ConsoleKernel
                 ->appendOutputTo(storage_path("kernal_logs/shifts/auto/$company_log.log")); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
-            $schedule->command("task:sync_auto_shift {$companyId} " . date("Y-m-d"))->everyThirtyMinutes();
+            $schedule
+                ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
+                ->everyThirtyMinutes()
+                ->runInBackground();
+
+            $schedule
+                ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
+                ->everyThirtyMinutes()
+                ->runInBackground();
 
 
             //if ($companyId == 1) 
