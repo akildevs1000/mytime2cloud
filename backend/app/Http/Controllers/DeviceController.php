@@ -1101,8 +1101,8 @@ class DeviceController extends Controller
             ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
             // ->where("device_type", "!=", "Manual")
             ->where("device_id", "!=", "Manual")
-            ->where("device_id", "!=", "Manual")
-            ->where('device_id', "NOT " . (env('WILD_CARD') ?? 'ILIKE'), '%mobile%')
+            ->where("device_id", "!=", "mobile")
+            // ->where('device_id', "NOT " . (env('WILD_CARD') ?? 'ILIKE'), '%mobile%')
 
 
             ->Where(function ($q) {
