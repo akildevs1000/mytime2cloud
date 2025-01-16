@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use Illuminate\Support\Facades\DB;
 
@@ -97,7 +98,12 @@ class SingleShiftController extends Controller
 
         $items = [];
 
-        $shifts = Shift::where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
+
+        $shifts = Shift::with("employee_schedule")->where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
+
+        $schedule = ScheduleEmployee::where("company_id", $params["company_id"])->get();
+
+
 
         $previousShifts = Attendance::where("company_id", $params["company_id"])
             ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))
@@ -106,6 +112,7 @@ class SingleShiftController extends Controller
             ->keyBy("employee_id");
 
         foreach ($logsEmployees as $key => $logs) {
+
 
             $logs = $logs->toArray() ?? [];
 
@@ -129,17 +136,22 @@ class SingleShiftController extends Controller
                 return in_array($record["log_type"], ["Out", "Auto", "auto", null], true);
             });
 
+            $schedules = ScheduleEmployee::where("company_id", $params["company_id"])->where("employee_id", $key)->get()->toArray();
 
             $schedule = $firstLog["schedule"] ?? false;
+
             $shift =  $schedule["shift"] ?? false;
 
             if (!$schedule) continue;
 
             $dayOfWeek = date('D', strtotime($firstLog["LogTime"])); // Convert to timestamp and get the day
 
-            foreach ($shifts as $foundShift) {
-                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $foundShift["days"], true)) {
-                    $shift = $foundShift;
+            foreach ($schedules as $singleSchedule) {
+                $day = $singleSchedule["shift"]["days"];
+
+                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $day, true)) {
+                    $schedule = $singleSchedule ?? false;
+                    $shift =  $schedule["shift"] ?? false;
                     break;
                 }
             }
@@ -161,7 +173,6 @@ class SingleShiftController extends Controller
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
-
 
             if ($shift && $item["shift_type_id"] == 6) {
                 $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);

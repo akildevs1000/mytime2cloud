@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 
 class FiloShiftController extends Controller
@@ -84,8 +85,6 @@ class FiloShiftController extends Controller
             }
         }
 
-        $shifts = Shift::where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
-
         $items = [];
         $message = "";
         foreach ($logsEmployees as $key => $logs) {
@@ -100,6 +99,8 @@ class FiloShiftController extends Controller
                 return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
             });
 
+            $schedules = ScheduleEmployee::where("company_id", $params["company_id"])->where("employee_id", $key)->get()->toArray();
+
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
 
@@ -110,12 +111,16 @@ class FiloShiftController extends Controller
 
             $dayOfWeek = date('D', strtotime($firstLog["LogTime"])); // Convert to timestamp and get the day
 
-            foreach ($shifts as $foundShift) {
-                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $shift["days"], true)) {
-                    $shift = $foundShift;
+            foreach ($schedules as $singleSchedule) {
+                $day = $singleSchedule["shift"]["days"];
+
+                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $day, true)) {
+                    $schedule = $singleSchedule ?? false;
+                    $shift =  $schedule["shift"] ?? false;
                     break;
                 }
             }
+
 
             if (!$firstLog["schedule"]["shift_type_id"]) {
                 $message .= "$key : None f=of the  Master shift configured on  date:" . $params["date"];
