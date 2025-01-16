@@ -161,9 +161,9 @@ export default {
       ws: null, // WebSocket instance
       clientId: "",
       serverUrl: "wss://wa.mytime2cloud.com/ws/",
-      endpoint: "wa.mytime2cloud.com/api/send-message",
+      // serverUrl: "ws://139.59.69.241:5175",
 
-      //   serverUrl: "ws://localhost:5175",
+      endpoint: "wa.mytime2cloud.com/api/send-message",
       //   endpoint: "http://localhost:5176/api/send-message",
       qrCodeUrl: null,
       statusMessage: "",
