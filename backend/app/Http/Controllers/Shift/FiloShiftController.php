@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Shift;
 
 class FiloShiftController extends Controller
 {
@@ -83,41 +84,22 @@ class FiloShiftController extends Controller
             }
         }
 
+        $shifts = Shift::where("company_id", $params["company_id"])->get()->toArray();
+
         $items = [];
         $message = "";
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
 
-            // $firstLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "out")->first();
-            // $lastLog = collect($logs)->filter(fn ($record) => $record['log_type'] !== "in")->last();
+            $firstLog = collect($logs)->first(function ($record) use ($key) {
+                return in_array($record["log_type"], ["In", "in", "Auto", "auto", null], true);
+            });
 
+            $lastLog = collect($logs)->last(function ($record) {
+                return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
+            });
 
-            // $firstLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] !== "Out");
-            // })->first();
-
-            // $lastLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] !== "In");
-            // })->last();
-            $firstLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "In";
-            })->first();
-
-            $lastLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "Out";
-            })->last();
-            if ($firstLog == null) {
-
-                $firstLog = collect($logs)->filter(function ($record) {
-                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
-                })->first();
-            }
-            if ($lastLog == null) {
-                $lastLog = collect($logs)->filter(function ($record) {
-                    return isset($record["device"]["function"]) && ($record["device"]["function"] != "In");
-                })->last();
-            }
             $schedule = $firstLog["schedule"] ?? false;
             $shift = $schedule["shift"] ?? false;
 
@@ -125,6 +107,16 @@ class FiloShiftController extends Controller
                 $message .= ".  No schedule is mapped with combination  System User Id: $key   and Date : " . $params["date"] . " ";
                 continue;
             }
+
+            $dayOfWeek = date('D', strtotime($firstLog["LogTime"])); // Convert to timestamp and get the day
+
+            foreach ($shifts as $foundShift) {
+                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $shift["days"], true)) {
+                    $shift = $foundShift;
+                    break;
+                }
+            }
+
             if (!$firstLog["schedule"]["shift_type_id"]) {
                 $message .= "$key : None f=of the  Master shift configured on  date:" . $params["date"];
                 continue;
@@ -200,12 +192,6 @@ class FiloShiftController extends Controller
             //     $model->insert($chunk);
             // }
             $model->insert($items);
-
-
-            try {
-                (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
-            } catch (\Throwable $e) {
-            }
 
             //if (!$custom_render) 
             {

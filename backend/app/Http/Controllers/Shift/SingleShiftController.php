@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Shift;
 use Illuminate\Support\Facades\DB;
 
 class SingleShiftController extends Controller
@@ -74,8 +75,6 @@ class SingleShiftController extends Controller
 
 
 
-
-
         //update atendance table with shift ID if shift with employee not found
         if (count($logsEmployees) == 0) {
             $employees = (new Employee())->GetEmployeeWithShiftDetails($params);
@@ -98,6 +97,8 @@ class SingleShiftController extends Controller
 
         $items = [];
 
+        $shifts = Shift::where("company_id", $params["company_id"])->get()->toArray();
+
         $previousShifts = Attendance::where("company_id", $params["company_id"])
             ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))
             ->where("shift_type_id", 4)
@@ -108,70 +109,40 @@ class SingleShiftController extends Controller
 
             $logs = $logs->toArray() ?? [];
 
-            $previousShift = $previousShifts->get($key);
+            // Find the first log based on the schedule and previous shift
+            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShifts) {
+                $previousShift = $previousShifts->get($key);
 
-            $alreadyAssignedTimes = collect(); // Initialize a collection to store assigned times dynamically
+                // Validate against previous shift's out time if shift type is 4
+                if ($previousShift && $previousShift->shift_type_id == 4) {
+                    return $previousShift->out != $record["time"];
+                }
 
-            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShift, &$alreadyAssignedTimes) {
+                // Validate against schedule timings
                 $beginning_in = $record["schedule"]["shift"]["beginning_in"] ?? false;
                 $beginning_out = $record["schedule"]["shift"]["beginning_out"] ?? false;
-                $currentTime = $record["time"];
 
-                // Skip times that are already assigned
-                if ($alreadyAssignedTimes->contains($currentTime)) {
-                    return false;
-                }
+                return $beginning_in && $beginning_out && $record["time"] >= $beginning_in && $record["time"] <= $beginning_out;
+            });
 
-                // Check for previous shift condition
-                if ($previousShift && $previousShift->shift_type_id == 4) {
-                    if ($previousShift->out < $currentTime) {
-                        $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
-                        return true;
-                    }
-                    return false;
-                }
-
-                // Check the beginning_in and beginning_out condition
-                if ($beginning_in && $beginning_out && $currentTime >= $beginning_in && $currentTime <= $beginning_out) {
-                    $alreadyAssignedTimes->push($currentTime); // Mark this time as assigned
-                    return true;
-                }
-
-                return false;
+            $lastLog = collect($logs)->last(function ($record) {
+                return in_array($record["log_type"], ["Out", "Auto", "auto", null], true);
             });
 
 
-            // These are row logs
-            // 2025-01-01 06:03	Boys Hostel C	
-            // ---
-            // 2025-01-01 06:05	Boys Hostel C	
-            // ---
-            // 2025-01-01 06:06	Boys Hostel C 	
-            // ---
-            // 2025-01-01 13:56	Boys Hostel C	
-            // ---
-            // 2025-01-01 22:01	Boys Hostel A	
-            // ---
-
-            //in my case 06:06 value already assigned to night shfit so i want only next avilable  time which 13:56
-
-            $lastLog = null;
-
-            if ($firstLog) {
-                // $lastLog = collect($logs)->filter(function ($record) {
-                //     $ending_in = $record["schedule"]["shift"]["ending_in"] ?? false;
-                //     $ending_out = $record["schedule"]["shift"]["ending_out"] ?? false;
-                //     $currentTime = $record["time"];
-                //     return $currentTime >= $ending_in && $currentTime <= $ending_out;
-                // })->last();
-
-                $lastLog = collect($logs)->last();
-            }
-
             $schedule = $firstLog["schedule"] ?? false;
-            $shift = $schedule["shift"] ?? false;
+            $shift =  $schedule["shift"] ?? false;
 
             if (!$schedule) continue;
+
+            $dayOfWeek = date('D', strtotime($firstLog["LogTime"])); // Convert to timestamp and get the day
+
+            foreach ($shifts as $foundShift) {
+                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $foundShift["days"], true)) {
+                    $shift = $foundShift;
+                    break;
+                }
+            }
 
             $item = [
                 "roster_id" => 0,
@@ -184,8 +155,8 @@ class SingleShiftController extends Controller
                 "date" => $params["date"],
                 "company_id" => $params["company_id"],
                 "employee_id" => $key,
-                "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
-                "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
+                "shift_id" => $shift["id"] ?? 0,
+                "shift_type_id" => $shift["shift_type_id"] ?? 0,
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",
@@ -200,7 +171,8 @@ class SingleShiftController extends Controller
                 }
             }
 
-            if ($shift && $lastLog && count($logs) > 1) {
+            if ($shift && $lastLog && count($logs) > 1 && $firstLog["time"] !== $lastLog["time"]) {
+
                 $item["status"] = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                 $item["out"] = $lastLog["time"] ?? "---";
@@ -230,6 +202,7 @@ class SingleShiftController extends Controller
                     }
                 }
             }
+
             $items[] = $item;
         }
 
@@ -250,11 +223,6 @@ class SingleShiftController extends Controller
             $model->delete();
             DB::commit();
             $model->insert($items);
-
-            try {
-                (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
-            } catch (\Throwable $e) {
-            }
 
             //if (!$custom_render)
             {
