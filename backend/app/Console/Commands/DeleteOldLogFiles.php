@@ -59,6 +59,10 @@ class DeleteOldLogFiles extends Command
         $this->deleteAttendanceLogFiles($path);
 
 
+
+
+
+
         // Delete Old logs from database 
         //delete whatsapp notification logs 
         $previousDate = date('Y-m-d', strtotime('-2 days'));
@@ -100,6 +104,49 @@ class DeleteOldLogFiles extends Command
         }
 
         $this->info('Old files deletion process completed.');
+        return 0;
+    }
+    public function deleteSDKLogFiles($path)
+    {
+        $path = "/var/www/sdk-mytime2cloud"; //"/mytime2cloud/backend/storage/app";
+
+        if (!File::exists($path)) {
+            echo "The specified path does not exist.";
+            return 1;
+        }
+
+        //$files = File::files($path);
+        $files = File::allFiles($path);
+
+        echo $path . " - Files count - " . count($files);
+
+        $now = time();
+        $days30 = 15 * (24 * 60 * 60); //30 DaysDays days
+
+        $extArray = ['log', 'txt', 'csv', 'gz'];
+
+        for ($i = 1; $i < 100; $i++) {
+            $extArray[] = $i;
+        }
+
+
+
+        foreach ($files as $file) {
+
+            if (str_contains($file->getFilename(), "RecordLog.txt")) {
+
+                $extension = $file->getExtension();
+                $inarray1 = in_array($extension, $extArray) ? 'TRUE' : 'FALSE';
+                $time =  $now - $file->getMTime() >= $days30 ? 'TRUE' : 'FALSE';
+                echo    $file->getFilename() . $inarray1 . '-' . $time  . "<br/>";
+                if (in_array($extension, $extArray) && ($now - $file->getMTime() >= $days30)) {
+                    File::delete($file);
+
+                    echo  "Deleted: {$file->getFilename()}" . "<br/>";
+                }
+            }
+        }
+
         return 0;
     }
 }
