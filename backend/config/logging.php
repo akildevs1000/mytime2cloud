@@ -85,19 +85,19 @@ return [
 
         'custom' => [
             'driver' => 'single',
-            'path' => storage_path('logs/custom' . date("Y-m-d") . '.log'),
+            'path' => storage_path('logs/custom_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'single' => [
             'driver' => 'single',
-            'path' => storage_path('logs/' . date("Y-m-d") . 'laravel.log'),
+            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/' . date("Y-m-d") . 'laravel.log'),
+            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'days' => 14,
         ],
@@ -147,7 +147,7 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/' . date("Y-m-d") . 'laravel.log'),
+            'path' => storage_path('logs/' . date("Y-m-d") . '_laravel.log'),
         ],
     ],
 
