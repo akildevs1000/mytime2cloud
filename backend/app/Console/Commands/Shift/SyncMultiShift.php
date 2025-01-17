@@ -73,7 +73,11 @@ class SyncMultiShift extends Command
         $url = 'https://backend.mytime2cloud.com/api/render_logs';
 
         if (env("APP_ENV") == "desktop") {
-            $url = 'https://mytime2cloud-backend.test/api/render_logs';
+
+            $localIp = gethostbyname(gethostname());
+            $port = 8000;
+            $url = "http://$localIp:$port/api/render_logs";
+            // $url = 'https://mytime2cloud-backend.test/api/render_logs';
         }
 
         $response = Http::withoutVerifying()->get($url, $payload);

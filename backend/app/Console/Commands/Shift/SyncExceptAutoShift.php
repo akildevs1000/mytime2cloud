@@ -24,9 +24,14 @@ class SyncExceptAutoShift extends Command
     protected $description = 'Sync Other Shifts like (Filo,Single,Night,Multi) except Auto Shift';
     public function handle()
     {
-        $localIp = gethostbyname(gethostname());
-        $port = 8000;
-        $endpoint = "http://$localIp:$port/api/render_logs";
+        $url = 'https://backend.mytime2cloud.com/api/render_logs';
+
+        if (env("APP_ENV") == "desktop") {
+            $localIp = gethostbyname(gethostname());
+            $port = 8000;
+            $url = "http://$localIp:$port/api/render_logs";
+            // $url = 'https://mytime2cloud-backend.test/api/render_logs';
+        }
 
         $id = $this->argument("company_id");
         $date = $this->argument("date");
@@ -40,11 +45,11 @@ class SyncExceptAutoShift extends Command
             Logger::channel('custom')->info('Starting SyncAutoShiftNew process', [
                 'company_id' => $id,
                 'date' => $date,
-                'endpoint' => $endpoint,
+                'url' => $url,
             ]);
 
             // Chunk the employee IDs array into batches of 20
-            $employeeIds->chunk(5)->each(function ($chunk) use ($id, $date, $endpoint) {
+            $employeeIds->chunk(5)->each(function ($chunk) use ($id, $date, $url) {
                 $params = [
                     'date' => '',
                     'UserID' => '',
@@ -60,13 +65,13 @@ class SyncExceptAutoShift extends Command
 
                 try {
                     // Log the parameters for the current chunk
-                    Logger::channel('custom')->info('Sending request to endpoint', [
+                    Logger::channel('custom')->info('Sending request to url', [
                         'chunk' => $chunk->toArray(),
                         'params' => $params,
                     ]);
 
-                    // Call the endpoint using Http facade
-                    $response = Http::withoutVerifying()->get($endpoint, $params);
+                    // Call the url using Http facade
+                    $response = Http::withoutVerifying()->get($url, $params);
 
                     // Log the response
                     if ($response->successful()) {
