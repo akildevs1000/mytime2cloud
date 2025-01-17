@@ -1140,7 +1140,7 @@ class DeviceController extends Controller
                         (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
                     } catch (\Exception $e) {
                     }
-                    return (new ThemeController)->whatsappTodayStats($renderRequest);
+                    (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
                     // $offline_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
