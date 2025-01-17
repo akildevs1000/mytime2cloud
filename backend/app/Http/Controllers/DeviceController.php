@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Log as Logger;
 
 class DeviceController extends Controller
 {
@@ -1141,6 +1142,10 @@ class DeviceController extends Controller
                             (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
                         }
                     } catch (\Exception $e) {
+
+
+                        $this->info($e->getMessage());
+                        Logger::error("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
                     }
                     // (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
