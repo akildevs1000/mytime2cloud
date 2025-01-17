@@ -1127,6 +1127,20 @@ class DeviceController extends Controller
                     $DeviceDateTime = $date->format('Y-m-d H:i:00');
                     $online_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
+
+
+                    try {
+                        //update missing logs
+                        $requestArray = array(
+                            'device_id' => $companyDevice_id,
+                            'date' => date("Y-m-d"),
+
+                        );
+                        $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
+                        (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+                    } catch (\Exception $e) {
+                    }
+                    return (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
                     // $offline_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
