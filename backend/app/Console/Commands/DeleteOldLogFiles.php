@@ -52,7 +52,6 @@ class DeleteOldLogFiles extends Command
         $this->deleteAttendanceLogFiles($path);
 
 
-
         // Delete Old logs from database 
         //delete whatsapp notification logs 
         $previousDate = date('Y-m-d', strtotime('-2 days'));
