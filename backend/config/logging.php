@@ -58,28 +58,28 @@ return [
         ],
         'camerasdk' => [
             'driver' => 'single',
-            'path' => storage_path('logs/camerasdk.log'),
+            'path' => storage_path('logs/camerasdk_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'jobs' => [
             'driver' => 'single',
-            'path' => storage_path('logs/jobs.log'),
+            'path' => storage_path('logs/jobs_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'render_manual_logs' => [
             'driver' => 'single',
-            'path' => storage_path('logs/render_manual_logs.log'),
+            'path' => storage_path('logs/render_manual_logs_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
         'whatsapp_logs' => [
             'driver' => 'single',
-            'path' => storage_path('logs/whatsapp_logs.log'),
+            'path' => storage_path('logs/whatsapp_logs_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'camera_log' => [
             'driver' => 'single',
-            'path' => storage_path('logs/camera.log'),
+            'path' => storage_path('logs/camera_' . date("Y-m-d") . '.log'),
             'level' => env('LOG_LEVEL', 'debug'),
         ],
 
