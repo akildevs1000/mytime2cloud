@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-dialog persistent v-model="dialog" width="900">
-      <AssetsIconClose
+      <!-- <AssetsIconClose
         left="890"
         @click="
           () => {
@@ -9,7 +9,7 @@
             dialog = false;
           }
         "
-      />
+      /> -->
 
       <template v-slot:activator="{ on, attr }">
         <v-row align="center">
@@ -142,12 +142,12 @@
 </template>
 
 <script>
-import AssetsIconClose from "../components/Widgets/Close.vue";
+// import AssetsIconClose from "../components/Widgets/Close.vue";
 
 export default {
   layout: "master",
   components: {
-    AssetsIconClose,
+    //AssetsIconClose,
   },
   head: () => ({
     title: "Whatsapp Proxy",
