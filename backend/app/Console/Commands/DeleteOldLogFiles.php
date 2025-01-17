@@ -93,7 +93,7 @@ class DeleteOldLogFiles extends Command
 
         foreach ($files as $file) {
             $extension = $file->getExtension();
-            if (in_array($extension, ['log', 'txt', 'csv']) && ($now - $file->getMTime() >= $days30)) {
+            if (in_array($extension, ['log', 'txt', 'csv', 'gz']) && ($now - $file->getMTime() >= $days30)) {
                 File::delete($file);
                 $this->info("Deleted: {$file->getFilename()}");
             }
