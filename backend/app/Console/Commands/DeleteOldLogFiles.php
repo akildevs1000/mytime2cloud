@@ -55,6 +55,10 @@ class DeleteOldLogFiles extends Command
         $this->deleteAttendanceLogFiles($path);
 
 
+        $path = "/var/log"; //"/mytime2cloud/backend/storage/app";
+        $this->deleteAttendanceLogFiles($path);
+
+
         // Delete Old logs from database 
         //delete whatsapp notification logs 
         $previousDate = date('Y-m-d', strtotime('-2 days'));
