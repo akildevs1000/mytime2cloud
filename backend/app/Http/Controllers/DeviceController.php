@@ -1130,17 +1130,19 @@ class DeviceController extends Controller
 
 
                     try {
-                        //update missing logs
-                        $requestArray = array(
-                            'device_id' => $companyDevice_id,
-                            'date' => date("Y-m-d"),
+                        if ($company_id == '') {
+                            //update missing logs
+                            $requestArray = array(
+                                'device_id' => $companyDevice_id,
+                                'date' => date("Y-m-d"),
 
-                        );
-                        $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
-                        (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+                            );
+                            $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
+                            (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+                        }
                     } catch (\Exception $e) {
                     }
-                    (new ThemeController)->whatsappTodayStats($renderRequest);
+                    // (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
                     // $offline_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
