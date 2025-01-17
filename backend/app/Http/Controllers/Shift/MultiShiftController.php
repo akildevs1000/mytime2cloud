@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use Illuminate\Support\Facades\Log;
 
 class MultiShiftController extends Controller
 {
@@ -206,12 +207,12 @@ class MultiShiftController extends Controller
         }
 
 
-        $UserIds = array_column($items, "employee_id");
+        $employee_ids = array_column($items, "employee_id");
 
         try {
 
             $model = Attendance::query();
-            $model->whereIn("employee_id", $UserIds);
+            $model->whereIn("employee_id", $employee_ids);
             $model->where("date", $date);
             $model->where("company_id", $id);
             $model->delete();
@@ -222,13 +223,14 @@ class MultiShiftController extends Controller
                 $model->insert($chunk);
             }
 
-            //if (!$custom_render)
-            {
-                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
-                    ->where("LogTime", ">=", $date . ' 00:00:00')
-                    ->where("LogTime", "<=", $date . ' 23:59:00')
-                    ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
-            }
+            $result = AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
+                ->where("LogTime", ">=", $date)
+                ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
+                ->where("checked", false)
+                ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+
+            Log::info("result $result");
+
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
             $message = $this->getMeta("Multi Shift ", $e->getMessage());
