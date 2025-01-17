@@ -90,8 +90,8 @@
           </v-col>
           <v-col md="2" sm="2">
             <v-btn @click="automate()" color="primary" primary fill
-              ><v-icon class="">mdi mdi-head-cog-outline</v-icon> Select date
-              and Automate
+              ><v-icon class="">mdi mdi-head-cog-outline</v-icon> Fetch from All
+              Devices
             </v-btn>
           </v-col>
         </v-row></v-card-text
