@@ -393,14 +393,15 @@
                                       v-if="
                                         company_payload.enable_desktop_whatsapp
                                       "
-                                      >Verify Whatsapp
+                                    >
+                                      <!-- Verify Whatsapp
 
                                       <v-icon
                                         color="green"
                                         @click="sendToTestWhatsapp()"
                                         >mdi-whatsapp</v-icon
-                                      ></v-col
-                                    >
+                                      >  
+                                    </v-col>
                                     <v-col
                                       v-else="
                                         company_payload.enable_desktop_whatsapp
@@ -415,8 +416,11 @@
                                         v-model="
                                           company_payload.enable_desktop_whatsapp
                                         "
-                                      ></v-switch> </v-col
-                                  ></v-row>
+                                      ></v-switch> 
+                                      
+                                       -->
+                                    </v-col></v-row
+                                  >
                                 </div>
                                 <!-- <div style="font-size: 12px">
                                   <v-row>
