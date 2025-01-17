@@ -49,8 +49,10 @@ class ThemeController extends Controller
         $company = Company::with(["contact"])->where("id", $request->company_id)->first();
 
 
-        if ($company->enable_desktop_whatsapp == true) {
-            $message = "" . $company["name"] . "\n";
+        if ($company && $company->enable_desktop_whatsapp == true) {
+            $message = "🌟 Summary Notification 🌟  \n";
+
+            $message .= "" . $company["name"] . "\n";
             $message .= "Date: " .  date("H:i, d,M Y") . "\n";
             $message .= "Total Employees: " . $data["employeeCount"] . "\n";
             $message .= "Total Present: " . $data["missingCount"] + $data["presentCount"] . "\n";
@@ -122,7 +124,7 @@ class ThemeController extends Controller
                 ->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
-            "presentCount" => $model->where('status', 'P')->count(),
+            "presentCount" => $model->whereIn('status', ['P', 'LC'])->count(),
             "absentCount" => $model->where('status', 'A')->count(),
             "missingCount" => $model->where('status', 'M')->count(),
             "offCount" => $model->where('status', 'O')->count(),

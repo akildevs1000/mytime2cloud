@@ -27,12 +27,12 @@
           style="font-size: 18px; font-weight: 600; width: 200px"
         >
           Attendance Reports
-          <v-icon
+          <!-- <v-icon
             title="Click To Send Yesterday Report"
             color="green"
             @click="sendYesterdayReport()"
             >mdi-whatsapp</v-icon
-          >
+          > -->
         </v-toolbar-title>
         <v-select
           style="width: 150px"

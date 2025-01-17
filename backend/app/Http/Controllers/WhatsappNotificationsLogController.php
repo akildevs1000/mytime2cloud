@@ -139,7 +139,7 @@ class WhatsappNotificationsLogController extends Controller
         }
 
         //$whatsapp_number = "971552205149";
-        if ($company->enable_desktop_whatsapp == true) {
+        if ($company && $company->enable_desktop_whatsapp == true) {
 
             if ($whatsapp_number != '' && $message != '') {
 
@@ -167,8 +167,9 @@ class WhatsappNotificationsLogController extends Controller
                             ]),
                         ]);
 
+                        $testMessage = "DB";
                         // Send the message
-                        $client->send(json_encode("DB"));
+                        $client->send(json_encode($testMessage));
                     } catch (\Exception $e) {
                         // Handle exceptions
                         //"Error: " . $e->getMessage();

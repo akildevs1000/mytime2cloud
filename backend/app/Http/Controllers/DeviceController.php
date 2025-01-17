@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Log as Logger;
 
 class DeviceController extends Controller
 {
@@ -1127,6 +1128,26 @@ class DeviceController extends Controller
                     $DeviceDateTime = $date->format('Y-m-d H:i:00');
                     $online_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 1, "last_live_datetime" => $DeviceDateTime]);
+
+
+                    try {
+                        if ($company_id == '') {
+                            //update missing logs
+                            $requestArray = array(
+                                'device_id' => $companyDevice_id,
+                                'date' => date("Y-m-d"),
+
+                            );
+                            $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
+                            (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+                        }
+                    } catch (\Exception $e) {
+
+
+                        $this->info($e->getMessage());
+                        Logger::error("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
+                    }
+                    // (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
                     // $offline_devices_count++;
                     Device::where("device_id", $companyDevice_id)->update(["status_id" => 2,]);
