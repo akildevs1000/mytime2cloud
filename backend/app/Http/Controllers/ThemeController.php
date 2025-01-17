@@ -124,7 +124,7 @@ class ThemeController extends Controller
                 ->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
-            "presentCount" => $model->where('status', 'P')->Orwhere('status', 'LC')->count(),
+            "presentCount" => $model->where('status', 'P')->OrWhere('status', 'LC')->count(),
             "absentCount" => $model->where('status', 'A')->count(),
             "missingCount" => $model->where('status', 'M')->count(),
             "offCount" => $model->where('status', 'O')->count(),
