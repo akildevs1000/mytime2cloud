@@ -1086,7 +1086,7 @@ class DeviceController extends Controller
         return $this->checkDevicesHealthCompanyId($request->company_id);
     }
 
-    public function checkDevicesHealthCompanyId($company_id = '')
+    public function checkDevicesHealthCompanyId($company_id = 0)
     {
         log_message("step1-checkDevicesHealthCompanyId_" . $company_id, "check_device_health");
 
@@ -1131,7 +1131,7 @@ class DeviceController extends Controller
 
 
                     try {
-                        if ($company_id == '') {
+                        if ($company_id == 0) {
 
                             log_message("step2-started_read_missing_logs_" . $company_id . "_device_" . $companyDevice_id, "check_device_health");
 
@@ -1163,7 +1163,7 @@ class DeviceController extends Controller
                     // info($count . "companies has been updated");
                 }
             }
-            $company_id = $Device["company_id"];
+            ////$company_id = $Device["company_id"];
         } //for 
 
         $array_unique = array_unique($companiesIds);
