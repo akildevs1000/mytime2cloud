@@ -39,7 +39,7 @@ class SyncMultiShift extends Command
         // $employeeIdsString = $this->argument("employee_ids");
 
         $all_ids = Employee::whereHas("attendance_logs", function ($q) use ($id, $date, $nextDate) {
-            $q->where("UserID", 968);
+            $q->where("UserID", 698);
             $q->where("company_id", $id);
             $q->where("LogTime", ">=", $date);
             $q->where("LogTime", "<=", $nextDate);
