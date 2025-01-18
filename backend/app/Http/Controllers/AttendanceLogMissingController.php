@@ -139,6 +139,7 @@ class AttendanceLogMissingController  extends Controller
                                 "mode" =>  $record['pass_mode']  ?? "---",
                                 "log_type" => $clock_status,
                                 "company_id" => $company_id,
+                                "source_info" => "missing_logs_" . date("Y-m-d H:i:s"),
                             ];
 
                             $condition = ['UserID' => $record['person_code'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -234,6 +235,7 @@ class AttendanceLogMissingController  extends Controller
                         "mode" => $verification_methods[$record['recordCode']] ?? "---",
                         "reason" => $reasons[$record['recordCode']] ?? "---",
                         "company_id" => $company_id,
+                        "source_info" => "missing_logs_" . date("Y-m-d H:i:s"),
                     ];
 
                     $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -268,7 +270,10 @@ class AttendanceLogMissingController  extends Controller
                 //     ];
                 // }
 
-                return [
+
+
+
+                $message = [
                     //"data" => $records['data'],
                     "status" => 200,
                     "message" => "success",
@@ -277,7 +282,18 @@ class AttendanceLogMissingController  extends Controller
                     "total_device_records" => count($records['data']),
                     "indexSerialNumber" => $indexSerialNumber,
                 ];
-                return $records;
+
+
+
+                // $file_name_raw = "device_missing_logs_" . date("d-m-Y") . ".txt";
+                // $message = date("Y-m-d H:i:s") . "_" . json_encode($message);
+                // Storage::append($file_name_raw, json_encode($message));
+
+
+
+
+
+                return $message;
             }
         } catch (\Exception $e) {
             return [
