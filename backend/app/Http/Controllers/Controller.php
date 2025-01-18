@@ -482,6 +482,8 @@ class Controller extends BaseController
             $payload = json_encode($payload, JSON_PRETTY_PRINT);
         }
 
-        Storage::disk('local')->append("$logFilePath.log", $payload);
+        $date = date('Y-m-d');
+
+        Storage::disk('local')->append("$logFilePath-$date.log", $payload);
     }
 }

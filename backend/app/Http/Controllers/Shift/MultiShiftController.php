@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class MultiShiftController extends Controller
 {
+    public $logFilePath = 'logs/shifts/multi_shift/';
+
     public function renderData(Request $request)
     {
         // Extract start and end dates from the JSON data
@@ -53,7 +55,7 @@ class MultiShiftController extends Controller
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
-        $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
+
 
         $params = [
             "company_id" => $id,
@@ -209,7 +211,7 @@ class MultiShiftController extends Controller
         }
 
         $this->logOutPut(
-            $logFilePath,
+            $this->logFilePath,
             $items
         );
 
@@ -240,7 +242,7 @@ class MultiShiftController extends Controller
 
 
             $this->logOutPut(
-                $logFilePath,
+                $this->logFilePath,
                 [
                     "channel" =>  $channel,
                     "result" =>  $result
@@ -249,10 +251,7 @@ class MultiShiftController extends Controller
 
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
-
-            $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
-
-            $this->logOutPut($logFilePath, $e);
+            $this->logOutPut($this->logFilePath, $e);
         }
     }
 }
