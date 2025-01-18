@@ -1088,7 +1088,7 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = '')
     {
-
+        log_message("step1-checkDevicesHealthCompanyId_" . $company_id, "check_device_health");
 
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
             ->when($company_id > 0, fn($q) => $q->where('company_id', $company_id))
@@ -1132,6 +1132,9 @@ class DeviceController extends Controller
 
                     try {
                         if ($company_id == '') {
+
+                            log_message("step2-started_read_missing_logs_" . $company_id . "_device_" . $companyDevice_id, "check_device_health");
+
                             //update missing logs
                             $requestArray = array(
                                 'device_id' => $companyDevice_id,
@@ -1141,12 +1144,16 @@ class DeviceController extends Controller
                             );
                             $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
                             (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+
+                            log_message("step3-completed_read_missing_logs_" . $company_id . "_device_" . $companyDevice_id, "check_device_health");
                         }
                     } catch (\Exception $e) {
 
 
-                        $this->info("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
-                        Logger::error("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
+                        // $this->info("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
+                        // Logger::error("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
+
+                        log_message("step3-exception_read_missing_logs_" . $company_id . "_device_" . $companyDevice_id . $e->getMessage(), "check_device_health");
                     }
                     // (new ThemeController)->whatsappTodayStats($renderRequest);
                 } else {
