@@ -39,7 +39,7 @@ class SyncMultiShift extends Command
 
         $nextDate = date("Y-m-d", strtotime($date . "+1 day"));
 
-        $found = Shift::where("comapny_id",$id)->where("shift_type_id",2)->count();
+        $found = Shift::where("company_id",$id)->where("shift_type_id",2)->count();
 
         if($found == 0) {
             $this->logOutPut("*****Cron started for task:sync_multi_shift: no shift found for $id*****");
@@ -72,7 +72,7 @@ class SyncMultiShift extends Command
             'employee_ids' => $employee_ids,
             'dates' => [$date, $nextDate],
             'shift_type_id' => 2,
-            'company_id' => 2,
+            'company_id' => $id,
             'channel' => "kernel",
         ];
 
