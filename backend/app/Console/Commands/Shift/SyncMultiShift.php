@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands\Shift;
 
-use App\Models\AttendanceLog;
 use App\Models\Employee;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SyncMultiShift extends Command
 {
@@ -48,7 +47,8 @@ class SyncMultiShift extends Command
 
         $employee_ids = array_values(array_unique($all_ids));
 
-        Log::info("employee_ids: " . json_encode($employee_ids));
+        $this->logOutPut("*****Cron started for task:sync_multi_shift $id*****");
+
 
         if (count($employee_ids) == 0) {
             $this->info("No data");
@@ -69,7 +69,7 @@ class SyncMultiShift extends Command
             'channel' => "kernel",
         ];
 
-        $this->info(json_encode($payload));
+        // $this->info(json_encode($payload));
 
         $url = 'https://backend.mytime2cloud.com/api/render_logs';
 
@@ -85,30 +85,43 @@ class SyncMultiShift extends Command
 
         if ($response->successful()) {
 
-            $payload = [
+            $this->logOutPut([
                 'message' => 'Cron Execution Success: task:sync_multi_shift',
                 'app' => env('APP_NAME'),
                 'company_id' => $id,
-                'date' => $date,
+                'date' => date("Y-m-d"),
                 'response_status' => $response->status(),
                 'response_body' => "---",
-                'employee_ids' => json_encode($employee_ids),
-            ];
-
-            Log::info($payload);
-            $this->info(json_encode($payload));
+                'employee_ids' => $employee_ids,
+            ]);
         } else {
-            $payload = [
+            $this->logOutPut([
                 'message' => 'Cron Execution Failed: task:sync_multi_shift',
                 'app' => env('APP_NAME'),
                 'company_id' => $id,
                 'date' => $date,
                 'response_status' => $response->status(),
                 'response_body' => $response->body(),
-            ];
+            ]);
 
-            Log::info($payload);
-            $this->info(json_encode($payload));
+
+            // $this->info(json_encode($payload));
         }
+
+
+        $this->logOutPut("*****Cron ended for task:sync_multi_shift $id*****");
+    }
+
+    public function logOutPut($payload)
+    {
+        $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d') . '.log';
+
+        // Check if payload is an array, then JSON encode it
+        if (is_array($payload)) {
+            $payload = json_encode($payload, JSON_PRETTY_PRINT);
+        }
+
+        // Append the payload to the log file
+        Storage::disk('local')->append($logFilePath, $payload);
     }
 }
