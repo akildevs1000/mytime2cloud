@@ -59,7 +59,7 @@ class SyncAutoShift extends Command
                     'reason' => '',
                     'employee_ids' => $chunk->toArray(),
                     'dates' => [$date, $date],
-                    'shift_type_id' => 2,
+                    'shift_type_id' => 3,
                     'company_id' => $id,
                     'channel' => "kernel",
                 ];

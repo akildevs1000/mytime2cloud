@@ -37,7 +37,7 @@ class SingleShiftController extends Controller
         // while ($startDate <= $currentDate && $startDate <= $endDate) {
         while ($startDate <= $endDate) {
             // $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, true);
-            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, $request->filled("auto_render") ? false : true);
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
 
             $startDate->modify('+1 day');
         }
@@ -47,10 +47,10 @@ class SingleShiftController extends Controller
 
     public function renderRequest(Request $request)
     {
-        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true);
+        return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, $request->channel ?? "unknown");
     }
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false)
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
         $params = [
             "company_id" => $id,
@@ -157,7 +157,6 @@ class SingleShiftController extends Controller
             }
 
             $item = [
-                "channel" => request("channel", "browser"),
                 "roster_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["time"] ?? "---",
@@ -234,6 +233,7 @@ class SingleShiftController extends Controller
             $model->delete();
             DB::commit();
             $model->insert($items);
+            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift.   Affected Ids: " . json_encode($UserIds);
 
             //if (!$custom_render)
             {
@@ -241,10 +241,13 @@ class SingleShiftController extends Controller
                 AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
                     ->where("LogTime", ">=", $date . ' 00:00:00')
                     ->where("LogTime", "<=", $date . ' 23:59:00')
-                    ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+                    ->update([
+                        "checked" => true,
+                        "checked_datetime" => date('Y-m-d H:i:s'),
+                        "channel" => $channel,
+                        "log_message" => $message
+                    ]);
             }
-
-            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift.   Affected Ids: " . json_encode($UserIds);
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. " . $e->getMessage();
 
