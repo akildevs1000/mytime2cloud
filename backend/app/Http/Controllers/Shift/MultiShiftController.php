@@ -236,15 +236,15 @@ class MultiShiftController extends Controller
                 ]);
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
 
-            $this->logOutPut($this->logFilePath . date("H:i"), $message);
-            $this->logOutPut($this->logFilePath . date("H:i"), "$logsUpdated updated logs");
+            $this->logOutPut($this->logFilePath . "/" . date("H:i"), $message);
+            $this->logOutPut($this->logFilePath . "/" . date("H:i"), "$logsUpdated updated logs");
 
             return $message;
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath . date("H:i"), $e);
+            $this->logOutPut($this->logFilePath . "/" . date("H:i"), $e);
         }
 
-        $this->logOutPut($this->logFilePath . date("H:i"), [
+        $this->logOutPut($this->logFilePath . "/" . date("H:i"), [
             "params" => $params,
             "items" => $items,
         ]);
