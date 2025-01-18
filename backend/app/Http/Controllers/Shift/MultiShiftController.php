@@ -24,7 +24,6 @@ class MultiShiftController extends Controller
         }
         $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
-        $channel = $request->channel ?? "browser";
 
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
@@ -35,7 +34,7 @@ class MultiShiftController extends Controller
         // while ($startDate <= $currentDate && $startDate <= $endDate) {
         while ($startDate <= $endDate) {
             // $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, true);
-            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, $request->filled("auto_render") ? false : true, $channel);
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, $request->filled("auto_render") ? false : true);
 
             $startDate->modify('+1 day');
         }
@@ -47,11 +46,10 @@ class MultiShiftController extends Controller
     {
         // return $departmentIds = Department::where("company_id",$request->company_id)->pluck("id");
         // $employee_ids = Employee::where("department_id", 31)->pluck("system_user_id");
-        $channel = $request->channel ?? "browser";
-        return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $channel);
+        return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true);
     }
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
     {
         $params = [
             "company_id" => $id,
@@ -128,7 +126,6 @@ class MultiShiftController extends Controller
             }
 
             $item = [
-                "channel" => $channel,
                 "total_hrs" => 0,
                 "in" => "---",
                 "out" => "---",
@@ -140,7 +137,6 @@ class MultiShiftController extends Controller
                 "shift_id" => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"]  ?? 0,
                 "status" => count($data) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
-
             ];
 
             $logsJson = [];
@@ -225,7 +221,11 @@ class MultiShiftController extends Controller
                 ->where("LogTime", ">=", $date)
                 ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
                 ->where("checked", false)
-                ->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+                ->update([
+                    "checked" => true,
+                    "checked_datetime" => date('Y-m-d H:i:s'),
+                    "channel" => request("channel", "browser"),
+                ]);
 
             Log::info("result $result");
 
