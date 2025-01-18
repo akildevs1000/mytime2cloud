@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class MultiShiftController extends Controller
 {
-    public $logFilePath = 'logs/shifts/multi_shift/';
+    public $logFilePath = 'logs/shifts/multi_shift/controller';
 
     public function renderData(Request $request)
     {
@@ -27,6 +27,10 @@ class MultiShiftController extends Controller
         $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
         $channel = $request->channel ?? "browser";
+
+        $this->logOutPut($this->logFilePath, [
+            "employee_ids" => $employee_ids
+        ]);
 
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
@@ -55,8 +59,6 @@ class MultiShiftController extends Controller
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
-
-
         $params = [
             "company_id" => $id,
             "date" => $date,
@@ -65,14 +67,27 @@ class MultiShiftController extends Controller
             "UserIds" => $UserIds,
         ];
 
+        $this->logOutPut($this->logFilePath, [
+            "params" => $params
+        ]);
+
         if (!$custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
+            $this->logOutPut($this->logFilePath, "------------From Custom Render-----------");
         }
 
         // return json_encode($params);
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+
+        $this->logOutPut($this->logFilePath, [
+            "params" => $params
+        ]);
+
+        $this->logOutPut($this->logFilePath, [
+            "employees" => $employees
+        ]);
 
 
         //update shift ID for No logs 
@@ -210,10 +225,7 @@ class MultiShiftController extends Controller
             $items[] = $item;
         }
 
-        $this->logOutPut(
-            $this->logFilePath,
-            $items
-        );
+        $this->logOutPut($this->logFilePath, $items);
 
         try {
 
@@ -229,7 +241,8 @@ class MultiShiftController extends Controller
                 $model->insert($chunk);
             }
 
-            $result = AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
+            $logsUpdated = AttendanceLog::where("company_id", $id)
+                ->whereIn("UserID", $UserIds ?? [])
                 ->where("LogTime", ">=", $date)
                 ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
                 // ->where("checked", false)
@@ -238,18 +251,10 @@ class MultiShiftController extends Controller
                     "checked_datetime" => date('Y-m-d H:i:s'),
                     "channel" => $channel,
                 ]);
-
-
-
-            $this->logOutPut(
-                $this->logFilePath,
-                [
-                    "channel" =>  $channel,
-                    "result" =>  $result
-                ]
-            );
-
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+
+            $this->logOutPut($this->logFilePath, $message);
+            $this->logOutPut($this->logFilePath, "$logsUpdated Logs Updated");
         } catch (\Throwable $e) {
             $this->logOutPut($this->logFilePath, $e);
         }
