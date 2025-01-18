@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Shift;
 
 use App\Models\Employee;
+use App\Models\Shift;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -32,11 +33,18 @@ class SyncMultiShift extends Command
     {
         $id = $this->argument("company_id", 1);
 
+        $this->logOutPut("*****Cron started for task:sync_multi_shift $id *****");
+
         $date = $this->argument("date", date("Y-m-d", strtotime("yesterday")));
 
         $nextDate = date("Y-m-d", strtotime($date . "+1 day"));
 
-        // $employeeIdsString = $this->argument("employee_ids");
+        $found = Shift::where("comapny_id",$id)->where("shift_type_id",2)->count();
+
+        if($found == 0) {
+            $this->logOutPut("*****Cron started for task:sync_multi_shift: no shift found for $id*****");
+            return;
+        }
 
         $all_ids = Employee::whereHas("attendance_logs", function ($q) use ($id, $date, $nextDate) {
             $q->where("UserID", 698);
@@ -44,12 +52,10 @@ class SyncMultiShift extends Command
             $q->where("LogTime", ">=", $date);
             $q->where("LogTime", "<=", $nextDate);
             $q->where("checked", true);
+
         })->pluck("system_user_id")->take(5)->toArray();
 
         $employee_ids = array_values(array_unique($all_ids));
-
-        $this->logOutPut("*****Cron started for task:sync_multi_shift $id*****");
-
 
         if (count($employee_ids) == 0) {
             $this->info("No data");
