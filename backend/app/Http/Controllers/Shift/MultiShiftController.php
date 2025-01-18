@@ -225,6 +225,8 @@ class MultiShiftController extends Controller
                 $model->insert($chunk);
             }
 
+            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+
             $logsUpdated = AttendanceLog::where("company_id", $id)
                 ->whereIn("UserID", $UserIds ?? [])
                 ->where("LogTime", ">=", $date)
@@ -234,12 +236,10 @@ class MultiShiftController extends Controller
                     "checked" => true,
                     "checked_datetime" => date('Y-m-d H:i:s'),
                     "channel" => $channel,
+                    "log_message" => $message,
                 ]);
-
-            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
-            $this->logOutPut($this->logFilePath, $message);
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, $e);
+            $this->logOutPut($this->logFilePath, $e->getMessage());
         }
 
         $this->logOutPut($this->logFilePath, [
@@ -249,7 +249,7 @@ class MultiShiftController extends Controller
         ]);
 
         $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") .  "] " . "$logsUpdated " . " updated logs");
-
+        $this->logOutPut($this->logFilePath, $message);
         return $message;
     }
 }
