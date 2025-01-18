@@ -152,7 +152,7 @@ class Kernel extends ConsoleKernel
                 $requestArray = array(
                     'company_id' => $companyId,
                 );
-                $renderRequest = Request::create('/testingggggggggg', 'get', $requestArray);
+                $renderRequest = Request::create('/testing', 'get', $requestArray);
 
                 return (new ThemeController)->whatsappTodayStats($renderRequest);
             })->everySixHours();
@@ -166,8 +166,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->call(function () {
             $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
-            info($count . "companies has been updated");
-        })->dailyAt('00:00');
+        })->dailyAt('05:00');
         //->withoutOverlapping();
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
@@ -177,8 +176,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:check_device_health')
-            ->hourly()
-            ->between('7:00', '23:59');
+            ->everyThirtyMinutes()
+        ;
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
