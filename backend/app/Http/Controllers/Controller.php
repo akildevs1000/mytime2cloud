@@ -484,6 +484,6 @@ class Controller extends BaseController
 
         $date = date('Y-m-d');
 
-        Storage::disk('local')->append("$logFilePath-$date.log", $payload);
+        Storage::disk('local')->append("$logFilePath/$date.log", $payload);
     }
 }
