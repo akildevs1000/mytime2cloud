@@ -169,8 +169,8 @@ class AttendanceLogMissingController  extends Controller
 
                 if (count($finalResult) > 0)
                     log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count ---- " . count($finalResult), $company_id . "_check_device_health");
-                else
-                    log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count " . count($finalResult), $company_id . "_check_device_health");
+                // else
+                //     log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count " . count($finalResult), $company_id . "_check_device_health");
                 return  [
                     "status" => 200,
                     "message" => "success",
