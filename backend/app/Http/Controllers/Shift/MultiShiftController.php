@@ -28,10 +28,6 @@ class MultiShiftController extends Controller
         $employee_ids = $request->employee_ids;
         $channel = $request->channel ?? "browser";
 
-        $this->logOutPut($this->logFilePath, [
-            "employee_ids" => $employee_ids
-        ]);
-
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
         $endDate = new \DateTime($endDateString);
@@ -67,27 +63,16 @@ class MultiShiftController extends Controller
             "UserIds" => $UserIds,
         ];
 
-        $this->logOutPut($this->logFilePath, [
-            "params" => $params
-        ]);
-
         if (!$custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
-            $this->logOutPut($this->logFilePath, "------------From Custom Render-----------");
         }
 
         // return json_encode($params);
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
-        $this->logOutPut($this->logFilePath, [
-            "params" => $params
-        ]);
 
-        $this->logOutPut($this->logFilePath, [
-            "employees" => $employees
-        ]);
 
 
         //update shift ID for No logs 
@@ -225,8 +210,6 @@ class MultiShiftController extends Controller
             $items[] = $item;
         }
 
-        $this->logOutPut($this->logFilePath, $items);
-
         try {
 
             $model = Attendance::query();
@@ -253,10 +236,17 @@ class MultiShiftController extends Controller
                 ]);
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
 
-            $this->logOutPut($this->logFilePath, $message);
-            $this->logOutPut($this->logFilePath, "$logsUpdated Logs Updated");
+            $this->logOutPut($this->logFilePath . date("H:i"), $message);
+            $this->logOutPut($this->logFilePath . date("H:i"), "$logsUpdated updated logs");
+
+            return $message;
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, $e);
+            $this->logOutPut($this->logFilePath . date("H:i"), $e);
         }
+
+        $this->logOutPut($this->logFilePath . date("H:i"), [
+            "params" => $params,
+            "items" => $items,
+        ]);
     }
 }

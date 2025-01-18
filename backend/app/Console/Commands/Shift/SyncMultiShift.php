@@ -44,16 +44,16 @@ class SyncMultiShift extends Command
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
         if ($found == 0) {
-            (new Controller)->logOutPut($logFilePath, "*****Cron started for task:sync_multi_shift: no shift found for $id*****");
+            (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift: no shift found for $id*****");
             return;
         }
 
         $all_ids = Employee::whereHas("attendance_logs", function ($q) use ($id, $date, $nextDate) {
-            $q->where("UserID", 698);
+            // $q->where("UserID", 698);
             $q->where("company_id", $id);
             $q->where("LogTime", ">=", $date);
             $q->where("LogTime", "<=", $nextDate);
-            $q->where("checked", true);
+            $q->where("checked", false);
         })->pluck("system_user_id")->take(5)->toArray();
 
         $employee_ids = array_values(array_unique($all_ids));
