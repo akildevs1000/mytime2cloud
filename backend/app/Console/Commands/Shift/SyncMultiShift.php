@@ -31,7 +31,7 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
-        $logFilePath = 'logs/shifts/multi_shift/';
+        $logFilePath = 'logs/shifts/multi_shift/command';
 
         $id = $this->argument("company_id", 1);
 

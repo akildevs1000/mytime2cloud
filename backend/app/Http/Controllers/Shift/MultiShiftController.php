@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class MultiShiftController extends Controller
 {
-    public $logFilePath = 'logs/shifts/multi_shift/';
+    public $logFilePath = 'logs/shifts/multi_shift/controller';
 
     public function renderData(Request $request)
     {
