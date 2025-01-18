@@ -98,6 +98,7 @@ class MultiShiftController extends Controller
 
         $items = [];
         $message = "";
+        $logsUpdated = 0;
 
         foreach ($employees as $row) {
 
@@ -234,19 +235,20 @@ class MultiShiftController extends Controller
                     "checked_datetime" => date('Y-m-d H:i:s'),
                     "channel" => $channel,
                 ]);
+
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
-
-            $this->logOutPut($this->logFilePath . "/" . date("H:i"), $message);
-            $this->logOutPut($this->logFilePath . "/" . date("H:i"), "$logsUpdated updated logs");
-
-            return $message;
+            $this->logOutPut($this->logFilePath, $message);
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath . "/" . date("H:i"), $e);
+            $this->logOutPut($this->logFilePath, $e);
         }
 
-        $this->logOutPut($this->logFilePath . "/" . date("H:i"), [
+        $this->logOutPut($this->logFilePath, [
             "params" => $params,
             "items" => $items,
         ]);
+
+        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") .  "] " . "$logsUpdated " . " updated logs");
+
+        return $message;
     }
 }
