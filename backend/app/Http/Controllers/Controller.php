@@ -474,4 +474,14 @@ class Controller extends BaseController
         // Stream or Download the merged PDF directly to the browser
         return response($pdf->Output($outputFileName, $action))->header('Content-Type', 'application/pdf'); // download
     }
+
+    public function logOutPut($logFilePath, $payload)
+    {
+        // Check if payload is an array, then JSON encode it
+        if (is_array($payload)) {
+            $payload = json_encode($payload, JSON_PRETTY_PRINT);
+        }
+
+        Storage::disk('local')->append("$logFilePath.log", $payload);
+    }
 }

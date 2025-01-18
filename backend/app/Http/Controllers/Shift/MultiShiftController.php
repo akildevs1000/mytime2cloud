@@ -223,21 +223,29 @@ class MultiShiftController extends Controller
             $result = AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
                 ->where("LogTime", ">=", $date)
                 ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                ->where("checked", false)
+                // ->where("checked", false)
                 ->update([
                     "checked" => true,
                     "checked_datetime" => date('Y-m-d H:i:s'),
                     "channel" => $channel,
                 ]);
 
-            Log::info("result $result");
+            $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
+
+            $this->logOutPut(
+                $logFilePath,
+                [
+                    "channel" =>  $channel,
+                    "result" =>  $result
+                ]
+            );
 
             $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
         } catch (\Throwable $e) {
-            $message = $this->getMeta("Multi Shift ", $e->getMessage());
-        }
 
-        $this->devLog("render-manual-log", $message);
-        return $message;
+            $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
+
+            $this->logOutPut($logFilePath, $e);
+        }
     }
 }
