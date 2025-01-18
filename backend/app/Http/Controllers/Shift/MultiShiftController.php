@@ -53,6 +53,8 @@ class MultiShiftController extends Controller
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
+        $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
+
         $params = [
             "company_id" => $id,
             "date" => $date,
@@ -206,6 +208,11 @@ class MultiShiftController extends Controller
             $items[] = $item;
         }
 
+        $this->logOutPut(
+            $logFilePath,
+            $items
+        );
+
         try {
 
             $model = Attendance::query();
@@ -230,7 +237,7 @@ class MultiShiftController extends Controller
                     "channel" => $channel,
                 ]);
 
-            $logFilePath = 'logs/shifts/multi_shift/' . date('Y-m-d');
+
 
             $this->logOutPut(
                 $logFilePath,
