@@ -61,6 +61,7 @@ class SyncAutoShift extends Command
                     'dates' => [$date, $date],
                     'shift_type_id' => 2,
                     'company_id' => $id,
+                    'channel' => "kernel",
                 ];
 
                 try {

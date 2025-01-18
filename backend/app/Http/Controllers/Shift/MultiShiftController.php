@@ -128,6 +128,7 @@ class MultiShiftController extends Controller
             }
 
             $item = [
+                "channel" => request("channel", "browser"),
                 "total_hrs" => 0,
                 "in" => "---",
                 "out" => "---",
@@ -206,13 +207,10 @@ class MultiShiftController extends Controller
             $items[] = $item;
         }
 
-
-        $employee_ids = array_column($items, "employee_id");
-
         try {
 
             $model = Attendance::query();
-            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("employee_id", array_column($items, "employee_id"));
             $model->where("date", $date);
             $model->where("company_id", $id);
             $model->delete();
