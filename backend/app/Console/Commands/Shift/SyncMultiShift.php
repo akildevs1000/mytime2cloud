@@ -42,7 +42,7 @@ class SyncMultiShift extends Command
             $q->where("company_id", $id);
             $q->where("LogTime", ">=", $date);
             $q->where("LogTime", "<=", $nextDate);
-            $q->where("checked", false);
+            $q->where("checked", true);
         })->pluck("system_user_id")->take(5)->toArray();
 
         $employee_ids = array_values(array_unique($all_ids));
@@ -73,13 +73,13 @@ class SyncMultiShift extends Command
 
         $url = 'https://backend.mytime2cloud.com/api/render_logs';
 
-        if (env("APP_ENV") == "desktop") {
+        // if (env("APP_ENV") == "desktop") {
 
-            $localIp = gethostbyname(gethostname());
-            $port = 8000;
-            $url = "http://$localIp:$port/api/render_logs";
-            // $url = 'https://mytime2cloud-backend.test/api/render_logs';
-        }
+        //     $localIp = gethostbyname(gethostname());
+        //     $port = 8000;
+        //     $url = "http://$localIp:$port/api/render_logs";
+        //     // $url = 'https://mytime2cloud-backend.test/api/render_logs';
+        // }
 
         $response = Http::withoutVerifying()->get($url, $payload);
 

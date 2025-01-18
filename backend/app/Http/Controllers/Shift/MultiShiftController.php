@@ -24,18 +24,18 @@ class MultiShiftController extends Controller
         }
         $company_id = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
+        $channel = $request->channel ?? "browser";
 
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
         $endDate = new \DateTime($endDateString);
-        $currentDate = new \DateTime();
 
         $response = [];
 
         // while ($startDate <= $currentDate && $startDate <= $endDate) {
         while ($startDate <= $endDate) {
             // $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, true);
-            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, $request->filled("auto_render") ? false : true);
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 2, $employee_ids, $request->filled("auto_render") ? false : true, $channel);
 
             $startDate->modify('+1 day');
         }
@@ -47,11 +47,11 @@ class MultiShiftController extends Controller
     {
         // return $departmentIds = Department::where("company_id",$request->company_id)->pluck("id");
         // $employee_ids = Employee::where("department_id", 31)->pluck("system_user_id");
-
-        return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true);
+        $channel = $request->channel ?? "browser";
+        return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $channel);
     }
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false)
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
             "company_id" => $id,
@@ -128,7 +128,7 @@ class MultiShiftController extends Controller
             }
 
             $item = [
-                "channel" => request("channel", "browser"),
+                "channel" => $channel,
                 "total_hrs" => 0,
                 "in" => "---",
                 "out" => "---",
