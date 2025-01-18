@@ -58,7 +58,7 @@ class SyncMultiShift extends Command
 
         $employee_ids = array_values(array_unique($all_ids));
 
-        if (count($employee_ids) == 0) {
+        if (!$employee_ids || count($employee_ids) == 0) {
             $this->info("No data");
             return;
         }
