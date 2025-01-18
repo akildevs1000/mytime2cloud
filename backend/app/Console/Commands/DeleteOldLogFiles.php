@@ -48,11 +48,18 @@ class DeleteOldLogFiles extends Command
         $path = storage_path() . "/camera"; //"/mytime2cloud/backend/storage/app";
         $this->deleteAttendanceLogFiles($path);
 
+        $path = storage_path() . "/helper_logs"; //"/mytime2cloud/backend/storage/app";
+        $this->deleteAttendanceLogFiles($path);
+
+
         $path = "/var/www/mytime2cloud/camera-xml-logs"; //"/mytime2cloud/backend/storage/app";
         $this->deleteAttendanceLogFiles($path);
 
         $path = "/var/www/mytime2cloud/backend/storage/logs"; //"/mytime2cloud/backend/storage/app";
         $this->deleteAttendanceLogFiles($path);
+
+
+
 
 
         $path = "/var/log"; //"/mytime2cloud/backend/storage/app";
