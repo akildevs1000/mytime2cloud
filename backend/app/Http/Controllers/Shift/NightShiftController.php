@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Shift;
 
-use App\Http\Controllers\API\SharjahUniversityAPI;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
@@ -190,6 +189,7 @@ class NightShiftController extends Controller
             }
 
             $item = [
+                "channel" => request("channel", "browser"),
                 "roster_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["time"] ?? "---",
@@ -310,19 +310,12 @@ class NightShiftController extends Controller
         // }
 
         try {
-            $UserIds = array_column($items, "employee_id");
             $model = Attendance::query();
             $model->where("company_id", $id);
-            $model->whereIn("employee_id", $UserIds);
+            $model->whereIn("employee_id", array_column($items, "employee_id"));
             $model->where("date", $date);
             $model->delete();
             $model->insert($items);
-
-
-            try {
-                (new SharjahUniversityAPI())->readAttendanceAfterRender($items);
-            } catch (\Throwable $e) {
-            }
 
             //if (!$custom_render)
             {

@@ -129,6 +129,7 @@ class FiloShiftController extends Controller
 
 
             $item = [
+                "channel" => request("channel", "browser"),
                 "roster_id" => 0,
                 "total_hrs" => "---",
                 "in" => $firstLog["time"] ?? "---",
@@ -185,10 +186,9 @@ class FiloShiftController extends Controller
         }
 
         try {
-            $UserIds = array_column($items, "employee_id");
             $model = Attendance::query();
             $model->where("company_id", $id);
-            $model->whereIn("employee_id", $UserIds);
+            $model->whereIn("employee_id", array_column($items, "employee_id"));
             $model->where("date", $date);
             $model->delete();
             // $chunks = array_chunk($items, 100);

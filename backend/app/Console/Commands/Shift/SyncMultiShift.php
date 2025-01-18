@@ -66,6 +66,7 @@ class SyncMultiShift extends Command
             'dates' => [$date, $nextDate],
             'shift_type_id' => 2,
             'company_id' => 2,
+            'channel' => "kernel",
         ];
 
         $this->info(json_encode($payload));
