@@ -38,7 +38,7 @@ class CheckDeviceHealth extends Command
 
         $return = (new DeviceController())->checkDevicesHealthCompanyId();
 
-
+        echo $return;
 
         // $devices = Device::where("device_type", "!=", "Mobile")
         //     ->where("name", "!=", "Manual")
