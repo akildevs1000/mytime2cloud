@@ -59,8 +59,6 @@ class MultiShiftController extends Controller
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
-
-
         $params = [
             "company_id" => $id,
             "date" => $date,
@@ -68,6 +66,10 @@ class MultiShiftController extends Controller
             "custom_render" => $custom_render,
             "UserIds" => $UserIds,
         ];
+
+        $this->logOutPut($this->logFilePath, [
+            "params" => $params
+        ]);
 
         if (!$custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
