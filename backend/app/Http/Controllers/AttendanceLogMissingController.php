@@ -51,6 +51,12 @@ class AttendanceLogMissingController  extends Controller
         );
 
         try {
+
+
+            $source_info = $request->device_healthcheck ?? '';
+
+            $source_info .= $request->company_id == 0 ?  'Master_' : $request->company_id;
+            $source_info .= "_missing_logs_" . date("Y-m-d H:i:s");
             $total_records = 0;
             //$deviceId = "FC-8300T20094123";
             //$company_id = 2;
@@ -139,7 +145,7 @@ class AttendanceLogMissingController  extends Controller
                                 "mode" =>  $record['pass_mode']  ?? "---",
                                 "log_type" => $clock_status,
                                 "company_id" => $company_id,
-                                "source_info" => "missing_logs_" . date("Y-m-d H:i:s"),
+                                "source_info" => $source_info,
                             ];
 
                             $condition = ['UserID' => $record['person_code'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -235,7 +241,7 @@ class AttendanceLogMissingController  extends Controller
                         "mode" => $verification_methods[$record['recordCode']] ?? "---",
                         "reason" => $reasons[$record['recordCode']] ?? "---",
                         "company_id" => $company_id,
-                        "source_info" => "missing_logs_" . date("Y-m-d H:i:s"),
+                        "source_info" => $source_info,
                     ];
 
                     $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];

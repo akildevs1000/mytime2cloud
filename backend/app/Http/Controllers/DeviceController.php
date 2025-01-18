@@ -1136,6 +1136,7 @@ class DeviceController extends Controller
                             $requestArray = array(
                                 'device_id' => $companyDevice_id,
                                 'date' => date("Y-m-d"),
+                                'source' => "device_healthcheck",
 
                             );
                             $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
@@ -1144,7 +1145,7 @@ class DeviceController extends Controller
                     } catch (\Exception $e) {
 
 
-                        $this->info($e->getMessage());
+                        $this->info("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
                         Logger::error("Cron:  DeviceController.php  - GetMissingLogs. Error Details: " . $e->getMessage());
                     }
                     // (new ThemeController)->whatsappTodayStats($renderRequest);
