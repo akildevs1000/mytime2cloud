@@ -55,7 +55,7 @@ class AttendanceLogMissingController  extends Controller
 
             $source_info = $request->device_healthcheck ?? '';
 
-            $source_info .= $request->company_id == 0 ?  'Master_' : $request->company_id;
+            //$source_info .= $request->company_id == 0 ?  'Master_' : $request->company_id;
             $source_info .= $request->source   ??  '-';
 
             $source_info .= "_missing_logs_" . date("Y-m-d H:i:s");
