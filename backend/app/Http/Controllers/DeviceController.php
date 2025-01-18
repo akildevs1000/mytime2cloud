@@ -1088,6 +1088,8 @@ class DeviceController extends Controller
 
     public function checkDevicesHealthCompanyId($company_id = 0)
     {
+
+        log_message("----------------------------------", "check_device_health");
         log_message("step1-checkDevicesHealthCompanyId_" . $company_id, "check_device_health");
 
         $total_devices_count = Device::where("device_type", "!=", "Mobile")
