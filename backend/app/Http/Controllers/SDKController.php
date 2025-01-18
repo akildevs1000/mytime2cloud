@@ -273,7 +273,24 @@ class SDKController extends Controller
     {
         return $this->getSessionData($id);
     }
+    protected function clearSessionData($id)
+    {
+        $data = $this->getAllData();
 
+        if (!isset($data[$id])) {
+            return null;
+        }
+
+        $session = $data[$id];
+
+        // Session has expired
+        unset($data[$id]);
+        File::put($this->storagePath, json_encode($data)); // Update the file without the expired  
+
+
+
+
+    }
     protected function getSessionData($id)
     {
         $data = $this->getAllData();

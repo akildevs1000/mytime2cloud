@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 
 if (!function_exists('getStatus2')) {
     function getStatus2($employeeData)
@@ -298,6 +299,21 @@ if (!function_exists('defaultAnnouncementCategories')) {
             ],
 
         ];
+    }
+}
+if (!function_exists('log_message')) {
+    /**
+     * Log a device message to a specific log file.
+     *
+     * @param string $message The message to log.
+     * @param string $filename Optional custom file name.
+     */
+    function log_message(string $message, string $filename = null): void
+    {
+        $file_name_raw = $filename ?: "helper_log_";
+        $file_name_raw .=   date("d-m-Y") . ".txt";
+        $log_entry = date("Y-m-d H:i:s") . " - " . $message;
+        Storage::append("helper_logs/" . $file_name_raw, $log_entry);
     }
 }
 if (!function_exists('defaultMailContent')) {
