@@ -68,11 +68,20 @@ class MultiShiftController extends Controller
         if (!$custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
+            $this->logOutPut($this->logFilePath, "------------From Custom Render-----------");
         }
 
         // return json_encode($params);
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+
+        $this->logOutPut($this->logFilePath, [
+            "params" => $params
+        ]);
+
+        $this->logOutPut($this->logFilePath, [
+            "employees" => $employees
+        ]);
 
 
         //update shift ID for No logs 
@@ -240,7 +249,6 @@ class MultiShiftController extends Controller
 
             $this->logOutPut($this->logFilePath, $message);
             $this->logOutPut($this->logFilePath, "$logsUpdated Logs Updated");
-
         } catch (\Throwable $e) {
             $this->logOutPut($this->logFilePath, $e);
         }
