@@ -28,6 +28,10 @@ class MultiShiftController extends Controller
         $employee_ids = $request->employee_ids;
         $channel = $request->channel ?? "browser";
 
+        $this->logOutPut($this->logFilePath, [
+            "employee_ids" => $employee_ids
+        ]);
+
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
         $endDate = new \DateTime($endDateString);
