@@ -313,7 +313,7 @@ if (!function_exists('log_message')) {
         $file_name_raw = $filename ?: "helper_log_";
         $file_name_raw .=   date("d-m-Y") . ".txt";
         $log_entry = date("Y-m-d H:i:s") . " - " . $message;
-        Storage::append($file_name_raw, $log_entry);
+        Storage::append("helper_logs/" . $file_name_raw, $log_entry);
     }
 }
 if (!function_exists('defaultMailContent')) {
