@@ -229,7 +229,7 @@ class MultiShiftController extends Controller
                 ->whereIn("UserID", $UserIds ?? [])
                 ->where("LogTime", ">=", $date)
                 ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                ->where("checked", false)
+                // ->where("checked", false)
                 ->update([
                     "checked" => true,
                     "checked_datetime" => date('Y-m-d H:i:s'),
@@ -243,6 +243,7 @@ class MultiShiftController extends Controller
         }
 
         $this->logOutPut($this->logFilePath, [
+            "UserIds" => $UserIds,
             "params" => $params,
             "items" => $items,
         ]);
