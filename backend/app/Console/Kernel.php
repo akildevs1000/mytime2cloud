@@ -65,8 +65,19 @@ class Kernel extends ConsoleKernel
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
+
+            $schedule
+                ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
+                ->everyThirtyMinutes()
+                ->runInBackground();
+
             $schedule
                 ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
+                ->everyThirtyMinutes()
+                ->runInBackground();
+
+            $schedule
+                ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
