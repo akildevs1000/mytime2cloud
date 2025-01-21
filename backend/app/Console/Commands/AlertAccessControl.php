@@ -23,21 +23,15 @@ class AlertAccessControl extends Command
 
     public function handle()
     {
+        $logger = new Controller;
+
         $logFilePath = 'logs/whatsapp';
-
-
-
-        // for kernel use
-        // $schedule
-        // ->command("alert:access_control {$companyId}")
-        // ->everyFiveMinutes()
-        // ->runInBackground();
 
         $company_id = $this->argument("company_id", 0);
 
         $logFilePath = "$logFilePath/$company_id";
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
+        $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
         // Fetch the ReportNotification model with filtered managers
         $model = ReportNotification::with([
@@ -49,8 +43,9 @@ class AlertAccessControl extends Command
 
         // Check if the ReportNotification model exists
         if (!$model) {
-            (new Controller)->logOutPut($logFilePath, "No ReportNotification found for the specified type");
+            $logger->logOutPut($logFilePath, "No Report Notification found for the specified type");
             $this->info("No ReportNotification found for the specified type.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             return;
         }
 
@@ -58,12 +53,10 @@ class AlertAccessControl extends Command
 
         sort($days); // ["0","1","3","4","5","6"]
 
-
-        (new Controller)->logOutPut($logFilePath, "Day count " . count($model->days));
-
         $currentDay = date("w"); // day value as number
         if (!in_array($currentDay, $days) || !count($model->days)) {
-            (new Controller)->logOutPut($logFilePath, "Day not found");
+            $logger->logOutPut($logFilePath, "Day not found");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             $this->info("Day not found");
             return;
         }
@@ -76,8 +69,9 @@ class AlertAccessControl extends Command
 
         // Check if there are no managers
         if ($managers->isEmpty()) {
-            (new Controller)->logOutPut($logFilePath, "No managers found for the specified company ID.");
+            $logger->logOutPut($logFilePath, "No managers found for the specified company ID.");
             $this->info("No managers found for the specified company ID.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             return;
         }
 
@@ -92,11 +86,15 @@ class AlertAccessControl extends Command
             ->where('company_id', $company_id)
             ->where('channel', "unknown")
             ->where('checked', false)
-            ->limit(1)
+            ->limit(10)
             ->orderBy("id", "desc")
             ->get();
 
-        (new Controller)->logOutPut($logFilePath, "Record count " . count($records->toArray()));
+        if (!count($records->toArray())) {
+            $logger->logOutPut($logFilePath, "Record count " . count($records->toArray()));
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+        }
+
 
         foreach ($records as $key => $record) {
 
@@ -135,21 +133,21 @@ class AlertAccessControl extends Command
 
                         // To handle the response
                         if ($response->successful()) {
-                            (new Controller)->logOutPut($logFilePath, "Message sent successfully");
+                            $logger->logOutPut($logFilePath, "Message sent successfully");
                             $this->info("Message sent successfully");
                         } else {
-                            (new Controller)->logOutPut($logFilePath, "Failed to send message");
+                            $logger->logOutPut($logFilePath, "Failed to send message");
                             $this->info("Failed to send message!");
                         }
                     } catch (\Throwable $e) {
-                        (new Controller)->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                         $this->info($e);
+                        $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                     }
                 }
             }
         }
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+        $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
 
     private function generateMessage($name, $deviceName, $formattedDate)
