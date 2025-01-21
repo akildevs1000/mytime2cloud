@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\ReportNotification;
-use Carbon\Carbon;
 use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -39,7 +38,6 @@ class AlertAccessControl extends Command
         $logFilePath = "$logFilePath/$company_id";
 
         (new Controller)->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
-
 
         // Fetch the ReportNotification model with filtered managers
         $model = ReportNotification::with([
