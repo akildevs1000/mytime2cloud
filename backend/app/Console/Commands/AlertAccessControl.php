@@ -34,7 +34,9 @@ class AlertAccessControl extends Command
         // ->everyFiveMinutes()
         // ->runInBackground();
 
-        $company_id = $this->argument("company_id");
+        $company_id = $this->argument("company_id", 0);
+
+        $logFilePath = "$logFilePath/$company_id";
 
         (new Controller)->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
