@@ -23,6 +23,12 @@ class AlertAccessControl extends Command
 
     public function handle()
     {
+        // for kernel use
+        // $schedule
+        // ->command("alert:access_control {$companyId}")
+        // ->everyFiveMinutes()
+        // ->runInBackground();
+
         $company_id = $this->argument("company_id");
 
         // $currentDate = Carbon::now();
