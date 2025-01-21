@@ -193,7 +193,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:check_device_health')
-            ->everyThirtyMinutes()
+            ->hourly()
         ;
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
