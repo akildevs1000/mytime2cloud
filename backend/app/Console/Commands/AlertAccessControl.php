@@ -58,8 +58,10 @@ class AlertAccessControl extends Command
 
         sort($days); // ["0","1","3","4","5","6"]
 
+        (new Controller)->logOutPut("Day count", count($model->days));
+
         $currentDay = date("w"); // day value as number
-        if (!in_array($currentDay, $days)) {
+        if (!in_array($currentDay, $days) || !count($model->days)) {
             (new Controller)->logOutPut($logFilePath, "Day not found");
             $this->info("Day not found");
             return;
