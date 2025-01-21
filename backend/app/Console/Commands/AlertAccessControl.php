@@ -31,28 +31,43 @@ class AlertAccessControl extends Command
 
         $company_id = $this->argument("company_id");
 
-        // $currentDate = Carbon::now();
+        // Fetch the ReportNotification model with filtered managers
+        $model = ReportNotification::with([
+            'managers' => function ($query) use ($company_id) {
+                $query->where('company_id', $company_id)
+                    ->select(['id', 'whatsapp_number', 'email', 'notification_id']); // Ensure foreign and primary keys are included
+            }
+        ])->where('type', 'access_control')->first();
 
-        $model = ReportNotification::with(
-            [
-                "managers" => function ($query) use ($company_id) {
-                    $query->where("company_id", $company_id);
-                }
-            ]
-        )->where("type", "access_control")->first();
-
+        // Check if the ReportNotification model exists
         if (!$model) {
-            $this->info("no data");
+            $this->info("No ReportNotification found for the specified type.");
+            return;
         }
 
-        if (!count($model->managers)) {
+        $days = $model->days;
+
+        sort($days); // ["0","1","3","4","5","6"]
+
+        $currentDay = date("w"); // day value as number
+        if (!in_array($currentDay, $days)) {
+            $this->info("Day not found");
+            return;
+        }
+
+        $from_time = $model->from_time;
+        $to_time = $model->to_time;
+
+        // Extract managers or set an empty array if null
+        $managers = $model->managers ?? [];
+
+        // Check if there are no managers
+        if ($managers->isEmpty()) {
+            $this->info("No managers found for the specified company ID.");
             return;
         }
 
         $clientId = Company::where("id", $company_id)->value("company_code") ?? 0;
-
-        $whatsapp_number = $model->managers[0]->whatsapp_number ?? "971554501483";
-
 
         $records = AttendanceLog::with(['employee', 'company', 'device'])
             ->with(["employee" => function ($q) use ($company_id) {
@@ -61,43 +76,48 @@ class AlertAccessControl extends Command
             ->where("LogTime", ">=", date("Y-m-d 00:00:00"))
             ->where("LogTime", "<=", date("Y-m-d 23:59:00"))
             ->where('company_id', $company_id)
-            // ->where('channel', "unknown")
-            // ->where('checked', false)
+            ->where('channel', "unknown")
+            ->where('checked', false)
             ->limit(5)
             ->orderBy("id", "desc")
             ->get();
 
         foreach ($records as $key => $record) {
 
+            $this->info("Processing record ID: {$record->id}");
+
+            $time = $record->time;
+
             if ($record->company && $record->employee && $record->device) {
-
-                $time = $record->time;
-
-                if ($time >= $model->from_time && $time <= $model->to_time) {
+                if (
+                    ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
+                    ($time >= "00:00" && $time <= $to_time)      // Time is on the next day between midnight and to_time
+                ) {
                     try {
-                        $name = ucfirst($record->employee->first_name)   . " " . ucfirst($record->employee->last_name);
+                        $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
+                        $formattedDate = (new DateTime($record->LogTime))->format('jS M Y');
+                        $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
-                        $date = $record->LogTime;
-                        $datetime = new DateTime($date);
-                        $formattedDate1 = $datetime->format('jS M Y');
-                        $message = "🌟 *Access Control Notification* 🌟\n";
-                        $message .= "Dear " . "Admin" . ". " . ", \n\n";
+                        foreach ($managers as $manager) {
 
-                        $message .= "✅ Your employee ($name) has been accessed the  door from *" . $record->device->name . "* on *" . $formattedDate1 . ".\n\n";
+                            if (in_array("Whatsapp", $model->mediums)) {
+                                $response = Http::withoutVerifying()->post(
+                                    'https://wa.mytime2cloud.com/send-message',
+                                    [
+                                        'clientId' =>  $clientId,
+                                        'recipient' => $manager->whatsapp_number,
+                                        'text' => $message,
+                                    ]
+                                );
+                            }
 
-                        $message .= "Thank you!\n";
+                            if (in_array("Email", $model->mediums)) {
+                                // process for email
+                            }
+                            sleep(5);
+                        }
 
-                        $this->info($message);
 
-
-                        $response = Http::withoutVerifying()->post(
-                            'https://wa.mytime2cloud.com/send-message',
-                            [
-                                'clientId' =>  $clientId,
-                                'recipient' => $whatsapp_number,
-                                'text' => $message,
-                            ]
-                        );
 
                         // To handle the response
                         if ($response->successful()) {
@@ -108,12 +128,16 @@ class AlertAccessControl extends Command
                     } catch (\Throwable $e) {
                         $this->info($e);
                     }
-
-                    sleep(5);
                 }
-            } else {
-                $this->info("Record not found");
             }
         }
+    }
+
+    private function generateMessage($name, $deviceName, $formattedDate)
+    {
+        return "🌟 *Access Control Notification* 🌟\n" .
+            "Dear Admin,\n\n" .
+            "✅ Your employee ($name) has accessed the door from *$deviceName* on *$formattedDate*.\n\n" .
+            "Thank you!\n";
     }
 }
