@@ -143,6 +143,8 @@ class AlertAccessControl extends Command
                 }
             }
         }
+
+        (new Controller)->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
 
     private function generateMessage($name, $deviceName, $formattedDate)
