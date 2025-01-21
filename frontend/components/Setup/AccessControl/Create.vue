@@ -364,6 +364,11 @@ export default {
 
       this.payload.time = this.editItemPayload.time;
 
+      this.payload.from_time = this.editItemPayload.from_time;
+      this.payload.to_time = this.editItemPayload.to_time;
+      this.payload.days = this.editItemPayload.days;
+
+
       this.payload.date = this.editItemPayload.date;
       this.payload.company_id = this.editItemPayload.company_id;
       this.payload.branch_id = this.editItemPayload.branch_id;
@@ -534,6 +539,8 @@ export default {
         element.branch_id = this.payload.branch_id;
       });
 
+      this.payload.type = this.type;
+
       if (this.editItemPayload) {
         this.$axios
           .put("/report_notification/" + this.editItemPayload.id, this.payload)
@@ -554,7 +561,6 @@ export default {
           })
           .catch((e) => console.log(e));
       } else {
-        this.payload.type = this.type;
         this.$axios
           .post("/report_notification", this.payload)
           .then(({ data }) => {

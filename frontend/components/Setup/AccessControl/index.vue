@@ -284,11 +284,37 @@
               <br />
             </div>
           </template>
-          <template v-slot:item.frequency="{ item, index }">
-            {{ item.frequency }}
-            <div class="secondary-value">
-              {{ item.frequency == "Weekly" ? getDayName(item.day) : "" }}
-              {{ item.frequency == "Monthly" ? item.day : "" }}
+          <template v-slot:item.days="{ item, index }">
+            <div
+              style="
+                display: flex;
+                flex-wrap: nowrap;
+              "
+            >
+              <div
+                class="white--text text-center"
+                style="
+                  border-radius: 50%;
+                  height: 30px;
+                  width: 30px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 12px;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  margin-right: 4px;
+                "
+                v-for="day in days"
+                :key="day.id"
+                fab
+                dark
+                :class="{
+                  primary: item.days.includes(day.id),
+                  grey: !item.days.includes(day.id),
+                }"
+              >
+                <span>{{ day.name.charAt(0) }}</span>
+              </div>
             </div>
           </template>
           <template v-slot:item.manager1="{ item }">
@@ -464,13 +490,13 @@ export default {
     data_history: [],
     options_history: {},
     days: [
-      { id: 1, name: "Monday" },
-      { id: 2, name: "Tuesday" },
-      { id: 3, name: "Wednesday" },
-      { id: 4, name: "Thursday" },
-      { id: 5, name: "Friday" },
-      { id: 6, name: "Saturday" },
-      { id: 0, name: "Sunday" },
+      { id: 1 + "", name: "M" },
+      { id: 2 + "", name: "T" },
+      { id: 3 + "", name: "W" },
+      { id: 4 + "", name: "Th" },
+      { id: 5 + "", name: "F" },
+      { id: 6 + "", name: "Sa" },
+      { id: 0 + "", name: "Su" },
     ],
     headers_table_history: [
       {
@@ -531,22 +557,13 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Type",
+        text: "Days",
         align: "left",
         sortable: true,
-        key: "frequency",
-        value: "frequency",
+        key: "days",
+        value: "days",
         filterable: true,
         filterSpecial: true,
-      },
-      {
-        text: "Time",
-        align: "left",
-        sortable: true,
-        key: "time",
-        value: "time",
-        filterable: true,
-        filterSpecial: false,
       },
       {
         text: "Manager1",
@@ -585,15 +602,6 @@ export default {
         filterSpecial: true,
       },
 
-      {
-        text: "Last Sent",
-        align: "left",
-        sortable: true,
-        key: "time",
-        value: "last_sent",
-        filterable: true,
-        filterSpecial: false,
-      },
       {
         text: "Options",
         align: "left",
