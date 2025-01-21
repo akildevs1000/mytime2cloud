@@ -46,6 +46,11 @@
                 <span>Admins</span>
               </v-tab>
 
+              <v-tab>
+                <v-icon left> mdi-whatsapp </v-icon>
+                <span>Whatsapp</span>
+              </v-tab>
+
               <!-- <v-tab>
                 <v-icon left> mdi-qrcode </v-icon>
                 <span>QrCode - Visitor </span>
@@ -933,6 +938,10 @@
                     </a>
                   </span>
                 </v-container> -->
+              </v-tab-item>
+
+              <v-tab-item>
+                <Whatsapp />
               </v-tab-item>
             </v-tabs>
           </v-card>

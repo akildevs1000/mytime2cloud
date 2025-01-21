@@ -36,38 +36,117 @@
     <span v-if="errors && errors.subject" class="error--text"
       >{{ errors.subject[0] }}
     </span>
-    <div style="display: flex; align-items: center; gap: 3px">
-      <v-checkbox
+
+    <div
+      style="
+        display: flex;
+        flex-wrap: wrap;
+        gap: 3px;
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <!-- Center each day in a circle and style accordingly -->
+      <div
+        class="white--text text-center"
+        style="
+          border-radius: 50%;
+          height: 30px;
+          width: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        "
         v-for="day in days"
         :key="day.id"
-        v-model="payload.day"
-        :label="day.name"
-        :value="day.id"
-        dense
-        multiple
-        style="width: 35px;"
+        fab
+        dark
+        :class="{
+          primary: payload.days.includes(day.id),
+          grey: !payload.days.includes(day.id),
+        }"
+        @click="toggleSelection(day.id)"
       >
-        <template v-slot:label>
-          <div class="customer-check-box-label" style="margin-left:-9px ;">{{ day.name }}</div>
-        </template>
-      </v-checkbox>
+        <span>{{ day.name.charAt(0) }}</span>
+      </div>
     </div>
 
-    <span v-if="errors && errors.date" class="error--text">{{
-      errors.date[0]
+    <span v-if="errors && errors.days" class="error--text">{{
+      errors.days[0]
     }}</span>
 
-    <SnippetsTimePickerCommon
-      label=""
-      :default_value="payload.time"
-      @getTime="
-        (value) => {
-          payload.time = value;
-        }
-      "
-    />
-    <span v-if="errors && errors.time" class="error--text">{{
-      errors.time[0]
+    <v-dialog
+      ref="fromDialogRef"
+      v-model="fromDialog"
+      :return-value.sync="payload.from_time"
+      persistent
+      width="290px"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          v-model="payload.from_time"
+          label="From Time"
+          append-icon="mdi-clock-time-four-outline"
+          prepend-icon=""
+          class="mt-5"
+          outlined
+          dense
+          readonly
+          v-bind="attrs"
+          v-on="on"
+          hide-details
+        ></v-text-field>
+      </template>
+      <v-time-picker
+        dense
+        format="24hr"
+        v-if="fromDialog"
+        v-model="payload.from_time"
+        full-width
+        @click:minute="$refs.fromDialogRef.save(payload.from_time)"
+      />
+    </v-dialog>
+
+    <span v-if="errors && errors.from_time" class="error--text">{{
+      errors.from_time[0]
+    }}</span>
+
+    <v-dialog
+      ref="toDialogRef"
+      v-model="toDialog"
+      :return-value.sync="payload.to_time"
+      persistent
+      width="290px"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-text-field
+          v-model="payload.to_time"
+          label="To Time"
+          append-icon="mdi-clock-time-four-outline"
+          prepend-icon=""
+          class="mt-5"
+          outlined
+          dense
+          readonly
+          v-bind="attrs"
+          v-on="on"
+          hide-details
+        ></v-text-field>
+      </template>
+      <v-time-picker
+        dense
+        format="24hr"
+        v-if="toDialog"
+        v-model="payload.to_time"
+        full-width
+        @click:minute="$refs.toDialogRef.save(payload.to_time)"
+      />
+    </v-dialog>
+
+    <span v-if="errors && errors.to_time" class="error--text">{{
+      errors.to_time[0]
     }}</span>
 
     <v-divider></v-divider>
@@ -169,6 +248,9 @@ export default {
   components: { TiptapVuetify },
 
   data: () => ({
+    fromDialog: false,
+    toDialog: false,
+
     daysNumaric: [],
     managers: [],
     time_in_menu: false,
@@ -223,6 +305,7 @@ export default {
     email: "",
     whatsapp: "",
     payload: {
+      days: [],
       day: 1,
       reports: [],
       mediums: [],
@@ -300,8 +383,13 @@ export default {
     }
   },
   methods: {
-    set_date_save(from_menu, field) {
-      from_menu.save(field);
+    toggleSelection(dayId) {
+      const index = this.payload.days.indexOf(dayId);
+      if (index === -1) {
+        this.payload.days.push(dayId);
+      } else {
+        this.payload.days.splice(index, 1);
+      }
     },
     add() {
       if (this.managers.length >= 3) {
@@ -399,8 +487,36 @@ export default {
     deleteBCC(i) {
       this.payload.bccs.splice(i, 1);
     },
+    async setWhatsappMessage() {
+      try {
+        // Retrieve clientId from localStorage
+        const clientId = localStorage.getItem("clientId");
+
+        if (!clientId) {
+          console.error("Client ID not found in localStorage.");
+          return;
+        }
+
+        const endpoint = `https://wa.mytime2cloud.com/send-message`;
+        const payload = {
+          clientId,
+          recipient: "971554501483",
+          text: `Message to client ${clientId}`,
+        };
+
+        // Make the API request
+        const { data } = await this.$axios.post(endpoint, payload);
+
+        console.log("🚀 ~ setWhatsappMessage ~ Response Data:", data);
+      } catch (error) {
+        // Handle errors during API call
+        console.error("Error in setWhatsappMessage:", error.message);
+      }
+    },
 
     store() {
+      // this.setWhatsappMessage();
+      // return;
       this.payload.managers = this.managers.filter(
         (e) => e.email != "" && e.name != ""
       );

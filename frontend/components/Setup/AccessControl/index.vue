@@ -106,18 +106,20 @@
           </v-card-title>
           <v-card-text class="mt-4">
             <SetupAccessControlCreate
-              type="alert"
+              type="access_control"
               @getDataFromApi="getDataFromApi"
               :editItemPayload="editItemPayload"
               :key="newDialogKey"
               @closePopup="closePopup"
-             />
+            />
           </v-card-text>
         </v-card>
       </v-navigation-drawer>
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
-          <v-toolbar-title><span> Access Control Notification</span></v-toolbar-title>
+          <v-toolbar-title
+            ><span> Access Control Notification</span></v-toolbar-title
+          >
           <span>
             <v-btn
               dense
@@ -404,9 +406,7 @@
 </template>
 
 <script>
-
 export default {
-
   data: () => ({
     dialogviewHisotry: false,
     totalRowsCount_history: 10,
@@ -424,7 +424,7 @@ export default {
     dialogNew: false,
     showFilters: false,
     filters: {
-      type: "alert",
+      type: "access_control",
     },
     isFilter: false,
     totalRowsCount: 0,
