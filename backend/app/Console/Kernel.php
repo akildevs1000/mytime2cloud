@@ -120,6 +120,11 @@ class Kernel extends ConsoleKernel
                 ->monthlyOn(1, "00:00")
                 ->runInBackground();
 
+            $schedule
+                ->command("alert:access_control {$companyId}")
+                ->everyFiveMinutes()
+                ->runInBackground();
+
             //whatsapp reports 
             // $array = ['All', "P", "A", "M", "ME"];
             $array = ['All'];

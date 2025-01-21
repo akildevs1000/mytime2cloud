@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\ReportNotification;
@@ -23,6 +24,10 @@ class AlertAccessControl extends Command
 
     public function handle()
     {
+        $logFilePath = 'logs/whatsapp';
+
+
+
         // for kernel use
         // $schedule
         // ->command("alert:access_control {$companyId}")
@@ -30,6 +35,9 @@ class AlertAccessControl extends Command
         // ->runInBackground();
 
         $company_id = $this->argument("company_id");
+
+        (new Controller)->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
+
 
         // Fetch the ReportNotification model with filtered managers
         $model = ReportNotification::with([
@@ -41,6 +49,7 @@ class AlertAccessControl extends Command
 
         // Check if the ReportNotification model exists
         if (!$model) {
+            (new Controller)->logOutPut($logFilePath, "No ReportNotification found for the specified type");
             $this->info("No ReportNotification found for the specified type.");
             return;
         }
@@ -51,6 +60,7 @@ class AlertAccessControl extends Command
 
         $currentDay = date("w"); // day value as number
         if (!in_array($currentDay, $days)) {
+            (new Controller)->logOutPut($logFilePath, "Day not found");
             $this->info("Day not found");
             return;
         }
@@ -63,6 +73,7 @@ class AlertAccessControl extends Command
 
         // Check if there are no managers
         if ($managers->isEmpty()) {
+            (new Controller)->logOutPut($logFilePath, "No managers found for the specified company ID.");
             $this->info("No managers found for the specified company ID.");
             return;
         }
@@ -78,13 +89,11 @@ class AlertAccessControl extends Command
             ->where('company_id', $company_id)
             ->where('channel', "unknown")
             ->where('checked', false)
-            ->limit(5)
+            ->limit(1)
             ->orderBy("id", "desc")
             ->get();
 
         foreach ($records as $key => $record) {
-
-            $this->info("Processing record ID: {$record->id}");
 
             $time = $record->time;
 
@@ -121,11 +130,14 @@ class AlertAccessControl extends Command
 
                         // To handle the response
                         if ($response->successful()) {
-                            $this->info("Message sent successfully!");
+                            (new Controller)->logOutPut($logFilePath, "Message sent successfully");
+                            $this->info("Message sent successfully");
                         } else {
+                            (new Controller)->logOutPut($logFilePath, "Failed to send message");
                             $this->info("Failed to send message!");
                         }
                     } catch (\Throwable $e) {
+                        (new Controller)->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                         $this->info($e);
                     }
                 }
