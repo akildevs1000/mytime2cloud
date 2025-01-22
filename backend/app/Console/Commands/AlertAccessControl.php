@@ -33,49 +33,19 @@ class AlertAccessControl extends Command
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
-        // Fetch the ReportNotification model with filtered managers
-        $model = ReportNotification::with([
-            'managers' => function ($query) use ($company_id) {
-                $query->where('company_id', $company_id)
-                    ->select(['id', 'whatsapp_number', 'email', 'notification_id']); // Ensure foreign and primary keys are included
-            }
-        ])->where('type', 'access_control')->first();
-
-        // Check if the ReportNotification model exists
-        if (!$model) {
-            $logger->logOutPut($logFilePath, "No Report Notification found for the specified type");
-            $this->info("No ReportNotification found for the specified type.");
-            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
-            return;
-        }
-
-        $days = $model->days;
-
-        sort($days); // ["0","1","3","4","5","6"]
-
-        $currentDay = date("w"); // day value as number
-        if (!in_array($currentDay, $days) || !count($model->days)) {
-            $logger->logOutPut($logFilePath, "Day not found");
-            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
-            $this->info("Day not found");
-            return;
-        }
-
-        $from_time = $model->from_time;
-        $to_time = $model->to_time;
-
-        // Extract managers or set an empty array if null
-        $managers = $model->managers ?? [];
-
-        // Check if there are no managers
-        if ($managers->isEmpty()) {
-            $logger->logOutPut($logFilePath, "No managers found for the specified company ID.");
-            $this->info("No managers found for the specified company ID.");
-            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
-            return;
-        }
-
         $clientId = Company::where("id", $company_id)->value("company_code") ?? 0;
+
+        $models = ReportNotification::with("managers")
+            ->where('type', 'access_control')
+            ->orderBy("id", "desc")
+            ->get();
+
+        if ($models->isEmpty()) {
+            $logger->logOutPut($logFilePath, "No Report Notification found.");
+            $this->info("No ReportNotification found.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            return;
+        }
 
         $records = AttendanceLog::with(['employee', 'company', 'device'])
             ->with(["employee" => function ($q) use ($company_id) {
@@ -84,60 +54,91 @@ class AlertAccessControl extends Command
             ->where("LogTime", ">=", date("Y-m-d 00:00:00"))
             ->where("LogTime", "<=", date("Y-m-d 23:59:00"))
             ->where('company_id', $company_id)
-            ->where('channel', "unknown")
-            ->where('checked', false)
-            ->limit(10)
-            ->orderBy("id", "desc")
+            ->where('is_notified_by_whatsapp_proxy', false)
+            ->limit(5)
+            ->orderBy("id", "asc")
             ->get();
 
         if (!count($records->toArray())) {
             $logger->logOutPut($logFilePath, "Record count " . count($records->toArray()));
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            $this->info("Record count " . count($records->toArray()));
+            return;
         }
 
+        $logIds = [];
 
-        foreach ($records as $key => $record) {
+        foreach ($models as $model) {
 
-            $time = $record->time;
+            $days = $model->days;
+            $from_time = $model->from_time;
+            $to_time = $model->to_time;
+            $managers = $model->managers ?? [];
 
-            if ($record->company && $record->employee && $record->device) {
-                if (
-                    ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
-                    ($time >= "00:00" && $time <= $to_time)      // Time is on the next day between midnight and to_time
-                ) {
+            $currentDay = date("w"); // day value as number
+            if (!in_array($currentDay, $days) || !count($days)) {
+                $logger->logOutPut($logFilePath, "Day not found");
+                $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+                $this->info("Day not found");
+                return;
+            }
+
+            // Check if there are no managers
+            if ($managers->isEmpty()) {
+                $logger->logOutPut($logFilePath, "No managers found for the specified company ID.");
+                $this->info("No managers found for the specified company ID.");
+                $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+                return;
+            }
+
+
+            foreach ($records as $logID => $record) {
+
+                if ($record->company && $record->employee && $record->device) {
+
                     try {
-                        $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
-                        $formattedDate = (new DateTime($record->LogTime))->format('jS M Y H:i');
-                        $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
                         foreach ($managers as $manager) {
+                            $time = $record->time;
+                            if (
+                                ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
+                                ($time >= "00:00" && $time <= $to_time)      // Time is on the next day between midnight and to_time
+                            ) {
+                                $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
 
-                            if (in_array("Whatsapp", $model->mediums)) {
-                                $response = Http::withoutVerifying()->post(
-                                    'https://wa.mytime2cloud.com/send-message',
-                                    [
-                                        'clientId' =>  $clientId,
-                                        'recipient' => $manager->whatsapp_number,
-                                        'text' => $message,
-                                    ]
-                                );
+                                //"22 Jan 2025 at 13:32:00"
+                                $formattedDate = (new DateTime($record->LogTime))->format('d M Y \a\t H:i:s');
+                                $message = $this->generateMessage($name, $record->device->name, $formattedDate);
+
+                                // if ($manager->branch_id == $record->employee->branch_id) {
+
+                                if (in_array("Whatsapp", $model->mediums)) {
+                                    $response = Http::withoutVerifying()->post(
+                                        'https://wa.mytime2cloud.com/send-message',
+                                        [
+                                            'clientId' =>  $clientId,
+                                            'recipient' => $manager->whatsapp_number,
+                                            'text' => $message,
+                                        ]
+                                    );
+
+                                    // To handle the response
+                                    if ($response->successful()) {
+                                        $logger->logOutPut($logFilePath, "Message sent successfully");
+                                        $logIds[] = $record->id;
+                                        $this->info("Message sent successfully");
+                                    } else {
+                                        $logger->logOutPut($logFilePath, "Failed to send message");
+                                        $this->info("Failed to send message!");
+                                    }
+                                }
+
+                                if (in_array("Email", $model->mediums)) {
+                                    // process for email
+                                }
+                                sleep(5);
+                                // }
                             }
-
-                            if (in_array("Email", $model->mediums)) {
-                                // process for email
-                            }
-                            sleep(5);
-                        }
-
-
-
-                        // To handle the response
-                        if ($response->successful()) {
-                            $logger->logOutPut($logFilePath, "Message sent successfully");
-                            $this->info("Message sent successfully");
-                        } else {
-                            $logger->logOutPut($logFilePath, "Failed to send message");
-                            $this->info("Failed to send message!");
                         }
                     } catch (\Throwable $e) {
                         $this->info($e);
@@ -147,14 +148,20 @@ class AlertAccessControl extends Command
             }
         }
 
+        $records = AttendanceLog::whereIn("id", $logIds)
+            ->update(["is_notified_by_whatsapp_proxy" => true]);
+
+        $logger->logOutPut($logFilePath, "*****$records logs updated *****");
+
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
 
     private function generateMessage($name, $deviceName, $formattedDate)
     {
-        return "🌟 *Access Control Notification* 🌟\n" .
+        return "Access Control Alert !\n" .
+            "\n" .
             "Dear Admin,\n\n" .
-            "✅ Your employee ($name) has accessed the door from *$deviceName* on *$formattedDate*.\n\n" .
+            "*$name* accessed the door at  *$deviceName* on $formattedDate\n\n" .
             "Thank you!\n";
     }
 }
