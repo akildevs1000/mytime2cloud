@@ -28,6 +28,19 @@
       </v-row>
       <v-row>
         <v-col>Update Timezone Mapping</v-col>
+        <!-- <v-col v-if="isCompany" cols="2">
+          <v-select
+            @change="filterDepartmentsByBranch($event)"
+            v-model="branch_id"
+            :items="[{ id: ``, branch_name: `All Branches` }, ...branchesList]"
+            dense
+            placeholder="All Branches"
+            outlined
+            item-value="id"
+            item-text="branch_name"
+          >
+          </v-select>
+        </v-col> -->
         <v-col cols="3">
           <v-select
             @change="loadDepartmentemployees"
@@ -1080,59 +1093,65 @@ export default {
       let SDKSuccessStatus = true;
       let idTable = this.$route.query.id;
       this.$axios.put(`${url}/${idTable}`, options).then(({ data }) => {
-        this.loading = false;
+        this.snackbar.show = true;
+        this.snackbar.message = "Timezone Details are updated successfully.";
+
         // this.displaybutton = false;
         if (data.record.SDKResponse) {
           this.rightDevices.forEach((rightDevicesobj) => {
-            // $.each(this.rightDevices, function (index, rightDevicesobj) {
-            let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-              (e) => e.sn == rightDevicesobj.device_id
-            );
+            if (data.record.SDKResponse.data) {
+              // $.each(this.rightDevices, function (index, rightDevicesobj) {
+              let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
+                (e) => e.sn == rightDevicesobj.device_id
+              );
 
-            let deviceStatusResponse = "";
-            let EmpStatusResponse = "";
+              let deviceStatusResponse = "";
+              let EmpStatusResponse = "";
 
-            if (SdkResponseDeviceobject.message == "") {
-              deviceStatusResponse = "Success";
-            } else if (
-              SdkResponseDeviceobject.message == "The device was not found"
-            ) {
-              deviceStatusResponse = "The device was not found or offline";
-              SDKSuccessStatus = false;
-            } else if (SdkResponseDeviceobject.message == "person info error") {
-              let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-              jsrightEmployees.forEach((element) => {
-                element["sdkEmpResponse"] = "Success";
-                let systemUserid = element.system_user_id;
+              if (SdkResponseDeviceobject.message == "") {
+                deviceStatusResponse = "Success";
+              } else if (
+                SdkResponseDeviceobject.message == "The device was not found"
+              ) {
+                deviceStatusResponse = "The device was not found or offline";
                 SDKSuccessStatus = false;
-                let selectedEmpobject = SDKUseridArray.find(
-                  (e) => e.userCode == systemUserid
-                );
-                EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                deviceStatusResponse = "";
+              } else if (
+                SdkResponseDeviceobject.message == "person info error"
+              ) {
+                let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+                jsrightEmployees.forEach((element) => {
+                  element["sdkEmpResponse"] = "Success";
+                  let systemUserid = element.system_user_id;
+                  SDKSuccessStatus = false;
+                  let selectedEmpobject = SDKUseridArray.find(
+                    (e) => e.userCode == systemUserid
+                  );
+                  EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+                  deviceStatusResponse = "";
 
-                if (EmpStatusResponse != "") {
-                  //Adding extra parameters for Employee object
-                  if (selectedEmpobject) {
-                    element["sdkEmpResponse"] = "person photo error ";
-                    // $.extend(element, {
-                    //   sdkEmpResponse: "person info error ",
-                    // });
-                  } else {
-                    // $.extend(element, {
-                    //   sdkEmpResponse: " Success",
-                    // });
-                    element["sdkEmpResponse"] = "Success";
+                  if (EmpStatusResponse != "") {
+                    //Adding extra parameters for Employee object
+                    if (selectedEmpobject) {
+                      element["sdkEmpResponse"] = "person photo error ";
+                      // $.extend(element, {
+                      //   sdkEmpResponse: "person info error ",
+                      // });
+                    } else {
+                      // $.extend(element, {
+                      //   sdkEmpResponse: " Success",
+                      // });
+                      element["sdkEmpResponse"] = "Success";
+                    }
                   }
-                }
-              });
-            } else {
-            }
+                });
+              } else {
+              }
 
-            //Adding extra parameters for Devices object
-            rightDevicesobj["sdkDeviceResponse"] =
-              deviceStatusResponse != "" ? deviceStatusResponse : " Success";
-            this.errors = [];
+              //Adding extra parameters for Devices object
+              rightDevicesobj["sdkDeviceResponse"] =
+                deviceStatusResponse != "" ? deviceStatusResponse : " Success";
+              this.errors = [];
+            }
           });
           this.rightEmployees = jsrightEmployees;
           this.progressloading = false;
@@ -1167,6 +1186,7 @@ export default {
             data.message +
             " But,  Error: " +
             "Device Communication is not available";
+          this.loading = false;
           return false;
 
           this.errors["message"] = "Device Communication is not available";
@@ -1176,6 +1196,8 @@ export default {
           this.response = "Device Communication is not available ";
           return false;
         }
+
+        this.loading = false;
       });
     },
     goback() {

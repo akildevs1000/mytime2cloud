@@ -20,9 +20,10 @@
             v-model="snackbar.show"
             small
             top="top"
-            :timeout="3000"
+            :timeout="5000"
           >
-            {{ response }}
+            {{ snackbar.message }}
+            <!-- {{ response }} -->
           </v-snackbar>
         </div>
       </v-row>
@@ -108,7 +109,7 @@
         >
         <v-col cols="3" class="text-right mr-2">
           <div style="width: 150px; float: right">
-            <button
+            <v-btn
               v-if="timezones.length > 0"
               :disabled="!displaybutton"
               :loading="loading"
@@ -119,7 +120,7 @@
               class="btn primary white--text"
             >
               Submit
-            </button>
+            </v-btn>
           </div>
         </v-col></v-row
       >
@@ -726,7 +727,7 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
+                <v-btn
                   v-if="timezones.length > 0"
                   :disabled="!displaybutton"
                   :loading="loading"
@@ -738,7 +739,7 @@
                   class="btn primary btn-block white--text v-size--default"
                 >
                   Submit
-                </button>
+                </v-btn>
               </div>
             </div>
           </div>
@@ -797,7 +798,7 @@ export default {
   mounted: function () {
     this.snackbar.show = true;
     this.snackbar.message = "Data loading...Please wait ";
-    this.response = "Data loading...Please wait ";
+    //this.response = "Data loading...Please wait ";
 
     this.$nextTick(function () {
       setTimeout(() => {
@@ -977,10 +978,14 @@ export default {
       });
     },
     onSubmit() {
+      this.snackbar.show = true;
+      this.snackbar.message =
+        "Timezone Details are processing.... please wait..";
+
       this.resetErrorMessages();
-      this.displaybutton = false;
+      //this.displaybutton = false;
       if (this.timezonesselected == "") {
-        this.response = this.response + "Timezones not selected";
+        this.response = this.response + "Select Timezone Name";
       } else if (this.rightEmployees.length == 0) {
         this.response = this.response + " Atleast select one Employee Details";
       } else if (this.rightDevices.length == 0) {
@@ -1051,65 +1056,79 @@ export default {
       this.$axios
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
-          if (data.status) {
-            // this.snackbar.show = true;
-            // this.snackbar.message = "Employee(s) has been mapped";
-            this.$router.push("/timezonemapping/list");
+          this.loading = false;
+
+          this.snackbar.show = true;
+          this.snackbar.message = "Timezone Details are updated successfully.";
+
+          if (
+            data.status &&
+            data.record.SDKResponse == "{cookies: {}, transferStats: {}}"
+          ) {
+            this.snackbar.show = true;
+            this.snackbar.message = "Employee(s) has been mapped successfully";
           }
           if (data.record.SDKResponse) {
-            this.loading = false;
             this.rightDevices.forEach((rightDevicesobj) => {
-              let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-                (e) => e.sn == rightDevicesobj.device_id
-              );
+              if (data.record.SDKResponse.data) {
+                let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
+                  (e) => e.sn == rightDevicesobj.device_id
+                );
 
-              let deviceStatusResponse = "";
-              let EmpStatusResponse = "";
+                let deviceStatusResponse = "";
+                let EmpStatusResponse = "";
 
-              if (SdkResponseDeviceobject.message == "") {
-                deviceStatusResponse = "Success";
-              } else if (
-                SdkResponseDeviceobject.message == "The device was not found"
-              ) {
-                deviceStatusResponse = "The device was not found or offline";
-                SDKSuccessStatus = false;
-              } else if (
-                SdkResponseDeviceobject.message == "person info error"
-              ) {
-                let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-                jsrightEmployees.forEach((element) => {
-                  element["sdkEmpResponse"] = "Success";
-                  let systemUserid = element.system_user_id;
+                if (SdkResponseDeviceobject.message == "") {
+                  deviceStatusResponse = "Success";
+                } else if (
+                  SdkResponseDeviceobject.message == "The device was not found"
+                ) {
+                  deviceStatusResponse = "The device was not found or offline";
                   SDKSuccessStatus = false;
-                  let selectedEmpobject = SDKUseridArray.find(
-                    (e) => e.userCode == systemUserid
-                  );
-                  EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                  deviceStatusResponse = "";
+                } else if (
+                  SdkResponseDeviceobject.message == "person info error"
+                ) {
+                  let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+                  jsrightEmployees.forEach((element) => {
+                    element["sdkEmpResponse"] = "Success";
+                    let systemUserid = element.system_user_id;
+                    SDKSuccessStatus = false;
+                    let selectedEmpobject = SDKUseridArray.find(
+                      (e) => e.userCode == systemUserid
+                    );
+                    EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+                    deviceStatusResponse = "";
 
-                  if (EmpStatusResponse != "") {
-                    //Adding extra parameters for Employee object
-                    if (selectedEmpobject) {
-                      element["sdkEmpResponse"] = "person photo error ";
-                      // $.extend(element, {
-                      //   sdkEmpResponse: "person info error ",
-                      // });
-                    } else {
-                      // $.extend(element, {
-                      //   sdkEmpResponse: " Success",
-                      // });
-                      element["sdkEmpResponse"] = "Success";
+                    if (EmpStatusResponse != "") {
+                      //Adding extra parameters for Employee object
+                      if (selectedEmpobject) {
+                        element["sdkEmpResponse"] = "person photo error ";
+                        // $.extend(element, {
+                        //   sdkEmpResponse: "person info error ",
+                        // });
+                      } else {
+                        // $.extend(element, {
+                        //   sdkEmpResponse: " Success",
+                        // });
+                        element["sdkEmpResponse"] = "Success";
+                      }
                     }
-                  }
-                });
-              } else {
-              }
+                  });
+                } else {
+                }
 
-              //Adding extra parameters for Devices object
-              rightDevicesobj["sdkDeviceResponse"] =
-                deviceStatusResponse != "" ? deviceStatusResponse : " Success";
-              this.errors = [];
+                //Adding extra parameters for Devices object
+                rightDevicesobj["sdkDeviceResponse"] =
+                  deviceStatusResponse != ""
+                    ? deviceStatusResponse
+                    : " Success";
+                this.errors = [];
+              }
             });
+
+            setTimeout(() => {
+              this.$router.push("/timezonemapping/list");
+            }, 1000 * 2);
             // $.each(this.rightDevices, function (index, rightDevicesobj) {
             //   let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
             //     (e) => e.sn == rightDevicesobj.device_id
@@ -1176,7 +1195,12 @@ export default {
 
               //this.displaybutton = false;
             } else {
-              this.$router.push("/timezonemapping/list");
+              this.snackbar.show = true;
+              this.snackbar.message = "Timezone Details are not updated. ";
+
+              setTimeout(() => {
+                this.$router.push("/timezonemapping/list");
+              }, 1000 * 3);
             }
           } else {
             this.errors = [];
