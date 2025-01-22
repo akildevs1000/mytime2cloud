@@ -123,7 +123,7 @@ class AlertAccessControl extends Command
                                     // To handle the response
                                     if ($response->successful()) {
                                         $logger->logOutPut($logFilePath, "Message sent successfully");
-                                        $logIds[] = $logID;
+                                        $logIds[] = $record->id;
                                         $this->info("Message sent successfully");
                                     } else {
                                         $logger->logOutPut($logFilePath, "Failed to send message");
