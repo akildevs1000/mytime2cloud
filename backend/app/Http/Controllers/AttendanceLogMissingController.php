@@ -67,7 +67,7 @@ class AttendanceLogMissingController  extends Controller
             $company_id = $request->company_id;
             $date = $request->date;
             $finalResult = [];
-            $date = date('Y-m-d', strtotime($date . ' + 1 days'));
+            //$date = date('Y-m-d', strtotime($date . ' + 1 days'));
 
             $device = null;
             $deviceId = $request->device_id;
@@ -224,8 +224,8 @@ class AttendanceLogMissingController  extends Controller
                             ->where("SerialNumber", '>', 0)
 
                             ->where("DeviceID",   $deviceId)
-                            //->orderBy("SerialNumber", "DESC")
-                            ->orderByRaw('CAST(SerialNumber AS SIGNED) DESC')
+                            ->orderBy("SerialNumber", "DESC")
+
                             ->first();
 
                         $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
@@ -237,6 +237,12 @@ class AttendanceLogMissingController  extends Controller
                             "ReadIndex" => $indexSerialNumber - 60
                         ];
                     } catch (\Exception $e) {
+
+                        $data =  [
+                            "TransactionType" => 1,
+                            "Quantity" => 60,
+                            "ReadIndex" => $indexSerialNumber - 60
+                        ];
                     }
                 }
 
