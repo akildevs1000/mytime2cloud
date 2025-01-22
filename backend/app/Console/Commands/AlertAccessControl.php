@@ -41,6 +41,8 @@ class AlertAccessControl extends Command
             }
         ])->where('type', 'access_control')->first();
 
+        $this->info($model);
+
         // Check if the ReportNotification model exists
         if (!$model) {
             $logger->logOutPut($logFilePath, "No Report Notification found for the specified type");
