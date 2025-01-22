@@ -160,14 +160,24 @@
                       </v-col>
                       <v-col md="3" style="padding: 0px">
                         <span
-                          v-if="user.timezone && user.timezone.timezone_id != 1"
-                        >
-                          {{
+                          style="color: green; font-size: 12px"
+                          v-if="
                             user.timezone &&
-                            user.timezone.timezone_name == "---"
-                              ? "---"
-                              : user.timezone.timezone_name + " Assigned"
-                          }}
+                            user.timezone.timezone_id != 1 &&
+                            user.timezone.timezone_name == '---'
+                          "
+                        >
+                        </span>
+                        <span
+                          style="color: green; font-size: 12px"
+                          v-if="
+                            user.timezone &&
+                            user.timezone.timezone_id != 1 &&
+                            user.timezone.timezone_name != '---'
+                          "
+                        >
+                          Time:
+                          {{ user.timezone.timezone_name + " Assigned" }}
                         </span>
                       </v-col>
                     </v-row>
