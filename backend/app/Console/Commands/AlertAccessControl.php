@@ -154,9 +154,9 @@ class AlertAccessControl extends Command
     private function generateMessage($name, $deviceName, $formattedDate)
     {
         return "Access Control Alert !\n" .
-            "\n\n" .
+            "\n" .
             "Dear Admin,\n\n" .
-            "*($name)* accessed the door at  *$deviceName* on *$formattedDate*.\n\n" .
+            "*$name* accessed the door at  *$deviceName* on $formattedDate\n\n" .
             "Thank you!\n";
     }
 }
