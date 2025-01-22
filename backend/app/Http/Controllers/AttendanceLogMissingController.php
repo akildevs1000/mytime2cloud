@@ -167,8 +167,8 @@ class AttendanceLogMissingController  extends Controller
 
                 } //whil e
 
-                if (count($finalResult) > 0)
-                    log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count ---- " . count($finalResult), $company_id . "_check_device_health");
+                // if (count($finalResult) > 0)
+                //     log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count ---- " . count($finalResult), $company_id . "_check_device_health");
 
 
 
@@ -326,8 +326,8 @@ class AttendanceLogMissingController  extends Controller
                     "total_device_records" => count($records['data']),
                     "indexSerialNumber" => $indexSerialNumber,
                 ];
-                if (count($finalResult) > 0)
-                    log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count " . count($finalResult), $company_id . "_check_device_health");
+                // if (count($finalResult) > 0)
+                //     log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count " . count($finalResult), $company_id . "_check_device_health");
 
                 // $file_name_raw = "device_missing_logs_" . date("d-m-Y") . ".txt";
                 // $message = date("Y-m-d H:i:s") . "_" . json_encode($message);
