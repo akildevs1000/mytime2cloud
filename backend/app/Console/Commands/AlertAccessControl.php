@@ -36,8 +36,8 @@ class AlertAccessControl extends Command
         // Fetch the ReportNotification model with filtered managers
         $model = ReportNotification::with([
             'managers' => function ($query) use ($company_id) {
-                $query->where('company_id', $company_id)
-                    ->select(['id', 'whatsapp_number', 'email', 'notification_id']); // Ensure foreign and primary keys are included
+                $query->where('company_id', $company_id);
+                    // ->select(['id', 'whatsapp_number', 'email', 'notification_id']); // Ensure foreign and primary keys are included
             }
         ])->where('type', 'access_control')->first();
 
