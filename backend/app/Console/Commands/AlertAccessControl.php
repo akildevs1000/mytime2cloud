@@ -34,9 +34,9 @@ class AlertAccessControl extends Command
         $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
         // Fetch the ReportNotification model with filtered managers
-        $model = ReportNotification::with("managers", function ($query) use ($company_id) {
+        $model = ReportNotification::with(["managers" => function ($query) use ($company_id) {
             $query->where("company_id", $company_id);
-        })->where('type', 'access_control')->first();
+        }])->where('type', 'access_control')->first();
 
         $this->info($model);
 
