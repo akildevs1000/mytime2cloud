@@ -59,6 +59,7 @@ class AlertAccessControl extends Command
             ->orderBy("id", "asc")
             ->get();
 
+
         if (!count($records->toArray())) {
             $logger->logOutPut($logFilePath, "Record count " . count($records->toArray()));
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
@@ -91,11 +92,9 @@ class AlertAccessControl extends Command
                 return;
             }
 
-
             foreach ($records as $logID => $record) {
-
+                $logIds[] = $record->id;
                 if ($record->company && $record->employee && $record->device) {
-
                     try {
 
                         foreach ($managers as $manager) {
@@ -125,7 +124,6 @@ class AlertAccessControl extends Command
                                     // To handle the response
                                     if ($response->successful()) {
                                         $logger->logOutPut($logFilePath, "Message sent successfully");
-                                        $logIds[] = $record->id;
                                         $this->info("Message sent successfully");
                                     } else {
                                         $logger->logOutPut($logFilePath, "Failed to send message");
@@ -144,6 +142,8 @@ class AlertAccessControl extends Command
                         $this->info($e);
                         $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                     }
+                } else {
+                    $logger->logOutPut($logFilePath, "*****No employee found for {$record->UserID} *****");
                 }
             }
         }
