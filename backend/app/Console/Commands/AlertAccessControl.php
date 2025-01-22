@@ -67,6 +67,8 @@ class AlertAccessControl extends Command
         // Extract managers or set an empty array if null
         $managers = $model->managers ?? [];
 
+        $this->info($managers);
+
         // Check if there are no managers
         if ($managers->isEmpty()) {
             $logger->logOutPut($logFilePath, "No managers found for the specified company ID.");
