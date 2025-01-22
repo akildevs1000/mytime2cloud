@@ -100,10 +100,16 @@
           </button>
         </div> -->
       <v-row style="margin-top: -30px">
-        <v-col></v-col>
+        <v-col
+          ><span style="color: red" v-if="timezones.length == 0"
+            >All Timezones are Mapped. You can not add new Timezone Mapping.
+            Edit From Timezones Mapping List
+          </span></v-col
+        >
         <v-col cols="3" class="text-right mr-2">
           <div style="width: 150px; float: right">
             <button
+              v-if="timezones.length > 0"
               :disabled="!displaybutton"
               :loading="loading"
               @click="onSubmit"
@@ -721,6 +727,7 @@
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
                 <button
+                  v-if="timezones.length > 0"
                   :disabled="!displaybutton"
                   :loading="loading"
                   @click="onSubmit"
@@ -776,7 +783,7 @@ export default {
       rightSelectedDevices: [],
       rightDevices: [],
       department_ids: ["---"],
-      timezones: ["Timeszones are not available"],
+      timezones: ["All Times are Mapped"],
       timezonesselected: [],
       options: {
         params: {
@@ -898,17 +905,17 @@ export default {
         .then(({ data }) => {
           this.timezones = data.data;
 
-          // this.$axios
-          //   .get("employee_timezone_mapping", options)
-          //   .then(({ data }) => {
-          //     data.data.forEach((element) => {
-          //       let selectedindex = this.timezones.findIndex(
-          //         (e) => e.timezone_id == element.timezone_id
-          //       );
+          this.$axios
+            .get("employee_timezone_mapping", options)
+            .then(({ data }) => {
+              data.data.forEach((element) => {
+                let selectedindex = this.timezones.findIndex(
+                  (e) => e.timezone_id == element.timezone_id
+                );
 
-          //       if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
-          //     });
-          //   });
+                if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
+              });
+            });
         })
         .catch((err) => console.log(err));
     },
