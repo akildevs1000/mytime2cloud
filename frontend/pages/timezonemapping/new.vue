@@ -27,11 +27,12 @@
         </div>
       </v-row>
       <v-row>
-        <v-col v-if="isCompany" cols="3">
+        <v-col cols="2">New Timezone Mapping</v-col>
+        <v-col v-if="isCompany" cols="2">
           <v-select
             @change="filterDepartmentsByBranch($event)"
             v-model="branch_id"
-            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            :items="[{ id: ``, branch_name: `All Branches` }, ...branchesList]"
             dense
             placeholder="All Branches"
             outlined
@@ -40,7 +41,7 @@
           >
           </v-select>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-select
             @change="loadDepartmentemployees"
             v-model="departmentselected"
@@ -54,7 +55,7 @@
             :search-input.sync="searchInput"
           ></v-select>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-select
             v-model="timezonesselected"
             :items="timezones"
@@ -76,7 +77,7 @@
           </v-btn>
         </v-col> -->
 
-        <v-col cols="3">
+        <v-col>
           <div class="text-right">
             <v-btn
               small
@@ -91,13 +92,32 @@
             >
           </div>
         </v-col>
-        <!-- <div>
+      </v-row>
+      <!-- <div>
           <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
             <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
             View List
           </button>
         </div> -->
-      </v-row>
+      <v-row style="margin-top: -30px">
+        <v-col></v-col>
+        <v-col cols="3" class="text-right mr-2">
+          <div style="width: 150px; float: right">
+            <button
+              :disabled="!displaybutton"
+              :loading="loading"
+              @click="onSubmit"
+              type="button"
+              small
+              dense
+              class="btn primary white--text"
+            >
+              Submit
+            </button>
+          </div>
+        </v-col></v-row
+      >
+
       <v-row>
         <v-col cols="5">
           <v-card class="timezone-displaylist1" style="height: 300px">
@@ -111,7 +131,7 @@
                   v-for="(user, index) in leftEmployees"
                   :id="user.id"
                   v-model="leftEmployees"
-                  :key="user.id"
+                  :key="'timezoneleftEmployees' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px; margin-top: -7px">
@@ -310,7 +330,7 @@
                   v-for="(user, index) in rightEmployees"
                   :id="user.id"
                   v-model="leftSelectedEmp"
-                  :key="user.id"
+                  :key="'timezoneleftSelectedEmp2' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px;margin-top-3">
@@ -328,7 +348,7 @@
                       hide-details
                     ></v-checkbox>
                     <v-checkbox
-                      style="padding: 0px;margin-top-3"
+                      style="padding: 0px"
                       v-else
                       dense
                       small
@@ -441,7 +461,7 @@
                   v-for="(user, index) in leftDevices"
                   :id="user.id"
                   v-model="leftSelectedDevices"
-                  :key="user.id"
+                  :key="'timezoneleftSelectedDevices3' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px;margin-top-3">
@@ -573,10 +593,10 @@
                   v-for="(user, index) in rightDevices"
                   :id="user.id"
                   v-model="rightSelectedDevices"
-                  :key="user.id"
+                  :key="'timezonerightSelectedDevices' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
-                  <v-col md="1" style="padding: 0px;margin-top-3">
+                  <v-col md="1" style="padding: 0px">
                     <v-checkbox
                       v-if="user.status.name == 'active'"
                       dense
@@ -695,6 +715,8 @@
                   @click="onSubmit"
                   type="button"
                   id="save"
+                  small
+                  dense
                   class="btn primary btn-block white--text v-size--default"
                 >
                   Submit
@@ -713,6 +735,7 @@
 export default {
   data() {
     return {
+      key: 1,
       branch_id: null,
       branchesList: [],
       displaybutton: false,
@@ -790,17 +813,18 @@ export default {
       // Handle the error
       console.error("Error fetching branch list", error);
     }
+    this.getTimezonesFromApi(null);
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
       this.getDepartmentsApi(this.options, branch_id);
       this.getDevisesDataFromApi(branch_id);
       this.getEmployeesDataFromApi(branch_id);
-      this.getTimezonesFromApi(branch_id);
+      //this.getTimezonesFromApi(branch_id);
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
-      console.log(options);
+
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
@@ -853,7 +877,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
-          branch_id: branch_id,
+          //branch_id: branch_id,
         },
       };
       this.$axios
@@ -861,17 +885,17 @@ export default {
         .then(({ data }) => {
           this.timezones = data.data;
 
-          this.$axios
-            .get("employee_timezone_mapping", options)
-            .then(({ data }) => {
-              data.data.forEach((element) => {
-                let selectedindex = this.timezones.findIndex(
-                  (e) => e.timezone_id == element.timezone_id
-                );
+          // this.$axios
+          //   .get("employee_timezone_mapping", options)
+          //   .then(({ data }) => {
+          //     data.data.forEach((element) => {
+          //       let selectedindex = this.timezones.findIndex(
+          //         (e) => e.timezone_id == element.timezone_id
+          //       );
 
-                if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
-              });
-            });
+          //       if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
+          //     });
+          //   });
         })
         .catch((err) => console.log(err));
     },
@@ -911,8 +935,8 @@ export default {
         this.leftEmployees = data.data;
         this.leftSelectedEmp = [];
 
-        this.rightEmployees = [];
-        this.rightSelectedEmp = [];
+        // this.rightEmployees = [];
+        // this.rightSelectedEmp = [];
       });
     },
     resetErrorMessages() {
@@ -1347,6 +1371,7 @@ export default {
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
+
       this.verifySubmitButton();
     },
 
@@ -1376,6 +1401,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
+      console.log("this.rightDevices", this.rightDevices);
       this.verifySubmitButton();
     },
   },

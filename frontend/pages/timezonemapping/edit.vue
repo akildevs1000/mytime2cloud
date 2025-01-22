@@ -27,7 +27,8 @@
         </div>
       </v-row>
       <v-row>
-        <v-col cols="4">
+        <v-col>Update Timezone Mapping</v-col>
+        <v-col cols="3">
           <v-select
             @change="loadDepartmentemployees"
             v-model="departmentSelected"
@@ -41,7 +42,7 @@
             :search-input.sync="searchInput"
           ></v-select>
         </v-col>
-        <v-col cols="4">
+        <v-col cols="3">
           <v-select
             v-model="timezonesselected"
             :items="timezones"
@@ -52,6 +53,8 @@
             hide-details
             label="Timezones"
             required
+            readonly
+            disabled
           ></v-select>
         </v-col>
         <v-col cols="4">
@@ -60,92 +63,117 @@
               @click="goback()"
               type="button"
               id="back"
-              class="btn primary btn-block white--text v-size--default"
+              x-small
+              dense
+              class="btn primary btn-block white--text"
             >
-              <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
-              View List
+              View All List
             </button>
           </div>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-card class="timezoneedit-displaylist" style="min-height: 250px">
-            <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
-              <span>All Employees List</span>
-            </v-toolbar>
-            <div style="height: 240px; overflow-y: auto; overflow-x: hidden">
-              <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in leftEmployees"
-                  :id="user.id"
-                  :key="user.id"
-                  style="border-bottom: 1px solid #ddd"
+      <v-card elevation="2"
+        ><v-card-text>
+          <v-row>
+            <v-col></v-col>
+            <v-col>
+              <div style="width: 150px; float: right">
+                <v-btn
+                  :loading="loading"
+                  @click="onSubmit"
+                  type="button"
+                  id="save"
+                  class="btn primary btn-block white--text v-size--default"
                 >
-                  <v-col md="1" style="padding: 0px; margin-top: -7px">
-                    <v-checkbox
-                      v-if="
-                        user.timezone &&
-                        (user.timezone.timezone_name == '---' ||
-                          user.timezone.timezone_id == 1)
-                      "
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px"
-                      v-else
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                  </v-col>
-
-                  <v-col style="padding: 0px">
-                    <v-img
-                      class="employee-pic"
-                      :title="user.first_name + ' ' + user.last_name"
-                      style="float: left; border-radius: 50%; height: auto"
-                      :src="
-                        user.profile_picture
-                          ? user.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
+                  Update
+                </v-btn>
+              </div></v-col
+            ></v-row
+          >
+          <v-row>
+            <v-col cols="5">
+              <v-card
+                class="timezoneedit-displaylist"
+                style="min-height: 300px"
+              >
+                <v-toolbar dense flat style="border-bottom: 1px solid #ddd">
+                  <strong>All Employees List</strong>
+                </v-toolbar>
+                <div
+                  style="height: 240px; overflow-y: auto; overflow-x: hidden"
+                >
+                  <v-card-text>
+                    <v-row
+                      class="timezone-displaylistview1"
+                      v-for="(user, index) in leftEmployees"
+                      :id="user.id"
+                      :key="'timezone1leftEmployees' + index"
+                      style="border-bottom: 1px solid #ddd"
                     >
-                    </v-img>
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.first_name }}
-                    {{ user.last_name }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.employee_id }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px">
-                    <span
-                      v-if="user.timezone && user.timezone.timezone_id != 1"
-                    >
-                      {{
-                        user.timezone && user.timezone.timezone_name == "---"
-                          ? "---"
-                          : user.timezone.timezone_name + " Assigned"
-                      }}
-                    </span>
-                  </v-col>
-                </v-row>
-              </v-card-text>
+                      <v-col md="1" style="padding: 0px; margin-top: -7px">
+                        <v-checkbox
+                          v-if="
+                            user.timezone &&
+                            (user.timezone.timezone_name == '---' ||
+                              user.timezone.timezone_id == 1)
+                          "
+                          dense
+                          small
+                          hideDetails
+                          v-model="leftSelectedEmp"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          style="padding: 0px"
+                          v-else
+                          dense
+                          small
+                          hideDetails
+                          v-model="leftSelectedEmp"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
 
-              <!-- <v-card-text
+                      <v-col style="padding: 0px">
+                        <v-img
+                          class="employee-pic"
+                          :title="user.first_name + ' ' + user.last_name"
+                          style="float: left; border-radius: 50%; height: auto"
+                          :src="
+                            user.profile_picture
+                              ? user.profile_picture
+                              : '/no-profile-image.jpg'
+                          "
+                        >
+                        </v-img>
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.first_name }}
+                        {{ user.last_name }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.employee_id }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px">
+                        <span
+                          v-if="user.timezone && user.timezone.timezone_id != 1"
+                        >
+                          {{
+                            user.timezone &&
+                            user.timezone.timezone_name == "---"
+                              ? "---"
+                              : user.timezone.timezone_name + " Assigned"
+                          }}
+                        </span>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+
+                  <!-- <v-card-text
                 class="timezoneedit-displaylistview"
                 v-for="(user, index) in leftEmployees"
                 :id="user.id"
@@ -189,140 +217,147 @@
                   <div class="col-3"></div>
                 </div>
               </v-card-text> -->
-            </div>
-          </v-card>
-        </v-col>
+                </div>
+              </v-card>
+            </v-col>
 
-        <v-col cols="2">
-          <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
-              Options
-            </button>
+            <v-col cols="2">
+              <div style="text-align: -webkit-center">
+                <button
+                  type="button"
+                  id="undo_redo_undo"
+                  class="btn primary btn-block white--text"
+                >
+                  Options
+                </button>
 
-            <button
-              @click="moveToRightEmpOption2"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
-            </button>
+                <button
+                  @click="moveToRightEmpOption2"
+                  type="button"
+                  id="undo_redo_rightSelected"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--red"
+                  ></i>
+                </button>
 
-            <button
-              @click="allmoveToRightEmp"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
-            </button>
-            <button
-              @click="moveToLeftempOption2"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
-            </button>
-            <button
-              @click="allmoveToLeftemp"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
-            </button>
-          </div>
-        </v-col>
+                <button
+                  @click="allmoveToRightEmp"
+                  type="button"
+                  id="undo_redo_rightAll"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+                  ></i>
+                </button>
+                <button
+                  @click="moveToLeftempOption2"
+                  type="button"
+                  id="undo_redo_leftSelected"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--red"
+                  ></i>
+                </button>
+                <button
+                  @click="allmoveToLeftemp"
+                  type="button"
+                  id="undo_redo_leftAll"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+                  ></i>
+                </button>
+              </div>
+            </v-col>
 
-        <v-col cols="5">
-          <v-card class="timezoneedit-displaylist1" style="min-height: 250px">
-            <v-toolbar
-              color=" "
-              dense
-              flat
-              style="border-bottom: 1px solid #ddd"
-            >
-              <span>Selected Employees List</span>
-            </v-toolbar>
-            <div style="height: 245px; overflow-y: auto; overflow-x: hidden">
-              <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in rightEmployees"
-                  :id="user.id"
-                  :key="user.id"
+            <v-col cols="5">
+              <v-card
+                class="timezoneedit-displaylist1"
+                style="min-height: 250px"
+              >
+                <v-toolbar
+                  color=" "
+                  dense
+                  flat
                   style="border-bottom: 1px solid #ddd"
                 >
-                  <v-col md="1" style="padding: 0px;margin-top-3">
-                    <v-checkbox
-                      v-if="
-                        user.timezone &&
-                        (user.timezone.timezone_name == '---' ||
-                          user.timezone.timezone_id == 1)
-                      "
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px;margin-top-3"
-                      v-else
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col style="padding: 0px">
-                    <v-img
-                      class="employee-pic"
-                      :title="user.first_name + ' ' + user.last_name"
-                      style="float: left; border-radius: 50%; height: auto"
-                      :src="
-                        user.profile_picture
-                          ? user.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
+                  <strong>Selected Employees List</strong>
+                </v-toolbar>
+                <div
+                  style="height: 245px; overflow-y: auto; overflow-x: hidden"
+                >
+                  <v-card-text>
+                    <v-row
+                      class="timezone-displaylistview1"
+                      v-for="(user, index) in rightEmployees"
+                      :id="user.id"
+                      :key="'timezone2rightEmployees' + index"
+                      style="border-bottom: 1px solid #ddd"
                     >
-                    </v-img>
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.first_name }}
-                    {{ user.last_name }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.employee_id }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px">
-                    <span style="color: red">{{ user.sdkEmpResponse }}</span>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <!-- <v-card-text
+                      <v-col md="1" style="padding: 0px;margin-top-3">
+                        <v-checkbox
+                          v-if="
+                            user.timezone &&
+                            (user.timezone.timezone_name == '---' ||
+                              user.timezone.timezone_id == 1)
+                          "
+                          dense
+                          small
+                          hideDetails
+                          v-model="rightSelectedEmp"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          style="padding: 0px;margin-top-3"
+                          v-else
+                          dense
+                          small
+                          hideDetails
+                          v-model="rightSelectedEmp"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col style="padding: 0px">
+                        <v-img
+                          class="employee-pic"
+                          :title="user.first_name + ' ' + user.last_name"
+                          style="float: left; border-radius: 50%; height: auto"
+                          :src="
+                            user.profile_picture
+                              ? user.profile_picture
+                              : '/no-profile-image.jpg'
+                          "
+                        >
+                        </v-img>
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.first_name }}
+                        {{ user.last_name }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.employee_id }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px">
+                        <span style="color: red">{{
+                          user.sdkEmpResponse
+                        }}</span>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                  <!-- <v-card-text
                 class="timezoneedit-displaylistview"
                 v-for="(user, index) in rightEmployees"
                 :id="user.id"
@@ -350,7 +385,7 @@
                 </div>
               </v-card-text> -->
 
-              <!-- <select
+                  <!-- <select
               multiple
               v-model="rightSelectedEmp"
               @dblclick="moveToLeftemp"
@@ -365,77 +400,86 @@
                 Eid: {{ user.employee_id }} : {{ user.display_name }} :
               </option>
             </select> -->
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-card class="timezoneedit-displaylist" style="min-height: 305px">
-            <v-toolbar
-              color=" "
-              dense
-              flat
-              style="border-bottom: 1px solid #ddd"
-            >
-              <span>All Devices List</span>
-            </v-toolbar>
-            <div
-              style="max-height: 260px; overflow-y: auto; overflow-x: hidden"
-            >
-              <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in leftDevices"
-                  :id="user.id"
-                  v-model="leftSelectedDevices"
-                  :key="user.id"
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-row>
+            <v-col cols="5">
+              <v-card
+                class="timezoneedit-displaylist"
+                style="min-height: 305px"
+              >
+                <v-toolbar
+                  color=" "
+                  dense
+                  flat
                   style="border-bottom: 1px solid #ddd"
                 >
-                  <v-col md="1" style="padding: 0px;margin-top-3">
-                    <v-checkbox
-                      v-if="user.status.name == 'active'"
-                      dense
-                      small
-                      hideDetails
+                  <strong>All Devices List</strong>
+                </v-toolbar>
+                <div
+                  style="
+                    max-height: 260px;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                  "
+                >
+                  <v-card-text>
+                    <v-row
+                      class="timezone-displaylistview1"
+                      v-for="(user, index) in leftDevices"
+                      :id="user.id"
                       v-model="leftSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px;margin-top-3"
-                      v-else
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.name }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.model_number }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px">
-                    <img
-                      title="Online"
-                      v-if="user.status.name == 'active'"
-                      src="/icons/device_status_open.png"
-                      style="width: 30px" />
-                    <img
-                      title="Offline"
-                      v-else
-                      src="/icons/device_status_close.png"
-                      style="width: 30px"
-                  /></v-col>
-                </v-row>
-              </v-card-text>
-              <!-- <v-card-text
+                      :key="'timezone3leftSelectedDevices' + index"
+                      style="border-bottom: 1px solid #ddd"
+                    >
+                      <v-col md="1" style="padding: 0px;margin-top-3">
+                        <v-checkbox
+                          v-if="user.status.name == 'active'"
+                          dense
+                          small
+                          hideDetails
+                          v-model="leftSelectedDevices"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          style="padding: 0px;margin-top-3"
+                          v-else
+                          dense
+                          small
+                          hideDetails
+                          disabled
+                          v-model="leftSelectedDevices"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.name }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.model_number }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px">
+                        <img
+                          title="Online"
+                          v-if="user.status.name == 'active'"
+                          src="/icons/device_status_open.png"
+                          style="width: 30px" />
+                        <img
+                          title="Offline"
+                          v-else
+                          src="/icons/device_status_close.png"
+                          style="width: 30px"
+                      /></v-col>
+                    </v-row>
+                  </v-card-text>
+                  <!-- <v-card-text
                 class="timezoneedit-displaylistview"
                 v-for="(user, index) in leftDevices"
                 :id="user.id"
@@ -476,7 +520,7 @@
                 </div>
               </v-card-text> -->
 
-              <!-- <select
+                  <!-- <select
               multiple
               v-model="leftSelectedDevices"
               @dblclick="moveToRightDevices"
@@ -493,143 +537,150 @@
                 <span class="error--text">Test</span>
               </option>
             </select> -->
-            </div>
-          </v-card>
-        </v-col>
+                </div>
+              </v-card>
+            </v-col>
 
-        <v-col cols="2">
-          <div style="text-align: -webkit-center">
-            <button
-              type="button"
-              id="undo_redo_undo"
-              class="btn primary btn-block white--text"
-            >
-              Options
-            </button>
+            <v-col cols="2">
+              <div style="text-align: -webkit-center">
+                <button
+                  type="button"
+                  id="undo_redo_undo"
+                  class="btn primary btn-block white--text"
+                >
+                  Options
+                </button>
 
-            <button
-              @click="moveToRightDevicesOption2"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
-            </button>
+                <button
+                  @click="moveToRightDevicesOption2"
+                  type="button"
+                  id="undo_redo_rightSelected"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--red"
+                  ></i>
+                </button>
 
-            <button
-              @click="allmoveToRightDevices"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
-            </button>
-            <button
-              @click="moveToLeftDevicesOption2"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
-            </button>
-            <button
-              @click="allmoveToLeftDevices"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
-            </button>
-          </div>
-        </v-col>
+                <button
+                  @click="allmoveToRightDevices"
+                  type="button"
+                  id="undo_redo_rightAll"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
+                  ></i>
+                </button>
+                <button
+                  @click="moveToLeftDevicesOption2"
+                  type="button"
+                  id="undo_redo_leftSelected"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--red"
+                  ></i>
+                </button>
+                <button
+                  @click="allmoveToLeftDevices"
+                  type="button"
+                  id="undo_redo_leftAll"
+                  class="btn btn-default btn-block"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
+                  ></i>
+                </button>
+              </div>
+            </v-col>
 
-        <v-col cols="5">
-          <v-card class="timezoneedit-displaylist" style="min-height: 305px">
-            <v-toolbar
-              color=" "
-              dense
-              flat
-              style="border-bottom: 1px solid #ddd"
-            >
-              <span>Selected Devices List</span>
-            </v-toolbar>
-            <div
-              style="max-height: 260px; overflow-y: auto; overflow-x: hidden"
-            >
-              <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in rightDevices"
-                  :id="user.id"
-                  :key="user.id"
+            <v-col cols="5">
+              <v-card
+                class="timezoneedit-displaylist"
+                style="min-height: 305px"
+              >
+                <v-toolbar
+                  color=" "
+                  dense
+                  flat
                   style="border-bottom: 1px solid #ddd"
                 >
-                  <v-col md="1" style="padding: 0px;margin-top-3">
-                    <v-checkbox
-                      v-if="user.status.name == 'active'"
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px;margin-top-3"
-                      v-else
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.name }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px; padding-top: 5px">
-                    {{ user.model_number }}
-                  </v-col>
-                  <v-col md="3" style="padding: 0px">
-                    <img
-                      title="Online"
-                      v-if="user.status.name == 'active'"
-                      src="/icons/device_status_open.png"
-                      style="width: 30px" />
-                    <img
-                      title="Offline"
-                      v-else
-                      src="/icons/device_status_close.png"
-                      style="width: 30px"
-                  /></v-col>
-                  <v-col md="3" style="padding: 0px">
-                    <span
-                      v-if="user.sdkDeviceResponse == 'Success'"
-                      style="color: green"
-                      >{{ user.sdkDeviceResponse }}</span
+                  <strong>Selected Devices List</strong>
+                </v-toolbar>
+                <div
+                  style="
+                    max-height: 260px;
+                    overflow-y: auto;
+                    overflow-x: hidden;
+                  "
+                >
+                  <v-card-text>
+                    <v-row
+                      class="timezone-displaylistview1"
+                      v-for="(user, index) in rightDevices"
+                      :id="user.id"
+                      :key="'timezone4rightDevices' + index"
+                      style="border-bottom: 1px solid #ddd"
                     >
-                    <span v-else style="color: red">{{
-                      user.sdkDeviceResponse
-                    }}</span>
-                  </v-col>
-                </v-row>
-              </v-card-text>
-              <!-- <v-card-text
+                      <v-col md="1" style="padding: 0px;margin-top-3">
+                        <v-checkbox
+                          v-if="user.status.name == 'active'"
+                          dense
+                          small
+                          hideDetails
+                          v-model="rightSelectedDevices"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                        <v-checkbox
+                          style="padding: 0px;margin-top-3"
+                          v-else
+                          dense
+                          small
+                          hideDetails
+                          v-model="rightSelectedDevices"
+                          :value="user.id"
+                          primary
+                          hide-details
+                        ></v-checkbox>
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.name }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px; padding-top: 5px">
+                        {{ user.model_number }}
+                      </v-col>
+                      <v-col md="3" style="padding: 0px">
+                        <img
+                          title="Online"
+                          v-if="user.status.name == 'active'"
+                          src="/icons/device_status_open.png"
+                          style="width: 30px" />
+                        <img
+                          title="Offline"
+                          v-else
+                          src="/icons/device_status_close.png"
+                          style="width: 30px"
+                      /></v-col>
+                      <v-col md="12" style="padding: 0px">
+                        <span
+                          v-if="user.sdkDeviceResponse == 'Success'"
+                          style="color: green"
+                          >{{ user.sdkDeviceResponse }}</span
+                        >
+                        <span v-else style="color: red">{{
+                          user.sdkDeviceResponse
+                        }}</span>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                  <!-- <v-card-text
                 class="timezoneedit-displaylistview"
                 v-for="(user, index) in rightDevices"
                 :id="user.id"
@@ -662,19 +713,19 @@
                   </div>
                 </div>
               </v-card-text> -->
-            </div>
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12">
-          <div class="row">
-            <div class="col col-lg-9 text-right">
-              <!-- <span v-if="errors && errors.message" class="text-danger mt-2">{{
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <div class="row">
+                <div class="col col-lg-9 text-right">
+                  <!-- <span v-if="errors && errors.message" class="text-danger mt-2">{{
                 errors.message
               }}</span> -->
 
-              <!-- <button
+                  <!-- <button
                   :loading="loading"
                   @click="goback()"
                   type="button"
@@ -683,29 +734,31 @@
                 >
                   Back
                 </button> -->
-              <span
-                style="color: red"
-                v-if="errors && errors.message"
-                class="text-danger mt-2"
-                >{{ errors.message }}</span
-              >
-            </div>
-            <div class="col col-lg-3 text-right">
-              <div style="width: 150px; float: right">
-                <v-btn
-                  :loading="loading"
-                  @click="onSubmit"
-                  type="button"
-                  id="save"
-                  class="btn primary btn-block white--text v-size--default"
-                >
-                  Submit
-                </v-btn>
+                  <span
+                    style="color: red"
+                    v-if="errors && errors.message"
+                    class="text-danger mt-2"
+                    >{{ errors.message }}</span
+                  >
+                </div>
+                <div class="col col-lg-3 text-right">
+                  <div style="width: 150px; float: right">
+                    <v-btn
+                      :loading="loading"
+                      @click="onSubmit"
+                      type="button"
+                      id="save"
+                      class="btn primary btn-block white--text v-size--default"
+                    >
+                      Update
+                    </v-btn>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </v-col>
-      </v-row>
+            </v-col>
+          </v-row>
+        </v-card-text></v-card
+      >
     </div>
     <!-- <Preloader v-else /> -->
   </div>
@@ -715,6 +768,7 @@
 export default {
   data() {
     return {
+      key: 1,
       displaybutton: true,
       progressloading: false,
       searchInput: "",
@@ -873,8 +927,8 @@ export default {
         this.leftEmployees = data.data;
         this.leftSelectedEmp = [];
 
-        this.rightEmployees = [];
-        this.rightSelectedEmp = [];
+        //this.rightEmployees = [];
+        //this.rightSelectedEmp = [];
       }, 1000);
     },
     getDepartmentsApi(options) {
@@ -898,22 +952,22 @@ export default {
         .then(({ data }) => {
           this.timezones = data.data; //1/2/3
 
-          this.timezonesselected = parseInt(this.$route.query.id);
+          // this.timezonesselected = parseInt(this.$route.query.id);
 
-          this.$axios
-            .get("employee_timezone_mapping", options)
-            .then(({ data }) => {
-              data.data.forEach((element) => {
-                //2/3
+          // this.$axios
+          //   .get("employee_timezone_mapping", options)
+          //   .then(({ data }) => {
+          //     data.data.forEach((element) => {
+          //       //2/3
 
-                let selectedindex = this.timezones.findIndex(
-                  (e) => e.timezone_id == element.timezone_id
-                );
+          //       let selectedindex = this.timezones.findIndex(
+          //         (e) => e.timezone_id == element.timezone_id
+          //       );
 
-                if (selectedindex >= 0 && element.id != this.timezonesselected)
-                  this.timezones.splice(selectedindex, 1);
-              });
-            });
+          //       if (selectedindex >= 0 && element.id != this.timezonesselected)
+          //         this.timezones.splice(selectedindex, 1);
+          //     });
+          //   });
         })
         .catch((err) => console.log(err));
     },
@@ -1080,7 +1134,7 @@ export default {
             }
             this.errors = [];
             this.errors["message"] =
-              "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
+              "Mesaage:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
             //this.displaybutton = false;
           } else {
