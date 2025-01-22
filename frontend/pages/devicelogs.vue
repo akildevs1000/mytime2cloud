@@ -44,7 +44,7 @@
           <v-toolbar class="mb-2 white--text" color="white" dense flat>
             <v-toolbar-title>
               <span style="color: black">
-                Attendances Logs</span
+                Attendances Logs(Device)</span
               ></v-toolbar-title
             >
             <!-- <v-tooltip top color="primary">
@@ -156,7 +156,7 @@
             :loading="loading"
             :options.sync="options"
             :footer-props="{
-              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+              itemsPerPageOptions: [50, 100, 500, 1000],
             }"
             class="elevation-1"
             :server-items-length="totalRowsCount"
@@ -496,7 +496,7 @@ export default {
     options: {
       current: 1,
       total: 0,
-      itemsPerPage: 10,
+      itemsPerPage: 50,
     },
     errors: [],
     response: "",
@@ -663,7 +663,7 @@ export default {
     getDepartments() {
       let options = {
         params: {
-          per_page: 10,
+          per_page: 50,
           company_id: this.$auth.user.company_id,
           //department_ids: this.$auth.user.assignedDepartments,
         },
