@@ -88,21 +88,26 @@ class AlertAccessControl extends Command
                 return;
             }
 
-            foreach ($records as $key => $record) {
+            $logIds = [];
 
-                $time = $record->time;
+            foreach ($records as $logID => $record) {
 
                 if ($record->company && $record->employee && $record->device) {
-                    if (
-                        ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
-                        ($time >= "00:00" && $time <= $to_time)      // Time is on the next day between midnight and to_time
-                    ) {
-                        try {
-                            $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
-                            $formattedDate = (new DateTime($record->LogTime))->format('jS M Y H:i');
-                            $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
-                            foreach ($managers as $manager) {
+                    try {
+
+                        foreach ($managers as $manager) {
+                            $time = $record->time;
+                            if (
+                                ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
+                                ($time >= "00:00" && $time <= $to_time)      // Time is on the next day between midnight and to_time
+                            ) {
+                                $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
+
+                                //"22 Jan 2025 at 13:32:00"
+                                $formattedDate = (new DateTime($record->LogTime))->format('d M Y \a\t H:i:s');
+                                $message = $this->generateMessage($name, $record->device->name, $formattedDate);
+
 
                                 if ($manager->branch_id == $record->employee->branch_id) {
                                     if (in_array("Whatsapp", $model->mediums)) {
@@ -118,6 +123,7 @@ class AlertAccessControl extends Command
                                         // To handle the response
                                         if ($response->successful()) {
                                             $logger->logOutPut($logFilePath, "Message sent successfully");
+                                            $logIds[] = $logID;
                                             $this->info("Message sent successfully");
                                         } else {
                                             $logger->logOutPut($logFilePath, "Failed to send message");
@@ -131,13 +137,17 @@ class AlertAccessControl extends Command
                                     sleep(5);
                                 }
                             }
-                        } catch (\Throwable $e) {
-                            $this->info($e);
-                            $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                         }
+                    } catch (\Throwable $e) {
+                        $this->info($e);
+                        $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                     }
                 }
             }
+
+            $records = AttendanceLog::whereIn("is_notified_by_whatsapp_proxy", $logIds)
+
+                ->update(["is_notified_by_whatsapp_proxy" => true])->get();
         }
 
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
@@ -145,9 +155,10 @@ class AlertAccessControl extends Command
 
     private function generateMessage($name, $deviceName, $formattedDate)
     {
-        return "🌟 *Access Control Notification* 🌟\n" .
+        return "Access Control Alert !\n" .
+            "\n\n" .
             "Dear Admin,\n\n" .
-            "✅ Your employee ($name) has accessed the door from *$deviceName* on *$formattedDate*.\n\n" .
+            "*($name)* accessed the door at  *$deviceName* on *$formattedDate*.\n\n" .
             "Thank you!\n";
     }
 }
