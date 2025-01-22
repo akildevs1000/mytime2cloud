@@ -107,7 +107,7 @@ class AlertAccessControl extends Command
                 ) {
                     try {
                         $name = ucfirst($record->employee->first_name) . " " . ucfirst($record->employee->last_name);
-                        $formattedDate = (new DateTime($record->LogTime))->format('jS M Y');
+                        $formattedDate = (new DateTime($record->LogTime))->format('jS M Y H:i');
                         $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
                         foreach ($managers as $manager) {
