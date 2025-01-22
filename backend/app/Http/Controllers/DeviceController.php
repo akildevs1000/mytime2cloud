@@ -1137,11 +1137,23 @@ class DeviceController extends Controller
 
                             log_message("step2-started_read_missing_logs_" . $company_id . "_device_" . $companyDevice_id, "check_device_health");
 
-                            //update missing logs
+                            //update missing logs - By Date - Morning 
                             $requestArray = array(
                                 'device_id' => $companyDevice_id,
                                 'date' => date("Y-m-d"),
                                 'source' => "device_healthcheck",
+
+                            );
+                            $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
+                            (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+
+
+                            // update missing logs - By Recent Serial Number 
+                            $requestArray = array(
+                                'device_id' => $companyDevice_id,
+                                'date' => date("Y-m-d"),
+                                'source' => "device_healthcheck_serial_number",
+
 
                             );
                             $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
