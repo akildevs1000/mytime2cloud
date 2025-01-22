@@ -20,18 +20,20 @@
             v-model="snackbar.show"
             small
             top="top"
-            :timeout="3000"
+            :timeout="5000"
           >
-            {{ response }}
+            {{ snackbar.message }}
+            <!-- {{ response }} -->
           </v-snackbar>
         </div>
       </v-row>
       <v-row>
-        <v-col v-if="isCompany" cols="3">
+        <v-col cols="2">New Timezone Mapping</v-col>
+        <v-col v-if="isCompany" cols="2">
           <v-select
             @change="filterDepartmentsByBranch($event)"
             v-model="branch_id"
-            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
+            :items="[{ id: ``, branch_name: `All Branches` }, ...branchesList]"
             dense
             placeholder="All Branches"
             outlined
@@ -40,7 +42,7 @@
           >
           </v-select>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-select
             @change="loadDepartmentemployees"
             v-model="departmentselected"
@@ -54,7 +56,7 @@
             :search-input.sync="searchInput"
           ></v-select>
         </v-col>
-        <v-col cols="3">
+        <v-col cols="2">
           <v-select
             v-model="timezonesselected"
             :items="timezones"
@@ -76,7 +78,7 @@
           </v-btn>
         </v-col> -->
 
-        <v-col cols="3">
+        <v-col>
           <div class="text-right">
             <v-btn
               small
@@ -91,13 +93,38 @@
             >
           </div>
         </v-col>
-        <!-- <div>
+      </v-row>
+      <!-- <div>
           <button @click="goback()" type="button" id="back" class="btn primary btn-block white--text v-size--default">
             <v-icon color="white">mdi mdi-format-list-bulleted-square</v-icon>
             View List
           </button>
         </div> -->
-      </v-row>
+      <v-row style="margin-top: -30px">
+        <v-col
+          ><span style="color: red" v-if="timezones.length == 0"
+            >All Timezones are Mapped. You can not add new Timezone Mapping.
+            Edit From Timezones Mapping List
+          </span></v-col
+        >
+        <v-col cols="3" class="text-right mr-2">
+          <div style="width: 150px; float: right">
+            <v-btn
+              v-if="timezones.length > 0"
+              :disabled="!displaybutton"
+              :loading="loading"
+              @click="onSubmit"
+              type="button"
+              small
+              dense
+              class="btn primary white--text"
+            >
+              Submit
+            </v-btn>
+          </div>
+        </v-col></v-row
+      >
+
       <v-row>
         <v-col cols="5">
           <v-card class="timezone-displaylist1" style="height: 300px">
@@ -111,7 +138,7 @@
                   v-for="(user, index) in leftEmployees"
                   :id="user.id"
                   v-model="leftEmployees"
-                  :key="user.id"
+                  :key="'timezoneleftEmployees' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px; margin-top: -7px">
@@ -163,13 +190,24 @@
                   </v-col>
                   <v-col md="3" style="padding: 0px">
                     <span
-                      v-if="user.timezone && user.timezone.timezone_id != 1"
+                      style="color: green; font-size: 12px"
+                      v-if="
+                        user.timezone &&
+                        user.timezone.timezone_id != 1 &&
+                        user.timezone.timezone_name == '---'
+                      "
                     >
-                      {{
-                        user.timezone.timezone_name == "---"
-                          ? "---"
-                          : user.timezone.timezone_name + " Assigned"
-                      }}
+                    </span>
+                    <span
+                      style="color: green; font-size: 12px"
+                      v-if="
+                        user.timezone &&
+                        user.timezone.timezone_id != 1 &&
+                        user.timezone.timezone_name != '---'
+                      "
+                    >
+                      Time:
+                      {{ user.timezone.timezone_name + " Assigned" }}
                     </span>
                   </v-col>
                 </v-row>
@@ -310,7 +348,7 @@
                   v-for="(user, index) in rightEmployees"
                   :id="user.id"
                   v-model="leftSelectedEmp"
-                  :key="user.id"
+                  :key="'timezoneleftSelectedEmp2' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px;margin-top-3">
@@ -328,7 +366,7 @@
                       hide-details
                     ></v-checkbox>
                     <v-checkbox
-                      style="padding: 0px;margin-top-3"
+                      style="padding: 0px"
                       v-else
                       dense
                       small
@@ -441,7 +479,7 @@
                   v-for="(user, index) in leftDevices"
                   :id="user.id"
                   v-model="leftSelectedDevices"
-                  :key="user.id"
+                  :key="'timezoneleftSelectedDevices3' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
                   <v-col md="1" style="padding: 0px;margin-top-3">
@@ -573,10 +611,10 @@
                   v-for="(user, index) in rightDevices"
                   :id="user.id"
                   v-model="rightSelectedDevices"
-                  :key="user.id"
+                  :key="'timezonerightSelectedDevices' + index"
                   style="border-bottom: 1px solid #ddd"
                 >
-                  <v-col md="1" style="padding: 0px;margin-top-3">
+                  <v-col md="1" style="padding: 0px">
                     <v-checkbox
                       v-if="user.status.name == 'active'"
                       dense
@@ -689,16 +727,19 @@
             </div>
             <div class="col col-lg-3 text-right">
               <div style="width: 150px; float: right">
-                <button
+                <v-btn
+                  v-if="timezones.length > 0"
                   :disabled="!displaybutton"
                   :loading="loading"
                   @click="onSubmit"
                   type="button"
                   id="save"
+                  small
+                  dense
                   class="btn primary btn-block white--text v-size--default"
                 >
                   Submit
-                </button>
+                </v-btn>
               </div>
             </div>
           </div>
@@ -713,6 +754,7 @@
 export default {
   data() {
     return {
+      key: 1,
       branch_id: null,
       branchesList: [],
       displaybutton: false,
@@ -742,7 +784,7 @@ export default {
       rightSelectedDevices: [],
       rightDevices: [],
       department_ids: ["---"],
-      timezones: ["Timeszones are not available"],
+      timezones: ["All Times are Mapped"],
       timezonesselected: [],
       options: {
         params: {
@@ -756,7 +798,7 @@ export default {
   mounted: function () {
     this.snackbar.show = true;
     this.snackbar.message = "Data loading...Please wait ";
-    this.response = "Data loading...Please wait ";
+    //this.response = "Data loading...Please wait ";
 
     this.$nextTick(function () {
       setTimeout(() => {
@@ -768,6 +810,8 @@ export default {
     setTimeout(() => {
       this.loading = false;
       //this.snackbar = false;
+
+      this.filterDepartmentsByBranch(null);
     }, 2000);
   },
   async created() {
@@ -790,17 +834,18 @@ export default {
       // Handle the error
       console.error("Error fetching branch list", error);
     }
+    this.getTimezonesFromApi(null);
   },
   methods: {
     filterDepartmentsByBranch(branch_id) {
       this.getDepartmentsApi(this.options, branch_id);
       this.getDevisesDataFromApi(branch_id);
       this.getEmployeesDataFromApi(branch_id);
-      this.getTimezonesFromApi(branch_id);
+      //this.getTimezonesFromApi(branch_id);
     },
     getDepartmentsApi(options, branch_id) {
       options.params.branch_id = branch_id;
-      console.log(options);
+
       this.$axios
         .get("departments", options)
         .then(({ data }) => {
@@ -853,7 +898,7 @@ export default {
         params: {
           per_page: 1000, //this.pagination.per_page,
           company_id: this.$auth.user.company_id,
-          branch_id: branch_id,
+          //branch_id: branch_id,
         },
       };
       this.$axios
@@ -911,8 +956,8 @@ export default {
         this.leftEmployees = data.data;
         this.leftSelectedEmp = [];
 
-        this.rightEmployees = [];
-        this.rightSelectedEmp = [];
+        // this.rightEmployees = [];
+        // this.rightSelectedEmp = [];
       });
     },
     resetErrorMessages() {
@@ -933,10 +978,14 @@ export default {
       });
     },
     onSubmit() {
+      this.snackbar.show = true;
+      this.snackbar.message =
+        "Timezone Details are processing.... please wait..";
+
       this.resetErrorMessages();
-      this.displaybutton = false;
+      //this.displaybutton = false;
       if (this.timezonesselected == "") {
-        this.response = this.response + "Timezones not selected";
+        this.response = this.response + "Select Timezone Name";
       } else if (this.rightEmployees.length == 0) {
         this.response = this.response + " Atleast select one Employee Details";
       } else if (this.rightDevices.length == 0) {
@@ -1007,65 +1056,79 @@ export default {
       this.$axios
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
-          if (data.status) {
-            // this.snackbar.show = true;
-            // this.snackbar.message = "Employee(s) has been mapped";
-            this.$router.push("/timezonemapping/list");
+          this.loading = false;
+
+          this.snackbar.show = true;
+          this.snackbar.message = "Timezone Details are updated successfully.";
+
+          if (
+            data.status &&
+            data.record.SDKResponse == "{cookies: {}, transferStats: {}}"
+          ) {
+            this.snackbar.show = true;
+            this.snackbar.message = "Employee(s) has been mapped successfully";
           }
           if (data.record.SDKResponse) {
-            this.loading = false;
             this.rightDevices.forEach((rightDevicesobj) => {
-              let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
-                (e) => e.sn == rightDevicesobj.device_id
-              );
+              if (data.record.SDKResponse.data) {
+                let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
+                  (e) => e.sn == rightDevicesobj.device_id
+                );
 
-              let deviceStatusResponse = "";
-              let EmpStatusResponse = "";
+                let deviceStatusResponse = "";
+                let EmpStatusResponse = "";
 
-              if (SdkResponseDeviceobject.message == "") {
-                deviceStatusResponse = "Success";
-              } else if (
-                SdkResponseDeviceobject.message == "The device was not found"
-              ) {
-                deviceStatusResponse = "The device was not found or offline";
-                SDKSuccessStatus = false;
-              } else if (
-                SdkResponseDeviceobject.message == "person info error"
-              ) {
-                let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
-                jsrightEmployees.forEach((element) => {
-                  element["sdkEmpResponse"] = "Success";
-                  let systemUserid = element.system_user_id;
+                if (SdkResponseDeviceobject.message == "") {
+                  deviceStatusResponse = "Success";
+                } else if (
+                  SdkResponseDeviceobject.message == "The device was not found"
+                ) {
+                  deviceStatusResponse = "The device was not found or offline";
                   SDKSuccessStatus = false;
-                  let selectedEmpobject = SDKUseridArray.find(
-                    (e) => e.userCode == systemUserid
-                  );
-                  EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
-                  deviceStatusResponse = "";
+                } else if (
+                  SdkResponseDeviceobject.message == "person info error"
+                ) {
+                  let SDKUseridArray = SdkResponseDeviceobject.userList; //SDK error userslist
+                  jsrightEmployees.forEach((element) => {
+                    element["sdkEmpResponse"] = "Success";
+                    let systemUserid = element.system_user_id;
+                    SDKSuccessStatus = false;
+                    let selectedEmpobject = SDKUseridArray.find(
+                      (e) => e.userCode == systemUserid
+                    );
+                    EmpStatusResponse = SdkResponseDeviceobject.sdkEmpResponse;
+                    deviceStatusResponse = "";
 
-                  if (EmpStatusResponse != "") {
-                    //Adding extra parameters for Employee object
-                    if (selectedEmpobject) {
-                      element["sdkEmpResponse"] = "person photo error ";
-                      // $.extend(element, {
-                      //   sdkEmpResponse: "person info error ",
-                      // });
-                    } else {
-                      // $.extend(element, {
-                      //   sdkEmpResponse: " Success",
-                      // });
-                      element["sdkEmpResponse"] = "Success";
+                    if (EmpStatusResponse != "") {
+                      //Adding extra parameters for Employee object
+                      if (selectedEmpobject) {
+                        element["sdkEmpResponse"] = "person photo error ";
+                        // $.extend(element, {
+                        //   sdkEmpResponse: "person info error ",
+                        // });
+                      } else {
+                        // $.extend(element, {
+                        //   sdkEmpResponse: " Success",
+                        // });
+                        element["sdkEmpResponse"] = "Success";
+                      }
                     }
-                  }
-                });
-              } else {
-              }
+                  });
+                } else {
+                }
 
-              //Adding extra parameters for Devices object
-              rightDevicesobj["sdkDeviceResponse"] =
-                deviceStatusResponse != "" ? deviceStatusResponse : " Success";
-              this.errors = [];
+                //Adding extra parameters for Devices object
+                rightDevicesobj["sdkDeviceResponse"] =
+                  deviceStatusResponse != ""
+                    ? deviceStatusResponse
+                    : " Success";
+                this.errors = [];
+              }
             });
+
+            setTimeout(() => {
+              this.$router.push("/timezonemapping/list");
+            }, 1000 * 2);
             // $.each(this.rightDevices, function (index, rightDevicesobj) {
             //   let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
             //     (e) => e.sn == rightDevicesobj.device_id
@@ -1130,9 +1193,18 @@ export default {
               this.errors["message"] =
                 "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
+              setTimeout(() => {
+                this.$router.push("/timezonemapping/list");
+              }, 1000 * 3);
+
               //this.displaybutton = false;
             } else {
-              this.$router.push("/timezonemapping/list");
+              this.snackbar.show = true;
+              this.snackbar.message = "Timezone Details are   updated. ";
+
+              setTimeout(() => {
+                this.$router.push("/timezonemapping/list");
+              }, 1000 * 3);
             }
           } else {
             this.errors = [];
@@ -1347,6 +1419,7 @@ export default {
       for (let i = 0; i < _rightSelectedDevices_length; i++) {
         this.rightSelectedDevices.pop(this.rightSelectedDevices[i]);
       }
+
       this.verifySubmitButton();
     },
 
@@ -1376,6 +1449,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
+      console.log("this.rightDevices", this.rightDevices);
       this.verifySubmitButton();
     },
   },

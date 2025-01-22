@@ -45,7 +45,12 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="dialog" width="80%" :key="editedIndex">
+    <v-dialog
+      persistent
+      v-model="dialog"
+      style="min-width: 1500px"
+      :key="editedIndex"
+    >
       <v-card>
         <v-card-title dense class="popup_background">
           <span> {{ Module }}</span>
@@ -56,7 +61,7 @@
         </v-card-title>
         <v-card-text class="mt-2">
           <v-row>
-            <v-col v-if="viewmode" cols="6">
+            <!-- <v-col v-if="viewmode" cols="6">
               <div>
                 <strong class="">Branch</strong>:
                 {{
@@ -87,7 +92,7 @@
               >
                 {{ errors.branch_id[0] }}
               </span>
-            </v-col>
+            </v-col> -->
 
             <v-col>
               <div v-if="viewmode">
@@ -97,6 +102,7 @@
               <v-text-field
                 dense
                 small
+                label="Timezone Name"
                 placeholder="Timezone Name"
                 width="80px"
                 style="padding-top: 8px"
@@ -124,6 +130,7 @@
               </div>
               <v-text-field
                 v-else
+                label="Timezone Description"
                 dense
                 small
                 outlined
@@ -149,7 +156,7 @@
               md="4"
               style="float: right; text-align: right"
             >
-              <v-btn
+              <!-- <v-btn
                 small
                 dense
                 dark
@@ -158,7 +165,7 @@
                 @click="clearSelection()"
               >
                 Cancel
-              </v-btn>
+              </v-btn> -->
               <v-btn small dense dark color="violet" fill @click="submit"
                 >Submit</v-btn
               >
@@ -215,14 +222,14 @@
     <v-dialog persistent v-model="syncDeviceDialog" max-width="1100">
       <v-card>
         <v-card-title dense class="popup_background">
-          <span class="popup_title">Sync Device</span>
+          <span class="popup_title">Updating Timezones to Devices</span>
 
           <v-spacer></v-spacer>
           <v-icon @click="syncDeviceDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
-        <v-card-text>
+        <v-card-text :key="key">
           <v-progress-linear
             v-if="loading_devicesync"
             :active="loading_devicesync"
@@ -233,7 +240,7 @@
           <table style="width: 100%" class="mt-2">
             <thead>
               <tr class=" " dark>
-                <th style="width: 20%">Device ID</th>
+                <th style="width: 20%; text-align: left">Device ID</th>
                 <th style="width: 70%">Message</th>
                 <th class="text-center">Status</th>
               </tr>
@@ -297,12 +304,13 @@
         <span>
           <v-btn
             x-small
-            :ripple="false"
-            text
             title="Sync To Devices"
             @click="openDeviceDialog"
+            primary
+            class="button primary"
           >
-            <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
+            <v-icon small> mdi-sync-circle</v-icon>
+            Update to Devices
           </v-btn>
         </span>
         <span>
@@ -403,6 +411,7 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
+    key: 1,
     viewmode: false,
     cumulativeIndex: 1,
     perPage: 10,
@@ -455,7 +464,7 @@ export default {
     days,
     editedItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -468,7 +477,7 @@ export default {
     },
     defaultItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -489,7 +498,7 @@ export default {
       },
 
       {
-        text: "Zone",
+        text: "TimeZone Name",
         align: "left",
         sortable: true,
         key: "timezone_name",
@@ -570,19 +579,19 @@ export default {
       return;
     }
 
-    let branch_header = [
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id", //sorting
-        value: "branch.branch_name", //edit purpose
-        width: "300px",
-        filterable: true,
-        filterSpecial: true,
-      },
-    ];
-    this.headers.splice(1, 0, ...branch_header);
+    // let branch_header = [
+    //   {
+    //     text: "Branch",
+    //     align: "left",
+    //     sortable: true,
+    //     key: "branch_id", //sorting
+    //     value: "branch.branch_name", //edit purpose
+    //     width: "300px",
+    //     filterable: true,
+    //     filterSpecial: true,
+    //   },
+    // ];
+    // this.headers.splice(1, 0, ...branch_header);
 
     try {
       const { data } = await this.$axios.get(`branches_list`, {
@@ -804,6 +813,7 @@ export default {
         this.response = "No data found";
         return;
       }
+      this.key++;
       this.syncDeviceDialog = true;
 
       this.editedItem.company_id = this.$auth.user.company_id;
@@ -819,34 +829,46 @@ export default {
       let payload = {
         company_id: this.$auth.user.company_id,
       };
+      this.loading_devicesync = true;
       let counter = 0;
-      devices.forEach(async (DeviceID) => {
-        try {
-          this.loading_devicesync = true;
-          let endpoint = `${DeviceID}/WriteTimeGroup`;
-          const { data } = await this.$axios.post(endpoint, payload);
-          let json = {
-            DeviceID,
-            message:
-              '<span style="color:red">Device communication error</span>',
-            status: false,
-          };
 
-          if (data.status == 200) {
-            (json.message =
-              '<span style="color:green">Timezone data has been upload'),
-              (json.status = true);
-            counter++;
-          } else {
-            counter++;
-          }
+      const processDevices = async () => {
+        for (const DeviceID of devices) {
+          try {
+            let endpoint = `${DeviceID}/WriteTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
 
-          this.deviceResults.push(json);
-          if (counter == devices.length) {
-            this.loading_devicesync = false;
+            let json = {
+              DeviceID,
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
           }
-        } catch (error) {}
-      });
+        }
+      };
+
+      // Call the async function
+      processDevices();
     },
     close() {
       this.dialog = false;
@@ -952,6 +974,7 @@ export default {
           this.response = data.message;
           this.dialog = false;
           this.getDataFromApi();
+          this.openDeviceDialog();
         })
         .catch((err) => {});
     },
@@ -968,6 +991,7 @@ export default {
           this.response = data.message;
           this.dialog = false;
           this.getDataFromApi();
+          this.openDeviceDialog();
         })
         .catch((err) => {
           console.log(err.message);

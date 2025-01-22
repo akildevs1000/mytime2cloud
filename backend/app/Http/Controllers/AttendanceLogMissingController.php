@@ -213,9 +213,32 @@ class AttendanceLogMissingController  extends Controller
                 //$url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
                 $data =  [
                     "TransactionType" => 1,
-                    "Quantity" => 100,
+                    "Quantity" => 60,
                     "ReadIndex" => $indexSerialNumber
                 ];
+
+                if (request("source") && $request->source == 'device_healthcheck_serial_number') {
+                    try {
+                        $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
+
+                            ->where("SerialNumber", '>', 0)
+
+                            ->where("DeviceID",   $deviceId)
+                            //->orderBy("SerialNumber", "DESC")
+                            ->orderByRaw('CAST(SerialNumber AS SIGNED) DESC')
+                            ->first();
+
+                        $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
+
+
+                        $data =  [
+                            "TransactionType" => 1,
+                            "Quantity" => 60,
+                            "ReadIndex" => $indexSerialNumber - 60
+                        ];
+                    } catch (\Exception $e) {
+                    }
+                }
 
                 $data = json_encode($data);
 
