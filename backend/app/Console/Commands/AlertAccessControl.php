@@ -143,10 +143,10 @@ class AlertAccessControl extends Command
                     }
                 }
             }
-
-            $records = AttendanceLog::whereIn("id", $logIds)
-                ->update(["is_notified_by_whatsapp_proxy" => true]);
         }
+
+        $records = AttendanceLog::whereIn("id", $logIds)
+            ->update(["is_notified_by_whatsapp_proxy" => true]);
 
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
