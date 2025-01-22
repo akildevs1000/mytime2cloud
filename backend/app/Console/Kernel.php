@@ -122,7 +122,7 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("alert:access_control {$companyId}")
-                ->everyFiveMinutes()
+                ->everyMinute()
                 ->runInBackground();
 
             //whatsapp reports 
