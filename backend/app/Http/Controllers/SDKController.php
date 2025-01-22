@@ -37,6 +37,8 @@ class SDKController extends Controller
     }
     public function processTimeGroup(Request $request, $id)
     {
+
+        return false;
         // (new TimezoneController)->storeTimezoneDefaultJson();
 
         $timezones = Timezone::where('company_id', $request->company_id)
