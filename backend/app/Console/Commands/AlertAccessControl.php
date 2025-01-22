@@ -62,6 +62,8 @@ class AlertAccessControl extends Command
         if (!count($records->toArray())) {
             $logger->logOutPut($logFilePath, "Record count " . count($records->toArray()));
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            $this->info("Record count " . count($records->toArray()));
+            return;
         }
 
         $logIds = [];
