@@ -214,7 +214,7 @@ class AttendanceLogMissingController  extends Controller
                 $data =  [
                     "TransactionType" => 1,
                     "Quantity" => 100,
-                    "ReadIndex" => $indexSerialNumber
+                    "ReadIndex" => $indexSerialNumber - 100
                 ];
 
                 $data = json_encode($data);
