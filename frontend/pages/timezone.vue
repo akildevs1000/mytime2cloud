@@ -498,7 +498,7 @@ export default {
       },
 
       {
-        text: "Zone",
+        text: "TimeZone Name",
         align: "left",
         sortable: true,
         key: "timezone_name",

@@ -1193,10 +1193,14 @@ export default {
               this.errors["message"] =
                 "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
+              setTimeout(() => {
+                this.$router.push("/timezonemapping/list");
+              }, 1000 * 3);
+
               //this.displaybutton = false;
             } else {
               this.snackbar.show = true;
-              this.snackbar.message = "Timezone Details are not updated. ";
+              this.snackbar.message = "Timezone Details are   updated. ";
 
               setTimeout(() => {
                 this.$router.push("/timezonemapping/list");
