@@ -64,6 +64,8 @@ class AlertAccessControl extends Command
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
         }
 
+        $logIds = [];
+
         foreach ($models as $model) {
 
             $days = $model->days;
@@ -87,7 +89,6 @@ class AlertAccessControl extends Command
                 return;
             }
 
-            $logIds = [];
 
             foreach ($records as $logID => $record) {
 
