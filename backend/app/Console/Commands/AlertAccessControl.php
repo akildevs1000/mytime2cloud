@@ -54,8 +54,7 @@ class AlertAccessControl extends Command
             ->where("LogTime", ">=", date("Y-m-d 00:00:00"))
             ->where("LogTime", "<=", date("Y-m-d 23:59:00"))
             ->where('company_id', $company_id)
-            ->where('channel', "unknown")
-            ->where('checked', false)
+            ->where('is_notified_by_whatsapp_proxy', false)
             ->limit(10)
             ->orderBy("id", "desc")
             ->get();
@@ -108,34 +107,34 @@ class AlertAccessControl extends Command
                                 $formattedDate = (new DateTime($record->LogTime))->format('d M Y \a\t H:i:s');
                                 $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
+                                // if ($manager->branch_id == $record->employee->branch_id) {
 
-                                if ($manager->branch_id == $record->employee->branch_id) {
-                                    if (in_array("Whatsapp", $model->mediums)) {
-                                        $response = Http::withoutVerifying()->post(
-                                            'https://wa.mytime2cloud.com/send-message',
-                                            [
-                                                'clientId' =>  $clientId,
-                                                'recipient' => $manager->whatsapp_number,
-                                                'text' => $message,
-                                            ]
-                                        );
+                                if (in_array("Whatsapp", $model->mediums)) {
+                                    $response = Http::withoutVerifying()->post(
+                                        'https://wa.mytime2cloud.com/send-message',
+                                        [
+                                            'clientId' =>  $clientId,
+                                            'recipient' => $manager->whatsapp_number,
+                                            'text' => $message,
+                                        ]
+                                    );
 
-                                        // To handle the response
-                                        if ($response->successful()) {
-                                            $logger->logOutPut($logFilePath, "Message sent successfully");
-                                            $logIds[] = $logID;
-                                            $this->info("Message sent successfully");
-                                        } else {
-                                            $logger->logOutPut($logFilePath, "Failed to send message");
-                                            $this->info("Failed to send message!");
-                                        }
+                                    // To handle the response
+                                    if ($response->successful()) {
+                                        $logger->logOutPut($logFilePath, "Message sent successfully");
+                                        $logIds[] = $logID;
+                                        $this->info("Message sent successfully");
+                                    } else {
+                                        $logger->logOutPut($logFilePath, "Failed to send message");
+                                        $this->info("Failed to send message!");
                                     }
-
-                                    if (in_array("Email", $model->mediums)) {
-                                        // process for email
-                                    }
-                                    sleep(5);
                                 }
+
+                                if (in_array("Email", $model->mediums)) {
+                                    // process for email
+                                }
+                                sleep(5);
+                                // }
                             }
                         }
                     } catch (\Throwable $e) {
@@ -145,9 +144,8 @@ class AlertAccessControl extends Command
                 }
             }
 
-            $records = AttendanceLog::whereIn("is_notified_by_whatsapp_proxy", $logIds)
-
-                ->update(["is_notified_by_whatsapp_proxy" => true])->get();
+            $records = AttendanceLog::whereIn("id", $logIds)
+                ->update(["is_notified_by_whatsapp_proxy" => true]);
         }
 
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
