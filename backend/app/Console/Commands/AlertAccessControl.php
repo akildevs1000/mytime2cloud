@@ -55,8 +55,8 @@ class AlertAccessControl extends Command
             ->where("LogTime", "<=", date("Y-m-d 23:59:00"))
             ->where('company_id', $company_id)
             ->where('is_notified_by_whatsapp_proxy', false)
-            ->limit(1)
-            ->orderBy("id", "desc")
+            ->limit(5)
+            ->orderBy("id", "asc")
             ->get();
 
         if (!count($records->toArray())) {
