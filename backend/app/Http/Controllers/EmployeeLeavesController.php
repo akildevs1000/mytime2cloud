@@ -20,6 +20,10 @@ class EmployeeLeavesController extends Controller
         $model->with(["leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
 
+        $model->when($request->filled('employee_id'), function ($q) use ($request) {
+            $q->where("employee_id", $request->employee_id);
+        });
+
         $model->when($request->filled('leave_type_id'), function ($q) use ($request) {
             $q->where('leave_type_id', $request->leave_type_id);
         });
@@ -147,10 +151,10 @@ class EmployeeLeavesController extends Controller
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
         });
         $model->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
         });
         /// $model->where('created_at', '>=', date('Y-m-d H:i:00', strtotime('-2 minutes')));
 
@@ -161,10 +165,10 @@ class EmployeeLeavesController extends Controller
         $model->where('company_id', $request->company_id);
         $model->where('status', 0);
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("branch_id", $request->branch_id));
+            $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
         });
         $model->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-            $q->whereHas("employee", fn ($q) => $q->where("department_id", $request->department_id));
+            $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
         });
         $data['total_pending_count'] = $model->count();
         $data['status'] = true;
