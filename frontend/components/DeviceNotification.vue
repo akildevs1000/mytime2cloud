@@ -357,8 +357,6 @@ export default {
         element.branch_id = this.payload.branch_id;
       });
 
-      this.payload.type = "device";
-
       if (this.editItemPayload) {
         this.$axios
           .put("/device_notifications/" + this.editItemPayload.id, this.payload)
