@@ -6,22 +6,17 @@
       </v-snackbar>
     </div>
     <div>
-      <v-dialog
-        persistent
-        v-model="AdminDialog"
-        width="500px"
-      >
+      <v-dialog persistent v-model="AdminDialog" width="400px">
+        <WidgetsClose @click="close" left="390" />
         <v-card>
-          <v-toolbar dense flat class="primary">
-            <span class="white--text">{{formTitle}} {{Model}}</span>
-            <v-spacer></v-spacer>
-            <v-icon @click="AdminDialog = false" small dark>mdi-close</v-icon>
-          </v-toolbar>
+          <v-alert dense flat class="grey lighten-3">
+            {{ formTitle }} {{ Model }}
+          </v-alert>
 
-          <v-card-text class="pt-3">
+          <v-card-text>
             <v-container fluid>
               <v-row>
-                <v-col cols="6">
+                <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.name"
                     label="Name"
@@ -30,7 +25,7 @@
                     hide-details
                   ></v-text-field>
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.email"
                     label="Email"
@@ -39,23 +34,19 @@
                     hide-details
                   ></v-text-field>
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.password"
                     label="Password"
                     outlined
                     dense
                     hide-details
-                    :append-icon="
-                      password_state ? 'mdi-eye' : 'mdi-eye-off'
-                    "
+                    :append-icon="password_state ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="password_state ? 'text' : 'password'"
-                    @click:append="
-                      password_state = !password_state
-                    "
+                    @click:append="password_state = !password_state"
                   ></v-text-field>
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.password_confirmation"
                     label="Confirm Password"
@@ -72,22 +63,26 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
-                  <v-autocomplete
-                    :items="roles"
-                    item-text="name"
-                    item-value="id"
-                    v-model="editedItem.role_id"
-                    label="Role"
+                  <v-text-field
+                    type="number"
+                    v-model="editedItem.order"
+                    label="Order"
                     outlined
                     dense
                     hide-details
-                  ></v-autocomplete>
+                  ></v-text-field>
                 </v-col>
                 <v-col v-if="errResponse" cols="12" class="red--text">
                   {{ errResponse }}
                 </v-col>
                 <v-col cols="12" class="text-right">
-                  <v-btn color="primary" small @click="save">Save</v-btn>
+                  <v-btn
+                    :loading="actionLoading"
+                    color="primary"
+                    small
+                    @click="save"
+                    >Save</v-btn
+                  >
                 </v-col>
               </v-row>
             </v-container>
@@ -138,7 +133,7 @@
               </template>
             </v-snackbar>
             <v-data-table
-            v-if="can(`admin_view`)"
+              v-if="can(`admin_view`)"
               dense
               :headers="headers_table"
               :items="data"
@@ -159,13 +154,19 @@
                     </v-btn>
                   </template>
                   <v-list width="120" dense>
-                    <v-list-item  v-if="can(`admin_edit`)" @click="editItem(item)">
+                    <v-list-item
+                      v-if="can(`admin_edit`)"
+                      @click="editItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-pencil </v-icon>
                         Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item v-if="can(`admin_delete`)" @click="deleteItem(item)">
+                    <v-list-item
+                      v-if="can(`admin_delete`)"
+                      @click="deleteItem(item)"
+                    >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="error" small> mdi-delete </v-icon>
                         Delete
@@ -187,7 +188,7 @@ export default {
   data: () => ({
     roles: [],
     password_state: false,
-    password_confirmation_state:false,
+    password_confirmation_state: false,
     options: {},
     totalRowsCount: 0,
     AdminDialog: false,
@@ -199,6 +200,7 @@ export default {
     search: "",
     snackbar: false,
     loading: false,
+    actionLoading: false,
     total: 0,
     errResponse: null,
     editedIndex: -1,
@@ -207,12 +209,14 @@ export default {
       email: "",
       password: "",
       password_confirmation: "",
+      order: 0,
     },
     defaultItem: {
       name: "",
       email: "",
       password: "",
       password_confirmation: "",
+      order: 0,
     },
     response: "",
     data: [],
@@ -229,6 +233,12 @@ export default {
         align: "left",
         sortable: false,
         value: "email",
+      },
+      {
+        text: "Order",
+        align: "left",
+        sortable: false,
+        value: "order",
       },
       { text: "Options", align: "left", sortable: false, value: "options" },
     ],
@@ -277,7 +287,6 @@ export default {
     },
     getDataFromApi(url = this.endpoint, filter_column = "", filter_value = "") {
       if (url == "") url = this.endpoint;
-      this.loading = true;
       this.loading = true;
 
       const { sortBy, sortDesc, page, itemsPerPage } = this.options;
@@ -328,10 +337,10 @@ export default {
       this.editedItem = Object.assign({}, item);
 
       if (item.email) {
-            this.editedItem.password = "********";
-            this.editedItem.password_confirmation = "********";
-          }
-          
+        this.editedItem.password = "********";
+        this.editedItem.password_confirmation = "********";
+      }
+
       this.AdminDialog = true;
     },
 
@@ -359,6 +368,8 @@ export default {
       }, 300);
     },
     save() {
+      this.actionLoading = true;
+
       if (this.editedIndex > -1) {
         this.$axios
           .put(this.endpoint + "/" + this.editedItem.id, this.editedItem)
@@ -368,9 +379,11 @@ export default {
             this.response = data.message;
             this.close();
             this.AdminDialog = false;
+            this.actionLoading = false;
           })
           .catch((err) => {
             this.errResponse = err?.response?.data?.message || null;
+            this.actionLoading = false;
           });
       } else {
         this.$axios
@@ -383,9 +396,11 @@ export default {
             this.errors = [];
             this.search = "";
             this.AdminDialog = false;
+            this.actionLoading = false;
           })
           .catch((err) => {
             this.errResponse = err?.response?.data?.message || null;
+            this.actionLoading = false;
           });
       }
     },
