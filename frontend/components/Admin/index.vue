@@ -63,6 +63,18 @@
                   ></v-text-field>
                 </v-col>
                 <v-col cols="12">
+                  <v-autocomplete
+                    :items="roles"
+                    item-text="name"
+                    item-value="id"
+                    v-model="editedItem.role_id"
+                    label="Role"
+                    outlined
+                    dense
+                    hide-details
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12">
                   <v-text-field
                     type="number"
                     v-model="editedItem.order"
@@ -209,6 +221,7 @@ export default {
       email: "",
       password: "",
       password_confirmation: "",
+      role_id:0,
       order: 0,
     },
     defaultItem: {
@@ -216,6 +229,7 @@ export default {
       email: "",
       password: "",
       password_confirmation: "",
+      role_id:0,
       order: 0,
     },
     response: "",
@@ -233,6 +247,12 @@ export default {
         align: "left",
         sortable: false,
         value: "email",
+      },
+      {
+        text: "Role",
+        align: "left",
+        sortable: false,
+        value: "role.name",
       },
       {
         text: "Order",

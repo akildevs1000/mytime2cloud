@@ -125,6 +125,8 @@ class AlertAccessControl extends Command
 
                                     // To handle the response
                                     if ($response->successful()) {
+                                        $logger->logOutPut($logFilePath, "Manager Branch id is: " . $manager->branch_id);
+                                        $logger->logOutPut($logFilePath, "Employee Branch id is: " . $record->employee->branch_id);
                                         $logger->logOutPut($logFilePath, "Message sent successfully");
                                         $this->info("Message sent successfully");
                                     } else {
