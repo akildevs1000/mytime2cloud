@@ -37,6 +37,7 @@ class AlertAccessControl extends Command
 
         $models = ReportNotification::with("managers")
             ->where('type', 'access_control')
+            ->where('company_id', $company_id)
             ->orderBy("id", "desc")
             ->get();
 
@@ -55,7 +56,8 @@ class AlertAccessControl extends Command
             ->where("LogTime", "<=", date("Y-m-d 23:59:00"))
             ->where('company_id', $company_id)
             ->where('is_notified_by_whatsapp_proxy', false)
-            ->limit(1)
+            // ->where('UserID', "5656")
+            ->limit(5)
             ->orderBy("id", "asc")
             ->get();
 
@@ -98,6 +100,7 @@ class AlertAccessControl extends Command
                     try {
 
                         foreach ($managers as $manager) {
+
                             $time = $record->time;
                             if (
                                 ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
@@ -110,33 +113,30 @@ class AlertAccessControl extends Command
                                 $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
                                 // if ($manager->branch_id == $record->employee->branch_id) {
+                                if (in_array("Whatsapp", $model->mediums)) {
+                                    $response = Http::withoutVerifying()->post(
+                                        'https://wa.mytime2cloud.com/send-message',
+                                        [
+                                            'clientId' =>  $clientId,
+                                            'recipient' => $manager->whatsapp_number,
+                                            'text' => $message,
+                                        ]
+                                    );
 
-                                if ($company_id == $manager->company_id) {
-                                    if (in_array("Whatsapp", $model->mediums)) {
-                                        $response = Http::withoutVerifying()->post(
-                                            'https://wa.mytime2cloud.com/send-message',
-                                            [
-                                                'clientId' =>  $clientId,
-                                                'recipient' => $manager->whatsapp_number,
-                                                'text' => $message,
-                                            ]
-                                        );
-
-                                        // To handle the response
-                                        if ($response->successful()) {
-                                            $logger->logOutPut($logFilePath, "Message sent successfully");
-                                            $this->info("Message sent successfully");
-                                        } else {
-                                            $logger->logOutPut($logFilePath, "Failed to send message");
-                                            $this->info("Failed to send message!");
-                                        }
+                                    // To handle the response
+                                    if ($response->successful()) {
+                                        $logger->logOutPut($logFilePath, "Message sent successfully");
+                                        $this->info("Message sent successfully");
+                                    } else {
+                                        $logger->logOutPut($logFilePath, "Failed to send message");
+                                        $this->info("Failed to send message!");
                                     }
-
-                                    if (in_array("Email", $model->mediums)) {
-                                        // process for email
-                                    }
-                                    sleep(5);
                                 }
+
+                                if (in_array("Email", $model->mediums)) {
+                                    // process for email
+                                }
+                                sleep(5);
 
                                 // }
                             }
@@ -146,6 +146,7 @@ class AlertAccessControl extends Command
                         $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                     }
                 } else {
+                    $this->info("else" . " " . $record->UserID . " " . $record->company_id);
                     $logger->logOutPut($logFilePath, "*****No employee found for {$record->UserID} *****");
                 }
             }
