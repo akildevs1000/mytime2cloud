@@ -88,7 +88,9 @@ class AttendanceLogController extends Controller
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],
                 "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
-                "SerialNumber" => $columns[3]
+                "SerialNumber" => $columns[3],
+                "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, -3),
+                "index_serial_number" => $columns[3],
             ];
         }
 
@@ -228,6 +230,9 @@ class AttendanceLogController extends Controller
                     "status" => $columns[4] ?? "Allowed",
                     "mode" => $columns[5] ?? "Face",
                     "reason" => $columns[6] ?? "---",
+
+                    "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, 16),
+                    "index_serial_number" => $columns[3],
                 ];
             }
         }
@@ -608,7 +613,7 @@ class AttendanceLogController extends Controller
         });
         $model->when($request->filled('search_device_name'), function ($q) use ($request) {
             $key = strtolower($request->search_device_name);
-            $q->whereHas('device', fn (Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$key%"));
+            $q->whereHas('device', fn(Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$key%"));
         });
         $model->when($request->filled('search_device_id'), function ($q) use ($request) {
             $q->where('DeviceID', 'LIKE', "$request->search_device_id%");
