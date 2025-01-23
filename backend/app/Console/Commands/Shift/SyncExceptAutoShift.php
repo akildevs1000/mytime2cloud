@@ -49,7 +49,7 @@ class SyncExceptAutoShift extends Command
             ]);
 
             // Chunk the employee IDs array into batches of 20
-            $employeeIds->chunk(5)->each(function ($chunk) use ($id, $date, $url) {
+            $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $url) {
                 $params = [
                     'date' => '',
                     'UserID' => '',

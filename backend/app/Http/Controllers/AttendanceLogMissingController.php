@@ -191,15 +191,7 @@ class AttendanceLogMissingController  extends Controller
 
                 $indexSerialNumber = 0;
 
-                // return $indexSerialNumberModel = AttendanceLog::query()
-                //     ->where('company_id', $company_id)
-                //     // ->where('SerialNumber', '>', 0)
-                //     // ->where('DeviceID', $deviceId)
-                //     //->whereRaw("SerialNumber ~ '^[0-9]+$'") // Filters numeric values only
-                //     ->orderBy("id", "DESC") // Casts SerialNumber for sorting
-                //     ->first();
-
-                //find serial number 
+                //find serial number by date wise 
                 $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
                     ->whereDate("log_date_time", '<=', $date)
                     ->where("SerialNumber", '>', 0)
@@ -220,15 +212,36 @@ class AttendanceLogMissingController  extends Controller
                     "ReadIndex" => $indexSerialNumber
                 ];
 
-                if (request("source") && $request->source == 'device_healthcheck_serial_number') {
-                    try {
+                //calll SDK Method
+                $message1 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-date" . $source_info);
+                $message1["message_array"] = "message1";
+
+
+
+                //------------find serial number by date wise with minus 60 records - to find missing in middle 
+                $data =  [
+                    "TransactionType" => 1,
+                    "Quantity" => 60,
+                    "ReadIndex" => $indexSerialNumber - 60
+                ];
+
+                //calll SDK Method
+                $message2 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-date-60" . $source_info);
+
+                $message2["message_array"] = "message1";
+
+                //---------------Find Serial Number By Last record------------------------------------
+                try {
+                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number') 
+                    {
+
                         $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
 
-                            ->where("SerialNumber", '>', 0)
-
+                            //->where("SerialNumber", '>', 0)
                             ->where("DeviceID",   $deviceId)
+                            ->where("index_serial_number", '>', 0)
                             ->orderBy("index_serial_number", "DESC")
-
+                            ->orderBy("id", "DESC")
                             ->first();
 
                         $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
@@ -239,128 +252,21 @@ class AttendanceLogMissingController  extends Controller
                             "Quantity" => 60,
                             "ReadIndex" => $indexSerialNumber - 60
                         ];
-                    } catch (\Exception $e) {
-
-                        $data =  [
-                            "TransactionType" => 1,
-                            "Quantity" => 60,
-                            "ReadIndex" => $indexSerialNumber - 60
-                        ];
                     }
-                }
+                } catch (\Exception $e) {
 
-                $data = json_encode($data);
-
-
-                $records = $this->culrmethod($url, $data);
-                $records = json_decode($records, true);
-
-                if (isset($records['status']))
-                    if ($records['status'] != 200) {
-                        $records['message'];
-
-                        return [
-                            "status" => 100,
-                            "message" => $this->trasformResponseFromChineesetoEnglish($records['message'] ?? ""),
-                            "updated_records" => [],
-                            "total_device_records" => [],
-                            "indexSerialNumber" => $indexSerialNumber,
-                        ];
-                    }
-                $finalResult = [];
-                $finalAlreadyExist = [];
-
-                foreach ($records['data'] as $record) {
-
-                    $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
-                    $data = [
-                        "UserID" => $record['userCode'],
-                        "DeviceID" => $deviceId,
-                        "LogTime" =>  $logtime,
-                        "SerialNumber" => $record['recordNumber'],
-                        "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
-                        "mode" => $verification_methods[$record['recordCode']] ?? "---",
-                        "reason" => $reasons[$record['recordCode']] ?? "---",
-                        "company_id" => $company_id,
-                        "source_info" => $source_info,
-                        "log_date_time" => $logtime,
-                        "index_serial_number" => $record['recordNumber'],
+                    $data =  [
+                        "TransactionType" => 1,
+                        "Quantity" => 60,
+                        "ReadIndex" => $indexSerialNumber - 60
                     ];
-
-                    $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
-                    $exists = AttendanceLog::where('UserID', $record['userCode'])
-                        ->where('DeviceID', $deviceId)
-                        ->where('LogTime', $logtime)
-                        ->exists();
-
-                    if (!$exists) {
-                        AttendanceLog::create($data);
-
-                        $finalResult[] =  [
-                            'UserID' => $record['userCode'],
-                            'DeviceID' => $deviceId,
-                            'LogTime' => $logtime,
-                            "SerialNumber" => $record['recordNumber'],
-                            "log_date_time" => $logtime,
-                            "index_serial_number" => $record['recordNumber'],
-
-                        ];
-                    } else {
-                        $finalAlreadyExist[] =  [
-                            'UserID' => $record['userCode'],
-                            'DeviceID' => $deviceId,
-                            'LogTime' => $logtime,
-                            "SerialNumber" => $record['recordNumber'],
-                            "status" => "already exist",
-                            "log_date_time" => $logtime,
-                            "index_serial_number" => $record['recordNumber'],
-
-
-                        ];
-                    }
-                    // $status = AttendanceLog::firstOrCreate(
-                    //     $condition,
-                    //     ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $record['recordDate']], // Search by email and username
-                    //     $data  // Optional attributes to set if the user doesn't exist
-                    // );
-
-
                 }
-                // } else {
-                //     return [
-                //         "status" => 120,
-                //         "message" => "Device has no  records found on this date " . $date,
-                //         "updated_records" => [],
-                //         "total_device_records" => [],
-                //         "indexSerialNumber" => $indexSerialNumber,
+                //calll SDK Method
 
-                //     ];
-                // }
+                $message3 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-60" . $source_info);
+                $message3["message_array"] = "message1";
 
-
-
-
-                $message = [
-                    //"data" => $records['data'],
-                    "status" => 200,
-                    "message" => "success",
-                    "updated_records" => $finalResult,
-                    "finalAlreadyExist" => $finalAlreadyExist,
-                    "total_device_records" => count($records['data']),
-                    "indexSerialNumber" => $indexSerialNumber,
-                ];
-                // if (count($finalResult) > 0)
-                //     log_message($deviceId . "Company: " . $company_id . " Missing Logs Updated count " . count($finalResult), $company_id . "_check_device_health");
-
-                // $file_name_raw = "device_missing_logs_" . date("d-m-Y") . ".txt";
-                // $message = date("Y-m-d H:i:s") . "_" . json_encode($message);
-                // Storage::append($file_name_raw, json_encode($message));
-
-
-
-
-
-                return $message;
+                return array_merge($message1, $message2, $message3);;
             }
         } catch (\Exception $e) {
             return [
@@ -370,7 +276,95 @@ class AttendanceLogMissingController  extends Controller
             // You can log the error or perform any other necessary actions here
         }
     }
+    public function getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, $source_info)
+    {
+        $data = json_encode($data);
 
+
+        $records = $this->culrmethod($url, $data);
+        $records = json_decode($records, true);
+
+        if (isset($records['status']))
+            if ($records['status'] != 200) {
+                $records['message'];
+
+                return [
+                    "status" => 100,
+                    "message" => $this->trasformResponseFromChineesetoEnglish($records['message'] ?? ""),
+                    "updated_records" => [],
+                    "total_device_records" => [],
+                    "indexSerialNumber" => $indexSerialNumber,
+                ];
+            }
+        $finalResult = [];
+        $finalAlreadyExist = [];
+
+        foreach ($records['data'] as $record) {
+
+            $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
+            $data = [
+                "UserID" => $record['userCode'],
+                "DeviceID" => $deviceId,
+                "LogTime" =>  $logtime,
+                "SerialNumber" => $record['recordNumber'],
+                "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
+                "mode" => $verification_methods[$record['recordCode']] ?? "---",
+                "reason" => $reasons[$record['recordCode']] ?? "---",
+                "company_id" => $company_id,
+                "source_info" => $source_info,
+                "log_date_time" =>  $record['recordDate'],
+                "index_serial_number" => $record['recordNumber'],
+            ];
+
+            $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
+            $exists = AttendanceLog::where('UserID', $record['userCode'])
+                ->where('DeviceID', $deviceId)
+                ->where('LogTime', $logtime)
+                ->exists();
+
+            if (!$exists) {
+                AttendanceLog::create($data);
+
+                $finalResult[] =  [
+                    'UserID' => $record['userCode'],
+                    'DeviceID' => $deviceId,
+                    'LogTime' => $logtime,
+                    "SerialNumber" => $record['recordNumber'],
+                    "log_date_time" => $logtime,
+                    "index_serial_number" => $record['recordNumber'],
+
+                ];
+            } else {
+                $finalAlreadyExist[] =  [
+                    'UserID' => $record['userCode'],
+                    'DeviceID' => $deviceId,
+                    'LogTime' => $logtime,
+                    "SerialNumber" => $record['recordNumber'],
+                    "status" => "already exist",
+                    "log_date_time" => $logtime,
+                    "index_serial_number" => $record['recordNumber'],
+                    "condition" => $condition,
+                    "exists" => $exists,
+
+
+                ];
+            }
+        }
+
+
+
+
+
+        return  $message = [
+            //"data" => $records['data'],
+            "status" => 200,
+            "message" => "success",
+            "updated_records" => $finalResult,
+            "finalAlreadyExist" => $finalAlreadyExist,
+            "total_device_records" => count($records['data']),
+            "indexSerialNumber" => $indexSerialNumber,
+        ];
+    }
     public function trasformResponseFromChineesetoEnglish($message)
     {
         if ($message == '设备未连接到服务器或者未注册') {
