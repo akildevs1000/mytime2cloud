@@ -131,8 +131,8 @@
             getLoginType == 'company' ||
             getLoginType == 'branch' ||
             getLoginType == 'department' ||
-            ($auth.user.role?.role_type.toLowerCase() != 'guard' &&
-              $auth.user.role?.role_type.toLowerCase() != 'host')
+            ($auth.user?.role?.role_type?.toLowerCase() != 'guard' &&
+              $auth.user?.role?.role_type?.toLowerCase() != 'host')
           "
         >
           <v-row align="center" justify="space-around" class="header-menu-row">
@@ -1363,6 +1363,16 @@ header i {
 </style>
 
 <style>
+/* For most modern browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; /* For Firefox */
+}
 .violet {
   background-color: #6946dd;
 }
