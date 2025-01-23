@@ -48,7 +48,7 @@ class AlertOfflineDevice extends Command
             return;
         }
 
-        $company = Company::where("id", $company_id)->get(["company_code", "name"]) ?? 0;
+        $company = Company::where("id", $company_id)->first("company_code", "name") ?? 0;
 
         if (!$company) {
             $logger->logOutPut($logFilePath, "No Company Found");
@@ -77,7 +77,7 @@ class AlertOfflineDevice extends Command
 
             foreach ($reportNotification->managers as $manager) {
 
-                if (!$reportNotification->managers->isEmpty()) {
+                if ($reportNotification->managers->isEmpty()) {
                     $logger->logOutPut($logFilePath, "No Manager Found");
                     $logger->logOutPut($logFilePath, "*****Cron ended for alert:offline_device *****");
 
@@ -87,7 +87,7 @@ class AlertOfflineDevice extends Command
 
                 foreach ($devices as $device) {
 
-                    $deviceName = $reportNotification->name;
+                    $deviceName = $device->name;
 
                     if ($manager->branch_id == $device->branch_id) {
                         $name = $device->branch->branch_name;
@@ -107,7 +107,7 @@ class AlertOfflineDevice extends Command
                         $endpoint = 'https://wa.mytime2cloud.com/send-message';
 
                         $payload = [
-                            'clientId' =>  $deviceName->company->company_code ?? "_1",
+                            'clientId' =>  $company->company_code ?? "_1",
                             'recipient' => "971554501483",
                             'text' => $message,
                         ];
