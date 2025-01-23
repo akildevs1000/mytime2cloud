@@ -228,7 +228,7 @@ class AttendanceLogMissingController  extends Controller
 
                             ->where("DeviceID",   $deviceId)
                             ->orderBy("index_serial_number", "DESC")
-
+                            ->orderBy("id", "DESC")
                             ->first();
 
                         $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
