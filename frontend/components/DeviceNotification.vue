@@ -304,7 +304,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     add_number() {
       if (this.number && this.number.length > 10) {
@@ -357,6 +356,8 @@ export default {
         element.company_id = this.$auth.user.company_id;
         element.branch_id = this.payload.branch_id;
       });
+
+      this.payload.type = "device";
 
       if (this.editItemPayload) {
         this.$axios
