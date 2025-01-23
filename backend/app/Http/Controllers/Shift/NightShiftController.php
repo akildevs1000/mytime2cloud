@@ -329,7 +329,7 @@ class NightShiftController extends Controller
                         "checked" => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
                         "channel" => $channel,
-                        "log_message" => $message,
+                        "log_message" => substr($message, 0, 200)
                     ]);
             }
         } catch (\Throwable $e) {

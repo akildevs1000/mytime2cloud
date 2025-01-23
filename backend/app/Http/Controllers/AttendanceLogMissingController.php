@@ -148,6 +148,9 @@ class AttendanceLogMissingController  extends Controller
                                 "log_type" => $clock_status,
                                 "company_id" => $company_id,
                                 "source_info" => $source_info,
+                                "log_date_time" => $logtime,
+
+
                             ];
 
                             $condition = ['UserID' => $record['person_code'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -198,10 +201,10 @@ class AttendanceLogMissingController  extends Controller
 
                 //find serial number 
                 $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
-                    ->whereDate("LogTime", '<=', $date)
+                    ->whereDate("log_date_time", '<=', $date)
                     ->where("SerialNumber", '>', 0)
 
-                    ->where("DeviceID",   $deviceId)->orderBy("LogTime", "DESC")->first();
+                    ->where("DeviceID",   $deviceId)->orderBy("log_date_time", "DESC")->first();
                 if ($indexSerialNumberModel) {
                     $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
                 }
@@ -224,7 +227,7 @@ class AttendanceLogMissingController  extends Controller
                             ->where("SerialNumber", '>', 0)
 
                             ->where("DeviceID",   $deviceId)
-                            ->orderBy("SerialNumber", "DESC")
+                            ->orderBy("index_serial_number", "DESC")
 
                             ->first();
 
@@ -280,6 +283,8 @@ class AttendanceLogMissingController  extends Controller
                         "reason" => $reasons[$record['recordCode']] ?? "---",
                         "company_id" => $company_id,
                         "source_info" => $source_info,
+                        "log_date_time" => $logtime,
+                        "index_serial_number" => $record['recordNumber'],
                     ];
 
                     $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -291,9 +296,27 @@ class AttendanceLogMissingController  extends Controller
                     if (!$exists) {
                         AttendanceLog::create($data);
 
-                        $finalResult[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime, "SerialNumber" => $record['recordNumber']];
+                        $finalResult[] =  [
+                            'UserID' => $record['userCode'],
+                            'DeviceID' => $deviceId,
+                            'LogTime' => $logtime,
+                            "SerialNumber" => $record['recordNumber'],
+                            "log_date_time" => $logtime,
+                            "index_serial_number" => $record['recordNumber'],
+
+                        ];
                     } else {
-                        $finalAlreadyExist[] =  ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime, "SerialNumber" => $record['recordNumber'], "status" => "already exist"];
+                        $finalAlreadyExist[] =  [
+                            'UserID' => $record['userCode'],
+                            'DeviceID' => $deviceId,
+                            'LogTime' => $logtime,
+                            "SerialNumber" => $record['recordNumber'],
+                            "status" => "already exist",
+                            "log_date_time" => $logtime,
+                            "index_serial_number" => $record['recordNumber'],
+
+
+                        ];
                     }
                     // $status = AttendanceLog::firstOrCreate(
                     //     $condition,
