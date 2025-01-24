@@ -9,27 +9,33 @@
         <v-alert flat dense color="grey lighten-3"
           >Employee Leave Timeline</v-alert
         >
-        <v-timeline dense>
-          <v-timeline-item v-for="(item, index) in items" :key="index" color="">
-            <span slot="icon"
-              ><v-icon color="primary">mdi-clock-outline</v-icon></span
+        <v-card-text>
+          <v-timeline dense>
+            <v-timeline-item
+              v-for="(item, index) in items"
+              :key="index"
+              color=""
             >
-            <v-card outlined>
-              <v-card-text>
-                <div>
-                  {{ item.date }}
-                </div>
-                <small>{{ item.description }}</small>
+              <span slot="icon"
+                ><v-icon color="primary">mdi-clock-outline</v-icon></span
+              >
+              <v-card outlined>
+                <v-card-text>
+                  <div>
+                    {{ item.date }}
+                  </div>
+                  <small v-html="item.description"></small>
 
-                <br /><small
-                  ><strong
-                    >{{ formateDateTime(item?.created_at) }}</strong
-                  ></small
-                >
-              </v-card-text>
-            </v-card>
-          </v-timeline-item>
-        </v-timeline>
+                  <br /><small
+                    ><strong>{{
+                      formateDateTime(item?.created_at)
+                    }}</strong></small
+                  >
+                </v-card-text>
+              </v-card>
+            </v-timeline-item>
+          </v-timeline>
+        </v-card-text>
       </v-card>
     </v-dialog>
   </div>
