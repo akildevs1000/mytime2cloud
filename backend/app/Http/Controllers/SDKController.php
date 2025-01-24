@@ -740,26 +740,26 @@ class SDKController extends Controller
     public function processSDKRequestBulk($url, $data)
     {
 
-        $response = Http::timeout(3600)
-            ->withoutVerifying()
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
-            ->post($url, $data);
+        // $response = Http::timeout(3600)
+        //     ->withoutVerifying()
+        //     ->withHeaders([
+        //         'Content-Type' => 'application/json',
+        //     ])
+        //     ->post($url, $data);
 
-        // Combine the original $data with the response content
-        if ($response->successful()) {
-            return [
-                'request_data' => $data, // Include the data you sent
-                'response_data' => $response->json(), // Include the response content
-            ];
-        } else {
-            return [
-                'request_data' => $data, // Include the data you sent
-                'status_code' => $response->status(), // HTTP status code
-                'error_message' => $response->body(), // Response body in case of error
-            ];
-        }
+        // // Combine the original $data with the response content
+        // if ($response->successful()) {
+        //     return [
+        //         'request_data' => $data, // Include the data you sent
+        //         'response_data' => $response->json(), // Include the response content
+        //     ];
+        // } else {
+        //     return [
+        //         'request_data' => $data, // Include the data you sent
+        //         'status_code' => $response->status(), // HTTP status code
+        //         'error_message' => $response->body(), // Response body in case of error
+        //     ];
+        // }
 
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
