@@ -885,6 +885,7 @@
               placeholder="Serial Number"
               outlined
               dense
+              clearable
               label="Serial Number *"
             ></v-text-field>
             <span v-if="errors && errors.device_id" class="error--text"
@@ -1066,14 +1067,16 @@
           <v-btn
             x-small
             :ripple="false"
-            text
-            title="Sync Devices"
+            primary
+            color="primary"
+            fill
+            title="Sync Online Devices"
             @click="updateDevicesHealth"
           >
-            <v-icon dark white>mdi-cached</v-icon>
+            <v-icon small dark white>mdi-cached</v-icon>Online Devices
           </v-btn>
         </span>
-        <span>
+        <span class="pl-3">
           <v-btn
             x-small
             :ripple="false"
@@ -1083,7 +1086,7 @@
             title="Default Timezone1  with 24 hours Access All Devices "
             @click="updateTimezone24Hours"
           >
-            Update Default Timezone1 24hours Access For all Devices
+            Update 24hours Access For all Devices
           </v-btn>
         </span>
         <span>
@@ -1362,7 +1365,7 @@
               <v-list-item @click="updateDefaultTimezone(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small>mdi-clock </v-icon>
-                  Default Timezone
+                  Reset 24 hours Access
                 </v-list-item-title>
               </v-list-item>
               <!-- <v-list-item v-if="can(`device_edit`)" @click="editItem(item)">
@@ -2272,21 +2275,28 @@ export default {
       });
     },
     async updateDefaultTimezone(device) {
-      if (!this.data.length) {
-        this.snackbar = true;
-        this.response = "No data found";
-        return;
-      }
-      this.key++;
-      this.DialogsyncTimezoneDevice = true;
-      console.log([device.device_id]);
+      if (
+        confirm("Reset and Update Default 24hours Access to all TimeZones?")
+      ) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
 
-      try {
-        this.processTimeZone([device.device_id]);
-      } catch (error) {}
+        try {
+          this.processTimeZone([device.device_id]);
+        } catch (error) {}
+      }
     },
     async updateTimezone24Hours() {
-      if (confirm("Update Default Timezone  24hours Access For all Devices?")) {
+      if (
+        confirm(
+          "Reset and Update Default 24hours Access all to TimeZones for All Devices?"
+        )
+      ) {
         if (!this.data.length) {
           this.snackbar = true;
           this.response = "No data found";
