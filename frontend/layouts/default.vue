@@ -1363,6 +1363,15 @@ header i {
 </style>
 
 <style>
+.dropdownautocomplete .v-input__slot {
+  min-height: 33px !important;
+}
+.dropdownautocomplete .v-label {
+  line-height: 15px !important;
+}
+.dropdownautocomplete .v-input__icon {
+  height: 20px !important;
+}
 /* For most modern browsers */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

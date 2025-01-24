@@ -28,7 +28,7 @@
       <v-card>
         <v-card-title dense class="popup_background_noviolet">
           <span class="popup_title" style="color: black"
-            >Updating Default Timezones to All Devices - 24 Access
+            >Reset Timezones to Devices
           </span>
 
           <v-spacer></v-spacer>
@@ -52,17 +52,20 @@
             <thead>
               <tr class=" " dark>
                 <th>#</th>
+                <th style="width: 20%; text-align: left">Name</th>
                 <th style="width: 20%; text-align: left">Device ID</th>
-                <th style="width: 70%">Message</th>
+                <th style="width: 70%; text-align: left">Message</th>
                 <th class="text-center">Status</th>
               </tr>
             </thead>
 
             <tbody>
               <tr v-for="(d, index) in deviceResults" :key="index">
-                <td>{{ ++index }}</td>
-                <td>{{ d.DeviceID }}</td>
-                <td v-html="d.message"></td>
+                <td class="text-left">{{ ++index }}</td>
+                <td class="text-left">{{ d.name }}</td>
+                <td class="text-left">{{ d.DeviceID }}</td>
+
+                <td class="text-left" v-html="d.message"></td>
                 <td class="text-center">
                   <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
                   <v-icon color="error" v-else>mdi-close</v-icon>
@@ -1088,9 +1091,9 @@
             color="primary"
             fill
             title="Default Timezone1  with 24 hours Access All Devices "
-            @click="updateTimezone24Hours"
+            @click="updateTimezone24HoursAll"
           >
-            Update 24hours Access For all Devices
+            Reset Access - Allow 24hours All Devices
           </v-btn>
         </span>
         <span>
@@ -2291,11 +2294,11 @@ export default {
         this.DialogsyncTimezoneDevice = true;
 
         try {
-          this.processTimeZone([device.device_id]);
+          this.processDefaultTimeZone([device]);
         } catch (error) {}
       }
     },
-    async updateTimezone24Hours() {
+    async updateTimezone24HoursAll() {
       if (
         confirm(
           "Reset and Update Default 24hours Access all to TimeZones for All Devices?"
@@ -2314,11 +2317,11 @@ export default {
           const { data } = await this.$axios.post(endpoint, {
             source: "master",
           });
-          this.processTimeZone(data);
+          this.processDefaultTimeZone(data);
         } catch (error) {}
       }
     },
-    processTimeZone(devices) {
+    processDefaultTimeZone(devices) {
       this.deviceResults = [];
       let payload = {
         company_id: this.$auth.user.company_id,
@@ -2327,13 +2330,14 @@ export default {
       let counter = 0;
 
       const processDevices = async () => {
-        for (const DeviceID of devices) {
+        for (let device of devices) {
           try {
-            let endpoint = `${DeviceID}/WriteResetDefaultTimeGroup`;
+            let endpoint = `${device.device_id}/WriteResetDefaultTimeGroup`;
             const { data } = await this.$axios.post(endpoint, payload);
 
             let json = {
-              DeviceID,
+              DeviceID: device.device_id,
+              name: device.name,
               message:
                 '<span style="color:red">Device communication error</span>',
               status: false,
@@ -2348,7 +2352,8 @@ export default {
           } catch (error) {
             // Handle error, if needed
             this.deviceResults.push({
-              DeviceID,
+              DeviceID: device.device_id,
+              name: device.name,
               message: '<span style="color:red">Failed to communicate</span>',
               status: false,
             });
