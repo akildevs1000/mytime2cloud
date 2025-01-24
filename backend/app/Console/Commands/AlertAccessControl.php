@@ -100,6 +100,9 @@ class AlertAccessControl extends Command
                     try {
 
                         foreach ($managers as $manager) {
+                            if ($manager->branch_id == $record->device->branch_id) {
+                                $logger->logOutPut($logFilePath, "Manager Branch id:" . $manager->branch_id . " and Device Branch id:" . $record->device->branch_id . " is Matched: ");
+                            }
 
                             $time = $record->time;
                             if (
@@ -125,8 +128,6 @@ class AlertAccessControl extends Command
 
                                     // To handle the response
                                     if ($response->successful()) {
-                                        $logger->logOutPut($logFilePath, "Manager Branch id is: " . $manager->branch_id);
-                                        $logger->logOutPut($logFilePath, "Employee Branch id is: " . $record->employee->branch_id);
                                         $logger->logOutPut($logFilePath, "Message sent successfully");
                                         $this->info("Message sent successfully");
                                     } else {
