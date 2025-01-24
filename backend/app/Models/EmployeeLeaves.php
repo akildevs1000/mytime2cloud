@@ -19,20 +19,33 @@ class EmployeeLeaves extends Model
     public function leave_type()
     {
         return $this->belongsTo(LeaveType::class)->withDefault([
-            "name" => "---", "short_name" => "---",
+            "name" => "---",
+            "short_name" => "---",
         ]);
     }
     public function employee()
     {
         return $this->belongsTo(Employee::class, "employee_id", "id")->withDefault([
-            "first_name" => "---", "last_name" => "---",
+            "first_name" => "---",
+            "last_name" => "---",
         ]);
     }
     public function reporting()
     {
         return $this->belongsTo(Employee::class, "reporting_manager_id", "id")->withDefault([
-            "first_name" => "---", "last_name" => "---",
+            "first_name" => "---",
+            "last_name" => "---",
         ]);
+    }
+
+    /**
+     * Get all of the employee_leave_timelines for the EmployeeLeaves
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function employee_leave_timelines()
+    {
+        return $this->hasMany(EmployeeLeaveTimeline::class, "employee_leave_id");
     }
     protected static function boot()
     {
