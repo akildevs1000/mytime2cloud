@@ -250,6 +250,11 @@ class EmployeeLeavesController extends Controller
                 ]);
             }
 
+            EmployeeLeaveTimeline::create([
+                "employee_leave_id" => $record->id,
+                "description" => "Leave application has been $status_text by {$request->user_id}.",
+            ]);
+
             return $this->response("Employee Leave $status_text Successfully.", $record, true);
         } else {
             return $this->response("Employee Leave not $status_text.", null, false);
@@ -275,6 +280,11 @@ class EmployeeLeavesController extends Controller
             if ($record) {
 
                 $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
+
+                EmployeeLeaveTimeline::create([
+                    "employee_leave_id" => $record->id,
+                    "description" => "Leave application has been $status_text by {$request->user_id}.",
+                ]);
 
                 Notification::create([
                     "data" => "Leave application has been $status_text",

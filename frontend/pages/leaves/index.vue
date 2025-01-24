@@ -1258,6 +1258,7 @@ export default {
           params: {
             approve_reject_notes: this.editedItem.approve_reject_notes,
             company_id: this.$auth.user.company_id,
+            user_id: this.$auth.user.id,
           },
         };
         this.$axios
@@ -1289,6 +1290,7 @@ export default {
             system_user_id: this.dialogViewObject.system_user_id,
             shift_type_id: this.dialogViewObject.shift_type_id,
             order: this.$auth.user.order,
+            user_id: this.$auth.user.id,
           },
         };
         this.$axios
