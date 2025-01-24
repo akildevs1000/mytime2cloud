@@ -252,9 +252,13 @@ class EmployeeLeavesController extends Controller
 
             $user_name = $request->user_name ?? 'Super User';
 
+            $reason = $request->approve_reject_notes ? " Reason: <i>{$model->approve_reject_notes}</i>." : "";
+
+            $description = "Leave application has been <span class='primary--text'>$status_text</span> by <b>$user_name</b>.<br>$reason";
+
             EmployeeLeaveTimeline::create([
                 "employee_leave_id" => $leaveId,
-                "description" => "Leave application has been <b>$status_text</b> by <b>$user_name</b>.",
+                "description" => $description,
             ]);
 
             return $this->response("Employee Leave $status_text Successfully.", $record, true);
@@ -285,9 +289,13 @@ class EmployeeLeavesController extends Controller
 
                 $user_name = $request->user_name ?? 'Super User';
 
+                $reason = $request->approve_reject_notes ? " Reason: <i>{$model->approve_reject_notes}</i>." : "";
+
+                $description = "Leave application has been <span class='red--text'>$status_text</span> by <b>$user_name</b>.<br>$reason";
+
                 EmployeeLeaveTimeline::create([
                     "employee_leave_id" => $leaveId,
-                    "description" => "Leave application has been <span class='red--text'>$status_text</span> by <b>$user_name</b>.",
+                    "description" => $description,
                 ]);
 
                 Notification::create([
