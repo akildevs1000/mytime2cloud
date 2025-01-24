@@ -10,7 +10,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return User::with("company")
+        return User::with("company","role")
             ->where("company_id", request("company_id", 0))
             ->where("user_type", "admin")
             ->orderBy("order", "asc")
@@ -23,6 +23,7 @@ class AdminController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'role_id' => 'required|numeric',
             'order' => 'required|numeric',
             'company_id' => 'required',
         ]);
@@ -31,7 +32,7 @@ class AdminController extends Controller
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
             "password" => Hash::make($validatedData['password']),
-            "role_id" => 0,
+            "role_id" => $validatedData['role_id'],
             "company_id" => $validatedData['company_id'],
             "is_master" => 1,
             "first_login" => 1,
@@ -58,12 +59,14 @@ class AdminController extends Controller
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'required|string|min:8|confirmed',
             'order' => 'required|numeric',
+            'role_id' => 'required|numeric',
         ]);
 
         $admin =  [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
-            "order" => $validatedData['order']
+            "order" => $validatedData['order'],
+            "role_id" => $validatedData['role_id']
         ];
 
 
