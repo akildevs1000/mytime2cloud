@@ -130,6 +130,7 @@ export default {
       perPage: 10,
       currentPage: 1,
       totalRowsCount: 0,
+      itemsPerPage: 50,
       headers: [
         { text: "#", value: "sno", sortable: false },
         {

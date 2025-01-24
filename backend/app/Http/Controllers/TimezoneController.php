@@ -14,9 +14,9 @@ class TimezoneController extends Controller
     {
         $model = Timezone::query();
         $model->where('company_id', request('company_id'));
-        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
-        return $model->get(["id","timezone_name as name"]);
+        return $model->get(["id", "timezone_name as name"]);
     }
 
     public function timezonesList(Request $request)
@@ -28,7 +28,7 @@ class TimezoneController extends Controller
         $model = Timezone::query();
         $model->where('company_id', $request->company_id);
         $model->where("is_default", false);
-        $model->when($request->branch_id, fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->when($request->branch_id, fn($q) => $q->where("branch_id", $request->branch_id));
         $model->with(["employee_device", "branch"]);
         $model->orderBy("timezone_id", "asc");
         return $model->paginate($request->per_page ?? 100);
@@ -214,7 +214,7 @@ class TimezoneController extends Controller
             if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
                 $arr[] = $interval['interval' . $i];
             } else {
-                $arr[] = ["begin" => "00:00", "end" => "00:00"];
+                $arr[] = ["begin" => "00:00", "end" => "23:59"];
             }
         }
         return $arr;
@@ -227,7 +227,7 @@ class TimezoneController extends Controller
             if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
                 $arr[] = $interval['interval' . $i];
             } else {
-                $arr[] = ["begin" => "00:00", "end" => "00:00"];
+                $arr[] = ["begin" => "00:00", "end" => "23:59"];
             }
         }
         return $arr;
@@ -291,35 +291,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -327,36 +327,36 @@ class TimezoneController extends Controller
                 "dayWeek" => 1,
                 "timeSegmentList" => [
                     [
-                        "begin" => "14:22",
-                        "end" => "14:22"
+                        "begin" => "00:00",
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -365,35 +365,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -402,35 +402,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -439,35 +439,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -476,35 +476,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ],
@@ -513,35 +513,35 @@ class TimezoneController extends Controller
                 "timeSegmentList" => [
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ],
                     [
                         "begin" => "00:00",
-                        "end" => "00:00"
+                        "end" => "23:59"
                     ]
                 ]
             ]
