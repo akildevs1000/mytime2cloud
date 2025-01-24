@@ -103,7 +103,7 @@ class SDKController extends Controller
 
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
-        $sdkResponse["input_timegroup_json"] = $data;
+
 
         return $sdkResponse;
     }
@@ -740,6 +740,27 @@ class SDKController extends Controller
     public function processSDKRequestBulk($url, $data)
     {
 
+        $response = Http::timeout(3600)
+            ->withoutVerifying()
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->post($url, $data);
+
+        // Combine the original $data with the response content
+        if ($response->successful()) {
+            return [
+                'request_data' => $data, // Include the data you sent
+                'response_data' => $response->json(), // Include the response content
+            ];
+        } else {
+            return [
+                'request_data' => $data, // Include the data you sent
+                'status_code' => $response->status(), // HTTP status code
+                'error_message' => $response->body(), // Response body in case of error
+            ];
+        }
+
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
@@ -748,6 +769,7 @@ class SDKController extends Controller
             return [
                 "status" => 102,
                 "message" => $e->getMessage(),
+                "data" => $data,
             ];
             // You can log the error or perform any other necessary actions here
         }
