@@ -45,7 +45,7 @@ class EmployeeLeaves extends Model
      */
     public function employee_leave_timelines()
     {
-        return $this->hasMany(EmployeeLeaveTimeline::class, "employee_leave_id");
+        return $this->hasMany(EmployeeLeaveTimeline::class, "employee_leave_id")->latest();
     }
     protected static function boot()
     {
