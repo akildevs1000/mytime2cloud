@@ -26,13 +26,17 @@
     </v-dialog>
     <v-dialog persistent v-model="DialogsyncTimezoneDevice" max-width="1100">
       <v-card>
-        <v-card-title dense class="popup_background">
-          <span class="popup_title"
+        <v-card-title dense class="popup_background_noviolet">
+          <span class="popup_title" style="color: black"
             >Updating Default Timezones to All Devices - 24 Access
           </span>
 
           <v-spacer></v-spacer>
-          <v-icon @click="DialogsyncTimezoneDevice = false" outlined dark>
+          <v-icon
+            style="color: black"
+            @click="DialogsyncTimezoneDevice = false"
+            outlined
+          >
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
