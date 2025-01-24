@@ -48,7 +48,7 @@ class Kernel extends ConsoleKernel
         foreach ($companyIds as $companyId) {
 
             $schedule
-                ->command("alert:access_control $companyId")
+                ->command("alert:offline_device $companyId")
                 ->hourly()
                 ->runInBackground();
 
