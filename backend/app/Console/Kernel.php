@@ -70,20 +70,20 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
 
-            $schedule
-                ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
-                ->everyThirtyMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
+            //     ->everyThirtyMinutes()
+            //     ->runInBackground();
 
             $schedule
                 ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            $schedule
-                ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
-                ->everyThirtyMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
+            //     ->everyThirtyMinutes()
+            //     ->runInBackground();
 
 
             //if ($companyId == 1) 
@@ -103,10 +103,10 @@ class Kernel extends ConsoleKernel
                 ->everyFiveMinutes();
 
 
-            $schedule
-                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-                ->runInBackground()
-                ->everyFiveMinutes();
+            // $schedule
+            //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+            //     ->runInBackground()
+            //     ->everyFiveMinutes();
 
             // $schedule
             //     ->command("render:multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))

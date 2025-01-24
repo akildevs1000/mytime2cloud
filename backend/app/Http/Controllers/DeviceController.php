@@ -52,7 +52,14 @@ class DeviceController extends Controller
 
         $cols = $request->cols;
         $model->with(['status', 'company', 'companyBranch']);
-        $model->where('company_id', $request->company_id);
+
+        if (!$request->source)
+            $model->where('company_id', $request->company_id);
+
+
+        if ($request->filter_company_id)
+            $model->where('company_id', $request->filter_company_id);
+
         $model->when($request->filled('name'), function ($q) use ($request) {
             $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->name%");
         });
@@ -63,7 +70,12 @@ class DeviceController extends Controller
             $q->where('location', env('WILD_CARD') ?? 'ILIKE', "$request->location%");
         });
         $model->when($request->filled('device_id'), function ($q) use ($request) {
-            $q->where('device_id', env('WILD_CARD') ?? 'ILIKE', "%$request->device_id%");
+            $q->where(function ($qq) use ($request) {
+                $qq->where('device_id', env('WILD_CARD') ?? 'ILIKE', "%$request->device_id%");
+                $qq->Orwhere('model_number', env('WILD_CARD') ?? 'ILIKE', "$request->device_id%");
+                $qq->Orwhere('name', env('WILD_CARD') ?? 'ILIKE', "$request->device_id%");
+                $qq->Orwhere('location', env('WILD_CARD') ?? 'ILIKE', "$request->device_id%");
+            });
         });
         $model->when($request->filled('device_type'), function ($q) use ($request) {
             $q->where('device_type', env('WILD_CARD') ?? 'ILIKE', "$request->device_type%");
@@ -74,6 +86,11 @@ class DeviceController extends Controller
         $model->when($request->filled('branch_id'), function ($q) use ($request) {
             $q->where('branch_id', $request->branch_id);
         });
+
+        // $model->when($request->filled('model_number'), function ($q) use ($request) {
+        //     $q->where('model_number', env('WILD_CARD') ?? 'ILIKE', "$request->model_number%");
+        //     $q->Orwhere('name', env('WILD_CARD') ?? 'ILIKE', "$request->model_number%");
+        // });
 
 
 
@@ -1147,16 +1164,16 @@ class DeviceController extends Controller
                             (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
 
 
-                            // update missing logs - By Recent Serial Number 
-                            $requestArray = array(
-                                'device_id' => $companyDevice_id,
-                                'date' => date("Y-m-d"),
-                                'source' => "device_healthcheck_serial_number",
+                            // // update missing logs - By Recent Serial Number 
+                            // $requestArray = array(
+                            //     'device_id' => $companyDevice_id,
+                            //     'date' => date("Y-m-d"),
+                            //     'source' => "device_healthcheck_serial_number",
 
 
-                            );
-                            $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
-                            (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
+                            // );
+                            // $renderRequest = Request::create('/readMissingRecords', 'get', $requestArray);
+                            // (new AttendanceLogMissingController())->GetMissingLogs($renderRequest);
                         }
                     } catch (\Exception $e) {
 

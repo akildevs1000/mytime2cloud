@@ -948,7 +948,6 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
 
-      console.log(sortedDays);
       this.editedItem["scheduled_days"] = sortedDays;
 
       this.editedItem.company_id = this.$auth.user.company_id;
@@ -974,7 +973,6 @@ export default {
           this.response = data.message;
           this.dialog = false;
           this.getDataFromApi();
-          this.openDeviceDialog();
         })
         .catch((err) => {});
     },
@@ -991,7 +989,6 @@ export default {
           this.response = data.message;
           this.dialog = false;
           this.getDataFromApi();
-          this.openDeviceDialog();
         })
         .catch((err) => {
           console.log(err.message);

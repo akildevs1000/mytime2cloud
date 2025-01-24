@@ -392,6 +392,11 @@
                     ? item.device.location
                     : "---"
                 }}
+                <div class="secondary-value">
+                  {{
+                    item.index_serial_number ? item.index_serial_number : "---"
+                  }}
+                </div>
               </div>
             </template>
           </v-data-table>

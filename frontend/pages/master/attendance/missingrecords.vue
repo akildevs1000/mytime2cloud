@@ -283,7 +283,7 @@ export default {
       }, 1000 * 10);
     },
 
-    getMissingLogs() {
+    async getMissingLogs() {
       this.snackbarMessage = "";
 
       if (!this.payload.device_id) {
@@ -308,35 +308,37 @@ export default {
       this.snackbar = true;
       this.data = [];
       this.snackbarMessage = "Finding missing logs. Please wait ..... ";
-      this.$axios.get(`/attendance-logs-missing`, payload).then(({ data }) => {
-        this.loading = false;
-        if (data.status == 120) {
-          this.snackbarMessage = "";
-          this.snackbar = true;
-          this.snackbarMessage = data.message + " ";
-        } else if (data.status != 200) {
-          this.snackbarMessage = "";
-          this.snackbar = true;
-          this.snackbarMessage = data.message + " . Try again";
-        } else {
-          this.snackbarMessage = "";
-          this.snackbar = true;
-          this.snackbarMessage = data.message;
-
-          if (data.updated_records.length == 0) {
-            this.snackbarMessage =
-              this.snackbarMessage + ". All Attendance logs are upto date";
-          } else if (data.updated_records.length > 0) {
-            this.snackbarMessage =
-              this.snackbarMessage +
-              ". Total Updated Missing logs count is " +
-              data.updated_records.length;
-          }
-          this.data = data.updated_records;
-          this.totalRowsCount = data.length;
+      this.$axios
+        .get(`/attendance-logs-missing`, payload)
+        .then(async ({ data }) => {
           this.loading = false;
-        }
-      });
+          if (data.status == 120) {
+            this.snackbarMessage = "";
+            this.snackbar = true;
+            this.snackbarMessage = data.message + " ";
+          } else if (data.status != 200) {
+            this.snackbarMessage = "";
+            this.snackbar = true;
+            this.snackbarMessage = data.message + " . Try again";
+          } else {
+            this.snackbarMessage = "";
+            this.snackbar = true;
+            this.snackbarMessage = data.message;
+
+            if (data.updated_records.length == 0) {
+              this.snackbarMessage =
+                this.snackbarMessage + ". All Attendance logs are upto date";
+            } else if (data.updated_records.length > 0) {
+              this.snackbarMessage =
+                this.snackbarMessage +
+                ". Total Updated Missing logs count is " +
+                data.updated_records.length;
+            }
+            this.data = data.updated_records;
+            this.totalRowsCount = data.length;
+            this.loading = false;
+          }
+        });
 
       return true;
     },

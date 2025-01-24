@@ -35,11 +35,36 @@ class SDKController extends Controller
 
         $this->expirationTime =  60 * 4; //5 minutes 
     }
+    public function WriteResetDefaultTimeGroup(Request $request, $id)
+    {
+
+
+
+        //return false;
+        (new TimezoneController)->storeTimezoneDefaultJson();
+        $TimezoneDefaultJson = TimezoneDefaultJson::query();
+        $data = $TimezoneDefaultJson->get(["index", "dayTimeList"])->toArray();
+        asort($data);
+
+
+        $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$id/WriteTimeGroup";
+        }
+
+        $sdkResponse = $this->processSDKRequestBulk($url, $data);
+
+        return $sdkResponse;
+    }
     public function processTimeGroup(Request $request, $id)
     {
 
+
+
         return false;
-        // (new TimezoneController)->storeTimezoneDefaultJson();
+        (new TimezoneController)->storeTimezoneDefaultJson();
+
 
         $timezones = Timezone::where('company_id', $request->company_id)
             ->select('timezone_id', 'json')
@@ -57,8 +82,10 @@ class SDKController extends Controller
         $data = array_merge($defaultArray, $jsonArray);
         //ksort($data);
 
+
         asort($data);
 
+        return $data;
         $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
 
         if (env('APP_ENV') == 'desktop') {
@@ -424,6 +451,17 @@ class SDKController extends Controller
 
         return $this->processSDKRequestBulk($url, null);
     }
+
+    public function processSDKTimeZoneONEJSONData($url, $json)
+    {
+        $url = env('SDK_URL') . "/Person/AddRange";
+
+        if (env('APP_ENV') == 'desktop') {
+            $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+        }
+
+        $return = TimezonePhotoUploadJob::dispatch($json, $url);
+    }
     public function PersonAddRangeWithData($data)
     {
         $url = env('SDK_URL') . "/Person/AddRange";
@@ -761,9 +799,20 @@ class SDKController extends Controller
     }
     public function getDevicesCountForTimezone(Request $request)
     {
+        if ($request->source) {
+            return Device::where("model_number", "!=", "Manual")
+                ->where("model_number",  'not like', "%Mobile%")
+                ->where("name",  'not like', "%Manual%")
+                ->where("name",  'not like', "%manual%")
+                ->pluck('device_id');
+        }
 
 
-        return Device::where('company_id', $request->company_id)->pluck('device_id');
+        return Device::where('company_id', $request->company_id)
+            ->where("model_number", "!=", "Manual")
+            ->where("model_number",  'not like', "%Mobile%")
+            ->where("name",  'not like', "%Manual%")
+            ->where("name",  'not like', "%manual%")->pluck('device_id');
     }
 
     public function handleCommand($id, $command)

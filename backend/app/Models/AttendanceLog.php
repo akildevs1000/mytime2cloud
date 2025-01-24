@@ -212,7 +212,7 @@ class AttendanceLog extends Model
                 }
             });
         if (!$request->sortBy) {
-            $model->orderBy('LogTime', 'DESC');
+            $model->orderBy('index_serial_number', 'DESC');
         }
 
         return $model;
