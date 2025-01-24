@@ -1083,7 +1083,7 @@
             title="Default Timezone1  with 24 hours Access All Devices "
             @click="updateTimezone24Hours"
           >
-            Update Default Timezone1 24hours
+            Update Default Timezone1 24hours Access For all Devices
           </v-btn>
         </span>
         <span>
@@ -2286,21 +2286,23 @@ export default {
       } catch (error) {}
     },
     async updateTimezone24Hours() {
-      if (!this.data.length) {
-        this.snackbar = true;
-        this.response = "No data found";
-        return;
-      }
-      this.key++;
-      this.DialogsyncTimezoneDevice = true;
+      if (confirm("Update Default Timezone  24hours Access For all Devices?")) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
 
-      try {
-        let endpoint = "getDevicesCountForTimezone";
-        const { data } = await this.$axios.post(endpoint, {
-          source: "master",
-        });
-        this.processTimeZone(data);
-      } catch (error) {}
+        try {
+          let endpoint = "getDevicesCountForTimezone";
+          const { data } = await this.$axios.post(endpoint, {
+            source: "master",
+          });
+          this.processTimeZone(data);
+        } catch (error) {}
+      }
     },
     processTimeZone(devices) {
       this.deviceResults = [];
