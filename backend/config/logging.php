@@ -147,7 +147,7 @@ return [
         ],
 
         'emergency' => [
-            'path' => storage_path('logs/' . date("Y-m-d") . '_laravel.log'),
+            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
         ],
     ],
 
