@@ -250,7 +250,7 @@ class EmployeeLeavesController extends Controller
                 ]);
             }
 
-            $user_name = $request->user_name ?? 'no user found';
+            $user_name = $request->user_name ?? 'Super User';
 
             EmployeeLeaveTimeline::create([
                 "employee_leave_id" => $leaveId,
@@ -287,7 +287,7 @@ class EmployeeLeavesController extends Controller
 
                 EmployeeLeaveTimeline::create([
                     "employee_leave_id" => $leaveId,
-                    "description" => "Leave application has been <b>$status_text</b> by <b>$user_name</b>.",
+                    "description" => "Leave application has been <span class='red'>$status_text</span> by <b>$user_name</b>.",
                 ]);
 
                 Notification::create([
