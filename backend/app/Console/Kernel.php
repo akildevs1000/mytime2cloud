@@ -23,6 +23,11 @@ class Kernel extends ConsoleKernel
     {
         $monthYear = date("M-Y");
 
+        $schedule
+            ->command("alert:access_control 13")
+            ->hourly()
+            ->runInBackground();
+
 
         $schedule
             ->command('task:sync_attendance_logs')
