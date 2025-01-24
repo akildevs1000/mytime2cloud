@@ -102,9 +102,9 @@ class AlertAccessControl extends Command
                         foreach ($managers as $manager) {
 
                             if ($manager->branch_id == $model->branch_id) {
-                                $logger->logOutPut($logFilePath, "inside Manager Branch id:" . $manager->branch_id . " and Device Branch id:" . $record->device->branch_id . " is Matched: ");
+                                $logger->logOutPut($logFilePath, "INSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is Matched: ");
                             } else {
-                                $logger->logOutPut($logFilePath, "outside Manager Branch id:" . $manager->branch_id . " and Device Branch id:" . $record->device->branch_id . " is not Matched: ");
+                                $logger->logOutPut($logFilePath, "OUTSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is not Matched: ");
                             }
 
                             $time = $record->time;
