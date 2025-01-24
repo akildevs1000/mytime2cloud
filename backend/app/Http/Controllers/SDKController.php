@@ -103,6 +103,8 @@ class SDKController extends Controller
 
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
 
+        $sdkResponse["input_timegroup_json"] = $data;
+
         return $sdkResponse;
     }
 
