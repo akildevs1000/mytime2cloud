@@ -1783,7 +1783,7 @@ export default {
       }
     },
     async syncTimezonesToDevice(device) {
-      if (confirm("are you want to Sync Timezones To Device?")) {
+      if (confirm("Are you sure  want to Sync Timezones To Seletec Device?")) {
         if (!this.data.length) {
           this.snackbar = true;
           this.response = "No data found";
