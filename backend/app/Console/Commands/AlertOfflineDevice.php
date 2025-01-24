@@ -89,7 +89,7 @@ class AlertOfflineDevice extends Command
 
                     $deviceName = $device->name;
 
-                    if ($manager->branch_id == $device->branch_id) {
+                    if ($reportNotification->branch_id == $device->branch_id) {
                         $name = $device->branch->branch_name;
 
                         if (!$name) {
