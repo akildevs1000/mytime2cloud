@@ -24,12 +24,6 @@ class Kernel extends ConsoleKernel
         $monthYear = date("M-Y");
 
         $schedule
-            ->command("alert:access_control 13")
-            ->hourly()
-            ->runInBackground();
-
-
-        $schedule
             ->command('task:sync_attendance_logs')
             ->everyMinute();
 
@@ -52,6 +46,11 @@ class Kernel extends ConsoleKernel
 
 
         foreach ($companyIds as $companyId) {
+
+            $schedule
+                ->command("alert:access_control $companyId")
+                ->hourly()
+                ->runInBackground();
 
             $schedule->command("pdf:generate $companyId")->dailyAt('03:35')->runInBackground();
 
