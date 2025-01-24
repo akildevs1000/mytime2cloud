@@ -558,16 +558,15 @@
             {{ getCurrentDateTime(item.created_at) }}
           </div>
         </template>
+
+        <template v-slot:item.employee_leave_timelines="{ item }">
+          <LeavesTimeline
+            :key="item.id"
+            :items="item.employee_leave_timelines"
+          />
+        </template>
+
         <template v-slot:item.status="{ item }">
-          <v-chip
-            v-if="item.status == 1"
-            small
-            class="p-2 mx-1"
-            color="primary"
-            style="font-size: 13px"
-          >
-            Approved
-          </v-chip>
           <v-chip
             v-if="item.status == 2"
             small
@@ -578,7 +577,20 @@
             Rejected
           </v-chip>
           <v-chip
-            v-if="item.status == 0"
+            v-else-if="
+              item.order < $auth.user.order ||
+              (item.order == 0 && item.status == 1)
+            "
+            small
+            class="p-2 mx-1"
+            color="primary"
+            style="font-size: 13px"
+          >
+            Approved
+          </v-chip>
+
+          <v-chip
+            v-else
             small
             class="p-2 mx-1"
             color="secondary"
@@ -869,6 +881,15 @@ export default {
         filterSpecial: true,
       },
       {
+        text: "Timeline",
+        align: "left",
+        sortable: false,
+        filterable: false,
+        value: "employee_leave_timelines",
+        key: "employee_leave_timelines",
+        filterSpecial: false,
+      },
+      {
         text: "Status",
         align: "left",
         filterable: true,
@@ -901,36 +922,23 @@ export default {
     selectAllDepartment: false,
     selectAllEmployee: false,
     DialogEmployeesData: {},
-    todayDate: "",
     branchesList: [],
     //login_user_employee_id: "",
   }),
 
   computed: {},
 
-  watch: {
-    options: {
-      handler() {
-        this.getDataFromApi();
-      },
-      deep: true,
-    },
-  },
+  // watch: {
+  //   options: {
+  //     handler() {
+  //       this.getDataFromApi();
+  //     },
+  //     deep: true,
+  //   },
+  // },
   created() {
     this.loading = true;
-
-    this.getDataFromApi();
     this.getLeaveTypes();
-    let now = new Date();
-
-    let year = now.getFullYear();
-    let day = ("0" + now.getDate()).slice(-2);
-    let month = ("0" + (now.getMonth() + 1)).slice(-2);
-
-    let formattedDateTime = year + "-" + month + "-" + day;
-
-    this.todayDate = formattedDateTime;
-
     this.getLeaveGroups();
     this.getbranchesList();
   },
@@ -1154,6 +1162,7 @@ export default {
           ...this.filters,
           company_id: this.$auth.user.company_id,
           year: endDate.getFullYear(),
+          order: this.$auth.user.order,
         },
       };
 
@@ -1249,6 +1258,8 @@ export default {
           params: {
             approve_reject_notes: this.editedItem.approve_reject_notes,
             company_id: this.$auth.user.company_id,
+            user_name: this.$auth.user.name,
+            user_id: this.$auth.user.id,
           },
         };
         this.$axios
@@ -1279,6 +1290,9 @@ export default {
             company_id: this.$auth.user.company_id,
             system_user_id: this.dialogViewObject.system_user_id,
             shift_type_id: this.dialogViewObject.shift_type_id,
+            order: this.$auth.user.order,
+            user_name: this.$auth.user.name,
+            user_id: this.$auth.user.id,
           },
         };
         this.$axios

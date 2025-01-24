@@ -6,8 +6,10 @@ use App\Http\Requests\EmployeeLeaves\StoreRequest;
 use App\Http\Requests\EmployeeLeaves\UpdateRequest;
 use App\Models\Employee;
 use App\Models\EmployeeLeaves;
+use App\Models\EmployeeLeaveTimeline;
 use App\Models\LeaveType;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,8 +19,12 @@ class EmployeeLeavesController extends Controller
     public function getDefaultModelSettings($request)
     {
         $model = EmployeeLeaves::query();
-        $model->with(["leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
+        $model->with(["employee_leave_timelines", "leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
         $model->where('company_id', $request->company_id);
+
+        // $model->when($request->filled('order'), function ($q) use ($request) {
+        //     $q->where("order", ">=", $request->order);
+        // });
 
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where("employee_id", $request->employee_id);
@@ -86,11 +92,20 @@ class EmployeeLeavesController extends Controller
 
         try {
             // Database operations
-            $record = EmployeeLeaves::create($request->all());
+            $data = $request->validated();
 
-            DB::commit();
+            $data["order"] = $this->getLastAdminInOrder($request->company_id);
+
+            $record = EmployeeLeaves::create($data);
+
+            $record->load("employee");
+
+            EmployeeLeaveTimeline::create([
+                "employee_leave_id" => $record->id,
+                "description" => "Employee {$record->employee->first_name} has sent a leave request.",
+            ]);
             if ($record) {
-
+                DB::commit();
                 return $this->response('Employee Leave Successfully created.', $record, true);
             } else {
                 return $this->response('Employee Leave cannot be created.', null, false);
@@ -199,7 +214,53 @@ class EmployeeLeavesController extends Controller
 
     public function approveLeave(Request $request, $leaveId)
     {
-        return $this->processLeaveStatus($request, $leaveId, 1, "approved");
+        $model = EmployeeLeaves::find($leaveId);
+
+        if (!$model) {
+            return $this->response('Employee Leave data is not available.', null, false);
+        }
+
+        $lastAdmin = User::where("company_id", $model->company_id)
+            ->where("order", "<", $request->order)
+            ->orderBy("order", "desc")
+            ->value("order") ?? 0;
+
+        if ($model->order == 0) {
+            $model->status = 1;
+        }
+
+        $model->approve_reject_notes = $request->approve_reject_notes;
+
+        $model->order = $lastAdmin;
+
+        $record = $model->save();
+
+        $status_text = "approved";
+
+        if ($record) {
+            if ($model->order == 0) {
+                $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
+                Notification::create([
+                    "data" => "Leave application has been $status_text",
+                    "action" => "Leave Status",
+                    "model" => "EmployeeLeaves",
+                    "user_id" => $employee->user_id ?? 0,
+                    "company_id" => $model->company_id,
+                    "redirect_url" => "leaves"
+                ]);
+            }
+
+            EmployeeLeaveTimeline::create([
+                "employee_leave_id" => $record->id,
+                "description" => "Leave application has been $status_text by {$request->user_id}.",
+            ]);
+
+            return $this->response("Employee Leave $status_text Successfully.", $record, true);
+        } else {
+            return $this->response("Employee Leave not $status_text.", null, false);
+        }
+        return;
+        // return $this->processLeaveStatus($request, $leaveId, 1, "approved");
     }
 
     public function rejectLeave(Request $request, $leaveId)
@@ -220,6 +281,11 @@ class EmployeeLeavesController extends Controller
 
                 $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
 
+                EmployeeLeaveTimeline::create([
+                    "employee_leave_id" => $record->id,
+                    "description" => "Leave application has been $status_text by {$request->user_id}.",
+                ]);
+
                 Notification::create([
                     "data" => "Leave application has been $status_text",
                     "action" => "Leave Status",
@@ -236,5 +302,13 @@ class EmployeeLeavesController extends Controller
         } else {
             return $this->response('Employee Leave data is not available.', null, false);
         }
+    }
+
+    public function getLastAdminInOrder($company_id)
+    {
+        return User::where("company_id", $company_id)
+            ->where("order", ">", 0)
+            ->orderBy("order", "desc")
+            ->value("order");
     }
 }
