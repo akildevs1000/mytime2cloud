@@ -102,7 +102,7 @@ class EmployeeLeavesController extends Controller
 
             EmployeeLeaveTimeline::create([
                 "employee_leave_id" => $record->id,
-                "description" => "Employee {$record->employee->first_name} has sent a leave request.",
+                "description" => "Employee <b>{$record->employee->first_name}</b> has sent a leave request.",
             ]);
             if ($record) {
                 DB::commit();
@@ -250,9 +250,11 @@ class EmployeeLeavesController extends Controller
                 ]);
             }
 
+            $user_name = $request->user_name ?? 'no user found';
+
             EmployeeLeaveTimeline::create([
-                "employee_leave_id" => $record->id,
-                "description" => "Leave application has been $status_text by {$request->user_id}.",
+                "employee_leave_id" => $leaveId,
+                "description" => "Leave application has been <b>$status_text</b> by <b>$user_name</b>.",
             ]);
 
             return $this->response("Employee Leave $status_text Successfully.", $record, true);
@@ -281,9 +283,11 @@ class EmployeeLeavesController extends Controller
 
                 $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
 
+                $user_name = $request->user_name ?? 'Super User';
+
                 EmployeeLeaveTimeline::create([
-                    "employee_leave_id" => $record->id,
-                    "description" => "Leave application has been $status_text by {$request->user_id}.",
+                    "employee_leave_id" => $leaveId,
+                    "description" => "Leave application has been <b>$status_text</b> by <b>$user_name</b>.",
                 ]);
 
                 Notification::create([
