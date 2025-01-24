@@ -702,7 +702,65 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog persistent v-model="DialogsyncTimezoneDevice" max-width="1100">
+      <v-card>
+        <v-card-title dense class="popup_background_noviolet">
+          <span class="popup_title" style="color: black"
+            >Updating Timezones Devices
+          </span>
 
+          <v-spacer></v-spacer>
+          <v-icon
+            style="color: black"
+            @click="DialogsyncTimezoneDevice = false"
+            outlined
+          >
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text :key="key">
+          <v-progress-linear
+            v-if="loading_devicesync"
+            :active="loading_devicesync"
+            :indeterminate="loading_devicesync"
+            absolute
+            color="primary"
+          ></v-progress-linear>
+          <table style="width: 100%" class="mt-2">
+            <thead>
+              <tr class=" " dark>
+                <th>#</th>
+                <th style="width: 20%; text-align: left">Name</th>
+                <th style="width: 20%; text-align: left">Device ID</th>
+                <th style="width: 70%; text-align: left">Message</th>
+                <th class="text-center">Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="(d, index) in deviceResults" :key="index">
+                <td class="text-left">{{ ++index }}</td>
+                <td class="text-left">{{ d.name }}</td>
+                <td class="text-left">{{ d.DeviceID }}</td>
+
+                <td class="text-left" v-html="d.message"></td>
+                <td class="text-center">
+                  <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
+                  <v-icon color="error" v-else>mdi-close</v-icon>
+                </td>
+              </tr>
+
+              <tr v-if="deviceResults.length == 0">
+                <td colspan="3" class="text-center">No Data available</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <br />
+          <v-btn small color="grey white--text" @click="DialogsyncTimezoneDevice = false">
+            Close</v-btn> -->
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -1274,7 +1332,7 @@
                 </v-btn>
               </div>
             </template>
-            <v-list width="120" dense>
+            <v-list width="140" dense>
               <v-list-item @click="findUser(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small>mdi-magnify </v-icon>
@@ -1311,6 +1369,19 @@
                   Settings
                 </v-list-item-title>
               </v-list-item>
+
+              <v-list-item @click="syncTimezonesToDevice(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-autorenew </v-icon>
+                  Sync Timezones
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="updateDefault24HoursTimezone(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="red" small> mdi-close-circle </v-icon>
+                  Reset Timezones
+                </v-list-item-title>
+              </v-list-item>
               <v-list-item
                 v-if="can(`device_delete`)"
                 @click="deleteItem(item)"
@@ -1336,6 +1407,11 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    key: 1,
+    deviceResults: [],
+    loading_devicesync: false,
+
+    DialogsyncTimezoneDevice: false,
     apiDeviceHealthcallStatus: false,
     oneTOsixty: [],
     deviceCAMVIISettings: { voice_volume: 0 },
@@ -1690,6 +1766,132 @@ export default {
           { name: "Face Or Card", value: "face_or_card" },
         ];
       }
+    },
+    async updateDefault24HoursTimezone(device) {
+      if (confirm("Reset and Update Default 24hours Access?")) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
+
+        try {
+          this.processDefault24HoursTimeZone([device]);
+        } catch (error) {}
+      }
+    },
+    async syncTimezonesToDevice(device) {
+      if (confirm("Are you sure  want to Sync Timezones To Seletec Device?")) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
+
+        try {
+          this.syncTimeZones([device]);
+        } catch (error) {}
+      }
+    },
+    processDefault24HoursTimeZone(devices) {
+      this.deviceResults = [];
+      let payload = {
+        company_id: this.$auth.user.company_id,
+      };
+      this.loading_devicesync = true;
+      let counter = 0;
+
+      const processDevices = async () => {
+        for (let device of devices) {
+          try {
+            let endpoint = `${device.device_id}/WriteResetDefaultTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
+
+            let json = {
+              DeviceID: device.device_id,
+              name: device.name,
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID: device.device_id,
+              name: device.name,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
+          }
+        }
+      };
+
+      // Call the async function
+      processDevices();
+    },
+    syncTimeZones(devices) {
+      this.deviceResults = [];
+      let payload = {
+        company_id: this.$auth.user.company_id,
+      };
+      this.loading_devicesync = true;
+      let counter = 0;
+
+      const processDevices = async () => {
+        for (let device of devices) {
+          try {
+            let endpoint = `${device.device_id}/WriteTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
+
+            let json = {
+              DeviceID: device.device_id,
+              name: device.name,
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID: device.device_id,
+              name: device.name,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
+          }
+        }
+      };
+
+      // Call the async function
+      processDevices();
     },
     UpdateAlarmStatus(item, status) {
       if (status == 0) {

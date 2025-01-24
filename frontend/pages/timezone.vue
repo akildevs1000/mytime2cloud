@@ -221,11 +221,11 @@
 
     <v-dialog persistent v-model="syncDeviceDialog" max-width="1100">
       <v-card>
-        <v-card-title dense class="popup_background">
+        <v-card-title dense class="popup_background_noviolet">
           <span class="popup_title">Updating Timezones to Devices</span>
 
           <v-spacer></v-spacer>
-          <v-icon @click="syncDeviceDialog = false" outlined dark>
+          <v-icon color="black" @click="syncDeviceDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
@@ -240,16 +240,21 @@
           <table style="width: 100%" class="mt-2">
             <thead>
               <tr class=" " dark>
-                <th style="width: 20%; text-align: left">Device ID</th>
-                <th style="width: 70%">Message</th>
+                <th style="text-align: left">#</th>
+                <th style="text-align: left">Device Name</th>
+                <th style="text-align: left">Serial Number</th>
+                <th style="width: 50%">Message</th>
                 <th class="text-center">Status</th>
               </tr>
             </thead>
 
             <tbody>
               <tr v-for="(d, index) in deviceResults" :key="index">
-                <td>{{ d.DeviceID }}</td>
-                <td v-html="d.message"></td>
+                <td class="text-left">{{ ++index }}</td>
+                <td class="text-left">{{ d.name }}</td>
+                <td class="text-left">{{ d.DeviceID }}</td>
+
+                <td class="text-left" v-html="d.message"></td>
                 <td class="text-center">
                   <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
                   <v-icon color="error" v-else>mdi-close</v-icon>
@@ -310,7 +315,7 @@
             class="button primary"
           >
             <v-icon small> mdi-sync-circle</v-icon>
-            Update to Devices
+            Update Timezones to All Devices
           </v-btn>
         </span>
         <span>
@@ -357,7 +362,9 @@
         <template v-slot:item.member="{ item }">
           {{ item.employee_device && item.employee_device.employee_ids.length }}
         </template>
-
+        <template v-slot:item.description="{ item }">
+          {{ item.description === null ? "---" : item.description }}
+        </template>
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -808,21 +815,25 @@ export default {
       }
     },
     async openDeviceDialog() {
-      if (!this.data.length) {
-        this.snackbar = true;
-        this.response = "No data found";
-        return;
+      if (
+        confirm("Are you want to Update all Timezones to  Company Devices?")
+      ) {
+        // if (!this.data.length) {
+        //   this.snackbar = true;
+        //   this.response = "No data found";
+        //   return;
+        // }
+        this.key++;
+        this.syncDeviceDialog = true;
+
+        this.editedItem.company_id = this.$auth.user.company_id;
+
+        try {
+          let endpoint = "getDevicesCountForTimezone";
+          const { data } = await this.$axios.post(endpoint, this.editedItem);
+          this.processTimeZone(data);
+        } catch (error) {}
       }
-      this.key++;
-      this.syncDeviceDialog = true;
-
-      this.editedItem.company_id = this.$auth.user.company_id;
-
-      try {
-        let endpoint = "getDevicesCountForTimezone";
-        const { data } = await this.$axios.post(endpoint, this.editedItem);
-        this.processTimeZone(data);
-      } catch (error) {}
     },
     processTimeZone(devices) {
       this.deviceResults = [];
@@ -833,13 +844,15 @@ export default {
       let counter = 0;
 
       const processDevices = async () => {
-        for (const DeviceID of devices) {
+        for (let device of devices) {
           try {
-            let endpoint = `${DeviceID}/WriteTimeGroup`;
+            let endpoint = `${device.device_id}/WriteTimeGroup`;
             const { data } = await this.$axios.post(endpoint, payload);
 
             let json = {
-              DeviceID,
+              DeviceID: device.device_id,
+              name: device.name,
+
               message:
                 '<span style="color:red">Device communication error</span>',
               status: false,
@@ -854,7 +867,8 @@ export default {
           } catch (error) {
             // Handle error, if needed
             this.deviceResults.push({
-              DeviceID,
+              DeviceID: device.device_id,
+              name: device.name,
               message: '<span style="color:red">Failed to communicate</span>',
               status: false,
             });

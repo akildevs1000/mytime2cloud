@@ -62,7 +62,7 @@ class SDKController extends Controller
 
 
 
-        return false;
+
         (new TimezoneController)->storeTimezoneDefaultJson();
 
 
@@ -70,22 +70,31 @@ class SDKController extends Controller
             ->select('timezone_id', 'json')
             ->get();
 
-        $timezoneIDArray = $timezones->pluck('timezone_id');
+
+
+
+
+        $timezoneIDArray = $timezones->pluck('timezone_id')->toArray();;
+
+        //delete timezone 1 - defailt 1 is for 24 access 
+        $key = array_search(1,  $timezoneIDArray); // Search for the value 1
+        if ($key !== false) {
+            unset($timezoneIDArray[$key]); // Remove the value
+        }
 
 
         $jsonArray = $timezones->pluck('json')->toArray();
 
-        $TimezoneDefaultJson = TimezoneDefaultJson::query();
-        $TimezoneDefaultJson->whereNotIn("index", $timezoneIDArray);
-        $defaultArray = $TimezoneDefaultJson->get(["index", "dayTimeList"])->toArray();
+        $defaultArray = TimezoneDefaultJson::whereNotIn("index", $timezoneIDArray)
+            ->get(["index", "dayTimeList"])->toArray();
 
         $data = array_merge($defaultArray, $jsonArray);
-        //ksort($data);
+        ksort($data);
 
 
         asort($data);
 
-        return $data;
+
         $url = env('SDK_URL') . "/" . "{$id}/WriteTimeGroup";
 
         if (env('APP_ENV') == 'desktop') {
@@ -93,6 +102,8 @@ class SDKController extends Controller
         }
 
         $sdkResponse = $this->processSDKRequestBulk($url, $data);
+
+
 
         return $sdkResponse;
     }
@@ -729,6 +740,27 @@ class SDKController extends Controller
     public function processSDKRequestBulk($url, $data)
     {
 
+        // $response = Http::timeout(3600)
+        //     ->withoutVerifying()
+        //     ->withHeaders([
+        //         'Content-Type' => 'application/json',
+        //     ])
+        //     ->post($url, $data);
+
+        // // Combine the original $data with the response content
+        // if ($response->successful()) {
+        //     return [
+        //         'request_data' => $data, // Include the data you sent
+        //         'response_data' => $response->json(), // Include the response content
+        //     ];
+        // } else {
+        //     return [
+        //         'request_data' => $data, // Include the data you sent
+        //         'status_code' => $response->status(), // HTTP status code
+        //         'error_message' => $response->body(), // Response body in case of error
+        //     ];
+        // }
+
         try {
             return Http::timeout(3600)->withoutVerifying()->withHeaders([
                 'Content-Type' => 'application/json',
@@ -737,6 +769,7 @@ class SDKController extends Controller
             return [
                 "status" => 102,
                 "message" => $e->getMessage(),
+                "data" => $data,
             ];
             // You can log the error or perform any other necessary actions here
         }
@@ -812,7 +845,7 @@ class SDKController extends Controller
             ->where("model_number", "!=", "Manual")
             ->where("model_number",  'not like', "%Mobile%")
             ->where("name",  'not like', "%Manual%")
-            ->where("name",  'not like', "%manual%")->pluck('device_id');
+            ->where("name",  'not like', "%manual%")->get();
     }
 
     public function handleCommand($id, $command)

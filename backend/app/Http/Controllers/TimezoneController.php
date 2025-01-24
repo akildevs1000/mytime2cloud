@@ -79,10 +79,12 @@ class TimezoneController extends Controller
 
 
 
-
+        $data["interval"] = $this->getNewJsonIntervaldata($request);
 
         $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
-        $data["json"] = $this->processJson($request->timezone_id, $data["interval"], false);
+        $data["json"] = $this->processJson($data["timezone_id"], $data["interval"], false);
+
+
 
         try {
             $record = Timezone::create($data);
@@ -133,14 +135,15 @@ class TimezoneController extends Controller
     {
         $data = $request->validated();
 
-        $final_array = $this->getNewJsonIntervaldata($request);
+
 
         ///---------------------------overiding interval
-        $data["interval"] = $final_array;
+        $data["interval"] = $this->getNewJsonIntervaldata($request);
 
 
         $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
         $data["json"] = $this->processJson($request->timezone_id, $data["interval"], false);
+
 
 
 

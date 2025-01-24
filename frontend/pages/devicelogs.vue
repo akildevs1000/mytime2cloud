@@ -92,6 +92,26 @@
             >
               <v-icon class="">mdi mdi-plus-circle</v-icon> 
             </v-btn>-->
+            <span>
+              <v-autocomplete
+                :hide-details="true"
+                outlined
+                dense
+                small
+                v-model="filters['device']"
+                item-text="name"
+                item-value="device_id"
+                :items="[
+                  { name: `All Devices`, device_id: `` },
+                  { name: `Manual`, device_id: `Manual` },
+
+                  ...devices,
+                ]"
+                placeholder="Device Name"
+                class="dropdownautocomplete pr-2"
+                @change="applyFilters('device', id)"
+              ></v-autocomplete
+            ></span>
             <v-btn
               v-if="can(`logs_create`)"
               style="margin-top: -6px"
@@ -288,7 +308,7 @@
                       dense
                       small
                       v-model="filters[header.key]"
-                      item-text="location"
+                      item-text="name"
                       item-value="location"
                       :items="[{ location: `All Locations` }, ...devices]"
                       placeholder="Location"
