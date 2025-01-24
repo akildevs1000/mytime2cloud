@@ -75,57 +75,63 @@ class AlertOfflineDevice extends Command
 
         foreach ($reportNotifications as $reportNotification) {
 
-            foreach ($reportNotification->managers as $manager) {
+            foreach ($devices as $device) {
 
-                if ($reportNotification->managers->isEmpty()) {
-                    $logger->logOutPut($logFilePath, "No Manager Found");
-                    $logger->logOutPut($logFilePath, "*****Cron ended for alert:offline_device *****");
+                $deviceName = $device->name;
 
-                    $this->info("No Manager Found");
-                    continue;
-                }
+                if ($reportNotification->branch_id == $device->branch_id) {
 
-                foreach ($devices as $device) {
+                    foreach ($reportNotification->managers as $manager) {
 
-                    $deviceName = $device->name;
+                        if ($reportNotification->managers->isEmpty()) {
+                            $logger->logOutPut($logFilePath, "No Manager Found");
+                            $logger->logOutPut($logFilePath, "*****Cron ended for alert:offline_device *****");
 
-                    if ($manager->branch_id == $device->branch_id) {
-                        $name = $device->branch->branch_name;
-
-                        if (!$name) {
-                            $name = $company->name;
+                            $this->info("No Manager Found");
+                            continue;
                         }
 
-                        $message = "Device Offline Alert !\n" .
-                            "\n" .
-                            "Dear Admin,\n\n" .
-                            "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
-                            "Thank you!\n";
 
-                        $this->info($message);
 
-                        $endpoint = 'https://wa.mytime2cloud.com/send-message';
+                        if ($device->branch_id == $manager->branch_id) {
 
-                        $payload = [
-                            'clientId' =>  $company->company_code ?? "_1",
-                            'recipient' => "971554501483",
-                            'text' => $message,
-                        ];
+                            $name = $device->branch->branch_name;
 
-                        $res = Http::withoutVerifying()->post($endpoint, $payload);
+                            if (!$name) {
+                                $name = $company->name;
+                            }
 
-                        if ($res->successful()) {
-                            $logger->logOutPut($logFilePath, $message);
-                            $logger->logOutPut($logFilePath, "Message sent successfully");
+                            $message = "Device Offline Alert !\n" .
+                                "\n" .
+                                "Dear Admin,\n\n" .
+                                "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
+                                "Thank you!\n";
+
                             $this->info($message);
-                            $this->info("Message sent successfully");
-                        } else {
-                            $logger->logOutPut($logFilePath, "Failed to send message");
-                            $this->info("Failed to send message!");
-                        }
 
-                        sleep(5);
+                            $endpoint = 'https://wa.mytime2cloud.com/send-message';
+
+                            $payload = [
+                                'clientId' =>  $company->company_code ?? "_1",
+                                'recipient' => $manager->whatsapp_number,
+                                'text' => $message,
+                            ];
+
+                            $res = Http::withoutVerifying()->post($endpoint, $payload);
+
+                            if ($res->successful()) {
+                                $logger->logOutPut($logFilePath, $message);
+                                $logger->logOutPut($logFilePath, "Message sent successfully");
+                                $this->info($message);
+                                $this->info("Message sent successfully");
+                            } else {
+                                $logger->logOutPut($logFilePath, "Failed to send message");
+                                $this->info("Failed to send message!");
+                            }
+                        }
                     }
+
+                    sleep(5);
                 }
             }
         }

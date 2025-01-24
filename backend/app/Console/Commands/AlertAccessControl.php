@@ -101,6 +101,12 @@ class AlertAccessControl extends Command
 
                         foreach ($managers as $manager) {
 
+                            if ($manager->branch_id == $model->branch_id) {
+                                $logger->logOutPut($logFilePath, "INSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is Matched: ");
+                            } else {
+                                $logger->logOutPut($logFilePath, "OUTSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is not Matched: ");
+                            }
+
                             $time = $record->time;
                             if (
                                 ($time >= $from_time && $time <= "23:59") || // Time is on the same day between from_time and midnight
@@ -125,8 +131,6 @@ class AlertAccessControl extends Command
 
                                     // To handle the response
                                     if ($response->successful()) {
-                                        $logger->logOutPut($logFilePath, "Manager Branch id is: " . $manager->branch_id);
-                                        $logger->logOutPut($logFilePath, "Employee Branch id is: " . $record->employee->branch_id);
                                         $logger->logOutPut($logFilePath, "Message sent successfully");
                                         $this->info("Message sent successfully");
                                     } else {
