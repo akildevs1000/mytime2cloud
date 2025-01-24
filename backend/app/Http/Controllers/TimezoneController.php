@@ -7,6 +7,7 @@ use App\Http\Requests\Timezone\UpdateRequest;
 use App\Models\Timezone;
 use App\Models\TimezoneDefaultJson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class TimezoneController extends Controller
 {
@@ -209,9 +210,66 @@ class TimezoneController extends Controller
         }
         return $arr;
     }
+
+    function sortAndMergeIntervals($intervals)
+    {
+        if (empty($intervals)) {
+            return [];
+        }
+
+        // Step 1: Sort intervals by `begin` time
+        usort($intervals, function ($a, $b) {
+            return strcmp($a['begin'], $b['begin']);
+        });
+
+        // Step 2: Merge sequential intervals
+        $merged = [];
+        $current = $intervals[0]; // Start with the first interval
+
+        for ($i = 1; $i < count($intervals); $i++) {
+            if ($current['end'] === $intervals[$i]['begin']) {
+                // Extend the current interval
+                $current['end'] = $intervals[$i]['end'];
+            } else {
+                // Save the current interval and start a new one
+                $merged[] = $current;
+                $current = $intervals[$i];
+            }
+        }
+
+        // Add the last interval
+        $merged[] = $current;
+
+        return $merged;
+
+
+
+        // // Step 1: Sort intervals by `begin` time
+        // $sortedIntervals = $intervals->sortBy('begin')->values();
+
+        // // Step 2: Merge sequential intervals
+        // $merged = collect();
+        // $current = $sortedIntervals->first();
+
+        // foreach ($sortedIntervals->slice(1) as $interval) {
+        //     if ($current['end'] === $interval['begin']) {
+        //         // Extend the current interval
+        //         $current['end'] = $interval['end'];
+        //     } else {
+        //         // Add the current interval to the merged collection
+        //         $merged->push($current);
+        //         $current = $interval;
+        //     }
+        // }
+
+        // // Add the last interval
+        // $merged->push($current);
+
+        // return $merged;
+    }
     public function processTimeFrames($interval, $isDefault = false)
     {
-
+        //48 is from frontend page desing boxes (30 minutes 24X2=48 )
 
         $arr = [];
 
@@ -219,10 +277,26 @@ class TimezoneController extends Controller
             if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
                 $arr[] = $interval['interval' . $i];
             } else {
-                $arr[] = ["begin" => "00:00", "end" => "23:59"];
+                // $arr[] = ["begin" => "00:00", "end" => "23:59"];
+
             }
         }
+
+        $arr = $this->sortAndMergeIntervals($arr);
+
+
         return $arr;
+
+        // $arr = [];
+
+        // for ($i = 1; $i <= 48; $i++) {
+        //     if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
+        //         $arr[] = $interval['interval' . $i];
+        //     } else {
+        //         $arr[] = ["begin" => "00:00", "end" => "23:59"];
+        //     }
+        // }
+        // return $arr;
     }
     public function processTimeFrames_old($interval, $isDefault = false)
     {
