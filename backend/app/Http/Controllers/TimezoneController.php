@@ -211,6 +211,8 @@ class TimezoneController extends Controller
     }
     public function processTimeFrames($interval, $isDefault = false)
     {
+
+
         $arr = [];
 
         for ($i = 1; $i <= 48; $i++) {
