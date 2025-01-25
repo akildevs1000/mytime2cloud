@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
 class EmployeeController extends Controller
 {
@@ -1746,5 +1747,35 @@ class EmployeeController extends Controller
         file_put_contents($publicDirectory . '/' . $imageName, $imageData);
 
         return $imageName;
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            // Check database connection
+            DB::connection()->getPdo();
+        } catch (\Exception $e) {
+            throw ValidationException::withMessages([
+                'email' => ['Database is down'],
+            ]);
+        }
+
+        $user = User::where('email', $request->email)
+            ->with("company:id,user_id,name,location,logo,company_code,expiry")
+            ->first();
+
+        $this->throwAuthException($request, $user);
+
+        $user->user_type = "employee";
+        unset($user->company);
+        unset($user->assigned_permissions);
+
+        // @params User Id, action,type,companyId.
+        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id, $user->user_type);
+
+        return [
+            'token' => $user->createToken('myApp')->plainTextToken,
+            'user' => $user,
+        ];
     }
 }
