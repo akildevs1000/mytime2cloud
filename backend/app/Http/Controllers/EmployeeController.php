@@ -1776,7 +1776,6 @@ class EmployeeController extends Controller
         ];
     }
 
-
     public function me(Request $request)
     {
         $user = $request->user();
