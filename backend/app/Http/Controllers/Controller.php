@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Validation\ValidationException;
 
 class Controller extends BaseController
 {
@@ -486,5 +487,26 @@ class Controller extends BaseController
         $time = date('H:i');
 
         Storage::disk('local')->append("$logFilePath/$date/$time.log", $payload);
+    }
+
+    public function throwAuthException($request, $user)
+    {
+        if ($user->company_id > 0 && $user->company->expiry < now()) {
+            throw ValidationException::withMessages([
+                'email' => ['Subscription has been expired.'],
+            ]);
+        } else if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        } else if (!$user->web_login_access) {
+            throw ValidationException::withMessages([
+                'email' => ['Login access is disabled. Please contact your admin.'],
+            ]);
+        } else if ($user->branch_id == 0 &&  $user->is_master === false && $request->filled("source")) {
+            throw ValidationException::withMessages([
+                'email' => ["You do not have permission to Access this Page"],
+            ]);
+        }
     }
 }

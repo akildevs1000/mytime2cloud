@@ -40,6 +40,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\ValidationException;
 
 class EmployeeController extends Controller
 {
@@ -1746,5 +1747,72 @@ class EmployeeController extends Controller
         file_put_contents($publicDirectory . '/' . $imageName, $imageData);
 
         return $imageName;
+    }
+
+    public function login(Request $request)
+    {
+        try {
+            // Check database connection
+            DB::connection()->getPdo();
+        } catch (\Exception $e) {
+            throw ValidationException::withMessages([
+                'email' => ['Database is down'],
+            ]);
+        }
+
+        $user = User::where('email', $request->email)
+            ->with("company:id,user_id,name,location,logo,company_code,expiry", "employee")
+            ->first();
+
+        $this->throwAuthException($request, $user);
+
+        $user->user_type = "employee";
+
+        // @params User Id, action,type,companyId.
+        $this->recordActivity($user->id, "Login", "Authentication", $user->company_id, $user->user_type);
+
+        return [
+            'token' => $user->createToken('myApp')->plainTextToken,
+            'user' => $user,
+        ];
+    }
+
+
+    public function me(Request $request)
+    {
+        $user = $request->user();
+        $user->load(["company", "role:id,name,role_type"]);
+
+
+        $found = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo as branch_logo")->first();
+
+        $user->branch_name = $found->branch_name ?? "";
+        $user->branch_logo = $found->logo ?? "";
+        $user->branch_id = $found->id ?? ""; //$user->id;
+
+        $user->with(["employee" => function ($q) {
+            $q->select(
+                "id",
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "employee_id",
+                "system_user_id",
+                "joining_date",
+                "user_id",
+                "overtime",
+                "display_name",
+                "display_name",
+                "branch_id",
+                "leave_group_id",
+                "reporting_manager_id",
+            );
+
+            $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
+        }]);
+        $user->user_type = "branch";
+        $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
+        unset($user->assigned_permissions);
+        return ['user' => $user];
     }
 }

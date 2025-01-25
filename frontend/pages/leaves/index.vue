@@ -47,7 +47,7 @@
     </v-dialog>
 
     <v-dialog persistent v-model="dialogView" width="1000px">
-      <v-card>
+      <v-card v-if="dialogViewObject && dialogViewObject.id">
         <v-card-title dense class="popup_background">
           Leave Information
           <v-spacer></v-spacer>
@@ -283,6 +283,7 @@
               <!-- <v-btn class="error" small @click="close"> Close </v-btn> -->
               <v-spacer></v-spacer>
               <v-btn
+                :disabled="dialogViewObject.order > $auth.user.order"
                 class="error align-right mr-5"
                 v-if="dialogViewObject.status == 0"
                 small
@@ -292,6 +293,7 @@
               </v-btn>
 
               <v-btn
+                :disabled="dialogViewObject.order > $auth.user.order"
                 class="primary"
                 v-if="dialogViewObject.status == 0"
                 small
@@ -1013,6 +1015,7 @@ export default {
       this.isFilter = !this.isFilter;
     },
     view(item) {
+      this.dialogViewObject.order = item.order;
       this.dialogViewObject.id = item.id;
       this.dialogViewObject.employee_name =
         item.employee.first_name + " " + item.employee.last_name;
