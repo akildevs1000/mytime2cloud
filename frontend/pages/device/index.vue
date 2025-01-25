@@ -259,7 +259,7 @@
                     <!-- <tr>
                       <td>Door</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.door"
                           placeholder="Entry or exit"
@@ -272,7 +272,7 @@
                           outlined
                           dense
                           label="Entry or exit"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr> -->
 
@@ -310,7 +310,7 @@
                     <tr>
                       <td>Volume</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.volume"
                           placeholder="volume"
@@ -318,7 +318,7 @@
                           outlined
                           dense
                           label="volume"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
@@ -339,7 +339,7 @@
                     <tr>
                       <td>Alarm Events Push(msgPush)</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.msgPush"
                           placeholder="Push to Live"
@@ -352,7 +352,7 @@
                           outlined
                           dense
                           label="Push to Live"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
@@ -510,7 +510,7 @@
                 <tr>
                   <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
-                    <v-select
+                    <v-autocomplete
                       :disable="loadingDeviceData"
                       :readOnly="loadingDeviceData"
                       class="pb-0"
@@ -529,7 +529,7 @@
                       outlined
                       dense
                       label="Persons Entry"
-                    ></v-select>
+                    ></v-autocomplete>
                   </td>
                 </tr>
                 <tr>
@@ -537,7 +537,7 @@
                   <td>
                     <v-row>
                       <v-col cols="6">
-                        <v-select
+                        <v-autocomplete
                           :disable="loadingDeviceData"
                           class="pb-0"
                           v-model="deviceCAMVIISettings.verification_mode"
@@ -548,10 +548,10 @@
                           outlined
                           dense
                           label="Open Mode"
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                       <v-col cols="6">
-                        <v-select
+                        <v-autocomplete
                           :disable="loadingDeviceData"
                           class="pb-0"
                           v-model="deviceCAMVIISettings.open_duration"
@@ -560,7 +560,7 @@
                           outlined
                           dense
                           label="Duration - Seconds"
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                     </v-row>
                   </td>
@@ -769,8 +769,8 @@
 
     <v-row>
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
-        <v-select class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
-          :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-select>
+        <v-autocomplete class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
+          :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-autocomplete>
       </v-col> -->
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
         <v-text-field class="form-control py-0 custom-text-box floating shadow-none" placeholder="Search..." solo flat
@@ -869,7 +869,7 @@
             </span>
           </v-col>
           <v-col md="12">
-            <v-select
+            <v-autocomplete
               outlined
               dense
               class="pb-0"
@@ -878,7 +878,7 @@
               :items="[`OX-866`, `OX-886`, `OX-966`, `OX-900`]"
               label="Model Number *"
               placeholder="Model Number"
-            ></v-select>
+            ></v-autocomplete>
             <!-- <v-text-field></v-text-field> -->
             <span v-if="errors && errors.model_number" class="error--text"
               >{{ errors.model_number[0] }}
@@ -1023,7 +1023,7 @@
         </span>
 
         <span v-if="isCompany" style="width: 250px">
-          <v-select
+          <v-autocomplete
             @change="getDataFromApi()"
             class="pt-10 px-2"
             v-model="filters[`branch_id`]"
@@ -1034,7 +1034,7 @@
             item-value="id"
             item-text="branch_name"
           >
-          </v-select>
+          </v-autocomplete>
         </span>
         <!-- </template>
           <span>Reload</span>
@@ -1121,7 +1121,7 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
-                <v-select
+                <v-autocomplete
                   :hide-details="true"
                   @change="applyFilters('status', $event)"
                   item-value="value"
@@ -1138,7 +1138,7 @@
                       title: 'Offline',
                     },
                   ]"
-                ></v-select>
+                ></v-autocomplete>
               </v-container>
             </td>
           </tr>
