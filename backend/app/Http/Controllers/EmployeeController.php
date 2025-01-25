@@ -866,7 +866,7 @@ class EmployeeController extends Controller
 
         try {
             $user = User::updateOrCreate(['email' => $request->email, "company_id" => $request->company_id], $arr);
-            
+
             Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
 
             if (!$user) {
@@ -1780,38 +1780,9 @@ class EmployeeController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-
-        $user->with(["company", "role:id,name,role_type"]);
-
-        $found = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo as branch_logo")->first();
-
-        $user->branch_name = $found->branch_name ?? "";
-        $user->branch_logo = $found->logo ?? "";
-        $user->branch_id = $found->id ?? ""; //$user->id;
-
-        $user->with(["employee" => function ($q) {
-            $q->select(
-                "id",
-                "first_name",
-                "last_name",
-                "profile_picture",
-                "employee_id",
-                "system_user_id",
-                "joining_date",
-                "user_id",
-                "overtime",
-                "display_name",
-                "display_name",
-                "branch_id",
-                "leave_group_id",
-                "reporting_manager_id",
-            );
-
-            $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
-        }]);
+        $user->load(["company", "role:id,name,role_type", "employee"]);
+        unset($user["assigned_permissions"]);
         $user->user_type = "employee";
-        $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
-        unset($user->assigned_permissions);
         return ['user' => $user];
     }
 }
