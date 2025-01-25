@@ -10,7 +10,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return User::with("company","role")
+        return User::with("company", "role")
             ->where("company_id", request("company_id", 0))
             ->where("user_type", "admin")
             ->orderBy("order", "asc")
@@ -21,14 +21,14 @@ class AdminController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
             'order' => 'required|numeric',
             'company_id' => 'required',
         ]);
 
-        $user = [
+        $userData = [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
             "password" => Hash::make($validatedData['password']),
@@ -41,9 +41,14 @@ class AdminController extends Controller
         ];
 
         try {
-            return User::create($user);
+            $user = User::updateOrCreate(
+                ['email' => $validatedData['email']], // Condition to find an existing record
+                $userData // Data to update or insert
+            );
+
+            return $user;
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
