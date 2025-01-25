@@ -1810,7 +1810,7 @@ class EmployeeController extends Controller
 
             $q->withOut(["user", "department", "designation", "sub_department", "branch"]);
         }]);
-        $user->user_type = "branch";
+        $user->user_type = "employee";
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
         unset($user->assigned_permissions);
         return ['user' => $user];
