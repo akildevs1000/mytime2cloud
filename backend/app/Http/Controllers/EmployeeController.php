@@ -1780,7 +1780,7 @@ class EmployeeController extends Controller
 
     public function me(Request $request)
     {
-        return $user = $request->user();
+        $user = $request->user();
 
         $user->with(["company", "role:id,name,role_type"]);
 
