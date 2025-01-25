@@ -315,7 +315,9 @@
             class="button primary"
           >
             <v-icon small> mdi-sync-circle</v-icon>
-            Update Timezones to All Devices
+
+            <span v-if="data.length > 0">Update Timezones to All Devices</span>
+            <span v-else style="color: black">Reset Timezones</span>
           </v-btn>
         </span>
         <span>

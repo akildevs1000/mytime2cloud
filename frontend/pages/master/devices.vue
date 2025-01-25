@@ -1084,7 +1084,7 @@
           </v-btn>
         </span>
         <span class="pl-3">
-          <v-btn
+          <!-- <v-btn
             x-small
             :ripple="false"
             primary
@@ -1094,7 +1094,7 @@
             @click="updateTimezone24HoursAll"
           >
             Reset Access - Allow 24hours All Devices
-          </v-btn>
+          </v-btn> -->
         </span>
         <span>
           <!-- <v-btn
@@ -2298,29 +2298,29 @@ export default {
         } catch (error) {}
       }
     },
-    async updateTimezone24HoursAll() {
-      if (
-        confirm(
-          "Reset and Update Default 24hours Access all to TimeZones for All Devices?"
-        )
-      ) {
-        if (!this.data.length) {
-          this.snackbar = true;
-          this.response = "No data found";
-          return;
-        }
-        this.key++;
-        this.DialogsyncTimezoneDevice = true;
+    // async updateTimezone24HoursAll() {
+    //   if (
+    //     confirm(
+    //       "Reset and Update Default 24hours Access all to TimeZones for All Devices?"
+    //     )
+    //   ) {
+    //     if (!this.data.length) {
+    //       this.snackbar = true;
+    //       this.response = "No data found";
+    //       return;
+    //     }
+    //     this.key++;
+    //     this.DialogsyncTimezoneDevice = true;
 
-        try {
-          let endpoint = "getDevicesCountForTimezone";
-          const { data } = await this.$axios.post(endpoint, {
-            source: "master",
-          });
-          this.processDefaultTimeZone(data);
-        } catch (error) {}
-      }
-    },
+    //     try {
+    //       let endpoint = "getDevicesCountForTimezone";
+    //       const { data } = await this.$axios.post(endpoint, {
+    //         source: "master",
+    //       });
+    //       this.processDefaultTimeZone(data);
+    //     } catch (error) {}
+    //   }
+    // },
     processDefaultTimeZone(devices) {
       this.deviceResults = [];
       let payload = {
