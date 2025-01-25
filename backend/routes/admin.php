@@ -36,7 +36,7 @@ Route::post('/loginwith_otp', [AuthController::class, 'loginwithOTP']);
 Route::post('/check_otp/{key}', [AuthController::class, 'verifyOTP']);
 
 Route::post('/employee/login', [EmployeeController::class, 'login']);
-Route::post('/employee/me', [EmployeeController::class, 'me']);
+Route::get('/employee/me', [EmployeeController::class, 'me']);
 
 
 Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
