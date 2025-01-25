@@ -1781,8 +1781,8 @@ class EmployeeController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-        $user->load(["company", "role:id,name,role_type"]);
 
+        $user->with(["company", "role:id,name,role_type"]);
 
         $found = CompanyBranch::where('user_id', $user->id)->select('id', 'branch_name', "logo as branch_logo")->first();
 
