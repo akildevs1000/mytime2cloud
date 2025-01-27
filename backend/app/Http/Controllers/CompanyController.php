@@ -62,7 +62,7 @@ class CompanyController extends Controller
 
     public function CompanyList(Company $Company)
     {
-        return $Company->select('id', 'name')->orderBy("name", "asc")->get();
+        return $Company->select('id', 'name', 'company_code')->orderBy("name", "asc")->get();
     }
 
     public function index(Company $model, Request $request)
