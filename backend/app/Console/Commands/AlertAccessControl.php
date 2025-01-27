@@ -132,7 +132,7 @@ class AlertAccessControl extends Command
                                     // To handle the response
                                     if ($response->successful()) {
                                         $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
-                                        $this->info("Message sent successfully");
+                                        $this->info("Message sent successfully to {$manager->whatsapp_number}");
                                     } else {
                                         $logger->logOutPut($logFilePath, "Failed to send message");
                                         $this->info("Failed to send message!");
