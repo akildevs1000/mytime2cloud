@@ -9,7 +9,7 @@
         <v-img :src="qrCodePath" max-width="200" max-height="200"></v-img>
       </div>
 
-      <div class="mt-5">
+      <!-- <div class="mt-5">
         <v-btn
           x-small
           v-if="disconnectButton"
@@ -22,7 +22,7 @@
         <v-btn x-small v-if="connectButton" color="primary" @click="connect">
           <v-icon small class="mr-1">mdi-whatsapp</v-icon> Connect
         </v-btn>
-      </div>
+      </div> -->
     </v-card-text>
   </v-card>
 </template>
@@ -97,7 +97,7 @@ export default {
         console.log("🚀 ~ this.ws.onmessage= ~ data:", data);
 
         if (event.data == 1) {
-        //   this.connect();
+          //   this.connect();
         }
 
         if (data.event === "status") {
