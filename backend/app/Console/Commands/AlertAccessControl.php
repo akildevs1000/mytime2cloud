@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWhatsappMessageJob;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\ReportNotification;
@@ -35,6 +36,8 @@ class AlertAccessControl extends Command
 
         $clientId = Company::where("id", $company_id)->value("company_code") ?? 0;
 
+        // $clientId = "AE00042";
+
         $models = ReportNotification::with("managers")
             ->where('type', 'access_control')
             ->where('company_id', $company_id)
@@ -57,7 +60,7 @@ class AlertAccessControl extends Command
             ->where('company_id', $company_id)
             ->where('is_notified_by_whatsapp_proxy', false)
             // ->where('UserID', "5656")
-            ->limit(5)
+            ->limit(10)
             ->orderBy("id", "asc")
             ->get();
 
@@ -111,34 +114,18 @@ class AlertAccessControl extends Command
 
                                 //"22 Jan 2025 at 13:32:00"
                                 $formattedDate = (new DateTime($record->LogTime))->format('d M Y \a\t H:i:s');
-                                $message = $this->generateMessage($name, $record->device->name, $formattedDate);
+                                $message = $this->generateMessage($name, $record->device->name, $formattedDate, $record->id);
 
                                 if ($manager->branch_id == $record->device->branch_id) {
                                     if (in_array("Whatsapp", $model->mediums)) {
 
-                                        try {
-
-                                            $response = Http::withoutVerifying()->post(
-                                                'https://wa.mytime2cloud.com/send-message',
-                                                [
-                                                    'clientId' =>  $clientId,
-                                                    'recipient' => $manager->whatsapp_number,
-                                                    'text' => $message,
-                                                ]
-                                            );
-
-                                            // To handle the response
-                                            if ($response->successful()) {
-                                                $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
-                                                $this->info("Message sent successfully to {$manager->whatsapp_number}");
-                                            } else {
-                                                $logger->logOutPut($logFilePath, "Failed to send message");
-                                                $this->info("Failed to send message!");
-                                            }
-                                        } catch (\Throwable $e) {
-                                            $this->info($e);
-                                            $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
-                                        }
+                                        SendWhatsappMessageJob::dispatch(
+                                            $manager->whatsapp_number,
+                                            $message,
+                                            $record->id,
+                                            $clientId,
+                                            $logFilePath
+                                        );
                                     }
 
                                     if (in_array("Email", $model->mediums)) {
@@ -164,12 +151,13 @@ class AlertAccessControl extends Command
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
 
-    private function generateMessage($name, $deviceName, $formattedDate)
+    private function generateMessage($name, $deviceName, $formattedDate, $logId)
     {
         return "Access Control Alert !\n" .
             "\n" .
             "Dear Admin,\n\n" .
             "*$name* accessed the door at  *$deviceName* on $formattedDate\n\n" .
+            // "Log Id: $logId\n" .
             "Thank you!\n";
     }
 }
