@@ -30,7 +30,7 @@ class TimezoneController extends Controller
         $model->where('company_id', $request->company_id);
         $model->where("is_default", false);
         $model->when($request->branch_id, fn($q) => $q->where("branch_id", $request->branch_id));
-        $model->with(["employee_device", "branch"]);
+        $model->with(["employees", "employee_device", "branch"]);
         $model->orderBy("timezone_id", "asc");
         return $model->paginate($request->per_page ?? 100);
     }

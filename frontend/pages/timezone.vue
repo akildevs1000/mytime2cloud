@@ -361,11 +361,14 @@
           }}
         </template>
 
-        <template v-slot:item.member="{ item }">
-          {{ item.employee_device && item.employee_device.employee_ids.length }}
+        <template v-slot:item.device_timezone_id="{ item }">
+          {{ item.timezone_id }}
         </template>
         <template v-slot:item.description="{ item }">
           {{ item.description === null ? "---" : item.description }}
+        </template>
+        <template v-slot:item.employees_count="{ item }">
+          {{ item.employees === null ? 0 : item.employees.length }}
         </template>
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
@@ -522,12 +525,20 @@ export default {
         value: "description",
       },
       {
-        text: "Member",
+        text: " Timezone Id on Device",
         align: "left",
         sortable: true,
-        key: "member",
-        value: "member",
+        key: "device_timezone_id",
+        value: "device_timezone_id",
       },
+      {
+        text: "Employees Count",
+        align: "left",
+        sortable: true,
+        key: "employees_count",
+        value: "employees_count",
+      },
+
       {
         text: "Created",
         align: "left",

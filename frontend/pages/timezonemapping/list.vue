@@ -147,6 +147,7 @@
                 <v-sheet class="ma-2" cols="4">
                   {{ caps(subitem.name) }}</v-sheet
                 >
+                -
                 <v-sheet class="ma-2" cols="4">{{
                   caps(subitem.location)
                 }}</v-sheet>
@@ -158,7 +159,7 @@
                 @click="displayView(item.id)"
                 v-if="item.device_id.length > 3"
               >
-                All Devices
+                View Devices
               </v-btn>
             </template>
             <template v-slot:item.employees="{ item, index }">
@@ -182,7 +183,7 @@
                 @click="displayView(item.id)"
                 v-if="item.employee_id.length > 10"
               >
-                All Employees
+                View Employees
               </v-btn>
             </template>
             <template
@@ -210,12 +211,12 @@
                     </v-list-item-title>
                   </v-list-item>
 
-                  <v-list-item @click="displayEdit(item.id)">
+                  <!-- <v-list-item @click="displayEdit(item.id)">
                     <v-list-item-title style="cursor: pointer">
                       <v-icon color="secondary" small> mdi-pencil </v-icon>
                       Edit
                     </v-list-item-title>
-                  </v-list-item>
+                  </v-list-item> -->
                   <v-list-item
                     v-if="can(`timezone_mapping_delete`)"
                     @click="deleteItem(item.id, item.timezone_id)"

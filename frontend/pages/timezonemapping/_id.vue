@@ -28,7 +28,7 @@
           <template v-slot:item.sno="{ item, index }">
             <b>{{ ++index }}</b>
           </template>
-         
+
           <template v-slot:item.name="{ item }">
             {{ item.name }}
           </template>
@@ -100,6 +100,7 @@ export default {
   },
   data() {
     return {
+      device_data: [],
       loading: false,
       employee_data: [],
       options: [],
@@ -111,6 +112,8 @@ export default {
       tableColumns: [],
       Timezone: "",
       timeZoneName: "",
+      options: {},
+
       devices_headers: [
         { text: "#", align: "left", sortable: false, key: "sno", value: "sno" },
         {
@@ -389,7 +392,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
   },
 };
 </script>

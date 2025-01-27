@@ -8,6 +8,8 @@ use App\Models\CompanyBranch;
 use App\Models\Employee;
 use App\Models\EmployeeTimezoneMapping;
 use App\Models\Timezone;
+use App\Models\TimezoneEmployees;
+
 use function PHPUnit\Framework\isJson;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -52,10 +54,33 @@ class EmployeeTimezoneMappingController extends Controller
 
         $payload = $request->validated();
 
-        $payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
+        //$payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
+
+        $payload["timezone_id"] = $request->timezone_table_id;
+
+
+
 
         try {
+
+            foreach ($request->device_id as $device) {
+
+                foreach ($request->employee_id as $employee) {
+
+                    $dataTimezoneEmp = [
+                        "company_id" => $request->company_id,
+                        "timezone_table_id" => $request->timezone_table_id,
+                        "device_table_id" => $device['id'],
+                        "employee_table_id" => $employee['id'],
+                        "device_timezone_id" => $request->timezone_id
+
+                    ];
+                    $record = TimezoneEmployees::create($dataTimezoneEmp);
+                }
+            }
             $record = EmployeeTimezoneMapping::create($payload);
+
+
 
             if ($record) {
 
@@ -69,8 +94,14 @@ class EmployeeTimezoneMappingController extends Controller
                 $finalArray['SDKResponse'] = $SDKresponse;
 
                 $finalArray['recordResponse'] = $record;
+
+                log_message('EmployeeTimezoneMapping Successfully created.' . json_encode($finalArray), "sdk_timezone_employee_mapping");
+
+
                 return $this->response('EmployeeTimezoneMapping Successfully created.', $finalArray, true);
             } else {
+
+
                 return $this->response('EmployeeTimezoneMapping cannot create.', null, false);
             }
         } catch (\Throwable $th) {
@@ -192,19 +223,56 @@ class EmployeeTimezoneMappingController extends Controller
     public function deleteTimezone(Request $request)
     {
 
-        if ($request->timezone_id) {
-            Employee::where('timezone_id', $request->timezone_id)
-                ->update(['timezone_id' => 1]);
-        }
-        $record = EmployeeTimezoneMapping::where('id', $request->id)->delete();
 
-        // //updating default timezone id which are already exist in TimezoneName
+        //reset timezone  on Device with 1 full access  
+        $previousTimezones =   TimezoneEmployees::with(["device", "employee"])
+            ->where("company_id", $request->company_id)
+            ->where("timezone_table_id", $request->timezone_id)
+            ->get();
 
-        if ($record) {
-            return $this->response('EmployeeTimezoneMapping successfully deleted.', $record, true);
-        } else {
-            return $this->response('EmployeeTimezoneMapping cannot delete.', null, false);
+
+        foreach ($previousTimezones as $key => $empTimezone) {
+
+            $jsonData = [
+                'personList' => [
+                    [
+                        'userCode' => $empTimezone->employee["system_user_id"],
+                        'timeGroup' => 1, //reset to 1//full access
+                    ]
+                ],
+                'snList' =>  [$empTimezone->device["device_id"],]
+            ];
+
+            (new SDKController())->processSDKTimeZoneONEJSONData(null, $jsonData);
         }
+
+        //delete Employee data  from table 
+        TimezoneEmployees::where("company_id", $request->company_id)
+            ->where("timezone_table_id", $request->timezone_id)
+            ->delete();
+
+        EmployeeTimezoneMapping::where("company_id", $request->company_id)
+            ->where("timezone_id", $request->timezone_id)
+            ->delete();
+
+
+
+
+
+
+        // if ($request->timezone_id) {
+        //     Employee::where('timezone_id', $request->timezone_id)
+        //         ->update(['timezone_id' => 1]);
+        // }
+        // $record = EmployeeTimezoneMapping::where('id', $request->id)->delete();
+
+        // // //updating default timezone id which are already exist in TimezoneName
+
+        // if ($record) {
+        //     return $this->response('EmployeeTimezoneMapping successfully deleted.', $record, true);
+        // } else {
+        //     return $this->response('EmployeeTimezoneMapping cannot delete.', null, false);
+        // }
     }
     public function get_employeeswith_timezonename(Employee $employee, Request $request)
     {

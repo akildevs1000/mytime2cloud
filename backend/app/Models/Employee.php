@@ -254,6 +254,12 @@ class Employee extends Model
         return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");
     }
 
+    public function timezones_mapped()
+    {
+        return $this->hasMany(TimezoneEmployees::class, "employee_table_id", "id");
+    }
+
+
     public function today_logs()
     {
         return $this->hasMany(AttendanceLog::class, "UserID", "system_user_id");

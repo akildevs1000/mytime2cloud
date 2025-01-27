@@ -832,7 +832,10 @@ class SDKController extends Controller
     }
     public function getDevicesCountForTimezone(Request $request)
     {
-        if ($request->source) {
+        if ($request->source) //master 
+        {
+
+
             return Device::where("model_number", "!=", "Manual")
                 ->where("model_number",  'not like', "%Mobile%")
                 ->where("name",  'not like', "%Manual%")

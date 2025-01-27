@@ -15,13 +15,7 @@
       </v-row> -->
       <v-row>
         <div class="text-center ma-2">
-          <v-snackbar
-            :color="snackbar.color"
-            v-model="snackbar.show"
-            small
-            top="top"
-            :timeout="5000"
-          >
+          <v-snackbar v-model="snackbar.show" small top="top" :timeout="5000">
             {{ snackbar.message }}
             <!-- {{ response }} -->
           </v-snackbar>
@@ -906,17 +900,17 @@ export default {
         .then(({ data }) => {
           this.timezones = data.data;
 
-          this.$axios
-            .get("employee_timezone_mapping", options)
-            .then(({ data }) => {
-              data.data.forEach((element) => {
-                let selectedindex = this.timezones.findIndex(
-                  (e) => e.timezone_id == element.timezone_id
-                );
+          // this.$axios
+          //   .get("employee_timezone_mapping", options)
+          //   .then(({ data }) => {
+          //     data.data.forEach((element) => {
+          //       let selectedindex = this.timezones.findIndex(
+          //         (e) => e.timezone_id == element.timezone_id
+          //       );
 
-                if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
-              });
-            });
+          //       if (selectedindex >= 0) this.timezones.splice(selectedindex, 1);
+          //     });
+          //   });
         })
         .catch((err) => console.log(err));
     },
@@ -1040,6 +1034,9 @@ export default {
         return selectedObj;
       });
       let options = {
+        timezone_table_id: this.timezones.find(
+          (e) => e.timezone_id == this.timezonesselected
+        ).id,
         timezone_id: this.timezonesselected,
         employee_id: this.rightEmployees,
         device_id: this.rightDevices,
@@ -1057,7 +1054,7 @@ export default {
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
           this.loading = false;
-
+          this.progressloading = false;
           this.snackbar.show = true;
           this.snackbar.message = "Timezone Details are updated successfully.";
 
@@ -1223,6 +1220,9 @@ export default {
               data.message +
               "But,  Error:" +
               "Device Communication is not available";
+
+            this.loading = false;
+            this.progressloading = false;
             return false;
             this.errors = [];
             this.progressloading = false;
@@ -1237,6 +1237,9 @@ export default {
 
           this.displaybutton = true;
         });
+
+      // this.loading = false;
+      // this.progressloading = false;
     },
     goback() {
       this.$router.push("/timezonemapping/list");

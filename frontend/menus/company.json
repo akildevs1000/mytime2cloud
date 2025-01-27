@@ -242,10 +242,11 @@
     "menu": "timezone",
     "module": "access_control"
   },
+
   {
     "icon": "mdi mdi-credit-card-clock-outline",
-    "title": "Mapped List",
-    "to": "/timezonemapping/list",
+    "title": "Mapping List",
+    "to": "/timezonemapping/employees",
     "menu": "timezone_mapping_list",
     "module": "access_control"
   },
