@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
@@ -228,7 +229,7 @@ class AttendanceLogMissingController  extends Controller
                 //calll SDK Method
                 $message2 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-date-60" . $source_info);
 
-                $message2["message_array"] = "message1";
+                $message2["message_array"] = "message2";
 
                 //---------------Find Serial Number By Last record------------------------------------
                 try {
@@ -264,9 +265,46 @@ class AttendanceLogMissingController  extends Controller
                 //calll SDK Method
 
                 $message3 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-60" . $source_info);
-                $message3["message_array"] = "message1";
+                $message3["message_array"] = "message3";
 
-                return array_merge($message1, $message2, $message3);;
+
+                //---------------Find Serial Number By Last record------------------------------------
+                try {
+                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number') 
+                    {
+
+                        $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
+
+                            ->where("SerialNumber", '>', 0)
+                            ->where("DeviceID",   $deviceId)
+
+                            ->orderBy("SerialNumber", "DESC")
+                            ->orderBy("id", "DESC")
+                            ->first();
+
+                        $indexSerialNumber = $indexSerialNumberModel->SerialNumber;
+
+
+                        $data =  [
+                            "TransactionType" => 1,
+                            "Quantity" => 60,
+                            "ReadIndex" => $indexSerialNumber
+                        ];
+                    }
+                } catch (\Exception $e) {
+
+                    $data =  [
+                        "TransactionType" => 1,
+                        "Quantity" => 60,
+                        "ReadIndex" => $indexSerialNumber
+                    ];
+                }
+                //calll SDK Method
+
+                $message4 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-60" . $source_info);
+                $message4["message_array"] = "message4";
+
+                return array_merge($message1, $message2, $message3, $message4);;
             }
         } catch (\Exception $e) {
             return [
@@ -301,53 +339,62 @@ class AttendanceLogMissingController  extends Controller
 
         foreach ($records['data'] as $record) {
 
-            $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
-            $data = [
-                "UserID" => $record['userCode'],
-                "DeviceID" => $deviceId,
-                "LogTime" =>  $logtime,
-                "SerialNumber" => $record['recordNumber'],
-                "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
-                "mode" => $verification_methods[$record['recordCode']] ?? "---",
-                "reason" => $reasons[$record['recordCode']] ?? "---",
-                "company_id" => $company_id,
-                "source_info" => $source_info,
-                "log_date_time" =>  $record['recordDate'],
-                "index_serial_number" => $record['recordNumber'],
-            ];
+            // Assuming $record['recordDate'] is in 'Y-m-d' or 'Y-m-d H:i:s' format
+            $recordDate = Carbon::parse($record['recordDate']);
+            $currentDate = Carbon::now();
 
-            $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
-            $exists = AttendanceLog::where('UserID', $record['userCode'])
-                ->where('DeviceID', $deviceId)
-                ->where('LogTime', $logtime)
-                ->exists();
+            // Calculate the difference in days
+            $daysDifference = $currentDate->diffInDays($recordDate);
+            if ($daysDifference <= 30) {
 
-            if (!$exists) {
-                AttendanceLog::create($data);
-
-                $finalResult[] =  [
-                    'UserID' => $record['userCode'],
-                    'DeviceID' => $deviceId,
-                    'LogTime' => $logtime,
+                $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
+                $data = [
+                    "UserID" => $record['userCode'],
+                    "DeviceID" => $deviceId,
+                    "LogTime" =>  $logtime,
                     "SerialNumber" => $record['recordNumber'],
-                    "log_date_time" => $logtime,
+                    "status" => $record['recordCode'] > 15 ? "Access Denied" : "Allowed",
+                    "mode" => $verification_methods[$record['recordCode']] ?? "---",
+                    "reason" => $reasons[$record['recordCode']] ?? "---",
+                    "company_id" => $company_id,
+                    "source_info" => $source_info,
+                    "log_date_time" =>  $record['recordDate'],
                     "index_serial_number" => $record['recordNumber'],
-
                 ];
-            } else {
-                $finalAlreadyExist[] =  [
-                    'UserID' => $record['userCode'],
-                    'DeviceID' => $deviceId,
-                    'LogTime' => $logtime,
-                    "SerialNumber" => $record['recordNumber'],
-                    "status" => "already exist",
-                    "log_date_time" => $logtime,
-                    "index_serial_number" => $record['recordNumber'],
-                    "condition" => $condition,
-                    "exists" => $exists,
+
+                $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
+                $exists = AttendanceLog::where('UserID', $record['userCode'])
+                    ->where('DeviceID', $deviceId)
+                    ->where('LogTime', $logtime)
+                    ->exists();
+
+                if (!$exists) {
+                    AttendanceLog::create($data);
+
+                    $finalResult[] =  [
+                        'UserID' => $record['userCode'],
+                        'DeviceID' => $deviceId,
+                        'LogTime' => $logtime,
+                        "SerialNumber" => $record['recordNumber'],
+                        "log_date_time" => $logtime,
+                        "index_serial_number" => $record['recordNumber'],
+
+                    ];
+                } else {
+                    $finalAlreadyExist[] =  [
+                        'UserID' => $record['userCode'],
+                        'DeviceID' => $deviceId,
+                        'LogTime' => $logtime,
+                        "SerialNumber" => $record['recordNumber'],
+                        "status" => "already exist",
+                        "log_date_time" => $logtime,
+                        "index_serial_number" => $record['recordNumber'],
+                        "condition" => $condition,
+                        "exists" => $exists,
 
 
-                ];
+                    ];
+                }
             }
         }
 
