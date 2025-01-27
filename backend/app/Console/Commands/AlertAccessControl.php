@@ -113,40 +113,39 @@ class AlertAccessControl extends Command
                                 $formattedDate = (new DateTime($record->LogTime))->format('d M Y \a\t H:i:s');
                                 $message = $this->generateMessage($name, $record->device->name, $formattedDate);
 
-                                // if ($manager->branch_id == $record->employee->branch_id) {
-                                if (in_array("Whatsapp", $model->mediums)) {
+                                if ($manager->branch_id == $record->device->branch_id) {
+                                    if (in_array("Whatsapp", $model->mediums)) {
 
-                                    try {
+                                        try {
 
-                                        $response = Http::withoutVerifying()->post(
-                                            'https://wa.mytime2cloud.com/send-message',
-                                            [
-                                                'clientId' =>  $clientId,
-                                                'recipient' => $manager->whatsapp_number,
-                                                'text' => $message,
-                                            ]
-                                        );
+                                            $response = Http::withoutVerifying()->post(
+                                                'https://wa.mytime2cloud.com/send-message',
+                                                [
+                                                    'clientId' =>  $clientId,
+                                                    'recipient' => $manager->whatsapp_number,
+                                                    'text' => $message,
+                                                ]
+                                            );
 
-                                        // To handle the response
-                                        if ($response->successful()) {
-                                            $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
-                                            $this->info("Message sent successfully to {$manager->whatsapp_number}");
-                                        } else {
-                                            $logger->logOutPut($logFilePath, "Failed to send message");
-                                            $this->info("Failed to send message!");
+                                            // To handle the response
+                                            if ($response->successful()) {
+                                                $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
+                                                $this->info("Message sent successfully to {$manager->whatsapp_number}");
+                                            } else {
+                                                $logger->logOutPut($logFilePath, "Failed to send message");
+                                                $this->info("Failed to send message!");
+                                            }
+                                        } catch (\Throwable $e) {
+                                            $this->info($e);
+                                            $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                                         }
-                                    } catch (\Throwable $e) {
-                                        $this->info($e);
-                                        $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                                     }
-                                }
 
-                                if (in_array("Email", $model->mediums)) {
-                                    // process for email
+                                    if (in_array("Email", $model->mediums)) {
+                                        // process for email
+                                    }
+                                    sleep(5);
                                 }
-                                sleep(5);
-
-                                // }
                             }
                         }
                     } else {
