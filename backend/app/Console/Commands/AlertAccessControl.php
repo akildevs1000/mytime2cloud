@@ -96,16 +96,11 @@ class AlertAccessControl extends Command
 
             foreach ($records as $logID => $record) {
                 $logIds[] = $record->id;
-                if ($record->company && $record->employee && $record->device) {
-                    try {
 
+                if ($model->branch_id == $record->device->branch_id) {
+
+                    if ($record->company && $record->employee && $record->device) {
                         foreach ($managers as $manager) {
-
-                            if ($manager->branch_id == $model->branch_id) {
-                                $logger->logOutPut($logFilePath, "INSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is Matched: ");
-                            } else {
-                                $logger->logOutPut($logFilePath, "OUTSIDE Manager Branch id:" . $manager->branch_id . " and Alert Branch id:" . $model->branch_id . " is not Matched: ");
-                            }
 
                             $time = $record->time;
                             if (
@@ -120,22 +115,29 @@ class AlertAccessControl extends Command
 
                                 // if ($manager->branch_id == $record->employee->branch_id) {
                                 if (in_array("Whatsapp", $model->mediums)) {
-                                    $response = Http::withoutVerifying()->post(
-                                        'https://wa.mytime2cloud.com/send-message',
-                                        [
-                                            'clientId' =>  $clientId,
-                                            'recipient' => $manager->whatsapp_number,
-                                            'text' => $message,
-                                        ]
-                                    );
 
-                                    // To handle the response
-                                    if ($response->successful()) {
-                                        $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
-                                        $this->info("Message sent successfully to {$manager->whatsapp_number}");
-                                    } else {
-                                        $logger->logOutPut($logFilePath, "Failed to send message");
-                                        $this->info("Failed to send message!");
+                                    try {
+
+                                        $response = Http::withoutVerifying()->post(
+                                            'https://wa.mytime2cloud.com/send-message',
+                                            [
+                                                'clientId' =>  $clientId,
+                                                'recipient' => $manager->whatsapp_number,
+                                                'text' => $message,
+                                            ]
+                                        );
+
+                                        // To handle the response
+                                        if ($response->successful()) {
+                                            $logger->logOutPut($logFilePath, "Message sent successfully to {$manager->whatsapp_number}");
+                                            $this->info("Message sent successfully to {$manager->whatsapp_number}");
+                                        } else {
+                                            $logger->logOutPut($logFilePath, "Failed to send message");
+                                            $this->info("Failed to send message!");
+                                        }
+                                    } catch (\Throwable $e) {
+                                        $this->info($e);
+                                        $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
                                     }
                                 }
 
@@ -147,13 +149,10 @@ class AlertAccessControl extends Command
                                 // }
                             }
                         }
-                    } catch (\Throwable $e) {
-                        $this->info($e);
-                        $logger->logOutPut($logFilePath, "Exception: " . $e->getMessage());
+                    } else {
+                        $this->info("else" . " " . $record->UserID . " " . $record->company_id);
+                        $logger->logOutPut($logFilePath, "*****No employee found for {$record->UserID} *****");
                     }
-                } else {
-                    $this->info("else" . " " . $record->UserID . " " . $record->company_id);
-                    $logger->logOutPut($logFilePath, "*****No employee found for {$record->UserID} *****");
                 }
             }
         }
