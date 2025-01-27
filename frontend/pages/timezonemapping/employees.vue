@@ -557,6 +557,21 @@
           >
           </v-autocomplete>
         </span>
+        <span>
+          <v-btn
+            v-if="can(`timezone_mapping_create`)"
+            dense
+            class="ma-0 px-0"
+            x-small
+            :ripple="false"
+            text
+            title="Add Timezone"
+          >
+            <v-icon class="ml-2" @click="goToCreatePage()" dark
+              >mdi mdi-plus-circle</v-icon
+            >
+          </v-btn>
+        </span>
         <!-- <span cols="4" class="mt-1" style="width: 190px">
           <v-select
             height="30px"
@@ -1296,6 +1311,9 @@ export default {
   },
 
   methods: {
+    goToCreatePage() {
+      this.$router.push("/timezonemapping/new");
+    },
     getDevicesList() {
       let options = {
         params: {

@@ -73,7 +73,7 @@
         </v-col> -->
 
         <v-col>
-          <div class="text-right">
+          <!-- <div class="text-right">
             <v-btn
               small
               color="primary"
@@ -85,7 +85,7 @@
               >
               View List</v-btn
             >
-          </div>
+          </div> -->
         </v-col>
       </v-row>
       <!-- <div>
@@ -183,7 +183,7 @@
                     {{ user.employee_id }}
                   </v-col>
                   <v-col md="3" style="padding: 0px">
-                    <span
+                    <!-- <span
                       style="color: green; font-size: 12px"
                       v-if="
                         user.timezone &&
@@ -192,7 +192,7 @@
                       "
                     >
                     </span>
-                    <span
+                     <span
                       style="color: green; font-size: 12px"
                       v-if="
                         user.timezone &&
@@ -202,7 +202,7 @@
                     >
                       Time:
                       {{ user.timezone.timezone_name + " Assigned" }}
-                    </span>
+                    </span> -->
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -1124,8 +1124,9 @@ export default {
             });
 
             setTimeout(() => {
-              this.$router.push("/timezonemapping/list");
-            }, 1000 * 2);
+              //  this.$router.push("/timezonemapping/list");
+              this.$router.push("/timezonemapping/employees");
+            }, 1000 * 1);
             // $.each(this.rightDevices, function (index, rightDevicesobj) {
             //   let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
             //     (e) => e.sn == rightDevicesobj.device_id
