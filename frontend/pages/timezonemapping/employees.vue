@@ -6,6 +6,117 @@
       </v-snackbar>
     </div>
 
+    <v-dialog
+      v-model="dialogEmployeeTimezones"
+      :key="'dialogEmployeeTimezones' + key"
+      width="600"
+    >
+      <v-card :loading="loading_dialog">
+        <v-card-title dense class="popup_background_noviolet">
+          <div style="color: black" v-if="!empId">Add Timezone</div>
+          <div style="color: black" v-else>
+            {{
+              !isEdit
+                ? "View Timezone Mapping(s)"
+                : "Update Timezone Mapping(s)"
+            }}
+          </div>
+          <v-spacer></v-spacer>
+
+          <v-icon
+            color="black"
+            @click="dialogEmployeeTimezones = false"
+            outlined
+            dark
+          >
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+
+        <v-card-text>
+          <v-row v-if="!empId"> </v-row>
+
+          <v-row
+            v-if="schedules_temp_list"
+            v-for="(item, i) in devicesList"
+            :key="'dialogdevicesList' + key + i"
+          >
+            <v-col style="max-width: 30px">{{ ++i }}</v-col>
+            <v-col>
+              <!-- <v-text-field
+                dense
+                v-model="item.id"
+                single-line
+                hide-details
+                :value="item.name"
+                outlined
+              ></v-text-field> -->
+              <v-autocomplete
+                label="Device Name"
+                :error="errors && errors.device_table_id"
+                :error-messages="
+                  errors && errors.device_table_id
+                    ? errors.device_table_id[0]
+                    : ''
+                "
+                outlined
+                dense
+                v-model="item.id"
+                x-small
+                :items="devicesList"
+                item-value="id"
+                item-text="name"
+                class="dropdownautocomplete"
+                :hide-details="true"
+                readonly
+                disabled
+              ></v-autocomplete>
+            </v-col>
+            <v-col>
+              <v-autocomplete
+                label="Timezone Name"
+                :error="errors && errors.timezone_table_id"
+                :error-messages="
+                  errors && errors.timezone_table_id
+                    ? errors.timezone_table_id[0]
+                    : ''
+                "
+                outlined
+                dense
+                v-model="item.timezone_table_id"
+                x-small
+                :items="[...timezonesList]"
+                item-value="id"
+                item-text="timezone_name"
+                :disabled="!isEdit"
+                :hide-details="true"
+                class="dropdownautocomplete"
+              ></v-autocomplete>
+            </v-col>
+            <v-col style="max-width: 30px" class="text-center">
+              <v-icon :color="getColor(item.timezone_table_id)"
+                >mdi-clock-outline</v-icon
+              ></v-col
+            >
+          </v-row>
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-actions class="text-center">
+          <div style="width: 100%">
+            <v-btn
+              v-if="isEdit"
+              dark
+              small
+              color="primary"
+              @click="devicesUpdate"
+            >
+              Submit
+            </v-btn>
+          </div>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="editDialog" :key="key" width="600">
       <v-card :loading="loading_dialog">
         <v-card-title dense class="popup_background_noviolet">
@@ -303,136 +414,7 @@
         <v-divider></v-divider>
         <v-card-text>
           <v-row>
-            <v-col md="4">
-              <!-- <v-row>
-                <v-col md="12">
-                  <div class="mb-5">
-                    <span class="text-h6">Filters</span>
-                  </div>
-                  <div class="mb-1">Department</div>
-
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="runMultipleFunctions"
-                    v-model="department_ids"
-                    multiple
-                    x-small
-                    :items="departments"
-                    item-value="id"
-                    item-text="name"
-                    :disabled="is_edit == true ? true : false"
-                  ></v-autocomplete>
-                  <div class="mb-1">Sub Department</div>
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="getEmployeesBySubDepartment"
-                    v-model="sub_department_ids"
-                    multiple
-                    x-small
-                    :items="sub_departments"
-                    item-value="id"
-                    item-text="name"
-                    :disabled="is_edit == true ? true : false"
-                  ></v-autocomplete>
-
-                  <div class="mb-1">Shift Types</div>
-
-                  <v-autocomplete
-                    :error="errors && errors.shift_type_id"
-                    :error-messages="
-                      errors && errors.shift_type_id
-                        ? errors.shift_type_id[0]
-                        : ''
-                    "
-                    @change="runShiftTypeFunction"
-                    outlined
-                    dense
-                    v-model="shift_type_id"
-                    x-small
-                    :items="shift_types"
-                    item-value="id"
-                    item-text="name"
-                  ></v-autocomplete>
-
-                  <div class="mb-1">Shifts</div>
-                  <v-autocomplete
-                    :error="errors && errors.shift_id"
-                    :error-messages="
-                      errors && errors.shift_id ? errors.shift_id[0] : ''
-                    "
-                    @change="runShiftFunction"
-                    outlined
-                    dense
-                    v-model="shift_id"
-                    x-small
-                    :items="shifts"
-                    item-value="id"
-                    item-text="name"
-                  ></v-autocomplete>
-                  <div class="mb-6">
-                    <div>From</div>
-                    <v-menu
-                      v-model="from_menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="from_date"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          outlined
-                          dense
-                          :hide-details="true"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="from_date"
-                        @input="from_menu = false"
-                      ></v-date-picker>
-                    </v-menu>
-                  </div>
-                  <div class="mb-6">
-                    <div>To</div>
-                    <v-menu
-                      v-model="to_menu"
-                      :close-on-content-click="false"
-                      :nudge-right="40"
-                      transition="scale-transition"
-                      offset-y
-                      min-width="auto"
-                    >
-                      <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
-                          v-model="to_date"
-                          readonly
-                          v-bind="attrs"
-                          v-on="on"
-                          outlined
-                          dense
-                          :hide-details="true"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        v-model="to_date"
-                        @input="to_menu = false"
-                      ></v-date-picker>
-                    </v-menu>
-                  </div>
-                  <v-checkbox
-                    dense
-                    v-model="isOverTime"
-                    label="Overtime Allowed"
-                  ></v-checkbox>
-                </v-col>
-              </v-row> -->
-            </v-col>
+            <v-col md="4"> </v-col>
 
             <v-col md="8">
               <v-row>
@@ -520,7 +502,7 @@
             clearable
           ></v-text-field>
         </span>
-        <span class="mt-8 pl-3" style="width: 220px">
+        <!-- <span class="mt-8 pl-3" style="width: 220px">
           <v-autocomplete
             style="width: 200px"
             label="Devices"
@@ -536,7 +518,7 @@
             clearable
           >
           </v-autocomplete>
-        </span>
+        </span> -->
         <span class="mt-8 pl-3" style="width: 220px">
           <v-autocomplete
             style="width: 200px"
@@ -572,42 +554,6 @@
             >
           </v-btn>
         </span>
-        <!-- <span cols="4" class="mt-1" style="width: 190px">
-          <v-select
-            height="30px"
-            style="width: 180px"
-            class="custom-text-field-height employee-schedule-cropdown"
-            :hide-details="true"
-            @change="filterEmployees()"
-            item-value="id"
-            item-text="name"
-            v-model="filterScheduledEmp"
-            outlined
-            dense
-            :items="[
-              { name: `All Employees  `, id: `` },
-              { name: `Scheduled Only`, id: `1` },
-              { name: `Un-Scheduled`, id: `0` },
-            ]"
-          ></v-select>
-        </span> -->
-        <!-- <span cols="2" class="mt-1" style="max-width: 140px">
-          <v-btn
-            dense
-            class="ma-2 px-1 primary"
-            fill
-            dark
-            small
-            @click="openScheduleDialog"
-          >
-            + Add Schedule
-          </v-btn>
-        </span>
-        <span cols="2" class="mt-1" style="max-width: 140px">
-          <ScheduleEmployeeDelete
-            @response="handleScheduleEmployeeDeleteResponse"
-          />
-        </span> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -919,9 +865,9 @@
                 item.timezones_mapped.find(
                   (e) => e.timezone_table_id == filter_timezone_id
                 )?.timezone.timezone_name
-              }}(+{{ item.timezones_mapped.length - 1 }})
+              }}(+{{ item.timezones_mapped.length - 1 }} Timezones)
             </div>
-            <div v-else>{{ item.timezones_mapped.length }}</div>
+            <div v-else>{{ item.timezones_mapped.length }} Mapped</div>
           </div>
           <div
             v-else-if="
@@ -974,6 +920,15 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
+                v-if="can(`employee_schedule_edit`)"
+                @click="deviceAccess(item, 'edit')"
+              >
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-pencil </v-icon>
+                  Devices
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
                 v-if="can(`employee_schedule_delete`)"
                 @click="deleteItem(item, 'edit')"
               >
@@ -995,6 +950,7 @@ import { extensions } from "@tiptap/vue-2";
 
 export default {
   data: () => ({
+    dialogEmployeeTimezones: false,
     devicesList: [],
     filter_device_id: null,
     filter_timezone_id: null,
@@ -1125,15 +1081,15 @@ export default {
         filterSpecial: true,
       },
 
-      {
-        text: "Devices",
-        align: "left",
-        sortable: true,
-        value: "devices",
-        filterable: true,
-        filterName: "schedules",
-        filterSpecial: true,
-      },
+      // {
+      //   text: "Devices",
+      //   align: "left",
+      //   sortable: true,
+      //   value: "devices",
+      //   filterable: true,
+      //   filterName: "schedules",
+      //   filterSpecial: true,
+      // },
       {
         text: "Timezones",
         align: "left",
@@ -1193,10 +1149,11 @@ export default {
     ],
 
     deleteIds: [],
-    schedules_temp_list: [],
+    schedules_temp_list: null,
     schedules_temp_list_data: [],
     empId: "",
     branch_id: "",
+    devicesListDefault: [],
   }),
 
   computed: {
@@ -1311,6 +1268,15 @@ export default {
   },
 
   methods: {
+    getColor(id) {
+      let timezone = this.timezonesList.find((e) => e.id == id);
+
+      return timezone?.timezone_name == "Full Access"
+        ? "green"
+        : timezone?.timezone_name == "No Access"
+        ? "red"
+        : "black";
+    },
     goToCreatePage() {
       this.$router.push("/timezonemapping/new");
     },
@@ -1325,6 +1291,7 @@ export default {
         .get("device_list", options)
         .then(({ data }) => {
           this.devicesList = data;
+          this.devicesListDefault = data;
         })
         .catch((err) => console.log(err));
     },
@@ -1543,7 +1510,7 @@ export default {
       this.shifts_branch_wise = this.shifts.filter(
         (e) => e.branch_id == this.branch_id
       );
-      this.schedules_temp_list = [];
+      this.schedules_temp_list = null;
       this.addRow(0);
       this.isEdit = true;
 
@@ -1553,6 +1520,63 @@ export default {
 
       this.CustomFilterDatekey += 1;
       this.editDialog = true;
+    },
+    deviceAccess(item, type) {
+      this.schedules_temp_list = null;
+      type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
+      this.dialogEmployeeTimezones = true;
+
+      this.devicesList = this.devicesListDefault;
+      this.key++;
+
+      this.empId = item.id;
+
+      let options = {
+        company_id: this.$auth.user.company_id,
+      };
+
+      this.$axios
+        .get(`get_timezones_by_employee/${item.id}`, { params: options })
+        .then(({ data }) => {
+          type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
+          this.schedules_temp_list = data;
+
+          this.devicesList = this.devicesList.map((device) => {
+            const timezone = this.schedules_temp_list.find(
+              (tz) => tz.device_table_id === device.id
+            );
+
+            const defaultTimezone1TableId = this.timezonesList.find(
+              (e) => e.timezone_id == 1
+            );
+
+            return {
+              ...device,
+              timezone_table_id: timezone
+                ? timezone.timezone_table_id
+                : defaultTimezone1TableId
+                ? defaultTimezone1TableId.id
+                : 0,
+              device_timezone_id: timezone
+                ? timezone.timezone_id
+                : defaultTimezone1TableId
+                ? defaultTimezone1TableId.timezone_id
+                : 0,
+              timezone_id: timezone
+                ? timezone.timezone_id
+                : defaultTimezone1TableId
+                ? defaultTimezone1TableId.timezone_id
+                : 0,
+              timezone_name: timezone
+                ? timezone.timezone_name
+                : defaultTimezone1TableId
+                ? defaultTimezone1TableId.timezone_name
+                : 0,
+            };
+          });
+
+          this.loading_dialog = false;
+        });
     },
     ScheduleItem(item, type) {
       this.key++;
@@ -1569,9 +1593,9 @@ export default {
           type == "edit" ? (this.isEdit = true) : (this.isEdit = false);
           this.schedules_temp_list = data;
 
-          if (data.length == 0) {
-            this.addRow(0);
-          }
+          // if (data.length == 0) {
+          //   this.addRow(0);
+          // }
 
           //   this.schedules_temp_list.forEach((object) => {
           //     object.branch_id = item.branch_id;
@@ -1619,6 +1643,32 @@ export default {
       m = m < 10 ? "0" + m : m;
       let y = datetime.getFullYear();
       return `${y}-${m}-${d}`;
+    },
+
+    async devicesUpdate() {
+      if (!this.empId && this.filterEmployeeIds.length == 0) {
+        alert("Atleast Select One Employee");
+        return false;
+      }
+      var continueSavedata = true;
+      this.loading_dialog = true;
+
+      let payload = {
+        employee_ids: this.empId ? [this.empId] : this.filterEmployeeIds,
+        mappings: this.devicesList,
+        company_id: this.$auth.user.company_id,
+      };
+      this.loading_dialog = true;
+      await this.process(
+        this.$axios.post(`timezones_device_employees_update`, payload)
+      );
+
+      setTimeout(() => {
+        this.loading_dialog = false;
+        this.editDialog = false;
+
+        this.dialogEmployeeTimezones = false;
+      }, 1000);
     },
 
     async update() {
@@ -2178,7 +2228,7 @@ export default {
   },
 };
 </script>
-<style scoped>
+<!-- <style scoped>
 .ele {
   animation: 2s fadeIn;
   animation-fill-mode: forwards;
@@ -2194,4 +2244,4 @@ export default {
     opacity: 1;
   }
 }
-</style>
+</style> -->

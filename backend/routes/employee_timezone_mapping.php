@@ -17,3 +17,5 @@ Route::get('/get_employeeswith_timezonename_id/{id}', [EmployeeTimezoneMappingCo
 Route::get('/employees_with_timezone_count', [TimezoneEmployeesController::class, 'employeesWithTimezoneCount']);
 Route::post('/timezones_employees_update', [TimezoneEmployeesController::class, 'timezoneEmployeesUpdate']);
 Route::get('/get_timezones_by_employee/{id}', [TimezoneEmployeesController::class, 'getTimezoneEmployeeId']);
+
+Route::post('/timezones_device_employees_update', [TimezoneEmployeesController::class, 'timezonesDeviceEmployeesUpdate']);

@@ -1192,7 +1192,8 @@ export default {
                 "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
               setTimeout(() => {
-                this.$router.push("/timezonemapping/list");
+                // this.$router.push("/timezonemapping/list");
+                this.$router.push("/timezonemapping/employees");
               }, 1000 * 3);
 
               //this.displaybutton = false;
@@ -1201,7 +1202,9 @@ export default {
               this.snackbar.message = "Timezone Details are   updated. ";
 
               setTimeout(() => {
-                this.$router.push("/timezonemapping/list");
+                // this.$router.push("/timezonemapping/list");
+
+                this.$router.push("/timezonemapping/employees");
               }, 1000 * 3);
             }
           } else {

@@ -145,14 +145,86 @@ class TimezoneEmployeesController extends Controller
         return   $model->paginate($request->per_page);
     }
 
-    public function timezoneEmployeesUpdate(Request $request)
+
+
+    public function timezonesDeviceEmployeesUpdate(Request $request)
     {
         $data = $request->all();
 
         $arr = [];
 
+        foreach ($data["employee_ids"] as $item) {
 
 
+            //reset timezone  on Device with 1 full access  
+            $previousTimezones =   TimezoneEmployees::with(["device", "employee"])
+                ->where("company_id", $request->company_id)
+                ->where("employee_table_id", $item)
+                ->get();
+
+
+            foreach ($previousTimezones as $key => $empTimezone) {
+
+                $jsonData = [
+                    'personList' => [
+                        [
+                            'userCode' => $empTimezone->employee["system_user_id"],
+                            'timeGroup' => 1, //reset to 1//full access
+                        ]
+                    ],
+                    'snList' =>  [$empTimezone->device["device_id"],]
+                ];
+
+                (new SDKController())->processSDKTimeZoneONEJSONData(null, $jsonData);
+            }
+
+            //delete Employee data  from table 
+            TimezoneEmployees::where("company_id", $request->company_id)
+                ->where("employee_table_id", $item)
+                ->delete();
+
+            $record = [];
+            foreach ($data["mappings"] as $timezone) {
+
+                $device_timezone_id = 1;
+                if (isset($timezone["device_timezone_id"])) {
+                    $device_timezone_id = $timezone["device_timezone_id"];
+                }
+
+                if ($timezone["id"] != '' && $timezone["timezone_table_id"] != '') {
+                    $value = [
+                        "device_table_id" => $timezone["id"],
+                        "company_id" => $request->company_id,
+                        "timezone_table_id" => $timezone["timezone_table_id"],
+                        "employee_table_id" => $item,
+                        "device_timezone_id" => $device_timezone_id,
+
+                    ];
+
+                    // TimezoneEmployees::where("company_id", $request->company_id)
+                    //     ->where("employee_table_id", $item)
+                    //     ->where("device_table_id", $timezone["device_table_id"])
+                    //     ->where("timezone_table_id", $timezone["timezone_table_id"])->count();
+
+                    $record[] = TimezoneEmployees::create($value);
+                }
+            }
+
+
+            return $this->response("Successfully Updated", $record, true);
+
+
+            // if (!$found) {
+            //     $arr[] = $value;
+            // }
+        }
+    }
+
+    public function timezoneEmployeesUpdate(Request $request)
+    {
+        $data = $request->all();
+
+        $arr = [];
 
         foreach ($data["employee_ids"] as $item) {
 
