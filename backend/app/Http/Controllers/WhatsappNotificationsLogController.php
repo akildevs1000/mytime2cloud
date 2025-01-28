@@ -132,6 +132,7 @@ class WhatsappNotificationsLogController extends Controller
 
     public function addMessage($company_id, $whatsapp_number, $message)
     {
+
         $company = Company::with(["contact"])->where("id", $company_id)->first();
 
         if ($whatsapp_number == '') {
@@ -185,6 +186,9 @@ class WhatsappNotificationsLogController extends Controller
     }
     public function addAttendanceMessageEmployeeIdLog($logIdsArray)
     {
+
+
+
 
         $companies = Company::pluck("id");
         foreach ($companies as $key => $company_id) {
