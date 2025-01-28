@@ -67,15 +67,28 @@ class EmployeeTimezoneMappingController extends Controller
 
                 foreach ($request->employee_id as $employee) {
 
-                    $dataTimezoneEmp = [
-                        "company_id" => $request->company_id,
-                        "timezone_table_id" => $request->timezone_table_id,
-                        "device_table_id" => $device['id'],
-                        "employee_table_id" => $employee['id'],
-                        "device_timezone_id" => $request->timezone_id
 
-                    ];
-                    $record = TimezoneEmployees::create($dataTimezoneEmp);
+                    $count = TimezoneEmployees::where("company_id", $request->company_id)
+                        ->where("company_id", $request->company_id)
+                        ->where("timezone_table_id", $request->timezone_table_id)
+                        ->where("device_table_id", $device['id'])
+                        ->where("employee_table_id", $employee['id'])
+                        ->where("device_timezone_id",  $request->timezone_id)
+
+
+
+                        ->count();
+                    if ($count == 0) {
+                        $dataTimezoneEmp = [
+                            "company_id" => $request->company_id,
+                            "timezone_table_id" => $request->timezone_table_id,
+                            "device_table_id" => $device['id'],
+                            "employee_table_id" => $employee['id'],
+                            "device_timezone_id" => $request->timezone_id
+
+                        ];
+                        $record = TimezoneEmployees::create($dataTimezoneEmp);
+                    }
                 }
             }
             $record = EmployeeTimezoneMapping::create($payload);

@@ -1050,6 +1050,10 @@ export default {
       let jsrightEmployees = this.rightEmployees;
 
       let SDKSuccessStatus = true;
+
+      this.snackbar.show = true;
+      this.snackbar.message =
+        "Timezone details are uploading to Devices. Please wait...";
       this.$axios
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
