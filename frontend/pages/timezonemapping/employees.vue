@@ -910,7 +910,7 @@
                       Add
                     </v-list-item-title>
                   </v-list-item> -->
-              <v-list-item
+              <!-- <v-list-item
                 v-if="can(`employee_schedule_edit`)"
                 @click="ScheduleItem(item, 'edit')"
               >
@@ -918,14 +918,14 @@
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
-              </v-list-item>
+              </v-list-item> -->
               <v-list-item
                 v-if="can(`employee_schedule_edit`)"
                 @click="deviceAccess(item, 'edit')"
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
-                  Devices
+                  Devices Access
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
@@ -2154,18 +2154,21 @@ export default {
     },
 
     async deleteItem(item) {
-      this.loading_dialog = true;
-      let payload = {
-        employee_ids: this.empId ? [this.empId] : this.filterEmployeeIds,
+      if (confirm("Are you want to Delete and Reset Full Access To Devices?")) {
+        this.empId = item.id;
+        this.loading_dialog = true;
+        let payload = {
+          employee_ids: this.empId ? [this.empId] : this.filterEmployeeIds,
 
-        mappings: [],
-        company_id: this.$auth.user.company_id,
-      };
+          mappings: [],
+          company_id: this.$auth.user.company_id,
+        };
 
-      await this.process(
-        this.$axios.post(`timezones_employees_update`, payload)
-      );
-      this.loading_dialog = false;
+        await this.process(
+          this.$axios.post(`timezones_employees_update`, payload)
+        );
+        this.loading_dialog = false;
+      }
     },
 
     save() {

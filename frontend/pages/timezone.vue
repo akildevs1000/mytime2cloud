@@ -774,7 +774,6 @@ export default {
       let intervals_raw_data = JSON.parse(item.intervals_raw_data);
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
@@ -794,7 +793,6 @@ export default {
       if (!intervals_raw_data) return;
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });

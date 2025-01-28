@@ -1460,7 +1460,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
-      console.log("this.rightDevices", this.rightDevices);
+
       this.verifySubmitButton();
     },
   },

@@ -269,10 +269,10 @@ class TimezoneEmployeesController extends Controller
 
                     ];
 
-                    TimezoneEmployees::where("company_id", $request->company_id)
-                        ->where("employee_table_id", $item)
-                        ->where("device_table_id", $timezone["device_table_id"])
-                        ->where("timezone_table_id", $timezone["timezone_table_id"])->count();
+                    // TimezoneEmployees::where("company_id", $request->company_id)
+                    //     ->where("employee_table_id", $item)
+                    //     ->where("device_table_id", $timezone["device_table_id"])
+                    //     ->where("timezone_table_id", $timezone["timezone_table_id"])->count();
 
                     $record[] = TimezoneEmployees::create($value);
                 }
