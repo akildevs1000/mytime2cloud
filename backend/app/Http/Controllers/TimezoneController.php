@@ -232,7 +232,7 @@ class TimezoneController extends Controller
         for ($i = 1; $i < count($intervals); $i++) {
             if ($current['end'] === $intervals[$i]['begin']) {
                 // Extend the current interval
-                $current['end'] = $intervals[$i]['end'];
+                $current['end'] = $intervals[$i]['end'] == '00:00' ? "23:59" : $intervals[$i]['end'];
             } else {
                 // Save the current interval and start a new one
                 $merged[] = $current;
