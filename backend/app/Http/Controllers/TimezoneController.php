@@ -237,6 +237,9 @@ class TimezoneController extends Controller
                 // Save the current interval and start a new one
                 $merged[] = $current;
                 $current = $intervals[$i];
+
+                if ($current['end'] == '00:00')
+                    $current['end'] =  "23:59";
             }
         }
 
