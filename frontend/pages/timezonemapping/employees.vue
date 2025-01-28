@@ -875,7 +875,7 @@
             "
             title=" Timezones Mapped"
           >
-            {{ item.timezones_mapped[0].timezone?.timezone_name ?? "---" }}
+            {{ item.timezones_mapped[0]?.timezone?.timezone_name ?? "---" }}
           </div>
           <div v-else title="Total Timezones Mapped">Default Full Access</div>
         </template>
@@ -1229,42 +1229,44 @@ export default {
     },
   },
   created() {
-    const today = new Date();
+    try {
+      const today = new Date();
 
-    this.date_from = today.toISOString().slice(0, 10);
-    this.date_to = today.toISOString().slice(0, 10);
-    if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
-      let branch_header = [
-        {
-          text: "Branch",
-          align: "left",
-          sortable: true,
-          value: "branch_id",
-          filterable: true,
-          filterName: "branch_id",
-          filterSpecial: true,
+      this.date_from = today.toISOString().slice(0, 10);
+      this.date_to = today.toISOString().slice(0, 10);
+      if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
+        let branch_header = [
+          {
+            text: "Branch",
+            align: "left",
+            sortable: true,
+            value: "branch_id",
+            filterable: true,
+            filterName: "branch_id",
+            filterSpecial: true,
+          },
+        ];
+        this.headers_table.splice(2, 0, ...branch_header);
+      }
+      this.loading = true;
+      this.loading_dialog = true;
+      this.getShifts();
+      this.getDataFromApi();
+      this.options = {
+        params: {
+          per_page: 20,
+          company_id: this.$auth.user.company_id,
         },
-      ];
-      this.headers_table.splice(2, 0, ...branch_header);
-    }
-    this.loading = true;
-    this.loading_dialog = true;
-    this.getShifts();
-    this.getDataFromApi();
-    this.options = {
-      params: {
-        per_page: 20,
-        company_id: this.$auth.user.company_id,
-      },
-    };
+      };
 
-    // this.getShiftsForFilter();
-    // this.getbranchesList();
+      // this.getShiftsForFilter();
+      // this.getbranchesList();
 
-    // this.filterDepartmentsByBranch();
+      // this.filterDepartmentsByBranch();
 
-    this.getTimezoneList();
-    this.getDevicesList();
+      this.getTimezoneList();
+      this.getDevicesList();
+    } catch (e) {}
   },
 
   methods: {
