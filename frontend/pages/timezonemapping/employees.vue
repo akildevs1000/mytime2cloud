@@ -875,9 +875,9 @@
             "
             title=" Timezones Mapped"
           >
-            {{ item.timezones_mapped[0].timezone.timezone_name }}
+            {{ item.timezones_mapped[0].timezone?.timezone_name ?? "---" }}
           </div>
-          <div v-else title="Total Timezones Mapped">---</div>
+          <div v-else title="Total Timezones Mapped">Default Full Access</div>
         </template>
 
         <!-- <template v-slot:item.isOverTime="{ item }">
