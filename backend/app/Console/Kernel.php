@@ -117,8 +117,6 @@ class Kernel extends ConsoleKernel
                 ->everyFiveMinutes()
                 ->runInBackground();
 
-
-
             $schedule
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
@@ -126,6 +124,11 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("alert:access_control {$companyId}")
+                ->everyMinute()
+                ->runInBackground();
+
+            $schedule
+                ->command("alert:attendance {$companyId}")
                 ->everyMinute()
                 ->runInBackground();
 
