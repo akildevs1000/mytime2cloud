@@ -8,11 +8,9 @@
         <h4>Today Attendance</h4>
         <!-- {{ data }} -->
       </v-col>
-      <v-col md="2" sm="2" xs="2" class="text-end"
-        ><v-icon color="green" @click="sendToWhatsapp()"
-          >mdi-whatsapp</v-icon
-        ></v-col
-      >
+      <v-col md="2" sm="2" xs="2" class="text-end">
+        <!-- <v-icon color="green" @click="sendToWhatsapp()">mdi-whatsapp</v-icon> -->
+      </v-col>
       <v-col md="2" sm="2" xs="2" class="text-end">
         <v-menu bottom left>
           <template v-slot:activator="{ on, attrs }">

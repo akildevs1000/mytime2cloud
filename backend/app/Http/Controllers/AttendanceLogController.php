@@ -135,8 +135,8 @@ class AttendanceLogController extends Controller
 
                         $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
 
-                        (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
-                        (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
+                        // (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
+                        // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
                     }
                 }

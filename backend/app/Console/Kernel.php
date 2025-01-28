@@ -174,14 +174,14 @@ class Kernel extends ConsoleKernel
 
 
             // /*------------------------ */
-            $schedule->call(function () use ($companyId) {
-                $requestArray = array(
-                    'company_id' => $companyId,
-                );
-                $renderRequest = Request::create('/testing', 'get', $requestArray);
+            // $schedule->call(function () use ($companyId) {
+            //     $requestArray = array(
+            //         'company_id' => $companyId,
+            //     );
+            //     $renderRequest = Request::create('/testing', 'get', $requestArray);
 
-                return (new ThemeController)->whatsappTodayStats($renderRequest);
-            })->everySixHours();
+            //     return (new ThemeController)->whatsappTodayStats($renderRequest);
+            // })->everySixHours();
         }
 
         $schedule

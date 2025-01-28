@@ -484,10 +484,10 @@ class CompanyController extends Controller
                     "gps_location" => $arr["device"]["location"],
                     //"log_type" => $arr["device"]["function"]
                 ]);
-                try {
-                    (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeIdLog($logs);
-                } catch (\Throwable $th) {
-                }
+                // try {
+                //     (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeIdLog($logs);
+                // } catch (\Throwable $th) {
+                // }
             } catch (\Throwable $th) {
 
 

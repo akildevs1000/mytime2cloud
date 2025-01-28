@@ -305,7 +305,18 @@
         </div>
 
         <v-spacer></v-spacer>
-
+        <span class="pr-5">
+          <v-btn
+            v-if="!defaultTimezoneList || defaultTimezoneList.length < 2"
+            x-small
+            title="Create Default Full Access and No Access Timezones"
+            @click="createDefaultTimezones()"
+            primary
+            class="button primary"
+          >
+            <span>Create Default Timezones</span>
+          </v-btn>
+        </span>
         <span>
           <v-btn
             x-small
@@ -317,7 +328,7 @@
             <v-icon small> mdi-sync-circle</v-icon>
 
             <span v-if="data.length > 0">Update Timezones to All Devices</span>
-            <span v-else style="color: black">Reset Timezones</span>
+            <span v-else>Reset Timezones On Device</span>
           </v-btn>
         </span>
         <span>
@@ -384,14 +395,17 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="can(`timezone_edit`)" @click="editItem(item)">
+              <v-list-item
+                v-if="can(`timezone_edit`) && item.is_default == false"
+                @click="editItem(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="can(`timezone_delete`)"
+                v-if="can(`timezone_delete`) && item.is_default == false"
                 @click="deleteItem(item)"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -561,6 +575,7 @@ export default {
     branchesList: [],
     branch_id: "",
     isCompany: true,
+    defaultTimezoneList: null,
   }),
 
   computed: {},
@@ -759,7 +774,6 @@ export default {
       let intervals_raw_data = JSON.parse(item.intervals_raw_data);
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
@@ -779,7 +793,6 @@ export default {
       if (!intervals_raw_data) return;
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
@@ -826,6 +839,17 @@ export default {
         let res = str.toString();
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
+    },
+
+    async createDefaultTimezones() {
+      let param = { company_id: this.$auth.user.company_id };
+      let endpoint = "create_default_timezones";
+      const { data } = await this.$axios.post(endpoint, param);
+
+      // if (data) {
+      //   this.snackbar = true;
+      //   this.response = data.message;
+      // }
     },
     async openDeviceDialog() {
       if (
@@ -938,6 +962,11 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
+
+        this.defaultTimezoneList = this.data.find(
+          (e) =>
+            e.timezone_name == "No Access" || e.timezone_name == "Full Access"
+        );
       });
     },
     searchIt() {

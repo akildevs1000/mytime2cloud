@@ -1372,6 +1372,16 @@ header i {
 .dropdownautocomplete .v-input__icon {
   height: 20px !important;
 }
+
+.dropdownautocomplete .v-input__slot {
+  min-height: 33px !important;
+}
+.dropdownautocomplete .v-label {
+  line-height: 15px !important;
+}
+.dropdownautocomplete .v-input__icon {
+  height: 20px !important;
+}
 /* For most modern browsers */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
@@ -2027,6 +2037,32 @@ button {
   .logo-image {
     width: 100px !important;
   }
+}
+</style>
+
+<style>
+.green-background .v-input__control {
+  background-color: green !important; /* Green background for ID 1 */
+}
+
+.red-background .v-input__control {
+  background-color: red !important; /* Red background for ID 2 */
+}
+
+.default-background .v-input__control {
+  background-color: #f5f5f5 !important; /* Default color for others */
+}
+
+.green-text .v-input__control {
+  color: green !important; /* Green font color for ID 1 */
+}
+
+.red-text .v-input__control {
+  color: red !important; /* Red font color for ID 2 */
+}
+
+.default-text .v-input__control {
+  color: black !important; /* Default font color for others */
 }
 </style>
 

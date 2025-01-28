@@ -73,7 +73,7 @@
         </v-col> -->
 
         <v-col>
-          <div class="text-right">
+          <!-- <div class="text-right">
             <v-btn
               small
               color="primary"
@@ -85,7 +85,7 @@
               >
               View List</v-btn
             >
-          </div>
+          </div> -->
         </v-col>
       </v-row>
       <!-- <div>
@@ -183,7 +183,7 @@
                     {{ user.employee_id }}
                   </v-col>
                   <v-col md="3" style="padding: 0px">
-                    <span
+                    <!-- <span
                       style="color: green; font-size: 12px"
                       v-if="
                         user.timezone &&
@@ -192,7 +192,7 @@
                       "
                     >
                     </span>
-                    <span
+                     <span
                       style="color: green; font-size: 12px"
                       v-if="
                         user.timezone &&
@@ -202,7 +202,7 @@
                     >
                       Time:
                       {{ user.timezone.timezone_name + " Assigned" }}
-                    </span>
+                    </span> -->
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -1050,6 +1050,10 @@ export default {
       let jsrightEmployees = this.rightEmployees;
 
       let SDKSuccessStatus = true;
+
+      this.snackbar.show = true;
+      this.snackbar.message =
+        "Timezone details are uploading to Devices. Please wait...";
       this.$axios
         .post(`${this.endpointUpdatetimezoneStore}`, options)
         .then(({ data }) => {
@@ -1124,8 +1128,9 @@ export default {
             });
 
             setTimeout(() => {
-              this.$router.push("/timezonemapping/list");
-            }, 1000 * 2);
+              //  this.$router.push("/timezonemapping/list");
+              this.$router.push("/timezonemapping/employees");
+            }, 1000 * 1);
             // $.each(this.rightDevices, function (index, rightDevicesobj) {
             //   let SdkResponseDeviceobject = data.record.SDKResponse.data.find(
             //     (e) => e.sn == rightDevicesobj.device_id
@@ -1191,7 +1196,8 @@ export default {
                 "Device/Employee Error:   Device and Employee details are Mapped. You can add/remove items from Edit list ";
 
               setTimeout(() => {
-                this.$router.push("/timezonemapping/list");
+                // this.$router.push("/timezonemapping/list");
+                this.$router.push("/timezonemapping/employees");
               }, 1000 * 3);
 
               //this.displaybutton = false;
@@ -1200,7 +1206,9 @@ export default {
               this.snackbar.message = "Timezone Details are   updated. ";
 
               setTimeout(() => {
-                this.$router.push("/timezonemapping/list");
+                // this.$router.push("/timezonemapping/list");
+
+                this.$router.push("/timezonemapping/employees");
               }, 1000 * 3);
             }
           } else {
@@ -1452,7 +1460,7 @@ export default {
       for (let i = 0; i < _leftSelectedDevices_length; i++) {
         this.leftSelectedDevices.pop(this.leftSelectedDevices[i]);
       }
-      console.log("this.rightDevices", this.rightDevices);
+
       this.verifySubmitButton();
     },
   },
