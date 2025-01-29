@@ -180,7 +180,7 @@ class TimezoneEmployeesController extends Controller
 
 
             $employee  = Employee::where("company_id", $request->company_id)
-                ->where("employee_table_id", $item)->first();
+                ->where("id", $item)->first();
 
             //delete Employee data  from table 
             TimezoneEmployees::where("company_id", $request->company_id)
