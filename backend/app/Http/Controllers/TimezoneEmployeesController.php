@@ -214,7 +214,7 @@ class TimezoneEmployeesController extends Controller
                     $jsonData = [
                         'personList' => [
                             [
-                                'name' => $employee["first_name"],
+                                'name' => $employee["display_name"],
                                 'userCode' => $employee["system_user_id"],
                                 'timeGroup' => $device_timezone_id
                             ]
@@ -261,7 +261,7 @@ class TimezoneEmployeesController extends Controller
                 $jsonData = [
                     'personList' => [
                         [
-                            'name' => $empTimezone->employee["first_name"],
+                            'name' => $empTimezone->employee["display_name"],
 
                             'userCode' => $empTimezone->employee["system_user_id"],
                             'timeGroup' => 1, //reset to 1//full access
