@@ -224,7 +224,7 @@
             </template>
 
             <template v-slot:item.door="{ item, index }">
-              {{ item.device.short_name }}
+              {{ item.device.name }}
             </template>
 
             <template v-slot:item.user="{ item }" style="padding: 0px">
@@ -357,7 +357,7 @@ export default {
       //   width: "300px",
       // },
       {
-        text: "Door",
+        text: "Devcie",
         align: "left",
         sortable: true,
         key: "device",
