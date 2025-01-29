@@ -56,7 +56,7 @@ class EmployeeTimezoneMappingController extends Controller
 
         //$payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
 
-        $payload["timezone_id"] = $request->timezone_table_id;
+        $payload["timezone_id"] = $request->timezone_id;
 
 
 
