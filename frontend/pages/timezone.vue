@@ -333,7 +333,7 @@
           >
             <v-icon small> mdi-sync-circle</v-icon>
 
-            <span v-if="data.length > 0">Update Timezones to All Devices</span>
+            <span v-if="data.length > 0">Sync Timezones to All Devices</span>
             <span v-else>Reset Timezones On Device</span>
           </v-btn>
         </span>
@@ -1088,7 +1088,6 @@ export default {
 
           this.response =
             "Click  Sync Button to Update Timezone Changes to Devies.";
-
           this.sdkmessage = this.response;
         })
         .catch((err) => {
