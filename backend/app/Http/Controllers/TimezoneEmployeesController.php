@@ -157,26 +157,30 @@ class TimezoneEmployeesController extends Controller
 
 
             //reset timezone  on Device with 1 full access  
-            $previousTimezones =   TimezoneEmployees::with(["device", "employee"])
-                ->where("company_id", $request->company_id)
-                ->where("employee_table_id", $item)
-                ->get();
+            // $previousTimezones =   TimezoneEmployees::with(["device", "employee"])
+            //     ->where("company_id", $request->company_id)
+            //     ->where("employee_table_id", $item)
+            //     ->get();
 
 
-            foreach ($previousTimezones as $key => $empTimezone) {
+            // foreach ($previousTimezones as $key => $empTimezone) {
 
-                $jsonData = [
-                    'personList' => [
-                        [
-                            'userCode' => $empTimezone->employee["system_user_id"],
-                            'timeGroup' => 1, //reset to 1//full access
-                        ]
-                    ],
-                    'snList' =>  [$empTimezone->device["device_id"],]
-                ];
+            //     $jsonData = [
+            //         'personList' => [
+            //             [
+            //                 'userCode' => $empTimezone->employee["system_user_id"],
+            //                 'timeGroup' => 1, //reset to 1//full access
+            //             ]
+            //         ],
+            //         'snList' =>  [$empTimezone->device["device_id"],]
+            //     ];
 
-                (new SDKController())->processSDKTimeZoneONEJSONData(null, $jsonData);
-            }
+            //     (new SDKController())->processSDKTimeZoneONEJSONData(null, $jsonData);
+            // }
+
+
+            $employee  = Employee::where("company_id", $request->company_id)
+                ->where("employee_table_id", $item)->first();
 
             //delete Employee data  from table 
             TimezoneEmployees::where("company_id", $request->company_id)
@@ -201,14 +205,24 @@ class TimezoneEmployeesController extends Controller
 
                     ];
 
-                    // TimezoneEmployees::where("company_id", $request->company_id)
-                    //     ->where("employee_table_id", $item)
-                    //     ->where("device_table_id", $timezone["device_table_id"])
-                    //     ->where("timezone_table_id", $timezone["timezone_table_id"])->count();
-
                     $record[] = TimezoneEmployees::create($value);
+
+                    $jsonData = [
+                        'personList' => [
+                            [
+                                'name' => $employee["first_name"],
+                                'userCode' => $employee["system_user_id"],
+                                'timeGroup' => $device_timezone_id
+                            ]
+                        ],
+                        'snList' =>  [$timezone["serial_number"]]
+                    ];
+
+                    (new SDKController())->processSDKTimeZoneONEJSONData(null, $jsonData);
                 }
             }
+
+
 
 
             return $this->response("Successfully Updated", $record, true);
@@ -229,6 +243,8 @@ class TimezoneEmployeesController extends Controller
         foreach ($data["employee_ids"] as $item) {
 
 
+
+
             //reset timezone  on Device with 1 full access  
             $previousTimezones =   TimezoneEmployees::with(["device", "employee"])
                 ->where("company_id", $request->company_id)
@@ -241,6 +257,8 @@ class TimezoneEmployeesController extends Controller
                 $jsonData = [
                     'personList' => [
                         [
+                            'name' => $empTimezone->employee["first_name"],
+
                             'userCode' => $empTimezone->employee["system_user_id"],
                             'timeGroup' => 1, //reset to 1//full access
                         ]

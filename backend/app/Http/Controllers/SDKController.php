@@ -66,8 +66,9 @@ class SDKController extends Controller
         (new TimezoneController)->storeTimezoneDefaultJson();
 
 
-        $timezones = Timezone::where('company_id', $request->company_id)
+        $timezones = Timezone::where('company_id', $request->company_id)->where('timezone_id', "!=", 1)
             ->select('timezone_id', 'json')
+
             ->get();
 
 
@@ -848,7 +849,9 @@ class SDKController extends Controller
             ->where("model_number", "!=", "Manual")
             ->where("model_number",  'not like', "%Mobile%")
             ->where("name",  'not like', "%Manual%")
-            ->where("name",  'not like', "%manual%")->get();
+            ->where("name",  'not like', "%manual%")
+            ->where("model_number",   "!=", "OX-900")
+            ->get();
     }
 
     public function handleCommand($id, $command)

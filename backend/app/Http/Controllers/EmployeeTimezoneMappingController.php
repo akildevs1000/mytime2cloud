@@ -249,6 +249,7 @@ class EmployeeTimezoneMappingController extends Controller
             $jsonData = [
                 'personList' => [
                     [
+                        'name' => $empTimezone->employee["first_name"],
                         'userCode' => $empTimezone->employee["system_user_id"],
                         'timeGroup' => 1, //reset to 1//full access
                     ]
