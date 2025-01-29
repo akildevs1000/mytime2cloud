@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Timezone;
 use App\Models\TimezoneEmployees;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -194,6 +195,9 @@ class TimezoneEmployeesController extends Controller
                 if (isset($timezone["device_timezone_id"])) {
                     $device_timezone_id = $timezone["device_timezone_id"];
                 }
+
+
+
 
                 if ($timezone["id"] != '' && $timezone["timezone_table_id"] != '') {
                     $value = [

@@ -63,7 +63,7 @@
                 dense
                 v-model="item.id"
                 x-small
-                :items="devicesList"
+                :items="devicesListDefault"
                 item-value="id"
                 item-text="name"
                 class="dropdownautocomplete"
@@ -1654,6 +1654,15 @@ export default {
       }
       var continueSavedata = true;
       this.loading_dialog = true;
+
+      this.devicesList.forEach((element) => {
+        let shiftsSelected = this.timezonesList.filter(
+          (e) => e.id == element.timezone_table_id
+        );
+
+        if (shiftsSelected[0])
+          element.device_timezone_id = shiftsSelected[0].timezone_id;
+      });
 
       let payload = {
         employee_ids: this.empId ? [this.empId] : this.filterEmployeeIds,

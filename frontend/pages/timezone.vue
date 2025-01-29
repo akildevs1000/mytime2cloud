@@ -545,7 +545,7 @@ export default {
         value: "description",
       },
       {
-        text: " Timezone Id on Device",
+        text: "Timezone #Id on Device",
         align: "left",
         sortable: true,
         key: "device_timezone_id",
