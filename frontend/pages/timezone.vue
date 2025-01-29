@@ -293,8 +293,8 @@
             >
           </v-btn>
         </span>
-        <div v-if="isCompany" style="width: 250px">
-          <v-select
+        <div v-if="isCompany" style="width: 500px">
+          <!-- <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
             v-model="branch_id"
@@ -305,7 +305,9 @@
             item-value="id"
             item-text="branch_name"
           >
-          </v-select>
+          </v-select> -->
+
+          <div style="color: green">{{ sdkmessage }}</div>
         </div>
 
         <v-spacer></v-spacer>
@@ -441,6 +443,7 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
+    sdkmessage: "",
     keydialog: 1,
     keydialogManualInput: 1,
     key: 1,
@@ -891,6 +894,8 @@ export default {
           let endpoint = "getDevicesCountForTimezone";
           const { data } = await this.$axios.post(endpoint, this.editedItem);
           this.processTimeZone(data);
+
+          this.sdkmessage = "";
         } catch (error) {}
       }
     },
@@ -1037,6 +1042,8 @@ export default {
 
       this.editedItem.input_time_slots = this.timeSlots;
 
+      this.snackbar = true;
+
       return this.editedIndex === -1 ? this.store() : this.update();
     },
     store() {
@@ -1054,6 +1061,11 @@ export default {
 
           setTimeout(() => {
             this.dialog = false;
+
+            this.response =
+              "Click and Submit Sync Button to Update Timezone Changes to Devies.";
+
+            this.sdkmessage = this.response;
           }, 1000 * 2);
         })
         .catch((err) => {});
@@ -1069,8 +1081,15 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
-          this.dialog = false;
+
           this.getDataFromApi();
+
+          this.dialog = false;
+
+          this.response =
+            "Click and Submit Sync Button to Update Timezone Changes to Devies.";
+
+          this.sdkmessage = this.response;
         })
         .catch((err) => {
           console.log(err.message);

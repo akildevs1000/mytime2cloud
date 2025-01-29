@@ -291,7 +291,8 @@ class TimezoneController extends Controller
         for ($i = 0; $i <= 7; $i++) {
 
             if (!isset($arr[$i]))
-                $arr[$i] = $arr[$i - 1];
+                if (isset($arr[$i - 1]))
+                    $arr[$i] = $arr[$i - 1];
         }
 
 
