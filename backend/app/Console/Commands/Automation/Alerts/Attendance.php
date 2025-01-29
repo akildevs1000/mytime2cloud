@@ -87,7 +87,7 @@ class Attendance extends Command
                 $name = $employee->title . ". " . ucfirst($employee->first_name) . " " . ucfirst($employee->last_name);
 
                 $whatsapp_number = $employee->whatsapp_number;
-                $whatsapp_number = "971554501483";
+                // $whatsapp_number = "971554501483";
 
                 // Check if the WhatsApp number is valid and contains the country code
                 if (empty($whatsapp_number) && !preg_match('/^\d{11,15}$/', $whatsapp_number)) {
