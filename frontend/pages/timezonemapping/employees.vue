@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`employee_schedule_access`)">
+  <div>
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -146,187 +146,8 @@
             </v-col>
           </v-row>
 
-          <!-- <v-row>
-            <v-col md="3" v-if="!empId">
-              <v-select
-                label="Branch"
-                @change="filterDepartmentsByBranch()"
-                cols="1"
-                :hide-details="true"
-                item-value="id"
-                item-text="branch_name"
-                v-model="filterPopupBranchId"
-                outlined
-                dense
-                clearable
-                :items="branchesList"
-              ></v-select>
-            </v-col>
-
-            <v-col md="3" v-if="!empId">
-              <v-autocomplete
-                label="Departments"
-                height="40px"
-                class="announcement-dropdown1"
-                outlined
-                dense
-                @change="employeesByDepartment"
-                v-model="filterDepartmentIds"
-                :items="departments"
-                multiple
-                item-text="name"
-                item-value="id"
-                placeholder="Departments"
-              >
-                <template v-if="departments.length" #prepend-item>
-                  <v-list-item @click="toggleDepartmentSelection">
-                    <v-list-item-action>
-                      <v-checkbox
-                        @click="toggleDepartmentSelection"
-                        v-model="selectAllDepartment"
-                        :indeterminate="isIndeterminateDepartment"
-                        :true-value="true"
-                        :false-value="false"
-                      ></v-checkbox>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{
-                          selectAllDepartment ? "Unselect All" : "Select All"
-                        }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item, index }">
-                  <span v-if="index === 0 && filterDepartmentIds.length == 1">{{
-                    item.name
-                  }}</span>
-                  <span
-                    v-else-if="
-                      index === 1 &&
-                      filterDepartmentIds.length == departments.length
-                    "
-                    class=" "
-                  >
-                    All Selected
-                  </span>
-                  <span v-else-if="index === 1" class=" ">
-                    {{ filterDepartmentIds.length }} Seleted
-                     
-                  </span>
-                </template>
-              </v-autocomplete>
-            </v-col>
-            <v-col md="3" v-if="!empId">
-              <v-select
-                label="All Employees"
-                @change="getEmployeesByScheduleFilter()"
-                cols="1"
-                :hide-details="true"
-                v-model="filterPopupEmployeeSchedule"
-                outlined
-                dense
-                clearable
-                item-value="id"
-                item-text="name"
-                :items="[
-                  { id: 2, name: 'All Employees' },
-                  { id: 0, name: 'Unscheduled' },
-                  { id: 1, name: 'Scheduled' },
-                ]"
-              ></v-select>
-            </v-col>
-            <v-col md="3" v-if="!empId">
-              <v-autocomplete
-                label="Employees"
-                height="40px"
-                class="announcement-dropdown1"
-                outlined
-                dense
-                v-model="filterEmployeeIds"
-                :items="employees_dialog"
-                multiple
-                item-text="name_with_user_id"
-                item-value="system_user_id"
-                placeholder="Employees"
-                :error-messages="
-                  errors && errors.employees ? errors.employees[0] : ''
-                "
-                color="background"
-              >
-                <template v-if="employees_dialog.length" #prepend-item>
-                  <v-list-item @click="toggleEmployeeSelection">
-                    <v-list-item-action>
-                      <v-checkbox
-                        @click="toggleEmployeeSelection"
-                        v-model="selectAllEmployee"
-                        :indeterminate="isIndeterminateEmployee"
-                        :true-value="true"
-                        :false-value="false"
-                      ></v-checkbox>
-                    </v-list-item-action>
-                    <v-list-item-content>
-                      <v-list-item-title>
-                        {{ selectAllEmployee ? "Unselect All" : "Select All" }}
-                      </v-list-item-title>
-                    </v-list-item-content>
-                  </v-list-item>
-                </template>
-                <template v-slot:selection="{ item, index }">
-                  <span v-if="index === 0 && filterEmployeeIds.length == 1"
-                    >{{ item.first_name }} {{ item.last_name }}
-                    {{ item.schedules_count }}</span
-                  >
-                  <span
-                    v-else-if="
-                      index === 1 &&
-                      filterEmployeeIds.length == employees_dialog.length
-                    "
-                    class=" "
-                  >
-                    All Selected
-                  </span>
-                  <span v-else-if="index === 1" class=" ">
-                    {{ filterEmployeeIds.length }} Seleted
-                    
-                  </span>
-                </template>
-              </v-autocomplete>
-            </v-col>
-          </v-row> -->
-
           <v-row v-for="(item, i) in schedules_temp_list" :key="key + i">
-            <!-- <v-col md="12">
-                <v-checkbox
-                  :readonly="!isEdit"
-                  v-model="item.isAutoShift"
-                  hide-details
-                  label="Auto Shift"
-                ></v-checkbox>
-              </v-col> -->
-
-            <!-- <v-col>
-                <v-select
-                  multiple
-                  style="width: 250px"
-                  cols="1"
-                  :hide-details="true"
-                  item-value="id"
-                  item-text="branch_name"
-                  outlined
-                  dense
-                  clearable
-                  :items="[
-                    { branch_name: `All Employees`, id: `` },
-                    ...employeesList,
-                  ]"
-                ></v-select>
-              </v-col> -->
-            <!-- {{ empId ? "not empty" : "Empty" }} -->
             <v-col>
-              <!-- <div>Shift Name</div> -->
-
               <v-autocomplete
                 label="Device Name"
                 :error="errors && errors.device_table_id"
@@ -943,7 +764,6 @@
       </v-data-table>
     </v-card>
   </div>
-  <NoAccess v-else />
 </template>
 <script>
 import { extensions } from "@tiptap/vue-2";
@@ -1250,7 +1070,7 @@ export default {
       }
       this.loading = true;
       this.loading_dialog = true;
-      this.getShifts();
+      //this.getShifts();
       this.getDataFromApi();
       this.options = {
         params: {
@@ -1404,25 +1224,25 @@ export default {
         this.loading = false;
       });
     },
-    filterDepartmentsByBranch() {
-      this.selectAllDepartment = false;
+    // filterDepartmentsByBranch() {
+    //   this.selectAllDepartment = false;
 
-      // this.shifts_branch_wise = this.shifts.filter(
-      //   (e) => e.branch_id == this.filterPopupBranchId
-      // );
-      this.employeesSelected = [];
+    //   // this.shifts_branch_wise = this.shifts.filter(
+    //   //   (e) => e.branch_id == this.filterPopupBranchId
+    //   // );
+    //   this.employeesSelected = [];
 
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          branch_id:
-            this.filterPopupBranchId != "" ? this.filterPopupBranchId : null,
-        },
-      };
-      this.getDepartments(options);
+    //   let options = {
+    //     params: {
+    //       company_id: this.$auth.user.company_id,
+    //       branch_id:
+    //         this.filterPopupBranchId != "" ? this.filterPopupBranchId : null,
+    //     },
+    //   };
+    //   this.getDepartments(options);
 
-      this.getShifts();
-    },
+    //   this.getShifts();
+    // },
     // getDepartments(branch_id = null) {
     //   let options = {
     //     params: {
@@ -1766,80 +1586,80 @@ export default {
       // }
     },
 
-    runShiftTypeFunction() {
-      this.getShifts(this.shift_type_id);
-    },
+    // runShiftTypeFunction() {
+    //   this.getShifts(this.shift_type_id);
+    // },
 
     close() {
       this.dialog = false;
       this.is_edit = false;
     },
 
-    getShifts(shift_type_id) {
-      let options = {
-        params: {
-          company_id: this.$auth.user.company_id,
-          branch_id: this.filterPopupBranchId,
-        },
-      };
-      this.$axios.get("shift", options).then(({ data }) => {
-        this.shifts = data.data
-          .filter((e) => e.isAutoShift == false)
-          .map((e) => ({
-            shift_id: e.id,
-            name: e.name,
-            shift_type_id: e.shift_type_id,
-            from_date: e.from_date,
-            to_date: e.to_date,
-            branch_id: e.branch_id,
-          }));
-        let options = {
-          params: {
-            company_id: this.$auth.user.company_id,
-            branch_id: this.filterPopupBranchId,
-          },
-        };
-        this.$axios.get("shift_dropdownlist", options).then(({ data }) => {
-          this.filterShifts = data
-            .filter((e) => e.isAutoShift == false)
-            .map((e) => ({
-              shift_id: e.id,
-              name: e.name,
-              shift_type_id: e.shift_type_id,
-              from_date: e.from_date,
-              to_date: e.to_date,
-              branch_id: e.branch_id,
-            }));
+    // getShifts(shift_type_id) {
+    //   let options = {
+    //     params: {
+    //       company_id: this.$auth.user.company_id,
+    //       branch_id: this.filterPopupBranchId,
+    //     },
+    //   };
+    //   this.$axios.get("shift", options).then(({ data }) => {
+    //     this.shifts = data.data
+    //       .filter((e) => e.isAutoShift == false)
+    //       .map((e) => ({
+    //         shift_id: e.id,
+    //         name: e.name,
+    //         shift_type_id: e.shift_type_id,
+    //         from_date: e.from_date,
+    //         to_date: e.to_date,
+    //         branch_id: e.branch_id,
+    //       }));
+    //     let options = {
+    //       params: {
+    //         company_id: this.$auth.user.company_id,
+    //         branch_id: this.filterPopupBranchId,
+    //       },
+    //     };
+    //     this.$axios.get("shift_dropdownlist", options).then(({ data }) => {
+    //       this.filterShifts = data
+    //         .filter((e) => e.isAutoShift == false)
+    //         .map((e) => ({
+    //           shift_id: e.id,
+    //           name: e.name,
+    //           shift_type_id: e.shift_type_id,
+    //           from_date: e.from_date,
+    //           to_date: e.to_date,
+    //           branch_id: e.branch_id,
+    //         }));
 
-          // this.shifts = [
-          //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
-          //   ...this.shifts,
-          // ];
-          this.filterShifts = [
-            { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
-            ...this.filterShifts,
-          ];
-        });
-      });
-      // if (this.shift_type_id == 3) {
-      //   this.shift_id = 0;
-      //   this.shifts = [];
-      //   return;
-      // }
+    //       // this.shifts = [
+    //       //   { shift_id: 0, name: `Auto Shift`, shift_type_id: 3 },
+    //       //   ...this.shifts,
+    //       // ];
+    //       this.filterShifts = [
+    //         { shift_id: 0, name: `Auto Shift`, isAutoShift: true },
+    //         ...this.filterShifts,
+    //       ];
+    //     });
+    //   });
+    //   // if (this.shift_type_id == 3) {
+    //   //   this.shift_id = 0;
+    //   //   this.shifts = [];
+    //   //   return;
+    //   // }
 
-      // let options = {
-      //   params: {
-      //     shift_type_id: shift_type_id,
-      //     company_id: this.$auth.user.company_id,
-      //   },
-      // };
-      // this.$axios
-      //   .get("shift_by_type", options)
-      //   .then(({ data }) => {
-      //     this.shifts = data;
-      //   })
-      //   .catch((err) => console.log(err));
-    },
+    //   // let options = {
+    //   //   params: {
+    //   //     shift_type_id: shift_type_id,
+    //   //     company_id: this.$auth.user.company_id,
+    //   //   },
+    //   // };
+    //   // this.$axios
+    //   //   .get("shift_by_type", options)
+    //   //   .then(({ data }) => {
+    //   //     this.shifts = data;
+    //   //   })
+    //   //   .catch((err) => console.log(err));
+    // },
     // getShiftsForFilter() {
     //   let options = {
     //     params: {
