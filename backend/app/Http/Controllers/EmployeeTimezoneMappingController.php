@@ -68,6 +68,14 @@ class EmployeeTimezoneMappingController extends Controller
                 foreach ($request->employee_id as $employee) {
 
 
+                    //delete where device and employee already mapped //delete and insert new 
+                    TimezoneEmployees::where("company_id", $request->company_id)
+                        ->where("device_table_id", $device['id'])
+                        ->where("employee_table_id", $employee['id'])
+                        ->delete();
+
+
+
                     $count = TimezoneEmployees::where("company_id", $request->company_id)
                         ->where("company_id", $request->company_id)
                         ->where("timezone_table_id", $request->timezone_table_id)

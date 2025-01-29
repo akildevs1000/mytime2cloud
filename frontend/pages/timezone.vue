@@ -1087,7 +1087,7 @@ export default {
           this.dialog = false;
 
           this.response =
-            "Click and Submit Sync Button to Update Timezone Changes to Devies.";
+            "Click  Sync Button to Update Timezone Changes to Devies.";
 
           this.sdkmessage = this.response;
         })

@@ -974,59 +974,59 @@ export default {
     devicesListDefault: [],
   }),
 
-  computed: {
-    isIndeterminateDepartment() {
-      return (
-        this.filterDepartmentIds.length > 0 &&
-        this.filterDepartmentIds.length < this.departments.length
-      );
-    },
-    isIndeterminateEmployee() {
-      return (
-        this.filterEmployeeIds.length > 0 &&
-        this.filterEmployeeIds.length < this.employees_dialog.length
-      );
-    },
-  },
+  // computed: {
+  //   isIndeterminateDepartment() {
+  //     return (
+  //       this.filterDepartmentIds.length > 0 &&
+  //       this.filterDepartmentIds.length < this.departments.length
+  //     );
+  //   },
+  //   isIndeterminateEmployee() {
+  //     return (
+  //       this.filterEmployeeIds.length > 0 &&
+  //       this.filterEmployeeIds.length < this.employees_dialog.length
+  //     );
+  //   },
+  // },
 
   watch: {
-    filterDepartmentIds(value) {
-      this.filterEmployeeIds = [];
-      /////this.employeesByDepartment();
-    },
-    filterEmployeeIds(value) {
-      //this.employeesByDepartment();
-    },
+    // filterDepartmentIds(value) {
+    //   this.filterEmployeeIds = [];
+    //   /////this.employeesByDepartment();
+    // },
+    // filterEmployeeIds(value) {
+    //   //this.employeesByDepartment();
+    // },
 
-    selectAllDepartment(value) {
-      if (value) {
-        this.filterDepartmentIds = this.departments.map((e) => e.id);
-        this.employeesByDepartment();
-      } else {
-        this.filterDepartmentIds = [];
+    // selectAllDepartment(value) {
+    //   if (value) {
+    //     this.filterDepartmentIds = this.departments.map((e) => e.id);
+    //     this.employeesByDepartment();
+    //   } else {
+    //     this.filterDepartmentIds = [];
 
-        this.employeesByDepartment();
-      }
-    },
-    selectAllEmployee(value) {
-      if (value) {
-        this.filterEmployeeIds = this.employees_dialog.map(
-          (e) => e.system_user_id
-        );
-      } else {
-        this.filterEmployeeIds = [];
-      }
-    },
-    dialog(val) {
-      val || this.close();
-      this.errors = [];
-      this.search = "";
-      if (!this.is_edit) {
-        this.getDepartments(this.options);
-        this.getDataFromApiForDialog();
-      }
-      this.getShiftTypes(this.options);
-    },
+    //     this.employeesByDepartment();
+    //   }
+    // },
+    // selectAllEmployee(value) {
+    //   if (value) {
+    //     this.filterEmployeeIds = this.employees_dialog.map(
+    //       (e) => e.system_user_id
+    //     );
+    //   } else {
+    //     this.filterEmployeeIds = [];
+    //   }
+    // },
+    // dialog(val) {
+    //   val || this.close();
+    //   this.errors = [];
+    //   this.search = "";
+    //   if (!this.is_edit) {
+    //     this.getDepartments(this.options);
+    //     this.getDataFromApiForDialog();
+    //   }
+    //   this.getShiftTypes(this.options);
+    // },
     options: {
       handler() {
         this.getDataFromApi();
