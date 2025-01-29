@@ -766,8 +766,6 @@
   </div>
 </template>
 <script>
-import { extensions } from "@tiptap/vue-2";
-
 export default {
   data: () => ({
     dialogEmployeeTimezones: false,
