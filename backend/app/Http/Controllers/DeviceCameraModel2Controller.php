@@ -297,7 +297,7 @@ class DeviceCameraModel2Controller extends Controller
     {
         $card_number = "";
         if ($persons) {
-            if (isset($persons['cardData'])) {
+            if (isset($persons['cardData']) && $persons['cardData'] != 0) {
                 $card_number = $persons['cardData'];
             }
         }
