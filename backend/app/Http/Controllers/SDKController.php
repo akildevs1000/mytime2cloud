@@ -161,11 +161,15 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
-        $cameraResponse1 = "";
-        $cameraResponse2 = "";
+        $cameraResponse1 = [];
+        $cameraResponse2 = [];
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
+            if ($cameraResponse2 == '')
+                $cameraResponse2 = [];
+
+            $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
         $deviceResponse = $this->processSDKRequestJob($url, $request->all());
@@ -179,9 +183,14 @@ class SDKController extends Controller
     {
         $cameraResponse1 = "";
         $cameraResponse2 = "";
+
+        $deviceResponse = [];
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
+            if ($cameraResponse2 == '')
+                $cameraResponse2 = [];
+            $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
 
@@ -197,7 +206,7 @@ class SDKController extends Controller
             ->whereIn('serial_number',  $payload['snList'])
             ->pluck("serial_number");
 
-        $deviceResponse = [];
+
 
         foreach ($Devices as $device_id) {
             $url = env('SDK_URL') . "/$device_id/AddPerson";
@@ -428,12 +437,23 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
+
+
+                        //$responseArray = $response != '' ? json_decode($response) : '';
+                        if ($response != '') {
+                            $response = json_decode($response);
+                            // $response = $response->errors[0]?->error_code == 33 ? 'Duplicate Image' : 'Try Again.';
+                            $response = $response->errors[0]->detail;
+                        } else {
+                            $response = 200;
+                        }
+
                         $message[] =  [
                             "name" => $persons['name'],
                             "userCode" => $persons['userCode'],
                             "device_id" => $value['device_id'],
-                            'status' => $response,
-                            'sdk_response' => $response,
+                            'status' => $response == '' ? '200' : $response,
+                            'sdk_response' => ["message" => $response == '' ? '200' : $response],
                         ];
 
 

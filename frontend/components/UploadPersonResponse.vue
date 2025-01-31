@@ -47,10 +47,10 @@
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses }}</pre>
           </div>
-          <div v-if="cameraResponses2.length">
+          <!-- <div v-if="cameraResponses2.length">
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses2 }}</pre>
-          </div>
+          </div> -->
         </v-card-text>
       </v-card>
     </v-dialog>
