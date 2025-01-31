@@ -28,7 +28,9 @@
                   </td>
                   <td>
                     <v-icon
-                      v-if="item?.sdk_response?.status == 200"
+                      v-if="
+                        item?.sdk_response?.status == 200 || item?.status == 200
+                      "
                       color="green"
                       >mdi-check</v-icon
                     >
