@@ -43,10 +43,10 @@
               </tbody>
             </v-simple-table>
           </div>
-          <div v-if="cameraResponses.length">
+          <!-- <div v-if="cameraResponses.length">
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses }}</pre>
-          </div>
+          </div> -->
           <!-- <div v-if="cameraResponses2.length">
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses2 }}</pre>
