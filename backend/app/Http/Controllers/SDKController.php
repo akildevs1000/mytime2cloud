@@ -190,7 +190,7 @@ class SDKController extends Controller
         $snList = $payload['snList'];
 
 
-        $Devices = Device::where('model_number', "!=", "OX-900")
+        return    $Devices = Device::where('model_number', "!=", "OX-900")
             ->whereIn('serial_number',  $payload['snList'])
             ->pluck("serial_number");
 
