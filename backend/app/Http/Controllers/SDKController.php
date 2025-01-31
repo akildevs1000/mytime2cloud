@@ -259,7 +259,8 @@ class SDKController extends Controller
 
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "CAMERA1")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "CAMERA1")
+            ->whereIn('serial_number',  $request['snList'])->get()->all();
 
 
 
@@ -373,7 +374,13 @@ class SDKController extends Controller
 
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "OX-900")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)
+            ->where('model_number', "OX-900")
+            ->whereIn('serial_number',  $request['snList'])
+
+
+
+            ->get()->all();
 
 
 
