@@ -189,9 +189,14 @@ class SDKController extends Controller
         $personList = $payload['personList'];
         $snList = $payload['snList'];
 
+
+        $Devices = Device::where('model_number', "!=", "OX-900")
+            ->whereIn('serial_number',  $payload['snList'])
+            ->pluck("serial_number");
+
         $deviceResponse = [];
 
-        foreach ($snList as $device_id) {
+        foreach ($Devices as $device_id) {
             $url = env('SDK_URL') . "/$device_id/AddPerson";
             if (env('APP_ENV') == 'desktop') {
                 $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/AddPerson";
