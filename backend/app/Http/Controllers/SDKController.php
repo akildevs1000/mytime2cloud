@@ -185,6 +185,9 @@ class SDKController extends Controller
         } catch (\Exception $e) {
         }
 
+
+
+
         $payload = $request->all();
         $personList = $payload['personList'];
         $snList = $payload['snList'];
@@ -425,7 +428,15 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
-                        $message[] = $response;
+                        $message[] =  [
+                            "name" => $persons['name'],
+                            "userCode" => $persons['userCode'],
+                            "device_id" => $value['device_id'],
+                            'status' => $response,
+                            'sdk_response' => $response,
+                        ];
+
+
 
                         continue;;
                         try {
