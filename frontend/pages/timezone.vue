@@ -5,7 +5,11 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialogManualInput" width="300px">
+    <v-dialog
+      v-model="dialogManualInput"
+      :key="'dialogManualInput' + keydialogManualInput"
+      width="300px"
+    >
       <v-card>
         <v-card-title dense class="popup_background">
           <span>Select Hour Range</span>
@@ -49,7 +53,7 @@
       persistent
       v-model="dialog"
       style="min-width: 1500px"
-      :key="editedIndex"
+      :key="'dialog' + keydialog"
     >
       <v-card>
         <v-card-title dense class="popup_background">
@@ -179,7 +183,7 @@
                 <th></th>
                 <th
                   v-for="(slot, slotIndex) in timeSlots"
-                  :key="slot"
+                  :key="'slot' + slot"
                   class="settings-time"
                 >
                   <div :title="getSlotTitle(slot, timeSlots[slotIndex + 1])">
@@ -261,8 +265,8 @@
                 </td>
               </tr>
 
-              <tr v-if="deviceResults.length == 0">
-                <td colspan="3" class="text-center">No Data available</td>
+              <tr v-if="!loading_devicesync && deviceResults.length == 0">
+                <td colspan="3" class="text-center">-----</td>
               </tr>
             </tbody>
           </table>
@@ -289,8 +293,8 @@
             >
           </v-btn>
         </span>
-        <div v-if="isCompany" style="width: 250px">
-          <v-select
+        <div v-if="isCompany" style="width: 500px">
+          <!-- <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
             v-model="branch_id"
@@ -301,7 +305,9 @@
             item-value="id"
             item-text="branch_name"
           >
-          </v-select>
+          </v-select> -->
+
+          <div style="color: green">{{ sdkmessage }}</div>
         </div>
 
         <v-spacer></v-spacer>
@@ -327,7 +333,7 @@
           >
             <v-icon small> mdi-sync-circle</v-icon>
 
-            <span v-if="data.length > 0">Update Timezones to All Devices</span>
+            <span v-if="data.length > 0">Sync Timezones to All Devices</span>
             <span v-else>Reset Timezones On Device</span>
           </v-btn>
         </span>
@@ -437,6 +443,9 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
+    sdkmessage: "",
+    keydialog: 1,
+    keydialogManualInput: 1,
     key: 1,
     viewmode: false,
     cumulativeIndex: 1,
@@ -539,7 +548,7 @@ export default {
         value: "description",
       },
       {
-        text: " Timezone Id on Device",
+        text: "Timezone #Id on Device",
         align: "left",
         sortable: true,
         key: "device_timezone_id",
@@ -653,6 +662,7 @@ export default {
     },
     manualINputSettings(day_index) {
       this.day_index = day_index;
+      this.keydialogManualInput++;
       this.dialogManualInput = true;
     },
     generateTimeSlots(hours) {
@@ -683,19 +693,24 @@ export default {
       }
       return timeSlots;
     },
-    selectTimeRange() {
+    async selectTimeRange() {
       let timeArray = this.generateTimeSlotsRange(
         this.dialog_time_start,
         this.dialog_time_end
       );
-      timeArray.forEach((element) => {
+
+      timeArray.forEach(async (element) => {
         let columnIndex = this.timeSlots.findIndex((item) => item == element);
 
-        this.toggleCellBackground(this.day_index, columnIndex, true);
+        await this.toggleCellBackground(this.day_index, columnIndex, true);
       });
+
       this.dialogManualInput = false;
+      // setTimeout(() => {
+      //   this.dialogManualInput = false;
+      // }, 1000 * 1);
     },
-    toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
+    async toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
       const refName = `cell_${rowIndex}_${columnIndex}`;
       const printableContent = document.getElementById(refName);
 
@@ -719,6 +734,10 @@ export default {
           printableContent.classList.remove("un-selected");
         }
       }
+
+      // if (isPopup) {
+      //   this.selectedCells.add(key);
+      // }
     },
     isSelected(rowIndex, columnIndex) {
       return this.selectedCells.has(`${rowIndex}-${columnIndex}`);
@@ -752,7 +771,9 @@ export default {
     addItem() {
       this.viewmode = false;
       this.clearSelection();
+      this.keydialog++;
       this.dialog = true;
+      this.keydialog++;
       this.readOnly = false;
       this.editedIndex = -1;
       this.editedItem = this.defaultItem;
@@ -762,6 +783,8 @@ export default {
       }
     },
     viewItem(item) {
+      this.keydialog++;
+
       this.viewmode = true;
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
@@ -850,6 +873,8 @@ export default {
       //   this.snackbar = true;
       //   this.response = data.message;
       // }
+
+      this.getDataFromApi();
     },
     async openDeviceDialog() {
       if (
@@ -869,6 +894,8 @@ export default {
           let endpoint = "getDevicesCountForTimezone";
           const { data } = await this.$axios.post(endpoint, this.editedItem);
           this.processTimeZone(data);
+
+          this.sdkmessage = "";
         } catch (error) {}
       }
     },
@@ -989,7 +1016,7 @@ export default {
       if (v == 64) {
         this.days.forEach((e, i) => {
           this.editedItem.interval[e.index][`interval1`]["begin"] = "00:00";
-          this.editedItem.interval[e.index][`interval1`]["end"] = "00:00";
+          this.editedItem.interval[e.index][`interval1`]["end"] = "23:59";
         });
       }
     },
@@ -1015,6 +1042,8 @@ export default {
 
       this.editedItem.input_time_slots = this.timeSlots;
 
+      this.snackbar = true;
+
       return this.editedIndex === -1 ? this.store() : this.update();
     },
     store() {
@@ -1027,8 +1056,17 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
-          this.dialog = false;
+
           this.getDataFromApi();
+
+          setTimeout(() => {
+            this.dialog = false;
+
+            this.response =
+              "Click and Submit Sync Button to Update Timezone Changes to Devies.";
+
+            this.sdkmessage = this.response;
+          }, 1000 * 2);
         })
         .catch((err) => {});
     },
@@ -1043,8 +1081,14 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
-          this.dialog = false;
+
           this.getDataFromApi();
+
+          this.dialog = false;
+
+          this.response =
+            "Click  Sync Button to Update Timezone Changes to Devies.";
+          this.sdkmessage = this.response;
         })
         .catch((err) => {
           console.log(err.message);

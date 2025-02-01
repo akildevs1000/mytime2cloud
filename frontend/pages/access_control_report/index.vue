@@ -8,9 +8,8 @@
       <v-card-text class="py-3">
         <v-row>
           <v-col md="2" sm="2">
-            Report Type
             <v-select
-              placeholder="Report Type"
+              label="Report Type"
               class="mt-2"
               outlined
               dense
@@ -18,8 +17,8 @@
               x-small
               :items="[
                 {
-                  id: ``,
-                  name: `Select All`,
+                  id: null,
+                  name: `All`,
                 },
                 {
                   id: `Date Wise Access Control Report`,
@@ -48,9 +47,8 @@
             ></v-select>
           </v-col>
           <v-col md="2" sm="2" v-if="isCompany">
-            Branch
             <v-select
-              placeholder="Branch"
+              label="Branch"
               class="mt-2"
               outlined
               dense
@@ -63,8 +61,8 @@
             ></v-select>
           </v-col>
           <v-col md="2" sm="4">
-            Door
             <v-select
+              label="Device/Door"
               class="mt-2"
               outlined
               dense
@@ -77,9 +75,8 @@
             ></v-select>
           </v-col>
           <v-col md="2" sm="2">
-            User Type
             <v-select
-              placeholder="User Type"
+              label="User Type"
               class="mt-2"
               outlined
               dense
@@ -95,9 +92,9 @@
             ></v-select>
           </v-col>
           <v-col md="2" sm="4">
-            User ID
             <v-autocomplete
               density="comfortable"
+              label="User ID"
               class="mt-2"
               outlined
               dense
@@ -113,17 +110,16 @@
             ></v-autocomplete>
           </v-col>
           <v-col md="2" sm="5">
-            <div class="mb-2">Date</div>
             <CustomFilter
+              class="pt-3"
               @filter-attr="filterAttr"
               :defaultFilterType="1"
               :height="'45px '"
             />
           </v-col>
-          <v-col md="2" sm="2">
-            <div class="mb-2">&nbsp;</div>
+          <v-col md="12" sm="12" class="text-right" style="float: right">
             <v-btn @click="getDataFromApi()" color="primary" primary fill
-              >Generate
+              >Submit
             </v-btn>
           </v-col>
         </v-row>
@@ -204,10 +200,18 @@
               </span>
             </template>
             <template v-slot:item.in="{ item, index }">
-              {{ item.device.function !== "out" || item.device.function !== "Out" ? "In" : "---" }}
+              {{
+                item.device.function !== "out" || item.device.function !== "Out"
+                  ? "In"
+                  : "---"
+              }}
             </template>
             <template v-slot:item.out="{ item, index }">
-              {{ item.device.function == "out" || item.device.function == "Out" ? "Out" : "---" }}
+              {{
+                item.device.function == "out" || item.device.function == "Out"
+                  ? "Out"
+                  : "---"
+              }}
             </template>
             <template v-slot:item.user_type="{ item, index }">
               Employee
@@ -215,14 +219,14 @@
 
             <template v-slot:item.status="{ item, index }">
               {{ item.status }}
-              <br>
-              <small>{{item.reason ?? ""}}</small>
+              <br />
+              <small>{{ item.reason ?? "" }}</small>
             </template>
 
             <template v-slot:item.door="{ item, index }">
-              {{item.device.short_name}}
+              {{ item.device.name }}
             </template>
-            
+
             <template v-slot:item.user="{ item }" style="padding: 0px">
               <v-row no-gutters>
                 <v-col
@@ -343,18 +347,17 @@ export default {
         sortable: true,
         key: "user",
         value: "user",
-        width: "300px",
       },
+      // {
+      //   text: "Phone",
+      //   align: "left",
+      //   sortable: true,
+      //   key: "employee.phone_number",
+      //   value: "employee.phone_number",
+      //   width: "300px",
+      // },
       {
-        text: "Phone",
-        align: "left",
-        sortable: true,
-        key: "employee.phone_number",
-        value: "employee.phone_number",
-        width: "300px",
-      },
-      {
-        text: "Door",
+        text: "Devcie",
         align: "left",
         sortable: true,
         key: "device",

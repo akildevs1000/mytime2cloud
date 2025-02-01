@@ -83,7 +83,7 @@ class TimezoneController extends Controller
 
 
 
-        $data["interval"] = $this->getNewJsonIntervaldata($request);
+        $data["interval"] = $this->getNewJsonIntervaldata($request); //ok
 
         $data["scheduled_days"] = $this->processSchedule($data["scheduled_days"], false);
         $data["json"] = $this->processJson($data["timezone_id"], $data["interval"], false);
@@ -119,6 +119,8 @@ class TimezoneController extends Controller
             $newtimestamp = strtotime(date('Y-m-d ' . $open_time . ':00 ') . '+ 30 minute');
 
             $close_time = date('H:i', $newtimestamp);
+
+            if ($close_time == '00:00') $close_time = '23:59';
             // $test['interval'] = ["begin" => $open_time, "end" => $close_time];
             $inerval_array[$day]['interval' . $counter] =   ["begin" => $open_time, "end" => $close_time];
             $counter++;
@@ -216,9 +218,13 @@ class TimezoneController extends Controller
 
     function sortAndMergeIntervals($intervals)
     {
+
+
         if (empty($intervals)) {
             return [];
         }
+
+        // if (count($intervals))   return [];
 
         // Step 1: Sort intervals by `begin` time
         usort($intervals, function ($a, $b) {
@@ -232,14 +238,15 @@ class TimezoneController extends Controller
         for ($i = 1; $i < count($intervals); $i++) {
             if ($current['end'] === $intervals[$i]['begin']) {
                 // Extend the current interval
-                $current['end'] = $intervals[$i]['end'] == '00:00' ? "23:59" : $intervals[$i]['end'];
+                //$current['end'] = $intervals[$i]['end'] == '00:00' ? "23:59" : $intervals[$i]['end'];
+                $current['end'] = $intervals[$i]['end'];
             } else {
                 // Save the current interval and start a new one
                 $merged[] = $current;
                 $current = $intervals[$i];
 
-                if ($current['end'] == '00:00')
-                    $current['end'] =  "23:59";
+                // if ($current['end'] == '00:00')
+                //     $current['end'] =  "23:59";
             }
         }
 
@@ -277,21 +284,30 @@ class TimezoneController extends Controller
     {
         //48 is from frontend page desing boxes (30 minutes 24X2=48 )
 
-        $arr = [];
-
-        for ($i = 1; $i <= 48; $i++) {
-            if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
-                $arr[] = $interval['interval' . $i];
-            } else {
-                // $arr[] = ["begin" => "00:00", "end" => "23:59"];
-
-            }
-        }
+        $arr = $interval; // [];
 
         $arr = $this->sortAndMergeIntervals($arr);
 
+        for ($i = 0; $i <= 7; $i++) {
+
+            if (!isset($arr[$i]))
+                if (isset($arr[$i - 1]))
+                    $arr[$i] = $arr[$i - 1];
+        }
+
 
         return $arr;
+
+        //$arr =   [];
+        // for ($i = 1; $i <= 48; $i++) {
+        //     if (isset($interval['interval' . $i]) && count($interval['interval' . $i]) > 0 && !$isDefault) {
+        //         $arr[] = $interval['interval' . $i];
+        //     } else {
+        //         //$arr[] = ["begin" => "00:00", "end" => "23:59"];
+        //     }
+        // }
+
+
 
         // $arr = [];
 
@@ -350,7 +366,7 @@ class TimezoneController extends Controller
                     "timezone_name" => "Full Access",
                     "interval" => '[]',
                     "scheduled_days" => '[]',
-                    "json" =>  '[]',
+                    "json" =>  json_encode([]),
                     "company_id" => $request->company_id,
                     "intervals_raw_data" => json_encode($intervals_raw_data),
                     "description" => '24/7 Access to Device',

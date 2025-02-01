@@ -56,7 +56,7 @@ class EmployeeTimezoneMappingController extends Controller
 
         //$payload["timezone_id"] = $slotsCount == 336 ? 1 : $request->timezone_id;
 
-        $payload["timezone_id"] = $request->timezone_table_id;
+        $payload["timezone_id"] = $request->timezone_id;
 
 
 
@@ -66,6 +66,14 @@ class EmployeeTimezoneMappingController extends Controller
             foreach ($request->device_id as $device) {
 
                 foreach ($request->employee_id as $employee) {
+
+
+                    //delete where device and employee already mapped //delete and insert new 
+                    TimezoneEmployees::where("company_id", $request->company_id)
+                        ->where("device_table_id", $device['id'])
+                        ->where("employee_table_id", $employee['id'])
+                        ->delete();
+
 
 
                     $count = TimezoneEmployees::where("company_id", $request->company_id)
@@ -249,6 +257,7 @@ class EmployeeTimezoneMappingController extends Controller
             $jsonData = [
                 'personList' => [
                     [
+                        'name' => $empTimezone->employee["display_name"],
                         'userCode' => $empTimezone->employee["system_user_id"],
                         'timeGroup' => 1, //reset to 1//full access
                     ]

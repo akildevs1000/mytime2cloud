@@ -66,8 +66,9 @@ class SDKController extends Controller
         (new TimezoneController)->storeTimezoneDefaultJson();
 
 
-        $timezones = Timezone::where('company_id', $request->company_id)
+        $timezones = Timezone::where('company_id', $request->company_id)->where('timezone_id', "!=", 1)
             ->select('timezone_id', 'json')
+
             ->get();
 
 
@@ -160,11 +161,15 @@ class SDKController extends Controller
         if (env('APP_ENV') == 'desktop') {
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
-        $cameraResponse1 = "";
-        $cameraResponse2 = "";
+        $cameraResponse1 = [];
+        $cameraResponse2 = [];
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
+            if ($cameraResponse2 == '')
+                $cameraResponse2 = [];
+
+            $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
         $deviceResponse = $this->processSDKRequestJob($url, $request->all());
@@ -178,19 +183,32 @@ class SDKController extends Controller
     {
         $cameraResponse1 = "";
         $cameraResponse2 = "";
+
+        $deviceResponse = [];
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
             $cameraResponse2 = $this->filterCameraModel2Devices($request);
+            if ($cameraResponse2 == '')
+                $cameraResponse2 = [];
+            $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
+
+
+
 
         $payload = $request->all();
         $personList = $payload['personList'];
         $snList = $payload['snList'];
 
-        $deviceResponse = [];
 
-        foreach ($snList as $device_id) {
+        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "!=", "OX-900")
+            ->whereIn('serial_number',  $payload['snList'])
+            ->pluck("serial_number");
+
+
+
+        foreach ($Devices as $device_id) {
             $url = env('SDK_URL') . "/$device_id/AddPerson";
             if (env('APP_ENV') == 'desktop') {
                 $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/AddPerson";
@@ -253,7 +271,8 @@ class SDKController extends Controller
 
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-        $Devices = Device::where('model_number', "CAMERA1")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "CAMERA1")
+            ->whereIn('serial_number',  $request['snList'])->get()->all();
 
 
 
@@ -367,7 +386,13 @@ class SDKController extends Controller
 
         $snList = $request->snList;
         //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
-        $Devices = Device::where('model_number', "OX-900")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)
+            ->where('model_number', "OX-900")
+            ->whereIn('serial_number',  $request['snList'])
+
+
+
+            ->get()->all();
 
 
 
@@ -412,7 +437,26 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
-                        $message[] = $response;
+
+
+                        //$responseArray = $response != '' ? json_decode($response) : '';
+                        if ($response != '') {
+                            $response = json_decode($response);
+                            // $response = $response->errors[0]?->error_code == 33 ? 'Duplicate Image' : 'Try Again.';
+                            $response = $response->errors[0]->detail;
+                        } else {
+                            $response = 200;
+                        }
+
+                        $message[] =  [
+                            "name" => $persons['name'],
+                            "userCode" => $persons['userCode'],
+                            "device_id" => $value['device_id'],
+                            'status' => $response == '' ? '200' : $response,
+                            'sdk_response' => ["message" => $response == '' ? '200' : $response],
+                        ];
+
+
 
                         continue;;
                         try {
@@ -848,7 +892,9 @@ class SDKController extends Controller
             ->where("model_number", "!=", "Manual")
             ->where("model_number",  'not like', "%Mobile%")
             ->where("name",  'not like', "%Manual%")
-            ->where("name",  'not like', "%manual%")->get();
+            ->where("name",  'not like', "%manual%")
+            ->where("model_number",   "!=", "OX-900")
+            ->get();
     }
 
     public function handleCommand($id, $command)
@@ -950,3 +996,5 @@ class SDKController extends Controller
         }
     }
 }
+
+//test
