@@ -24,7 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id'];
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id','full_name'];
 
     public function schedule()
     {
@@ -199,6 +199,14 @@ class Employee extends Model
     {
         return date('d M Y', strtotime($this->joining_date));
     }
+
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
+
+
 
     public function getEditJoiningDateAttribute(): string
     {

@@ -1,5 +1,22 @@
 <template>
   <div v-if="can('employee_access')">
+    <style scoped>
+      .custom-input {
+        padding: 6px 10px;
+        height: 30px;
+        position: relative;
+        border-radius: 5px;
+        border: 1px solid grey;
+        font-size: 16px;
+        transition: border-color 0.3s ease-in-out;
+        outline: none;
+      }
+
+      .custom-input:focus {
+        border-color: purple;
+      }
+    </style>
+
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -414,67 +431,162 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="editDialog" width="1400" :key="employeeId">
-      <WidgetsClose left="1370" @click="editDialog = false" />
-      <v-card>
-        <v-tabs
-          v-model="tab"
-          class="popup_background_noviolet"
-          centered
-          icons-and-text
-          color="violet"
-        >
-          <v-tabs-slider></v-tabs-slider>
-
-          <v-tab v-for="(item, index) in tabMenu" :key="index">
-            {{ item.text }}
-            <v-icon>{{ item.icon }}</v-icon>
-          </v-tab>
-        </v-tabs>
-
-        <v-card-text>
-          <v-tabs-items v-model="tab">
-            <v-tab-item v-for="(item, index) in tabMenu" :key="index">
-              <component
-                :is="getComponent(item.value)"
-                :employeeId="employeeId"
-                @close-popup="closePopup2"
-                @eventFromChild="handleEventFromChild"
-                v-if="tab == item.value"
-                :currentItem="currentItem"
-              />
-            </v-tab-item>
-          </v-tabs-items>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
     <div v-if="!loading">
-      <div class="text-center">
-        <!-- <v-dialog v-model="viewDialog" width="1400px" :key="employeeId">
-          <EmployeeDetails2
-            @close-parent-dialog="closeViewDialog"
-            :employeeObject="employeeObject"
-          />
-        </v-dialog> -->
-        <v-dialog v-model="viewDialog" width="80%" :key="employeeId">
-          <v-card>
-            <v-card-title dense>
-              Employee Information
-              <v-spacer></v-spacer>
-              <v-icon @click="viewDialog = false" outlined dark color="black">
-                mdi mdi-close-circle
-              </v-icon>
-            </v-card-title>
-            <v-card-text>
-              <EmployeeProfileView
-                :table_id="employeeId"
-                :employee_id="employee_id"
-                :system_user_id="system_user_id"
-              />
-            </v-card-text>
-          </v-card>
-        </v-dialog>
-      </div>
+      <v-dialog
+        persistent
+        v-model="viewDialog"
+        width="1000px"
+        :key="employeeId"
+      >
+        <WidgetsClose left="990" @click="viewDialog = false" />
+
+        <v-card class="pa-3">
+          <v-row v-if="employeeObject && employeeObject.id" align="center">
+            <v-col cols="3" class="d-flex flex-column gap-3">
+              <v-card class="pa-4 text-center" flat>
+                <v-avatar size="120">
+                  <img
+                    :src="`${
+                      employeeObject?.profile_picture || '/no-profile-image.jpg'
+                    }`"
+                    alt="Profile Image"
+                  />
+                </v-avatar>
+                <v-list dense class="mt-3">
+                  <v-list-item>
+                    <v-list-item-content>
+                      <v-list-item-title class="font-weight-bold">
+                        {{ employeeObject.title }}.
+                        {{ employeeObject.full_name }}
+                      </v-list-item-title>
+                      <v-list-item-subtitle>
+                        {{ employeeObject.user.email }}
+                      </v-list-item-subtitle>
+                      <v-list-item-subtitle>
+                        Employee ID: {{ employeeObject.employee_id }}
+                      </v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+                <v-divider></v-divider>
+              </v-card>
+
+              <v-card flat>
+                <v-card-text class="mt-0 pt-0">
+                  <table style="width: 100%" dense flat class="my-simple-table">
+                    <tbody>
+                      <tr>
+                        <td style="font-size: 10px">Status</td>
+                        <td>
+                          <img
+                            :src="`/${
+                              employeeObject.status ? 'on1' : 'off1'
+                            }.png`"
+                            style="height: 15px"
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 10px">Web Access</td>
+                        <td>
+                          <img
+                            :src="`/${
+                              employeeObject.user.mobile_app_login_access
+                                ? 'on1'
+                                : 'off1'
+                            }.png`"
+                            style="height: 15px"
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 10px">Mobile Access</td>
+                        <td>
+                          <img
+                            :src="`/${
+                              employeeObject.user.web_login_access
+                                ? 'on1'
+                                : 'off1'
+                            }.png`"
+                            style="height: 15px"
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 10px">Whatsapp OTP</td>
+                        <td>
+                          <img
+                            :src="`/${
+                              employeeObject.user.enable_whatsapp_otp
+                                ? 'on1'
+                                : 'off1'
+                            }.png`"
+                            style="height: 15px"
+                          />
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="font-size: 10px">Location Tracking</td>
+                        <td>
+                          <img
+                            :src="`/${
+                              employeeObject.user.tracking_status
+                                ? 'on1'
+                                : 'off1'
+                            }.png`"
+                            style="height: 15px"
+                          />
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </v-card-text>
+              </v-card>
+            </v-col>
+
+            <v-col cols="9">
+              <div class="d-flex align-center" style="width: 100%">
+                <div style="max-width: 7%">
+                  <v-tabs
+                    vertical
+                    v-model="tab"
+                    class="popup_background_noviolet"
+                    color="violet"
+                  >
+                    <v-tab
+                      style="margin-left: -20px"
+                      dense
+                      v-for="(item, index) in viewTabMenu"
+                      :key="index"
+                      class="d-flex justify-center align-center"
+                    >
+                      <v-icon size="20">{{ item.icon }}</v-icon>
+                    </v-tab>
+                  </v-tabs>
+                </div>
+
+                <div style="min-width: 93%">
+                  <v-tabs-items v-model="tab">
+                    <v-tab-item
+                      v-for="(item, index) in viewTabMenu"
+                      :key="index"
+                    >
+                      <component
+                        :is="getViewComponents(item.value)"
+                        :employeeId="employeeId"
+                        @close-popup="closePopup2"
+                        @eventFromChild="handleEventFromChild"
+                        v-if="tab == item.value"
+                        :employeeObject="employeeObject"
+                      />
+                    </v-tab-item>
+                  </v-tabs-items>
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+        </v-card>
+      </v-dialog>
       <v-dialog persistent v-model="dialog" max-width="500px">
         <v-card>
           <v-card-title dense class="popup_background">
@@ -838,21 +950,7 @@
                     >
                       <v-list-item-title style="cursor: pointer">
                         <v-icon color="secondary" small> mdi-eye </v-icon>
-                        View
-                      </v-list-item-title>
-                    </v-list-item>
-                    <!-- <v-list-item>
-                      <v-list-item-title style="cursor: pointer">
-                        <EmployeeProfileView />
-                      </v-list-item-title>
-                    </v-list-item> -->
-                    <v-list-item
-                      v-if="can('employee_edit')"
-                      @click="editItem(item)"
-                    >
-                      <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-pencil </v-icon>
-                        Edit
+                        View/Edit
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item>
@@ -900,21 +998,6 @@
 </template>
 
 <script>
-import EmployeeEdit from "../../components/employee/EmployeeEdit.vue";
-import Contact from "../../components/employee/Contact.vue";
-import Passport from "../../components/employee/Passport.vue";
-import Emirates from "../../components/employee/Emirates.vue";
-import Visa from "../../components/employee/Visa.vue";
-import Bank from "../../components/employee/Bank.vue";
-import Document from "../../components/employee/Document.vue";
-import Qualification from "../../components/employee/Qualification.vue";
-import Setting from "../../components/employee/Setting.vue";
-import Payroll from "../../components/employee/Payroll.vue";
-import Login from "../../components/employee/Login.vue";
-import Rfid from "../../components/employee/Rfid.vue";
-
-import EmployeeProfileView from "../../components/EmployeesLogin/EmployeeLanding.vue";
-
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 import { getQrCode } from "@/utils/cardqrercode.js"; // Adjust the path as needed
@@ -932,19 +1015,6 @@ export default {
   },
   components: {
     VueCropper,
-    EmployeeProfileView,
-    EmployeeEdit,
-    Contact,
-    Passport,
-    Emirates,
-    Visa,
-    Bank,
-    Document,
-    Qualification,
-    Setting,
-    Payroll,
-    Login,
-    Rfid,
   },
 
   data: () => ({
@@ -978,8 +1048,8 @@ export default {
     cropper: "",
     autoCrop: false,
     dialogCropping: false,
-    comp: "EmployeeEdit",
-    tabMenu: [
+
+    viewTabMenu: [
       {
         text: "Profile",
         icon: "mdi-account-box",
@@ -991,54 +1061,29 @@ export default {
         value: 1,
       },
       {
-        text: "Passport",
-        icon: "mdi-file-powerpoint-outline",
-        value: 2,
-      },
-      {
         text: "Emirates",
         icon: "mdi-city-variant",
-        value: 3,
-      },
-      {
-        text: "Visa",
-        icon: "mdi-file-document-multiple",
-        value: 4,
+        value: 2,
       },
       {
         text: "Bank",
         icon: "mdi-bank",
-        value: 5,
+        value: 3,
       },
       {
         text: "Document",
         icon: "mdi-file",
-        value: 6,
+        value: 4,
       },
       {
         text: "Qualification",
-        icon: "mdi-account-box",
-        value: 7,
+        icon: "mdi-school",
+        value: 5,
       },
       {
-        text: "Setting",
-        icon: "mdi-phone",
-        value: 8,
-      },
-      {
-        text: "Payroll",
-        icon: "mdi-briefcase",
-        value: 9,
-      },
-      {
-        text: "Login",
-        icon: "mdi-lock",
-        value: 10,
-      },
-      {
-        text: "RFID",
-        icon: "mdi-lock",
-        value: 11,
+        text: "Settings",
+        icon: "mdi-cog",
+        value: 6,
       },
     ],
     tab: 0,
@@ -1355,6 +1400,7 @@ export default {
     },
     closePopup2() {
       this.editDialog = false;
+      this.viewDialog = false;
       this.getDataFromApi();
     },
     async handleChangeEvent() {
@@ -1363,20 +1409,16 @@ export default {
         endpoint: "branch-list",
       });
     },
-    getComponent(value) {
+
+    getViewComponents(value) {
       const componentsList = {
-        0: "EmployeeEdit",
-        1: "Contact",
-        2: "Passport",
-        3: "Emirates",
-        4: "Visa",
-        5: "Bank",
-        6: "Document",
-        7: "Qualification",
-        8: "Setting",
-        9: "Payroll",
-        10: "Login",
-        11: "Rfid",
+        0: "EmployeeViewProfile",
+        1: "EmployeeViewContact",
+        2: "EmployeeViewEmirates",
+        3: "EmployeeViewBank",
+        4: "EmployeeViewDocument",
+        5: "EmployeeViewQualification",
+        6: "EmployeeViewSetting",
       };
       return componentsList[value] || "div"; // default to a div if no component found
     },
@@ -1799,19 +1841,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.custom-input {
-  padding: 6px 10px;
-  height: 30px;
-  position: relative;
-  border-radius: 5px;
-  border: 1px solid grey;
-  font-size: 16px;
-  transition: border-color 0.3s ease-in-out;
-  outline: none;
-}
-
-.custom-input:focus {
-  border-color: purple;
-}
-</style>

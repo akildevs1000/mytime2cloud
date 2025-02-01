@@ -6,7 +6,7 @@
       </v-snackbar>
     </div>
     <v-container>
-      <v-row>
+      <v-row v-if="payroll">
         <v-col cols="6">
           <v-row>
             <v-col cols="5">
@@ -183,12 +183,19 @@ export default {
     getInfo() {
       this.loading = true;
 
-      this.payroll = this.currentItem.payroll || { earnings: [] };
+      // Create a local copy to avoid mutating Vuex state directly
+      this.payroll = this.currentItem.payroll
+        ? {
+            ...this.currentItem.payroll,
+            earnings: [...this.currentItem.payroll.earnings],
+          }
+        : { earnings: [] };
 
-      if (this.currentItem.payroll && this.currentItem.payroll.earnings.length == 0) {
+      if (this.payroll.earnings.length === 0) {
         this.addEarning();
       }
     },
+
     can(item) {
       return true;
     },
