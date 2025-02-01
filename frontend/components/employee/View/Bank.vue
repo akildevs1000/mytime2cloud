@@ -10,7 +10,6 @@
           <v-tabs-items v-model="tab">
             <v-tab-item>
               <v-card
-                v-if="employeeObject && employeeObject.id"
                 flat
                 class="d-flex flex-column"
               >

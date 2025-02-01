@@ -2,7 +2,6 @@
   <v-card flat>
     <v-card-text >
       <v-row
-        v-if="employeeObject && employeeObject.id"
         class="d-flex align-center"
       >
         <v-col cols="12">
@@ -443,7 +442,7 @@
 
 <script>
 export default {
-  props: ["employeeId", "employeeObject"],
+  props: ["employeeId"],
   data() {
     return {
       editForm: false,

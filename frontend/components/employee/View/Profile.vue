@@ -2,47 +2,44 @@
   <v-card flat>
     <v-card-text>
       <v-dialog v-model="dialogCropping" width="500">
-          <v-card style="padding-top: 20px">
-            <v-card-text>
-              <!-- <img :src="imageUrl" alt="Preview Image" /> -->
-              <!-- Cropping image step1 -->
-              <VueCropper
-                v-show="selectedFile"
-                ref="cropper"
-                :src="selectedFile"
-                alt="Source Image"
-                :aspectRatio="1"
-                :autoCropArea="0.9"
-                :viewMode="3"
-              ></VueCropper>
+        <v-card style="padding-top: 20px">
+          <v-card-text>
+            <!-- <img :src="imageUrl" alt="Preview Image" /> -->
+            <!-- Cropping image step1 -->
+            <VueCropper
+              v-show="selectedFile"
+              ref="cropper"
+              :src="selectedFile"
+              alt="Source Image"
+              :aspectRatio="1"
+              :autoCropArea="0.9"
+              :viewMode="3"
+            ></VueCropper>
 
-              <!-- <div class="cropper-preview"></div> -->
-            </v-card-text>
+            <!-- <div class="cropper-preview"></div> -->
+          </v-card-text>
 
-            <v-card-actions>
-              <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
-                <v-btn
-                  class="danger btn btn-danger text-left"
-                  text
-                  @click="dialogCropping = false"
-                  style="float: left"
-                  >Cancel</v-btn
-                >
-              </div>
-              <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
-                <v-btn
-                  class="primary btn btn-danger text-right"
-                  @click="saveCroppedImageStep2(), (dialog = false)"
-                  >Crop</v-btn
-                >
-              </div>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      <v-row
-        v-if="employeeObject && employeeObject.id"
-        class="d-flex align-center"
-      >
+          <v-card-actions>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 pull-left">
+              <v-btn
+                class="danger btn btn-danger text-left"
+                text
+                @click="dialogCropping = false"
+                style="float: left"
+                >Cancel</v-btn
+              >
+            </div>
+            <div col="6" md="6" class="col-sm-12 col-md-6 col-12 text-right">
+              <v-btn
+                class="primary btn btn-danger text-right"
+                @click="saveCroppedImageStep2(), (dialog = false)"
+                >Crop</v-btn
+              >
+            </div>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-row class="d-flex align-center">
         <v-col cols="4">
           <v-card class="pa-4 text-center" flat>
             <v-avatar size="120" @click="onpick_attachment">
@@ -75,13 +72,13 @@
                   <v-list-item-subtitle
                     >Position:
                     {{
-                      employeeObject?.designation?.name
+                      employeeObject?.designation?.name ?? "---"
                     }}</v-list-item-subtitle
                   >
                   <v-list-item-subtitle
                     >Reporting To:
                     {{
-                      employeeObject?.reporting_manager.first_name
+                      employeeObject?.reporting_manager.first_name ?? "---"
                     }}</v-list-item-subtitle
                   >
                 </v-list-item-content>
@@ -100,7 +97,7 @@
               <tr>
                 <td style="width: 200px">Full Name</td>
                 <td>
-                  <span v-if="!editForm">{{ employeeObject.full_name }}</span>
+                  <span v-if="!editForm">{{ employee.full_name }}</span>
                   <v-text-field
                     v-else
                     autofocus
@@ -120,9 +117,7 @@
               <tr>
                 <td style="width: 200px">Display Name</td>
                 <td>
-                  <span v-if="!editForm">{{
-                    employeeObject.display_name
-                  }}</span>
+                  <span v-if="!editForm">{{ employee.display_name }}</span>
                   <v-text-field
                     v-else
                     :readonly="!editForm"
@@ -143,7 +138,7 @@
               <tr>
                 <td style="width: 200px">First Name</td>
                 <td>
-                  <span v-if="!editForm">{{ employeeObject.first_name }}</span>
+                  <span v-if="!editForm">{{ employee.first_name }}</span>
                   <v-text-field
                     v-else
                     :readonly="!editForm"
@@ -162,7 +157,7 @@
               <tr>
                 <td style="width: 200px">Last Name</td>
                 <td>
-                  <span v-if="!editForm">{{ employeeObject.last_name }}</span>
+                  <span v-if="!editForm">{{ employee.last_name }}</span>
                   <v-text-field
                     v-else
                     :readonly="!editForm"
@@ -181,7 +176,7 @@
               <tr>
                 <td style="width: 200px">Employee Id</td>
                 <td>
-                  <span v-if="!editForm">{{ employeeObject.employee_id }}</span>
+                  <span v-if="!editForm">{{ employee.employee_id }}</span>
                   <v-text-field
                     v-else
                     :readonly="!editForm"
@@ -200,9 +195,7 @@
               <tr>
                 <td style="width: 200px">Employee Device Id</td>
                 <td>
-                  <span v-if="!editForm">{{
-                    employeeObject.system_user_id
-                  }}</span>
+                  <span v-if="!editForm">{{ employee.system_user_id }}</span>
                   <v-text-field
                     v-else
                     :readonly="!editForm"
