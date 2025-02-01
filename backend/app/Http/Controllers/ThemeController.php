@@ -88,7 +88,7 @@ class ThemeController extends Controller
             ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                 $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
             })
-            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V','LC','EG'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
             ->get();
@@ -124,7 +124,7 @@ class ThemeController extends Controller
                 ->count() ?? 0,
             'totalIn' => $countsByParity->get('odd', 0),
             'totalOut' => $countsByParity->get('even', 0),
-            "presentCount" => $model->whereIn('status', ['P', 'LC'])->count(),
+            "presentCount" => $model->whereIn('status', ['P', 'M', 'LC', 'EG'])->count(),
             "absentCount" => $model->where('status', 'A')->count(),
             "missingCount" => $model->where('status', 'M')->count(),
             "offCount" => $model->where('status', 'O')->count(),
