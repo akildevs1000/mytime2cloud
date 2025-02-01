@@ -78,7 +78,7 @@
                   <v-list-item-subtitle
                     >Reporting To:
                     {{
-                      employeeObject?.reporting_manager.first_name ?? "---"
+                      employeeObject?.reporting_manager?.first_name ?? "---"
                     }}</v-list-item-subtitle
                   >
                 </v-list-item-content>
