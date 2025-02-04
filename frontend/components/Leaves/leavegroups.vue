@@ -36,6 +36,7 @@
                   :error-messages="
                     errors && errors.branch_id ? errors.branch_id[0] : ''
                   "
+                  @change="getLeaveTypes"
                 >
                 </v-select>
               </v-col>
@@ -433,7 +434,6 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     async getLeaveTypes() {
-      console.log("this.editedItem ", this.editedItem);
       let options = {
         params: {
           per_page: 1000,
