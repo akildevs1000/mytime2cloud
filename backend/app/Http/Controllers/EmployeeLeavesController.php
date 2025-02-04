@@ -26,6 +26,12 @@ class EmployeeLeavesController extends Controller
         //     $q->where("order", ">=", $request->order);
         // });
 
+        $model->when($request->filled('department_id'), function ($q) {
+            $q->whereHas("employee.department", function ($q) {
+                $q->where("department_id", request("department_id"));
+            });
+        });
+
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where("employee_id", $request->employee_id);
         });
@@ -91,12 +97,8 @@ class EmployeeLeavesController extends Controller
         DB::beginTransaction();
 
         try {
-            // Database operations
-            $data = $request->validated();
 
-            $data["order"] = $this->getLastAdminInOrder($request->company_id);
-
-            $record = EmployeeLeaves::create($data);
+            $record = EmployeeLeaves::create($request->validated());
 
             $record->load("employee");
 
@@ -220,18 +222,25 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
 
-        $lastAdmin = User::where("company_id", $model->company_id)
-            ->where("order", "<", $request->order)
-            ->orderBy("order", "desc")
-            ->value("order") ?? 0;
-
-        if ($model->order == 0) {
+        if ($model->status == 0 && $model->order == 0) {
+            $model->order = $this->getLastAdminInOrder($request->company_id);
+        } else if ($model->status == 0 && $model->order > 0) {
+            $model->order = User::where("company_id", $request->company_id)
+                ->where("order", "<", $request->order)
+                ->orderBy("order", "desc")
+                ->value("order") ?? -1;
+            if ($model->order == 0) {
+                $model->order = -1;
+            }
+        } else if ($model->status == 0 && $model->order == -1) {
             $model->status = 1;
+            $model->order = 1;
         }
+
 
         $model->approve_reject_notes = $request->approve_reject_notes;
 
-        $model->order = $lastAdmin;
+        // return $model;
 
         $record = $model->save();
 
@@ -321,6 +330,6 @@ class EmployeeLeavesController extends Controller
         return User::where("company_id", $company_id)
             ->where("order", ">", 0)
             ->orderBy("order", "desc")
-            ->value("order");
+            ->value("order") ?? -1;
     }
 }

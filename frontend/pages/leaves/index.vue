@@ -280,10 +280,10 @@
             </v-row>
 
             <v-card-actions class="mt-4" v-if="dialogViewObject.shift_type_id">
-              <!-- <v-btn class="error" small @click="close"> Close </v-btn> -->
               <v-spacer></v-spacer>
+              {{ dialogViewObject.order }}
               <v-btn
-                :disabled="dialogViewObject.order > $auth.user.order"
+                :disabled="allowAction"
                 class="error align-right mr-5"
                 v-if="dialogViewObject.status == 0"
                 small
@@ -293,12 +293,13 @@
               </v-btn>
 
               <v-btn
-                :disabled="dialogViewObject.order > $auth.user.order"
+                :disabled="allowAction"
                 class="primary"
                 v-if="dialogViewObject.status == 0"
                 small
                 @click="approveLeave(dialogViewObject.id)"
-                >Approve</v-btn
+                >Approve {{ dialogViewObject.order }} {{ $auth.user.order }}
+                {{ dialogViewObject.status }}</v-btn
               >
             </v-card-actions>
             <v-card-actions v-else class="mt-4">
@@ -330,7 +331,8 @@
         <v-col cols="7">
           <v-row justify="end" align="center">
             <v-col>
-              <v-select class="employee-schedule-cropdown"
+              <v-select
+                class="employee-schedule-cropdown"
                 v-model="filters.branch_id"
                 :items="[
                   { branch_name: 'All Branches', id: '' },
@@ -519,7 +521,7 @@
         </template>
 
         <template v-slot:item.status="{ item }">
-          <v-chip
+          <!-- <v-chip
             v-if="item.status == 2"
             small
             class="p-2 mx-1"
@@ -529,20 +531,7 @@
             Rejected
           </v-chip>
           <v-chip
-            v-else-if="
-              item.order < $auth.user.order ||
-              (item.order == 0 && item.status == 1)
-            "
-            small
-            class="p-2 mx-1"
-            color="primary"
-            style="font-size: 13px"
-          >
-            Approved
-          </v-chip>
-
-          <v-chip
-            v-else
+          v-else-if="item.order != 1 || item.status != 1"
             small
             class="p-2 mx-1"
             color="secondary"
@@ -550,6 +539,17 @@
           >
             Pending
           </v-chip>
+          <v-chip
+            v-else-if="
+              (item.order == 0 && item.status == 1)
+            "
+            small
+            class="p-2 mx-1"
+            color="primary"
+            style="font-size: 13px"
+          >
+            Approved {{ item.order }} - {{item.status}} - {{ $auth.user.order }}
+          </v-chip> -->
         </template>
 
         <template v-slot:item.action="{ item }">
@@ -878,7 +878,30 @@ export default {
     //login_user_employee_id: "",
   }),
 
-  computed: {},
+  computed: {
+    allowAction() {
+      if (this.$auth.user.user_type == "department") {
+        return !(
+          this.dialogViewObject.department_id ==
+            this.$auth.user.department_id && this.dialogViewObject.order == 0
+        );
+      }
+
+      if (this.dialogViewObject.order > 0) {
+        return this.dialogViewObject.order > this.$auth.user.order;
+      }
+
+      if (this.dialogViewObject.order == -1) {
+        return !(
+          this.dialogViewObject.status == 0 && this.dialogViewObject.order == -1
+        );
+      }
+
+      return (
+        this.dialogViewObject.order == -1 || this.dialogViewObject.order == 0
+      );
+    },
+  },
 
   // watch: {
   //   options: {
@@ -995,6 +1018,8 @@ export default {
         : "--";
       this.dialogViewObject.approve_reject_notes = item.approve_reject_notes;
 
+      this.dialogViewObject.department_id = item.employee.department_id;
+
       this.dialogView = true;
 
       this.document_list = [];
@@ -1107,6 +1132,11 @@ export default {
         page = 1;
       }
 
+      let user = this.$auth.user;
+
+      let department_id =
+        user?.user_type == "department" ? user?.department_id : null;
+
       let options = {
         params: {
           page: page,
@@ -1114,6 +1144,7 @@ export default {
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
           ...this.filters,
+          department_id,
           company_id: this.$auth.user.company_id,
           year: endDate.getFullYear(),
           order: this.$auth.user.order,
