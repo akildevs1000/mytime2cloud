@@ -171,6 +171,14 @@
         {{ item?.employee?.department?.name }}
       </template>
 
+      <template v-slot:item.LogTime="{ item }">
+       <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
+        {{ item.LogTime }}
+       </span>
+      </template>
+
+      
+
       <template v-slot:item.device.device_name="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
           Mobile <br />

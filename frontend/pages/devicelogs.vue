@@ -386,16 +386,31 @@
               </div>
             </template>
             <template v-slot:item.LogTime="{ item }">
-              {{ item.LogTime }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+                >{{ item.LogTime }}</span
+              >
             </template>
             <template v-slot:item.option="{ item }">
-              {{ item.log_type ? item.log_type : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+              >
+                {{ item?.device?.name == "Manual" ? "Manual" : "Device" }}
+              </span>
             </template>
             <template v-slot:item.function="{ item }">
-              {{ item.device.function ? caps(item.device.function) : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+              >
+                {{ item.device.function ? caps(item.device.function) : "---" }}
+              </span>
             </template>
             <template v-slot:item.device.name="{ item }">
-              {{ item.device ? caps(item.device.name) : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+              >
+                {{ item.device ? caps(item.device.name) : "---" }}
+              </span>
             </template>
             <template v-slot:item.gps_location="{ item }">
               <!-- {{ item.gps_location || "---" }} -->
@@ -568,7 +583,7 @@ export default {
         fieldType: "date_range_picker",
       },
       {
-        text: "Option Value",
+        text: "Log Type",
         align: "left",
         sortable: false,
         key: "option",

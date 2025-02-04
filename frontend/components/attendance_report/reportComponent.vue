@@ -151,125 +151,189 @@
           </div>
         </template>
         <template v-slot:item.in="{ item }">
-          <div>{{ item.in }}</div>
-          <div class="secondary-value">
-            <div
-              v-if="
-                item.device_in &&
-                item.device_in.name &&
-                item.device_in.name != '---'
-              "
-            >
-              {{ item.device_in.name }}
+          <div
+            :class="`${item?.device_in?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in }}</div>
+            <div class="secondary-value">
+              <div
+                v-if="
+                  item.device_in &&
+                  item.device_in.name &&
+                  item.device_in.name != '---'
+                "
+              >
+                {{ item.device_in.name }}
+              </div>
+              <div v-else-if="item.device_id_in != '---'">
+                {{ item.device_id_in }}
+              </div>
+              <div v-else>---</div>
             </div>
-            <div v-else-if="item.device_id_in != '---'">
-              {{ item.device_id_in }}
-            </div>
-            <div v-else>---</div>
           </div>
         </template>
         <template v-slot:item.out="{ item }">
-          <div>{{ item.out }}</div>
-          <div class="secondary-value">
-            <div
-              v-if="
-                item.device_out &&
-                item.device_out.name &&
-                item.device_out.name != '---'
-              "
-            >
-              {{ item.device_out.name }}
-            </div>
-            <div v-else-if="item.device_id_out != '---'">
-              {{ item.device_id_out }}
-            </div>
-            <div v-else>---</div>
+          <div
+            :class="`${item?.device_out?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out }}</div>
+            <div class="secondary-value">
+              <div
+                v-if="
+                  item.device_out &&
+                  item.device_out.name &&
+                  item.device_out.name != '---'
+                "
+              >
+                {{ item.device_out.name }}
+              </div>
+              <div v-else-if="item.device_id_out != '---'">
+                {{ item.device_id_out }}
+              </div>
+              <div v-else>---</div>
 
-            <!-- {{ item.device_id_out == "Manual" ? "Manual" : "---" }} -->
+              <!-- {{ item.device_id_out == "Manual" ? "Manual" : "---" }} -->
+            </div>
           </div>
         </template>
         <template v-slot:item.in1="{ item }">
-          <div>{{ item.in1 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in1 && item.device_in1) || "---" }}
+          <div
+            :class="`${item?.device_in1?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in1 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in1 && item.device_in1) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out1="{ item }">
-          <div>{{ item.out1 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out1 && item.device_out1) || "---" }}
+          <div
+            :class="`${item?.device_out1?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out1 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out1 && item.device_out1) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in2="{ item }">
-          <div>{{ item.in2 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in2 && item.device_in2) || "---" }}
+          <div
+            :class="`${item?.device_in2?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in2 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in2 && item.device_in2) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out2="{ item }">
-          <div>{{ item.out2 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out2 && item.device_out2) || "---" }}
+          <div
+            :class="`${item?.device_in2?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out2 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out2 && item.device_out2) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in3="{ item }">
-          <div>{{ item.in3 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in3 && item.device_in3) || "---" }}
+          <div
+            :class="`${item?.device_in3?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in3 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in3 && item.device_in3) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out3="{ item }">
-          <div>{{ item.out3 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out3 && item.device_out3) || "---" }}
+          <div
+            :class="`${item?.device_out3?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out3 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out3 && item.device_out3) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in4="{ item }">
-          <div>{{ item.in4 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in4 && item.device_in4) || "---" }}
+          <div
+            :class="`${item?.device_in4?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in4 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in4 && item.device_in4) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out4="{ item }">
-          <div>{{ item.out4 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out4 && item.device_out4) || "---" }}
+          <div
+            :class="`${item?.device_out4?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out4 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out4 && item.device_out4) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in5="{ item }">
-          <div>{{ item.in5 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in5 && item.device_in5) || "---" }}
+          <div
+            :class="`${item?.device_in5?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in5 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in5 && item.device_in5) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out5="{ item }">
-          <div>{{ item.out5 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out5 && item.device_out5) || "---" }}
+          <div
+            :class="`${item?.device_out5?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out5 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out5 && item.device_out5) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in6="{ item }">
-          <div>{{ item.in6 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in6 && item.device_in6) || "---" }}
+          <div
+            :class="`${item?.device_in6?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in6 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in6 && item.device_in6) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out6="{ item }">
-          <div>{{ item.out6 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out6 && item.device_out6) || "---" }}
+          <div
+            :class="`${item?.device_out6?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out6 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out6 && item.device_out6) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.in7="{ item }">
-          <div>{{ item.in7 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_in7 && item.device_in7) || "---" }}
+          <div
+            :class="`${item?.device_in7?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.in7 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_in7 && item.device_in7) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.out7="{ item }">
-          <div>{{ item.out7 }}</div>
-          <div class="secondary-value">
-            {{ (item.device_out7 && item.device_out7) || "---" }}
+          <div
+            :class="`${item?.device_out7?.name == 'Manual' ? 'red' : ''}--text`"
+          >
+            <div>{{ item.out7 }}</div>
+            <div class="secondary-value">
+              {{ (item.device_out7 && item.device_out7) || "---" }}
+            </div>
           </div>
         </template>
         <template v-slot:item.device_in="{ item }">
@@ -706,21 +770,18 @@
                 <!-- <td>Device Function</td> -->
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
-                <td>{{ log.LogTime }}</td>
-                <td>{{ log.device.name }}</td>
+                <td
+                  :class="`${log?.device?.name == 'Manual' ? 'red' : ''}--text`"
+                >
+                  {{ log.LogTime }}
+                </td>
+                <td>{{ log?.device?.name }}</td>
                 <td>
                   <b
                     ><div v-if="log.log_type">
-                      {{ log.log_type ?? "---" }}
+                      {{ log?.device?.name == "Manual" ? "Manual" : "Device" }}
                     </div>
-                    <div v-else>
-                      {{
-                        log?.device?.function == "In" ||
-                        log?.device?.function == "Out"
-                          ? caps(log.device.function)
-                          : "---"
-                      }}
-                    </div>
+                    <div v-else>Device</div>
                   </b>
                 </td>
                 <!-- <td>
