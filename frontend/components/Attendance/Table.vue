@@ -20,7 +20,7 @@
     </div>
 
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-container>
+      <v-container fluid>
         <v-data-table
         dense
         :headers="headers"

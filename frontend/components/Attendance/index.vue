@@ -1,6 +1,6 @@
 <template>
-  <v-dialog :key="attendanceDialogKey" persistent v-model="attendanceDialog" max-width="1300px">
-    <WidgetsClose left="1290" @click="() => {
+  <v-dialog :key="attendanceDialogKey" persistent v-model="attendanceDialog" max-width="1000px">
+    <WidgetsClose left="990" @click="() => {
         attendanceDialog = false;
         attendanceDialogKey += 1;
     }" />
