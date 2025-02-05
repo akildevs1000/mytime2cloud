@@ -308,6 +308,51 @@
                   />
                 </td>
               </tr>
+
+              <tr>
+                <td style="width: 200px">Joining Date</td>
+                <td>
+                  <span v-if="!editForm">{{
+                    employee?.show_joining_date
+                  }}</span>
+
+                  <v-menu
+                    v-else
+                    ref="menu"
+                    v-model="menu"
+                    :close-on-content-click="false"
+                    :return-value.sync="menu"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                  >
+                    <template v-slot:activator="{ on, attrs }">
+                      <v-text-field
+                        append-icon="mdi-calendar"
+                        style="border-bottom: 1px solid #eaeaea"
+                        class="small-input-font"
+                        dense
+                        v-model="employee.edit_joining_date"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        :hide-details="!errors.edit_joining_date"
+                        :error-messages="
+                          errors && errors.edit_joining_date
+                            ? errors.edit_joining_date[0]
+                            : ''
+                        "
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="employee.edit_joining_date"
+                      no-title
+                      scrollable
+                      @input="menu = false"
+                    ></v-date-picker>
+                  </v-menu>
+                </td>
+              </tr>
             </tbody>
           </v-simple-table>
         </v-col>
@@ -343,6 +388,7 @@ export default {
   },
   props: ["employeeId", "viewDialog", "employeeObject"],
   data: () => ({
+    menu: false,
     editForm: false,
     image: "",
     leave_managers: [],
@@ -486,6 +532,9 @@ export default {
             leave_group_id: data.leave_group_id,
             reporting_manager_id: data.reporting_manager_id,
             branch_id: data.branch_id,
+
+            show_joining_date: data.show_joining_date,
+            edit_joining_date: data.edit_joining_date,
           };
           this.previewImage = data.profile_picture;
           this.getDepartments();
@@ -583,6 +632,7 @@ export default {
         this.dialogCropping = true;
       }
     },
+
     mapper(obj) {
       let employee = new FormData();
 
@@ -593,6 +643,7 @@ export default {
       }
 
       employee.append("company_id", this.$auth.user.company_id);
+      employee.append("joining_date", this.employee.edit_joining_date);
 
       return employee;
     },
