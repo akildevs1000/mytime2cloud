@@ -48,9 +48,9 @@
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
-                      <v-list-item @click="viewLogs()">
+                      <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          View Logs
+                          <Attendance status="P"/>
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -90,9 +90,9 @@
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
-                      <v-list-item @click="viewLogs()">
+                      <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          View Logs
+                          <Attendance status="A"/>
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -135,9 +135,9 @@
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
-                      <v-list-item @click="viewLogs()">
+                      <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          View Logs
+                          <Attendance status="V"/>
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -176,9 +176,9 @@
                       </v-btn>
                     </template>
                     <v-list width="120" dense>
-                      <v-list-item @click="viewLogs()">
+                      <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          View Logs
+                          <Attendance status="L"/>
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>

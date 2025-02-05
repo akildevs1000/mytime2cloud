@@ -20,13 +20,8 @@
     </div>
 
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-toolbar class="backgrounds" dense flat>
-        <v-toolbar-title> </v-toolbar-title>
-
-        <v-spacer></v-spacer>
-      </v-toolbar>
-
-      <v-data-table
+      <v-container>
+        <v-data-table
         dense
         :headers="headers"
         :items="data"
@@ -36,7 +31,7 @@
           itemsPerPageOptions: [10, 30, 50, 100, 500, 1000],
           page: true,
         }"
-        class="elevation-1"
+        class="elevation-0"
         model-value="data.id"
         :server-items-length="totalRowsCount"
         fixed-header
@@ -389,6 +384,7 @@
           </v-icon>
         </template>
       </v-data-table>
+      </v-container>
     </v-card>
 
     <v-row justify="center">
