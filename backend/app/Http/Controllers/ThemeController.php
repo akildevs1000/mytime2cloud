@@ -73,21 +73,21 @@ class ThemeController extends Controller
 
     public function getCounts($id = 0, $request)
     {
+        $model = (new Attendance)->processAttendanceModel($request)
 
+        // $model = Attendance::with("employee")->where('company_id', $id)
 
-        $model = Attendance::with("employee")->where('company_id', $id)
-
-            ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
-                $q->with(["employee" =>  function ($q) use ($request) {
-                    $q->whereHas('department', fn(Builder $query) => $query->whereIn('department_id', $request->department_ids));
-                }]);
-            })
-            ->when($request->filled("branch_id"), function ($q) use ($request) {
-                $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
-            })
-            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
-            })
+            // ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
+            //     $q->with(["employee" =>  function ($q) use ($request) {
+            //         $q->whereHas('department', fn(Builder $query) => $query->whereIn('department_id', $request->department_ids));
+            //     }]);
+            // })
+            // ->when($request->filled("branch_id"), function ($q) use ($request) {
+            //     $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
+            // })
+            // ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+            //     $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
+            // })
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V','LC','EG'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
