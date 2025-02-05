@@ -97,8 +97,12 @@ class EmployeeLeavesController extends Controller
         DB::beginTransaction();
 
         try {
+            // Database operations
+            $data = $request->validated();
 
-            $record = EmployeeLeaves::create($request->validated());
+            $data["order"] = -1;
+
+            $record = EmployeeLeaves::create($data);
 
             $record->load("employee");
 
@@ -222,25 +226,20 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
 
-        if ($model->status == 0 && $model->order == 0) {
-            $model->order = $this->getLastAdminInOrder($request->company_id);
-        } else if ($model->status == 0 && $model->order > 0) {
-            $model->order = User::where("company_id", $request->company_id)
-                ->where("order", "<", $request->order)
-                ->orderBy("order", "desc")
-                ->value("order") ?? -1;
-            if ($model->order == 0) {
-                $model->order = -1;
-            }
-        } else if ($model->status == 0 && $model->order == -1) {
-            $model->status = 1;
-            $model->order = 1;
-        }
+        $lastAdmin = User::where("company_id", $model->company_id)
+            ->where("order", "<", $request->order)
+            ->orderBy("order", "desc")
+            ->value("order") ?? 0;
 
+        if ($model->order == -1) {
+            $lastAdmin = $this->getLastAdminInOrder($request->company_id);
+        } else if ($model->order == 0) {
+            $model->status = 1;
+        }
 
         $model->approve_reject_notes = $request->approve_reject_notes;
 
-        // return $model;
+        $model->order = $lastAdmin;
 
         $record = $model->save();
 
@@ -330,6 +329,6 @@ class EmployeeLeavesController extends Controller
         return User::where("company_id", $company_id)
             ->where("order", ">", 0)
             ->orderBy("order", "desc")
-            ->value("order") ?? -1;
+            ->value("order") ?? 0;
     }
 }

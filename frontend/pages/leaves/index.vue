@@ -47,14 +47,9 @@
     </v-dialog>
 
     <v-dialog persistent v-model="dialogView" width="1000px">
+      <WidgetsClose left="990" @click="dialogView = false" />
       <v-card v-if="dialogViewObject && dialogViewObject.id">
-        <v-card-title dense class="popup_background">
-          Leave Information
-          <v-spacer></v-spacer>
-          <v-icon @click="dialogView = false" outlined dark>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
+        <v-alert dense flat class="grey lighten-3"> Leave Information </v-alert>
         <v-card-text>
           <v-container>
             <v-row>
@@ -128,32 +123,11 @@
                     <strong>Status </strong>
                   </v-col>
                   <v-col cols="8">
-                    <label for=""
-                      >:
-                      <v-chip
-                        v-if="dialogViewObject.status == 1"
-                        small
-                        class="p-2 mx-1"
-                        color="primary"
-                      >
-                        Approved
-                      </v-chip>
-                      <v-chip
-                        v-if="dialogViewObject.status == 2"
-                        small
-                        class="p-2 mx-1"
-                        color="error"
-                      >
-                        Rejected
-                      </v-chip>
-                      <v-chip
-                        v-if="dialogViewObject.status == 0"
-                        small
-                        class="p-2 mx-1"
-                        color="secondary"
-                      >
-                        Pending
-                      </v-chip></label
+                    :
+                    <v-chip
+                      small
+                      :color="showStatus(dialogViewObject)?.color"
+                      >{{ showStatus(dialogViewObject)?.label }}</v-chip
                     >
                   </v-col>
                 </v-row>
@@ -281,9 +255,8 @@
 
             <v-card-actions class="mt-4" v-if="dialogViewObject.shift_type_id">
               <v-spacer></v-spacer>
-              {{ dialogViewObject.order }}
               <v-btn
-                :disabled="allowAction"
+                :disabled="!allowAction(dialogViewObject)"
                 class="error align-right mr-5"
                 v-if="dialogViewObject.status == 0"
                 small
@@ -293,13 +266,12 @@
               </v-btn>
 
               <v-btn
-                :disabled="allowAction"
+                :disabled="!allowAction(dialogViewObject)"
                 class="primary"
                 v-if="dialogViewObject.status == 0"
                 small
                 @click="approveLeave(dialogViewObject.id)"
-                >Approve {{ dialogViewObject.order }} {{ $auth.user.order }}
-                {{ dialogViewObject.status }}</v-btn
+                >Approve</v-btn
               >
             </v-card-actions>
             <v-card-actions v-else class="mt-4">
@@ -521,35 +493,12 @@
         </template>
 
         <template v-slot:item.status="{ item }">
-          <!-- <v-chip
-            v-if="item.status == 2"
-            small
-            class="p-2 mx-1"
-            color="error"
-            style="font-size: 13px"
-          >
-            Rejected
-          </v-chip>
           <v-chip
-          v-else-if="item.order != 1 || item.status != 1"
             small
             class="p-2 mx-1"
-            color="secondary"
-            style="font-size: 13px"
+            :color="showStatus(item, true)?.color"
+            >{{ showStatus(item, true)?.label }}</v-chip
           >
-            Pending
-          </v-chip>
-          <v-chip
-            v-else-if="
-              (item.order == 0 && item.status == 1)
-            "
-            small
-            class="p-2 mx-1"
-            color="primary"
-            style="font-size: 13px"
-          >
-            Approved {{ item.order }} - {{item.status}} - {{ $auth.user.order }}
-          </v-chip> -->
         </template>
 
         <template v-slot:item.action="{ item }">
@@ -878,30 +827,7 @@ export default {
     //login_user_employee_id: "",
   }),
 
-  computed: {
-    allowAction() {
-      if (this.$auth.user.user_type == "department") {
-        return !(
-          this.dialogViewObject.department_id ==
-            this.$auth.user.department_id && this.dialogViewObject.order == 0
-        );
-      }
-
-      if (this.dialogViewObject.order > 0) {
-        return this.dialogViewObject.order > this.$auth.user.order;
-      }
-
-      if (this.dialogViewObject.order == -1) {
-        return !(
-          this.dialogViewObject.status == 0 && this.dialogViewObject.order == -1
-        );
-      }
-
-      return (
-        this.dialogViewObject.order == -1 || this.dialogViewObject.order == 0
-      );
-    },
-  },
+  computed: {},
 
   // watch: {
   //   options: {
@@ -920,6 +846,66 @@ export default {
   },
 
   methods: {
+    allowAction(item) {
+      let user = this.$auth.user;
+      if (user?.user_type == "department") {
+        return (
+          item.department_id == user?.department_id &&
+          item.status == 0 &&
+          item.order == -1
+        );
+      } else if (item.status == 0 && item.order == -1) {
+        return false;
+      } else if (user?.order > 0) {
+        return item.order >= user?.order;
+      }
+
+      return item.order == 0;
+    },
+    showStatus(item, listView = false) {
+      let user = this.$auth.user;
+
+      if (item.status == 2) {
+        return { label: "Rejected", color: "red white--text" };
+      }
+
+      if (user?.user_type == "department") {
+        if (listView) {
+          return item?.employee?.department_id == user?.department_id &&
+            item.status == 0 &&
+            item.order == -1
+            ? { label: "Pending", color: "secondary" }
+            : { label: "Approved", color: "primary" };
+        } else {
+          return item?.department_id == user?.department_id &&
+            item.status == 0 &&
+            item.order == -1
+            ? { label: "Pending", color: "secondary" }
+            : { label: "Approved", color: "primary" };
+        }
+      } else if (item.status == 0 && item.order == -1) {
+        return { label: "Pending", color: "secondary" };
+      } else if (user?.order > 0) {
+        if (item.status == 0 && item.order == 0) {
+          return {
+            label: `Approved`,
+            color: "primary",
+          };
+        }
+        if (user?.order >= item.order) {
+          return { label: "Pending", color: "secondary" };
+        } else {
+          return {
+            label: `Approved ${item.order} - ${user?.order}`,
+            color: "primary",
+          };
+        }
+      }
+
+      return item.status == 1 && item.order == 0
+        ? { label: "Approved", color: "primary" }
+        : { label: "Pending", color: "secondary" };
+    },
     filterAttr(data) {
       this.filters[`start_date`] = data.from;
       this.filters[`end_date`] = data.to;
