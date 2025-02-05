@@ -104,7 +104,7 @@ import doubleHeaders from "../../headers/double.json";
 
 export default {
 
-  props: ["title", "render_endpoint", "process_file_endpoint","status"],
+  props: ["title", "render_endpoint", "process_file_endpoint","statuses"],
 
   data: () => ({
     attendanceDialogKey: 1,
@@ -206,52 +206,6 @@ export default {
     shifts: [],
     errors: [],
     custom_options: {},
-    statuses: [
-      {
-        name: `All Status`,
-        id: `-1`,
-      },
-      {
-        name: `Present`,
-        id: `P`,
-      },
-      {
-        name: `Absent`,
-        id: `A`,
-      },
-      {
-        name: `Missing`,
-        id: `M`,
-      },
-      {
-        name: `Late In`,
-        id: `LC`,
-      },
-      {
-        name: `Early Out`,
-        id: `EG`,
-      },
-      {
-        name: `Off`,
-        id: `O`,
-      },
-      {
-        name: `Leave`,
-        id: `L`,
-      },
-      {
-        name: `Holiday`,
-        id: `H`,
-      },
-      {
-        name: `Vaccation`,
-        id: `V`,
-      },
-      {
-        name: `Manual Entry`,
-        id: `ME`,
-      },
-    ],
     max_date: null,
     filter_type_items: [
       {
@@ -451,7 +405,7 @@ export default {
 
       this.payload11 = {
         ...this.payload,
-        status:this.status,
+        statuses:this.statuses,
         report_type: "Monthly", //filterDay,
         tabselected: id, //this.tab
         from_date: this.from_date,

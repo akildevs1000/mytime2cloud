@@ -50,7 +50,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance status="P"/>
+                          <Attendance :statuses="['P', 'M', 'LC', 'EG']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -92,7 +92,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance status="A"/>
+                          <Attendance :statuses="['A']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -137,7 +137,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance status="V"/>
+                          <Attendance :statuses="['V']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -178,7 +178,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance status="L"/>
+                          <Attendance :statuses="['L']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
