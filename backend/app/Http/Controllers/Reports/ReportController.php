@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\Employee;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -70,7 +72,61 @@ class ReportController extends Controller
 
         return $data;
     }
+    public function performanceReport(Request $request)
+    {
+        $fromDate = $request->from_date;
+        $toDate = $request->to_date;
 
+        // Start with the Employee model
+        $employees = Employee::query()
+            ->where('employees.company_id', $request->company_id)
+            ->where('employees.status', 1) // Active employees
+            ->select('employees.*')  // Selecting all fields from Employee table
+
+            // Join Attendance table
+            ->leftJoin('attendances', function ($join) use ($fromDate, $toDate) {
+                $join->on('attendances.employee_id', '=', 'employees.employee_id')
+                    ->whereBetween('attendances.date', [$fromDate, $toDate]);
+            })
+
+            // Count Present
+            ->selectRaw('COUNT(CASE WHEN attendances.status = \'P\' THEN 1 END) as present_count')
+
+            // Count Absent
+            ->selectRaw('COUNT(CASE WHEN attendances.status = \'A\' THEN 1 END) as absent_count')
+
+            // Count Leave
+            ->selectRaw('COUNT(CASE WHEN attendances.status = \'L\' THEN 1 END) as leave_count')
+
+            // Count Late Coming
+            ->selectRaw('COUNT(CASE WHEN attendances.late_coming != \'----\' THEN 1 END) as late_coming_count')
+
+            // Count Early Going
+            ->selectRaw('COUNT(CASE WHEN attendances.early_going != \'----\' THEN 1 END) as early_going_count');
+
+        if ($request->filled('employee_id')) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+            if (count($employeeIds) > 0) {
+                $employees->whereIn('employees.id', $employeeIds);
+            }
+        }
+
+        if ($request->filled('department_ids')) {
+            $departmentIds = is_array($request->department_ids) ? $request->department_ids : explode(",", $request->department_ids);
+
+            if (count($departmentIds) > 0) {
+                $employees->whereIn('attendances.department_id', $departmentIds);
+            }
+        }
+
+        if ($request->filled('branch_id')) {
+            $employees->where('attendances.branch_id', $request->branch_id);
+        }
+
+        $employees->groupBy('employees.id');
+
+        return $employees->paginate($request->per_page ?? 100);
+    }
 
 
 

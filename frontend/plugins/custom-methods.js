@@ -76,6 +76,14 @@ export default ({ app }, inject) => {
 
       return `${hours}:${minutes} ${formattedDate}   `;
     },
+    format6: (inputdate) => {
+      const date = new Date(inputdate);
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      return date.toLocaleDateString('en-GB', options).replace(',', '');
+    },
+
+
+
     monthStartEnd: (inputdate) => {
       // Get the current date
       const currentDate = new Date(inputdate);
@@ -166,6 +174,8 @@ export default ({ app }, inject) => {
 
       return `${currentMonth} ${currentYear}`;
     },
+
+
 
     can(per, thisobj) {
       let u = thisobj.$auth && thisobj.$auth.user;
