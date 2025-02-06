@@ -105,74 +105,75 @@
                   <v-card outlined>
                     <v-card-text>
                       <v-row>
-                          <!-- Rating and Joining Date -->
-                          <v-col cols="5" class="text-center">
-                            <div style="width: 100%; display: flex">
-                              <div class="text-left">
-                                <table>
-                                  <tr>
-                                    <td>
-                                      <div
-                                        class="success"
-                                        style="
-                                          width: 10px;
-                                          height: 10px;
-                                          border-radius: 50%;
-                                          display: inline-block;
-                                        "
-                                      ></div>
-                                    </td>
-                                    <td>Present</td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div
-                                        class="error"
-                                        style="
-                                          width: 10px;
-                                          height: 10px;
-                                          border-radius: 50%;
-                                          display: inline-block;
-                                        "
-                                      ></div>
-                                    </td>
-                                    <td>Absent</td>
-                                  </tr>
-                                  <tr>
-                                    <td>
-                                      <div
-                                        class="orange"
-                                        style="
-                                          width: 10px;
-                                          height: 10px;
-                                          border-radius: 50%;
-                                          display: inline-block;
-                                        "
-                                      ></div>
-                                    </td>
-                                    <td>Leave</td>
-                                  </tr>
-                                </table>
-                              </div>
-                              <div style="height: 175px; width: 175px">
-                                <apexchart
-                                  type="pie"
-                                  :options="pieChartOptions"
-                                  :series="pieSeries"
-                                ></apexchart>
-                              </div>
+                        <!-- Rating and Joining Date -->
+                        <v-col cols="5" class="text-center py-0">
+                          <div style="width: 100%; display: flex">
+                            <div class="text-left">
+                              <table>
+                                <tr>
+                                  <td>
+                                    <div
+                                      class="success"
+                                      style="
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: 50%;
+                                        display: inline-block;
+                                      "
+                                    ></div>
+                                  </td>
+                                  <td>Present</td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div
+                                      class="error"
+                                      style="
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: 50%;
+                                        display: inline-block;
+                                      "
+                                    ></div>
+                                  </td>
+                                  <td>Absent</td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div
+                                      class="orange"
+                                      style="
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: 50%;
+                                        display: inline-block;
+                                      "
+                                    ></div>
+                                  </td>
+                                  <td>Leave</td>
+                                </tr>
+                              </table>
                             </div>
-                          </v-col>
-                          <v-col class="text-center">
-                            <div style="height: 155px; width: 320px">
+                            <div style="height: 160px; width: 175px">
                               <apexchart
-                                type="bar"
-                                :options="chartOptions"
-                                :series="series"
+                                type="pie"
+                                :options="pieChartOptions"
+                                :series="pieSeries"
                               ></apexchart>
                             </div>
-                          </v-col>
-                        </v-row>
+                          </div>
+                        </v-col>
+                        <v-col class="text-center py-0">
+                          <div style="height: 160px; width: 320px">
+                            <apexchart
+                              height="100%"
+                              type="bar"
+                              :options="chartOptions"
+                              :series="series"
+                            ></apexchart>
+                          </div>
+                        </v-col>
+                      </v-row>
                     </v-card-text>
                   </v-card>
                 </v-col>
@@ -201,6 +202,130 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
+                <!-- <v-col cols="12">
+                  <v-card outlined>
+                    <v-card-text>
+                     <v-row>
+                      <v-col>
+                        <div style="width: 100%; display: flex">
+                        <div class="text-left">
+                          <table>
+                            <tr>
+                              <td>
+                                <div
+                                  class="success"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>Total Salary</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
+                                  class="error"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>OverTime</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
+                                  class="orange"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>Deduction</td>
+                            </tr>
+                          </table>
+                        </div>
+                        <div style="height: 160px; width: 175px">
+                          <apexchart
+                            height="100%"
+                            type="donut"
+                            :options="chartOptionsDonut"
+                            :series="donutSeries"
+                          ></apexchart>
+                        </div>
+                      </div>
+                      </v-col>
+                      <v-col>
+                        <div style="width: 100%; display: flex">
+                        <div class="text-left">
+                          <table>
+                            <tr>
+                              <td>
+                                <div
+                                  class="success"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>Total Salary</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
+                                  class="error"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>OverTime</td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
+                                  class="orange"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>Deduction</td>
+                            </tr>
+                          </table>
+                        </div>
+                        <div style="height: 160px; width: 175px">
+                          <apexchart
+                            height="100%"
+                            type="donut"
+                            :options="chartOptionsDonut"
+                            :series="donutSeries"
+                          ></apexchart>
+                        </div>
+                      </div>
+                      </v-col>
+                     </v-row>
+                    </v-card-text>
+                  </v-card>
+                </v-col> -->
               </v-row>
             </v-col>
             <v-col cols="4">
@@ -297,6 +422,48 @@ export default {
         colors: ["#00e676", "#dd2c00", "#ff9800"], // Custom colors for each slice
       },
       pieSeries: [6, 2, 1], // Example data
+
+      //donut chart
+
+      donutSeries: [12000, 3000, 2000], // Total Salary, Overtime, Deductions
+      chartOptionsDonut: {
+        chart: {
+          type: "donut",
+        },
+        labels: ["Total Salary", "Overtime", "Deductions"], // Labels for the donut chart
+        colors: ["#4CAF50", "#FFA500", "#FF5252"], // Green for Salary, Orange for Overtime, Red for Deductions
+        responsive: [
+          {
+            breakpoint: 480,
+            options: {
+              chart: {
+                width: 200,
+              },
+              legend: {
+                position: "bottom",
+              },
+            },
+          },
+        ],
+        legend: {
+          show: false, // Hides the legend
+        },
+        dataLabels: {
+          enabled: false, // Hides data labels on the chart
+        },
+        plotOptions: {
+          pie: {
+            donut: {
+              labels: {
+                show: false, // Hides all labels inside the donut
+                total: {
+                  show: false, // Hides the total payroll label and value
+                },
+              },
+            },
+          },
+        },
+      },
     };
   },
   methods: {
