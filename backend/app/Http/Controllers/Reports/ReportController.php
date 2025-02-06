@@ -78,6 +78,7 @@ class ReportController extends Controller
     {
         $fromDate = $request->input('from_date', Carbon::now()->startOfMonth()->toDateString()); // Default: first day of the month
         $toDate = $request->input('to_date', Carbon::now()->toDateString()); // Default: today
+
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
@@ -92,7 +93,6 @@ class ReportController extends Controller
         if (!empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
         }
-
 
         $model = Attendance::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
@@ -114,16 +114,13 @@ class ReportController extends Controller
                 $this->getStatusCountWithSuffix('M'), // Missing count
                 $this->getStatusCountWithSuffix('LC'), // Late Coming count
                 $this->getStatusCountWithSuffix('EG'), // Early Going count
-
-
+                
                 $this->getStatusCountValue('P'), // Present count
                 $this->getStatusCountValue('A'), // Absent count
                 $this->getStatusCountValue('L'), // Leave count
                 $this->getStatusCountValue('M'), // Missing count
                 $this->getStatusCountValue('LC'), // Late Coming count
                 $this->getStatusCountValue('EG') // Early Going count
-
-                
             )
 
             ->with(["employee" => function ($q) {
@@ -158,28 +155,6 @@ class ReportController extends Controller
         return $model->paginate(10);
     }
 
-    public function getRating($presentCount, $totalCount)
-    {
-        // Avoid division by zero
-        $presentPercentage = ($totalCount > 0) ? ($presentCount / $totalCount) * 100 : 0;
-
-        // Calculate rating based on present percentage
-        if ($presentPercentage >= 90) {
-            return 5;
-        } elseif ($presentPercentage >= 80) {
-            return 4;
-        } elseif ($presentPercentage >= 60) {
-            return 3;
-        } elseif ($presentPercentage >= 40) {
-            return 2;
-        } elseif ($presentPercentage >= 20) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-
     function getStatusCountWithSuffix($status)
     {
         return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
@@ -187,7 +162,6 @@ class ReportController extends Controller
                           WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
                           ELSE ' days' END) AS {$status}_count");
     }
-
 
     function getStatusCountValue($status)
     {

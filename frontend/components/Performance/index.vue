@@ -73,21 +73,6 @@
         <template v-slot:item.report_to="{ item }">
           {{ $dateFormat.format6(payload.to_date) }}
         </template>
-        <!-- <template v-slot:item.present_count="{ item }">
-          {{ Math.floor(Math.random() * 10) }} days
-        </template>
-        <template v-slot:item.absent_count="{ item }">
-          {{ Math.floor(Math.random() * 10) }} days
-        </template>
-        <template v-slot:item.late_coming_count="{ item }">
-          {{ Math.floor(Math.random() * 10) }} days
-        </template>
-        <template v-slot:item.early_going_count="{ item }">
-          {{ Math.floor(Math.random() * 10) }} days
-        </template>
-        <template v-slot:item.leave_count="{ item }">
-          {{ Math.floor(Math.random() * 10) }} days
-        </template> -->
         <template v-slot:item.rating="{ item }">
           <v-rating
             dense
@@ -725,9 +710,18 @@ export default {
 
   methods: {
     getRating(present_count) {
-      let total = this.total;
 
-      let presentPercentage = total > 0 ? (present_count / total) * 100 : 0;
+      // Convert to Date objects
+      let fromDate = new Date(this.payload.from_date);
+      let toDate = new Date(this.payload.to_date);
+
+      // Calculate difference in milliseconds
+      let diffInMilliseconds = toDate - fromDate;
+
+      // Convert milliseconds to days
+      let totalDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
+
+      let presentPercentage = totalDays > 0 ? (present_count / totalDays) * 100 : 0;
 
       if (presentPercentage > 80 && presentPercentage <= 100) {
         return 5;
@@ -742,114 +736,6 @@ export default {
       } else {
         return 0;
       }
-    },
-    checkHalfday(item) {
-      let currentDay = new Date().toLocaleString("en-US", {
-        weekday: "long",
-      });
-
-      return item.shift && currentDay === item.shift.halfday;
-    },
-    changeReportType(report_type) {
-      this.setFromDate();
-
-      switch (report_type) {
-        case "Daily":
-          this.setDailyDate();
-          break;
-        case "Weekly":
-          this.setSevenDays(this.payload.from_date);
-          break;
-        case "Monthly":
-        case "Custom":
-          this.setThirtyDays(this.payload.from_date);
-          break;
-
-        default:
-          this.max_date = null;
-          break;
-      }
-
-      this.getDataFromApi();
-    },
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-    },
-
-    setSevenDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 6);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    setThirtyDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 29);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    set_date_save(from_menu, field) {
-      from_menu.save(field);
-
-      if (this.report_type == "Weekly") {
-        this.setSevenDays(this.payload.from_date);
-      } else if (
-        this.report_type == "Monthly" ||
-        this.report_type == "Custom"
-      ) {
-        this.setThirtyDays(this.payload.from_date);
-      }
-
-      this.getDataFromApi();
-    },
-    setFromDate() {
-      if (this.payload.from_date == null) {
-        const dt = new Date();
-        const y = dt.getFullYear();
-        const m = dt.getMonth() + 1;
-        const formattedMonth = m < 10 ? "0" + m : m;
-        this.payload.from_date = `${y}-${formattedMonth}-01`;
-      }
-    },
-
-    getDeviceList(options) {
-      this.$axios.get(`/device_list`, options).then(({ data }) => {
-        this.devices = data;
-      });
-    },
-
-    setDailyDate() {
-      this.payload.daily_date = new Date().toJSON().slice(0, 10);
-      delete this.payload.from_date;
-      delete this.payload.to_date;
     },
 
     store_schedule() {
@@ -954,48 +840,6 @@ export default {
         })
         .catch((e) => console.log(e));
     },
-    setEmployeeId(id) {
-      this.$store.commit("employee_id", id);
-    },
-    get_time_slots() {
-      this.getShift(this.custom_options);
-    },
-    getShift(options) {
-      this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
-          name: e.name,
-          on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
-        }));
-        this.time_table_dialog = true;
-      });
-    },
-
-    // getDevices(options) {
-    //   this.$axios.get(`/device`, options).then(({ data }) => {
-    //     this.devices = data.data;
-    //   });
-    // },
-    async getDepartments(options) {
-      const { employee, user_type } = this.$auth.user;
-
-      let url = "departments";
-
-      try {
-        if (user_type === "employee") {
-          const id = employee.id;
-          url = "assigned-department-employee";
-          const { data } = await this.$axios.get(`${url}/${id}`, options);
-          this.departments = data;
-        } else {
-          const { data } = await this.$axios.get(url, options);
-          this.departments = data.data;
-          // this.payload.department_ids = [data.data[0].id];
-        }
-      } catch (error) {
-        console.error("Error fetching departments:", error);
-      }
-    },
 
     caps(str) {
       return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -1003,20 +847,6 @@ export default {
 
     can(per) {
       return this.$pagePermission.can(per, this);
-    },
-
-    applyFilters(name, value) {
-      if (value && value.length < 2) return false;
-      this.options.page = 1;
-      this.getDataFromApi();
-    },
-    toggleFilter() {
-      this.isFilter = !this.isFilter;
-    },
-    clearFilters() {
-      this.filters = {};
-      this.isFilter = false;
-      this.getDataFromApi();
     },
     getDataFromApi() {
       if (!this.payload.from_date) return false;
@@ -1064,213 +894,12 @@ export default {
       this.editItems.date = item.edit_date;
     },
 
-    renderByType(type) {
-      const UserID = this.editItems.UserID;
-      const date = this.editItems.date;
-
-      if (!UserID || !date) {
-        alert("System User Id and Date field is required");
-        return;
-      }
-
-      let payload = {
-        params: {
-          date: this.editItems.date,
-          UserID: this.editItems.UserID,
-          updated_by: this.$auth.user.id,
-          company_id: this.$auth.user.company_id,
-          manual_entry: true,
-          reason: this.editItems.reason,
-        },
-      };
-
-      this.$axios
-        .get("/" + type, payload)
-        .then(({ data }) => {
-          this.loading = false;
-          this.snackbar = true;
-          this.response = data.message;
-          this.getDataFromApi();
-        })
-        .catch((e) => console.log(e));
-    },
-
-    viewItem(item) {
-      this.log_list = [];
-      let options = {
-        params: {
-          per_page: 500,
-          UserID: item.employee_id,
-          LogTime: item.edit_date,
-          company_id: this.$auth.user.company_id,
-        },
-      };
-      this.log_details = true;
-
-      this.$axios.get("attendance_single_list", options).then(({ data }) => {
-        this.log_list = data.data;
-        this.log_list.item = item;
-      });
-    },
-
     close() {
       this.dialog = false;
       setTimeout(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    },
-    pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
-      let pdf = document.createElement("a");
-      pdf.setAttribute("href", path);
-      pdf.setAttribute("target", "_blank");
-      pdf.click();
-    },
-
-    donwload_file() {
-      let path =
-        process.env.BACKEND_URL +
-        "/download_finalfile?file=" +
-        this.donwload_pdf_file;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", path);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      return;
-    },
-    view_report_pdf_file() {
-      let path =
-        process.env.BACKEND_URL +
-        "/view_finalfile?t=" +
-        Math.random(10000, 99000) +
-        "&file=" +
-        this.view_pdf_file;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", path);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      return;
-    },
-
-    verify_generated_pdf_file(data) {
-      let qs =
-        process.env.BACKEND_URL +
-        "/verify_generated_pdf_file?file=" +
-        this.donwload_pdf_file;
-
-      let options = {
-        params: {},
-      };
-      this.$axios.get(qs, options).then(({ data }) => {
-        console.log(data);
-
-        if (data == 1) {
-          this.loading = false;
-
-          this.snackbar = true;
-          this.response =
-            "Processing completed . Now you can Download your Report ";
-        } else {
-          this.loading = false;
-
-          this.snackbar = true;
-          this.response =
-            "Processing Not completed . Wait for few more minutes";
-        }
-      });
-    },
-
-    process_file(type) {
-      if (this.data && !this.data.length) {
-        alert("No data found");
-        return;
-      }
-
-      let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?report_template=${this.report_template}`;
-      qs += `&main_shift_type=${this.shift_type_id}`;
-
-      if (parseInt(this.payload.branch_id) > 0)
-        qs += `&branch_id=${this.payload.branch_id}`;
-
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
-      if (
-        this.payload.department_ids &&
-        this.payload.department_ids.length > 0
-      ) {
-        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
-      }
-      qs += `&employee_id=${this.payload.employee_id}`;
-      qs += `&report_type=${this.report_type}`;
-
-      if (this.report_type == "Daily") {
-        qs += `&daily_date=${this.payload.daily_date}`;
-      } else {
-        qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
-      }
-      console.log(qs);
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      //this.getDataFromApi();
-      return;
-    },
-    getShortShiftDetails(item) {
-      if (item.shift) {
-        let shiftWorkingHours = item.shift.working_hours;
-        let employeeHours = item.total_hrs;
-
-        if (
-          shiftWorkingHours != "" &&
-          employeeHours != "" &&
-          shiftWorkingHours != "---" &&
-          employeeHours != "---"
-        ) {
-          let [hours, minutes] = shiftWorkingHours.split(":").map(Number);
-          shiftWorkingHours = hours * 60 + minutes;
-
-          [hours, minutes] = employeeHours.split(":").map(Number);
-          employeeHours = hours * 60 + minutes;
-
-          if (
-            employeeHours < shiftWorkingHours &&
-            !this.checkHalfday(item || `---`)
-          ) {
-            return "Short Shift";
-          }
-        }
-      }
-    },
-    setStatusLabel(status) {
-      const statuses = {
-        A: "Absent",
-        P: "Present",
-        M: "Missing",
-        LC: "Late In",
-        EG: "Early Out",
-        O: "Week Off",
-        L: "Leave",
-        H: "Holiday",
-        V: "Vaccation",
-      };
-      return statuses[status];
     },
   },
 };
