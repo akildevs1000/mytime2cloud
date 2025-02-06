@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -74,35 +75,55 @@ class ReportController extends Controller
     }
     public function performanceReport(Request $request)
     {
-        $fromDate = $request->from_date;
-        $toDate = $request->to_date;
+        $fromDate = $request->input('from_date', Carbon::now()->startOfMonth()->toDateString()); // Default: first day of the month
+        $toDate = $request->input('to_date', Carbon::now()->toDateString()); // Default: today
+        $companyId = $request->input('company_id', 0);
 
-        // Start with the Employee model
-        $employees = Employee::query()
-            ->where('employees.company_id', $request->company_id)
-            ->where('employees.status', 1) // Active employees
-            ->select('employees.*')  // Selecting all fields from Employee table
+        $employees = Employee::select(
+            "first_name",
+            "last_name",
+            "profile_picture",
+            "phone_number",
+            "whatsapp_number",
+            "employee_id",
+            "joining_date",
+            "designation_id",
+            "department_id",
+            "user_id",
+            "sub_department_id",
+            "overtime",
+            "title",
+            "status",
+            "company_id",
+            "branch_id",
+            "system_user_id",
+            "display_name",
+            "full_name"
+        )
+            ->where('company_id', $companyId) // Filter by company
 
-            // Join Attendance table
-            ->leftJoin('attendances', function ($join) use ($fromDate, $toDate) {
-                $join->on('attendances.employee_id', '=', 'employees.employee_id')
-                    ->whereBetween('attendances.date', [$fromDate, $toDate]);
-            })
+            ->withOut(["schedule", "user"])
 
-            // Count Present
-            ->selectRaw('COUNT(CASE WHEN attendances.status = \'P\' THEN 1 END) as present_count')
-
-            // Count Absent
-            ->selectRaw('COUNT(CASE WHEN attendances.status = \'A\' THEN 1 END) as absent_count')
-
-            // Count Leave
-            ->selectRaw('COUNT(CASE WHEN attendances.status = \'L\' THEN 1 END) as leave_count')
-
-            // Count Late Coming
-            ->selectRaw('COUNT(CASE WHEN attendances.late_coming != \'----\' THEN 1 END) as late_coming_count')
-
-            // Count Early Going
-            ->selectRaw('COUNT(CASE WHEN attendances.early_going != \'----\' THEN 1 END) as early_going_count');
+            ->withCount([
+                'attendances as present_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('status', 'P')->whereBetween('date', [$fromDate, $toDate]);
+                },
+                'attendances as absent_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('status', 'A')->whereBetween('date', [$fromDate, $toDate]);
+                },
+                'attendances as leave_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('status', 'L')->whereBetween('date', [$fromDate, $toDate]);
+                },
+                'attendances as missing_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('status', 'M')->whereBetween('date', [$fromDate, $toDate]);
+                },
+                'attendances as late_coming_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('late_coming', "!=", '---')->whereBetween('date', [$fromDate, $toDate]);
+                },
+                'attendances as early_going_count' => function ($query) use ($fromDate, $toDate) {
+                    $query->where('early_going', "!=", '---')->whereBetween('date', [$fromDate, $toDate]);
+                }
+            ]);
 
         if ($request->filled('employee_id')) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
@@ -123,7 +144,6 @@ class ReportController extends Controller
             $employees->where('attendances.branch_id', $request->branch_id);
         }
 
-        $employees->groupBy('employees.id');
 
         return $employees->paginate($request->per_page ?? 100);
     }
