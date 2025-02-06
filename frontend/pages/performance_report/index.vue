@@ -26,7 +26,7 @@
         <v-toolbar-title
           style="font-size: 18px; font-weight: 600; width: 200px"
         >
-          Attendance Reports
+          Performance Reports
           <!-- <v-icon
             title="Click To Send Yesterday Report"
             color="green"
@@ -34,7 +34,7 @@
             >mdi-whatsapp</v-icon
           > -->
         </v-toolbar-title>
-       
+
         <v-autocomplete
           style="width: 150px"
           class="mx-1"
@@ -180,7 +180,8 @@
     <v-row no-gutters>
       <v-col cols="6">
         <v-card elevation="0" v-if="can(`attendance_report_view`)">
-          <v-tabs style="display:none;"
+          <v-tabs
+            style="display: none"
             class="slidegroup1"
             v-model="tab"
             background-color="popup_background"
@@ -380,7 +381,6 @@
   <NoAccess v-else />
 </template>
 <script>
-
 import performanceHeader from "../../headers/performance.json";
 import missingrecords from "../../components/attendance_report/missingrecords.vue";
 
