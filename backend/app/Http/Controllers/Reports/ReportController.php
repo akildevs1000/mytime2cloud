@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
@@ -78,77 +79,120 @@ class ReportController extends Controller
         $fromDate = $request->input('from_date', Carbon::now()->startOfMonth()->toDateString()); // Default: first day of the month
         $toDate = $request->input('to_date', Carbon::now()->toDateString()); // Default: today
         $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
 
-        $employees = Employee::select(
-            "first_name",
-            "last_name",
-            "profile_picture",
-            "phone_number",
-            "whatsapp_number",
-            "employee_id",
-            "joining_date",
-            "designation_id",
-            "department_id",
-            "user_id",
-            "sub_department_id",
-            "overtime",
-            "title",
-            "status",
-            "company_id",
-            "branch_id",
-            "system_user_id",
-            "display_name",
-            "full_name"
-        )
-            ->where('company_id', $companyId) // Filter by company
+        $department_ids = $request->department_ids;
 
-            ->withOut(["schedule", "user"])
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
 
-            ->withCount([
-                'attendances as present_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('status', 'P')->whereBetween('date', [$fromDate, $toDate]);
-                },
-                'attendances as absent_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('status', 'A')->whereBetween('date', [$fromDate, $toDate]);
-                },
-                'attendances as leave_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('status', 'L')->whereBetween('date', [$fromDate, $toDate]);
-                },
-                'attendances as missing_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('status', 'M')->whereBetween('date', [$fromDate, $toDate]);
-                },
-                'attendances as late_coming_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('late_coming', "!=", '---')->whereBetween('date', [$fromDate, $toDate]);
-                },
-                'attendances as early_going_count' => function ($query) use ($fromDate, $toDate) {
-                    $query->where('early_going', "!=", '---')->whereBetween('date', [$fromDate, $toDate]);
-                }
-            ]);
+        $employeeIds = [];
 
-        if ($request->filled('employee_id')) {
+        if (!empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
-            if (count($employeeIds) > 0) {
-                $employees->whereIn('employees.id', $employeeIds);
-            }
-        }
-
-        if ($request->filled('department_ids')) {
-            $departmentIds = is_array($request->department_ids) ? $request->department_ids : explode(",", $request->department_ids);
-
-            if (count($departmentIds) > 0) {
-                $employees->whereIn('attendances.department_id', $departmentIds);
-            }
-        }
-
-        if ($request->filled('branch_id')) {
-            $employees->where('attendances.branch_id', $request->branch_id);
         }
 
 
-        return $employees->paginate($request->per_page ?? 100);
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+            })
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
+
+            ->whereBetween('date', [$fromDate, $toDate])
+            ->select(
+                'employee_id',
+                $this->getStatusCountWithSuffix('P'), // Present count
+                $this->getStatusCountWithSuffix('A'), // Absent count
+                $this->getStatusCountWithSuffix('L'), // Leave count
+                $this->getStatusCountWithSuffix('M'), // Missing count
+                $this->getStatusCountWithSuffix('LC'), // Late Coming count
+                $this->getStatusCountWithSuffix('EG'), // Early Going count
+
+
+                $this->getStatusCountValue('P'), // Present count
+                $this->getStatusCountValue('A'), // Absent count
+                $this->getStatusCountValue('L'), // Leave count
+                $this->getStatusCountValue('M'), // Missing count
+                $this->getStatusCountValue('LC'), // Late Coming count
+                $this->getStatusCountValue('EG') // Early Going count
+
+                
+            )
+
+            ->with(["employee" => function ($q) {
+                $q->withOut("schedule", "user");
+                $q->select(
+                    "first_name",
+                    "last_name",
+                    "profile_picture",
+                    "phone_number",
+                    "whatsapp_number",
+                    "employee_id",
+                    "joining_date",
+                    "designation_id",
+                    "department_id",
+                    "user_id",
+                    "sub_department_id",
+                    "overtime",
+                    "title",
+                    "status",
+                    "company_id",
+                    "branch_id",
+                    "system_user_id",
+                    "display_name",
+                    "full_name"
+                );
+            }])
+            ->groupBy('employee_id');
+            
+        // return $model->count();
+
+
+        return $model->paginate(10);
+    }
+
+    public function getRating($presentCount, $totalCount)
+    {
+        // Avoid division by zero
+        $presentPercentage = ($totalCount > 0) ? ($presentCount / $totalCount) * 100 : 0;
+
+        // Calculate rating based on present percentage
+        if ($presentPercentage >= 90) {
+            return 5;
+        } elseif ($presentPercentage >= 80) {
+            return 4;
+        } elseif ($presentPercentage >= 60) {
+            return 3;
+        } elseif ($presentPercentage >= 40) {
+            return 2;
+        } elseif ($presentPercentage >= 20) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
 
+    function getStatusCountWithSuffix($status)
+    {
+        return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
+                     CASE WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) = 1 THEN ' day' 
+                          WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
+                          ELSE ' days' END) AS {$status}_count");
+    }
+
+
+    function getStatusCountValue($status)
+    {
+        return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
+    }
 
     public function general($model, $per_page = 100)
     {

@@ -12,7 +12,7 @@
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "show_joining_date",
+    "value": "employee.show_joining_date",
     "key": "joining_date"
   },
   {
@@ -34,14 +34,14 @@
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "present_count"
+    "value": "p_count"
   },
   {
     "text": "Total Absent",
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "absent_count"
+    "value": "a_count"
   },
 
   {
@@ -49,21 +49,21 @@
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "late_coming_count"
+    "value": "lc_count"
   },
   {
     "text": "Early Out",
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "early_going_count"
+    "value": "eg_count"
   },
   {
     "text": "Leave",
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "leave_count"
+    "value": "l_count"
   },
   {
     "text": "Rating",

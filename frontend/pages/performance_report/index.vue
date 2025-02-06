@@ -34,19 +34,7 @@
             >mdi-whatsapp</v-icon
           > -->
         </v-toolbar-title>
-        <v-select
-          style="width: 150px"
-          class="mx-1"
-          label="Type"
-          outlined
-          dense
-          v-model="payload.status"
-          x-small
-          :items="statuses"
-          item-value="id"
-          item-text="name"
-          :hide-details="true"
-        ></v-select>
+       
         <v-autocomplete
           style="width: 150px"
           class="mx-1"
@@ -170,19 +158,6 @@
             </span>
           </template>
         </v-autocomplete>
-        <v-autocomplete
-          style="width: 150px"
-          class="mx-1"
-          label="Report Templates"
-          density="compact"
-          outlined
-          dense
-          v-model="report_template"
-          x-small
-          :items="['Template1', 'Template2']"
-          item-text="['Daily']"
-          :hide-details="true"
-        ></v-autocomplete>
         <div class="mx-1">
           <CustomFilter
             @filter-attr="filterAttr"

@@ -50,16 +50,18 @@
           >
             <v-avatar size="45">
               <v-img
-                :src="item?.profile_picture || '/no-profile-image.jpg'"
+                :src="
+                  item?.employee?.profile_picture || '/no-profile-image.jpg'
+                "
               ></v-img>
             </v-avatar>
             <div>
               <div style="font-size: 13px">
-                {{ item.first_name || "---" }}
-                {{ item.last_name || "---" }}
+                {{ item?.employee?.first_name || "---" }}
+                {{ item?.employee?.last_name || "---" }}
               </div>
               <small style="font-size: 12px; color: #6c7184">
-                {{ item?.employee_id || "---" }}
+                {{ item?.employee?.employee_id || "---" }}
               </small>
             </div>
           </div>
@@ -71,7 +73,7 @@
         <template v-slot:item.report_to="{ item }">
           {{ $dateFormat.format6(payload.to_date) }}
         </template>
-        <template v-slot:item.present_count="{ item }">
+        <!-- <template v-slot:item.present_count="{ item }">
           {{ Math.floor(Math.random() * 10) }} days
         </template>
         <template v-slot:item.absent_count="{ item }">
@@ -85,16 +87,14 @@
         </template>
         <template v-slot:item.leave_count="{ item }">
           {{ Math.floor(Math.random() * 10) }} days
-        </template>
+        </template> -->
         <template v-slot:item.rating="{ item }">
           <v-rating
             dense
             hide-details
-            :value="getRating(item)"
+            :value="getRating(item.p_count_value)"
             background-color="green lighten-3"
             color="green"
-            large
-            size="10"
           ></v-rating>
         </template>
       </v-data-table>
@@ -724,8 +724,24 @@ export default {
   },
 
   methods: {
-    getRating(item) {
-      return Math.floor(Math.random() * 10);
+    getRating(present_count) {
+      let total = this.total;
+
+      let presentPercentage = total > 0 ? (present_count / total) * 100 : 0;
+
+      if (presentPercentage > 80 && presentPercentage <= 100) {
+        return 5;
+      } else if (presentPercentage > 60 && presentPercentage <= 80) {
+        return 4;
+      } else if (presentPercentage > 40 && presentPercentage <= 60) {
+        return 3;
+      } else if (presentPercentage > 20 && presentPercentage <= 40) {
+        return 2;
+      } else if (presentPercentage > 10 && presentPercentage <= 20) {
+        return 1;
+      } else {
+        return 0;
+      }
     },
     checkHalfday(item) {
       let currentDay = new Date().toLocaleString("en-US", {
