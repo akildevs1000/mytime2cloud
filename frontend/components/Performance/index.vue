@@ -80,7 +80,24 @@
             :value="getRating(item.p_count_value)"
             background-color="green lighten-3"
             color="green"
+            half-increments
           ></v-rating>
+        </template>
+        <template v-slot:item.options="{ item }">
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+            <v-list dense>
+              <v-list-item>
+                <v-list-item-title style="cursor: pointer">
+                  <PerformanceSingle :item="item" />
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
         </template>
       </v-data-table>
     </v-card>
@@ -709,8 +726,7 @@ export default {
   },
 
   methods: {
-    getRating(present_count) {
-
+    getRating(count) {
       // Convert to Date objects
       let fromDate = new Date(this.payload.from_date);
       let toDate = new Date(this.payload.to_date);
@@ -721,17 +737,25 @@ export default {
       // Convert milliseconds to days
       let totalDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
 
-      let presentPercentage = totalDays > 0 ? (present_count / totalDays) * 100 : 0;
+      let presentPercent = totalDays > 0 ? (count / totalDays) * 100 : 0;
 
-      if (presentPercentage > 80 && presentPercentage <= 100) {
+      if (presentPercent > 90 && presentPercent <= 100) {
         return 5;
-      } else if (presentPercentage > 60 && presentPercentage <= 80) {
+      } else if (presentPercent > 80 && presentPercent <= 90) {
+        return 4.5;
+      } else if (presentPercent > 70 && presentPercent <= 80) {
         return 4;
-      } else if (presentPercentage > 40 && presentPercentage <= 60) {
+      } else if (presentPercent > 60 && presentPercent <= 70) {
+        return 3.5;
+      } else if (presentPercent > 50 && presentPercent <= 60) {
         return 3;
-      } else if (presentPercentage > 20 && presentPercentage <= 40) {
+      } else if (presentPercent > 40 && presentPercent <= 50) {
+        return 2.5;
+      } else if (presentPercent > 30 && presentPercent <= 40) {
         return 2;
-      } else if (presentPercentage > 10 && presentPercentage <= 20) {
+      } else if (presentPercent > 20 && presentPercent <= 30) {
+        return 1.5;
+      } else if (presentPercent > 10 && presentPercent <= 20) {
         return 1;
       } else {
         return 0;
