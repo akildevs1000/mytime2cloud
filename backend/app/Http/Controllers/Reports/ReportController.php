@@ -152,7 +152,7 @@ class ReportController extends Controller
         // return $model->count();
 
 
-        return $model->paginate(10);
+        return $model->paginate($request->per_page ?? 10);
     }
 
     function getStatusCountWithSuffix($status)
