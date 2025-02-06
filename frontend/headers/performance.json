@@ -71,5 +71,6 @@
     "sortable": false,
     "filterable": true,
     "value": "rating"
-  }
+  },
+  { "text": "Actions", "value": "options", "sortable": false }
 ]

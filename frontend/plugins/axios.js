@@ -1,5 +1,11 @@
 export default ({ $axios, store }, inject) => {
   $axios.onRequest(async (config) => {
+
+    // if (process.env.ENVIRONMENT !== 'production') {
+    //   config.baseURL = `http://${window.location.hostname ?? "localhost"
+    //     }:8000/api`;
+    // }
+
     let user = store.state.auth.user;
 
     if (user) {
