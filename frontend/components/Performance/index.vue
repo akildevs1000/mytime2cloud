@@ -562,7 +562,7 @@ export default {
     loading: false,
     time_menu: false,
     manual_time_menu: false,
-    Model: "Attendance Reports",
+    Model: "Performance Reports",
     search: "",
     snackbar: false,
     add_manual_log: false,
