@@ -15,99 +15,96 @@
         <v-container>
           <v-row>
             <v-col cols="8">
-              <v-row>
-                <v-col cols="12">
+              <v-row class="py-1">
+                <v-col cols="12" class="py-1">
                   <v-card outlined>
                     <v-card-text>
-                      <v-container class="">
-                        <v-row>
-                          <v-col>
-                            <div class="d-flex align-start">
-                              <v-avatar size="60">
-                                <v-img
-                                  src="https://randomuser.me/api/portraits/women/45.jpg"
-                                  alt="Profile"
-                                />
-                              </v-avatar>
-                              <div class="ml-5">
-                                <div class="primary--text body-2">
-                                  <small> Ms. Mariya Susan</small>
-                                </div>
-                                <div>
-                                  <small> ID: 421</small>
-                                </div>
-                                <div>
-                                  <small> Sales Executive</small>
-                                </div>
-                                <div>
-                                  <small> Burjuman Branch</small>
-                                </div>
-                                <div>
-                                  <small> Vperfume</small>
-                                </div>
-                              </div>
-                            </div>
-                          </v-col>
-
-                          <!-- Contact Info and Manager Details -->
-                          <v-col>
-                            <div>
-                              <div class="white--text">sdf</div>
-                              <div>
-                                <small
-                                  ><strong>Email:</strong>
-                                  mariyasusan@vperfume.ae</small
-                                >
-                              </div>
-                              <div>
-                                <small
-                                  ><strong>Ph:</strong> +971 55 231 2345</small
-                                >
-                              </div>
-                              <div>
-                                <small
-                                  ><strong>Nationality:</strong> Indian</small
-                                >
-                              </div>
-                              <div>
-                                <small
-                                  ><strong>Manager:</strong> Mr. Kumar
-                                  Subramani</small
-                                >
-                              </div>
-                            </div>
-                          </v-col>
-
-                          <!-- Rating and Joining Date -->
-                          <v-col class="text-center">
-                            <div class="white--text body-2">hideme</div>
-                            <div class="body-2">
-                              <v-rating
-                                v-model="rating"
-                                color="orange"
-                                dense
-                                size="20"
-                                half-increments
-                                readonly
+                      <v-row>
+                        <v-col>
+                          <div class="d-flex align-start">
+                            <v-avatar size="60">
+                              <v-img
+                                src="https://randomuser.me/api/portraits/women/45.jpg"
+                                alt="Profile"
                               />
+                            </v-avatar>
+                            <div class="ml-5">
+                              <div class="primary--text body-2 py-0">
+                                <small> Ms. Mariya Susan</small>
+                              </div>
+                              <div>
+                                <small> ID: 421</small>
+                              </div>
+                              <div>
+                                <small> Sales Executive</small>
+                              </div>
+                              <div>
+                                <small> Burjuman Branch</small>
+                              </div>
+                              <div>
+                                <small> Vperfume</small>
+                              </div>
+                            </div>
+                          </div>
+                        </v-col>
+
+                        <!-- Contact Info and Manager Details -->
+                        <v-col>
+                          <div>
+                            <div class="white--text">sdf</div>
+                            <div>
+                              <small
+                                ><strong>Email:</strong>
+                                mariyasusan@vperfume.ae</small
+                              >
                             </div>
                             <div>
-                              <strong>Since</strong>
-                              <h4 class="text-center text-primary">
-                                15 Jan 2022
-                              </h4>
+                              <small
+                                ><strong>Ph:</strong> +971 55 231 2345</small
+                              >
                             </div>
-                          </v-col>
-                        </v-row>
-                      </v-container>
+                            <div>
+                              <small
+                                ><strong>Nationality:</strong> Indian</small
+                              >
+                            </div>
+                            <div>
+                              <small
+                                ><strong>Manager:</strong> Mr. Kumar
+                                Subramani</small
+                              >
+                            </div>
+                          </div>
+                        </v-col>
+
+                        <!-- Rating and Joining Date -->
+                        <v-col class="text-center">
+                          <div class="white--text body-2">hideme</div>
+                          <div class="body-2">
+                            <v-rating
+                              v-model="rating"
+                              color="orange"
+                              dense
+                              size="20"
+                              half-increments
+                              readonly
+                            />
+                          </div>
+                          <div>
+                            <strong>Since</strong>
+                            <h4 class="text-center text-primary">
+                              15 Jan 2022
+                            </h4>
+                          </div>
+                        </v-col>
+                      </v-row>
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="12">
+                <v-col cols="12" class="py-1">
                   <v-card outlined>
                     <v-card-text>
-                      <v-container class="">
-                        <v-row>
+                      <v-row>
                           <!-- Rating and Joining Date -->
                           <v-col cols="5" class="text-center">
                             <div style="width: 100%; display: flex">
@@ -157,7 +154,7 @@
                                   </tr>
                                 </table>
                               </div>
-                              <div style="height: 175px; width:175px;">
+                              <div style="height: 175px; width: 175px">
                                 <apexchart
                                   type="pie"
                                   :options="pieChartOptions"
@@ -167,7 +164,7 @@
                             </div>
                           </v-col>
                           <v-col class="text-center">
-                            <div style="width: 100%;height: 175px;">
+                            <div style="height: 155px; width: 320px">
                               <apexchart
                                 type="bar"
                                 :options="chartOptions"
@@ -176,7 +173,31 @@
                             </div>
                           </v-col>
                         </v-row>
-                      </v-container>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" class="py-1">
+                  <v-card outlined>
+                    <v-card-text>
+                      <v-row>
+                        <!-- Rating and Joining Date -->
+                        <v-col class="text-center">
+                          <div><strong>Total Hrs</strong></div>
+                          <div>4528 Hrs. / 95 days</div>
+                        </v-col>
+                        <v-col class="text-center">
+                          <div><strong>Late In</strong></div>
+                          <div>12.8 Hrs. / 12 days</div>
+                        </v-col>
+                        <v-col class="text-center">
+                          <div><strong>Early Out</strong></div>
+                          <div>45.6 Hrs. / 17 days</div>
+                        </v-col>
+                        <v-col class="text-center">
+                          <div><strong>OverTime</strong></div>
+                          <div>651 Hrs. / 45 days</div>
+                        </v-col>
+                      </v-row>
                     </v-card-text>
                   </v-card>
                 </v-col>
