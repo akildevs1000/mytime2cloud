@@ -193,35 +193,11 @@
             ></v-tabs-slider>
 
             <v-tab
-              v-if="showTabs.single == true"
-              :key="shift_type_id"
               style="height: 30px"
               href="#tab-1"
               class="black--text slidegroup1"
             >
               Single
-            </v-tab>
-
-            <v-tab
-              v-if="showTabs.double == true"
-              :key="shift_type_id"
-              @click="commonMethod(2)"
-              style="height: 30px"
-              href="#tab-2"
-              class="black--text slidegroup1"
-            >
-              Double
-            </v-tab>
-
-            <v-tab
-              v-if="showTabs.multi == true"
-              :key="shift_type_id"
-              @click="commonMethod(3)"
-              style="height: 30px"
-              href="#tab-3"
-              class="black--text slidegroup1"
-            >
-              Multi
             </v-tab>
           </v-tabs>
         </v-card>
@@ -346,32 +322,6 @@
               :payload1="payload11"
               process_file_endpoint=""
               render_endpoint="render_general_report"
-            />
-          </v-tab-item>
-          <v-tab-item value="tab-2">
-            <Performance
-              ref="PerformanceRef"
-              title="Split Reports"
-              :shift_type_id="shift_type_id"
-              :headers="performanceHeader"
-              :report_template="report_template"
-              :payload1="payload11"
-              process_file_endpoint="multi_in_out_"
-              render_endpoint="render_multi_inout_report"
-              :key="shift_type_id"
-            />
-          </v-tab-item>
-          <v-tab-item value="tab-3">
-            <Performance
-              ref="PerformanceRef"
-              :key="shift_type_id"
-              title="Multi In/Out Reports"
-              :shift_type_id="shift_type_id"
-              :headers="performanceHeader"
-              :report_template="report_template"
-              :payload1="payload11"
-              process_file_endpoint="multi_in_out_"
-              render_endpoint="render_multi_inout_report"
             />
           </v-tab-item>
         </v-tabs-items>

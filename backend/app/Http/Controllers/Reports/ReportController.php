@@ -114,7 +114,7 @@ class ReportController extends Controller
                 $this->getStatusCountWithSuffix('M'), // Missing count
                 $this->getStatusCountWithSuffix('LC'), // Late Coming count
                 $this->getStatusCountWithSuffix('EG'), // Early Going count
-                
+
                 $this->getStatusCountValue('P'), // Present count
                 $this->getStatusCountValue('A'), // Absent count
                 $this->getStatusCountValue('L'), // Leave count
@@ -125,6 +125,7 @@ class ReportController extends Controller
 
             ->with(["employee" => function ($q) {
                 $q->withOut("schedule", "user");
+                $q->with("reporting_manager:id,reporting_manager_id,first_name");
                 $q->select(
                     "first_name",
                     "last_name",
@@ -144,11 +145,13 @@ class ReportController extends Controller
                     "branch_id",
                     "system_user_id",
                     "display_name",
-                    "full_name"
+                    "full_name",
+                    "home_country",
+                    "reporting_manager_id",
                 );
             }])
             ->groupBy('employee_id');
-            
+
         // return $model->count();
 
 
@@ -347,5 +350,157 @@ class ReportController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    public function lastSixMonthsPerformanceReport(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $employeeId = $request->input('employee_id', 0);
+
+        $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();  // Removes time
+        $endMonth = Carbon::now()->endOfMonth()->toDateString();  // Removes time
+        // $endMonth = Carbon::now()->toDateString();  // Removes time
+
+
+        $startMonthOnly = Carbon::now()->subMonths(5)->startOfMonth();
+        $endMonthOnly = Carbon::now()->endOfMonth();
+
+        $months = [];
+        for ($month = $startMonthOnly; $month <= $endMonthOnly; $startMonthOnly->addMonth()) {
+            $months[] = [
+                'year' => $month->year,
+                'month' => $month->month,
+            ];
+        }
+
+        // Now, use these dates in your query
+        $query = DB::table('attendances')
+            ->select(
+                DB::raw('EXTRACT(YEAR FROM date) AS year'),
+                DB::raw('EXTRACT(MONTH FROM date) AS month'),
+                DB::raw('COUNT(CASE WHEN status = \'P\' THEN 1 ELSE NULL END) AS present_count'),
+                DB::raw('COUNT(CASE WHEN status = \'A\' THEN 1 ELSE NULL END) AS absent_count'),
+            )
+            ->where('company_id', $companyId)
+            ->where('employee_id', $employeeId)
+            ->whereBetween('date', [$startMonth, $endMonth])  // Date-only comparison
+            ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
+            ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
+            ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
+            ->get();
+
+        $queryResults = [];
+
+
+        foreach ($months as $month) {
+            $found = false;
+            foreach ($query as $result) {
+
+                $monthFormatted = str_pad($month['month'], 2, '0', STR_PAD_LEFT);
+
+                $month_year = date("M Y", strtotime("{$month['year']}-{$monthFormatted}-01"));
+
+                if ($result->year == $month['year'] && $result->month == $month['month']) {
+                    $found = true;
+                    $queryResults[] = (object) [
+                        'year' => $month['year'],
+                        'month' => $month['month'],
+                        'present_count' => $result->present_count,
+                        'absent_count' => $result->absent_count,
+                        'month_year' => date("M y", strtotime($month_year))
+                    ];
+                    break;
+                }
+            }
+
+            if (!$found) {
+                // If the month was not found in the results, add it with counts as 0
+                $queryResults[] = (object) [
+                    'year' => $month['year'],
+                    'month' => $month['month'],
+                    'present_count' => 0,
+                    'absent_count' => 31,
+                    'month_year' => date("M y", strtotime($month_year))
+                ];
+            }
+        }
+
+        return response()->json($queryResults);
+    }
+
+    public function lastSixMonthsSalaryReport(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $employeeId = $request->input('employee_id', 0);
+
+        $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();  // Removes time
+        $endMonth = Carbon::now()->endOfMonth()->toDateString();  // Removes time
+        // $endMonth = Carbon::now()->toDateString();  // Removes time
+
+
+        $startMonthOnly = Carbon::now()->subMonths(5)->startOfMonth();
+        $endMonthOnly = Carbon::now()->endOfMonth();
+
+        $months = [];
+        for ($month = $startMonthOnly; $month <= $endMonthOnly; $startMonthOnly->addMonth()) {
+            $months[] = [
+                'year' => $month->year,
+                'month' => $month->month,
+            ];
+        }
+
+        // Now, use these dates in your query
+        $query = DB::table('attendances')
+            ->select(
+                DB::raw('EXTRACT(YEAR FROM date) AS year'),
+                DB::raw('EXTRACT(MONTH FROM date) AS month'),
+                DB::raw('COUNT(CASE WHEN status = \'P\' THEN 1 ELSE NULL END) AS present_count'),
+                DB::raw('COUNT(CASE WHEN status = \'A\' THEN 1 ELSE NULL END) AS absent_count'),
+            )
+            ->where('company_id', $companyId)
+            ->where('employee_id', $employeeId)
+            ->whereBetween('date', [$startMonth, $endMonth])  // Date-only comparison
+            ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
+            ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
+            ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
+            ->get();
+
+        $queryResults = [];
+
+
+        foreach ($months as $month) {
+            $found = false;
+            foreach ($query as $result) {
+
+                $monthFormatted = str_pad($month['month'], 2, '0', STR_PAD_LEFT);
+
+                $month_year = date("M Y", strtotime("{$month['year']}-{$monthFormatted}-01"));
+
+                if ($result->year == $month['year'] && $result->month == $month['month']) {
+                    $found = true;
+                    $queryResults[] = (object) [
+                        'year' => $month['year'],
+                        'month' => $month['month'],
+                        'present_count' => $result->present_count,
+                        'absent_count' => $result->absent_count,
+                        'month_year' => date("M y", strtotime($month_year))
+                    ];
+                    break;
+                }
+            }
+
+            if (!$found) {
+                // If the month was not found in the results, add it with counts as 0
+                $queryResults[] = (object) [
+                    'year' => $month['year'],
+                    'month' => $month['month'],
+                    'present_count' => 0,
+                    'absent_count' => 31,
+                    'month_year' => date("M y", strtotime($month_year))
+                ];
+            }
+        }
+
+        return response()->json($queryResults);
     }
 }

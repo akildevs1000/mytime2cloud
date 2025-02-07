@@ -20,12 +20,6 @@
     </div>
 
     <v-card class="mb-5" elevation="0" v-if="can(`attendance_report_view`)">
-      <v-toolbar class="backgrounds" dense flat>
-        <v-toolbar-title> </v-toolbar-title>
-
-        <v-spacer></v-spacer>
-      </v-toolbar>
-
       <v-data-table
         dense
         :headers="headers"
@@ -93,7 +87,13 @@
             <v-list dense>
               <v-list-item>
                 <v-list-item-title style="cursor: pointer">
-                  <PerformanceSingle :item="item" />
+                  <PerformanceSingle
+                    :item="item"
+                    :options="{
+                      from_date: $dateFormat.format6(payload.from_date),
+                      to_date: $dateFormat.format6(payload.to_date),
+                    }"
+                  />
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -512,13 +512,10 @@
 <script>
 export default {
   props: [
-    "report_template",
     "branch_id",
     "title",
-    "shift_type_id",
     "headers",
     "render_endpoint",
-    "process_file_endpoint",
     "payload1",
     "display_emp_pic",
     "system_user_id",
@@ -583,6 +580,7 @@ export default {
     main_report_type: "Multi In/Out Report",
     daily_menu: false,
     dailyDate: false,
+    shift_type_id:0,
     editItems: {
       shift_type_id: 0,
       attendance_logs_id: "",
