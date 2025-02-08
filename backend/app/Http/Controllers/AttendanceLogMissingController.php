@@ -54,10 +54,10 @@ class AttendanceLogMissingController  extends Controller
         try {
 
 
-            $source_info = $request->device_healthcheck ?? '';
+            $source_info = $request->device_healthcheck ?? 'Manual';
 
             //$source_info .= $request->company_id == 0 ?  'Master_' : $request->company_id;
-            $source_info .= $request->source   ??  '-';
+            $source_info .= $request->source   ??  '-Manual';
 
             $source_info .= "_missing_logs_" . date("Y-m-d H:i:s");
             $total_records = 0;
@@ -73,7 +73,7 @@ class AttendanceLogMissingController  extends Controller
             $device = null;
             $deviceId = $request->device_id;
             $model_number = '';
-            //if ($company_id == 0) 
+            //if ($company_id == 0)
             {
                 $device = Device::where("device_id", $deviceId)->orderBy("id", "DESC")->first();
 
@@ -88,7 +88,7 @@ class AttendanceLogMissingController  extends Controller
 
             if ($device && $model_number == 'OX-900') {
 
-                // 
+                //
 
                 // // return $personsFromDevice = $deviceSession->getAllPersons(100);
                 $startTime = \Carbon\Carbon::parse($request->date . 'T00:00:00');
@@ -192,7 +192,7 @@ class AttendanceLogMissingController  extends Controller
 
                 $indexSerialNumber = 0;
 
-                //find serial number by date wise 
+                //find serial number by date wise
                 $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
                     ->whereDate("log_date_time", '<=', $date)
                     ->where("SerialNumber", '>', 0)
@@ -214,12 +214,12 @@ class AttendanceLogMissingController  extends Controller
                 ];
 
                 //calll SDK Method
-                $message1 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-date" . $source_info);
+                $message1 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "orderby_log_date_time" . $source_info);
                 $message1["message_array"] = "message1";
 
 
 
-                //------------find serial number by date wise with minus 60 records - to find missing in middle 
+                //------------find serial number by date wise with minus 60 records - to find missing in middle
                 $data =  [
                     "TransactionType" => 1,
                     "Quantity" => 60,
@@ -227,13 +227,13 @@ class AttendanceLogMissingController  extends Controller
                 ];
 
                 //calll SDK Method
-                $message2 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-date-60" . $source_info);
+                $message2 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "orderby_log_date_time-60" . $source_info);
 
                 $message2["message_array"] = "message2";
 
                 //---------------Find Serial Number By Last record------------------------------------
                 try {
-                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number') 
+                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number')
                     {
 
                         $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
@@ -264,13 +264,13 @@ class AttendanceLogMissingController  extends Controller
                 }
                 //calll SDK Method
 
-                $message3 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-60" . $source_info);
+                $message3 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "orderby_index_serial_number-60" . $source_info);
                 $message3["message_array"] = "message3";
 
 
                 //---------------Find Serial Number By Last record------------------------------------
                 try {
-                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number') 
+                    //   if (request("source") && $request->source == 'device_healthcheck_serial_number')
                     {
 
                         $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
@@ -301,7 +301,7 @@ class AttendanceLogMissingController  extends Controller
                 }
                 //calll SDK Method
 
-                $message4 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "trail-60" . $source_info);
+                $message4 = $this->getDataFromSDK($data, $url, $indexSerialNumber, $deviceId, $company_id, "orderbySerialNumber" . $source_info);
                 $message4["message_array"] = "message4";
 
                 return array_merge($message1, $message2, $message3, $message4);;
