@@ -9,6 +9,12 @@
         <v-img :src="qrCodePath" max-width="200" max-height="200"></v-img>
       </div>
 
+      <div>
+        <v-btn class="pa-2" x-small color="primary" @click="connect">
+          <v-icon small class="mr-1">mdi-whatsapp</v-icon> {{statusMessage !== "Online" ? "Connect" : "Check Online"}}
+        </v-btn>
+      </div>
+
       <!-- <div class="mt-5">
         <v-btn
           x-small
@@ -17,10 +23,6 @@
           @click="disconnect"
         >
           <v-icon small class="mr-1">mdi-whatsapp</v-icon> Disconnect
-        </v-btn>
-
-        <v-btn x-small v-if="connectButton" color="primary" @click="connect">
-          <v-icon small class="mr-1">mdi-whatsapp</v-icon> Connect
         </v-btn>
       </div> -->
     </v-card-text>
@@ -44,7 +46,7 @@ export default {
     };
   },
   async mounted() {
-    await this.connect();
+    // await this.connect();
   },
   methods: {
     async connect() {
