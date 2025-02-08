@@ -365,7 +365,7 @@
                       </td>
                     </tr>
                     <tr>
-                      <td style="width: 200px">Country</td>
+                      <td style="width: 200px">Nationality</td>
                       <td>
                         <span v-if="!editForm">{{
                           contactItem.home_country
