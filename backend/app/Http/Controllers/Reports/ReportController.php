@@ -128,7 +128,7 @@ class ReportController extends Controller
             )
 
             ->with(["employee" => function ($q) {
-                $q->where("company_id",request("company_id"));
+                $q->where("company_id", request("company_id"));
                 $q->withOut("schedule", "user");
                 $q->with("reporting_manager:id,reporting_manager_id,first_name");
                 $q->select(
@@ -451,6 +451,17 @@ class ReportController extends Controller
         return array_reverse($result);
     }
 
+    public function currentMonthSalaryReport(Request $request)
+    {
+        $year = date("Y");
+
+        $month = str_pad(date("m"), 2, "0", STR_PAD_LEFT);
+
+        $response = $this->getRenderedSalary($request->company_id, $request->employee_id, $month, $year);
+
+        return $response; // 
+    }
+
     public function currentMonthHoursReport(Request $request)
     {
         // Validate input
@@ -690,6 +701,10 @@ class ReportController extends Controller
             'salary_and_earnings' => number_format($Payroll->salary_and_earnings, 2),
             'ot' => number_format($OTEarning, 2),
             'total_deductions' => number_format($Payroll->totalDeductions, 2),
+
+            'salary_and_earnings_value' => round($Payroll->salary_and_earnings),
+            'ot_value' => round($OTEarning),
+            'total_deductions_value' => round($Payroll->totalDeductions),
         ];
     }
 }

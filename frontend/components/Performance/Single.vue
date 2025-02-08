@@ -7,10 +7,18 @@
           ><v-icon color="secondary" small>mdi-trophy</v-icon> View</span
         >
       </template>
-
       <v-card style="overflow: hidden">
         <v-container fluid>
-          <v-row class="pa-2" v-if="item && item.employee">
+          <div class="text-right">
+            <v-icon color="primary" left @click="takeScreenshot"
+              >mdi-download</v-icon
+            >
+          </div>
+          <v-row
+            class="pa-2"
+            v-if="item && item.employee"
+            id="screenshot-target"
+          >
             <v-col cols="8">
               <v-row>
                 <v-col cols="12">
@@ -21,6 +29,7 @@
                           <div class="d-flex align-start">
                             <v-avatar size="60">
                               <v-img
+                                ref="profileImage"
                                 src="https://randomuser.me/api/portraits/women/45.jpg"
                                 alt="Profile"
                               />
@@ -285,6 +294,12 @@
                               "
                             >
                               {{ payslipData.month }} {{ payslipData.year }}
+
+                              {{
+                                !payslipData.month || !payslipData.month
+                                  ? "---"
+                                  : ""
+                              }}
                             </td>
                             <td
                               class="text-center"
@@ -294,6 +309,9 @@
                               "
                             >
                               {{ payslipData.salary_and_earnings }}
+                              {{
+                                !payslipData.salary_and_earnings ? "---" : ""
+                              }}
                             </td>
                             <td
                               class="text-center"
@@ -303,6 +321,7 @@
                               "
                             >
                               {{ payslipData.ot }}
+                              {{ !payslipData.ot ? "---" : "" }}
                             </td>
                             <td
                               class="text-center"
@@ -312,6 +331,7 @@
                               "
                             >
                               {{ payslipData.total_deductions }}
+                              {{ !payslipData.total_deductions ? "---" : "" }}
                             </td>
                             <td
                               class="text-center"
@@ -321,6 +341,7 @@
                               "
                             >
                               {{ payslipData.finalSalary }}
+                              {{ !payslipData.finalSalary ? "---" : "" }}
                             </td>
                           </tr>
                         </tbody>
@@ -627,10 +648,96 @@ export default {
 
     await this.getCurrentMonthHoursReport();
 
+    await this.getCurrentMonthSalaryReport();
+
     this.isMounted = true;
+
+    const scripts = [
+      {
+        src: "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js",
+        type: "text/javascript",
+        async: true,
+      },
+      {
+        src: "https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js",
+        type: "text/javascript",
+        async: true,
+      },
+      {
+        src: "https://cdn.jsdelivr.net/npm/apexcharts@latest",
+        type: "text/javascript",
+        async: true,
+      },
+      {
+        src: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
+        type: "text/javascript",
+        async: true,
+      },
+      {
+        src: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+        type: "text/javascript",
+        async: true,
+      },
+      // Add MDI CDN for Material Design Icons
+      {
+        src: "https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css",
+        type: "text/css",
+        async: true,
+      },
+    ];
+
+    // Append scripts dynamically
+    scripts.forEach((script) => {
+      const scriptTag = document.createElement("link");
+      scriptTag.href = script.src;
+      scriptTag.type = script.type;
+      scriptTag.rel = "stylesheet"; // For CSS files
+      scriptTag.async = script.async;
+      document.head.appendChild(scriptTag);
+    });
+
+    // Append scripts dynamically
+    scripts.forEach((script) => {
+      const scriptTag = document.createElement("script");
+      scriptTag.src = script.src;
+      scriptTag.type = script.type;
+      scriptTag.async = script.async;
+      document.head.appendChild(scriptTag);
+    });
   },
 
   methods: {
+    takeScreenshot() {
+      const imgElement = this.$refs.profileImage; // Get the image element using ref
+
+      // Wait for the image to load if necessary
+      if (imgElement.complete) {
+        // If the image is already loaded, capture the screenshot
+        this.captureScreenshot();
+      } else {
+        // If the image is not loaded, wait for it to load
+        imgElement.onload = () => {
+          this.captureScreenshot();
+        };
+      }
+    },
+
+    captureScreenshot() {
+      html2canvas(document.getElementById("screenshot-target"), {
+        useCORS: true, // Ensure cross-origin images are captured
+        scale: 3, // Higher scale for better quality (increase for higher resolution)
+      }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+
+        const pdf = new jspdf.jsPDF("l", "mm", "a4"); // "l" for landscape orientation
+        const imgWidth = 297; // Width of A4 paper in mm (landscape)
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+        // Add the captured image to the PDF
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("screenshot.pdf"); // Save the PDF
+      });
+    },
     async getCurrentMonthHoursReport() {
       let payload = {
         company_id: this.$auth.user.company_id,
@@ -656,20 +763,64 @@ export default {
       let { data } = await this.$axios.post(endpoint, payload);
 
       this.payslipsData = data;
-
-      let firstObject = data[0];
-
-      // Convert string values to numbers
-      let salaryAndEarnings = parseFloat(
-        firstObject.salary_and_earnings.replace(/,/g, "")
-      );
-      let ot = parseFloat(firstObject.ot.replace(/,/g, ""));
-      let totalDeductions = parseFloat(
-        firstObject.total_deductions.replace(/,/g, "")
-      );
-
-      this.donutSeries = [salaryAndEarnings, ot, totalDeductions];
     },
+
+    async getCurrentMonthSalaryReport() {
+      let employee_id = this.item?.employee?.employee_id;
+
+      let payload = {
+        company_id: this.$auth.user.company_id,
+        employee_id: employee_id,
+      };
+
+      let endpoint = "current-month-salary-report";
+
+      try {
+        let response = await this.$axios.post(endpoint, payload);
+
+        // Check if the response status is 404
+        if (response.status === 404) {
+          console.error("Resource not found (404)");
+          this.donutSeries = [10000, 1000, 1000];
+          return;
+        }
+
+        // If the response is successful, process the data
+        let { data } = response;
+
+        if (!data) {
+          this.donutSeries = [10000, 1000, 1000];
+          return;
+        }
+
+        this.donutSeries = [
+          data.salary_and_earnings || 10000,
+          data.ot_value || 1000,
+          data.total_deductions_value || 1000,
+        ];
+      } catch (error) {
+        // Handle other errors (e.g., network errors, server errors)
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          if (error.response.status === 404) {
+            console.error("Resource not found (404)");
+          } else {
+            console.error("Server error:", error.response.status);
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error("No response received:", error.request);
+        } else {
+          // Something happened in setting up the request
+          console.error("Error:", error.message);
+        }
+
+        // Set default values in case of any error
+        this.donutSeries = [10000, 1000, 1000];
+      }
+    },
+
     getEvents(date) {
       return this.attendanceData[date] ? [this.attendanceData[date]] : [];
     },
