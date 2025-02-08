@@ -1,36 +1,27 @@
 <template>
-  <v-container fluid class="mt-5">
-    <style>
-      table {
-        font-family: arial, sans-serif;
-        border-collapse: collapse;
-        width: 100%;
-      }
-
-      td,
-      th {
-        border: 1px solid #dddddd;
-        text-align: left;
-        padding: 8px;
-      }
-    </style>
-    <table>
-      <thead>
-        <tr>
-          <td>Attendance Percentage</td>
-          <td>Rating</td>
-          <td>Description</td>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(item, index) in ratings" :key="index">
-          <td style="width:15%">{{ item.percentage }}</td>
-          <td>{{ item.rating }}</td>
-          <td>{{ item.description }}</td>
-        </tr>
-      </tbody>
-    </table>
-  </v-container>
+  <v-card flat>
+    <v-alert dense flat class="grey lighten-3 body-1 mb-2"
+      >Attendanc Rating System</v-alert
+    >
+    <v-card-text>
+      <table>
+        <thead>
+          <tr>
+            <td>Attendance Percentage</td>
+            <td>Rating</td>
+            <td>Description</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in ratings" :key="index">
+            <td style="width: 20%">{{ item.percentage }}</td>
+            <td>{{ item.rating }}</td>
+            <td>{{ item.description }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -81,3 +72,17 @@ export default {
   },
 };
 </script>
+<style scoped>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td,
+th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+</style>

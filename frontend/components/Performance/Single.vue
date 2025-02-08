@@ -206,7 +206,6 @@
                                   "
                                 ></div>
                               </td>
-                              <td style="white-space: nowrap">P (50)</td>
                             </tr>
                             <tr>
                               <td>
@@ -220,7 +219,6 @@
                                   "
                                 ></div>
                               </td>
-                              <td>A (10)</td>
                             </tr>
                           </table>
                         </div>
