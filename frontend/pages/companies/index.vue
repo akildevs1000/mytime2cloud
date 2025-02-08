@@ -51,6 +51,11 @@
                 <span>Whatsapp</span>
               </v-tab>
 
+              <v-tab>
+                <v-icon left> mdi-star-outline </v-icon>
+                <span>Attendance Rating</span>
+              </v-tab>
+
               <!-- <v-tab>
                 <v-icon left> mdi-qrcode </v-icon>
                 <span>QrCode - Visitor </span>
@@ -942,6 +947,10 @@
 
               <v-tab-item>
                 <Whatsapp />
+              </v-tab-item>
+
+              <v-tab-item>
+                <PerformanceRatingDescription />
               </v-tab-item>
             </v-tabs>
           </v-card>
