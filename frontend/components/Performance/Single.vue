@@ -69,7 +69,7 @@
                               {{ item?.employee?.home_country || "---" }}
                             </div>
                             <div style="margin-top: 3px">
-                              <strong>Manager:</strong> Mr.
+                              <strong>Manager:</strong>
                               {{
                                 item?.employee?.reporting_manager?.first_name
                               }}
