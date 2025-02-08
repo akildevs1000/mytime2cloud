@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Reports;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Employee;
+use App\Models\Payroll;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use NumberFormatter;
+
 
 class ReportController extends Controller
 {
@@ -124,6 +128,7 @@ class ReportController extends Controller
             )
 
             ->with(["employee" => function ($q) {
+                $q->where("company_id",request("company_id"));
                 $q->withOut("schedule", "user");
                 $q->with("reporting_manager:id,reporting_manager_id,first_name");
                 $q->select(
@@ -432,77 +437,259 @@ class ReportController extends Controller
 
     public function lastSixMonthsSalaryReport(Request $request)
     {
-        $companyId = $request->input('company_id', 0);
-        $employeeId = $request->input('employee_id', 0);
+        $startMonthOnly = Carbon::now()->subMonths(6)->startOfMonth();
+        $endMonthOnly = Carbon::now()->subMonths(1)->endOfMonth();
 
-        $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();  // Removes time
-        $endMonth = Carbon::now()->endOfMonth()->toDateString();  // Removes time
-        // $endMonth = Carbon::now()->toDateString();  // Removes time
+        $result = [];
 
-
-        $startMonthOnly = Carbon::now()->subMonths(5)->startOfMonth();
-        $endMonthOnly = Carbon::now()->endOfMonth();
-
-        $months = [];
-        for ($month = $startMonthOnly; $month <= $endMonthOnly; $startMonthOnly->addMonth()) {
-            $months[] = [
-                'year' => $month->year,
-                'month' => $month->month,
-            ];
+        for ($month_year = $startMonthOnly; $month_year <= $endMonthOnly; $startMonthOnly->addMonth()) {
+            $year = $month_year->year;
+            $month = str_pad($month_year->month, 2, "0", STR_PAD_LEFT);
+            $result[] = $this->getRenderedSalary($request->company_id, $request->employee_id, $month, $year);
         }
 
-        // Now, use these dates in your query
-        $query = DB::table('attendances')
-            ->select(
-                DB::raw('EXTRACT(YEAR FROM date) AS year'),
-                DB::raw('EXTRACT(MONTH FROM date) AS month'),
-                DB::raw('COUNT(CASE WHEN status = \'P\' THEN 1 ELSE NULL END) AS present_count'),
-                DB::raw('COUNT(CASE WHEN status = \'A\' THEN 1 ELSE NULL END) AS absent_count'),
-            )
-            ->where('company_id', $companyId)
-            ->where('employee_id', $employeeId)
-            ->whereBetween('date', [$startMonth, $endMonth])  // Date-only comparison
-            ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
-            ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
-            ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
+        return array_reverse($result);
+    }
+
+    public function currentMonthHoursReport(Request $request)
+    {
+        // Validate input
+        $request->validate([
+            'company_id' => 'required|integer|min:1',
+            'employee_id' => 'required|integer|min:1',
+        ]);
+
+        $companyId = $request->input('company_id');
+        $employeeId = $request->input('employee_id');
+        $currentMonth = date("01"); // Dynamically get the current month
+
+        try {
+            // Base query for the current month, company, and employee
+            $baseQuery = DB::table('attendances')
+                ->where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereMonth('date', $currentMonth);
+
+            // Fetch total performed hours
+            $totalHours = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
+            $hoursCount = count($totalHours);
+            $totalPerformedHours = $this->sumTimeValues($totalHours);
+
+            // Fetch late coming hours
+            $totalLateComings = (clone $baseQuery)->where('late_coming', '!=', '---')->pluck('late_coming')->toArray();
+            $lateComingsCount = count($totalLateComings);
+            $lateComingHours = $this->sumTimeValues($totalLateComings);
+
+            // Fetch early going hours
+            $totalEarlyGoings = (clone $baseQuery)->where('early_going', '!=', '---')->pluck('early_going')->toArray();
+            $earlyGoingsCount = count($totalEarlyGoings);
+            $earlyGoingHours = $this->sumTimeValues($totalEarlyGoings);
+
+            // Fetch overtime hours
+
+            $totalOtHours = (clone $baseQuery)->where('ot', '!=', '---')->pluck('ot')->toArray();
+            $otHoursCount = count($totalOtHours);
+            $otHours = $this->sumTimeValues($totalOtHours);
+
+            // Return structured response
+            $total_performed_hours =  $hoursCount > 2 ? "$hoursCount Days" : "$hoursCount Day";
+            $late_coming_hours =  $lateComingsCount > 2 ? "$lateComingsCount Days" : "$lateComingsCount Day";
+            $early_going_hours =  $earlyGoingsCount > 2 ? "$earlyGoingsCount Days" : "$earlyGoingsCount Day";
+            $overtime_hours =  $otHoursCount > 2 ? "$otHoursCount Days" : "$otHoursCount Day";
+
+            return response()->json([
+                'total_performed_hours' => $this->formatMinutesToTime($totalPerformedHours) . " Hrs / " . $total_performed_hours,
+                'late_coming_hours' => $this->formatMinutesToTime($lateComingHours) . " Hrs / " . $late_coming_hours,
+                'early_going_hours' => $this->formatMinutesToTime($earlyGoingHours) . " Hrs / " . $early_going_hours,
+                'overtime_hours' => $this->formatMinutesToTime($otHours) . " Hrs / " . $overtime_hours,
+            ]);
+        } catch (\Exception $e) {
+            // Handle any exceptions
+            return response()->json([], 500);
+        }
+    }
+
+    /**
+     * Helper function to sum time values in "HH:MM" format.
+     *
+     * @param array $timeValues Array of time strings in "HH:MM" format.
+     * @return int Total time in minutes.
+     */
+    private function sumTimeValues(array $timeValues): int
+    {
+        $totalMinutes = 0;
+
+        foreach ($timeValues as $time) {
+            list($hours, $minutes) = explode(':', $time);
+            $totalMinutes += ($hours * 60) + $minutes;
+        }
+
+        return $totalMinutes;
+    }
+
+    /**
+     * Helper function to convert total minutes back to "HH:MM" format.
+     *
+     * @param int $minutes Total minutes.
+     * @return string Time in "HH:MM" format.
+     */
+    private function formatMinutesToTime(int $minutes): string
+    {
+        $hours = floor($minutes / 60);
+        $minutes = $minutes % 60;
+        return sprintf('%02d:%02d', $hours, $minutes);
+    }
+
+    public function calculateHoursAndMinutes(array $timeStrings): array
+    {
+        $totalMinutes = array_reduce($timeStrings, function ($carry, $time) {
+            // Ensure the time is in the correct format
+            if (preg_match('/^\d{1,2}:\d{2}$/', $time)) {
+                list($hours, $minutes) = explode(':', $time);
+                return $carry + ($hours * 60) + $minutes; // Convert to total minutes
+            }
+
+            throw new \InvalidArgumentException("Invalid time format: {$time}. Expected 'hh:mm'.");
+        }, 0);
+
+        $hours = intdiv($totalMinutes, 60);
+        $minutes = $totalMinutes % 60;
+
+        return [
+            "hours" => $hours,
+            "minutes" => $minutes,
+            "hm" => sprintf("%02d:%02d", $hours, $minutes), // Format as 'hh:mm'
+        ];
+    }
+
+    function getRenderedSalary($company_id, $id, $month, $year)
+    {
+        // Fetch the last six months' payroll data
+        $Payroll = Payroll::where("employee_id", $id)
+            ->where("company_id", $company_id)
+            ->with(["company", "payroll_formula"])
+            ->with(["employee" => function ($q) {
+                $q->withOut(["user", "schedule"]);
+            }])
+            ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id", "created_at"]);
+
+        if (!$Payroll) {
+            return response()->json(["message" => "No Data Found"], 404);
+        }
+
+        $days_countdate = DateTime::createFromFormat('Y-m-d', $Payroll->created_at->format('Y-m-d'));
+
+        $Payroll->total_month_days = $days_countdate->format('t');
+
+        $salary_type = $Payroll->payroll_formula->salary_type ?? "basic_salary";
+
+        $Payroll->salary_type = ucwords(str_replace("_", " ", $salary_type));
+
+        $Payroll->date = $Payroll->created_at->format('j F Y');
+
+        $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary : $Payroll->net_salary;
+        $Payroll->perDaySalary = number_format($Payroll->SELECTEDSALARY / $Payroll->total_month_days, 2);
+        $Payroll->perHourSalary = number_format($Payroll->perDaySalary / 8, 2);
+
+        $conditions = [
+            "company_id" => $company_id,
+            "employee_id" => $Payroll->employee->system_user_id
+        ];
+
+        $allStatuses = ['P', 'A', 'M', 'O', 'LC', 'EG'];
+
+        $attendances = Attendance::where($conditions)
+            ->whereMonth('date', $month)
+            ->whereYear('date', $year)
+            ->whereIn('status', $allStatuses)
+            ->orderBy("date", "asc")
             ->get();
 
-        $queryResults = [];
+        $otherCalculations = $attendances;
 
+        $lateHours = $otherCalculations->filter(function ($attendance) {
+            return $attendance->late_coming !== '---';
+        })->pluck('late_coming')->toArray();
 
-        foreach ($months as $month) {
-            $found = false;
-            foreach ($query as $result) {
+        $earlyHours = $otherCalculations->filter(function ($attendance) {
+            return $attendance->early_going !== '---';
+        })->pluck('early_going')->toArray();
 
-                $monthFormatted = str_pad($month['month'], 2, '0', STR_PAD_LEFT);
+        $otHours = $otherCalculations->filter(function ($attendance) {
+            return $attendance->ot !== '---';
+        })->pluck('ot')->toArray();
 
-                $month_year = date("M Y", strtotime("{$month['year']}-{$monthFormatted}-01"));
+        $Payroll->lateHours = $this->calculateHoursAndMinutes($lateHours);
+        $Payroll->earlyHours = $this->calculateHoursAndMinutes($earlyHours);
+        $Payroll->otHours = $this->calculateHoursAndMinutes($otHours);
+        $shortHours = array_merge($lateHours, $earlyHours);
+        $Payroll->combimedShortHours = $this->calculateHoursAndMinutes($shortHours);
+        $totalHours = $Payroll->combimedShortHours["hours"] ?? 0;
+        $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00";
+        $decimalHours = $totalHours + ($remainingMinutes / 60);
+        $rate = $Payroll->perHourSalary;
+        $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
 
-                if ($result->year == $month['year'] && $result->month == $month['month']) {
-                    $found = true;
-                    $queryResults[] = (object) [
-                        'year' => $month['year'],
-                        'month' => $month['month'],
-                        'present_count' => $result->present_count,
-                        'absent_count' => $result->absent_count,
-                        'month_year' => date("M y", strtotime($month_year))
-                    ];
-                    break;
-                }
-            }
+        $grouByStatus = $attendances
+            ->groupBy('status')
+            ->map(fn($group) => $group->count())
+            ->toArray();
 
-            if (!$found) {
-                // If the month was not found in the results, add it with counts as 0
-                $queryResults[] = (object) [
-                    'year' => $month['year'],
-                    'month' => $month['month'],
-                    'present_count' => 0,
-                    'absent_count' => 31,
-                    'month_year' => date("M y", strtotime($month_year))
-                ];
-            }
+        $attendanceCounts = array_merge(array_fill_keys($allStatuses, 0), $grouByStatus);
+
+        $Payroll->present = array_sum([
+            $attendanceCounts["P"],
+            $attendanceCounts["LC"],
+            $attendanceCounts["EG"],
+        ]);
+
+        $Payroll->absent = array_sum([
+            $attendanceCounts["A"],
+            $attendanceCounts["M"]
+        ]);
+
+        $Payroll->week_off = $attendanceCounts["O"];
+
+        $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
+
+        $OTHours = $Payroll->otHours["hours"];
+        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+
+        $Payroll->earnings = array_merge(
+            [
+                [
+                    "label" => "Basic",
+                    "value" => (int) $Payroll->SELECTEDSALARY,
+                ],
+                [
+                    "label" => "OT",
+                    "value" => $OTEarning,
+                ],
+            ],
+            $Payroll->earnings,
+        );
+
+        $Payroll->totalDeductions = ($Payroll->deductedSalary + $shortHours);
+
+        $Payroll->salary_and_earnings = array_sum(array_column($Payroll->earnings, "value"));
+
+        if ($Payroll->present == 0) {
+            $Payroll->salary_and_earnings = 0;
+            $Payroll->finalSalary = 0;
         }
 
-        return response()->json($queryResults);
+        $Payroll->finalSalary = (($Payroll->salary_and_earnings) - $Payroll->totalDeductions);
+
+        $Payroll->payslip_month_year = $days_countdate->format('F Y');
+
+        return [
+            "finalSalary" => number_format($Payroll->finalSalary < 0 ? 0 : $Payroll->finalSalary, 2),
+            'year' => $year,
+            'month' => DateTime::createFromFormat('!m', $month)->format('M'), // Convert month number to month name (e.g., "Jan")
+            'salary_type' => $Payroll->salary_type,
+            'salary_and_earnings' => number_format($Payroll->salary_and_earnings, 2),
+            'ot' => number_format($OTEarning, 2),
+            'total_deductions' => number_format($Payroll->totalDeductions, 2),
+        ];
     }
 }

@@ -23,8 +23,9 @@ Route::get('/process_reports', [DailyController::class, 'process_reports']);
 Route::get('report', [ReportController::class, 'index']);
 Route::post('attendance-report-old', [ReportController::class, 'fetchDataOLD']);
 Route::post('attendance-report-new', [ReportController::class, 'fetchDataNEW']);
-Route::post('performance-report', [ReportController::class, 'performanceReport']);
-Route::post('last-six-month-performance-report', [ReportController::class, 'lastSixMonthsPerformanceReport']);
+
+
+
 
 Route::get('pdf-generation', [MonthlyController::class, 'PDFGeneration']);
 Route::get('pdf-report-merge', [MonthlyController::class, 'PDFMerge']);
@@ -156,3 +157,8 @@ Route::get('/document_expiry_print_pdf', [EmployeeController::class, 'document_e
 Route::get('/testPDF', [PDFController::class, 'testPDF']);
 Route::get('/accessControlReport_print_pdf', [PDFController::class, 'accessControlReportPrint']);
 Route::get('/accessControlReport_download_pdf', [PDFController::class, 'accessControlReportDownload']);
+
+Route::post('performance-report', [ReportController::class, 'performanceReport']);
+Route::post('last-six-month-performance-report', [ReportController::class, 'lastSixMonthsPerformanceReport']);
+Route::post('last-six-month-salary-report', [ReportController::class, 'lastSixMonthsSalaryReport']);
+Route::post('current-month-hours-report', [ReportController::class, 'currentMonthHoursReport']);

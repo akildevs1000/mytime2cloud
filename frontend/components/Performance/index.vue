@@ -263,8 +263,8 @@
                     <PerformanceSingle
                       :item="item"
                       :options="{
-                        from_date: $dateFormat.format6(payload.from_date),
-                        to_date: $dateFormat.format6(payload.to_date),
+                        from_date: payload.from_date,
+                        to_date: payload.to_date,
                       }"
                     />
                   </v-list-item-title>

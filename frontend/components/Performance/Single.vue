@@ -40,12 +40,15 @@
 
                               <div style="margin-top: 3px">
                                 ID: {{ item.employee_id }}
+                                {{ item?.employee?.employee_id }}
                               </div>
                               <div style="margin-top: 3px">
                                 {{ item?.employee?.designation?.name || "---" }}
                               </div>
                               <div style="margin-top: 3px">
-                                {{ item?.employee?.branch?.branch_name || "---" }}
+                                {{
+                                  item?.employee?.branch?.branch_name || "---"
+                                }}
                               </div>
                               <div style="margin-top: 3px">
                                 {{ $auth?.user?.company?.name }}
@@ -79,13 +82,19 @@
                         <v-col class="text-center">
                           <div class="body-2">
                             <v-rating
-                              v-model="rating"
-                              color="orange"
                               dense
-                              size="20"
+                              hide-details
+                              :value="
+                                $utils.getRating(
+                                  item.p_count_value,
+                                  options.from_date,
+                                  options.to_date
+                                )
+                              "
+                              background-color="green lighten-3"
+                              color="green"
                               half-increments
-                              readonly
-                            />
+                            ></v-rating>
                           </div>
                           <div class="white--text body-2">hideme</div>
                           <div>
@@ -176,7 +185,7 @@
                         </div>
 
                         <!-- Bar Chart (More Space) -->
-                        <div style="flex: 0.7; min-width: 50%">
+                        <div style="flex: 0.7; min-width: 60%">
                           <div class="body-2 text-left">
                             <b>Last 6 Month</b>
                           </div>
@@ -190,38 +199,6 @@
                             :series="barSeries"
                           ></apexchart>
                         </div>
-
-                        <!-- Right Table -->
-                        <div style="flex: 0.7; min-width: 10%">
-                          <table style="width: 100%; table-layout: fixed">
-                            <tr>
-                              <td style="width: 20px; min-width: 10px">
-                                <div
-                                  class="success"
-                                  style="
-                                    width: 10px;
-                                    height: 10px;
-                                    border-radius: 50%;
-                                    display: inline-block;
-                                  "
-                                ></div>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td>
-                                <div
-                                  class="error"
-                                  style="
-                                    width: 10px;
-                                    height: 10px;
-                                    border-radius: 50%;
-                                    display: inline-block;
-                                  "
-                                ></div>
-                              </td>
-                            </tr>
-                          </table>
-                        </div>
                       </div>
                     </v-card-text>
                   </v-card>
@@ -233,19 +210,29 @@
                         <!-- Rating and Joining Date -->
                         <v-col class="text-center">
                           <div><strong>Total Hrs</strong></div>
-                          <div>4528 Hrs. / 95 days</div>
+                          <div>
+                            {{
+                              hoursReportData?.total_performed_hours || "---"
+                            }}
+                          </div>
                         </v-col>
                         <v-col class="text-center">
                           <div><strong>Late In</strong></div>
-                          <div>12.8 Hrs. / 12 days</div>
+                          <div>
+                            {{ hoursReportData?.late_coming_hours || "---" }}
+                          </div>
                         </v-col>
                         <v-col class="text-center">
                           <div><strong>Early Out</strong></div>
-                          <div>45.6 Hrs. / 17 days</div>
+                          <div>
+                            {{ hoursReportData?.early_going_hours || "---" }}
+                          </div>
                         </v-col>
                         <v-col class="text-center">
                           <div><strong>OverTime</strong></div>
-                          <div>651 Hrs. / 45 days</div>
+                          <div>
+                            {{ hoursReportData?.overtime_hours || "---" }}
+                          </div>
                         </v-col>
                       </v-row>
                     </v-card-text>
@@ -254,7 +241,7 @@
                 <v-col cols="6">
                   <v-card outlined>
                     <v-card-text>
-                      <div class="body-2"><b>Salary</b></div>
+                      <div class="body-2"><b>Salary (Last 6 Months)</b></div>
                       <table dense flat style="width: 100%" class="pt-1">
                         <tbody>
                           <tr>
@@ -289,7 +276,7 @@
                               Total
                             </td>
                           </tr>
-                          <tr v-for="(n, i) in 6" :key="i">
+                          <tr v-for="(payslipData, i) in payslipsData" :key="i">
                             <td
                               class="text-center"
                               style="
@@ -297,7 +284,7 @@
                                 border-bottom: 1px solid #eaeaeaea;
                               "
                             >
-                              Jan 2025
+                              {{ payslipData.month }} {{ payslipData.year }}
                             </td>
                             <td
                               class="text-center"
@@ -306,7 +293,7 @@
                                 border-bottom: 1px solid #eaeaeaea;
                               "
                             >
-                              8500.00
+                              {{ payslipData.salary_and_earnings }}
                             </td>
                             <td
                               class="text-center"
@@ -315,7 +302,7 @@
                                 border-bottom: 1px solid #eaeaeaea;
                               "
                             >
-                              1500.00
+                              {{ payslipData.ot }}
                             </td>
                             <td
                               class="text-center"
@@ -324,7 +311,7 @@
                                 border-bottom: 1px solid #eaeaeaea;
                               "
                             >
-                              750.00
+                              {{ payslipData.total_deductions }}
                             </td>
                             <td
                               class="text-center"
@@ -333,7 +320,7 @@
                                 border-bottom: 1px solid #eaeaeaea;
                               "
                             >
-                              9250.00
+                              {{ payslipData.finalSalary }}
                             </td>
                           </tr>
                         </tbody>
@@ -344,7 +331,9 @@
                 <v-col cols="6">
                   <v-card outlined>
                     <v-card-text>
-                      <div class="body-2"><b>Payroll Details</b></div>
+                      <div class="body-2">
+                        <b>Payroll Details (Current Month)</b>
+                      </div>
                       <div style="display: flex; align-items: center">
                         <!-- Left Table (Smaller) -->
                         <div style="flex: 0.7; min-width: 10%">
@@ -352,7 +341,7 @@
                             <tr>
                               <td style="width: 20px; min-width: 10px">
                                 <div
-                                  class="success"
+                                  class="green"
                                   style="
                                     width: 10px;
                                     height: 10px;
@@ -366,7 +355,7 @@
                             <tr>
                               <td>
                                 <div
-                                  class="error"
+                                  class="success"
                                   style="
                                     width: 10px;
                                     height: 10px;
@@ -507,7 +496,7 @@ export default {
         },
         xaxis: { categories: [] },
         colors: ["#00e676", "#dd2c00"],
-        legend: { show: false }, // Hide the legends
+        legend: { show: true }, // Hide the legends
         plotOptions: {
           bar: {
             columnWidth: "35%", // Increase bar thickness
@@ -523,8 +512,8 @@ export default {
         chart: {
           type: "donut",
         },
-        labels: ["Total Salary", "Overtime", "Deductions"], // Labels for the donut chart
-        colors: ["#4CAF50", "#FFA500", "#FF5252"], // Green for Salary, Orange for Overtime, Red for Deductions
+        labels: ["Salary", "Overtime", "Deductions"], // Labels for the donut chart
+        colors: ["#4CAF50", "#00e676", "#FFA500"], // Green for Salary, Orange for Overtime, Red for Deductions
         responsive: [
           {
             breakpoint: 480,
@@ -603,6 +592,9 @@ export default {
           data: [10, 12, 15, 20, 25, 10, 12, 30, 10, 20, 12, 22], // Current year's data
         },
       ],
+
+      payslipsData: [],
+      hoursReportData: null,
     };
   },
   async mounted() {
@@ -631,10 +623,53 @@ export default {
       { name: "Absent", data: absentData },
     ];
 
+    await this.getLastSixMonthSalaryReport();
+
+    await this.getCurrentMonthHoursReport();
+
     this.isMounted = true;
   },
 
   methods: {
+    async getCurrentMonthHoursReport() {
+      let payload = {
+        company_id: this.$auth.user.company_id,
+        employee_id: this.item.employee_id,
+      };
+
+      let endpoint = "current-month-hours-report";
+
+      let { data } = await this.$axios.post(endpoint, payload);
+
+      this.hoursReportData = data;
+    },
+    async getLastSixMonthSalaryReport() {
+      let employee_id = this.item?.employee?.employee_id;
+
+      let payload = {
+        company_id: this.$auth.user.company_id,
+        employee_id: employee_id,
+      };
+
+      let endpoint = "last-six-month-salary-report";
+
+      let { data } = await this.$axios.post(endpoint, payload);
+
+      this.payslipsData = data;
+
+      let firstObject = data[0];
+
+      // Convert string values to numbers
+      let salaryAndEarnings = parseFloat(
+        firstObject.salary_and_earnings.replace(/,/g, "")
+      );
+      let ot = parseFloat(firstObject.ot.replace(/,/g, ""));
+      let totalDeductions = parseFloat(
+        firstObject.total_deductions.replace(/,/g, "")
+      );
+
+      this.donutSeries = [salaryAndEarnings, ot, totalDeductions];
+    },
     getEvents(date) {
       return this.attendanceData[date] ? [this.attendanceData[date]] : [];
     },
