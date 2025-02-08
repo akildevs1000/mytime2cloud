@@ -148,6 +148,8 @@ class ReportController extends Controller
                     "full_name",
                     "home_country",
                     "reporting_manager_id",
+                    "local_email",
+                    "home_email",
                 );
             }])
             ->groupBy('employee_id');
