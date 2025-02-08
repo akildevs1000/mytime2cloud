@@ -133,7 +133,7 @@ class SingleShiftController extends Controller
             });
 
             $lastLog = collect($logs)->last(function ($record) {
-                return in_array($record["log_type"], ["Out", "Auto", "auto", null], true);
+                return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
             });
 
             $schedules = ScheduleEmployee::where("company_id", $params["company_id"])->where("employee_id", $key)->get()->toArray();
