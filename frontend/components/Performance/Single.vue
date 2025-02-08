@@ -42,10 +42,10 @@
                                 ID: {{ item.employee_id }}
                               </div>
                               <div style="margin-top: 3px">
-                                {{ item?.designation?.name || "---" }}
+                                {{ item?.employee?.designation?.name || "---" }}
                               </div>
                               <div style="margin-top: 3px">
-                                {{ item?.branch?.branch_name }}
+                                {{ item?.employee?.branch?.branch_name || "---" }}
                               </div>
                               <div style="margin-top: 3px">
                                 {{ $auth?.user?.company?.name }}
