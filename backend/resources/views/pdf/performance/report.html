@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Performance Report</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-apexcharts"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+      .v-application {
+        font-family: "Arial", sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="pt-5">
+      <v-app >
+        <v-card style="overflow: hidden" flat>
+          <v-container fluid>
+            <v-row class="pa-2" v-if="item" id="screenshot-target">
+              <v-col cols="8">
+                <v-row>
+                  <v-col cols="12">
+                    <v-card outlined>
+                      <v-card-text>
+                        <v-row>
+                          <v-col>
+                            <div class="d-flex align-start">
+                              <v-avatar size="60">
+                                <img
+                                  v-if="base64Image"
+                                  ref="profileImage"
+                                  :src="base64Image"
+                                  alt="Profile"
+                                />
+                              </v-avatar>
+                              <div class="ml-5">
+                                <div
+                                  class="primary--text body-1 py-0"
+                                  style="
+                                    max-width: 150px;
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                  "
+                                >
+                                  {{ item?.first_name }}
+                                </div>
+
+                                <div style="margin-top: 3px">
+                                  ID: {{ employee_id }}
+                                </div>
+                                <div style="margin-top: 3px">
+                                  {{ item.designation || "---" }}
+                                </div>
+                                <div style="margin-top: 3px">
+                                  {{ item?.branch || "---" }}
+                                </div>
+                                <div style="margin-top: 3px">
+                                  {{ company_name }}
+                                </div>
+                              </div>
+                            </div>
+                          </v-col>
+                          <v-col>
+                            <div>
+                              <div class="white--text">sdf</div>
+                              <div style="margin-top: 3px">
+                                <strong>Email:</strong>
+                                {{ item?.local_email || "---" }}
+                              </div>
+                              <div style="margin-top: 3px">
+                                <strong>Ph:</strong>
+                                {{ item?.whatsapp_number }}
+                              </div>
+                              <div style="margin-top: 3px">
+                                <strong>Nationality:</strong>
+                                {{ item?.home_country || "---" }}
+                              </div>
+                              <div style="margin-top: 3px">
+                                <strong>Manager:</strong>
+                                {{ item?.reporting_manager?.first_name }}
+                              </div>
+                            </div>
+                          </v-col>
+                          <v-col class="text-center">
+                            <div class="body-2">
+                              <v-rating
+                                dense
+                                hide-details
+                                :value="
+                                getRating(
+                                  item.p_count_value,
+                                  item.from_date,
+                                  item.to_date
+                                )
+                              "
+                                background-color="green lighten-3"
+                                color="green"
+                                half-increments
+                              ></v-rating>
+                            </div>
+                            <div class="white--text body-2">hideme</div>
+                            <div>
+                              <strong>Since</strong>
+                              <h4 class="text-center text-primary">
+                                {{ item?.show_joining_date }}
+                              </h4>
+                            </div>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-card outlined class="py-0">
+                      <v-card-text>
+                        <div class="body-2 text-left">
+                          <b
+                            >{{ item?.from_date }} {{ item?.from_date &&
+                            item?.to_date ? "to" : "" }} {{ item?.to_date }}</b
+                          >
+                        </div>
+                        <div
+                          style="
+                            display: flex;
+                            align-items: center;
+                            height: 25vh;
+                          "
+                        >
+                          <!-- Left Table (Smaller) -->
+                          <div style="flex: 0.7; min-width: 10%">
+                            <table style="width: 100%; table-layout: fixed">
+                              <tr>
+                                <td style="width: 20px; min-width: 10px">
+                                  <div
+                                    class="success"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td style="white-space: nowrap">
+                                  <div>
+                                    Present
+                                  </div>
+                                   <div>
+                                    ({{ item?.p_count_value }})
+                                   </div>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div
+                                    class="error"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td>Absent ({{ item?.a_count_value }})</td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div
+                                    class="orange"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td>Leave ({{ item?.l_count_value }})</td>
+                              </tr>
+                            </table>
+                          </div>
+
+                          <!-- Pie Chart -->
+                          <div style="flex: 0.7; min-width: 30%">
+                            <apexchart
+                              v-if="isMounted"
+                              type="pie"
+                              :options="pieOptions"
+                              :series="pieSeries"
+                            ></apexchart>
+                          </div>
+
+                          <!-- Bar Chart (More Space) -->
+                          <div style="flex: 0.7; min-width: 60%">
+                            <div class="body-2 text-left">
+                              <b>Last 6 Month</b>
+                            </div>
+                            <apexchart
+                              v-if="
+                              isMounted && barOptions?.xaxis?.categories?.length
+                            "
+                              type="bar"
+                              height="200px"
+                              :options="barOptions"
+                              :series="barSeries"
+                            ></apexchart>
+                          </div>
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12" class="py-1">
+                    <v-card outlined>
+                      <v-card-text>
+                        <v-row>
+                          <!-- Rating and Joining Date -->
+                          <v-col class="text-center">
+                            <div><strong>Total Hrs</strong></div>
+                            <div>
+                              {{ hoursReportData?.total_performed_hours || "---"
+                              }}
+                            </div>
+                          </v-col>
+                          <v-col class="text-center">
+                            <div><strong>Late In</strong></div>
+                            <div>
+                              {{ hoursReportData?.late_coming_hours || "---" }}
+                            </div>
+                          </v-col>
+                          <v-col class="text-center">
+                            <div><strong>Early Out</strong></div>
+                            <div>
+                              {{ hoursReportData?.early_going_hours || "---" }}
+                            </div>
+                          </v-col>
+                          <v-col class="text-center">
+                            <div><strong>OverTime</strong></div>
+                            <div>
+                              {{ hoursReportData?.overtime_hours || "---" }}
+                            </div>
+                          </v-col>
+                        </v-row>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-card outlined>
+                      <v-card-text>
+                        <div class="body-2"><b>Salary (Last 6 Months)</b></div>
+                        <table dense flat style="width: 100%" class="pt-1">
+                          <tbody>
+                            <tr>
+                              <td
+                                class="text-center"
+                                style="border-bottom: 1px solid #eaeaeaea"
+                              >
+                                Month
+                              </td>
+                              <td
+                                class="text-center"
+                                style="border-bottom: 1px solid #eaeaeaea"
+                              >
+                                Salary
+                              </td>
+                              <td
+                                class="text-center"
+                                style="border-bottom: 1px solid #eaeaeaea"
+                              >
+                                Ot
+                              </td>
+                              <td
+                                class="text-center"
+                                style="border-bottom: 1px solid #eaeaeaea"
+                              >
+                                Deduction
+                              </td>
+                              <td
+                                class="text-center"
+                                style="border-bottom: 1px solid #eaeaeaea"
+                              >
+                                Total
+                              </td>
+                            </tr>
+                            <tr
+                              v-for="(payslipData, i) in payslipsData"
+                              :key="i"
+                            >
+                              <td
+                                class="text-center"
+                                style="
+                                  font-size: 11px;
+                                  border-bottom: 1px solid #eaeaeaea;
+                                "
+                              >
+                                {{ payslipData.month }} {{ payslipData.year }}
+                                {{ !payslipData.month || !payslipData.month ?
+                                "---" : "" }}
+                              </td>
+                              <td
+                                class="text-center"
+                                style="
+                                  font-size: 11px;
+                                  border-bottom: 1px solid #eaeaeaea;
+                                "
+                              >
+                                {{ payslipData.salary_and_earnings }} {{
+                                !payslipData.salary_and_earnings ? "---" : "" }}
+                              </td>
+                              <td
+                                class="text-center"
+                                style="
+                                  font-size: 11px;
+                                  border-bottom: 1px solid #eaeaeaea;
+                                "
+                              >
+                                {{ payslipData.ot }} {{ !payslipData.ot ? "---"
+                                : "" }}
+                              </td>
+                              <td
+                                class="text-center"
+                                style="
+                                  font-size: 11px;
+                                  border-bottom: 1px solid #eaeaeaea;
+                                "
+                              >
+                                {{ payslipData.total_deductions }} {{
+                                !payslipData.total_deductions ? "---" : "" }}
+                              </td>
+                              <td
+                                class="text-center"
+                                style="
+                                  font-size: 11px;
+                                  border-bottom: 1px solid #eaeaeaea;
+                                "
+                              >
+                                {{ payslipData.finalSalary }} {{
+                                !payslipData.finalSalary ? "---" : "" }}
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="6">
+                    <v-card outlined>
+                      <v-card-text>
+                        <div class="body-2">
+                          <b>Payroll Details (Current Month)</b>
+                        </div>
+                        <div style="display: flex; align-items: center">
+                          <!-- Left Table (Smaller) -->
+                          <div style="flex: 0.7; min-width: 10%">
+                            <table style="width: 100%; table-layout: fixed">
+                              <tr>
+                                <td style="width: 20px; min-width: 10px">
+                                  <div
+                                    class="green"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td style="white-space: nowrap">
+                                  Total Salary
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div
+                                    class="success"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td>Overtime</td>
+                              </tr>
+                              <tr>
+                                <td>
+                                  <div
+                                    class="orange"
+                                    style="
+                                      width: 10px;
+                                      height: 10px;
+                                      border-radius: 50%;
+                                      display: inline-block;
+                                    "
+                                  ></div>
+                                </td>
+                                <td>Deduction</td>
+                              </tr>
+                            </table>
+                          </div>
+
+                          <div style="flex: 0.7; min-width: 72%">
+                            <apexchart
+                              v-if="isMounted"
+                              type="donut"
+                              :options="chartOptionsDonut"
+                              :series="donutSeries"
+                            ></apexchart>
+                          </div>
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-col>
+              <v-col cols="4">
+                <v-row>
+                  <v-col cols="12">
+                    <v-card outlined>
+                      <v-card-text class="pa-0">
+                        <v-date-picker
+                          full-width
+                          no-title
+                          dense
+                          v-model="selectedDate"
+                          :events="getEvents"
+                          :event-color="getEventColor"
+                        ></v-date-picker>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-card outlined>
+                      <v-card-text>
+                        <div class="body-2"><b>Leave Quota</b></div>
+                        <div
+                          class="d-flex justify-space-between text-center mt-3"
+                        >
+                          <div>
+                            <div class="">Total</div>
+                            <div class="">40</div>
+                          </div>
+                          <div>
+                            <div class="">Balance</div>
+                            <div class="">12</div>
+                          </div>
+                          <div>
+                            <div class="">Approved</div>
+                            <div class="">5</div>
+                          </div>
+                          <div>
+                            <div class="">Rejected</div>
+                            <div class="">5</div>
+                          </div>
+                        </div>
+                        <div style="flex: 0.7; min-width: 30%">
+                          <apexchart
+                            height="250"
+                            v-if="isMounted"
+                            type="bar"
+                            :options="leaveChartOptions"
+                            :series="leaveChartSeries"
+                          ></apexchart>
+                        </div>
+                      </v-card-text>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card>
+      </v-app>
+    </div>
+
+    <script>
+      Vue.use(Vuetify);
+      Vue.component("apexchart", VueApexCharts);
+
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify(),
+        data() {
+          return {
+            rating: 4.5,
+            selectedDate: new Date().toISOString().substr(0, 10),
+            attendanceData: {
+              "2025-03-03": "late",
+              "2025-03-05": "present",
+              "2025-03-07": "absent",
+              "2025-03-12": "leave",
+              "2025-03-19": "late",
+              "2025-03-20": "present",
+              "2025-03-22": "present",
+            },
+            dialog: false,
+            isMounted: false,
+            pieSeries: [86, 5, 6],
+            pieOptions: {
+              labels: ["Present", "Absent", "Leave"],
+              colors: ["#00e676", "#dd2c00", "#ff9800"],
+              legend: { show: false },
+              dataLabels: { enabled: false },
+            },
+            barSeries: [
+              { name: "Present", data: [25, 15, 23, 10, 17, 21] },
+              { name: "Absent", data: [6, 16, 8, 21, 14, 10] },
+            ],
+            barOptions: {
+              chart: {
+                type: "bar",
+                stacked: true,
+                toolbar: { show: false },
+              },
+              xaxis: { categories: [] },
+              colors: ["#00e676", "#dd2c00"],
+              legend: { show: true },
+              plotOptions: {
+                bar: { columnWidth: "35%" },
+              },
+              dataLabels: { enabled: false },
+            },
+            donutSeries: [12000, 3000, 2000],
+            chartOptionsDonut: {
+              chart: { type: "donut" },
+              labels: ["Salary", "Overtime", "Deductions"],
+              colors: ["#4CAF50", "#00e676", "#FFA500"],
+              responsive: [
+                {
+                  breakpoint: 480,
+                  options: {
+                    chart: { width: 400 },
+                    legend: { position: "bottom" },
+                  },
+                },
+              ],
+              legend: { show: false },
+              dataLabels: { enabled: false },
+              plotOptions: {
+                pie: {
+                  donut: {
+                    size: "50%",
+                    labels: { show: false, total: { show: false } },
+                  },
+                },
+              },
+            },
+            leaveChartOptions: {
+              chart: { type: "bar", toolbar: { show: false } },
+              plotOptions: { bar: { horizontal: false, columnWidth: "50%" } },
+              xaxis: {
+                categories: [
+                  "Jan",
+                  "Feb",
+                  "Mar",
+                  "Apr",
+                  "May",
+                  "Jun",
+                  "Jul",
+                  "Aug",
+                  "Sep",
+                  "Oct",
+                  "Nov",
+                  "Dec",
+                ],
+              },
+              colors: ["#4CAF50"],
+              legend: { show: false },
+              dataLabels: { enabled: false },
+            },
+            leaveChartSeries: [
+              {
+                name: "Current Year",
+                type: "bar",
+                data: [10, 12, 15, 20, 25, 10, 12, 30, 10, 20, 12, 22],
+              },
+            ],
+            payslipsData: [],
+            hoursReportData: null,
+            base64Image: null,
+            company_name: "Cimpany bane",
+            item: {
+              first_name: "John Doe",
+              designation: "Software Engineer",
+              branch: "New York",
+              local_email: "john.doe@example.com",
+              whatsapp_number: "+1234567890",
+              home_country: "USA",
+              reporting_manager: "Jane Smith",
+              show_joining_date: "2020-01-01",
+              from_date: "2023-01-01",
+              to_date: "2023-12-31",
+            },
+          };
+        },
+        async mounted() {
+          // these params from i want to passwors as query parameter when i call this index.html
+          // then i wna tot get here
+
+          const queryString = window.location.search;
+          const urlParams = new URLSearchParams(queryString);
+
+          let payload = {
+            company_id: urlParams.get("company_id") || 43, // Default value if not provided
+            employee_id: urlParams.get("employee_id") || 12, // Default value if not provided
+            system_user_id: urlParams.get("system_user_id") || 12, // Default value if not provided
+          };
+          console.log("🚀 ~ mounted ~ payload:", payload);
+
+          await this.getEncodedImage(payload);
+
+          await this.getLastSixMonthPerformanceReport(payload);
+
+          await this.getCurrentMonthHoursReport(payload);
+
+          await this.getLastSixMonthSalaryReport(payload);
+
+          await this.getCurrentMonthSalaryReport(payload);
+
+          this.isMounted = true;
+
+          // setTimeout(() => {
+          //   this.takeScreenshot();
+          // }, 5000);
+        },
+        methods: {
+          async getEncodedImage(payload) {
+            let { data } = await axios.get(
+              `https://mytime2cloud-backend.test/api/get-encoded-profile-picture`
+            );
+
+            this.base64Image = data;
+          },
+          async getLastSixMonthPerformanceReport(payload) {
+            let endpoint = `https://mytime2cloud-backend.test/api/last-six-month-performance-report`;
+            let { data } = await axios.post(endpoint, payload);
+            const categories = data.map((e) => e.month_year);
+            const presentData = data.map((e) => e.present_count);
+            const absentData = data.map((e) => e.absent_count);
+            this.barOptions.xaxis.categories = categories;
+            this.barSeries = [
+              { name: "Present", data: presentData },
+              { name: "Absent", data: absentData },
+            ];
+          },
+          async getCurrentMonthHoursReport(payload) {
+            let endpoint =
+              "https://mytime2cloud-backend.test/api/current-month-hours-report";
+            let { data } = await axios.post(endpoint, payload);
+            this.hoursReportData = data;
+          },
+          async getLastSixMonthSalaryReport(payload) {
+            let endpoint =
+              "https://mytime2cloud-backend.test/api/last-six-month-salary-report";
+            let { data } = await axios.post(endpoint, payload);
+            this.payslipsData = data;
+          },
+          async getCurrentMonthSalaryReport(payload) {
+            let endpoint =
+              "https://mytime2cloud-backend.test/api/current-month-salary-report";
+            try {
+              let response = await axios.post(endpoint, payload);
+
+              // Check if the response status is 404
+              if (response.status === 404) {
+                console.error("Resource not found (404)");
+                this.donutSeries = [10000, 1000, 1000];
+                return;
+              }
+
+              // If the response is successful, process the data
+              let { data } = response;
+
+              if (!data) {
+                this.donutSeries = [10000, 1000, 1000];
+                return;
+              }
+
+              this.donutSeries = [
+                data.salary_and_earnings || 10000,
+                data.ot_value || 1000,
+                data.total_deductions_value || 1000,
+              ];
+            } catch (error) {
+              // Handle other errors (e.g., network errors, server errors)
+              if (error.response) {
+                // The request was made and the server responded with a status code
+                // that falls out of the range of 2xx
+                if (error.response.status === 404) {
+                  console.error("Resource not found (404)");
+                } else {
+                  console.error("Server error:", error.response.status);
+                }
+              } else if (error.request) {
+                // The request was made but no response was received
+                console.error("No response received:", error.request);
+              } else {
+                // Something happened in setting up the request
+                console.error("Error:", error.message);
+              }
+
+              // Set default values in case of any error
+              this.donutSeries = [10000, 1000, 1000];
+            }
+          },
+
+          getEvents(date) {
+            return this.attendanceData[date] ? [this.attendanceData[date]] : [];
+          },
+          getEventColor(date) {
+            return this.eventColors[this.attendanceData[date]] || "";
+          },
+          getRating(count, from_date, to_date) {
+            // Convert to Date objects
+            let fromDate = new Date(from_date);
+            let toDate = new Date(to_date);
+
+            // Calculate difference in milliseconds
+            let diffInMilliseconds = toDate - fromDate;
+
+            // Convert milliseconds to days
+            let totalDays = Math.ceil(
+              diffInMilliseconds / (1000 * 60 * 60 * 24)
+            );
+
+            let presentPercent = totalDays > 0 ? (count / totalDays) * 100 : 0;
+
+            if (presentPercent > 90 && presentPercent <= 100) {
+              return 5;
+            } else if (presentPercent > 80 && presentPercent <= 90) {
+              return 4.5;
+            } else if (presentPercent > 70 && presentPercent <= 80) {
+              return 4;
+            } else if (presentPercent > 60 && presentPercent <= 70) {
+              return 3.5;
+            } else if (presentPercent > 50 && presentPercent <= 60) {
+              return 3;
+            } else if (presentPercent > 40 && presentPercent <= 50) {
+              return 2.5;
+            } else if (presentPercent > 30 && presentPercent <= 40) {
+              return 2;
+            } else if (presentPercent > 20 && presentPercent <= 30) {
+              return 1.5;
+            } else if (presentPercent > 10 && presentPercent <= 20) {
+              return 1;
+            } else {
+              return 0;
+            }
+          },
+          takeScreenshot() {
+            html2canvas(document.getElementById("screenshot-target"), {
+              useCORS: true, // Ensure cross-origin images are captured
+              scale: 3, // Higher scale for better quality (increase for higher resolution)
+            }).then((canvas) => {
+              const imgData = canvas.toDataURL("image/png");
+
+              const pdf = new jsPDF("l", "mm", "a4"); // "l" for landscape orientation
+              const imgWidth = 297; // Width of A4 paper in mm (landscape)
+              const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+              // Add the captured image to the PDF
+              pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+              pdf.save("performance-report.pdf"); // Save the PDF
+            });
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

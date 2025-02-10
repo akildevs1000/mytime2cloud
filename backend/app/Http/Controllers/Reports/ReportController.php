@@ -155,6 +155,7 @@ class ReportController extends Controller
                     "reporting_manager_id",
                     "local_email",
                     "home_email",
+                    "leave_group_id"
                 );
             }])
             ->groupBy('employee_id');
@@ -706,5 +707,50 @@ class ReportController extends Controller
             'ot_value' => round($OTEarning),
             'total_deductions_value' => round($Payroll->totalDeductions),
         ];
+    }
+    public function currentMonthPerformanceReport(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $employeeId = $request->input('employee_id', 0);
+
+        // Define status colors
+        $statusColors = [
+            'P' => 'green', // Green
+            'A' => 'red', // Red
+            'L' => 'orange', // Blue
+            'O' => 'primary', // Blue
+        ];
+
+        $result = DB::table('attendances')
+            ->select('date', 'status', DB::raw('MAX(employee_id) as employee_id')) // Select distinct date with the latest status
+            ->where('company_id', $companyId)
+            ->where('employee_id', $employeeId)
+            ->whereMonth('date', date('01')) // Filter by current month
+            ->whereYear('date', date('Y')) // Ensure the current year
+            ->groupBy('date', 'status') // Group by date and status
+            ->orderBy('date')
+            ->limit(31)
+            ->get();
+
+        $arr = [];
+        $stats = [];
+
+        foreach ($result as $item) {
+
+            $arr[$item->date] = $statusColors[$item->status] ?? '';
+
+            if (!isset($stats[$item->status])) {
+                $stats[$item->status] = 1; // Initialize the count for this status
+            } else {
+                $stats[$item->status]++; // Increment the count for this status
+            }
+        }
+
+        return ["events" => $arr, "stats" => $stats];
+    }
+
+    function performanceReportPDF(Request $request)
+    {
+        return view("pdf.performance.report");
     }
 }

@@ -1,34 +1,48 @@
 <template>
   <client-only>
-    <v-dialog v-model="dialog" width="1200px">
-      <WidgetsClose left="1190" @click="dialog = false" />
+    <v-dialog v-model="dialog" width="1300px">
+      <WidgetsClose left="1290" @click="dialog = false" />
       <template v-slot:activator="{ on, attrs }">
         <span v-bind="attrs" v-on="on"
           ><v-icon color="secondary" small>mdi-trophy</v-icon> View</span
         >
       </template>
-      <v-card style="overflow: hidden">
+      <style scoped>
+        /* Hide the selected date highlight */
+        .v-date-picker-table .v-btn--active {
+          background: white !important;
+          color: black !important;
+        }
+
+        .v-date-picker-table .v-btn--active::before {
+          opacity: 0 !important;
+        }
+      </style>
+      <v-card style="overflow-y: scroll; max-height: 850px">
         <v-container fluid>
           <div class="text-right">
-            <v-icon color="primary" left @click="takeScreenshot"
-              >mdi-download</v-icon
+            <v-btn @click="takeScreenshot" class="primary"
+              >Download
+              <v-icon right>mdi-download</v-icon></v-btn
             >
           </div>
           <v-row
+            no-gutters
             class="pa-2"
             v-if="item && item.employee"
             id="screenshot-target"
           >
-            <v-col cols="8">
-              <v-row>
-                <v-col cols="12">
+            <v-col style="margin-right: 10px">
+              <v-row no-gutters>
+                <v-col cols="12" style="margin-top: 10px">
                   <v-card outlined>
                     <v-card-text>
                       <v-row>
-                        <v-col>
+                        <v-col cols="5">
                           <div class="d-flex align-start">
                             <v-avatar size="60">
-                              <img v-if="base64Image"
+                              <img
+                                v-if="base64Image"
                                 ref="profileImage"
                                 :src="base64Image"
                                 alt="Profile"
@@ -44,12 +58,14 @@
                                   text-overflow: ellipsis;
                                 "
                               >
-                                {{ item?.employee?.first_name }}
+                                <b
+                                  >{{ item?.employee?.title }}.
+                                  {{ item?.employee?.full_name }}</b
+                                >
                               </div>
 
                               <div style="margin-top: 3px">
                                 ID: {{ item.employee_id }}
-                                {{ item?.employee?.employee_id }}
                               </div>
                               <div style="margin-top: 3px">
                                 {{ item?.employee?.designation?.name || "---" }}
@@ -65,8 +81,8 @@
                             </div>
                           </div>
                         </v-col>
-                        <v-col>
-                          <div>
+                        <v-col cols="4" class="text-center">
+                          <div class="text-left">
                             <div class="white--text">sdf</div>
                             <div style="margin-top: 3px">
                               <strong>Email:</strong>
@@ -88,13 +104,13 @@
                             </div>
                           </div>
                         </v-col>
-                        <v-col class="text-center">
+                        <v-col cols="3" class="text-center">
                           <div class="body-2">
                             <v-rating
                               dense
                               hide-details
                               :value="
-                                $utils.getRating(
+                                getRating(
                                   item.p_count_value,
                                   options.from_date,
                                   options.to_date
@@ -117,20 +133,29 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="12">
-                  <v-card outlined class="py-0">
+                <v-col cols="12" style="margin-top: 10px">
+                  <v-card outlined>
                     <v-card-text>
-                      <div v-if="options" class="body-2 text-left">
-                        <b
-                          >{{ options?.from_date }}
-                          {{
-                            options?.from_date && options?.to_date ? "to" : ""
-                          }}
-                          {{ options?.to_date }}</b
+                      <div style="display: flex">
+                        <div
+                          style="min-width: 340px"
+                          v-if="options"
+                          class="body-2 text-left"
                         >
+                          <b
+                            >{{ formatDate(options?.from_date) }}
+                            {{
+                              options?.from_date && options?.to_date ? "to" : ""
+                            }}
+                            {{ formatDate(options?.to_date) }}</b
+                          >
+                        </div>
+                        <div class="body-2 text-left">
+                          <b>Last 6 Month</b>
+                        </div>
                       </div>
                       <div
-                        style="display: flex; align-items: center; height: 25vh"
+                        style="display: flex; align-items: center; height: 23vh"
                       >
                         <!-- Left Table (Smaller) -->
                         <div style="flex: 0.7; min-width: 10%">
@@ -148,7 +173,8 @@
                                 ></div>
                               </td>
                               <td style="white-space: nowrap">
-                                P ({{ item?.p_count_value }})
+                                <div class="pt-3">Present</div>
+                                <div>({{ item?.p_count_value }})</div>
                               </td>
                             </tr>
                             <tr>
@@ -163,7 +189,10 @@
                                   "
                                 ></div>
                               </td>
-                              <td>A ({{ item?.a_count_value }})</td>
+                              <td>
+                                <div class="pt-3">Absent</div>
+                                <div>({{ item?.a_count_value }})</div>
+                              </td>
                             </tr>
                             <tr>
                               <td>
@@ -177,7 +206,10 @@
                                   "
                                 ></div>
                               </td>
-                              <td>L ({{ item?.l_count_value }})</td>
+                              <td>
+                                <div class="pt-3">Leave</div>
+                                <div>({{ item?.l_count_value }})</div>
+                              </td>
                             </tr>
                           </table>
                         </div>
@@ -195,9 +227,6 @@
 
                         <!-- Bar Chart (More Space) -->
                         <div style="flex: 0.7; min-width: 60%">
-                          <div class="body-2 text-left">
-                            <b>Last 6 Month</b>
-                          </div>
                           <apexchart
                             v-if="
                               isMounted && barOptions?.xaxis?.categories?.length
@@ -212,7 +241,7 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="12" class="py-1">
+                <v-col cols="12" style="margin-top: 10px">
                   <v-card outlined>
                     <v-card-text>
                       <v-row>
@@ -247,8 +276,15 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="6">
-                  <v-card outlined>
+                <v-col cols="6" style="margin-top: 10px">
+                  <v-card
+                    outlined
+                    style="
+                      margin-right: 5px;
+                      max-height: 235px;
+                      min-height: 235px;
+                    "
+                  >
                     <v-card-text>
                       <div class="body-2"><b>Salary (Last 6 Months)</b></div>
                       <table dense flat style="width: 100%" class="pt-1">
@@ -349,8 +385,10 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="6">
-                  <v-card outlined>
+                <v-col
+                  style="margin-top: 10px; max-height: 235px; min-height: 235px"
+                >
+                  <v-card outlined style="max-height: 235px; min-height: 235px">
                     <v-card-text>
                       <div class="body-2">
                         <b>Payroll Details (Current Month)</b>
@@ -371,7 +409,7 @@
                                   "
                                 ></div>
                               </td>
-                              <td style="white-space: nowrap">Total Salary</td>
+                              <td style="white-space: nowrap">Salary</td>
                             </tr>
                             <tr>
                               <td>
@@ -404,7 +442,7 @@
                           </table>
                         </div>
 
-                        <div style="flex: 0.7; min-width: 72%">
+                        <div style="flex: 0.7; min-width: 60%">
                           <apexchart
                             v-if="isMounted"
                             type="donut"
@@ -418,28 +456,70 @@
                 </v-col>
               </v-row>
             </v-col>
-            <v-col cols="4">
-              <v-row>
+            <v-col cols="4" style="margin-top: 10px">
+              <v-row no-gutters>
                 <v-col cols="12">
                   <v-card outlined>
-                    <v-card-text class="pa-0">
-                      <v-date-picker
-                        full-width
-                        no-title
-                        dense
-                        v-model="selectedDate"
-                        :events="getEvents"
-                        :event-color="getEventColor"
-                      ></v-date-picker>
-                    </v-card-text>
+                    <v-date-picker
+                      hide-details
+                      v-if="selectedDate"
+                      full-width
+                      no-title
+                      dense
+                      :events="Object.keys(events)"
+                      :event-color="getEventColors"
+                      v-model="selectedDate"
+                      :max="maxDate"
+                    >
+                      <template v-slot:default>
+                        <v-row>
+                          <!-- Present -->
+                          <v-col cols="3" class="text-center">
+                            <v-icon color="green" x-small>mdi-circle</v-icon>
+                            <small> P ({{ eventStats["P"] || "0" }})</small>
+                          </v-col>
+
+                          <!-- Absent -->
+                          <v-col cols="3" class="text-center">
+                            <v-icon color="red" x-small>mdi-circle</v-icon>
+                            <small> A ({{ eventStats["A"] || "0" }})</small>
+                          </v-col>
+
+                          <!-- Leave -->
+                          <v-col cols="3" class="text-center">
+                            <v-icon color="orange" x-small>mdi-circle</v-icon>
+                            <small>L ({{ eventStats["L"] || "0" }})</small>
+                          </v-col>
+
+                          <!-- Week Off -->
+                          <v-col cols="3" class="text-center">
+                            <v-icon color="primary" x-small>mdi-circle</v-icon>
+                            <small>WO ({{ eventStats["O"] || "0" }})</small>
+                          </v-col>
+                        </v-row>
+                      </template>
+                    </v-date-picker>
                   </v-card>
                 </v-col>
-                <v-col cols="12">
-                  <v-card outlined>
+                <v-col cols="12" style="margin-top: 10px">
+                  <v-card outlined min-height="410">
                     <v-card-text>
-                      <div class="body-2"><b>Leave Quota</b></div>
+                      <div class="body-2" style="margin-bottom: 38px">
+                        <b>Leave Quota</b>
+                      </div>
+
+                      <div style="flex: 0.7; min-width: 30%">
+                        <apexchart
+                          height="250"
+                          v-if="isMounted"
+                          type="bar"
+                          :options="leaveChartOptions"
+                          :series="leaveChartSeries"
+                        ></apexchart>
+                      </div>
+
                       <div
-                        class="d-flex justify-space-between text-center mt-3"
+                        class="d-flex justify-space-between text-center pt-8"
                       >
                         <div>
                           <div class="">Total</div>
@@ -458,15 +538,6 @@
                           <div class="">5</div>
                         </div>
                       </div>
-                      <div style="flex: 0.7; min-width: 30%">
-                        <apexchart
-                          height="250"
-                          v-if="isMounted"
-                          type="bar"
-                          :options="leaveChartOptions"
-                          :series="leaveChartSeries"
-                        ></apexchart>
-                      </div>
                     </v-card-text>
                   </v-card>
                 </v-col>
@@ -481,22 +552,17 @@
 
 <script>
 import html2canvas from "html2canvas";
+import jsPDF from "jsPDF";
 
 export default {
   props: ["item", "options"],
   data() {
     return {
       rating: 4.5,
-      selectedDate: new Date().toISOString().substr(0, 10), // Default to today
-      attendanceData: {
-        "2025-03-03": "late",
-        "2025-03-05": "present",
-        "2025-03-07": "absent",
-        "2025-03-12": "leave",
-        "2025-03-19": "late",
-        "2025-03-20": "present",
-        "2025-03-22": "present",
-      },
+      selectedDate: null, // Default to today
+      maxDate: null,
+      events: null,
+      eventStats: null,
       dialog: false,
       isMounted: false,
       pieSeries: [86, 5, 6],
@@ -504,6 +570,7 @@ export default {
         labels: ["Present", "Absent", "Leave"],
         colors: ["#00e676", "#dd2c00", "#ff9800"],
         legend: { show: false }, // Hide the legends
+        dataLabels: { enabled: false },
       },
       barSeries: [
         { name: "Present", data: [25, 15, 23, 10, 17, 21] },
@@ -530,7 +597,7 @@ export default {
         },
       },
 
-      donutSeries: [12000, 3000, 2000], // Total Salary, Overtime, Deductions
+      donutSeries: [], // Total Salary, Overtime, Deductions
       chartOptionsDonut: {
         chart: {
           type: "donut",
@@ -542,7 +609,7 @@ export default {
             breakpoint: 480,
             options: {
               chart: {
-                width: 400,
+                width: 200,
               },
               legend: {
                 position: "bottom",
@@ -619,6 +686,17 @@ export default {
       payslipsData: [],
       hoursReportData: null,
       base64Image: null,
+      leaveQuota: 0,
+    };
+  },
+  head() {
+    return {
+      link: [
+        {
+          rel: "stylesheet",
+          href: "https://cdn.jsdelivr.net/npm/@mdi/font@6.x/css/materialdesignicons.min.css",
+        },
+      ],
     };
   },
   async mounted() {
@@ -653,51 +731,79 @@ export default {
 
     await this.getCurrentMonthSalaryReport();
 
-    this.base64Image = await this.getEncodedImage();
+    await this.getEncodedImage();
+
+    await this.getCurrentMonthPerformanceReport(payload);
+
+    await this.getLeaveQuota();
 
     this.isMounted = true;
 
-    const scripts = [
-      {
-        src: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
-        type: "text/javascript",
-        async: true,
-      },
-      // Add MDI CDN for Material Design Icons
-      {
-        src: "https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css",
-        type: "text/css",
-        async: true,
-      },
-    ];
+    const date = new Date(); // This is a Date object, not a string
+    let previousMonth = new Date(date.getFullYear(), date.getMonth())
+      .toISOString()
+      .substr(0, 7);
 
-    // Append scripts dynamically
-    scripts.forEach((script) => {
-      const scriptTag = document.createElement("link");
-      scriptTag.href = script.src;
-      scriptTag.type = script.type;
-      scriptTag.rel = "stylesheet"; // For CSS files
-      scriptTag.async = script.async;
-      document.head.appendChild(scriptTag);
-    });
-
-    // Append scripts dynamically
-    scripts.forEach((script) => {
-      const scriptTag = document.createElement("script");
-      scriptTag.src = script.src;
-      scriptTag.type = script.type;
-      scriptTag.async = script.async;
-      document.head.appendChild(scriptTag);
-    });
+    this.selectedDate = `${previousMonth}-01`;
+    this.maxDate = `${previousMonth}-31`;
   },
 
   methods: {
-    async getEncodedImage() {
-      let image = this.item?.employee?.profile_picture;
+    getRating(count, from_date, to_date) {
+      // Convert to Date objects
+      let fromDate = new Date(from_date);
+      let toDate = new Date(to_date);
 
+      // Calculate difference in milliseconds
+      let diffInMilliseconds = toDate - fromDate;
+
+      // Convert milliseconds to days
+      let totalDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
+
+      let presentPercent = totalDays > 0 ? (count / totalDays) * 100 : 0;
+
+      if (presentPercent > 90 && presentPercent <= 100) {
+        return 5;
+      } else if (presentPercent > 80 && presentPercent <= 90) {
+        return 4.5;
+      } else if (presentPercent > 70 && presentPercent <= 80) {
+        return 4;
+      } else if (presentPercent > 60 && presentPercent <= 70) {
+        return 3.5;
+      } else if (presentPercent > 50 && presentPercent <= 60) {
+        return 3;
+      } else if (presentPercent > 40 && presentPercent <= 50) {
+        return 2.5;
+      } else if (presentPercent > 30 && presentPercent <= 40) {
+        return 2;
+      } else if (presentPercent > 20 && presentPercent <= 30) {
+        return 1.5;
+      } else if (presentPercent > 10 && presentPercent <= 20) {
+        return 1;
+      } else {
+        return 0;
+      }
+    },
+    formatDate: (inputdate) => {
+      const date = new Date(inputdate);
+      const options = { day: "2-digit", month: "short", year: "numeric" };
+      return date.toLocaleDateString("en-GB", options).replace(",", "");
+    },
+    async getCurrentMonthPerformanceReport(payload) {
+      let { data } = await this.$axios.post(
+        `current-month-performance-report`,
+        payload
+      );
+      this.events = data.events;
+      this.eventStats = data.stats;
+    },
+    getEventColors(e) {
+      return this.events[e] || "";
+    },
+    async getEncodedImage() {
       let { data } = await this.$axios.get(`get-encoded-profile-picture`);
 
-      return data;
+      this.base64Image = data;
     },
     takeScreenshot() {
       html2canvas(document.getElementById("screenshot-target"), {
@@ -706,7 +812,7 @@ export default {
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
 
-        const pdf = new jspdf.jsPDF("l", "mm", "a4"); // "l" for landscape orientation
+        const pdf = new jsPDF("l", "mm", "a4"); // "l" for landscape orientation
         const imgWidth = 297; // Width of A4 paper in mm (landscape)
         const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
 
@@ -753,56 +859,55 @@ export default {
       let endpoint = "current-month-salary-report";
 
       try {
-        let response = await this.$axios.post(endpoint, payload);
-
-        // Check if the response status is 404
-        if (response.status === 404) {
-          console.error("Resource not found (404)");
-          this.donutSeries = [10000, 1000, 1000];
-          return;
-        }
-
-        // If the response is successful, process the data
-        let { data } = response;
+        let { data } = await this.$axios.post(endpoint, payload);
 
         if (!data) {
-          this.donutSeries = [10000, 1000, 1000];
+          this.donutSeries = [];
           return;
         }
-
         this.donutSeries = [
           data.salary_and_earnings || 10000,
           data.ot_value || 1000,
           data.total_deductions_value || 1000,
         ];
+        this.chartOptionsDonut.colors = ["#4CAF50", "#00e676", "#FFA500"];
       } catch (error) {
-        // Handle other errors (e.g., network errors, server errors)
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          if (error.response.status === 404) {
-            console.error("Resource not found (404)");
-          } else {
-            console.error("Server error:", error.response.status);
-          }
-        } else if (error.request) {
-          // The request was made but no response was received
-          console.error("No response received:", error.request);
-        } else {
-          // Something happened in setting up the request
-          console.error("Error:", error.message);
-        }
-
-        // Set default values in case of any error
-        this.donutSeries = [10000, 1000, 1000];
+        this.donutSeries = [1];
+        this.chartOptionsDonut.colors = ["grey"];
       }
     },
+    async getLeaveQuota() {
+      console.log("🚀 ~ getLeaveQuota ~ getLeaveQuota:");
 
-    getEvents(date) {
-      return this.attendanceData[date] ? [this.attendanceData[date]] : [];
-    },
-    getEventColor(date) {
-      return this.eventColors[this.attendanceData[date]] || "";
+      let employee = this.item.employee;
+      console.log(
+        "🚀 ~ getLeaveQuota ~ employee.leave_group_id:",
+        employee.leave_group_id
+      );
+
+      if (!employee.leave_group_id) {
+        return false;
+      }
+      this.dialogLeaveGroup = true;
+      let options = {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+          employee_id: employee.employee_id,
+        },
+      };
+      this.$axios
+        .get("leave_groups/" + employee.leave_group_id, options)
+        .then(({ data }) => {
+          this.leaveQuota =
+            data
+              .map((e) => e.leave_count)
+              .map((e) => ({
+                leave_type_count: e.leave_type_count,
+                employee_used: e.employee_used,
+              })) || 0;
+          console.log("🚀 ~ .then ~ leaveQuota:", this.leaveQuota);
+        });
     },
   },
 };
