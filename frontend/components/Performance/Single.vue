@@ -28,9 +28,9 @@
                         <v-col>
                           <div class="d-flex align-start">
                             <v-avatar size="60">
-                              <v-img
+                              <img v-if="base64Image"
                                 ref="profileImage"
-                                src="https://randomuser.me/api/portraits/women/45.jpg"
+                                :src="base64Image"
                                 alt="Profile"
                               />
                             </v-avatar>
@@ -480,6 +480,8 @@
 </template>
 
 <script>
+import html2canvas from "html2canvas";
+
 export default {
   props: ["item", "options"],
   data() {
@@ -616,6 +618,7 @@ export default {
 
       payslipsData: [],
       hoursReportData: null,
+      base64Image: null,
     };
   },
   async mounted() {
@@ -650,29 +653,11 @@ export default {
 
     await this.getCurrentMonthSalaryReport();
 
+    this.base64Image = await this.getEncodedImage();
+
     this.isMounted = true;
 
     const scripts = [
-      {
-        src: "https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js",
-        type: "text/javascript",
-        async: true,
-      },
-      {
-        src: "https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js",
-        type: "text/javascript",
-        async: true,
-      },
-      {
-        src: "https://cdn.jsdelivr.net/npm/apexcharts@latest",
-        type: "text/javascript",
-        async: true,
-      },
-      {
-        src: "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js",
-        type: "text/javascript",
-        async: true,
-      },
       {
         src: "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
         type: "text/javascript",
@@ -707,22 +692,14 @@ export default {
   },
 
   methods: {
-    takeScreenshot() {
-      const imgElement = this.$refs.profileImage; // Get the image element using ref
+    async getEncodedImage() {
+      let image = this.item?.employee?.profile_picture;
 
-      // Wait for the image to load if necessary
-      if (imgElement.complete) {
-        // If the image is already loaded, capture the screenshot
-        this.captureScreenshot();
-      } else {
-        // If the image is not loaded, wait for it to load
-        imgElement.onload = () => {
-          this.captureScreenshot();
-        };
-      }
+      let { data } = await this.$axios.get(`get-encoded-profile-picture`);
+
+      return data;
     },
-
-    captureScreenshot() {
+    takeScreenshot() {
       html2canvas(document.getElementById("screenshot-target"), {
         useCORS: true, // Ensure cross-origin images are captured
         scale: 3, // Higher scale for better quality (increase for higher resolution)
@@ -735,7 +712,7 @@ export default {
 
         // Add the captured image to the PDF
         pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-        pdf.save("screenshot.pdf"); // Save the PDF
+        pdf.save("performance-report.pdf"); // Save the PDF
       });
     },
     async getCurrentMonthHoursReport() {
