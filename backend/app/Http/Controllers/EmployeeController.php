@@ -1813,4 +1813,13 @@ class EmployeeController extends Controller
         $user->user_type = "employee";
         return ['user' => $user];
     }
+    
+    public function getEncodedProfilePicture($url = 'https://randomuser.me/api/portraits/women/45.jpg')
+    {
+        $imageData = file_get_contents($url);
+
+        $md5string = base64_encode($imageData);
+
+        return "data:image/png;base64,$md5string";
+    }
 }
