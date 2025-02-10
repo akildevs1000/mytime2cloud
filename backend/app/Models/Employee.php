@@ -24,24 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'profile_picture_raw', 'profile_picture_encoded', 'edit_joining_date', 'name_with_user_id', 'full_name'];
-
-    public function getProfilePictureEncodedAttribute()
-    {
-        // if (!isset($this->attributes['profile_picture'])) {
-        //     return null;
-        // }
-
-        // $path = public_path('media/employee/profile_picture/' . $this->attributes['profile_picture']);
-
-        $path = 'https://randomuser.me/api/portraits/women/45.jpg';
-
-        $imageData = file_get_contents($path);
-
-        $md5string = base64_encode($imageData);
-
-        return "data:image/png;base64,$md5string";
-    }
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name'];
 
     public function schedule()
     {
