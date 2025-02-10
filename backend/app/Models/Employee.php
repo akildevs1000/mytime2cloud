@@ -26,15 +26,15 @@ class Employee extends Model
 
     protected $appends = ['show_joining_date', 'profile_picture_raw', 'profile_picture_encoded', 'edit_joining_date', 'name_with_user_id', 'full_name'];
 
-    public function getProfilePictureEncodedAttribute($value)
+    public function getProfilePictureEncodedAttribute()
     {
-        $path = public_path('media/employee/profile_picture/' . $this->attributes['profile_picture']);
+        // if (!isset($this->attributes['profile_picture'])) {
+        //     return null;
+        // }
+
+        // $path = public_path('media/employee/profile_picture/' . $this->attributes['profile_picture']);
 
         $path = 'https://randomuser.me/api/portraits/women/45.jpg';
-
-        if (!isset($this->attributes['profile_picture'])) {
-            return null;
-        }
 
         $imageData = file_get_contents($path);
 
