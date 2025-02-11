@@ -261,10 +261,30 @@
                 <v-list-item>
                   <v-list-item-title style="cursor: pointer">
                     <PerformanceSingle
-                      :item="item"
-                      :options="{
-                        from_date: payload.from_date,
-                        to_date: payload.to_date,
+                      :item="{
+                        leave_group_id: item?.employee?.leave_group_id,
+                        company_id: $auth.user.company_id,
+                        from_date: payload?.from_date,
+                        to_date: payload?.to_date,
+                        p_count_value: item?.p_count_value || 0,
+                        a_count_value: item?.a_count_value || 0,
+                        l_count_value: item?.l_count_value || 0,
+                      }"
+                      :employee="{
+                        name: `${item?.employee?.title} ${item?.employee?.full_name}`,
+                        profile_picture: `${item?.employee?.profile_picture}`,
+                        employee_id: item.employee_id,
+                        employee_id_for_payroll: item?.employee?.employee_id,
+                        employee_id_for_leave: item?.employee?.employee_id,
+                        designation: item.employee?.designation?.name,
+                        branch: item.employee?.branch?.branch_name,
+                        company: $auth?.user?.company?.name,
+                        email: item?.employee?.local_email,
+                        whatsapp_number: item?.employee?.whatsapp_number,
+                        home_country: item?.employee?.home_country,
+                        reporting_manager:
+                          item?.employee?.reporting_manager?.first_name,
+                        joining_date: item?.employee?.show_joining_date,
                       }"
                     />
                   </v-list-item-title>
