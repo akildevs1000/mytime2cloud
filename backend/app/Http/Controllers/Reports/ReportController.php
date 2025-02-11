@@ -484,36 +484,38 @@ class ReportController extends Controller
 
             // Fetch total performed hours
             $totalHours = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
-            $hoursCount = count($totalHours);
             $totalPerformedHours = $this->sumTimeValues($totalHours);
 
             // Fetch late coming hours
             $totalLateComings = (clone $baseQuery)->where('late_coming', '!=', '---')->pluck('late_coming')->toArray();
-            $lateComingsCount = count($totalLateComings);
             $lateComingHours = $this->sumTimeValues($totalLateComings);
 
             // Fetch early going hours
             $totalEarlyGoings = (clone $baseQuery)->where('early_going', '!=', '---')->pluck('early_going')->toArray();
-            $earlyGoingsCount = count($totalEarlyGoings);
             $earlyGoingHours = $this->sumTimeValues($totalEarlyGoings);
 
             // Fetch overtime hours
 
             $totalOtHours = (clone $baseQuery)->where('ot', '!=', '---')->pluck('ot')->toArray();
-            $otHoursCount = count($totalOtHours);
             $otHours = $this->sumTimeValues($totalOtHours);
 
-            // Return structured response
-            $total_performed_hours =  $hoursCount > 2 ? "$hoursCount Days" : "$hoursCount Day";
-            $late_coming_hours =  $lateComingsCount > 2 ? "$lateComingsCount Days" : "$lateComingsCount Day";
-            $early_going_hours =  $earlyGoingsCount > 2 ? "$earlyGoingsCount Days" : "$earlyGoingsCount Day";
-            $overtime_hours =  $otHoursCount > 2 ? "$otHoursCount Days" : "$otHoursCount Day";
-
             return response()->json([
-                'total_performed_hours' => $this->formatMinutesToTime($totalPerformedHours) . " Hrs / " . $total_performed_hours,
-                'late_coming_hours' => $this->formatMinutesToTime($lateComingHours) . " Hrs / " . $late_coming_hours,
-                'early_going_hours' => $this->formatMinutesToTime($earlyGoingHours) . " Hrs / " . $early_going_hours,
-                'overtime_hours' => $this->formatMinutesToTime($otHours) . " Hrs / " . $overtime_hours,
+                'total_performed' => [
+                    "hours" => $this->formatMinutesToTime($totalPerformedHours),
+                    "days" => count($totalHours)
+                ],
+                'late_coming' => [
+                    "hours" => $this->formatMinutesToTime($lateComingHours),
+                    "days" => count($totalLateComings)
+                ],
+                'early_going' => [
+                    "hours" => $this->formatMinutesToTime($earlyGoingHours),
+                    "days" => count($totalEarlyGoings)
+                ],
+                'overtime' => [
+                    "hours" => $this->formatMinutesToTime($otHours),
+                    "days" => count($totalOtHours)
+                ]
             ]);
         } catch (\Exception $e) {
             // Handle any exceptions
@@ -751,6 +753,8 @@ class ReportController extends Controller
 
     function performanceReportPDF(Request $request)
     {
+        // 
+        // here is my index html
         return view("pdf.performance.report");
     }
 }
