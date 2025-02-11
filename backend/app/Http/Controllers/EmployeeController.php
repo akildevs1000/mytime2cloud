@@ -838,7 +838,7 @@ class EmployeeController extends Controller
         $arr["email"] = $request->email;
         $arr["company_id"] = $request->company_id;
         $arr["employee_role_id"] = 0;
-        
+
         if ($request->password != '' || $request->password != "********") {
             $arr['password'] = Hash::make($request->password ?? "secret");
         }
@@ -1813,10 +1813,10 @@ class EmployeeController extends Controller
         $user->user_type = "employee";
         return ['user' => $user];
     }
-    
-    public function getEncodedProfilePicture($url = 'https://randomuser.me/api/portraits/women/45.jpg')
+
+    public function getEncodedProfilePicture()
     {
-        $imageData = file_get_contents($url);
+        $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'));
 
         $md5string = base64_encode($imageData);
 
