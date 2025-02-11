@@ -452,15 +452,19 @@ class ReportController extends Controller
         return array_reverse($result);
     }
 
-    public function currentMonthSalaryReport(Request $request)
+    public function previousMonthSalaryReport(Request $request)
     {
-        $year = date("Y");
+        // Get the first day of the previous month
+        $previousMonth = date("m", strtotime("first day of previous month"));
+        $year = date("Y", strtotime("first day of previous month"));
 
-        $month = str_pad(date("m"), 2, "0", STR_PAD_LEFT);
+        // Ensure the month is two digits (e.g., "01" for January)
+        $month = str_pad($previousMonth, 2, "0", STR_PAD_LEFT);
 
+        // Call the method to get the rendered salary report
         $response = $this->getRenderedSalary($request->company_id, $request->employee_id, $month, $year);
 
-        return $response; // 
+        return $response;
     }
 
     public function currentMonthHoursReport(Request $request)
@@ -473,14 +477,14 @@ class ReportController extends Controller
 
         $companyId = $request->input('company_id');
         $employeeId = $request->input('employee_id');
-        $currentMonth = date("01"); // Dynamically get the current month
+        $previousMonth = date('m', strtotime('last month'));
 
         try {
             // Base query for the current month, company, and employee
             $baseQuery = DB::table('attendances')
                 ->where('company_id', $companyId)
                 ->where('employee_id', $employeeId)
-                ->whereMonth('date', $currentMonth);
+                ->whereMonth('date', $previousMonth);
 
             // Fetch total performed hours
             $totalHours = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
