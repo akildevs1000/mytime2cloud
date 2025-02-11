@@ -627,9 +627,6 @@
 </template>
 
 <script>
-import html2canvas from "html2canvas";
-import jsPDF from "jsPDF";
-
 export default {
   props: ["item", "employee"],
   data() {
