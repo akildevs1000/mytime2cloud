@@ -109,7 +109,9 @@ class ReportController extends Controller
                 $q->whereIn('employee_id', $employeeIds);
             })
 
-            ->whereBetween('date', [$fromDate, $toDate])
+            // ->whereBetween('date', [$fromDate, $toDate])
+            ->whereMonth('date', date('m', strtotime('last month')))
+
             ->select(
                 'employee_id',
                 $this->getStatusCountWithSuffix('P'), // Present count
