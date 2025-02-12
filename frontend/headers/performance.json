@@ -16,20 +16,6 @@
     "key": "joining_date"
   },
   {
-    "text": "Report From",
-    "align": "left",
-    "sortable": true,
-    "filterable": false,
-    "value": "report_from"
-  },
-  {
-    "text": "Report To",
-    "align": "left",
-    "sortable": true,
-    "filterable": false,
-    "value": "report_to"
-  },
-  {
     "text": "Total Present",
     "align": "left",
     "sortable": false,

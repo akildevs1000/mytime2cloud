@@ -298,13 +298,8 @@ export default {
       leaveRequests: 0,
       data: {
         employeeCount: 0,
-        totalIn: 0,
-        totalOut: 0,
         presentCount: 0,
         absentCount: 0,
-        missingCount: 0,
-        offCount: 0,
-        holidayCount: 0,
         leaveCount: 0,
         vaccationCount: 0,
       },
@@ -324,9 +319,7 @@ export default {
     },
   },
   created() {
-    setTimeout(() => {
-      this.getDataFromApi();
-    }, 1000 * 16);
+    this.getDataFromApi();
   },
 
   methods: {
@@ -353,8 +346,7 @@ export default {
         this.leaveRequests = leaves_request_count;
       }
 
-      setTimeout(() => {
-        this.$axios
+      this.$axios
           .get("dashbaord_attendance_count", {
             params: {
               company_id: this.$auth.user.company_id,
@@ -367,7 +359,6 @@ export default {
             this.getDeviceStatus();
             this.getPendingLeavesCount();
           });
-      }, 1000 * 4);
     },
 
     getDeviceStatus() {

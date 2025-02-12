@@ -131,12 +131,39 @@
             </span>
           </template>
         </v-autocomplete>
+
         <div class="mx-1">
-          <CustomFilter
-            @filter-attr="filterAttr"
-            :defaultFilterType="1"
-            height="40px"
-          />
+          <v-menu
+            ref="menu"
+            v-model="menu"
+            :close-on-content-click="false"
+            transition="scale-transition"
+            offset-y
+            max-width="290px"
+            min-width="auto"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-text-field
+                label="Select Month"
+                hide-details
+                v-model="month"
+                persistent-hint
+                append-icon="mdi-calendar"
+                readonly
+                outlined
+                dense
+                v-bind="attrs"
+                v-on="on"
+              ></v-text-field>
+            </template>
+            <v-date-picker color="primary"
+              style="min-height: 320px"
+              v-model="month"
+              no-title
+              @input="menu = false"
+              type="month"
+            ></v-date-picker>
+          </v-menu>
         </div>
         <div class="text-right">
           <v-btn
@@ -227,28 +254,20 @@
               </div>
             </div>
           </template>
-
-          <template v-slot:item.report_from="{ item }">
-            {{ $dateFormat.format6(payload.from_date) }}
-          </template>
-          <template v-slot:item.report_to="{ item }">
-            {{ $dateFormat.format6(payload.to_date) }}
-          </template>
           <template v-slot:item.rating="{ item }">
-            <v-rating
-              dense
-              hide-details
-              :value="
-                $utils.getRating(
-                  item.p_count_value,
-                  payload.from_date,
-                  payload.to_date
-                )
-              "
-              background-color="green lighten-3"
-              color="green"
-              half-increments
-            ></v-rating>
+            <div style="display: flex; justify-content: space-between;max-width: 200px;">
+              <v-rating
+                dense
+                hide-details
+                :value="$utils.getRating(item.p_count_value, month)"
+                background-color="green lighten-3"
+                color="green"
+                half-increments
+              ></v-rating>
+              <div>
+                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) }}</v-chip>
+              </div>
+            </div>
           </template>
           <template v-slot:item.options="{ item }">
             <v-menu bottom left>
@@ -267,11 +286,7 @@
                         p_count_value: item?.p_count_value || 0,
                         a_count_value: item?.a_count_value || 0,
                         l_count_value: item?.l_count_value || 0,
-                        rating: $utils.getRating(
-                          item.p_count_value,
-                          payload.from_date,
-                          payload.to_date
-                        ),
+                        rating: $utils.getRating(item.p_count_value, month),
                       }"
                       :employee="{
                         name: `${item?.employee?.title} ${item?.employee?.full_name}`,
@@ -318,9 +333,9 @@ export default {
     performanceHeader,
     date: null,
     menu: false,
+    month: null,
     options: {},
     date: null,
-    menu: false,
     Model: "Attendance Reports",
     endpoint: "report",
     ids: [],
@@ -379,26 +394,12 @@ export default {
   },
   async created() {
     // this.setMonthlyDateRange();
-    this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.payload.department_ids = [];
 
     setTimeout(() => {
       this.getBranches();
       this.getScheduledEmployees();
     }, 3000);
-
-    let dt = new Date();
-    let y = dt.getFullYear();
-    let m = dt.getMonth() + 1;
-    let dd = new Date(dt.getFullYear(), m, 0);
-
-    m = m < 10 ? "0" + m : m;
-
-    this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
-    this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-    // setTimeout(() => {
-    //  this.getDepartments();
-    //}, 1000);
 
     setTimeout(() => {
       this.tab = "tab-2";
@@ -418,11 +419,6 @@ export default {
     toggleEmployeesSelection() {
       this.selectAllEmployees = !this.selectAllEmployees;
     },
-    filterAttr(data) {
-      this.payload.from_date = data.from;
-      this.payload.to_date = data.to;
-      this.filterType = "Monthly"; // data.type;
-    },
 
     getDataFromApi() {
       if (this.$auth.user.user_type == "department") {
@@ -435,6 +431,8 @@ export default {
 
       let payload = {
         ...this.payload,
+        from_date: `${this.month}-01`,
+        to_date: `${this.month}-31`,
         page: page,
         per_page: itemsPerPage,
         company_id: this.$auth.user.company_id,

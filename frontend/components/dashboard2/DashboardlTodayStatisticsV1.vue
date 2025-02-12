@@ -52,8 +52,9 @@
       <v-container fluid>
         <v-row align="center" v-for="(item, index) in data" :key="index">
           <v-col cols="2">
-            <v-avatar :color="item.bgColor">
-              <v-icon>{{ item.icon }}</v-icon>
+            <v-avatar>
+              <!-- <v-icon>{{ item.icon }}</v-icon> -->
+              <v-img :src="`icons/dashboard/${item.icon}`"></v-img>
             </v-avatar>
           </v-col>
           <v-col cols="6" :class="`text-h3 ${item.color}--text text-center`">

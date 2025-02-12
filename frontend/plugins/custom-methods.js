@@ -207,40 +207,12 @@ export default ({ app }, inject) => {
   });
 
   inject("utils", {
-    getRating(count,from_date,to_date) {
-      // Convert to Date objects
-      let fromDate = new Date(from_date);
-      let toDate = new Date(to_date);
-
-      // Calculate difference in milliseconds
-      let diffInMilliseconds = toDate - fromDate;
-
-      // Convert milliseconds to days
-      let totalDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
-
-      let presentPercent = totalDays > 0 ? (count / totalDays) * 100 : 0;
-
-      if (presentPercent > 90 && presentPercent <= 100) {
-        return 5;
-      } else if (presentPercent > 80 && presentPercent <= 90) {
-        return 4.5;
-      } else if (presentPercent > 70 && presentPercent <= 80) {
-        return 4;
-      } else if (presentPercent > 60 && presentPercent <= 70) {
-        return 3.5;
-      } else if (presentPercent > 50 && presentPercent <= 60) {
-        return 3;
-      } else if (presentPercent > 40 && presentPercent <= 50) {
-        return 2.5;
-      } else if (presentPercent > 30 && presentPercent <= 40) {
-        return 2;
-      } else if (presentPercent > 20 && presentPercent <= 30) {
-        return 1.5;
-      } else if (presentPercent > 10 && presentPercent <= 20) {
-        return 1;
-      } else {
-        return 0;
-      }
-    },
+    getRating(count, month) {
+      let date = new Date(month + "-01");
+      let year = date.getFullYear();
+      let monthIndex = date.getMonth();
+      let totalDaysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+      return ((count / totalDaysInMonth) * 5).toFixed(2);
+    }
   });
 };
