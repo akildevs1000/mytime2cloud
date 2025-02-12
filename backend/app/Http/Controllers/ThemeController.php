@@ -71,11 +71,36 @@ class ThemeController extends Controller
         return $this->getCounts($request->company_id, $request);
     }
 
+    public function dashboardShortViewCount(Request $request)
+    {
+
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+        return Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+            })
+            ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            ->whereDate('date', date('Y-m-d'))
+            ->select(
+                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedIn"),
+                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedOut"),
+                DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noShow"),
+            )->first();
+    }
+
+    function getStatusCountValue($status)
+    {
+        return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
+    }
+
     public function getCounts($id = 0, $request)
     {
         $model = (new Attendance)->processAttendanceModel($request)
 
-        // $model = Attendance::with("employee")->where('company_id', $id)
+            // $model = Attendance::with("employee")->where('company_id', $id)
 
             // ->when($request->filled("department_ids") && count($request->department_ids) > 0, function ($q) use ($request) {
             //     $q->with(["employee" =>  function ($q) use ($request) {
@@ -88,7 +113,7 @@ class ThemeController extends Controller
             // ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
             //     $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
             // })
-            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V','LC','EG'])
+            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
             ->get();

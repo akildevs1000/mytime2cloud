@@ -265,6 +265,11 @@ class ReportController extends Controller
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
+
+        $fromDate = $request->input('from_date', date("Y-m-d"));
+        $toDate = $request->input('to_date', date("Y-m-d"));
+
+
         $department_ids = $request->department_ids;
 
         if (gettype($department_ids) !== "array") {
@@ -288,9 +293,7 @@ class ReportController extends Controller
                 $q->whereIn('employee_id', $employeeIds);
             })
 
-            // ->whereBetween('date', [$fromDate, $toDate])
-            ->whereMonth('date', date('m', strtotime('last month')))
-
+            ->whereBetween('date', [$fromDate, $toDate])
             ->select(
                 'employee_id',
                 $this->getStatusCountWithSuffix('P'), // Present count
