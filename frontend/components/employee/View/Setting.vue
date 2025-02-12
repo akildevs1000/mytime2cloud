@@ -180,14 +180,12 @@
             <v-tab-item>
               <EmployeeViewLogin
                 :employeeId="employeeId"
-                :employeeObject="employeeObject"
                 @eventFromchild="close"
               />
             </v-tab-item>
             <v-tab-item>
               <EmployeeViewRfid
                 :employeeId="employeeId"
-                :employeeObject="employeeObject"
                 @eventFromchild="close"
               />
             </v-tab-item> </v-tabs-items

@@ -118,9 +118,7 @@
                     <v-card-text>
                       <div style="display: flex">
                         <div style="min-width: 340px" class="body-2 text-left">
-                          <b
-                            >Last Month</b
-                          >
+                          <b>Last Month</b>
                         </div>
                         <div class="body-2 text-left">
                           <b>Last 6 Month</b>
@@ -839,8 +837,6 @@ export default {
     this.isMounted = true;
 
     this.setDataForDatePicker();
-
-   
   },
 
   methods: {
@@ -965,8 +961,9 @@ export default {
 
       // Open the target page in a new window with the query parameters
       const url =
-        // "https://mytime2cloud-performance-report.netlify.app?" +
-        "http://127.0.0.1:5500/index.html?" + queryParams.toString();
+        "https://mytime2cloud-performance-report.netlify.app?" +
+        // "http://127.0.0.1:5500/index.html?" +
+        queryParams.toString();
 
       // Open the URL in a new window
       window.open(url, "_blank");
