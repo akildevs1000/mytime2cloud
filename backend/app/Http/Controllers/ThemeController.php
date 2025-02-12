@@ -77,18 +77,49 @@ class ThemeController extends Controller
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
-        return Attendance::where('company_id', $companyId)
+        $model = Attendance::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
             })
             ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereDate('date', date('Y-m-d'))
             ->select(
-                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedIn"),
-                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedOut"),
+                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
+                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
                 DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
-                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noShow"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
             )->first();
+
+        return [
+            [
+                'bgColor' => '#FFCDD2',
+                'color' => 'green',
+                'icon' => 'mdi-login',
+                'value' => $model->clockedin,
+                'text' => 'Clocked In',
+            ],
+            [
+                'bgColor' => '#FFE0B2',
+                'color' => 'red',
+                'icon' => 'mdi-logout',
+                'value' => $model->clockedout,
+                'text' => 'Clocked Out',
+            ],
+            [
+                'bgColor' => '#BBDEFB',
+                'color' => 'orange',
+                'icon' => 'mdi-account-check',
+                'value' => $model->inside,
+                'text' => 'Inside',
+            ],
+            [
+                'bgColor' => '#D7CCC8',
+                'color' => 'blue',
+                'icon' => 'mdi-account-alert',
+                'value' => $model->noshow,
+                'text' => 'No Show',
+            ],
+        ];
     }
 
     function getStatusCountValue($status)
