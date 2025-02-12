@@ -38,6 +38,8 @@ class RenderController extends Controller
     public function renderLogs(Request $request)
     {
 
+        return ["Regeneration not allowd. contact to admin"];
+
         set_time_limit(60); // In seconds
 
         $fromdate = date('Y-m-d', strtotime('-1 day', strtotime($request->dates[0])));
