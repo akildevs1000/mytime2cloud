@@ -164,4 +164,3 @@ Route::post('last-six-month-salary-report', [ReportController::class, 'lastSixMo
 Route::post('current-month-salary-report', [ReportController::class, 'currentMonthSalaryReport']);
 Route::post('current-month-hours-report', [ReportController::class, 'currentMonthHoursReport']);
 Route::post('current-month-performance-report', [ReportController::class, 'currentMonthPerformanceReport']);
-Route::get('performance-reprot-pdf', [ReportController::class, 'performanceReportPDF']);

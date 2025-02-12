@@ -78,108 +78,6 @@ class ReportController extends Controller
 
         return $data;
     }
-    public function performanceReport(Request $request)
-    {
-        $fromDate = $request->input('from_date', Carbon::now()->startOfMonth()->toDateString()); // Default: first day of the month
-        $toDate = $request->input('to_date', Carbon::now()->toDateString()); // Default: today
-
-        $companyId = $request->input('company_id', 0);
-        $branch_id = $request->input('branch_id', 0);
-
-        $department_ids = $request->department_ids;
-
-        if (gettype($department_ids) !== "array") {
-            $department_ids = explode(",", $department_ids);
-        }
-
-        $employeeIds = [];
-
-        if (!empty($request->employee_id)) {
-            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
-        }
-
-        $model = Attendance::where('company_id', $companyId)
-            ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
-            })
-            ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('department_id',   $department_ids));
-            })
-            ->when(count($employeeIds), function ($q) use ($employeeIds) {
-                $q->whereIn('employee_id', $employeeIds);
-            })
-
-            // ->whereBetween('date', [$fromDate, $toDate])
-            ->whereMonth('date', date('m', strtotime('last month')))
-
-            ->select(
-                'employee_id',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
-
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG') // Early Going count
-            )
-
-            ->with(["employee" => function ($q) {
-                $q->where("company_id", request("company_id"));
-                $q->withOut("schedule", "user");
-                $q->with("reporting_manager:id,reporting_manager_id,first_name");
-                $q->select(
-                    "first_name",
-                    "last_name",
-                    "profile_picture",
-                    "phone_number",
-                    "whatsapp_number",
-                    "employee_id",
-                    "joining_date",
-                    "designation_id",
-                    "department_id",
-                    "user_id",
-                    "sub_department_id",
-                    "overtime",
-                    "title",
-                    "status",
-                    "company_id",
-                    "branch_id",
-                    "system_user_id",
-                    "display_name",
-                    "full_name",
-                    "home_country",
-                    "reporting_manager_id",
-                    "local_email",
-                    "home_email",
-                    "leave_group_id"
-                );
-            }])
-            ->groupBy('employee_id');
-
-        // return $model->count();
-
-
-        return $model->paginate($request->per_page ?? 10);
-    }
-
-    function getStatusCountWithSuffix($status)
-    {
-        return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
-                     CASE WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) = 1 THEN ' day' 
-                          WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
-                          ELSE ' days' END) AS {$status}_count");
-    }
-
-    function getStatusCountValue($status)
-    {
-        return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
-    }
 
     public function general($model, $per_page = 100)
     {
@@ -362,6 +260,106 @@ class ReportController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
+    public function performanceReport(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $employeeIds = [];
+
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+        }
+
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+            })
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
+
+            // ->whereBetween('date', [$fromDate, $toDate])
+            ->whereMonth('date', date('m', strtotime('last month')))
+
+            ->select(
+                'employee_id',
+                $this->getStatusCountWithSuffix('P'), // Present count
+                $this->getStatusCountWithSuffix('A'), // Absent count
+                $this->getStatusCountWithSuffix('L'), // Leave count
+                $this->getStatusCountWithSuffix('M'), // Missing count
+                $this->getStatusCountWithSuffix('LC'), // Late Coming count
+                $this->getStatusCountWithSuffix('EG'), // Early Going count
+
+                $this->getStatusCountValue('P'), // Present count
+                $this->getStatusCountValue('A'), // Absent count
+                $this->getStatusCountValue('L'), // Leave count
+                $this->getStatusCountValue('M'), // Missing count
+                $this->getStatusCountValue('LC'), // Late Coming count
+                $this->getStatusCountValue('EG') // Early Going count
+            )
+
+            ->with(["employee" => function ($q) {
+                $q->where("company_id", request("company_id"));
+                $q->withOut("schedule", "user");
+                $q->with("reporting_manager:id,reporting_manager_id,first_name");
+                $q->select(
+                    "first_name",
+                    "last_name",
+                    "profile_picture",
+                    "phone_number",
+                    "whatsapp_number",
+                    "employee_id",
+                    "joining_date",
+                    "designation_id",
+                    "department_id",
+                    "user_id",
+                    "sub_department_id",
+                    "overtime",
+                    "title",
+                    "status",
+                    "company_id",
+                    "branch_id",
+                    "system_user_id",
+                    "display_name",
+                    "full_name",
+                    "home_country",
+                    "reporting_manager_id",
+                    "local_email",
+                    "home_email",
+                    "leave_group_id"
+                );
+            }])
+            ->groupBy('employee_id');
+
+        // return $model->count();
+
+
+        return $model->paginate($request->per_page ?? 10);
+    }
+
+    function getStatusCountWithSuffix($status)
+    {
+        return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
+                     CASE WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) = 1 THEN ' day' 
+                          WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
+                          ELSE ' days' END) AS {$status}_count");
+    }
+
+    function getStatusCountValue($status)
+    {
+        return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
+    }
+
     public function lastSixMonthsPerformanceReport(Request $request)
     {
         $companyId = $request->input('company_id', 0);
@@ -527,6 +525,60 @@ class ReportController extends Controller
             // Handle any exceptions
             return response()->json([], 500);
         }
+    }
+
+
+    public function currentMonthPerformanceReport(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $employeeId = $request->input('employee_id', 0);
+        $lastMonth = $request->input('date', date('m', strtotime('last month')));
+
+        $statusColors = [
+            'P' => 'green', // Green
+            'A' => 'red', // Red
+            'L' => 'orange', // Blue
+            'O' => 'primary', // Blue
+        ];
+
+        $result = Attendance::where('company_id', $companyId)
+            ->where('employee_id', $employeeId)
+            ->whereMonth('date', $lastMonth)
+            ->select(
+                'date',
+                'status',
+                $this->getStatusCountWithSuffix('P'), // Present count
+                $this->getStatusCountWithSuffix('A'), // Absent count
+                $this->getStatusCountWithSuffix('L'), // Leave count
+                $this->getStatusCountWithSuffix('M'), // Missing count
+                $this->getStatusCountWithSuffix('LC'), // Late Coming count
+                $this->getStatusCountWithSuffix('EG'), // Early Going count
+
+                $this->getStatusCountValue('P'), // Present count
+                $this->getStatusCountValue('A'), // Absent count
+                $this->getStatusCountValue('L'), // Leave count
+                $this->getStatusCountValue('M'), // Missing count
+                $this->getStatusCountValue('LC'), // Late Coming count
+                $this->getStatusCountValue('EG') // Early Going count
+            )
+            ->orderBy('date')->groupBy('date', 'status')->get();
+
+
+        $arr = [];
+        $stats = [];
+
+        foreach ($result as $item) {
+
+            $arr[date("Y-m-d",strtotime($item->date))] = $statusColors[$item->status] ?? 'grey';
+
+            if (!isset($stats[$item->status])) {
+                $stats[$item->status] = 1; // Initialize the count for this status
+            } else {
+                $stats[$item->status]++; // Increment the count for this status
+            }
+        }
+
+        return ["events" => $arr, "stats" => $stats];
     }
 
     /**
@@ -715,52 +767,5 @@ class ReportController extends Controller
             'ot_value' => round($OTEarning),
             'total_deductions_value' => round($Payroll->totalDeductions),
         ];
-    }
-    public function currentMonthPerformanceReport(Request $request)
-    {
-        $companyId = $request->input('company_id', 0);
-        $employeeId = $request->input('employee_id', 0);
-
-        // Define status colors
-        $statusColors = [
-            'P' => 'green', // Green
-            'A' => 'red', // Red
-            'L' => 'orange', // Blue
-            'O' => 'primary', // Blue
-        ];
-
-        $result = DB::table('attendances')
-            ->select('date', 'status', DB::raw('MAX(employee_id) as employee_id')) // Select distinct date with the latest status
-            ->where('company_id', $companyId)
-            ->where('employee_id', $employeeId)
-            ->whereMonth('date', date('01')) // Filter by current month
-            ->whereYear('date', date('Y')) // Ensure the current year
-            ->groupBy('date', 'status') // Group by date and status
-            ->orderBy('date')
-            ->limit(31)
-            ->get();
-
-        $arr = [];
-        $stats = [];
-
-        foreach ($result as $item) {
-
-            $arr[$item->date] = $statusColors[$item->status] ?? '';
-
-            if (!isset($stats[$item->status])) {
-                $stats[$item->status] = 1; // Initialize the count for this status
-            } else {
-                $stats[$item->status]++; // Increment the count for this status
-            }
-        }
-
-        return ["events" => $arr, "stats" => $stats];
-    }
-
-    function performanceReportPDF(Request $request)
-    {
-        // 
-        // here is my index html
-        return view("pdf.performance.report");
     }
 }
