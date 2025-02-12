@@ -264,7 +264,7 @@
               style="height: 3px"
             ></v-tabs-slider>
 
-            <v-tab
+            <!-- <v-tab
               @click="openRegeneratePopup"
               style="height: 30px"
               class="black--text slidegroup1"
@@ -272,7 +272,7 @@
               <span style="font-size: 12px"
                 ><v-icon small>mdi-cached</v-icon> Re-Generate Report</span
               >
-            </v-tab>
+            </v-tab> -->
 
             <v-tab
               @click="openGenerateLogPopup"

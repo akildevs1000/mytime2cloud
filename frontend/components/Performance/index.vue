@@ -265,7 +265,7 @@
                 half-increments
               ></v-rating>
               <div>
-                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) }}</v-chip>
+                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) / 5 }}</v-chip>
               </div>
             </div>
           </template>
