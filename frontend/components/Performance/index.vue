@@ -264,11 +264,14 @@
                       :item="{
                         leave_group_id: item?.employee?.leave_group_id,
                         company_id: $auth.user.company_id,
-                        from_date: payload?.from_date,
-                        to_date: payload?.to_date,
                         p_count_value: item?.p_count_value || 0,
                         a_count_value: item?.a_count_value || 0,
                         l_count_value: item?.l_count_value || 0,
+                        rating: $utils.getRating(
+                          item.p_count_value,
+                          payload.from_date,
+                          payload.to_date
+                        ),
                       }"
                       :employee="{
                         name: `${item?.employee?.title} ${item?.employee?.full_name}`,

@@ -30,7 +30,7 @@
               <v-row no-gutters>
                 <v-col cols="12" style="margin-top: 10px">
                   <v-card outlined>
-                    <v-card-text style="color: black;">
+                    <v-card-text style="color: black">
                       <v-row>
                         <v-col cols="5">
                           <div class="d-flex align-start">
@@ -95,7 +95,7 @@
                             <v-rating
                               dense
                               hide-details
-                              :value="getRating()"
+                              :value="item.rating"
                               background-color="green lighten-3"
                               color="green"
                               half-increments
@@ -119,9 +119,7 @@
                       <div style="display: flex">
                         <div style="min-width: 340px" class="body-2 text-left">
                           <b
-                            >{{ formatDate(item?.from_date) }}
-                            {{ item?.from_date && item?.to_date ? "to" : "" }}
-                            {{ formatDate(item?.to_date) }}</b
+                            >Last Month</b
                           >
                         </div>
                         <div class="body-2 text-left">
@@ -148,7 +146,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ item?.p_count_value }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    item?.p_count_value
+                                  }}</strong>
                                 </div>
                                 <div>Present</div>
                               </td>
@@ -167,7 +167,9 @@
                               </td>
                               <td>
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ item?.a_count_value }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    item?.a_count_value
+                                  }}</strong>
                                 </div>
                                 <div>Absent</div>
                               </td>
@@ -186,7 +188,9 @@
                               </td>
                               <td>
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ item?.l_count_value }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    item?.l_count_value
+                                  }}</strong>
                                 </div>
                                 <div>Leave</div>
                               </td>
@@ -232,12 +236,12 @@
                             <strong style="font-size: 16px">{{
                               hoursReportData?.total_performed?.hours || "---"
                             }}</strong>
-                            <small style="color:black;">Hrs</small> /
+                            <small style="color: black">Hrs</small> /
                             <strong style="font-size: 16px">{{
                               hoursReportData?.total_performed?.days || 0
                             }}</strong>
 
-                            <small style="color:black;">Days</small>
+                            <small style="color: black">Days</small>
                           </div>
                         </v-col>
                         <v-col class="text-center">
@@ -247,12 +251,12 @@
                               {{ hoursReportData?.late_coming?.hours || "---" }}
                             </strong>
 
-                            <small style="color:black;">Hrs</small> /
+                            <small style="color: black">Hrs</small> /
                             <strong style="font-size: 16px">
                               {{ hoursReportData?.late_coming?.days || 0 }}
                             </strong>
 
-                            <small style="color:black;">Days</small>
+                            <small style="color: black">Days</small>
                           </div>
                         </v-col>
                         <v-col class="text-center">
@@ -262,12 +266,12 @@
                               {{ hoursReportData?.early_going?.hours || "---" }}
                             </strong>
 
-                            <small style="color:black;">Hrs</small> /
+                            <small style="color: black">Hrs</small> /
 
                             <strong style="font-size: 16px">
                               {{ hoursReportData?.early_going?.days || 0 }}
                             </strong>
-                            <small style="color:black;">Days</small>
+                            <small style="color: black">Days</small>
                           </div>
                         </v-col>
                         <v-col class="text-center">
@@ -277,12 +281,12 @@
                               {{ hoursReportData?.overtime?.hours || "---" }}
                             </strong>
 
-                            <small style="color:black;">Hrs</small> /
+                            <small style="color: black">Hrs</small> /
 
                             <strong style="font-size: 16px">
                               {{ hoursReportData?.overtime?.days || 0 }}
                             </strong>
-                            <small style="color:black;">Days</small>
+                            <small style="color: black">Days</small>
                           </div>
                         </v-col>
                       </v-row>
@@ -404,7 +408,7 @@
                   <v-card outlined style="max-height: 235px; min-height: 235px">
                     <v-card-text>
                       <div class="body-2">
-                        <b>Payroll Details (Previous Month)</b>
+                        <b>Payroll Details (Last Month)</b>
                       </div>
                       <div style="display: flex; align-items: center">
                         <!-- Left Table (Smaller) -->
@@ -424,7 +428,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ donutSeries[0] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    donutSeries[0] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Salary</div>
                               </td>
@@ -443,7 +449,9 @@
                               </td>
                               <td>
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ donutSeries[1] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    donutSeries[1] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Overtime</div>
                               </td>
@@ -462,7 +470,9 @@
                               </td>
                               <td>
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ donutSeries[2] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    donutSeries[2] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Deduction</div>
                               </td>
@@ -516,7 +526,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ eventStats["P"] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["P"] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Present</div>
                               </td>
@@ -533,7 +545,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ eventStats["A"] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["A"] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Absent</div>
                               </td>
@@ -550,7 +564,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ eventStats["L"] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["L"] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Leave</div>
                               </td>
@@ -567,7 +583,9 @@
                               </td>
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
-                                  <strong style="font-size: 16px;">{{ eventStats["O"] || 0 }}</strong>
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["O"] || 0
+                                  }}</strong>
                                 </div>
                                 <div>Week Off</div>
                               </td>
@@ -594,24 +612,38 @@
                         ></apexchart>
                       </div>
 
-                      <div
-                        class="d-flex justify-space-between text-center"
-                      >
+                      <div class="d-flex justify-space-between text-center">
                         <div>
                           <div class="">Total</div>
-                          <div class=""><strong style="font-size: 16px; color:black;">40</strong></div>
+                          <div class="">
+                            <strong style="font-size: 16px; color: black"
+                              >40</strong
+                            >
+                          </div>
                         </div>
                         <div>
                           <div class="">Balance</div>
-                          <div class=""><strong style="font-size: 16px; color:black;">12</strong></div>
+                          <div class="">
+                            <strong style="font-size: 16px; color: black"
+                              >12</strong
+                            >
+                          </div>
                         </div>
                         <div>
                           <div class="">Approved</div>
-                          <div class=""><strong style="font-size: 16px; color:black;">5</strong></div>
+                          <div class="">
+                            <strong style="font-size: 16px; color: black"
+                              >5</strong
+                            >
+                          </div>
                         </div>
                         <div>
                           <div class="">Rejected</div>
-                          <div class=""><strong style="font-size: 16px; color:black;">5</strong></div>
+                          <div class="">
+                            <strong style="font-size: 16px; color: black"
+                              >5</strong
+                            >
+                          </div>
                         </div>
                       </div>
                     </v-card-text>
@@ -765,7 +797,7 @@ export default {
   async mounted() {
     console.log({ item: this.item, employee: this.employee });
 
-    const company_id = 43;
+    const { company_id } = this.item;
     const { employee_id, employee_id_for_payroll, profile_picture } =
       this.employee;
 
@@ -798,9 +830,17 @@ export default {
 
     await this.getLeaveQuota();
 
+    this.pieSeries = [
+      this.item?.p_count_value,
+      this.item?.a_count_value,
+      this.item?.l_count_value,
+    ];
+
     this.isMounted = true;
 
     this.setDataForDatePicker();
+
+   
   },
 
   methods: {
@@ -908,43 +948,6 @@ export default {
       this.selectedDate = `${previousMonth}-01`;
       this.maxDate = `${previousMonth}-31`;
     },
-    getRating() {
-      let { p_count_value, from_date, to_date } = this.item;
-      // Convert to Date objects
-      let fromDate = new Date(from_date);
-      let toDate = new Date(to_date);
-
-      // Calculate difference in milliseconds
-      let diffInMilliseconds = toDate - fromDate;
-
-      // Convert milliseconds to days
-      let totalDays = Math.ceil(diffInMilliseconds / (1000 * 60 * 60 * 24));
-
-      let presentPercent =
-        totalDays > 0 ? (p_count_value / totalDays) * 100 : 0;
-
-      if (presentPercent > 90 && presentPercent <= 100) {
-        return 5;
-      } else if (presentPercent > 80 && presentPercent <= 90) {
-        return 4.5;
-      } else if (presentPercent > 70 && presentPercent <= 80) {
-        return 4;
-      } else if (presentPercent > 60 && presentPercent <= 70) {
-        return 3.5;
-      } else if (presentPercent > 50 && presentPercent <= 60) {
-        return 3;
-      } else if (presentPercent > 40 && presentPercent <= 50) {
-        return 2.5;
-      } else if (presentPercent > 30 && presentPercent <= 40) {
-        return 2;
-      } else if (presentPercent > 20 && presentPercent <= 30) {
-        return 1.5;
-      } else if (presentPercent > 10 && presentPercent <= 20) {
-        return 1;
-      } else {
-        return 0;
-      }
-    },
     formatDate: (inputdate) => {
       const date = new Date(inputdate);
       const options = { day: "2-digit", month: "short", year: "numeric" };
@@ -962,8 +965,8 @@ export default {
 
       // Open the target page in a new window with the query parameters
       const url =
-        "https://mytime2cloud-performance-report.netlify.app?" +
-        queryParams.toString();
+        // "https://mytime2cloud-performance-report.netlify.app?" +
+        "http://127.0.0.1:5500/index.html?" + queryParams.toString();
 
       // Open the URL in a new window
       window.open(url, "_blank");
