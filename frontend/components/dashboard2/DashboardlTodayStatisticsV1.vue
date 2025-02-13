@@ -26,13 +26,13 @@
 
     <div class="bordertop">
       <v-row>
-        <v-col md="8" sm="8" xs="8">
+        <v-col md="4" sm="4" xs="4">
           <h4>Today Attendance</h4>
         </v-col>
-        <v-col md="2" sm="2" xs="2" class="text-end">
-          <!-- <v-icon color="green" @click="sendToWhatsapp()">mdi-whatsapp</v-icon> -->
+        <v-col md="4" sm="4" xs="4">
+          {{ wallClockTimeString }}
         </v-col>
-        <v-col md="2" sm="2" xs="2" class="text-end">
+        <v-col md="4" sm="4" xs="4" class="text-end">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
               <v-btn dark-2 icon v-bind="attrs" v-on="on">
@@ -52,13 +52,13 @@
       <v-container fluid>
         <v-row align="center" v-for="(item, index) in data" :key="index">
           <v-col cols="2">
-            <v-avatar>
+            <v-avatar :color="item.bgColor">
               <!-- <v-icon>{{ item.icon }}</v-icon> -->
               <v-img :src="`icons/dashboard/${item.icon}`"></v-img>
             </v-avatar>
           </v-col>
-          <v-col cols="6" :class="`text-h3 ${item.color}--text text-center`">
-            {{ item.value }}
+          <v-col cols="6" :class="`text-h3 text-center`">
+            <span :style="`color:${item.color}`">{{ item.value }}</span>
           </v-col>
           <v-col cols="4" class="text-right">{{ item.text }}</v-col>
         </v-row>
@@ -74,6 +74,7 @@ export default {
     dataLength: 0,
     response: "",
     data: null,
+    wallClockTimeString: null,
   }),
   watch: {
     branch_id() {
@@ -85,9 +86,22 @@ export default {
     setTimeout(() => {
       this.getDataFromApi();
     }, 1000 * 2);
+
+    this.wallClock();
+
+    setInterval(this.wallClock, 1000);
   },
 
   methods: {
+    wallClock() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const seconds = now.getSeconds().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? "PM" : "AM";
+      hours = hours % 12 || 12;
+      this.wallClockTimeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+    },
     goToReports() {
       this.$router.push("/attendance_report");
     },

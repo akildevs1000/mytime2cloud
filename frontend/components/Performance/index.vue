@@ -156,11 +156,11 @@
                 v-on="on"
               ></v-text-field>
             </template>
+            <!-- multiple -->
             <v-date-picker color="primary"
               style="min-height: 320px"
               v-model="month"
               no-title
-              @input="menu = false"
               type="month"
             ></v-date-picker>
           </v-menu>
@@ -265,7 +265,7 @@
                 half-increments
               ></v-rating>
               <div>
-                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) / 5 }}</v-chip>
+                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) }} / 5 </v-chip>
               </div>
             </div>
           </template>

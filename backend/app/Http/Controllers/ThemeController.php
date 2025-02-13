@@ -93,31 +93,36 @@ class ThemeController extends Controller
                 DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
             )->first();
 
+        //  #bd2e4a Clock In 
+        // #005edf Clock Out 
+        // #38336b Inside
+        // #35b568 No Show
+
         return [
             [
-                'bgColor' => '#FFCDD2',
-                'color' => 'green',
-                'icon' => '2.png',
+                'bgColor' => '#bd2e4a',
+                'color' => '#bd2e4a',
+                'icon' => '1.png',
                 'value' => $model->clockedin,
                 'text' => 'Clocked In',
             ],
             [
-                'bgColor' => '#FFE0B2',
-                'color' => 'red',
-                'icon' => '3.png',
+                'bgColor' => '#005edf',
+                'color' => '#005edf',
+                'icon' => '2.png',
                 'value' => $model->clockedout,
                 'text' => 'Clocked Out',
             ],
             [
-                'bgColor' => '#BBDEFB',
-                'color' => 'orange',
-                'icon' => '1.png',
+                'bgColor' => '#38336b',
+                'color' => '#38336b',
+                'icon' => '3.png',
                 'value' => $model->inside,
                 'text' => 'Inside',
             ],
             [
-                'bgColor' => '#D7CCC8',
-                'color' => 'blue',
+                'bgColor' => '#35b568',
+                'color' => '#35b568',
                 'icon' => '4.png',
                 'value' => $model->noshow,
                 'text' => 'No Show',
