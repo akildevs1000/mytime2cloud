@@ -29,10 +29,10 @@
         <v-col md="4" sm="4" xs="4">
           <h4>Today Attendance</h4>
         </v-col>
-        <v-col md="4" sm="4" xs="4">
+        <v-col md="6" sm="6" xs="6">
           {{ wallClockTimeString }}
         </v-col>
-        <v-col md="4" sm="4" xs="4" class="text-end">
+        <v-col md="2" sm="2" xs="2" class="text-end">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
               <v-btn dark-2 icon v-bind="attrs" v-on="on">
@@ -95,12 +95,22 @@ export default {
   methods: {
     wallClock() {
       const now = new Date();
+
+      // Get hours, minutes, and seconds
       let hours = now.getHours();
       const minutes = now.getMinutes().toString().padStart(2, "0");
       const seconds = now.getSeconds().toString().padStart(2, "0");
-      const ampm = hours >= 12 ? "PM" : "AM";
-      hours = hours % 12 || 12;
-      this.wallClockTimeString = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+      // Convert hours to 24-hour format (no AM/PM)
+      hours = hours.toString().padStart(2, "0");
+
+      // Get the date components
+      const year = now.getFullYear();
+      const month = now.toLocaleString("default", { month: "short" }); // Get short month name (e.g., "Feb")
+      const day = now.getDate().toString().padStart(2, "0");
+
+      // Format the time and date
+      this.wallClockTimeString = `${hours}:${minutes}:${seconds} ${day} ${month} ${year}`;
     },
     goToReports() {
       this.$router.push("/attendance_report");
