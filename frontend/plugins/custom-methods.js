@@ -212,7 +212,7 @@ export default ({ app }, inject) => {
       let year = date.getFullYear();
       let monthIndex = date.getMonth();
       let totalDaysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-      return ((count / totalDaysInMonth) * 5).toFixed(2);
+      return parseFloat(((count / totalDaysInMonth) * 5).toFixed(2));
     }
   });
 };

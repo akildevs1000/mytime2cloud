@@ -610,37 +610,40 @@
                         ></apexchart>
                       </div>
 
-                      <div class="d-flex justify-space-between text-center">
+                      <div
+                        v-if="leaveQuota"
+                        class="d-flex justify-space-between text-center"
+                      >
                         <div>
                           <div class="">Total</div>
                           <div class="">
-                            <strong style="font-size: 16px; color: black"
-                              >40</strong
-                            >
+                            <strong style="font-size: 16px; color: black">{{
+                              leaveQuota?.total_leave_days || 0
+                            }}</strong>
                           </div>
                         </div>
                         <div>
                           <div class="">Balance</div>
                           <div class="">
-                            <strong style="font-size: 16px; color: black"
-                              >12</strong
-                            >
+                            <strong style="font-size: 16px; color: black">{{
+                              leaveQuota?.balance || 0
+                            }}</strong>
                           </div>
                         </div>
                         <div>
                           <div class="">Approved</div>
                           <div class="">
-                            <strong style="font-size: 16px; color: black"
-                              >5</strong
-                            >
+                            <strong style="font-size: 16px; color: black">{{
+                              leaveQuota?.approved || 0
+                            }}</strong>
                           </div>
                         </div>
                         <div>
                           <div class="">Rejected</div>
                           <div class="">
-                            <strong style="font-size: 16px; color: black"
-                              >5</strong
-                            >
+                            <strong style="font-size: 16px; color: black">{{
+                              leaveQuota?.rejected || 0
+                            }}</strong>
                           </div>
                         </div>
                       </div>
@@ -789,7 +792,7 @@ export default {
       payslipsData: [],
       hoursReportData: null,
       base64Image: null,
-      leaveQuota: 0,
+      leaveQuota: null,
     };
   },
   async mounted() {
@@ -911,27 +914,22 @@ export default {
       }
     },
     async getLeaveQuota() {
-      if (!this.leave_group_id) {
+      if (!this.item.leave_group_id) {
         return false;
       }
+
       this.dialogLeaveGroup = true;
       let options = {
         params: {
-          per_page: 1000,
-          company_id: this.company_id,
-          employee_id: this.employee_id_for_payroll,
+          company_id: this.item.company_id,
+          employee_id: this.employee.employee_id_for_leave,
         },
       };
+
       this.$axios
-        .get("leave_groups/" + this.leave_group_id, options)
+        .get("leave_total_quota/" + this.item.leave_group_id, options)
         .then(({ data }) => {
-          this.leaveQuota =
-            data
-              .map((e) => e.leave_count)
-              .map((e) => ({
-                leave_type_count: e.leave_type_count,
-                employee_used: e.employee_used,
-              })) || 0;
+          this.leaveQuota = data;
         });
     },
 

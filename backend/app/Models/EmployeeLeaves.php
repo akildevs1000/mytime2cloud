@@ -13,6 +13,10 @@ class EmployeeLeaves extends Model
     protected $guarded = [];
     protected $table = "employee_leaves";
 
+    const PENDING = 0;
+    const APPROVED = 1;
+    const REJECTED = 2;
+
     protected $casts = [
         'created_at' => 'datetime:d-M-y H:i',
     ];

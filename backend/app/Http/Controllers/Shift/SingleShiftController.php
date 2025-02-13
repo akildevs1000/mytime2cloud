@@ -99,7 +99,7 @@ class SingleShiftController extends Controller
         $items = [];
 
 
-        $shifts = Shift::with("employee_schedule")->where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
+        // $shifts = Shift::with("employee_schedule")->where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
 
         $schedule = ScheduleEmployee::where("company_id", $params["company_id"])->get();
 
