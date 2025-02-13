@@ -38,7 +38,7 @@ class RenderController extends Controller
     public function renderLogs(Request $request)
     {
 
-        return ["Regeneration not allowd. contact to admin"];
+        // return ["Regeneration not allowd. contact to admin"];
 
         set_time_limit(60); // In seconds
 
