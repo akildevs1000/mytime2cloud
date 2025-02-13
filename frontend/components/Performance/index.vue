@@ -146,7 +146,7 @@
               <v-text-field
                 label="Select Month"
                 hide-details
-                v-model="month"
+                :value="formattedMonths"
                 persistent-hint
                 append-icon="mdi-calendar"
                 readonly
@@ -156,12 +156,15 @@
                 v-on="on"
               ></v-text-field>
             </template>
-            <!-- multiple -->
-            <v-date-picker color="primary"
+            <v-date-picker
+              color="primary"
               style="min-height: 320px"
-              v-model="month"
+              v-model="months"
               no-title
               type="month"
+              multiple
+              range
+              @input="addFirstAndLastDay(months)"
             ></v-date-picker>
           </v-menu>
         </div>
@@ -255,17 +258,30 @@
             </div>
           </template>
           <template v-slot:item.rating="{ item }">
-            <div style="display: flex; justify-content: space-between;max-width: 200px;">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                max-width: 200px;
+              "
+            >
               <v-rating
                 dense
                 hide-details
-                :value="$utils.getRating(item.p_count_value, month)"
+                :value="
+                  $utils.getRating(item.p_count_value, from_date, to_date)
+                "
                 background-color="green lighten-3"
                 color="green"
                 half-increments
               ></v-rating>
               <div>
-                <v-chip small class="green white--text">{{ $utils.getRating(item.p_count_value, month) }} / 5 </v-chip>
+                <v-chip small class="green white--text"
+                  >{{
+                    $utils.getRating(item.p_count_value, from_date, to_date)
+                  }}
+                  / 5
+                </v-chip>
               </div>
             </div>
           </template>
@@ -286,7 +302,11 @@
                         p_count_value: item?.p_count_value || 0,
                         a_count_value: item?.a_count_value || 0,
                         l_count_value: item?.l_count_value || 0,
-                        rating: $utils.getRating(item.p_count_value, month),
+                        rating: $utils.getRating(
+                          item.p_count_value,
+                          from_date,
+                          to_date
+                        ),
                       }"
                       :employee="{
                         name: `${item?.employee?.title} ${item?.employee?.full_name}`,
@@ -334,6 +354,12 @@ export default {
     date: null,
     menu: false,
     month: null,
+
+    from_date: null,
+    to_date: null,
+
+    months: [],
+
     options: {},
     date: null,
     Model: "Attendance Reports",
@@ -345,13 +371,8 @@ export default {
     total: 0,
     totalRowsCount: 0,
     payload: {
-      from_date: null,
-      to_date: null,
-      daily_date: null,
       employee_id: [],
-
       department_ids: [{ id: "-1", name: "" }],
-      status: "-1",
       branch_id: null,
     },
     data: [],
@@ -360,6 +381,17 @@ export default {
   }),
 
   computed: {
+    formattedMonths() {
+      if (this.months.length === 0) return "";
+
+      // Format each month in the array
+      const formatted = this.months.map((month) => {
+        return this.formatMonth(month);
+      });
+
+      // Join the formatted months with ' to '
+      return formatted.join(" to ");
+    },
     isIndeterminateDepartment() {
       return (
         this.payload.department_ids.length > 0 &&
@@ -413,6 +445,41 @@ export default {
   },
 
   methods: {
+    addFirstAndLastDay(months) {
+      // Check if the user has selected exactly 2 months
+      if (months.length !== 2) {
+        // Do nothing and wait for the user to select 2 dates
+        return;
+      }
+
+      // Get the first month
+      const firstMonth = months[0];
+      const [firstYear, firstMonthNum] = firstMonth.split("-");
+
+      // Add the first day of the first month
+      this.from_date = `${firstYear}-${firstMonthNum}-01`;
+
+      // Get the last month
+      const lastMonth = months[months.length - 1];
+      const [lastYear, lastMonthNum] = lastMonth.split("-");
+
+      // Calculate the last day of the last month
+      const lastDayOfMonth = new Date(lastYear, lastMonthNum, 0).getDate();
+      this.to_date = `${lastYear}-${lastMonthNum}-${lastDayOfMonth}`;
+    },
+    formatMonth(monthString) {
+      // Split the string into year and month
+      const [year, month] = monthString.split("-");
+
+      // Create a Date object (use the first day of the month)
+      const date = new Date(year, month - 1, 1);
+
+      // Format the month name (e.g., "Jan", "Feb")
+      const monthName = date.toLocaleString("default", { month: "short" });
+
+      // Return the formatted string (e.g., "Jan 2025")
+      return `${monthName} ${year}`;
+    },
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
     },
@@ -429,25 +496,23 @@ export default {
 
       this.loading = true;
 
-      let payload = {
-        ...this.payload,
-        from_date: `${this.month}-01`,
-        to_date: `${this.month}-31`,
-        page: page,
-        per_page: itemsPerPage,
-        company_id: this.$auth.user.company_id,
-        report_type: "monthly",
-        filterType: this.filterType,
-      };
-
-      console.log("🚀 ~ getDataFromApi ~ this.payload:", this.payload);
-
-      this.$axios.post(`performance-report`, payload).then(({ data }) => {
-        this.data = data.data;
-        this.total = data.total;
-        this.loading = false;
-        this.totalRowsCount = data.total;
-      });
+      this.$axios
+        .post(`performance-report`, {
+          ...this.payload,
+          from_date: this.from_date,
+          to_date: this.to_date,
+          page: page,
+          per_page: itemsPerPage,
+          company_id: this.$auth.user.company_id,
+          report_type: "monthly",
+          filterType: this.filterType,
+        })
+        .then(({ data }) => {
+          this.data = data.data;
+          this.total = data.total;
+          this.loading = false;
+          this.totalRowsCount = data.total;
+        });
     },
 
     getScheduledEmployees() {

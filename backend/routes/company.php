@@ -313,11 +313,9 @@ Route::get('leave_groups/{id}', [LeaveGroupsController::class, 'show']);
 Route::get('leave-group-list', [LeaveGroupsController::class, 'dropdownList']);
 
 Route::get('leave_total_quota/{id}', [LeaveGroupsController::class, 'totalLeaveQuota']);
-
-
+Route::get('yearly_leave_quota/{id}', [LeaveGroupsController::class, 'yearlyLeaveQuota']);
 
 Route::post('register', [RegisterController::class, 'store']);
-
 
 Route::post('send-whatsapp-wessage', function (Request $request) {
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);

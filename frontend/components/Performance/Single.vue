@@ -603,7 +603,7 @@
 
                       <div style="flex: 0.7; min-width: 30%">
                         <apexchart
-                          v-if="isMounted"
+                          v-if="isMounted && leaveChartSeries[0].data.length"
                           type="bar"
                           :options="leaveChartOptions"
                           :series="leaveChartSeries"
@@ -679,8 +679,8 @@ export default {
         dataLabels: { enabled: false },
       },
       barSeries: [
-        { name: "Present", data: [25, 15, 23, 10, 17, 21] },
-        { name: "Absent", data: [6, 16, 8, 21, 14, 10] },
+        { name: "Present", data: [] },
+        { name: "Absent", data: [] },
       ],
       barOptions: {
         chart: {
@@ -758,20 +758,7 @@ export default {
           },
         },
         xaxis: {
-          categories: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec",
-          ],
+          categories: [],
         },
         colors: ["#4CAF50"], // Green color for the bar
         legend: {
@@ -785,7 +772,7 @@ export default {
         {
           name: "Current Year",
           type: "bar", // Set the type to bar for the current year
-          data: [10, 12, 15, 20, 25, 10, 12, 30, 10, 20, 12, 22], // Current year's data
+          data: [], // Current year's data
         },
       ],
 
@@ -830,6 +817,8 @@ export default {
     await this.getEncodedImage(profile_picture);
 
     await this.getLeaveQuota();
+
+    await this.getYearlyLeaveQuota();
 
     this.pieSeries = [
       this.item?.p_count_value,
@@ -918,7 +907,6 @@ export default {
         return false;
       }
 
-      this.dialogLeaveGroup = true;
       let options = {
         params: {
           company_id: this.item.company_id,
@@ -932,6 +920,25 @@ export default {
           this.leaveQuota = data;
         });
     },
+    async getYearlyLeaveQuota() {
+      if (!this.item.leave_group_id) {
+        return false;
+      }
+
+      let options = {
+        params: {
+          company_id: this.item.company_id,
+          employee_id: this.employee.employee_id_for_leave,
+        },
+      };
+
+      this.$axios
+        .get("yearly_leave_quota/" + this.item.leave_group_id, options)
+        .then(({ data }) => {
+          this.leaveChartOptions.xaxis.categories = data.month_names;
+          this.leaveChartSeries[0].data = data.month_values;
+        });
+    },
 
     setDataForDatePicker() {
       const date = new Date(); // This is a Date object, not a string
@@ -941,11 +948,6 @@ export default {
 
       this.selectedDate = `${previousMonth}-01`;
       this.maxDate = `${previousMonth}-31`;
-    },
-    formatDate: (inputdate) => {
-      const date = new Date(inputdate);
-      const options = { day: "2-digit", month: "short", year: "numeric" };
-      return date.toLocaleDateString("en-GB", options).replace(",", "");
     },
     getEventColors(e) {
       return this.events[e] || "";

@@ -207,12 +207,22 @@ export default ({ app }, inject) => {
   });
 
   inject("utils", {
-    getRating(count, month) {
-      let date = new Date(month + "-01");
-      let year = date.getFullYear();
-      let monthIndex = date.getMonth();
-      let totalDaysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-      return parseFloat(((count / totalDaysInMonth) * 5).toFixed(2));
+    getRating(count, from_date, to_date) {
+      // Convert the date strings to Date objects
+      const fromDate = new Date(from_date);
+      const toDate = new Date(to_date);
+
+      // Calculate the difference in time (in milliseconds)
+      const timeDifference = toDate - fromDate;
+
+      // Convert the time difference to days
+      const totalDaysInMonth = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1;
+
+      // Calculate the rating
+      const rating = (count / totalDaysInMonth) * 5;
+
+      // Return the rating rounded to 2 decimal places
+      return parseFloat(rating.toFixed(2));
     }
   });
 };

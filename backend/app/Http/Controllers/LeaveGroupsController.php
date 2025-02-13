@@ -237,4 +237,39 @@ class LeaveGroupsController extends Controller
 
         return $payload;
     }
+
+    public function yearlyLeaveQuota($id, Request $request)
+    {
+        $company_id = $request->company_id ?? 0;
+        $employee_id = $request->employee_id ?? 0;
+        // Calculate the start and end dates for the last 12 months
+        $endDate = now(); // Current date
+        $startDate = now()->subMonths(12); // 12 months ago from today
+
+        // Fetch data for the last 12 months
+        $leaves = EmployeeLeaves::where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where("status", 1)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $monthNames = [];
+        $monthValues = [];
+
+        // Loop through the last 12 months
+        for ($i = 0; $i < 12; $i++) {
+            $monthStart = now()->subMonths($i)->startOfMonth(); // Start of the month
+            $monthEnd = now()->subMonths($i)->endOfMonth(); // End of the month
+            $monthName = $monthStart->format('M'); // Format as (Feb)
+            $monthlyLeaves = $leaves->filter(function ($item) use ($monthStart, $monthEnd) {
+                return $item->created_at >= $monthStart && $item->created_at <= $monthEnd;
+            });
+
+            $monthNames[] = $monthName;
+            $monthValues[] = $monthlyLeaves->isEmpty() ? 0 : $monthlyLeaves->count();
+        }
+
+        return ["month_names" => array_reverse($monthNames), "month_values" => array_reverse($monthValues)];
+    }
 }
