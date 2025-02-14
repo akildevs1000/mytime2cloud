@@ -180,7 +180,7 @@ class SyncMultiShift extends Command
 
         Attendance::where("company_id", $id)->where("date", $date)->insert($items);
 
-        $message = "*****task:sync_multi_shift affected ids " . json_encode($foundKeys) . " *****";
+        $message = "*****task:sync_multi_shift Company Id: $id, affected ids " . json_encode($foundKeys) . " *****";
 
         $this->info($message);
 
