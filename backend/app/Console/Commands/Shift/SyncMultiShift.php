@@ -40,7 +40,7 @@ class SyncMultiShift extends Command
 
         $id = $this->argument("company_id", 1);
 
-        date_default_timezone_set('UTC');
+        // date_default_timezone_set('UTC');
 
         (new Controller)->logOutPut($logFilePath, "*****Cron started for task:sync_multi_shift $id *****");
 
@@ -62,11 +62,11 @@ class SyncMultiShift extends Command
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', true)
+            ->where('al.UserID', 729)
             ->where('al.company_id', $id)
-            ->where('al.UserID', 115)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
             ->orderBy("al.LogTime")
-            ->take(10)
+            ->take(20)
             ->pluck("al.UserID")
             ->toArray();
 
@@ -218,7 +218,7 @@ class SyncMultiShift extends Command
         $pairedLogs = [];
         $logsCount = count($employeeLogs);
 
-        for ($i = 0; $i < $logsCount; $i += 2) {
+        for ($i = 0; $i < $logsCount; $i++) {
             $currentLog = $employeeLogs[$i];
             $nextLog = isset($employeeLogs[$i + 1]) ? $employeeLogs[$i + 1] : false;
 
@@ -253,7 +253,6 @@ class SyncMultiShift extends Command
                 // Calculate the duration in minutes
                 $diff = $parsed_out - $parsed_in;
                 $minutes = ($diff / 60);
-
                 $pairedLogs[] = [
                     'in' => $currentTime,
                     'out' => $nextTime,
@@ -272,6 +271,8 @@ class SyncMultiShift extends Command
                     "device_out" =>  "---",
                 ];
             }
+
+            $i++;
         }
 
         return $pairedLogs;
