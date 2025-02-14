@@ -3,9 +3,14 @@
 namespace App\Console\Commands\Shift;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\Shift;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class SyncMultiShift extends Command
@@ -35,11 +40,15 @@ class SyncMultiShift extends Command
 
         $id = $this->argument("company_id", 1);
 
+        date_default_timezone_set('UTC');
+
         (new Controller)->logOutPut($logFilePath, "*****Cron started for task:sync_multi_shift $id *****");
 
-        $date = $this->argument("date", date("Y-m-d", strtotime("yesterday")));
+        $date = $this->argument("date", date("Y-m-d"));
 
-        $nextDate = date("Y-m-d", strtotime($date . "+1 day"));
+        $logStartTime = Carbon::parse($date)->startOfDay();
+
+        $logEndTime = Carbon::parse($date)->endOfDay();
 
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
@@ -48,76 +57,196 @@ class SyncMultiShift extends Command
             return;
         }
 
-        $all_ids = Employee::whereHas("attendance_logs", function ($q) use ($id, $date, $nextDate) {
-            // $q->where("UserID", 698);
-            $q->where("company_id", $id);
-            $q->where("LogTime", ">=", $date);
-            $q->where("LogTime", "<=", $nextDate);
-            $q->where("checked", false);
-        })->pluck("system_user_id")->take(5)->toArray();
+        $all_new_employee_ids = DB::table('employees as e')
+            ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
+            ->select('al.UserID')
+            ->where('e.status', 1)
+            ->where('al.checked', false)
+            ->where('al.company_id', $id)
+            // ->where('al.UserID', 271)
+            ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
+            ->orderBy("al.LogTime")
+            ->take(10)
+            ->pluck("al.UserID")
+            ->toArray();
 
-        $employee_ids = array_values(array_unique($all_ids));
-
-        if (!$employee_ids || count($employee_ids) == 0) {
+        if (!$all_new_employee_ids || count($all_new_employee_ids) == 0) {
             $this->info("No data");
             return;
         }
 
-        $payload = [
-            'date' => '',
-            'UserID' => '',
-            'updated_by' => "26",
-            'company_ids' => [$id],
-            'manual_entry' => true,
-            'reason' => '',
-            'employee_ids' => $employee_ids,
-            'dates' => [$date, $nextDate],
-            'shift_type_id' => 2,
-            'company_id' => $id,
-            'channel' => "kernel",
-        ];
+        $filtered_all_new_employee_ids = array_values(array_unique($all_new_employee_ids));
 
-        // $this->info(json_encode($payload));
+        $all_logs_for_employee_ids = DB::table('employees as e')
+            ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
+            ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
+            ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
+            ->select(
+                'e.employee_id',
+                'e.company_id',
+                'e.system_user_id',
+                'al.LogTime',
+                'al.UserID',
+                'sh.id as shift_id',
+                'sh.on_duty_time',
+                'sh.off_duty_time',
+            )
+            ->where('e.status', 1)
+            ->where('al.company_id', $id)
+            ->whereIn('al.UserID', $filtered_all_new_employee_ids)
+            ->whereBetween('al.LogTime', [$logStartTime, $logEndTime]) // can i directly get the filtered record from this parent function
+            ->orderBy("al.LogTime")
+            ->get()
+            ->groupBy("UserID") // Use the correct key from the selection
+            ->toArray();
 
-        $url = 'https://backend.mytime2cloud.com/api/render_logs';
 
-        // if (env("APP_ENV") == "desktop") {
 
-        //     $localIp = gethostbyname(gethostname());
-        //     $port = 8000;
-        //     $url = "http://$localIp:$port/api/render_logs";
-        //     // $url = 'https://mytime2cloud-backend.test/api/render_logs';
-        // }
+        $items = [];
 
-        $response = Http::withoutVerifying()->get($url, $payload);
+        $foundKeys = [];
 
-        if ($response->successful()) {
-
-            (new Controller)->logOutPut(
-                $logFilePath,
-                [
-                    'message' => 'Cron Execution Success: task:sync_multi_shift',
-                    'app' => env('APP_NAME'),
-                    'company_id' => $id,
-                    'date' => date("Y-m-d"),
-                    'response_status' => $response->status(),
-                    'response_body' => "---",
-                    'employee_ids' => $employee_ids,
-                ]
-            );
-        } else {
-            (new Controller)->logOutPut(
-                $logFilePath,
-                [
-                    'message' => 'Cron Execution Failed: task:sync_multi_shift',
-                    'app' => env('APP_NAME'),
-                    'company_id' => $id,
-                    'date' => $date,
-                    'response_status' => $response->status(),
-                    'response_body' => $response->body(),
-                ]
-            );
+        if (!$all_logs_for_employee_ids || count($all_logs_for_employee_ids) == 0) {
+            $this->info("No data");
+            return;
         }
+
+        foreach ($all_logs_for_employee_ids as $employeeId => $employeeLogs) {
+
+            if (!$employeeLogs || count($employeeLogs) == 0) {
+                continue;
+            }
+
+            $item = [
+                "employee_id" => $employeeId,
+                "total_hrs" => 0,
+                "ot" => "---",
+                "device_id_in" => "---",
+                "device_id_out" => "---",
+                "date" => $date,
+                "company_id" => $id,
+                "shift_id" => $employeeLogs[0]->shift_id,
+                "shift_type_id" => 2,
+                "status" => count($employeeLogs) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+            ];
+
+            $logs = $this->processLogs($date, $employeeLogs);
+
+            $item["logs"] = json_encode($logs);
+
+            $items[] = $item;
+
+            if (count($logs)) {
+                $foundKeys[] = $employeeId;
+            }
+        }
+
+        Attendance::whereIn("employee_id", $foundKeys)
+            ->where("date", $date)
+            ->where("company_id", $id)
+            ->delete();
+
+        Attendance::where("company_id", $id)->where("date", $date)->insert($items);
+
+        $message = "*****task:sync_multi_shift affected ids " . json_encode($foundKeys) . " *****";
+
+        $this->info($message);
+
+        $all_new_employee_ids = DB::table('attendance_logs')
+            ->where('company_id', $id)
+            ->whereIn('UserID', $foundKeys)
+            ->whereBetween('LogTime', [$logStartTime, $logEndTime])
+            ->update(
+                [
+                    "checked" => true,
+                    "checked_datetime" => date('Y-m-d H:i:s'),
+                    "channel" => "kernel",
+                    "log_message" => substr($message, 0, 200)
+                ]
+            );
+
+        (new Controller)->logOutPut($logFilePath, $message);
+
         (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift $id*****");
+    }
+
+    function processLogs($date, $employeeLogs)
+    {
+        // Assuming $employeeLogs[0]->on_duty_time and $employeeLogs[0]->off_duty_time are strings like "06:00" and "03:00"
+        $on_duty_time = $employeeLogs[0]->on_duty_time; // "06:00"
+        $off_duty_time = $employeeLogs[0]->off_duty_time; // "03:00"
+
+        // Create DateTime objects for on_duty and off_duty
+        $on_duty = new DateTime("$date $on_duty_time");
+        $off_duty = new DateTime("$date $off_duty_time");
+
+        // If off_duty_time is earlier than on_duty_time, it means it's on the next day
+        if ($off_duty < $on_duty) {
+            $off_duty->modify('+1 day'); // Add one day to off_duty
+        }
+
+        // Convert duty times to timestamps for comparison
+        $on_duty_timestamp = $on_duty->getTimestamp();
+        $off_duty_timestamp = $off_duty->getTimestamp();
+
+        $pairedLogs = [];
+        $logsCount = count($employeeLogs);
+
+        for ($i = 0; $i < $logsCount; $i += 2) {
+            $currentLog = $employeeLogs[$i];
+            $nextLog = isset($employeeLogs[$i + 1]) ? $employeeLogs[$i + 1] : false;
+
+            $currentTime = date("H:i", strtotime($currentLog->LogTime));
+            $nextTime = date("H:i", strtotime($nextLog->LogTime));
+
+            $parsed_out = strtotime("$date $nextTime");
+            $parsed_in = strtotime("$date $currentTime");
+
+
+
+            if ($parsed_in > $parsed_out) {
+                //$item["extra"] = $nextLog['time'];
+                $parsed_out += 86400;
+            }
+
+            // Skip logs outside the duty period
+            if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
+                continue;
+            }
+
+            if ($nextLog) {
+                $nextTime = date("H:i", strtotime($nextLog->LogTime));
+                $parsed_out = strtotime("$date $nextTime");
+
+                // Skip if the "out" time is outside the duty period
+                if ($parsed_out < $on_duty_timestamp || $parsed_out > $off_duty_timestamp) {
+                    continue;
+                }
+
+                // Calculate the duration in minutes
+                $diff = $parsed_out - $parsed_in;
+                $minutes = ($diff / 60);
+
+                $pairedLogs[] = [
+                    'in' => $currentTime,
+                    'out' => $nextTime,
+                    'total_minutes' => (new Controller)->minutesToHours($minutes),
+                    "device_in" =>  "---",
+                    "device_out" =>  "---",
+
+                ];
+            } else {
+                // Handle the last log if there's no pair
+                $pairedLogs[] = [
+                    'in' => $currentTime,
+                    'out' => "---",
+                    'total_minutes' => 0,
+                    "device_in" =>  "---",
+                    "device_out" =>  "---",
+                ];
+            }
+        }
+
+        return ($pairedLogs);
     }
 }

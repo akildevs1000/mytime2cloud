@@ -108,6 +108,7 @@ if (!function_exists('ld')) {
     {
         echo "<pre>";
         echo json_encode($arr, JSON_PRETTY_PRINT);
+        die;
     }
 }
 if (!function_exists('defaultCards')) {
