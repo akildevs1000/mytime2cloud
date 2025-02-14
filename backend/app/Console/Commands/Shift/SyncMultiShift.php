@@ -53,7 +53,7 @@ class SyncMultiShift extends Command
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
         if ($found == 0) {
-            (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift: no shift found for $id*****");
+            // (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift: no shift found for $id*****");
             return;
         }
 
