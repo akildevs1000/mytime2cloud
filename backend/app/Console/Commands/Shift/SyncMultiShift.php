@@ -66,7 +66,7 @@ class SyncMultiShift extends Command
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', false)
-            // ->where('al.UserID', 729)
+            // ->where('al.UserID', 797)
             ->where('al.company_id', $id)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
             ->orderBy("al.LogTime")
@@ -121,6 +121,8 @@ class SyncMultiShift extends Command
 
         $log_ids = [];
 
+        $UserIDs = [];
+
         foreach ($all_logs_for_employee_ids as $UserID => $employeeLogs) {
 
             $uniqueEntries = [];
@@ -170,10 +172,11 @@ class SyncMultiShift extends Command
 
             if (count($logs)) {
                 $foundKeys[] = $uniqueEntries[0]->employee_id;
+                $UserIDs[] = $UserID;
             }
         }
 
-        Attendance::whereIn("employee_id", $foundKeys)
+        Attendance::whereIn("employee_id", $UserIDs)
             ->where("date", $date)
             ->where("company_id", $id)
             ->delete();
