@@ -61,9 +61,9 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
-            ->where('al.checked', false)
+            ->where('al.checked', true)
             ->where('al.company_id', $id)
-            // ->where('al.UserID', 552)
+            ->where('al.UserID', 115)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
             ->orderBy("al.LogTime")
             ->take(10)
@@ -85,6 +85,7 @@ class SyncMultiShift extends Command
                 'e.employee_id',
                 'e.company_id',
                 'e.system_user_id',
+                'al.id as log_id',
                 'al.LogTime',
                 'al.UserID',
                 'sh.id as shift_id',
@@ -114,9 +115,25 @@ class SyncMultiShift extends Command
             return;
         }
 
+        $log_ids = [];
+
         foreach ($all_logs_for_employee_ids as $employeeId => $employeeLogs) {
 
-            if (!$employeeLogs || count($employeeLogs) == 0) {
+            $uniqueEntries = [];
+            $seen = [];
+
+            foreach ($employeeLogs as $entry) {
+                // Create a unique key based on specific fields
+                $key = $employeeId . '-' . $id . '-' . $entry->LogTime;
+
+                // Check if the key has already been seen
+                if (!isset($seen[$key])) {
+                    $seen[$key] = true; // Mark the key as seen
+                    $uniqueEntries[] = $entry; // Add to unique entries
+                }
+            }
+
+            if (!$uniqueEntries || count($uniqueEntries) == 0) {
                 continue;
             }
 
@@ -128,17 +145,19 @@ class SyncMultiShift extends Command
                 "device_id_out" => "---",
                 "date" => $date,
                 "company_id" => $id,
-                "shift_id" => $employeeLogs[0]->shift_id,
+                "shift_id" => $uniqueEntries[0]->shift_id,
                 "shift_type_id" => 2,
-                "status" => count($employeeLogs) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+                "status" => count($uniqueEntries) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
             ];
 
-            $logs = $this->processLogs($date, $employeeLogs);
+            $logs = $this->processLogs($date, $uniqueEntries);
             $total_hrs = $this->calculateTotalHrs(array_column($logs, "total_minutes"));
 
-            if ($employeeLogs[0]->isOverTime) {
-                $item["ot"] = (new Controller)->calculatedOT($total_hrs, $employeeLogs[0]->working_hours, $employeeLogs[0]->overtime_interval);
+            if ($uniqueEntries[0]->isOverTime) {
+                $item["ot"] = (new Controller)->calculatedOT($total_hrs, $uniqueEntries[0]->working_hours, $uniqueEntries[0]->overtime_interval);
             }
+
+            $log_ids = array_column($uniqueEntries, "log_id");
 
             $item["logs"] = json_encode($logs);
             $item["total_hrs"] =  $total_hrs;
@@ -162,9 +181,7 @@ class SyncMultiShift extends Command
         $this->info($message);
 
         $all_new_employee_ids = DB::table('attendance_logs')
-            ->where('company_id', $id)
-            ->whereIn('UserID', $foundKeys)
-            ->whereBetween('LogTime', [$logStartTime, $logEndTime])
+            ->whereIn('id', $log_ids)
             ->update(
                 [
                     "checked" => true,
