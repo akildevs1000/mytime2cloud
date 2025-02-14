@@ -36,9 +36,11 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
-        // $test = AttendanceLog::where("company_id", 22)->first();
+        // $totalLogs = AttendanceLog::where("company_id", 22)
+        //     ->where("LogTime", ">=", date("Y-m-d"))
+        //     ->count();
 
-        // ld($test);
+        // ld($totalLogs);
 
         $logFilePath = 'logs/shifts/multi_shift/command';
 
@@ -86,6 +88,7 @@ class SyncMultiShift extends Command
             ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
             ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
             ->select(
+                'e.first_name',
                 'e.employee_id',
                 'e.company_id',
                 'e.system_user_id',
@@ -171,7 +174,7 @@ class SyncMultiShift extends Command
             $items[] = $item;
 
             if (count($logs)) {
-                $foundKeys[] = $uniqueEntries[0]->employee_id;
+                $foundKeys[] = ["name" => $uniqueEntries[0]->first_name, "employee_id" => $uniqueEntries[0]->employee_id];
                 $UserIDs[] = $UserID;
             }
         }
