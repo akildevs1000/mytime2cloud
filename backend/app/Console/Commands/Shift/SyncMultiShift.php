@@ -36,6 +36,10 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
+        // $test = AttendanceLog::where("company_id", 22)->first();
+
+        // ld($test);
+
         $logFilePath = 'logs/shifts/multi_shift/command';
 
         $id = $this->argument("company_id", 1);
@@ -61,7 +65,7 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
-            ->where('al.checked', true)
+            ->where('al.checked', false)
             // ->where('al.UserID', 729)
             ->where('al.company_id', $id)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
@@ -117,14 +121,14 @@ class SyncMultiShift extends Command
 
         $log_ids = [];
 
-        foreach ($all_logs_for_employee_ids as $employeeId => $employeeLogs) {
+        foreach ($all_logs_for_employee_ids as $UserID => $employeeLogs) {
 
             $uniqueEntries = [];
             $seen = [];
 
             foreach ($employeeLogs as $entry) {
                 // Create a unique key based on specific fields
-                $key = $employeeId . '-' . $id . '-' . $entry->LogTime;
+                $key = $UserID . '-' . $id . '-' . $entry->LogTime;
 
                 // Check if the key has already been seen
                 if (!isset($seen[$key])) {
@@ -138,7 +142,7 @@ class SyncMultiShift extends Command
             }
 
             $item = [
-                "employee_id" => $employeeId,
+                "employee_id" => $UserID,
                 "total_hrs" => 0,
                 "ot" => "---",
                 "device_id_in" => "---",
@@ -165,7 +169,7 @@ class SyncMultiShift extends Command
             $items[] = $item;
 
             if (count($logs)) {
-                $foundKeys[] = $employeeId;
+                $foundKeys[] = $uniqueEntries[0]->employee_id;
             }
         }
 
