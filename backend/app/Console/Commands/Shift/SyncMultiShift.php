@@ -61,9 +61,9 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
-            ->where('al.checked', false)
+            ->where('al.checked', true)
             ->where('al.company_id', $id)
-            // ->where('al.UserID', 271)
+            ->where('al.UserID', 552)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
             ->orderBy("al.LogTime")
             ->take(10)
@@ -90,6 +90,9 @@ class SyncMultiShift extends Command
                 'sh.id as shift_id',
                 'sh.on_duty_time',
                 'sh.off_duty_time',
+                'sh.working_hours',
+                'sh.overtime_interval',
+                'se.isOverTime'
             )
             ->where('e.status', 1)
             ->where('al.company_id', $id)
@@ -131,8 +134,14 @@ class SyncMultiShift extends Command
             ];
 
             $logs = $this->processLogs($date, $employeeLogs);
+            $total_hrs = $this->calculateTotalHrs(array_column($logs, "total_minutes"));
+
+            if ($employeeLogs[0]->isOverTime) {
+                $item["ot"] = (new Controller)->calculatedOT($total_hrs, $employeeLogs[0]->working_hours, $employeeLogs[0]->overtime_interval);
+            }
 
             $item["logs"] = json_encode($logs);
+            $item["total_hrs"] =  $total_hrs;
 
             $items[] = $item;
 
@@ -197,24 +206,25 @@ class SyncMultiShift extends Command
             $nextLog = isset($employeeLogs[$i + 1]) ? $employeeLogs[$i + 1] : false;
 
             $currentTime = date("H:i", strtotime($currentLog->LogTime));
-            $nextTime = date("H:i", strtotime($nextLog->LogTime));
 
-            $parsed_out = strtotime("$date $nextTime");
             $parsed_in = strtotime("$date $currentTime");
 
-
-
-            if ($parsed_in > $parsed_out) {
-                //$item["extra"] = $nextLog['time'];
-                $parsed_out += 86400;
-            }
-
-            // Skip logs outside the duty period
-            if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
-                continue;
-            }
-
             if ($nextLog) {
+
+                $nextTime = date("H:i", strtotime($nextLog->LogTime));
+
+                $parsed_out = strtotime("$date $nextTime");
+
+                if ($parsed_in > $parsed_out) {
+                    //$item["extra"] = $nextLog['time'];
+                    $parsed_out += 86400;
+                }
+
+                // Skip logs outside the duty period
+                if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
+                    continue;
+                }
+
                 $nextTime = date("H:i", strtotime($nextLog->LogTime));
                 $parsed_out = strtotime("$date $nextTime");
 
@@ -240,13 +250,31 @@ class SyncMultiShift extends Command
                 $pairedLogs[] = [
                     'in' => $currentTime,
                     'out' => "---",
-                    'total_minutes' => 0,
+                    'total_minutes' => "00:00",
                     "device_in" =>  "---",
                     "device_out" =>  "---",
                 ];
             }
         }
 
-        return ($pairedLogs);
+        return $pairedLogs;
+    }
+
+    function calculateTotalHrs($times)
+    {
+        $totalMinutes = 0;
+
+        // Convert all times to total minutes
+        foreach ($times as $time) {
+            list($hours, $minutes) = explode(':', $time);
+            $totalMinutes += (int)$hours * 60 + (int)$minutes;
+        }
+
+        // Convert total minutes back to HH:MM format
+        $totalHours = floor($totalMinutes / 60);
+        $remainingMinutes = $totalMinutes % 60;
+
+        // Format as HH:MM
+        return sprintf("%02d:%02d", $totalHours, $remainingMinutes);
     }
 }
