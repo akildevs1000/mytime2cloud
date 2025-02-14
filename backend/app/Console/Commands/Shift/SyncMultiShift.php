@@ -187,12 +187,14 @@ class SyncMultiShift extends Command
 
         Attendance::where("company_id", $id)->where("date", $date)->insert($items);
 
-        $message = "*****task:sync_multi_shift Company Id: $id, affected ids " . json_encode($foundKeys) . " *****";
+        $message = "*****task:sync_multi_shift Company Id: $id,updated log ids = " . json_encode($log_ids) . ", affected ids " . json_encode($foundKeys) . " *****";
 
         $this->info($message);
 
         $all_new_employee_ids = DB::table('attendance_logs')
-            ->whereIn('id', $log_ids)
+            ->whereIn('UserID', $UserIDs)
+            ->where('LogTime', ">=", $date)
+            ->where('company_id', $id)
             ->update(
                 [
                     "checked" => true,
