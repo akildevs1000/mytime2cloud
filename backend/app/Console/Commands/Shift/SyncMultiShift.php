@@ -38,8 +38,8 @@ class SyncMultiShift extends Command
     {
         // $totalLogs = AttendanceLog::where("company_id", 22)
         //     ->where("LogTime", ">=", date("Y-m-d"))
+        //     ->where("checked", false)
         //     ->count();
-
         // ld($totalLogs);
 
         $logFilePath = 'logs/shifts/multi_shift/command';
@@ -72,7 +72,7 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
             ->orderBy("al.LogTime")
-            ->take(20)
+            ->take(50)
             ->pluck("al.UserID")
             ->toArray();
 
@@ -104,6 +104,7 @@ class SyncMultiShift extends Command
             )
             ->where('e.status', 1)
             ->where('al.company_id', $id)
+            ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
             ->whereBetween('al.LogTime', [$logStartTime, $logEndTime]) // can i directly get the filtered record from this parent function
             ->orderBy("al.LogTime")
