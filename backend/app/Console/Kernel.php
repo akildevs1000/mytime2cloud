@@ -97,10 +97,10 @@ class Kernel extends ConsoleKernel
                 ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->everyTenMinutes();
 
-            $schedule
-                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-                ->runInBackground()
-                ->everyMinute();
+            // $schedule
+            //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+            //     ->runInBackground()
+            //     ->everyMinute();
 
             // $schedule
             //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
