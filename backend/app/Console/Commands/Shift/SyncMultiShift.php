@@ -65,8 +65,8 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
-            ->where('al.checked', false)
-            // ->where('al.UserID', 57)
+            ->where('al.checked', true)
+            ->where('al.UserID', 125)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -83,13 +83,13 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                SendWhatsappMessageJob::dispatch(
-                    env("ADMIN_WHATSAPP_NUMBER"),
-                    $message,
-                    0,
-                    env("WHATSAPP_CLIENT_ID"),
-                    $logFilePath
-                );
+                // SendWhatsappMessageJob::dispatch(
+                //     env("ADMIN_WHATSAPP_NUMBER"),
+                //     $message,
+                //     0,
+                //     env("WHATSAPP_CLIENT_ID"),
+                //     $logFilePath
+                // );
             }
 
             return;
@@ -138,13 +138,13 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                SendWhatsappMessageJob::dispatch(
-                    env("ADMIN_WHATSAPP_NUMBER"),
-                    $message,
-                    0,
-                    env("WHATSAPP_CLIENT_ID"),
-                    $logFilePath
-                );
+                // SendWhatsappMessageJob::dispatch(
+                //     env("ADMIN_WHATSAPP_NUMBER"),
+                //     $message,
+                //     0,
+                //     env("WHATSAPP_CLIENT_ID"),
+                //     $logFilePath
+                // );
             }
 
             return;
@@ -155,7 +155,6 @@ class SyncMultiShift extends Command
         $responseMessage = "";
 
         foreach ($all_logs_for_employee_ids as $UserID => $uniqueEntries) {
-
 
             if (!$uniqueEntries || count($uniqueEntries) == 0) {
                 continue;
@@ -218,6 +217,7 @@ class SyncMultiShift extends Command
 
         $remaining_logs = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
+            ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
             ->where('e.status', 1)
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
@@ -233,13 +233,13 @@ class SyncMultiShift extends Command
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-            SendWhatsappMessageJob::dispatch(
-                env("ADMIN_WHATSAPP_NUMBER"),
-                $message,
-                0,
-                env("WHATSAPP_CLIENT_ID"),
-                $logFilePath
-            );
+            // SendWhatsappMessageJob::dispatch(
+            //     env("ADMIN_WHATSAPP_NUMBER"),
+            //     $message,
+            //     0,
+            //     env("WHATSAPP_CLIENT_ID"),
+            //     $logFilePath
+            // );
         }
 
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
