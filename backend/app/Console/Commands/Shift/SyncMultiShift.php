@@ -83,13 +83,13 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                // SendWhatsappMessageJob::dispatch(
-                //     env("ADMIN_WHATSAPP_NUMBER"),
-                //     $message,
-                //     0,
-                //     env("WHATSAPP_CLIENT_ID"),
-                //     $logFilePath
-                // );
+                SendWhatsappMessageJob::dispatch(
+                    env("ADMIN_WHATSAPP_NUMBER"),
+                    $message,
+                    0,
+                    env("WHATSAPP_CLIENT_ID"),
+                    $logFilePath
+                );
             }
 
             return;
@@ -138,13 +138,13 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                // SendWhatsappMessageJob::dispatch(
-                //     env("ADMIN_WHATSAPP_NUMBER"),
-                //     $message,
-                //     0,
-                //     env("WHATSAPP_CLIENT_ID"),
-                //     $logFilePath
-                // );
+                SendWhatsappMessageJob::dispatch(
+                    env("ADMIN_WHATSAPP_NUMBER"),
+                    $message,
+                    0,
+                    env("WHATSAPP_CLIENT_ID"),
+                    $logFilePath
+                );
             }
 
             return;
@@ -233,13 +233,13 @@ class SyncMultiShift extends Command
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-            // SendWhatsappMessageJob::dispatch(
-            //     env("ADMIN_WHATSAPP_NUMBER"),
-            //     $message,
-            //     0,
-            //     env("WHATSAPP_CLIENT_ID"),
-            //     $logFilePath
-            // );
+            SendWhatsappMessageJob::dispatch(
+                env("ADMIN_WHATSAPP_NUMBER"),
+                $message,
+                0,
+                env("WHATSAPP_CLIENT_ID"),
+                $logFilePath
+            );
         }
 
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
