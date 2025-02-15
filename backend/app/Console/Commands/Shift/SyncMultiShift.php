@@ -70,7 +70,7 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
-            ->take(100)
+            ->take(50)
             ->pluck("al.UserID")
             ->toArray();
 
