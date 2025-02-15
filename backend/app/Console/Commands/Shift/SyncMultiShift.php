@@ -219,9 +219,18 @@ class SyncMultiShift extends Command
                 ]
             );
 
+
+        $remaining_logs = DB::table('attendance_logs')
+            ->where('log_date', $date)
+            ->where('checked', false)
+            ->where('company_id', $id)
+            ->count();
+
         // $this->info(json_encode($items));
 
         $message .= "$responseMessage\n";
+
+        $message .= "$remaining_logs logs are pending\n";
 
         $message .= "Thank you!\n";
 
