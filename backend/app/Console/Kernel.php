@@ -13,16 +13,9 @@ use Illuminate\Http\Request;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Define the application's command schedule.
-     *
-     * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
-     * @return void
-     */
+   
     protected function schedule(Schedule $schedule)
     {
-        $monthYear = date("M-Y");
-
         $schedule
             ->command('task:sync_attendance_logs')
             ->everyMinute();
@@ -42,7 +35,6 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $companyIds = Company::pluck("id");
-        //step 1 ;
 
 
         foreach ($companyIds as $companyId) {
@@ -57,41 +49,24 @@ class Kernel extends ConsoleKernel
             $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->dailyAt('04:35')->runInBackground();
 
-            $company_log = date("Y-m-d") . "-C" . $companyId;
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
 
                 ->everyThirtyMinutes();
-
 
             $schedule
                 ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-
-            // $schedule
-            //     ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
-            //     ->everyThirtyMinutes()
-            //     ->runInBackground();
-
             $schedule
                 ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            // $schedule
-            //     ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
-            //     ->everyThirtyMinutes()
-            //     ->runInBackground();
-
-
-            //if ($companyId == 1) 
-            {
-                $schedule
-                    ->command("send_notificatin_for_offline_devices {$companyId}")
-                    ->everySixHours();
-            }
+            $schedule
+                ->command("send_notificatin_for_offline_devices {$companyId}")
+                ->everySixHours();
 
             $schedule
                 ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
@@ -163,24 +138,13 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-            // /*------------------------ */
-            // $schedule->call(function () use ($companyId) {
-            //     $requestArray = array(
-            //         'company_id' => $companyId,
-            //     );
-            //     $renderRequest = Request::create('/testing', 'get', $requestArray);
-
-            //     return (new ThemeController)->whatsappTodayStats($renderRequest);
-            // })->everySixHours();
+                ->runInBackground();
         }
 
         $schedule
             ->command("task:files-delete-old-log-files")
             ->dailyAt('23:30')
-            ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            ->runInBackground();
 
 
         $schedule->call(function () {
