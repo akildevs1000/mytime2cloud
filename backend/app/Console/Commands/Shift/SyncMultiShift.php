@@ -37,12 +37,17 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
+        $id = $this->argument("company_id", 1);
+
         $formattedDate = (new DateTime())->format('d M Y \a\t H:i:s');
 
+        $message = "Attendance Log Processing Alert !\n\n";
+
+        $message .= "Dear Admin\n";
+
+        $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
 
         $logFilePath = 'logs/shifts/multi_shift/command';
-
-        $id = $this->argument("company_id", 1);
 
         $date = $this->argument("date", date("Y-m-d"));
 
@@ -73,6 +78,22 @@ class SyncMultiShift extends Command
 
         if (!$all_new_employee_ids || count($all_new_employee_ids) == 0) {
             $this->info("No data");
+
+            if ($id == 22) {
+
+                $message .= "No Data Found\n";
+
+                $message .= "Thank you!\n";
+
+                SendWhatsappMessageJob::dispatch(
+                    env("ADMIN_WHATSAPP_NUMBER"),
+                    $message,
+                    0,
+                    env("WHATSAPP_CLIENT_ID"),
+                    $logFilePath
+                );
+            }
+
             return;
         }
 
@@ -113,6 +134,22 @@ class SyncMultiShift extends Command
 
         if (!$all_logs_for_employee_ids || count($all_logs_for_employee_ids) == 0) {
             $this->info("No data");
+
+            if ($id == 22) {
+
+                $message .= "No Data Found\n";
+
+                $message .= "Thank you!\n";
+
+                SendWhatsappMessageJob::dispatch(
+                    env("ADMIN_WHATSAPP_NUMBER"),
+                    $message,
+                    0,
+                    env("WHATSAPP_CLIENT_ID"),
+                    $logFilePath
+                );
+            }
+
             return;
         }
 
@@ -184,18 +221,11 @@ class SyncMultiShift extends Command
 
         // $this->info(json_encode($items));
 
-        $message = "Attendance Log Processing Alert !\n\n";
-
-        $message .= "Dear Admin\n";
-
-        $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
-
         $message .= "$responseMessage\n";
 
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-
             SendWhatsappMessageJob::dispatch(
                 env("ADMIN_WHATSAPP_NUMBER"),
                 $message,
