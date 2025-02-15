@@ -228,7 +228,7 @@ class SyncMultiShift extends Command
 
         $message .= "$responseMessage\n";
 
-        $message .= "$remaining_logs logs are pending\n";
+        $message .= "$remaining_logs logs are pending\n\n";
 
         $message .= "Thank you!\n";
 
