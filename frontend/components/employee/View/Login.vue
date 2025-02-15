@@ -1,5 +1,5 @@
 <template>
-  <v-card v-if="employee && employee.email" flat class="d-flex flex-column">
+  <v-card v-if="employee" flat class="d-flex flex-column">
     <div class="text-right">
       <v-icon small color="primary" @click="editForm = !editForm"
         >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
