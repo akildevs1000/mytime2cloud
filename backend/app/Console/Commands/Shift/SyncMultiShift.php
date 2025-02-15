@@ -190,7 +190,7 @@ class SyncMultiShift extends Command
 
         $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
 
-        $message .= "$responseMessage";
+        $message .= "$responseMessage\n";
 
         $message .= "Thank you!\n";
 
