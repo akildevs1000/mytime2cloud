@@ -216,12 +216,14 @@ class SyncMultiShift extends Command
             );
 
 
-        $remaining_logs = DB::table('attendance_logs')
-            ->where('log_date', $date)
-            ->where('checked', false)
-            ->where('company_id', $id)
+        $remaining_logs = DB::table('employees as e')
+            ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
+            ->where('e.status', 1)
+            ->where('al.company_id', $id)
+            ->where('e.company_id', $id)
+            ->whereDate('al.log_date', $date)
+            ->whereDate('al.checked', false)
             ->count();
-
         // $this->info(json_encode($items));
 
         $message .= "$responseMessage\n";
