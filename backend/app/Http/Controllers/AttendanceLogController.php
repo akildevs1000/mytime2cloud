@@ -233,6 +233,8 @@ class AttendanceLogController extends Controller
 
                     "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, 16),
                     "index_serial_number" => $columns[3],
+
+                    "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
                 ];
             }
         }
