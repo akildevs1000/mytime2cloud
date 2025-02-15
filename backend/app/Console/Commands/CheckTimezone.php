@@ -43,7 +43,10 @@ class CheckTimezone extends Command
 
         $startDate = Carbon::create(2024, 1, 1); // 2025-02-01
 
-        $endDate = Carbon::create(2024, 12, 31); // 2025-02-10
+        // $endDate = Carbon::create(2024, 12, 31); // 2025-02-10
+
+        $endDate = Carbon::now(); // 2025-02-10
+
 
         // Loop through dates
         while ($startDate->lte($endDate)) { // lte() means "less than or equal to"
