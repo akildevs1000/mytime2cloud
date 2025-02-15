@@ -156,7 +156,7 @@ class SyncMultiShift extends Command
             $UserIDs[] = $UserID;
 
 
-            $responseMessage .= "Employee {$uniqueEntries[0]->first_name} with id: {$uniqueEntries[0]->employee_id} \n";
+            $responseMessage .= "Name {$uniqueEntries[0]->first_name} with id: {$uniqueEntries[0]->employee_id} \n";
         }
 
         // ld($items);
@@ -186,7 +186,7 @@ class SyncMultiShift extends Command
 
         $message = "Attendance Log Processing Alert !\n\n";
 
-        $message .= "Dear Admin\n\n";
+        $message .= "Dear Admin\n";
 
         $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
 
