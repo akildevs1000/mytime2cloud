@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Shift;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWhatsappMessageJob;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Employee;
@@ -36,6 +37,9 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
+        $formattedDate = (new DateTime())->format('d M Y \a\t H:i:s');
+
+
         $logFilePath = 'logs/shifts/multi_shift/command';
 
         $id = $this->argument("company_id", 1);
@@ -114,6 +118,8 @@ class SyncMultiShift extends Command
 
         $UserIDs = [];
 
+        $responseMessage = "";
+
         foreach ($all_logs_for_employee_ids as $UserID => $uniqueEntries) {
 
 
@@ -148,6 +154,9 @@ class SyncMultiShift extends Command
 
             $items[] = $item;
             $UserIDs[] = $UserID;
+
+
+            $responseMessage .= "Employee {$uniqueEntries[0]->first_name} with id: {$uniqueEntries[0]->employee_id} \n";
         }
 
         // ld($items);
@@ -174,6 +183,28 @@ class SyncMultiShift extends Command
             );
 
         // $this->info(json_encode($items));
+
+        $message = "Attendance Log Processing Alert !\n\n";
+
+        $message .= "Dear Admin\n\n";
+
+        $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
+
+        $message .= "$responseMessage";
+
+        $message .= "Thank you!\n";
+
+        if ($id == 22) {
+
+            SendWhatsappMessageJob::dispatch(
+                env("ADMIN_WHATSAPP_NUMBER"),
+                $message,
+                0,
+                env("WHATSAPP_CLIENT_ID"),
+                $logFilePath
+            );
+        }
+
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
         (new Controller)->logOutPut($logFilePath, $items);
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end Company Id: $id,  *****");
@@ -243,7 +274,6 @@ class SyncMultiShift extends Command
                     'total_minutes' => (new Controller)->minutesToHours($minutes),
                     "device_in" =>  "---",
                     "device_out" =>  "---",
-
                 ];
             } else {
                 // Handle the last log if there's no pair
