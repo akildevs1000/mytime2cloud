@@ -32,7 +32,7 @@ class RenderNightShift extends Command
      */
     public function handle()
     {
-        $logFilePath = 'logs/shifts/multi_shift/command';
+        $logFilePath = 'logs/shifts/night_shift/command';
 
         $id = $this->argument("company_id");
 
