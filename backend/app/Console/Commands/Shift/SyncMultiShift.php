@@ -68,10 +68,9 @@ class SyncMultiShift extends Command
             ->where('al.checked', false)
             // ->where('al.UserID', 57)
             ->where('al.company_id', $id)
-            ->whereMonth('al.log_date', date("m"))
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
-            ->take(50)
+            ->take(100)
             ->pluck("al.UserID")
             ->toArray();
 
@@ -121,7 +120,6 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
-            ->whereMonth('al.log_date', date("m"))
             ->whereDate('al.log_date', $date)
             ->distinct('al.LogTime', 'al.UserID', 'e.company_id')
             ->orderBy("al.LogTime")
@@ -206,7 +204,6 @@ class SyncMultiShift extends Command
 
         $all_new_employee_ids = DB::table('attendance_logs')
             ->whereIn('UserID', $UserIDs)
-            ->whereMonth('log_date', date("m"))
             ->where('log_date', $date)
             ->where('company_id', $id)
             ->update(
@@ -220,7 +217,6 @@ class SyncMultiShift extends Command
 
 
         $remaining_logs = DB::table('attendance_logs')
-            ->whereMonth('log_date', date("m"))
             ->where('log_date', $date)
             ->where('checked', false)
             ->where('company_id', $id)
