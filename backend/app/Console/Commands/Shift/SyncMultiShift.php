@@ -36,30 +36,19 @@ class SyncMultiShift extends Command
      */
     public function handle()
     {
-        // $totalLogs = AttendanceLog::where("company_id", 22)
-        //     ->where("LogTime", ">=", date("Y-m-d"))
-        //     ->where("checked", false)
-        //     ->count();
-        // ld($totalLogs);
-
         $logFilePath = 'logs/shifts/multi_shift/command';
 
         $id = $this->argument("company_id", 1);
+
+        $date = $this->argument("date", date("Y-m-d"));
 
         // date_default_timezone_set('UTC');
 
         (new Controller)->logOutPut($logFilePath, "*****Cron started for task:sync_multi_shift $id *****");
 
-        $date = $this->argument("date", date("Y-m-d"));
-
-        $logStartTime = Carbon::parse($date)->startOfDay();
-
-        $logEndTime = Carbon::parse($date)->endOfDay();
-
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
         if ($found == 0) {
-            // (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift: no shift found for $id*****");
             return;
         }
 
@@ -68,9 +57,11 @@ class SyncMultiShift extends Command
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', false)
-            // ->where('al.UserID', 797)
+            // ->where('al.UserID', 57)
             ->where('al.company_id', $id)
-            ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
+            // ->whereBetween('al.LogTime', [$logStartTime, $logEndTime])
+            ->where('al.LogTime', ">=", $date)
+            ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
             ->take(50)
             ->pluck("al.UserID")
@@ -106,42 +97,25 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
-            ->whereBetween('al.LogTime', [$logStartTime, $logEndTime]) // can i directly get the filtered record from this parent function
+            ->where('al.LogTime', ">=", $date)
+            ->whereDate('al.log_date', $date)
+            ->distinct('al.LogTime', 'al.UserID', 'e.company_id')
             ->orderBy("al.LogTime")
             ->get()
-            ->groupBy("UserID") // Use the correct key from the selection
+            ->groupBy("UserID")
             ->toArray();
 
-
-
         $items = [];
-
-        $foundKeys = [];
 
         if (!$all_logs_for_employee_ids || count($all_logs_for_employee_ids) == 0) {
             $this->info("No data");
             return;
         }
 
-        $log_ids = [];
-
         $UserIDs = [];
 
-        foreach ($all_logs_for_employee_ids as $UserID => $employeeLogs) {
+        foreach ($all_logs_for_employee_ids as $UserID => $uniqueEntries) {
 
-            $uniqueEntries = [];
-            $seen = [];
-
-            foreach ($employeeLogs as $entry) {
-                // Create a unique key based on specific fields
-                $key = $UserID . '-' . $id . '-' . $entry->LogTime;
-
-                // Check if the key has already been seen
-                if (!isset($seen[$key])) {
-                    $seen[$key] = true; // Mark the key as seen
-                    $uniqueEntries[] = $entry; // Add to unique entries
-                }
-            }
 
             if (!$uniqueEntries || count($uniqueEntries) == 0) {
                 continue;
@@ -158,6 +132,8 @@ class SyncMultiShift extends Command
                 "shift_id" => $uniqueEntries[0]->shift_id,
                 "shift_type_id" => 2,
                 "status" => count($uniqueEntries) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
 
             $logs = $this->processLogs($date, $uniqueEntries);
@@ -167,18 +143,14 @@ class SyncMultiShift extends Command
                 $item["ot"] = (new Controller)->calculatedOT($total_hrs, $uniqueEntries[0]->working_hours, $uniqueEntries[0]->overtime_interval);
             }
 
-            $log_ids = array_column($uniqueEntries, "log_id");
-
             $item["logs"] = json_encode($logs);
             $item["total_hrs"] =  $total_hrs;
 
             $items[] = $item;
-
-            if (count($logs)) {
-                $foundKeys[] = ["name" => $uniqueEntries[0]->first_name, "employee_id" => $uniqueEntries[0]->employee_id];
-                $UserIDs[] = $UserID;
-            }
+            $UserIDs[] = $UserID;
         }
+
+        // ld($items);
 
         Attendance::whereIn("employee_id", $UserIDs)
             ->where("date", $date)
@@ -187,25 +159,24 @@ class SyncMultiShift extends Command
 
         Attendance::where("company_id", $id)->where("date", $date)->insert($items);
 
-        $message = "*****task:sync_multi_shift Company Id: $id,updated log ids = " . json_encode($log_ids) . ", affected ids " . json_encode($foundKeys) . " *****";
-
-        $this->info($message);
-
         $all_new_employee_ids = DB::table('attendance_logs')
             ->whereIn('UserID', $UserIDs)
             ->where('LogTime', ">=", $date)
+            ->where('log_date', $date)
             ->where('company_id', $id)
             ->update(
                 [
                     "checked" => true,
                     "checked_datetime" => date('Y-m-d H:i:s'),
                     "channel" => "kernel",
-                    "log_message" => substr($message, 0, 200)
+                    "log_message" => substr(json_encode($items), 0, 200)
                 ]
             );
 
-        (new Controller)->logOutPut($logFilePath, $message);
-
+        // $this->info(json_encode($items));
+        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
+        (new Controller)->logOutPut($logFilePath, $items);
+        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end Company Id: $id,  *****");
         (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift $id*****");
     }
 
@@ -239,6 +210,11 @@ class SyncMultiShift extends Command
 
             $parsed_in = strtotime("$date $currentTime");
 
+            // Skip logs outside the duty period
+            if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
+                continue;
+            }
+
             if ($nextLog) {
 
                 $nextTime = date("H:i", strtotime($nextLog->LogTime));
@@ -246,14 +222,9 @@ class SyncMultiShift extends Command
                 $parsed_out = strtotime("$date $nextTime");
 
                 if ($parsed_in > $parsed_out) {
-                    //$item["extra"] = $nextLog['time'];
                     $parsed_out += 86400;
                 }
 
-                // Skip logs outside the duty period
-                if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
-                    continue;
-                }
 
                 $nextTime = date("H:i", strtotime($nextLog->LogTime));
                 $parsed_out = strtotime("$date $nextTime");
