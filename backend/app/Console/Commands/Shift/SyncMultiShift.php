@@ -222,7 +222,7 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereDate('al.log_date', $date)
-            ->whereDate('al.checked', false)
+            ->where('al.checked', false)
             ->count();
         // $this->info(json_encode($items));
 
