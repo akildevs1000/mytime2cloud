@@ -41,7 +41,7 @@ class SyncMultiShift extends Command
 
         $message .= "Attendance Logs Processed for Company id $id at $formattedDate\n\n";
 
-        $logFilePath = 'logs/shifts/multi_shift/command';
+        $logFilePath = "logs/shifts/multi_shift/command/$id";
 
         $date = $this->argument("date", date("Y-m-d"));
 
