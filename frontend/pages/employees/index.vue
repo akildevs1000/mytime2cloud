@@ -454,7 +454,10 @@
             </v-col>
             <v-col cols="12">
               <div style="display: flex">
-                <div style="min-width: 30%;max-width: 30%;" class="d-flex flex-column gap-3">
+                <div
+                  style="min-width: 30%; max-width: 30%"
+                  class="d-flex flex-column gap-3"
+                >
                   <v-card class="pa-4 text-center" flat>
                     <v-avatar size="120">
                       <img
@@ -483,8 +486,8 @@
                     </v-list>
                     <v-divider></v-divider>
                   </v-card>
-                  <v-card flat>
-                    <v-card-text class="mt-0 pt-0">
+                  <v-card flat class="d-flex align-center">
+                    <v-card-text class="mt-5 pt-0">
                       <table
                         style="width: 100%"
                         dense
@@ -560,7 +563,16 @@
                     </v-card-text>
                   </v-card>
                 </div>
-                <div style="min-width: 5%;max-width: 5%; height: 50vh; background-color: #ecf0f4 !important;" class="d-flex justify-center align-center">
+                <div
+                  style="
+                    min-width: 5%;
+                    max-width: 5%;
+                    min-height: 44vh;
+                    height: 40vh;
+                    background-color: #ecf0f4 !important;
+                  "
+                  class="d-flex justify-center align-center"
+                >
                   <v-tabs
                     vertical
                     v-model="tab"
@@ -578,7 +590,10 @@
                     </v-tab>
                   </v-tabs>
                 </div>
-                <div style="min-width: 65%;max-width: 65%;" class="d-flex flex-column gap-3">
+                <div
+                  style="min-width: 65%; max-width: 65%"
+                  class="d-flex flex-column gap-3"
+                >
                   <v-tabs-items v-model="tab">
                     <v-tab-item
                       v-for="(item, index) in viewTabMenu"
