@@ -53,7 +53,7 @@ class SyncMultiShift extends Command
             return;
         }
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift $id *****");
+        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift*****");
 
         $all_new_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
@@ -235,11 +235,11 @@ class SyncMultiShift extends Command
             // );
         }
 
-        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
+        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start*****");
         (new Controller)->logOutPut($logFilePath, $message);
         // (new Controller)->logOutPut($logFilePath, $items);
-        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end Company Id: $id,  *****");
-        (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift $id*****");
+        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end*****");
+        (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift*****");
     }
 
     function processLogs($date, $employeeLogs)
