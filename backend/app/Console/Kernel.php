@@ -78,6 +78,11 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule
+                ->command("render:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->dailyAt('3:50')
+                ->runInBackground();
+                
+            $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
                 ->everyFiveMinutes()
                 ->runInBackground();
