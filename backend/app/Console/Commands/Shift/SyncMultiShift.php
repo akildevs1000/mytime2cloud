@@ -3,17 +3,11 @@
 namespace App\Console\Commands\Shift;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\SendWhatsappMessageJob;
 use App\Models\Attendance;
-use App\Models\AttendanceLog;
-use App\Models\Employee;
 use App\Models\Shift;
-use Carbon\Carbon;
-use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
-
+use DateTime;
 class SyncMultiShift extends Command
 {
     /**
@@ -53,7 +47,7 @@ class SyncMultiShift extends Command
 
         // date_default_timezone_set('UTC');
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron started for task:sync_multi_shift $id *****");
+        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift $id *****");
 
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
@@ -83,13 +77,13 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                SendWhatsappMessageJob::dispatch(
-                    env("ADMIN_WHATSAPP_NUMBER"),
-                    $message,
-                    0,
-                    env("WHATSAPP_CLIENT_ID"),
-                    $logFilePath
-                );
+                // SendWhatsappMessageJob::dispatch(
+                //     env("ADMIN_WHATSAPP_NUMBER"),
+                //     $message,
+                //     0,
+                //     env("WHATSAPP_CLIENT_ID"),
+                //     $logFilePath
+                // );
             }
 
             return;
@@ -138,15 +132,14 @@ class SyncMultiShift extends Command
 
                 $message .= "Thank you!\n";
 
-                SendWhatsappMessageJob::dispatch(
-                    env("ADMIN_WHATSAPP_NUMBER"),
-                    $message,
-                    0,
-                    env("WHATSAPP_CLIENT_ID"),
-                    $logFilePath
-                );
+                // SendWhatsappMessageJob::dispatch(
+                //     env("ADMIN_WHATSAPP_NUMBER"),
+                //     $message,
+                //     0,
+                //     env("WHATSAPP_CLIENT_ID"),
+                //     $logFilePath
+                // );
             }
-
             return;
         }
 
@@ -233,17 +226,18 @@ class SyncMultiShift extends Command
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-            SendWhatsappMessageJob::dispatch(
-                env("ADMIN_WHATSAPP_NUMBER"),
-                $message,
-                0,
-                env("WHATSAPP_CLIENT_ID"),
-                $logFilePath
-            );
+            // SendWhatsappMessageJob::dispatch(
+            //     env("ADMIN_WHATSAPP_NUMBER"),
+            //     $message,
+            //     0,
+            //     env("WHATSAPP_CLIENT_ID"),
+            //     $logFilePath
+            // );
         }
 
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start Company Id: $id,  *****");
-        (new Controller)->logOutPut($logFilePath, $items);
+        (new Controller)->logOutPut($logFilePath, $message);
+        // (new Controller)->logOutPut($logFilePath, $items);
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end Company Id: $id,  *****");
         (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift $id*****");
     }
