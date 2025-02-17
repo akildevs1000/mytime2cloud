@@ -91,7 +91,7 @@ class Controller extends BaseController
 
     public function response($msg, $record, $status, $statusCode = 200)
     {
-        return response()->json(['record' => $record, 'message' => $msg, 'status' => $status], $statusCode);
+        return response()->json(['message' => $msg, 'record' => $record,  'status' => $status], $statusCode);
     }
 
     public function process_search($model, $input, $fields = [])

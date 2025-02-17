@@ -1,5 +1,34 @@
 <template>
   <div v-if="can(`device_access`)">
+    <style scoped>
+      .v-text-field.v-text-field--enclosed .v-text-field__details,
+      .v-text-field.v-text-field--enclosed .v-text-field__details,
+      .v-text-field__details,
+      .v-text-field.v-text-field--enclosed .v-text-field__details {
+        margin-bottom: 0px !important;
+        padding: 0px !important;
+      }
+      .v-messages {
+        min-height: 0px !important;
+      }
+    </style>
+
+    <v-dialog v-model="responseBox" width="460">
+      <WidgetsClose left="450" @click="closeResponseBox" />
+      <v-card flat>
+        <v-alert dense flat dark class="primary">Command Response</v-alert>
+        <v-card class="pa-3" elevation="0">
+          <v-card-text>
+            <div
+              class="text-center"
+              :class="selectedDoor.responseStatus == false ? 'red--text' : ''"
+              v-html="selectedDoor.text"
+            ></div>
+          </v-card-text>
+        </v-card>
+      </v-card>
+    </v-dialog>
+
     <v-dialog
       v-model="dialogAccessSettings"
       width="90%"
@@ -1202,20 +1231,20 @@
         </template>
         <template v-slot:item.door_open="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click to Open Door"
-            @click="open_door(item.device_id)"
             src="/icons/door_open.png"
-            class="iconsize30"
+            @click="door_command(`open_door`, item.device_id)"
           />
         </template>
         <template v-slot:item.door_close="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click to Close Door"
-            @click="close_door(item.device_id)"
             src="/icons/door_close.png"
-            class="iconsize30"
+            @click="door_command(`close_door`, item.device_id)"
           />
         </template>
 
@@ -1246,15 +1275,14 @@
 
         <template v-slot:item.sync_date_time="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click Sync UTC Time"
-            @click="sync_date_time(item)"
             src="/icons/sync_date_time.png"
-            class="iconsize30"
+            @click="sync_date_time(item.device_id)"
           />
         </template>
 
-        <template v-slot:item.open_always="{ item }"> </template>
         <template v-slot:item.status_id="{ item }">
           <img
             title="Online"
@@ -1268,61 +1296,7 @@
             src="/icons/device_status_close.png"
             style="width: 30px"
           />
-
-          <!-- <img
-            @click="sync_date_time(item)"
-            :src="getDeviceStatusIcon(item)"
-            class="iconsize30"
-          /> -->
-          <!-- <v-chip
-            small
-            class="p-2 mx-1"
-            :color="item.status.name == 'active' ? 'primary' : 'error'"
-          >
-            {{ item.status.name == "active" ? "online" : "offline" }}
-          </v-chip> -->
         </template>
-        <template v-slot:item.status="{ item }">
-          <!-- <v-chip
-            small
-            class="p-2"
-            color="primary"
-            @click="open_door(item.device_id)"
-          >
-            Open
-          </v-chip>
-          <v-chip
-            small
-            class="p-2 mx-1"
-            color="primary"
-            @click="open_door_always(item.device_id)"
-          >
-            Open Always
-          </v-chip>
-
-          <v-chip
-            small
-            class="p-2"
-            color="error"
-            @click="open_door_always(item.device_id)"
-          >
-            Close
-          </v-chip> -->
-        </template>
-        <!-- <template v-slot:item.sync_date_time="{ item }">
-          <v-chip
-            small
-            class="p-2 mx-1"
-            @click="sync_date_time(item)"
-            :color="'primary'"
-          >
-            {{
-              item.sync_date_time == "---"
-                ? "click to sync"
-                : item.sync_date_time
-            }}
-          </v-chip>
-        </template> -->
         <template v-slot:item.options="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -1407,6 +1381,16 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    responseBox: false,
+    currentItem: null,
+
+    selectedDoor: {
+      title: null,
+      src: null,
+      command: null,
+      text: null,
+    },
+
     key: 1,
     deviceResults: [],
     loading_devicesync: false,
@@ -1705,6 +1689,67 @@ export default {
   },
 
   methods: {
+    open_confirm_box(item, selectedDoor) {
+      this.currentItem = item;
+      this.selectedDoor = selectedDoor;
+      this.responseBox = true;
+    },
+
+    door_command(command = "open_door", device_id) {
+      let options = {
+        params: { device_id: device_id },
+      };
+      this.$axios
+        .get(command, options)
+        .then(({ data }) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        })
+        .catch((data) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        });
+    },
+    async sync_date_time(device_id) {
+      const dt = new Date();
+      // const year = dt.getFullYear();
+      // const month = String(dt.getMonth() + 1).padStart(2, "0");
+      // const day = String(dt.getDate()).padStart(2, "0");
+      // const hours = String(dt.getHours()).padStart(2, "0");
+      // const minutes = String(dt.getMinutes()).padStart(2, "0");
+      // const seconds = String(dt.getSeconds()).padStart(2, "0");
+      // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
+
+      const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+
+      this.$axios
+        .get(apiUrl, {
+          params: { sync_able_date_time },
+        })
+        .then(({ data }) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        })
+        .catch((data) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        });
+    },
+    closeResponseBox() {
+      this.responseBox = false;
+      this.selectedDoor = {
+        title: null,
+        src: null,
+        command: null,
+        text: null,
+      };
+    },
     copyToProfileimage(faceImage, userId) {
       if (
         confirm("Are you sure? It will override the Software Profile picture ")
@@ -2172,38 +2217,6 @@ export default {
     datatable_close() {
       this.loading = false;
     },
-    async sync_date_time(item) {
-      if (
-        confirm(
-          "Are you want to change the Device Time to " +
-            item.utc_time_zone +
-            "?"
-        )
-      ) {
-        try {
-          const dt = new Date();
-          const year = dt.getFullYear();
-          const month = String(dt.getMonth() + 1).padStart(2, "0");
-          const day = String(dt.getDate()).padStart(2, "0");
-          const hours = String(dt.getHours()).padStart(2, "0");
-          const minutes = String(dt.getMinutes()).padStart(2, "0");
-          const seconds = String(dt.getSeconds()).padStart(2, "0");
-
-          const apiUrl = `sync_device_date_time/${item.device_id}/${this.$auth.user.company_id}`;
-          const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-          const { data } = await this.$axios.get(apiUrl, {
-            params: { sync_able_date_time },
-          });
-
-          this.snackbar = true;
-          this.response = data.message;
-        } catch (error) {
-          this.snackbar = true;
-          this.response = error;
-          console.error("Error syncing date and time:", error);
-        }
-      }
-    },
     closepopup() {
       this.snackbar = true;
       this.response = "Device Time details are updated successfully";
@@ -2549,24 +2562,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.v-text-field.v-text-field--enclosed .v-text-field__details,
-.v-text-field.v-text-field--enclosed .v-text-field__details,
-.v-text-field__details,
-.v-text-field.v-text-field--enclosed .v-text-field__details {
-  margin-bottom: 0px !important;
-  padding: 0px !important;
-}
-.v-messages {
-  min-height: 0px !important;
-}
-</style>
-
-<!-- <style>
-.v-dialog {
-  background-color: #fff;
-}
-</style>
-<style scoped>
-@import "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css";
-</style> -->

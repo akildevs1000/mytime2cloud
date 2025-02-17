@@ -1007,7 +1007,7 @@ class DeviceController extends Controller
                             ]);
 
                             if ($record) {
-                                return $this->response('Time has been synced to the Device.', Device::with(['status', 'company'])->where("device_id", $device_id)->first(), true);
+                                return $this->response("Time <b>$currentDateTime</b> has been synced to the Device.", null, true);
                             } else {
                                 return $this->response('Time cannot synced to the Device.', null, false);
                             }
