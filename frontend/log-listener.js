@@ -1,8 +1,9 @@
 const WebSocket = require("ws");
 const fs = require("fs");
-const { log } = require("console");
 const axios = require("axios");
 require("dotenv").config();
+
+const existingEntries = [];
 
 const verification_methods = {
   1: "Card",
@@ -86,8 +87,17 @@ socket.onmessage = ({ data }) => {
       let reason = reasons[RecordCode] ?? "---";
 
       const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
-      fs.appendFileSync(logFilePath, logEntry + "\n");
-      console.log(logEntry);
+      
+      const uniqueKey = `${UserCode}_${SN}_${RecordDate.slice(0, -3).replace(" ", "")}`;
+
+      if (!existingEntries.includes(uniqueKey)) {
+        fs.appendFileSync(logFilePath, logEntry + "\n");
+        existingEntries.push(uniqueKey)
+        console.log(`New Record:`, uniqueKey);
+      } else {
+        console.log(`Duplicate Record:`, uniqueKey);
+        console.log(existingEntries);
+      }
     } else {
       // console.log(data);
     }
