@@ -44,35 +44,30 @@ const socket = new WebSocket(SOCKET_ENDPOINT);
 // Handle WebSocket connection events
 socket.onopen = () => {
   console.log(
-    `Connected to ${SOCKET_ENDPOINT} at ${getFormattedDate().date}${
-      getFormattedDate().time
+    `Connected to ${SOCKET_ENDPOINT} at ${getFormattedDate().date}${getFormattedDate().time
     }`
   );
 };
 
 socket.onerror = (error) => {
   console.error(
-    `WebSocket error ${error.message} at ${getFormattedDate().date} ${
-      getFormattedDate().time
+    `WebSocket error ${error.message} at ${getFormattedDate().date} ${getFormattedDate().time
     }`
   );
 };
 // Handle WebSocket close event
 socket.onclose = (event) => {
   console.error(
-    `WebSocket connection closed with code ${event.code} at ${
-      getFormattedDate().date
+    `WebSocket connection closed with code ${event.code} at ${getFormattedDate().date
     } ${getFormattedDate().time}`
   );
 };
 
 socket.onmessage = ({ data }) => {
-  const logFilePath = `../backend/storage/app/logs-${
-    getFormattedDate().date
-  }.csv`;
-  const logFilePathAlarm = `../backend/storage/app/alarm/alarm-logs-${
-    getFormattedDate().date
-  }.csv`;
+  const logFilePath = `../backend/storage/app/logs-${getFormattedDate().date
+    }.csv`;
+  const logFilePathAlarm = `../backend/storage/app/alarm/alarm-logs-${getFormattedDate().date
+    }.csv`;
 
   try {
     const jsonData = JSON.parse(data).Data;
@@ -87,15 +82,15 @@ socket.onmessage = ({ data }) => {
       let reason = reasons[RecordCode] ?? "---";
 
       const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
-      
+
       const uniqueKey = `${UserCode}_${SN}_${RecordDate.slice(0, -3).replace(" ", "")}`;
 
       if (!existingEntries.includes(uniqueKey)) {
         fs.appendFileSync(logFilePath, logEntry + "\n");
         existingEntries.push(uniqueKey)
-        console.log(`New Record:`, uniqueKey);
+        console.log(`New Key:`, uniqueKey);
       } else {
-        console.log(`Duplicate Record:`, uniqueKey);
+        console.log(`Duplicate Key:`, uniqueKey);
         console.log(existingEntries);
       }
     } else {
