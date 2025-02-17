@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 
 class Kernel extends ConsoleKernel
 {
-   
+
     protected function schedule(Schedule $schedule)
     {
         $schedule
@@ -75,7 +75,7 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
                 ->everyFiveMinutes()
-                ->everyMinute();
+                ->runInBackground();
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
