@@ -3,11 +3,13 @@
 namespace App\Console\Commands\Shift;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWhatsappMessageJob;
 use App\Models\Attendance;
 use App\Models\Shift;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use DateTime;
+
 class SyncMultiShift extends Command
 {
     /**
@@ -226,13 +228,13 @@ class SyncMultiShift extends Command
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-            // SendWhatsappMessageJob::dispatch(
-            //     env("ADMIN_WHATSAPP_NUMBER"),
-            //     $message,
-            //     0,
-            //     env("WHATSAPP_CLIENT_ID"),
-            //     $logFilePath
-            // );
+            SendWhatsappMessageJob::dispatch(
+                env("ADMIN_WHATSAPP_NUMBER"),
+                $message,
+                0,
+                env("WHATSAPP_CLIENT_ID"),
+                $logFilePath
+            );
         }
 
         (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start*****");
