@@ -150,8 +150,7 @@ class AttendanceLogMissingController  extends Controller
                                 "company_id" => $company_id,
                                 "source_info" => $source_info,
                                 "log_date_time" => $logtime,
-
-
+                                "log_date" => \Carbon\Carbon::parse($timestamp)->format('Y-m-d')
                             ];
 
                             $condition = ['UserID' => $record['person_code'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
@@ -360,6 +359,7 @@ class AttendanceLogMissingController  extends Controller
                     "source_info" => $source_info,
                     "log_date_time" =>  $record['recordDate'],
                     "index_serial_number" => $record['recordNumber'],
+                    "log_date" => date("Y-m-d", strtotime($record['recordDate'])),
                 ];
 
                 $condition = ['UserID' => $record['userCode'], 'DeviceID' => $deviceId,  'LogTime' => $logtime];
