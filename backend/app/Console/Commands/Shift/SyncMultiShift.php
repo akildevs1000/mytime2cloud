@@ -47,13 +47,13 @@ class SyncMultiShift extends Command
 
         // date_default_timezone_set('UTC');
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift $id *****");
-
         $found = Shift::where("company_id", $id)->where("shift_type_id", 2)->count();
 
         if ($found == 0) {
             return;
         }
+
+        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift $id *****");
 
         $all_new_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
