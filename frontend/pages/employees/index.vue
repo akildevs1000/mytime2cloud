@@ -440,113 +440,127 @@
       >
         <WidgetsClose left="990" @click="viewDialog = false" />
 
-        <v-card class="pa-3">
-          <v-row v-if="employeeObject && employeeObject.id" align="center">
-            <v-col cols="3" class="d-flex flex-column gap-3">
-              <v-card class="pa-4 text-center" flat>
-                <v-avatar size="120">
-                  <img
-                    :src="`${
-                      employeeObject?.profile_picture || '/no-profile-image.jpg'
-                    }`"
-                    alt="Profile Image"
-                  />
-                </v-avatar>
-                <v-list dense class="mt-3">
-                  <v-list-item>
-                    <v-list-item-content>
-                      <v-list-item-title class="font-weight-bold">
-                        {{ employeeObject.title }}.
-                        {{ employeeObject.full_name }}
-                      </v-list-item-title>
-                      <v-list-item-subtitle>
-                        {{ employeeObject.user.email }}
-                      </v-list-item-subtitle>
-                      <v-list-item-subtitle>
-                        Employee ID: {{ employeeObject.employee_id }}
-                      </v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-                <v-divider></v-divider>
-              </v-card>
-
-              <v-card flat>
-                <v-card-text class="mt-0 pt-0">
-                  <table style="width: 100%" dense flat class="my-simple-table">
-                    <tbody>
-                      <tr>
-                        <td style="font-size: 10px">Status</td>
-                        <td>
-                          <img
-                            :src="`/${
-                              employeeObject.status ? 'on1' : 'off1'
-                            }.png`"
-                            style="height: 15px"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="font-size: 10px">Web Access</td>
-                        <td>
-                          <img
-                            :src="`/${
-                              employeeObject.user.mobile_app_login_access
-                                ? 'on1'
-                                : 'off1'
-                            }.png`"
-                            style="height: 15px"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="font-size: 10px">Mobile Access</td>
-                        <td>
-                          <img
-                            :src="`/${
-                              employeeObject.user.web_login_access
-                                ? 'on1'
-                                : 'off1'
-                            }.png`"
-                            style="height: 15px"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="font-size: 10px">Whatsapp OTP</td>
-                        <td>
-                          <img
-                            :src="`/${
-                              employeeObject.user.enable_whatsapp_otp
-                                ? 'on1'
-                                : 'off1'
-                            }.png`"
-                            style="height: 15px"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style="font-size: 10px">Location Tracking</td>
-                        <td>
-                          <img
-                            :src="`/${
-                              employeeObject.user.tracking_status
-                                ? 'on1'
-                                : 'off1'
-                            }.png`"
-                            style="height: 15px"
-                          />
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </v-card-text>
-              </v-card>
+        <v-card flat style="overflow: hidden">
+          <v-row
+            v-if="employeeObject && employeeObject.id"
+            align="center"
+            no-gutters
+            class="pa-0 ma-0"
+          >
+            <v-col cols="12">
+              <div dense flat dark class="white--text primary pa-2">
+                Employee Profile
+              </div>
             </v-col>
-
-            <v-col cols="9">
-              <div class="d-flex align-center" style="width: 100%">
-                <div style="max-width: 7%">
+            <v-col cols="12">
+              <div style="display: flex">
+                <div style="min-width: 30%;max-width: 30%;" class="d-flex flex-column gap-3">
+                  <v-card class="pa-4 text-center" flat>
+                    <v-avatar size="120">
+                      <img
+                        :src="`${
+                          employeeObject?.profile_picture ||
+                          '/no-profile-image.jpg'
+                        }`"
+                        alt="Profile Image"
+                      />
+                    </v-avatar>
+                    <v-list dense class="mt-3">
+                      <v-list-item>
+                        <v-list-item-content>
+                          <v-list-item-title class="font-weight-bold">
+                            {{ employeeObject.title }}.
+                            {{ employeeObject.full_name }}
+                          </v-list-item-title>
+                          <v-list-item-subtitle>
+                            {{ employeeObject.user.email }}
+                          </v-list-item-subtitle>
+                          <v-list-item-subtitle>
+                            Employee ID: {{ employeeObject.employee_id }}
+                          </v-list-item-subtitle>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                    <v-divider></v-divider>
+                  </v-card>
+                  <v-card flat>
+                    <v-card-text class="mt-0 pt-0">
+                      <table
+                        style="width: 100%"
+                        dense
+                        flat
+                        class="my-simple-table"
+                      >
+                        <tbody>
+                          <tr>
+                            <td style="font-size: 10px">Status</td>
+                            <td>
+                              <img
+                                :src="`/${
+                                  employeeObject.status ? 'on1' : 'off1'
+                                }.png`"
+                                style="height: 15px"
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 10px">Web Access</td>
+                            <td>
+                              <img
+                                :src="`/${
+                                  employeeObject.user.mobile_app_login_access
+                                    ? 'on1'
+                                    : 'off1'
+                                }.png`"
+                                style="height: 15px"
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 10px">Mobile Access</td>
+                            <td>
+                              <img
+                                :src="`/${
+                                  employeeObject.user.web_login_access
+                                    ? 'on1'
+                                    : 'off1'
+                                }.png`"
+                                style="height: 15px"
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 10px">Whatsapp OTP</td>
+                            <td>
+                              <img
+                                :src="`/${
+                                  employeeObject.user.enable_whatsapp_otp
+                                    ? 'on1'
+                                    : 'off1'
+                                }.png`"
+                                style="height: 15px"
+                              />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="font-size: 10px">Location Tracking</td>
+                            <td>
+                              <img
+                                :src="`/${
+                                  employeeObject.user.tracking_status
+                                    ? 'on1'
+                                    : 'off1'
+                                }.png`"
+                                style="height: 15px"
+                              />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </v-card-text>
+                  </v-card>
+                </div>
+                <div style="min-width: 5%;max-width: 5%; height: 50vh; background-color: #ecf0f4 !important;" class="d-flex justify-center align-center">
                   <v-tabs
                     vertical
                     v-model="tab"
@@ -564,8 +578,7 @@
                     </v-tab>
                   </v-tabs>
                 </div>
-
-                <div style="min-width: 93%">
+                <div style="min-width: 65%;max-width: 65%;" class="d-flex flex-column gap-3">
                   <v-tabs-items v-model="tab">
                     <v-tab-item
                       v-for="(item, index) in viewTabMenu"
