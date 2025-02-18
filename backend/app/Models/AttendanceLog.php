@@ -46,6 +46,9 @@ class AttendanceLog extends Model
 
     public function device()
     {
+        if ($this->log_type == 'Mobile') {
+            return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
+        }
         return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Manual", "device_id" => "Manual"]);
     }
     public function company()
