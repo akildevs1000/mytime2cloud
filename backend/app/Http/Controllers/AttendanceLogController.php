@@ -18,7 +18,7 @@ class AttendanceLogController extends Controller
 {
     public function index(AttendanceLog $model, Request $request)
     {
-        return $model->filter($request)->paginate($request->per_page);
+        return $model->filter($request)->orderBy("id", "desc")->paginate($request->per_page);
     }
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
@@ -386,7 +386,7 @@ class AttendanceLogController extends Controller
     public function GenerateLog(Request $request)
     {
         $message = "";
-        
+
         try {
             $message = AttendanceLog::create([
                 "UserID" => $request->UserID,
