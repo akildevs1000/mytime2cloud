@@ -386,15 +386,16 @@ class AttendanceLogController extends Controller
     public function GenerateLog(Request $request)
     {
         $message = "";
-
+        
         try {
             $message = AttendanceLog::create([
                 "UserID" => $request->UserID,
                 "LogTime" => $request->LogTime,
-                "DeviceID" => "Mobile",
+                "DeviceID" => $request->DeviceID ?? "Unknown",
                 "company_id" => $request->company_id,
-                "log_type" => "Mobile",
+                "log_type" => $request->log_type ?? "Unknown",
                 "log_date" => date("Y-m-d"),
+                "gps_location" => $request->gps_location ?? "Unknown",
             ]);
 
             if ($message) {
