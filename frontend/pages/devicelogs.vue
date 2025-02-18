@@ -391,13 +391,6 @@
                 >{{ item.LogTime }}</span
               >
             </template>
-            <template v-slot:item.option="{ item }">
-              <span
-                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
-              >
-                {{ item?.device?.name }}
-              </span>
-            </template>
             <template v-slot:item.function="{ item }">
               <span
                 :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
@@ -514,12 +507,6 @@ export default {
         value: "UserID",
       },
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
-      // {
-      //   text: "Device Name",
-      //   align: "center",
-      //   sortable: false,
-      //   value: "device.name",
-      // },
       { text: "LogTime", align: "center", sortable: false, value: "LogTime" },
     ],
     ids: [],
@@ -562,16 +549,6 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-
-      // {
-      //   text: "Department",
-      //   align: "left",
-      //   sortable: false,
-      //   key: "department", //sorting
-      //   value: "department.name.id", //edit purpose
-      //   filterable: true,
-      //   filterSpecial: true,
-      // },
       {
         text: "Date  ",
         align: "left",
@@ -583,25 +560,6 @@ export default {
         fieldType: "date_range_picker",
       },
       {
-        text: "Log Type",
-        align: "left",
-        sortable: false,
-        key: "option",
-        value: "option",
-        filterable: true,
-        filterSpecial: true,
-        fieldType: "option",
-      },
-      // {
-      //   text: "Log Time",
-      //   align: "left",
-      //   sortable: true,
-      //   key: "LogTime", //sorting
-      //   value: "LogTime", //edit purpose
-      //   filterable: true,
-      //   filterSpecial: true
-      // },
-      {
         text: "Device Name",
         align: "left",
         sortable: true,
@@ -610,16 +568,6 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-
-      // {
-      //   text: "Device Function",
-      //   align: "left",
-      //   sortable: true,
-      //   key: "function",
-      //   value: "function",
-      //   filterable: true,
-      //   filterSpecial: true,
-      // },
       {
         text: "Location",
         align: "left",
@@ -819,14 +767,6 @@ export default {
 
       this.loading = true;
       this.$axios.get(url, this.payloadOptions).then(({ data }) => {
-        // if (filter_column != "" && data.data.length == 0) {
-        //   this.snack = true;
-        //   this.snackColor = "error";
-        //   this.snackText = "No Results Found";
-        //   this.loading = false;
-        //   return false;
-        // }
-        //this.server_datatable_totalItems = data.total;
         this.data = data.data;
         this.total = data.total;
         this.loading = false;
