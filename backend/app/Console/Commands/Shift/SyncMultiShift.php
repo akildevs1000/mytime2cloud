@@ -63,7 +63,7 @@ class SyncMultiShift extends Command
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', $this->argument("checked", false) ? true : false)
-            ->where('al.UserID', 600)
+            // ->where('al.UserID', 600)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
