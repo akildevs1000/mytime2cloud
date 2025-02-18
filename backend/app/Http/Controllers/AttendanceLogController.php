@@ -389,11 +389,12 @@ class AttendanceLogController extends Controller
 
         try {
             $message = AttendanceLog::create([
-                    "UserID" => $request->UserID,
-                    "LogTime" => $request->LogTime,
-                    "DeviceID" => "Manual",
-                    "company_id" => $request->company_id,
-                    "log_type" => "Manual"
+                "UserID" => $request->UserID,
+                "LogTime" => $request->LogTime,
+                "DeviceID" => "Manual",
+                "company_id" => $request->company_id,
+                "log_type" => "Mobile",
+                "log_date" => date("Y-m-d"),
             ]);
 
             if ($message) {
