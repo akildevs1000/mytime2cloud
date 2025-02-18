@@ -17,7 +17,7 @@ class SyncMultiShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_multi_shift {company_id} {date}';
+    protected $signature = 'task:sync_multi_shift {company_id} {date} {checked?}';
 
     /**
      * The console command description.
@@ -61,8 +61,8 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
-            ->where('al.checked', false)
-            // ->where('al.UserID', 125)
+            ->where('al.checked', $this->argument("checked", false) ? true : false)
+            // ->where('al.UserID', 600)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -122,6 +122,8 @@ class SyncMultiShift extends Command
             ->get()
             ->groupBy("UserID")
             ->toArray();
+
+        // ld($all_logs_for_employee_ids);
 
         $items = [];
 
