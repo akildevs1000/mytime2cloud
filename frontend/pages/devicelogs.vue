@@ -395,7 +395,7 @@
               <span
                 :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
               >
-                {{ item?.device?.name == "Manual" ? "Manual" : "Device" }}
+                {{ item?.device?.name == "Manual" }}
               </span>
             </template>
             <template v-slot:item.function="{ item }">

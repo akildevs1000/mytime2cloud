@@ -775,7 +775,7 @@
                 <td>
                   <b
                     ><div v-if="log.log_type">
-                      {{ log?.device?.name == "Manual" ? "Manual" : "Device" }}
+                      {{ log?.device?.name }}
                     </div>
                     <div v-else>Device</div>
                   </b>
