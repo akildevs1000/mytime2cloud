@@ -109,10 +109,14 @@
                     <v-divider></v-divider>
 
                     <div class="text-center mt-5">
-                      Visitor QR Code
-                      <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
+                      <div>
+                        Visitor QR Code
+                      </div>
+                      <div>
+                        <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
                         <img :src="qrCompanyCodeDataURL" alt="Avatar" />
                       </v-avatar>
+                      </div>
                     </div>
                   </v-col>
                   <v-divider vertical></v-divider>
