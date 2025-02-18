@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\Shift;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use DateTime;
 
 class SyncMultiShift extends Command
@@ -62,7 +63,7 @@ class SyncMultiShift extends Command
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', $this->argument("checked", false) ? true : false)
-            // ->where('al.UserID', 600)
+            ->where('al.UserID', 600)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -191,26 +192,28 @@ class SyncMultiShift extends Command
 
         // ld($items);
 
-        Attendance::whereIn("employee_id", $UserIDs)
-            ->where("date", $date)
-            ->where("company_id", $id)
-            ->delete();
+        DB::transaction(function () use ($UserIDs, $date, $id, $items) {
+            // Delete existing attendance records
+            Attendance::whereIn('employee_id', $UserIDs)
+                ->where('date', $date)
+                ->where('company_id', $id)
+                ->delete();
 
-        Attendance::where("company_id", $id)->where("date", $date)->insert($items);
+            // Insert new attendance records
+            Attendance::insert($items);
 
-        $all_new_employee_ids = DB::table('attendance_logs')
-            ->whereIn('UserID', $UserIDs)
-            ->where('log_date', $date)
-            ->where('company_id', $id)
-            ->update(
-                [
-                    "checked" => true,
-                    "checked_datetime" => date('Y-m-d H:i:s'),
-                    "channel" => "kernel",
-                    "log_message" => substr(json_encode($items), 0, 200)
-                ]
-            );
-
+            // Update attendance logs
+            DB::table('attendance_logs')
+                ->whereIn('UserID', $UserIDs)
+                ->where('log_date', $date)
+                ->where('company_id', $id)
+                ->update([
+                    'checked' => true,
+                    'checked_datetime' => now(),
+                    'channel' => 'kernel',
+                    'log_message' => Str::limit(json_encode($items), 200, '...'),
+                ]);
+        });
 
         $remaining_logs = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
