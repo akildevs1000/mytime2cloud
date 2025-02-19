@@ -910,52 +910,6 @@ export default {
     shifts: [],
     errors: [],
     custom_options: {},
-    statuses: [
-      {
-        name: `Select All`,
-        id: `-1`,
-      },
-      {
-        name: `Present`,
-        id: `P`,
-      },
-      {
-        name: `Absent`,
-        id: `A`,
-      },
-      {
-        name: `Late In`,
-        id: `LC`,
-      },
-      {
-        name: `Early Out`,
-        id: `EG`,
-      },
-      {
-        name: `Missing`,
-        id: `M`,
-      },
-      {
-        name: `Off`,
-        id: `O`,
-      },
-      {
-        name: `Leave`,
-        id: `L`,
-      },
-      {
-        name: `Holiday`,
-        id: `H`,
-      },
-      {
-        name: `Vaccation`,
-        id: `V`,
-      },
-      {
-        name: `Manual Entry`,
-        id: `ME`,
-      },
-    ],
     max_date: null,
     originalTableHeaders: [],
     clearPagenumber: false,
@@ -975,14 +929,10 @@ export default {
     },
     payload1(value) {
       this.payload = value;
-      // this.payload.status = value.status;
-      // this.payload.daily_date = value.daily_date;
-      // this.payload.from_date = value.from_date;
-      // this.payload.to_date = value.to_date;
       this.report_type = value.report_type;
       this.department_ids = value.department_ids;
       this.employee_id = value.employee_id;
-      this.status = value.status;
+      this.statuses = value.statuses;
 
       if (this.payload.from_date == null) {
         this.payload.from_date = this.payload.daily_date;
@@ -1309,13 +1259,7 @@ export default {
         ...this.payload,
       };
 
-      let endpoint = `attendance-report-old`;
-
-      if (process.env.STATE == "NEW") {
-        endpoint = `attendance-report-new`;
-      }
-
-      this.$axios.post(endpoint, payload).then(({ data }) => {
+      this.$axios.post(`attendance-report-new`, payload).then(({ data }) => {
         if (data.data.length == 0) {
           this.snack = true;
           this.snackColor = "error";

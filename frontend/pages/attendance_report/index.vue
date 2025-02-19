@@ -31,7 +31,8 @@
           label="Type"
           outlined
           dense
-          v-model="payload.status"
+          v-model="payload.statuses"
+          multiple
           x-small
           :items="statuses"
           item-value="id"
@@ -209,7 +210,7 @@
 
             <v-tab
               v-if="showTabs.single == true"
-              :key="shift_type_id"
+              :key="0"
               style="height: 30px"
               href="#tab-1"
               class="black--text slidegroup1"
@@ -219,7 +220,7 @@
 
             <v-tab
               v-if="showTabs.double == true"
-              :key="shift_type_id"
+              :key="5"
               @click="commonMethod(2)"
               style="height: 30px"
               href="#tab-2"
@@ -230,7 +231,7 @@
 
             <v-tab
               v-if="showTabs.multi == true"
-              :key="shift_type_id"
+              :key="2"
               @click="commonMethod(3)"
               style="height: 30px"
               href="#tab-3"
@@ -353,9 +354,9 @@
           <v-tab-item value="tab-1">
             <AttendanceReport
               ref="attendanceReportRef"
-              :key="shift_type_id"
+              :key="0"
+              :shift_type_id="0"
               title="General Reports"
-              :shift_type_id="shift_type_id"
               :headers="generalHeaders"
               :report_template="report_template"
               :payload1="payload11"
@@ -367,21 +368,21 @@
             <AttendanceReport
               ref="attendanceReportRef"
               title="Split Reports"
-              :shift_type_id="shift_type_id"
+              :key="5"
+              :shift_type_id="5"
               :headers="doubleHeaders"
               :report_template="report_template"
               :payload1="payload11"
               process_file_endpoint="multi_in_out_"
               render_endpoint="render_multi_inout_report"
-              :key="shift_type_id"
             />
           </v-tab-item>
           <v-tab-item value="tab-3">
             <AttendanceReport
               ref="attendanceReportRef"
-              :key="shift_type_id"
+              :key="2"
+              :shift_type_id="2"
               title="Multi In/Out Reports"
-              :shift_type_id="shift_type_id"
               :headers="multiHeaders"
               :report_template="report_template"
               :payload1="payload11"
@@ -440,7 +441,7 @@ export default {
       to_date: null,
       employee_id: [],
       department_ids: [{ id: "-1", name: "" }],
-      status: "-1",
+      statuses: [],
       branch_id: null,
     },
     log_payload: {
@@ -450,52 +451,7 @@ export default {
       time: null,
     },
     data: [],
-    statuses: [
-      {
-        name: `All Status`,
-        id: `-1`,
-      },
-      {
-        name: `Present`,
-        id: `P`,
-      },
-      {
-        name: `Absent`,
-        id: `A`,
-      },
-      {
-        name: `Incomplete`,
-        id: `M`,
-      },
-      {
-        name: `Late In`,
-        id: `LC`,
-      },
-      {
-        name: `Early Out`,
-        id: `EG`,
-      },
-      {
-        name: `Off`,
-        id: `O`,
-      },
-      {
-        name: `Leave`,
-        id: `L`,
-      },
-      {
-        name: `Holiday`,
-        id: `H`,
-      },
-      {
-        name: `Vaccation`,
-        id: `V`,
-      },
-      {
-        name: `Manual Entry`,
-        id: `ME`,
-      },
-    ],
+    statuses: [],
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
   }),
@@ -568,9 +524,14 @@ export default {
     setTimeout(() => {
       this.tab = "tab-1";
     }, 1000);
+    await this.getStatuses();
   },
 
   methods: {
+    async getStatuses() {
+      let { data } = await this.$axios.get(`attendance-statuses`);
+      this.statuses = data;
+    },
     openRegeneratePopup() {
       this.$refs.attendanceReportRef.reportSync = true;
     },
@@ -600,7 +561,6 @@ export default {
       this.filterType = "Monthly"; // data.type;
     },
     commonMethod(id = 0) {
-
       if (this.$auth.user.user_type == "department") {
         this.payload.department_ids = [this.$auth.user.department_id];
       }

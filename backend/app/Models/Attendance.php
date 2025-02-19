@@ -187,7 +187,7 @@ class Attendance extends Model
             $q->where('status', $request->status);
         });
 
-        $model->when($request->filled('statuses'), fn ($q) => $q->whereIn('status', request("statuses")));
+        $model->when(count($request->statuses ?? []) > 0, fn ($q) => $q->whereIn('status', request("statuses")));
 
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);

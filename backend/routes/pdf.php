@@ -23,6 +23,51 @@ Route::get('/process_reports', [DailyController::class, 'process_reports']);
 Route::get('report', [ReportController::class, 'index']);
 Route::post('attendance-report-old', [ReportController::class, 'fetchDataOLD']);
 Route::post('attendance-report-new', [ReportController::class, 'fetchDataNEW']);
+Route::get('attendance-statuses', function () {
+    return [
+        [
+            'name' => 'Present',
+            'id' => 'P',
+        ],
+        [
+            'name' => 'Absent',
+            'id' => 'A',
+        ],
+        [
+            'name' => 'Incomplete',
+            'id' => 'M',
+        ],
+        [
+            'name' => 'Late In',
+            'id' => 'LC',
+        ],
+        [
+            'name' => 'Early Out',
+            'id' => 'EG',
+        ],
+        [
+            'name' => 'Week Off',
+            'id' => 'O',
+        ],
+        [
+            'name' => 'Leave',
+            'id' => 'L',
+        ],
+        [
+            'name' => 'Holiday',
+            'id' => 'H',
+        ],
+        [
+            'name' => 'Vacation', // Fixed spelling from 'Vaccation'
+            'id' => 'V',
+        ],
+        [
+            'name' => 'Manual Entry',
+            'id' => 'ME',
+        ],
+    ];
+});
+
 
 
 
