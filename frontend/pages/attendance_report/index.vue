@@ -1,8 +1,5 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
-      {{ response }}
-    </v-snackbar>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -27,12 +24,6 @@
           style="font-size: 18px; font-weight: 600; width: 200px"
         >
           Attendance Reports
-          <!-- <v-icon
-            title="Click To Send Yesterday Report"
-            color="green"
-            @click="sendYesterdayReport()"
-            >mdi-whatsapp</v-icon
-          > -->
         </v-toolbar-title>
         <v-select
           style="width: 150px"
@@ -419,7 +410,6 @@ export default {
 
   data: () => ({
     missingLogsDialog: false,
-    selectFile: null,
     key: 1,
     payload11: null,
     selectAllDepartment: false,
@@ -429,72 +419,26 @@ export default {
     generalHeaders,
     multiHeaders,
     doubleHeaders,
-    filters: {},
-    attendancFilters: false,
-    isFilter: false,
-    datatable_search_textbox: "",
-    datatable_filter_date: "",
-    filter_employeeid: "",
-    snack: false,
-    snackColor: "",
-    snackText: "",
-    date: null,
-    menu: false,
-    selectedItems: [],
-    time_table_dialog: false,
-    log_details: false,
-    overtime: false,
-    options: {},
     date: null,
     menu: false,
     loading: false,
-    time_menu: false,
-    manual_time_menu: false,
     Model: "Attendance Reports",
     endpoint: "report",
     search: "",
-    snackbar: false,
-    add_manual_log: false,
     dialog: false,
-    generateLogsDialog: false,
-    reportSync: false,
     from_date: null,
     from_menu: false,
     to_date: null,
-    to_menu: false,
-    ids: [],
     departments: [],
     scheduled_employees: [],
-    DateRange: true,
-    devices: [],
-    valid: true,
-    nameRules: [(v) => !!v || "reason is required"],
-    timeRules: [(v) => !!v || "time is required"],
-    deviceRules: [(v) => !!v || "device is required"],
-    daily_menu: false,
-    daily_date: null,
-    dailyDate: false,
-    editItems: {
-      attendance_logs_id: "",
-      UserID: "",
-      device_id: "",
-      user_id: "",
-      reason: "",
-      date: "",
-      time: null,
-      manual_entry: false,
-    },
     loading: false,
-    total: 0,
 
     report_template: "Template1",
     report_type: "monthly11111111",
     payload: {
       from_date: null,
       to_date: null,
-      daily_date: null,
       employee_id: [],
-
       department_ids: [{ id: "-1", name: "" }],
       status: "-1",
       branch_id: null,
@@ -505,16 +449,7 @@ export default {
       date: null,
       time: null,
     },
-    log_list: [],
-    snackbar: false,
-    editedIndex: -1,
-    editedItem: { name: "" },
-    defaultItem: { name: "" },
-    response: "",
     data: [],
-    shifts: [],
-    errors: [],
-    custom_options: {},
     statuses: [
       {
         name: `All Status`,
@@ -529,7 +464,7 @@ export default {
         id: `A`,
       },
       {
-        name: `Missing`,
+        name: `Incomplete`,
         id: `M`,
       },
       {
@@ -561,37 +496,11 @@ export default {
         id: `ME`,
       },
     ],
-    max_date: null,
-    filter_type_items: [
-      {
-        id: 1,
-        name: "Today",
-      },
-      {
-        id: 2,
-        name: "Yesterday",
-      },
-      {
-        id: 3,
-        name: "This Week",
-      },
-      {
-        id: 4,
-        name: "This Month",
-      },
-      {
-        id: 5,
-        name: "Custom",
-      },
-    ],
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
   }),
 
   computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? "New" : "Edit";
-    },
     isIndeterminateDepartment() {
       return (
         this.payload.department_ids.length > 0 &&
@@ -609,7 +518,6 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
-      this.errors = [];
       this.search = "";
     },
     selectAllDepartment(value) {
@@ -628,17 +536,9 @@ export default {
         this.payload.employee_id = [];
       }
     },
-    // tab(value) {
-    //   this.payload11 = {
-    //     ...this.payload,
-    //     tabid: value,
-    //   };
-    //   this.commonMethod();
-    // },
   },
   async created() {
     this.loading = true;
-    // this.setMonthlyDateRange();
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.payload.department_ids = [];
 
@@ -659,10 +559,6 @@ export default {
     this.payload.from_date = `${y}-${m}-01`;
     this.payload.from_date = `${y}-${m}-${dd.getDate()}`;
     this.payload.to_date = `${y}-${m}-${dd.getDate()}`;
-    // setTimeout(() => {
-    //  this.getDepartments();
-    //}, 1000);
-
     setTimeout(() => {
       this.tab = "tab-2";
     }, 1000);
@@ -675,27 +571,6 @@ export default {
   },
 
   methods: {
-    async sendYesterdayReport() {
-      confirm("Are you sure want to send Yesterday report?");
-      {
-        let options = {
-          params: {
-            company_id: this.$auth.user.company_id,
-            company_name: this.$auth.user.company.name,
-            report_template: "Template1",
-            shift_type_id: "1",
-            report_type: "Daily",
-            status: "-1",
-            daily_date: this.getYesterdayDate(),
-          },
-        };
-
-        const { data } = await this.$axios.get("daily_generate_pdf", options);
-
-        this.snackbar = true;
-        this.response = "Yesterday PDF Report is sent to whatsapp successfully";
-      }
-    },
     openRegeneratePopup() {
       this.$refs.attendanceReportRef.reportSync = true;
     },
@@ -705,7 +580,6 @@ export default {
     openMissingPopup() {
       this.missingLogsDialog = true;
     },
-
     process_file_in_child_comp(val) {
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
@@ -714,7 +588,6 @@ export default {
 
       this.$refs.attendanceReportRef.process_file(val);
     },
-
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
     },
@@ -726,19 +599,7 @@ export default {
       this.to_date = data.to;
       this.filterType = "Monthly"; // data.type;
     },
-
     commonMethod(id = 0) {
-      let filterDay = this.filter_type_items.filter(
-        (e) => e.id == this.filterType
-      );
-      if (filterDay[0]) {
-        if (filterDay[0].name == "Today") this.report_type = "Daily";
-        else filterDay = filterDay[0].name;
-      }
-
-      if (filterDay == "") {
-        filterDay = "Daily";
-      }
 
       if (this.$auth.user.user_type == "department") {
         this.payload.department_ids = [this.$auth.user.department_id];
@@ -746,7 +607,7 @@ export default {
 
       this.payload11 = {
         ...this.payload,
-        report_type: "Monthly", //filterDay,
+        report_type: "Monthly",
         tabselected: id, //this.tab
         from_date: this.from_date,
         to_date: this.to_date,
@@ -758,36 +619,6 @@ export default {
 
       this.getAttendanceTabs();
     },
-    getYesterdayDate() {
-      const today = new Date();
-      today.setDate(today.getDate() - 1); // Subtract one day to get yesterday's date
-
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, "0"); // Months are 0-indexed, so add 1
-      const day = String(today.getDate()).padStart(2, "0"); // Pad single-digit day with zero
-
-      return `${year}-${month}-${day}`;
-    },
-    week() {
-      const today = new Date();
-      const dayOfWeek = today.getDay(); // Sunday = 0, Monday = 1, ..., Saturday = 6
-      const startOfWeek = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate() - dayOfWeek
-      );
-      const endOfWeek = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        startOfWeek.getDate() + 6
-      );
-
-      return [
-        startOfWeek.toISOString().slice(0, 10),
-        endOfWeek.toISOString().slice(0, 10),
-      ];
-    },
-
     getScheduledEmployees() {
       let options = {
         params: {
@@ -809,53 +640,6 @@ export default {
           // });
         });
     },
-    setSevenDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 6);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    setThirtyDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 29);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    set_date_save(from_menu, field) {
-      from_menu.save(field);
-
-      if (this.report_type == "Weekly") {
-        this.setSevenDays(this.payload.from_date);
-      } else if (
-        this.report_type == "Monthly" ||
-        this.report_type == "Custom"
-      ) {
-        this.setThirtyDays(this.payload.from_date);
-      }
-    },
-
     getBranches() {
       if (this.$auth.user.branch_id) {
         this.payload.branch_id = this.$auth.user.branch_id;
@@ -920,35 +704,9 @@ export default {
         console.error("Error fetching departments:", error);
       }
     },
-
-    caps(str) {
-      return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-    },
-
     can(per) {
       return this.$pagePermission.can(per, this);
-    },
-
-    setStatusLabel(status) {
-      const statuses = {
-        A: "Absent",
-        P: "Present",
-        M: "Missing",
-        LC: "Late In",
-        EG: "Early Out",
-        O: "Week Off",
-        L: "Leave",
-        H: "Holiday",
-        V: "Vaccation",
-      };
-      return statuses[status];
     },
   },
 };
 </script>
-<!-- <style>
-
-.slidegroup1 .v-slide-group {
-  height: 34px !important;
-}
-</style> -->

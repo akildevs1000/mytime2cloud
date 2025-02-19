@@ -1541,7 +1541,7 @@ export default {
       const statuses = {
         A: "Absent",
         P: "Present",
-        M: "Missing",
+        M: "Incomplete",
         LC: "Late In",
         EG: "Early Out",
         O: "Week Off",
