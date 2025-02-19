@@ -56,14 +56,14 @@ class SyncMultiShift extends Command
             return;
         }
 
-        (new Controller)->logOutPut($logFilePath, "*****Cron started at $formattedDate for task:sync_multi_shift*****");
+        $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
         $all_new_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', $this->argument("checked", false) ? true : false)
-            // ->where('al.UserID', 600)
+            // ->where('al.UserID', 619)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -105,6 +105,7 @@ class SyncMultiShift extends Command
                 'e.system_user_id',
                 'al.id as log_id',
                 'al.LogTime',
+                'al.log_date',
                 'al.UserID',
                 'sh.id as shift_id',
                 'sh.on_duty_time',
@@ -117,7 +118,7 @@ class SyncMultiShift extends Command
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
-            ->whereDate('al.log_date', $date)
+            ->whereBetween('al.log_date', [$date, date("Y-m-d", strtotime($date . "+1 day"))])
             ->distinct('al.LogTime', 'al.UserID', 'e.company_id')
             ->orderBy("al.LogTime")
             ->get()
@@ -233,20 +234,28 @@ class SyncMultiShift extends Command
         $message .= "Thank you!\n";
 
         if ($id == 22) {
-            SendWhatsappMessageJob::dispatch(
-                env("ADMIN_WHATSAPP_NUMBER"),
-                $message,
-                0,
-                env("WHATSAPP_CLIENT_ID"),
-                $logFilePath
-            );
+
+            if (env("APP_ENV") == 'production') {
+                SendWhatsappMessageJob::dispatch(
+                    env("ADMIN_WHATSAPP_NUMBER"),
+                    $message,
+                    0,
+                    env("WHATSAPP_CLIENT_ID"),
+                    $logFilePath
+                );
+            }
         }
 
-        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload start*****");
-        (new Controller)->logOutPut($logFilePath, $message);
+        $responseMessage .= "*****task:sync_multi_shift payload start*****\n";
+        $responseMessage .= "$message\n";
+        $responseMessage .= "*****task:sync_multi_shift payload end*****\n";
+        $responseMessage .= "*****Cron ended for task:sync_multi_shift*****\n";
+
+        ld($responseMessage);
+
+        (new Controller)->logOutPut($logFilePath, $responseMessage);
         // (new Controller)->logOutPut($logFilePath, $items);
-        (new Controller)->logOutPut($logFilePath, "*****task:sync_multi_shift payload end*****");
-        (new Controller)->logOutPut($logFilePath, "*****Cron ended for task:sync_multi_shift*****");
+
     }
 
     function processLogs($date, $employeeLogs)
@@ -275,53 +284,48 @@ class SyncMultiShift extends Command
             $currentLog = $employeeLogs[$i];
             $nextLog = isset($employeeLogs[$i + 1]) ? $employeeLogs[$i + 1] : false;
 
-            $currentTime = date("H:i", strtotime($currentLog->LogTime));
+            $minutes = 0;
 
-            $parsed_in = strtotime("$date $currentTime");
+            $parsed_in = strtotime($currentLog->LogTime);
 
-            // Skip logs outside the duty period
-            if ($parsed_in < $on_duty_timestamp || $parsed_in > $off_duty_timestamp) {
-                continue;
+            if ($parsed_in < $on_duty_timestamp) {
+                continue; // Skip if log time is earlier than on_duty_time
             }
 
+
+
+
             if ($nextLog) {
+                $parsed_out = strtotime($nextLog->LogTime);
+                if ($parsed_out < $off_duty_timestamp) {
 
-                $nextTime = date("H:i", strtotime($nextLog->LogTime));
+                    if ($parsed_in > $parsed_out) {
+                        $parsed_out += 86400;
+                    }
 
-                $parsed_out = strtotime("$date $nextTime");
+                    $diff = $parsed_out - $parsed_in;
 
-                if ($parsed_in > $parsed_out) {
-                    $parsed_out += 86400;
+                    $minutes =  ($diff / 60);
+
+                    $pairedLogs[] = [
+                        "in" => date("H:i", strtotime($currentLog->LogTime)),
+                        "out" => date("H:i", strtotime($nextLog->LogTime)),
+                        'total_minutes' => (new Controller)->minutesToHours($minutes),
+                        "device_in" =>  "---",
+                        "device_out" =>  "---",
+                    ];
                 }
-
-
-                $nextTime = date("H:i", strtotime($nextLog->LogTime));
-                $parsed_out = strtotime("$date $nextTime");
-
-                // Skip if the "out" time is outside the duty period
-                if ($parsed_out < $on_duty_timestamp || $parsed_out > $off_duty_timestamp) {
-                    continue;
-                }
-
-                // Calculate the duration in minutes
-                $diff = $parsed_out - $parsed_in;
-                $minutes = ($diff / 60);
-                $pairedLogs[] = [
-                    'in' => $currentTime,
-                    'out' => $nextTime,
-                    'total_minutes' => (new Controller)->minutesToHours($minutes),
-                    "device_in" =>  "---",
-                    "device_out" =>  "---",
-                ];
             } else {
-                // Handle the last log if there's no pair
-                $pairedLogs[] = [
-                    'in' => $currentTime,
-                    'out' => "---",
-                    'total_minutes' => "00:00",
-                    "device_in" =>  "---",
-                    "device_out" =>  "---",
-                ];
+
+                if ($currentLog->log_date == $date) {
+                    $pairedLogs[] = [
+                        "in" => date("H:i", strtotime($currentLog->LogTime)),
+                        "out" => "---",
+                        'total_minutes' => "00:00",
+                        "device_in" =>  "---",
+                        "device_out" =>  "---",
+                    ];
+                }
             }
 
             $i++;
