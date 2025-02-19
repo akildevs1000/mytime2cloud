@@ -7,14 +7,14 @@ use App\Models\AttendanceLog;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
-class FetchAttendanceReport extends Command
+class AttendanceReportVerifier extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'attendance:checker';
+    protected $signature = 'attendance:report_verifier';
 
     /**
      * The console command description.
