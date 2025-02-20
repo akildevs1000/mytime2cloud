@@ -354,13 +354,12 @@
           <v-tab-item value="tab-1">
             <AttendanceReport
               ref="attendanceReportRef"
-              :key="0"
-              :shift_type_id="0"
+              :key="1"
+              :shift_type_id="1"
               title="General Reports"
               :headers="generalHeaders"
               :report_template="report_template"
               :payload1="payload11"
-              process_file_endpoint=""
               render_endpoint="render_general_report"
             />
           </v-tab-item>
@@ -373,7 +372,6 @@
               :headers="doubleHeaders"
               :report_template="report_template"
               :payload1="payload11"
-              process_file_endpoint="multi_in_out_"
               render_endpoint="render_multi_inout_report"
             />
           </v-tab-item>
@@ -386,7 +384,6 @@
               :headers="multiHeaders"
               :report_template="report_template"
               :payload1="payload11"
-              process_file_endpoint="multi_in_out_"
               render_endpoint="render_multi_inout_report"
             />
           </v-tab-item>
@@ -407,11 +404,12 @@ import missingrecords from "../../components/attendance_report/missingrecords.vu
 export default {
   components: { AttendanceReport, missingrecords },
 
-  props: ["title", "render_endpoint", "process_file_endpoint"],
+  props: ["title", "render_endpoint"],
 
   data: () => ({
     missingLogsDialog: false,
     key: 1,
+    shift_type_id: 0,
     payload11: null,
     selectAllDepartment: false,
     selectAllEmployees: false,
@@ -435,7 +433,7 @@ export default {
     loading: false,
 
     report_template: "Template1",
-    report_type: "monthly11111111",
+    report_type: "Monthly",
     payload: {
       from_date: null,
       to_date: null,
@@ -547,7 +545,44 @@ export default {
         return;
       }
 
-      this.$refs.attendanceReportRef.process_file(val);
+      let type = val.toLowerCase();
+
+      let process_file_endpoint = "";
+
+      if (this.shift_type_id == 2 || this.shift_type_id == 5) {
+        process_file_endpoint = "multi_in_out_";
+      }
+
+      let path = process.env.BACKEND_URL + "/" + process_file_endpoint + type;
+
+      let qs = ``;
+
+      qs += `${path}`;
+      qs += `?report_template=${this.report_template}`;
+      qs += `&main_shift_type=${this.shift_type_id}`;
+
+      if (parseInt(this.payload.branch_id) > 0)
+        qs += `&branch_id=${this.payload.branch_id}`;
+
+      qs += `&shift_type_id=${this.shift_type_id}`;
+      qs += `&company_id=${this.$auth.user.company_id}`;
+      // qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
+      if (
+        this.payload.department_ids &&
+        this.payload.department_ids.length > 0
+      ) {
+        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
+      }
+      qs += `&employee_id=${this.payload.employee_id}`;
+      qs += `&report_type=${this.report_type}`;
+
+      qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
+
+      console.log(qs);
+      let report = document.createElement("a");
+      report.setAttribute("href", qs);
+      report.setAttribute("target", "_blank");
+      report.click();
     },
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
@@ -572,7 +607,7 @@ export default {
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
-        key: this.key,
+        key: this.key++,
       };
 
       this.getScheduledEmployees();
