@@ -956,7 +956,7 @@
                   v-for="(icon, index) in getRelatedIcons(item)"
                   :key="index"
                 >
-                  <v-avatar tile size="15" v-if="icon.type == 'image'"
+                  <v-avatar class="mx-1" tile size="20" v-if="icon.type == 'image'"
                     ><img style="width: 100%" :src="icon.name"
                   /></v-avatar>
                   <v-icon v-else small color="black" class="mr-1">{{
@@ -1327,7 +1327,10 @@ export default {
       let icons = [];
 
       if (profile_picture) {
-        icons.push({ name: "mdi-emoticon-outline" });
+        icons.push({
+          type: "image",
+          name: "/icons/employee-access/01.png",
+        });
       }
 
       if (
@@ -1335,33 +1338,63 @@ export default {
         rfid_card_password != "FFFFFFFF" &&
         rfid_card_password != null
       ) {
-        icons.push({ name: "mdi-lock-outline" });
-      }
-      if (finger_prints.length) {
-        icons.push({ name: "mdi-fingerprint" });
-      }
-      if (palms.length) {
         icons.push({
           type: "image",
-          name: "/icons/palm-hand.png",
+          name: "/icons/employee-access/02.png",
         });
       }
-
       if (
         rfid_card_number != "" &&
         rfid_card_number != "0" &&
         rfid_card_number != null
       ) {
-        icons.push({ name: "mdi-card-outline" });
+        icons.push({
+          type: "image",
+          name: "/icons/employee-access/03.png",
+        });
+
         icons.push({
           name: "mdi-qrcode-scan",
         });
       }
+      if (finger_prints.length) {
+        icons.push({
+          type: "image",
+          name: "/icons/employee-access/04.png",
+        });
+      }
+      if (palms.length) {
+        icons.push({
+          type: "image",
+          name: "/icons/employee-access/05.png",
+        });
+      }
 
-      // icons.push({
-      //   type: "image",
-      //   name: "/icons/palm-hand-2.png",
-      // });
+      // icons = [
+      //   {
+      //     type: "image",
+      //     name: "/icons/employee-access/01.png",
+      //   },
+      //   {
+      //     type: "image",
+      //     name: "/icons/employee-access/02.png",
+      //   },
+      //   {
+      //     type: "image",
+      //     name: "/icons/employee-access/03.png",
+      //   },
+      //   {
+      //     name: "mdi-qrcode-scan",
+      //   },
+      //   {
+      //     type: "image",
+      //     name: "/icons/employee-access/04.png",
+      //   },
+      //   {
+      //     type: "image",
+      //     name: "/icons/employee-access/05.png",
+      //   },
+      // ];
 
       return icons;
     },

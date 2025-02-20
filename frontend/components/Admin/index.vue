@@ -17,6 +17,21 @@
             <v-container fluid>
               <v-row>
                 <v-col cols="12">
+                  <v-autocomplete
+                    class="pb-0"
+                    v-model="editedItem.branch_id"
+                    :items="branchesList"
+                    dense
+                    placeholder="Select Branch"
+                    outlined
+                    item-value="id"
+                    item-text="branch_name"
+                    label="Branch"
+                    hide-details
+                  >
+                  </v-autocomplete>
+                </v-col>
+                <v-col cols="12">
                   <v-text-field
                     v-model="editedItem.name"
                     label="Name"
@@ -221,7 +236,7 @@ export default {
       email: "",
       password: "",
       password_confirmation: "",
-      role_id:0,
+      role_id: 0,
       order: 0,
     },
     defaultItem: {
@@ -229,7 +244,7 @@ export default {
       email: "",
       password: "",
       password_confirmation: "",
-      role_id:0,
+      role_id: 0,
       order: 0,
     },
     response: "",
@@ -262,6 +277,7 @@ export default {
       },
       { text: "Options", align: "left", sortable: false, value: "options" },
     ],
+    branchesList: [],
   }),
 
   computed: {
@@ -289,6 +305,19 @@ export default {
     this.editedItem.company_id = this.$auth.user.company_id;
     this.loading = true;
     this.getDataFromApi();
+
+    this.$axios
+      .get(`branches_list`, {
+        params: {
+          per_page: 1000,
+          company_id: this.$auth.user.company_id,
+        },
+      })
+      .then(({ data }) => {
+        this.branchesList = data;
+        this.branch_id = this.$auth.user.branch_id || "";
+      });
+
     this.$axios
       .get(`role`, {
         params: {
