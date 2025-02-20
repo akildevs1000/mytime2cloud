@@ -1024,7 +1024,7 @@ class MonthlyController extends Controller
 
         $template = request("report_template", 0);
 
-        $filesDirectory = public_path("reports/companies/$company_id/$template/$status");
+        $filesDirectory = public_path("reports/companies/$company_id/$template/Summary");
 
         // Check if the directory exists
         if (!is_dir($filesDirectory)) {
