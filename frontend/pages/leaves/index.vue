@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`leave_application_access`)">
+  <div v-if="can(`leave_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -385,7 +385,7 @@
 
     <v-card class="mb-5 mt-2 pt-2 rounded-md" elevation="0">
       <v-data-table
-        v-if="can(`leave_application_view`)"
+        v-if="can(`leave_view`)"
         v-model="ids"
         item-key="id"
         :headers="headers"
@@ -512,7 +512,7 @@
               <v-list-item @click="view(item)">
                 <v-list-item-title style="cursor: pointer; font-size: 13px">
                   <v-icon
-                    v-if="can(`leave_application_view`)"
+                    v-if="can(`leave_view`)"
                     color="primary"
                     small
                     @click="view(item)"
@@ -533,7 +533,7 @@
               >
                 <v-list-item-title style="cursor: pointer; font-size: 13px">
                   <v-icon
-                    v-if="can(`leave_application_view`)"
+                    v-if="can(`leave_edit`)"
                     color="primary"
                     small
                   >

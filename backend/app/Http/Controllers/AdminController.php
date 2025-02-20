@@ -26,6 +26,7 @@ class AdminController extends Controller
             'role_id' => 'required|numeric',
             'order' => 'required|numeric',
             'company_id' => 'required',
+            'branch_id' => 'nullable',
         ]);
 
         $userData = [
@@ -34,6 +35,7 @@ class AdminController extends Controller
             "password" => Hash::make($validatedData['password']),
             "role_id" => $validatedData['role_id'],
             "company_id" => $validatedData['company_id'],
+            "branch_id" => $validatedData['branch_id'],
             "is_master" => 1,
             "first_login" => 1,
             "user_type" => "admin",
@@ -65,13 +67,15 @@ class AdminController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'order' => 'required|numeric',
             'role_id' => 'required|numeric',
+            'branch_id' => 'nullable',
         ]);
 
         $admin =  [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
             "order" => $validatedData['order'],
-            "role_id" => $validatedData['role_id']
+            "role_id" => $validatedData['role_id'],
+            "branch_id" => $validatedData['branch_id'],
         ];
 
 
