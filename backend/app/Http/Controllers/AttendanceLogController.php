@@ -91,6 +91,8 @@ class AttendanceLogController extends Controller
                 "SerialNumber" => $columns[3],
                 "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, -3),
                 "index_serial_number" => $columns[3],
+
+                "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
             ];
         }
 
@@ -284,7 +286,7 @@ class AttendanceLogController extends Controller
 
     //             // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
-    //             //if (!$isDuplicateLogTime) 
+    //             //if (!$isDuplicateLogTime)
 
     //             $count = AttendanceLog::where("UserID", $columns[0])
     //                 ->where("UserID", $columns[0])
