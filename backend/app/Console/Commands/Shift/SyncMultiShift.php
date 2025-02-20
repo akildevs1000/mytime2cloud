@@ -251,7 +251,7 @@ class SyncMultiShift extends Command
         $responseMessage .= "*****task:sync_multi_shift payload end*****\n";
         $responseMessage .= "*****Cron ended for task:sync_multi_shift*****\n";
 
-        ld($responseMessage);
+        // ld($responseMessage);
 
         (new Controller)->logOutPut($logFilePath, $responseMessage);
         // (new Controller)->logOutPut($logFilePath, $items);
