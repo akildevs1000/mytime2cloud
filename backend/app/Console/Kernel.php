@@ -72,16 +72,21 @@ class Kernel extends ConsoleKernel
                 ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->everyTenMinutes();
 
-            $schedule
-                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-                ->everyFifteenMinutes()
+            $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
+                ->everyThirtyMinutes()
+                ->between('5:00', '23:59')
                 ->runInBackground();
 
-            // $schedule
-            //     ->command("render:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-            //     ->dailyAt('3:50')
-            //     ->runInBackground();
-                
+            $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->everyThirtyMinutes()
+                ->between('00:00', '04:59')
+                ->runInBackground();
+
+            $schedule
+                ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+                ->dailyAt('3:50')
+                ->runInBackground();
+
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
                 ->everyFiveMinutes()
