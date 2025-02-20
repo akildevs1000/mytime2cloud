@@ -572,7 +572,7 @@ export default {
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
-        key: this.key++,
+        key: this.key,
       };
 
       this.getScheduledEmployees();
@@ -638,7 +638,6 @@ export default {
             dual: 5,
             single: 6,
           };
-          // Find the first key in `json` that is true and retrieve its value from the map
           const result = Object.entries(data).find(
             ([key, value]) => value
           )?.[0];
