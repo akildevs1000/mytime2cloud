@@ -2228,6 +2228,10 @@ button {
       calc(-8 * var(--w)) 0, calc(-9 * var(--w)) 0;
   }
 }
+.menu-icon-right {
+  margin: auto;
+  text-align: right;
+}
 </style>
 
 <!-- <link rel="stylesheet" href="../static/css/textbox-label-style.css" /> -->

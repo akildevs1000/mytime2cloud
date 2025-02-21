@@ -50,7 +50,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance :statuses="['P', 'M', 'LC', 'EG']" />
+                          <Attendance :branch_id="branch_id" :statuses="['P', 'M', 'LC', 'EG']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -92,7 +92,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance :statuses="['A']" />
+                          <Attendance :branch_id="branch_id" :statuses="['A']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -137,7 +137,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance :statuses="['V']" />
+                          <Attendance :branch_id="branch_id" :statuses="['V']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -178,7 +178,7 @@
                     <v-list width="120" dense>
                       <v-list-item>
                         <v-list-item-title style="cursor: pointer">
-                          <Attendance :statuses="['L']" />
+                          <Attendance :branch_id="branch_id" :statuses="['L']" />
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -311,9 +311,7 @@ export default {
       this.loading = true;
       this.$store.commit("dashboard/attendance_count", null);
       this.$store.commit("dashboard/off_devices_count", null);
-
       this.$store.commit("dashboard/leaves_request_count", null);
-
       this.getDataFromApi();
       this.loading = false;
     },
@@ -396,10 +394,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.menu-icon-right {
-  margin: auto;
-  text-align: right;
-}
-</style>
