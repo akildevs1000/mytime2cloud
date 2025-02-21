@@ -416,10 +416,3 @@ export default {
   },
 };
 </script>
-
-<style>
-.menu-icon-right {
-  margin: auto;
-  text-align: right;
-}
-</style>
