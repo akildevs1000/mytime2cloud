@@ -84,7 +84,7 @@ class ThemeController extends Controller
             ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                 $q->where("department_id", $request->department_id);
             })
-            ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereDate('date', date('Y-m-d'))
             ->select(
                 DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
@@ -138,10 +138,7 @@ class ThemeController extends Controller
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
             })
-            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                $q->where("department_id", $request->department_id);
-            })
-            ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
