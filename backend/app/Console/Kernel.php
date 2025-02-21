@@ -73,7 +73,7 @@ class Kernel extends ConsoleKernel
                 ->everyTenMinutes();
 
             $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
-                ->everyThirtyMinutes()
+                ->everyFiveMinutes()
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
