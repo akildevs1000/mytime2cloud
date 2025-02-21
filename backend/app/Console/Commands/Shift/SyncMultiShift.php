@@ -236,13 +236,13 @@ class SyncMultiShift extends Command
         if ($id == 22) {
 
             if (env("APP_ENV") == 'production') {
-                SendWhatsappMessageJob::dispatch(
-                    env("ADMIN_WHATSAPP_NUMBER"),
-                    $message,
-                    0,
-                    env("WHATSAPP_CLIENT_ID"),
-                    $logFilePath
-                );
+                // SendWhatsappMessageJob::dispatch(
+                //     env("ADMIN_WHATSAPP_NUMBER"),
+                //     $message,
+                //     0,
+                //     env("WHATSAPP_CLIENT_ID"),
+                //     $logFilePath
+                // );
             }
         }
 
