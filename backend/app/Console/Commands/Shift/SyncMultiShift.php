@@ -108,6 +108,7 @@ class SyncMultiShift extends Command
                 'al.log_date',
                 'al.UserID',
                 'sh.id as shift_id',
+                'sh.shift_type_id',
                 'sh.on_duty_time',
                 'sh.off_duty_time',
                 'sh.working_hours',
@@ -115,6 +116,7 @@ class SyncMultiShift extends Command
                 'se.isOverTime'
             )
             ->where('e.status', 1)
+            ->where('e.shift_type_id', 2)
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
