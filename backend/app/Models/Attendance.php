@@ -162,11 +162,11 @@ class Attendance extends Model
         });
 
         $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
-            //$q->whereIn('shift_type_id', [1, 3, 4, 6]);
-            $q->where(function ($query) {
-                $query->whereIn('shift_type_id', [1, 3, 4, 6])
-                    ->orWhere('shift_type_id', '---');
-            });
+            $q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            // $q->where(function ($query) {
+            //     $query->whereIn('shift_type_id', [1, 3, 4, 6])
+            //         ->orWhere('shift_type_id', '---');
+            // });
         });
         
         if (!empty($request->employee_id)) {
