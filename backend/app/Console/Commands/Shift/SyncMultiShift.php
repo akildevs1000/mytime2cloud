@@ -116,7 +116,7 @@ class SyncMultiShift extends Command
                 'se.isOverTime'
             )
             ->where('e.status', 1)
-            ->where('e.shift_type_id', 2)
+            ->where('sh.shift_type_id', 2)
             ->where('al.company_id', $id)
             ->where('e.company_id', $id)
             ->whereIn('al.UserID', $filtered_all_new_employee_ids)
