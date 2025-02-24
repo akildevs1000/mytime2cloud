@@ -268,8 +268,6 @@ class AttendanceLog extends Model
     }
     public function getEmployeeIdsForNewLogsToRender($params)
     {
-        $shift_type_id = $params["shift_type_id"];
-
         return self::where("company_id", $params["company_id"])
             ->when(!$params["custom_render"], fn($q) => $q->where("checked", false))
             ->where("company_id", $params["company_id"])
@@ -282,10 +280,7 @@ class AttendanceLog extends Model
 
                     ->from('visitors');
             })
-            ->whereHas("schedule", function ($q) use ($shift_type_id) {
-                $q->where("isAutoShift", false);
-                $q->where("shift_type_id", $shift_type_id);
-            })
+            ->whereHas("schedule", fn($q) => $q->where("isAutoShift", false))
             ->distinct("UserID", "company_id")
             ->pluck('UserID');
     }
