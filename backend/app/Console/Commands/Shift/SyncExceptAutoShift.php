@@ -54,7 +54,7 @@ class SyncExceptAutoShift extends Command
             ]);
 
             // Chunk the employee IDs array into batches of 20
-            $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $url) {
+            $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $url, $employeeIds) {
                 $params = [
                     'date' => '',
                     'UserID' => '',
@@ -87,14 +87,14 @@ class SyncExceptAutoShift extends Command
                         ]);
                         echo "Success: Processed chunk\n";
 
-                        AttendanceLog::where("company_id", $id)->whereIn("UserID", $$employeeIds)
+                        AttendanceLog::where("company_id", $id)->whereIn("UserID", $employeeIds)
                             ->where("LogTime", ">=", $date . ' 00:00:00')
                             ->where("LogTime", "<=", $date . ' 23:59:00')
                             ->update([
                                 "checked" => true,
                                 "checked_datetime" => date('Y-m-d H:i:s'),
-                                "channel" => $channel,
-                                "log_message" => substr($message, 0, 200)
+                                "channel" => "kernel",
+                                "log_message" => ""
                             ]);
                     } else {
                         Logger::channel('custom')->error('Request failed', [
