@@ -45,7 +45,7 @@ class SyncExceptAutoShift extends Command
             })
             ->pluck("system_user_id");
 
-            ld($employeeIds);
+        $userids = $employeeIds;
 
         try {
             // Log the start of the process
@@ -56,7 +56,7 @@ class SyncExceptAutoShift extends Command
             ]);
 
             // Chunk the employee IDs array into batches of 20
-            $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $url, $employeeIds) {
+            $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $url, $userids) {
                 $params = [
                     'date' => '',
                     'UserID' => '',
@@ -90,7 +90,7 @@ class SyncExceptAutoShift extends Command
                         echo "Success: Processed chunk\n";
 
                         AttendanceLog::where("company_id", $id)
-                            ->whereIn("UserID", $employeeIds)
+                            ->whereIn("UserID", $userids)
                             ->where("LogTime", ">=", $date . ' 00:00:00')
                             ->where("LogTime", "<=", $date . ' 23:59:00')
                             ->update([
