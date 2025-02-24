@@ -151,9 +151,9 @@ class ThemeController extends Controller
                 $q->where("branch_id", $request->branch_id);
             })->count() ?? 0;
 
-        $leaveCount = $model->where('status', 'A')->count();
+        $leaveCount = $model->where('status', 'L')->count();
 
-        $vaccationCount = $model->where('status', 'A')->count();
+        $vaccationCount = $model->where('status', 'V')->count();
 
 
         return [
