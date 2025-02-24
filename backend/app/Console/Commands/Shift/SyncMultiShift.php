@@ -58,15 +58,14 @@ class SyncMultiShift extends Command
 
         $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
-        $all_new_employee_ids = DB::table('employees as e')
-            ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
-            ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
+        $all_new_employee_ids = DB::table('schedule_employees as se')
+            ->join('attendance_logs as al', 'se.employee_id', '=', 'al.UserID')
             ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
-            ->where('se.shift_type_id', 2)
             ->select('al.UserID')
-            ->where('e.status', 1)
+            ->where('sh.shift_type_id',"=", 2) // this condition not workin
             ->where('al.checked', $this->argument("checked", false) ? true : false)
             // ->where('al.UserID', 619)
+            ->where('se.company_id', $id)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -97,7 +96,7 @@ class SyncMultiShift extends Command
 
         $filtered_all_new_employee_ids = array_values(array_unique($all_new_employee_ids));
 
-        ld($filtered_all_new_employee_ids);
+        // ld($filtered_all_new_employee_ids);
 
         $all_logs_for_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
