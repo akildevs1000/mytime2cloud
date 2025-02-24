@@ -138,25 +138,30 @@ class ThemeController extends Controller
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
             })
-            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
             ->whereDate('date', date("Y-m-d"))
             ->select('status')
             ->get();
 
+        $presentCount = $model->whereIn('status', ['P', 'M', 'LC', 'EG'])->count();
+
+        $employeeCount = Employee::where("company_id", $companyId)
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where("branch_id", $request->branch_id);
+            })->count() ?? 0;
+
+        $leaveCount = $model->where('status', 'A')->count();
+
+        $vaccationCount = $model->where('status', 'A')->count();
+
+
         return [
-            "employeeCount" => Employee::where("company_id", $companyId)
-                ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                    $q->where("department_id", $request->department_id);
-                })
-                ->when($request->filled("branch_id"), function ($q) use ($request) {
-                    $q->where("branch_id", $request->branch_id);
-                })
-                ->count() ?? 0,
-            "presentCount" => $model->whereIn('status', ['P', 'M', 'LC', 'EG'])->count(),
-            "absentCount" => $model->where('status', 'A')->count(),
-            "leaveCount" => $model->where('status', 'L')->count(),
-            "vaccationCount" => $model->where('status', 'V')->count(),
+            "employeeCount" => $employeeCount,
+            "presentCount" => $presentCount,
+            "absentCount" => $employeeCount - ($presentCount + $leaveCount+ $vaccationCount),
+            "leaveCount" => $leaveCount,
+            "vaccationCount" => $vaccationCount,
         ];
     }
     public function dashboardGetCountDepartment(Request $request)
