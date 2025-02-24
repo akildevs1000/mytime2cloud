@@ -134,9 +134,13 @@ class ThemeController extends Controller
     {
         $branch_id = $request->input('branch_id', 0);
 
+        $department_id = $request->input('department_id', 0);
+
         $model = Attendance::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+                $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
+            })->when($department_id, function ($q) use ($department_id) {
+                $q->whereHas('employee', fn(Builder $q) => $q->where('department_id', $department_id));
             })
             ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
@@ -147,9 +151,9 @@ class ThemeController extends Controller
         $presentCount = $model->whereIn('status', ['P', 'M', 'LC', 'EG'])->count();
 
         $employeeCount = Employee::where("company_id", $companyId)
-            ->when($request->filled("branch_id"), function ($q) use ($request) {
-                $q->where("branch_id", $request->branch_id);
-            })->count() ?? 0;
+            ->when($branch_id, fn($q) => $q->where("branch_id", $branch_id))
+            ->when($department_id, fn($q) => $q->where("department_id", $department_id))
+            ->count() ?? 0;
 
         $leaveCount = $model->where('status', 'L')->count();
 
@@ -159,7 +163,7 @@ class ThemeController extends Controller
         return [
             "employeeCount" => $employeeCount,
             "presentCount" => $presentCount,
-            "absentCount" => $employeeCount - ($presentCount + $leaveCount+ $vaccationCount),
+            "absentCount" => $employeeCount - ($presentCount + $leaveCount + $vaccationCount),
             "leaveCount" => $leaveCount,
             "vaccationCount" => $vaccationCount,
         ];
