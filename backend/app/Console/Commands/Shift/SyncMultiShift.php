@@ -60,6 +60,9 @@ class SyncMultiShift extends Command
 
         $all_new_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
+            ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
+            ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
+            ->where('sh.shift_type_id', 2)
             ->select('al.UserID')
             ->where('e.status', 1)
             ->where('al.checked', $this->argument("checked", false) ? true : false)
