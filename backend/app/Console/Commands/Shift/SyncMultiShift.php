@@ -97,6 +97,8 @@ class SyncMultiShift extends Command
 
         $filtered_all_new_employee_ids = array_values(array_unique($all_new_employee_ids));
 
+        ld($filtered_all_new_employee_ids);
+
         $all_logs_for_employee_ids = DB::table('employees as e')
             ->join('attendance_logs as al', 'e.system_user_id', '=', 'al.UserID')
             ->join('schedule_employees as se', 'e.system_user_id', '=', 'se.employee_id')
