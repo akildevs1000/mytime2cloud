@@ -89,16 +89,21 @@ class SyncExceptAutoShift extends Command
                         ]);
                         echo "Success: Processed chunk\n";
 
-                        // AttendanceLog::where("company_id", $id)
-                        //     ->whereIn("UserID", $userids)
-                        //     ->where("LogTime", ">=", $date . ' 00:00:00')
-                        //     ->where("LogTime", "<=", $date . ' 23:59:00')
-                        //     ->update([
-                        //         "checked" => true,
-                        //         "checked_datetime" => date('Y-m-d H:i:s'),
-                        //         "channel" => "kernel",
-                        //         "log_message" => ""
-                        //     ]);
+                        $this->info($userids);
+
+
+                        $result = AttendanceLog::where("company_id", $id)
+                            ->whereIn("UserID", $userids)
+                            ->where("LogTime", ">=", $date . ' 00:00:00')
+                            ->where("LogTime", "<=", $date . ' 23:59:00')
+                            ->update([
+                                "checked" => true,
+                                "checked_datetime" => date('Y-m-d H:i:s'),
+                                "channel" => "kernel",
+                                "log_message" => ""
+                            ]);
+
+                        $this->info($result);
                     } else {
                         Logger::channel('custom')->error('Request failed', [
                             'chunk' => $chunk->toArray(),
