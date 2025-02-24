@@ -38,7 +38,7 @@ class SyncExceptAutoShift extends Command
         $date = $this->argument("date");
 
         $employeeIds = Employee::where("company_id", $id)
-            ->whereHas("schedule", function ($q, $id) {
+            ->whereHas("schedule", function ($q) use($id) {
                 $q->where("company_id", $id);
                 $q->where("isAutoShift", false);
                 $q->whereIn("shift_type_id", [1, 4, 6]);
