@@ -131,7 +131,7 @@ class SyncMultiShift extends Command
             ->groupBy("UserID")
             ->toArray();
 
-        $this->info(json_encode($all_logs_for_employee_ids));
+        $this->info(json_encode($filtered_all_new_employee_ids));
 
         $items = [];
 
@@ -199,9 +199,9 @@ class SyncMultiShift extends Command
 
         // ld($items);
 
-        DB::transaction(function () use ($all_logs_for_employee_ids, $date, $id, $items) {
+        DB::transaction(function () use ($filtered_all_new_employee_ids, $date, $id, $items) {
             // Delete existing attendance records
-            Attendance::whereIn('employee_id', $all_logs_for_employee_ids)
+            Attendance::whereIn('employee_id', $filtered_all_new_employee_ids)
                 ->where('date', $date)
                 ->where('company_id', $id)
                 ->delete();
@@ -211,7 +211,7 @@ class SyncMultiShift extends Command
 
             // Update attendance logs
             $result = DB::table('attendance_logs')
-                ->whereIn('UserID', $all_logs_for_employee_ids)
+                ->whereIn('UserID', $filtered_all_new_employee_ids)
                 ->where('log_date', $date)
                 ->where('company_id', $id)
                 ->update([
