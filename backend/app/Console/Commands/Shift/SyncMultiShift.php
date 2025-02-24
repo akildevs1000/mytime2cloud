@@ -62,7 +62,7 @@ class SyncMultiShift extends Command
             ->join('attendance_logs as al', 'se.employee_id', '=', 'al.UserID')
             ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
             ->select('al.UserID')
-            ->where('sh.shift_type_id',"=", 2) // this condition not workin
+            ->where('sh.shift_type_id', "=", 2) // this condition not workin
             ->where('al.checked', $this->argument("checked", false) ? true : false)
             // ->where('al.UserID', 619)
             ->where('se.company_id', $id)
@@ -131,7 +131,7 @@ class SyncMultiShift extends Command
             ->groupBy("UserID")
             ->toArray();
 
-        // ld($all_logs_for_employee_ids);
+        $this->info($all_logs_for_employee_ids);
 
         $items = [];
 
@@ -199,9 +199,9 @@ class SyncMultiShift extends Command
 
         // ld($items);
 
-        DB::transaction(function () use ($UserIDs, $date, $id, $items) {
+        DB::transaction(function () use ($all_logs_for_employee_ids, $date, $id, $items) {
             // Delete existing attendance records
-            Attendance::whereIn('employee_id', $UserIDs)
+            Attendance::whereIn('employee_id', $all_logs_for_employee_ids)
                 ->where('date', $date)
                 ->where('company_id', $id)
                 ->delete();
@@ -210,8 +210,8 @@ class SyncMultiShift extends Command
             Attendance::insert($items);
 
             // Update attendance logs
-            DB::table('attendance_logs')
-                ->whereIn('UserID', $UserIDs)
+            $result = DB::table('attendance_logs')
+                ->whereIn('UserID', $all_logs_for_employee_ids)
                 ->where('log_date', $date)
                 ->where('company_id', $id)
                 ->update([
@@ -220,6 +220,8 @@ class SyncMultiShift extends Command
                     'channel' => 'kernel',
                     'log_message' => Str::limit(json_encode($items), 200, '...'),
                 ]);
+
+            $this->info($result);
         });
 
         $remaining_logs = DB::table('employees as e')
