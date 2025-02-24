@@ -38,12 +38,14 @@ class SyncExceptAutoShift extends Command
         $date = $this->argument("date");
 
         $employeeIds = Employee::where("company_id", $id)
-            ->whereHas("schedule", function ($q) use($id) {
+            ->whereHas("schedule", function ($q) use ($id) {
                 $q->where("company_id", $id);
                 $q->where("isAutoShift", false);
                 $q->whereIn("shift_type_id", [1, 4, 6]);
             })
             ->pluck("system_user_id");
+
+            ld($employeeIds);
 
         try {
             // Log the start of the process
@@ -87,7 +89,8 @@ class SyncExceptAutoShift extends Command
                         ]);
                         echo "Success: Processed chunk\n";
 
-                        AttendanceLog::where("company_id", $id)->whereIn("UserID", $employeeIds)
+                        AttendanceLog::where("company_id", $id)
+                            ->whereIn("UserID", $employeeIds)
                             ->where("LogTime", ">=", $date . ' 00:00:00')
                             ->where("LogTime", "<=", $date . ' 23:59:00')
                             ->update([
