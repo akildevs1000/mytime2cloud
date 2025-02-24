@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Shift;
 
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -37,7 +38,8 @@ class SyncExceptAutoShift extends Command
         $date = $this->argument("date");
 
         $employeeIds = Employee::where("company_id", $id)
-            ->whereHas("schedule", function ($q) {
+            ->whereHas("schedule", function ($q, $id) {
+                $q->where("company_id", $id);
                 $q->where("isAutoShift", false);
                 $q->where("shift_type_id", [1, 4, 6]);
             })
@@ -84,6 +86,16 @@ class SyncExceptAutoShift extends Command
                             'response' => $response->json(),
                         ]);
                         echo "Success: Processed chunk\n";
+
+                        AttendanceLog::where("company_id", $id)->whereIn("UserID", $$employeeIds)
+                            ->where("LogTime", ">=", $date . ' 00:00:00')
+                            ->where("LogTime", "<=", $date . ' 23:59:00')
+                            ->update([
+                                "checked" => true,
+                                "checked_datetime" => date('Y-m-d H:i:s'),
+                                "channel" => $channel,
+                                "log_message" => substr($message, 0, 200)
+                            ]);
                     } else {
                         Logger::channel('custom')->error('Request failed', [
                             'chunk' => $chunk->toArray(),

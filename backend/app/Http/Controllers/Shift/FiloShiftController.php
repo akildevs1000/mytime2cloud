@@ -190,31 +190,8 @@ class FiloShiftController extends Controller
             $model->whereIn("employee_id", array_column($items, "employee_id"));
             $model->where("date", $date);
             $model->delete();
-            // $chunks = array_chunk($items, 100);
-
-            // foreach ($chunks as $chunk) {
-            //     $model->insert($chunk);
-            // }
             $model->insert($items);
-
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
-
-
-            //if (!$custom_render) 
-            {
-                // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->where("LogTime", ">=", $date . ' 00:00:00')
-                //     ->where("LogTime", "<=", $date . ' 23:59:00')->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
-
-                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
-                    ->where("LogTime", ">=", $date . ' 00:00:00')
-                    ->where("LogTime", "<=", $date . ' 23:59:00')
-                    ->update([
-                        "checked" => true,
-                        "checked_datetime" => date('Y-m-d H:i:s'),
-                        "channel" => $channel,
-                        "log_message" => substr($message, 0, 200)
-                    ]);
-            }
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
         }
