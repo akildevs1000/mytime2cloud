@@ -131,7 +131,7 @@ class SyncMultiShift extends Command
             ->groupBy("UserID")
             ->toArray();
 
-        $this->info($all_logs_for_employee_ids);
+        $this->info(json_encode($all_logs_for_employee_ids));
 
         $items = [];
 
