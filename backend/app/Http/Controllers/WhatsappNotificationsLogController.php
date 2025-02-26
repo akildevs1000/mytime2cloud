@@ -12,7 +12,6 @@ use App\Models\WhatsappNotificationsLog;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use WebSocket\Client;
 
 class WhatsappNotificationsLogController extends Controller
@@ -133,6 +132,7 @@ class WhatsappNotificationsLogController extends Controller
 
     public function addMessage($company_id, $whatsapp_number, $message)
     {
+
         $company = Company::with(["contact"])->where("id", $company_id)->first();
 
         if ($whatsapp_number == '') {
@@ -140,27 +140,9 @@ class WhatsappNotificationsLogController extends Controller
         }
 
         //$whatsapp_number = "971552205149";
-        // if ($company && ($company->enable_desktop_whatsapp == true || $company_id == 3)) {
-        if ($company) {
-
-            // Whatsapp Proxy
-            $lastClientIdEndpoint = "https://backend.myhotel2cloud.com/api/get_last_whatsapp_client_id/$company_id";
-            $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
-            $clientId = $clientIdResponse->json()["clientId"];
+        if ($company && $company->enable_desktop_whatsapp == true) {
 
             if ($whatsapp_number != '' && $message != '') {
-
-                $endpoint = 'https://wa.mytime2cloud.com/send-message';
-
-                $payload = [
-                    'clientId' =>  $clientId,
-                    'recipient' => "971554501483",
-                    'text' => "test",
-                ];
-
-                Http::withoutVerifying()->post($endpoint, $payload);
-
-                return ["payload" => $payload];
 
 
                 $count = WhatsappNotificationsLog::where("whatsapp_number", $whatsapp_number)->where("company_id", $company_id)->where("message", $message)->count();
