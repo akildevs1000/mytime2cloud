@@ -319,22 +319,6 @@ Route::get('yearly_leave_quota/{id}', [LeaveGroupsController::class, 'yearlyLeav
 Route::post('register', [RegisterController::class, 'store']);
 
 Route::post('send-whatsapp-wessage', function (Request $request) {
-
-    $endpoint = 'https://wa.mytime2cloud.com/send-message';
-
-    $payload = [
-        'clientId' =>  "client_id_1740559926485",
-        'recipient' => "971554501483",
-        'text' => "test",
-    ];
-
-    $res = Http::withoutVerifying()->post($endpoint, $payload);
-
-    if ($res->successful()) {
-        return $this->response("Whatsapp Request Created Successfully", null, true);
-    } else {
-        return $this->response("Desktop Whatsapp is not enabled", null, false);
-    }
     
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });

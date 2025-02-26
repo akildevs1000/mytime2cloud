@@ -142,6 +142,8 @@ class WhatsappNotificationsLogController extends Controller
         ];
     
         $res = Http::withoutVerifying()->post($endpoint, $payload);
+
+        return ["sdf" => "sdf"];
     
         if ($res->successful()) {
             return $this->response("Whatsapp Request Created Successfully", null, true);
