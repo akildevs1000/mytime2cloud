@@ -133,41 +133,6 @@ class WhatsappNotificationsLogController extends Controller
 
     public function addMessage($company_id, $whatsapp_number, $message)
     {
-        $endpoint = 'https://wa.mytime2cloud.com/send-message';
-
-        $payload = [
-            'clientId' =>  "client_id_1740559926485",
-            'recipient' => "971554501483",
-            'text' => "test",
-        ];
-    
-        $res = Http::withoutVerifying()->post($endpoint, $payload);
-
-        return ["sdf" => "sdf"];
-    
-        if ($res->successful()) {
-            return $this->response("Whatsapp Request Created Successfully", null, true);
-        } else {
-            return $this->response("Desktop Whatsapp is not enabled", null, false);
-        }
-
-        $endpoint = 'https://wa.mytime2cloud.com/send-message';
-
-        $payload = [
-            'clientId' =>  "client_id_1740559926485",
-            'recipient' => $whatsapp_number,
-            'text' => $message,
-        ];
-
-        $res = Http::withoutVerifying()->post($endpoint, $payload);
-
-        if ($res->successful()) {
-            return $this->response("Whatsapp Request Created Successfully", null, true);
-        } else {
-            return $this->response("Desktop Whatsapp is not enabled", null, false);
-        }
-
-
         $company = Company::with(["contact"])->where("id", $company_id)->first();
 
         if ($whatsapp_number == '') {
@@ -175,37 +140,27 @@ class WhatsappNotificationsLogController extends Controller
         }
 
         //$whatsapp_number = "971552205149";
-        if ($company && $company->enable_desktop_whatsapp == true) {
+        // if ($company && ($company->enable_desktop_whatsapp == true || $company_id == 3)) {
+        if ($company) {
+
+            // Whatsapp Proxy
+            $lastClientIdEndpoint = "https://backend.myhotel2cloud/api/get_last_whatsapp_client_id/3";
+            $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
+            $clientId = $clientIdResponse->json()["clientId"];
 
             if ($whatsapp_number != '' && $message != '') {
-
-                // Whatsapp Proxy
-                $lastClientIdEndpoint = "https://backend.myhotel2cloud/api/get_last_whatsapp_client_id/3";
-                $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
-                $clientId = $clientIdResponse->json()["clientId"];
-
-                return [$clientId];
-
 
                 $endpoint = 'https://wa.mytime2cloud.com/send-message';
 
                 $payload = [
                     'clientId' =>  $clientId,
-                    'recipient' => $whatsapp_number,
-                    'text' => $message,
+                    'recipient' => "971554501483",
+                    'text' => "test",
                 ];
 
                 $res = Http::withoutVerifying()->post($endpoint, $payload);
 
-                if ($res->successful()) {
-                    return $this->response("Whatsapp Request Created Successfully", null, true);
-                } else {
-                    return $this->response("Desktop Whatsapp is not enabled", null, false);
-                }
-
-                // Whatsapp Proxy End
-
-                return $this->response("success status", null, false);;
+                return ["payload" => $payload];
 
 
                 $count = WhatsappNotificationsLog::where("whatsapp_number", $whatsapp_number)->where("company_id", $company_id)->where("message", $message)->count();
