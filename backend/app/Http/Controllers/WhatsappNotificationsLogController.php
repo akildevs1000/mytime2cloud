@@ -169,7 +169,7 @@ class WhatsappNotificationsLogController extends Controller
 
                 // Whatsapp Proxy End
 
-                return;
+                return $this->response("success status", null, false);;
 
 
                 $count = WhatsappNotificationsLog::where("whatsapp_number", $whatsapp_number)->where("company_id", $company_id)->where("message", $message)->count();
