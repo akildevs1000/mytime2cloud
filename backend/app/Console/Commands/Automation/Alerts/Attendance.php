@@ -109,13 +109,13 @@ class Attendance extends Command
 
                 $message .= "Thank you!\n";
 
-                // SendWhatsappMessageJob::dispatch(
-                //     $whatsapp_number,
-                //     $message,
-                //     $record->id,
-                //     $clientId,
-                //     $logFilePath
-                // );
+                SendWhatsappMessageJob::dispatch(
+                    $whatsapp_number,
+                    $message,
+                    $record->id,
+                    $clientId,
+                    $logFilePath
+                );
 
                 $logIds[] = $record->id;
 
