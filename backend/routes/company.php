@@ -319,10 +319,5 @@ Route::get('yearly_leave_quota/{id}', [LeaveGroupsController::class, 'yearlyLeav
 Route::post('register', [RegisterController::class, 'store']);
 
 Route::post('send-whatsapp-wessage', function (Request $request) {
-
-    $company_id = $request->company_id;
-    $clientIdResponse = Http::withoutVerifying()->get("https://backend.myhotel2cloud.com/api/get_last_whatsapp_client_id/$company_id");
-    $clientId = $clientIdResponse->json()["clientId"];
-    return $clientId;
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
