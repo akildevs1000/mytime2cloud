@@ -12,6 +12,7 @@ use App\Models\WhatsappNotificationsLog;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use WebSocket\Client;
 
 class WhatsappNotificationsLogController extends Controller
@@ -155,22 +156,43 @@ class WhatsappNotificationsLogController extends Controller
                         "created_datetime" => date("Y-m-d H:i:s")
                     ]);
 
+                    $lastClientIdEndpoint = "https://hms-backend.test/api/get_last_whatsapp_client_id/{$company_id}";
+                    $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
+                    $clientId = $clientIdResponse->json()["clientId"];
+
+                    if (!$clientId) return;
 
                     try {
-                        // Create a WebSocket client
-                        $client = new Client("wss://139.59.69.241:7779", [
-                            'timeout' => 5, // Timeout in seconds
-                            'context' => stream_context_create([
-                                'ssl' => [
-                                    'verify_peer' => false,
-                                    'verify_peer_name' => false,
-                                ],
-                            ]),
-                        ]);
+                        $endpoint = 'https://wa.mytime2cloud.com/send-message';
 
-                        $testMessage = "DB";
-                        // Send the message
-                        $client->send(json_encode($testMessage));
+                        $payload = [
+                            'clientId' =>  $clientId,
+                            'recipient' => $whatsapp_number,
+                            'text' => $message,
+                        ];
+
+                        $res = Http::withoutVerifying()->post($endpoint, $payload);
+
+                        if ($res->successful()) {
+                            return $this->response("Whatsapp Request Created Successfully", null, true);
+                        } else {
+                            return $this->response("Desktop Whatsapp is not enabled", null, false);
+                        }
+
+                        // Create a WebSocket client
+                        // $client = new Client("wss://139.59.69.241:7779", [
+                        //     'timeout' => 5, // Timeout in seconds
+                        //     'context' => stream_context_create([
+                        //         'ssl' => [
+                        //             'verify_peer' => false,
+                        //             'verify_peer_name' => false,
+                        //         ],
+                        //     ]),
+                        // ]);
+
+                        // $testMessage = "DB";
+                        // // Send the message
+                        // $client->send(json_encode($testMessage));
                     } catch (\Exception $e) {
                         // Handle exceptions
                         //"Error: " . $e->getMessage();
