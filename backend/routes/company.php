@@ -58,6 +58,7 @@ use App\Http\Controllers\WhatsappNotificationsLogController;
 use App\Models\DeviceNotifications;
 use App\Models\ReportNotificationLogs;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/get-company-id-by-device', [DeviceController::class, 'get_company_id_by_device']);
@@ -318,5 +319,9 @@ Route::get('yearly_leave_quota/{id}', [LeaveGroupsController::class, 'yearlyLeav
 Route::post('register', [RegisterController::class, 'store']);
 
 Route::post('send-whatsapp-wessage', function (Request $request) {
+
+    $clientIdResponse = Http::withoutVerifying()->get("https://backend.myhotel2cloud/api/get_last_whatsapp_client_id");
+    $clientId = $clientIdResponse->json()["clientId"];
+    return $clientId;
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
