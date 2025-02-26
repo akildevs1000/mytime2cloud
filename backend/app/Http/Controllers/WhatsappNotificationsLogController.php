@@ -12,6 +12,7 @@ use App\Models\WhatsappNotificationsLog;
 use DateTime;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use WebSocket\Client;
 
 class WhatsappNotificationsLogController extends Controller
@@ -143,6 +144,32 @@ class WhatsappNotificationsLogController extends Controller
         if ($company && $company->enable_desktop_whatsapp == true) {
 
             if ($whatsapp_number != '' && $message != '') {
+
+                // Whatsapp Proxy
+
+                $lastClientIdEndpoint = "https://hms-backend.test/api/get_last_whatsapp_client_id/{$company_id}";
+                $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
+                $clientId = $clientIdResponse->json()["clientId"];
+
+                $endpoint = 'https://wa.mytime2cloud.com/send-message';
+
+                $payload = [
+                    'clientId' =>  $clientId,
+                    'recipient' => $whatsapp_number,
+                    'text' => $message,
+                ];
+
+                $res = Http::withoutVerifying()->post($endpoint, $payload);
+
+                if ($res->successful()) {
+                    return $this->response("Whatsapp Request Created Successfully", null, true);
+                } else {
+                    return $this->response("Desktop Whatsapp is not enabled", null, false);
+                }
+
+                // Whatsapp Proxy End
+
+                return;
 
 
                 $count = WhatsappNotificationsLog::where("whatsapp_number", $whatsapp_number)->where("company_id", $company_id)->where("message", $message)->count();
