@@ -158,7 +158,7 @@ class WhatsappNotificationsLogController extends Controller
                     'text' => "test",
                 ];
 
-                $res = Http::withoutVerifying()->post($endpoint, $payload);
+                Http::withoutVerifying()->post($endpoint, $payload);
 
                 return ["payload" => $payload];
 
