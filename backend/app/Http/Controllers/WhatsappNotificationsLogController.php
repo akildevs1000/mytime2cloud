@@ -146,8 +146,7 @@ class WhatsappNotificationsLogController extends Controller
             if ($whatsapp_number != '' && $message != '') {
 
                 // Whatsapp Proxy
-
-                $lastClientIdEndpoint = "https://hms-backend.test/api/get_last_whatsapp_client_id/{$company_id}";
+                $lastClientIdEndpoint = "https://backend.myhotel2cloud/api/get_last_whatsapp_client_id/{$company_id}";
                 $clientIdResponse = Http::withoutVerifying()->get($lastClientIdEndpoint);
                 $clientId = $clientIdResponse->json()["clientId"];
 
