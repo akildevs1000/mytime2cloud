@@ -319,6 +319,6 @@ Route::get('yearly_leave_quota/{id}', [LeaveGroupsController::class, 'yearlyLeav
 Route::post('register', [RegisterController::class, 'store']);
 
 Route::post('send-whatsapp-wessage', function (Request $request) {
-    return "sdf";
+    return ["key" => "sdf"];
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
