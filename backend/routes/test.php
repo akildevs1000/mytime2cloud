@@ -7,6 +7,7 @@ use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\CameraController;
 use App\Http\Controllers\CardQRCodeController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DeviceCameraController;
 use App\Http\Controllers\DeviceCameraModel2Controller;
 use App\Http\Controllers\DeviceController;
@@ -23,19 +24,23 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\WhatsappController;
 use App\Http\Controllers\WhatsappNotificationsLogController;
 use App\Imports\excelEmployeesData;
+use App\Mail\DeviceNotificationMail;
 use App\Mail\ReportNotificationMail;
+use App\Mail\TestMail;
 use App\Models\AlarmLogs;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
+use App\Models\DeviceNotification;
 use App\Models\Employee;
 use App\Models\ReportNotification;
 use App\Models\Shift;
-
+use App\Models\WhatsappNotificationsLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -45,7 +50,7 @@ use Illuminate\Support\Facades\Log as Logger;
 use Maatwebsite\Excel\Facades\Excel;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use SimpleSoftwareIO\QrCode\QrCodeServiceProvider;
-
+use WebSocket\Client;
 
 Route::get("update-alarm-logs-company-ids", function (Request $request) {
 
@@ -65,6 +70,47 @@ Route::get("update-alarm-logs-company-ids", function (Request $request) {
 Route::get("test900device1", function (Request $request) {
 
 
+    return  $path = storage_path() . "/";;
+    return public_path('camera-unregsitered-faces-logs');
+
+    $path = '../public/camera-unregsitered-faces-logs/'; //"/mytime2cloud/backend/storage/app";
+
+
+    if (!File::exists($path)) {
+        echo "The specified path does not exist.";
+        return 1;
+    }
+
+    //$files = File::files($path);
+    $files = File::allFiles($path);
+
+
+
+    return false;
+
+
+
+    try {
+        // Create a WebSocket client
+        $client = new Client("wss://139.59.69.241:7779", [
+            'timeout' => 5, // Timeout in seconds
+            'context' => stream_context_create([
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                ],
+            ]),
+        ]);
+
+        $testMessage = "DB";
+        // Send the message
+        $client->send(json_encode($testMessage));
+    } catch (\Exception $e) {
+        // Handle exceptions
+        //"Error: " . $e->getMessage();
+    }
+
+    return "";
     $curl = curl_init();
 
     curl_setopt_array($curl, array(
@@ -314,7 +360,7 @@ Route::get('/testAttendanceRender111', function (Request $request) {
         'auto_render' => false
     );
 
-    //calling manual render method to pull all 
+    //calling manual render method to pull all
     $renderRequest = Request::create('/render_logs', 'get', $requestArray);
 
     return ((new RenderController())->renderLogs($renderRequest));
@@ -347,18 +393,40 @@ Route::get('/donwloadfile', function (Request $request) {
     }
 });
 Route::get('/testapi1', function (Request $request) {
+    // return  $previousDate = date('Y-m-d', strtotime('-366 days'));
+    // $previousDate = date('Y-m-d', strtotime('-20 days'));
+    // return  WhatsappNotificationsLog::where("created_at", "<=", $previousDate . " 00:00:00")->get();
 
 
+    $device = Device::where("device_id", "M014200892110001835")->first();
 
+    $this->sxdmSn = $device->device_id;
+    $json = '{
+"request_id": "b7ccde4611cabff837ff2fa363c9fd2a",
+"limit": 10,
+"offset": 0,
+"sort": "asc",
+"begin_time": "2024-11-22T00:00:00",
+"end_time": "2024-11-22T23:59:59",
+"query_string": "",
+"query_person_idx": "",
+"query_nopass": false
+}';
 
+    return  $response = (new DeviceCameraModel2Controller($device->camera_sdk_url))->putCURL('/api/passes/query', $json);
+
+    //$return = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getHistory($device);
+
+    return (new CompanyController())->UpdateCompanyIds();
 
 
 
 
     $items[] = [
-        "company_id" => 2,
-        "employee_id" => 4000,
+        "company_id" => 8,
+        "employee_id" => 1,
         "in" => "17:25",
+        "shift_id" => 2,
         "out" => "---",
         "device_id_in" => "FC-8300T20094123",
         "device_id_out" => "---",
@@ -366,8 +434,9 @@ Route::get('/testapi1', function (Request $request) {
 
     ];
     $items[] = [
-        "company_id" => 2,
-        "employee_id" => 4000,
+        "company_id" => 8,
+        "employee_id" => 1,
+        "shift_id" => 2,
         "in" => "17:25",
         "out" => "20:25",
         "device_id_in" => "FC-8300T20094123",
@@ -593,7 +662,7 @@ Route::get('/open_door_always_old', function (Request $request) {
 });
 
 Route::get('/test_device_timeslots', function (Request $request) {
-    //Schedule Device Access Control 
+    //Schedule Device Access Control
 
 
     return  $result = (new SDKController)->handleCommand("FC-8300T20094123", "HoldDoor");;
@@ -735,6 +804,59 @@ Route::get('/test_device_timeslots', function (Request $request) {
 
 
 Route::get('/check_device_health_old', function (Request $request) {
+
+
+
+    $intervals = [
+        ["begin" => "11:00", "end" => "11:30"],
+        ["begin" => "10:30", "end" => "11:00"],
+        ["begin" => "10:00", "end" => "10:30"],
+        ["begin" => "12:30", "end" => "13:00"],
+        ["begin" => "11:30", "end" => "12:00"],
+        ["begin" => "12:00", "end" => "12:30"],
+        ["begin" => "15:00", "end" => "15:30"],
+        ["begin" => "15:30", "end" => "16:00"],
+        ["begin" => "16:00", "end" => "16:30"],
+        ["begin" => "16:30", "end" => "17:00"]
+    ];
+    if (empty($intervals)) {
+        return [];
+    }
+
+    // Step 1: Sort intervals by `begin` time
+    usort($intervals, function ($a, $b) {
+        return strcmp($a['begin'], $b['begin']);
+    });
+
+    // Step 2: Merge sequential intervals
+    $merged = [];
+    $current = $intervals[0]; // Start with the first interval
+
+    for ($i = 1; $i < count($intervals); $i++) {
+        if ($current['end'] === $intervals[$i]['begin']) {
+            // Extend the current interval
+            $current['end'] = $intervals[$i]['end'];
+        } else {
+            // Save the current interval and start a new one
+            $merged[] = $current;
+            $current = $intervals[$i];
+        }
+    }
+
+    // Add the last interval
+    $merged[] = $current;
+    dd($merged);
+    return $merged;
+
+
+
+
+    return $merged;
+
+
+
+
+
 
     $devices = Device::pluck("device_id");
 
@@ -977,6 +1099,9 @@ Route::post('/cameratesting', function (Request $request) {
         ->insert([
             'json_content' => $requstJson,
         ]);
+});
+Route::get('/testmail', function () {
+    Mail::to("venuakil2@gmail.com")->send(new TestMail());
 });
 Route::get('/test_attachment', function () {
     $test = new RenderController();
