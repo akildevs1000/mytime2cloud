@@ -300,6 +300,10 @@ Route::get('employee_leaves/reject/{id}', [EmployeeLeavesController::class, 'rej
 Route::get('employee_leaves_new', [EmployeeLeavesController::class, 'newNotifications']);
 Route::get('employee_leaves_new_by_employee', [EmployeeLeavesController::class, 'newEmployeeNotifications']);
 
+Route::get('employee_leaves_events', [EmployeeLeavesController::class, 'getEvents']);
+Route::get('employee_leaves_for_next_thirty_days_month', [EmployeeLeavesController::class, 'getLeavesForNextThirtyDaysMonth']);
+
+
 Route::apiResource('employee_document', EmployeeLeaveDocumentController::class);
 
 //Leave Type

@@ -34,6 +34,12 @@ class EmployeeLeaves extends Model
             "last_name" => "---",
         ]);
     }
+
+    public function alternate_employee()
+    {
+        return $this->belongsTo(Employee::class, "alternate_employee_id", "id");
+    }
+
     public function reporting()
     {
         return $this->belongsTo(Employee::class, "reporting_manager_id", "id")->withDefault([

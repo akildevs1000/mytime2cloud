@@ -1,0 +1,98 @@
+[
+  {
+    "text": "Employee",
+    "align": "left",
+    "sortable": true,
+    "filterable": false,
+    "key": "employee_name",
+    "value": "employee"
+  },
+  {
+    "text": "Branch",
+    "align": "left",
+    "sortable": true,
+    "filterable": true,
+    "key": "branch_id",
+    "value": "employee.branch.branch_name",
+    "filterSpecial": true
+  },
+  {
+    "text": "Group Type",
+    "align": "left",
+    "filterable": true,
+    "sortable": false,
+    "value": "group.name",
+    "key": "group_name_id",
+    "filterSpecial": true
+  },
+  {
+    "text": "Leave Type",
+    "align": "left",
+    "filterable": true,
+    "sortable": true,
+    "value": "leave_type.name",
+    "key": "leave_type_id",
+    "filterSpecial": true
+  },
+  {
+    "text": "Star Date",
+    "align": "left",
+    "filterable": true,
+    "sortable": true,
+    "value": "start_date",
+    "key": "start_date",
+    "filterSpecial": true
+  },
+  {
+    "text": "End Date",
+    "align": "left",
+    "filterable": true,
+    "sortable": true,
+    "value": "end_date",
+    "key": "end_date",
+    "filterSpecial": true
+  },
+  {
+    "text": "Leave Note",
+    "align": "left",
+    "filterable": false,
+    "sortable": true,
+    "value": "reason",
+    "key": "leave_note"
+  },
+  {
+    "text": "Reporting ",
+    "align": "left",
+    "sortable": false,
+    "filterable": false,
+    "value": "reporting",
+    "key": "reporting_manager"
+  },
+  {
+    "text": "Applied On ",
+    "align": "left",
+    "sortable": true,
+    "filterable": true,
+    "value": "created_at",
+    "key": "created_at",
+    "filterSpecial": true
+  },
+  {
+    "text": "Timeline",
+    "align": "left",
+    "sortable": false,
+    "filterable": false,
+    "value": "employee_leave_timelines",
+    "key": "employee_leave_timelines",
+    "filterSpecial": false
+  },
+  {
+    "text": "Status",
+    "align": "left",
+    "filterable": true,
+    "sortable": true,
+    "value": "status"
+  },
+
+  { "text": "Actions", "align": "center", "value": "action", "sortable": false }
+]
