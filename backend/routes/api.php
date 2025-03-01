@@ -49,3 +49,5 @@ include('other.php');
 include('camera2.php');
 include('client_support_api.php');
 include('alarm/api_alarm.php');
+
+include('faqs.php');
