@@ -33,6 +33,18 @@
                   }}</span>
                 </v-col>
                 <v-col cols="12">
+                  <v-text-field
+                    hide-details
+                    v-model="payload.search_terms"
+                    label="Search Keyword"
+                    outlined
+                    dense
+                  ></v-text-field>
+                  <span v-if="errors && errors.search_terms" class="error--text">{{
+                    errors.search_terms[0]
+                  }}</span>
+                </v-col>
+                <v-col cols="12">
                   <v-textarea
                     rows="3"
                     hide-details

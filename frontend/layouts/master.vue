@@ -244,7 +244,7 @@ export default {
           ],
         },
         {
-          icon: "mdi-question",
+          icon: "mdi-help",
           title: "FAQ",
           to: "/faq",
           permission: this.can("/"),

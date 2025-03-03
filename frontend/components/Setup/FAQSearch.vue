@@ -8,64 +8,144 @@
       fab
       ><v-icon>mdi-chat</v-icon></v-btn
     >
-    <!-- FAQ Search Drawer -->
-    <v-dialog width="700" v-model="drawer" app right temporary>
-      <WidgetsClose left="690"/>
-      <v-card flat class="pa-0">
-        <!-- Remove shadow with flat and padding set to 0 -->
-        <!-- Content Section for FAQs -->
-        <v-card-text class="pa-0" style="overflow-y: auto">
-          <v-list v-if="faqs.length">
-            <v-list-item-group>
-              <v-list-item v-for="faq in faqs" :key="faq.id">
-                <v-list-item-content>
-                  <v-list-item-title>{{ faq.question }}</v-list-item-title>
-                  <v-list-item-subtitle>{{ faq.answer }}</v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-            </v-list-item-group>
-          </v-list>
+    <style scoped>
+      .chat-drawer {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
 
-          <!-- Optional: You can show a message if no FAQs are found -->
-          <!-- <v-alert v-else type="info" dense>No FAQs found</v-alert> -->
+      .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 94%;
+      }
+
+      .chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 10px;
+      }
+
+      .chat-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: white;
+      }
+
+      .chat-message-container {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 10px;
+      }
+
+      .chat-message {
+        max-width: 80%;
+        padding: 10px 15px;
+        border-radius: 20px;
+        margin-bottom: 5px;
+        word-wrap: break-word;
+        display: inline-block;
+      }
+
+      .chat-message-you {
+        background-color: #dcf8c6; /* Light green for 'You' */
+        align-self: flex-end; /* Align user messages to the right */
+      }
+
+      .chat-message-bot {
+        background-color: #f1f0f0; /* Light gray for 'Bot' */
+        align-self: flex-start; /* Align bot messages to the left */
+      }
+
+      .chat-message-text {
+        font-size: 14px;
+        line-height: 1.5;
+      }
+    </style>
+
+    <v-navigation-drawer
+      width="400"
+      v-model="drawer"
+      app
+      right
+      temporary
+      class="chat-drawer"
+    >
+      <v-alert dense class="primary white--text">Ask Anything</v-alert>
+      <v-card flat class="chat-container">
+        <v-card-text
+          class="chat-messages"
+          id="chat-messages"
+          style="white-space: pre-line"
+        >
+          <div
+            v-for="(msg, index) in messages"
+            :key="index"
+            class="chat-message-container"
+          >
+            <div
+              class="chat-message"
+              :class="{
+                'chat-message-you': msg.sender === 'You',
+                'chat-message-bot': msg.sender === 'AI',
+              }"
+            >
+              <span class="chat-message-text" v-html="msg.text"></span>
+            </div>
+          </div>
         </v-card-text>
-
-        <!-- Input Section for FAQ Search -->
-        <v-card-subtitle class="pa-2">
+        <v-divider></v-divider>
+        <v-card-actions class="chat-input">
           <v-text-field
             outlined
             dense
-            v-model="searchQuery"
-            placeholder="Ask Anything"
-            single-line
             hide-details
-            @input="searchIt"
+            v-model="userInput"
+            label="Type a message..."
+            @keyup.enter="sendMessage"
+            class="flex-grow-1"
+            spellcheck="true"
           ></v-text-field>
-          <v-btn color="primary" block @click="searchIt" class="chat-btn">
-            Ask a Question
-          </v-btn>
-        </v-card-subtitle>
-
+          <v-icon size="35" color="primary" @click="sendMessage"
+            >mdi-send-circle</v-icon
+          >
+        </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-navigation-drawer>
   </div>
 </template>
 
 <script>
+
 export default {
   data() {
     return {
+      dictionary: null,
+      text: "",
+      isCorrect: true,
+      suggestions: [],
+      typo: null,
+
+      userInput: "",
+      messages: [
+        {
+          text: "Hello! How can I assist you today? 😊",
+          sender: "AI",
+        },
+      ],
       searchQuery: "", // Holds the user's search query
       faqs: [], // Holds the list of FAQ results
       drawer: false, // Controls drawer visibility
     };
   },
+  mounted() {
+  },
   methods: {
     async getDataFromApi(query) {
       try {
-        const response = await this.$axios.get(
-          `/faqs-list?query=${query}`
-        );
+        const response = await this.$axios.get(`/faqs-list?query=${query}`);
         this.faqs = response.data; // Store the search results
         this.searchQuery = "";
       } catch (error) {
@@ -78,6 +158,103 @@ export default {
         this.getDataFromApi(this.searchQuery);
       } else {
         this.faqs = []; // If search query is shorter than 3 characters, clear results
+      }
+    },
+
+    async sendMessage() {
+      if (this.userInput.trim() !== "") {
+        this.messages.push({ sender: "You", text: this.userInput });
+        let userMessage = this.userInput;
+        this.userInput = "";
+        // const wordCount = userMessage.trim().split(/\s+/).length;
+
+        // // If the word count is less than 4, go straight to AI
+        // if (wordCount == 1) {
+        //   this.askAI(userMessage);
+        //   return;
+        // }
+
+        /* if (wordCount > 1 && wordCount < 4) {
+          this.messages.push({ sender: "AI", text: "Incomplete sentence" });
+          return;
+        } */
+
+        let endpoint = `/faqs-list?query=${encodeURIComponent(userMessage)}`;
+
+        try {
+          let { data } = await this.$axios.get(endpoint);
+
+          if (!data.length) {
+            this.askAI(userMessage);
+            return;
+          }
+
+          // Join answers with line breaks
+          let answer =
+            `\n` +
+            data
+              .map((item, index) => `<b>${index + 1}.</b> ${item.answer}`)
+              .join("\n\n");
+
+          this.messages.push({ sender: "AI", text: answer });
+        } catch (error) {
+          console.error("Error fetching response:", error);
+          this.messages.push({
+            sender: "AI",
+            text: "There was an error processing your request.",
+          });
+        }
+      }
+    },
+    async askAI(question) {
+      try {
+        const response = await fetch("http://localhost:7799/ask", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question }),
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        let buffer = "";
+        let botResponseIndex = this.messages.length; // Track the next index without pushing a message
+        let cleanedResponse = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            if (line.trim() === "") continue;
+
+            try {
+              const chunkData = JSON.parse(line);
+              cleanedResponse += chunkData.response
+                .replace(/<think>/g, "")
+                .replace(/<\/think>/g, "")
+                .replace(/\s+/g, " ");
+
+              this.$set(this.messages, botResponseIndex, {
+                sender: "AI",
+                text: cleanedResponse,
+              });
+            } catch (error) {
+              console.error("Error parsing JSON chunk:", error);
+            }
+          }
+        }
+      } catch (error) {
+        this.messages.push({
+          sender: "Bot",
+          text: "Error fetching response: " + error.message,
+        });
       }
     },
   },
