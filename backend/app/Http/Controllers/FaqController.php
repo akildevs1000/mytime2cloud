@@ -16,17 +16,19 @@ class FaqController extends Controller
             ->when($query, function ($queryBuilder, $query) {
                 // Split the query into individual words
                 $words = explode(' ', $query);
+                $words = array_filter($words, fn($value) => !in_array($value, ["how", "to", "what", "do"]));
+                $words = array_values($words);
 
                 // Loop through each word and create a WHERE condition for each
                 $queryBuilder->where(function ($q) use ($words) {
                     foreach ($words as $word) {
                         // Add a WHERE condition for each word to match inside the question
-                        $q->orWhere('question', 'LIKE', "%$word%");
+                        $q->where('search_terms', 'LIKE', "%$word%");
                     }
                 });
             })
-            ->orderByDesc("question")
-            ->get();
+            ->orderByDesc("id")
+            ->get(["question", "answer", "search_terms"]);
 
         return response()->json($faqs, 200);
     }
@@ -59,6 +61,7 @@ class FaqController extends Controller
     {
         $validatedData = $request->validate([
             'question' => 'required|string|max:255',
+            'search_terms' => 'required|string|max:255',
             'answer' => 'required|string',
         ]);
 
@@ -80,6 +83,7 @@ class FaqController extends Controller
     {
         $request->validate([
             'question' => 'required|string|max:255',
+            'search_terms' => 'required|string|max:255',
             'answer' => 'required|string',
         ]);
 
