@@ -136,17 +136,17 @@
           </v-col>
         </v-row>
       </template>
-    
+
       <template v-slot:item.branch="{ item }">
         {{ item?.employee?.branch?.branch_name }} <br />
         {{ item?.employee?.department?.name }}
       </template>
 
       <template v-slot:item.LogTime="{ item }">
-       <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
-        {{ item.LogTime }}
-       </span>
-      </template>     
+        <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
+          {{ item.LogTime }}
+        </span>
+      </template>
 
       <template v-slot:item.device_info="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
@@ -159,6 +159,15 @@
             item.device && item.device.location ? item.device.location : "---"
           }}
         </div>
+      </template>
+
+      <template v-slot:item.mode="{ item }">
+        <v-icon color="secondary" v-if="item.DeviceID?.includes(`Mobile`)">mdi-cellphone</v-icon>
+        <span  v-else>
+          <v-avatar v-for="(icon, index) in getRelatedIcons(item.mode)" :key="index" class="mx-1" tile size="20"
+            ><img style="width: 100%" :src="icon"
+          /></v-avatar>
+        </span>
       </template>
     </v-data-table>
   </div>
@@ -223,20 +232,20 @@ export default {
           value: "LogTime", //edit purpose
         },
         {
-          text: "Device Name",
-          align: "left",
-          sortable: true,
-          filterable: true,
-
-          value: "device_info",
-        },
-        {
           text: "Mode",
           align: "left",
           sortable: true,
           filterable: true,
 
           value: "mode",
+        },
+        {
+          text: "Device Name",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "device_info",
         },
         // {
         //   text: "Log",
@@ -468,6 +477,49 @@ export default {
       } catch (e) {
         return "--:--";
       }
+    },
+
+    getRelatedIcons(mode) {
+      let iconPath = "/icons/employee-access/";
+      const icons = {
+        Card: [iconPath + "03.png"],
+        Fing: [iconPath + "04.png"],
+        Face: [iconPath + "01.png"],
+        "Fing + Card": [iconPath + "01.png", iconPath + "03.png"],
+        "Face + Fing": [iconPath + "01.png", iconPath + "04.png"],
+        "Face + Card": [iconPath + "01.png", iconPath + "03.png"],
+        "Card + Pin": [iconPath + "03.png", iconPath + "02.png"],
+        "Face + Pin": [iconPath + "01.png", iconPath + "02.png"],
+        "Fing + Pin": [iconPath + "04.png", iconPath + "02.png"],
+        "Fing + Card + Pin": [
+          iconPath + "04.png",
+          iconPath + "03.png",
+          iconPath + "02.png",
+        ],
+        "Face + Card + Pin": [
+          iconPath + "01.png",
+          iconPath + "03.png",
+          iconPath + "02.png",
+        ],
+        "Face + Fing + Pin": [
+          iconPath + "01.png",
+          iconPath + "04.png",
+          iconPath + "02.png",
+        ],
+        "Face + Fing + Card": [
+          iconPath + "01.png",
+          iconPath + "04.png",
+          iconPath + "03.png",
+        ],
+        Manual: [], // assuming no icons for Manual
+        Repeated: [], // assuming no icons for Repeated
+      };
+
+      return (
+        icons[mode] || [
+          iconPath + "02.png",
+        ]
+      );
     },
   },
 };
