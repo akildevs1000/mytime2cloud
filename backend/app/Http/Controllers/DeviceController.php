@@ -347,8 +347,10 @@ class DeviceController extends Controller
             "device" => $device,
         ];
     }
-    public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
+    public function getLastRecordsHistory_old($id = 0, $count = 0, Request $request)
     {
+        $startTime = microtime(true); // Start time
+        $startMemory = memory_get_usage(); // Get memory usage before query
 
         // return Employee::select("system_user_id")->where('company_id', $request->company_id)->get();
 
@@ -392,8 +394,90 @@ class DeviceController extends Controller
         //$model->orderByDesc("LogTime");
         $logs = $model->paginate($request->per_page);
 
+        $endMemory = memory_get_usage(); // Get memory usage after query
+
+        $executionTime = microtime(true) - $startTime; // Calculate execution time
+        $memoryUsed = $endMemory - $startMemory;
+
+        // return response()->json([
+        //     'execution_time' => $executionTime,
+        //     'memory_used' => number_format($memoryUsed / 1024, 2) . ' KB',
+        //     'data' => $logs
+        // ]);
+
         return $logs;
     }
+
+    public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
+    {
+        $startTime = microtime(true); // Start time
+        $startMemory = memory_get_usage(); // Get memory usage before query
+
+        $model = DB::table('attendance_logs')
+            ->where('attendance_logs.company_id', $id) // Specify table name
+            ->where('LogTime', '>', date('Y-m-01'))
+            ->where('LogTime', '<=', date('Y-m-d 23:59:59'));
+
+
+        if ($request->filled("branch_id")) {
+            $model->whereIn("UserID", function ($query) use ($request) {
+                $query->select("system_user_id")
+                    ->from("employees")
+                    ->where("branch_id", $request->branch_id);
+            });
+        }
+
+        if ($request->filled("department_id") && $request->department_id > 0) {
+            $model->whereIn("UserID", function ($query) use ($request) {
+                $query->select("system_user_id")
+                    ->from("employees")
+                    ->where("department_id", $request->department_id);
+            });
+        }
+
+        $model->join('employees', 'attendance_logs.UserID', '=', 'employees.system_user_id')
+            ->join('departments', 'departments.id', '=', 'employees.department_id')
+            ->join('company_branches', 'company_branches.id', '=', 'employees.branch_id')
+            ->join('designations', 'designations.id', '=', 'employees.designation_id')
+            ->where('employees.company_id', $request->company_id) // Specify employees.company_id
+            ->leftJoin('devices', 'attendance_logs.DeviceID', '=', 'devices.device_id')
+            ->select([
+                'attendance_logs.LogTime',
+                'attendance_logs.UserID',
+                'attendance_logs.DeviceID',
+                'attendance_logs.mode',
+                'employees.first_name',
+                'employees.last_name',
+                'employees.profile_picture',
+                'employees.phone_number',
+                'employees.whatsapp_number',
+                'employees.employee_id',
+                'employees.joining_date',
+                'devices.name as device_name',
+                'attendance_logs.gps_location',
+                'devices.location',
+                'departments.name as department_name',
+                'designations.name as designation_name',
+                'company_branches.branch_name'
+            ]);
+
+        $logs = $model->paginate($request->per_page);
+
+        $endMemory = memory_get_usage(); // Get memory usage after query
+
+        $executionTime = microtime(true) - $startTime; // Calculate execution time
+        $memoryUsed = $endMemory - $startMemory;
+
+        // return $benchMark = [
+        //     'execution_time' => $executionTime,
+        //     'memory_used' => number_format($memoryUsed / 1024, 2) . ' KB',
+        // ];
+        // $benchMark can be used for benchmarking
+
+        return $logs;
+    }
+
+
     public function updateDeviceCamVIISettingsToSDK(Request $request)
     {
         if ($request->deviceSettings['device_id'] > 0) {

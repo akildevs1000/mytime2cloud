@@ -86,7 +86,7 @@
       :loading="tableloading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10],
+        itemsPerPageOptions: [5, 10, 50, 100],
       }"
       class="elevation-0 logtable"
       :server-items-length="totalRowsCount"
@@ -100,7 +100,7 @@
         }}
       </template>
 
-      <template v-slot:item.employee.first_name="{ item, index }">
+      <template v-slot:item.employee="{ item, index }">
         <v-row no-gutters>
           <v-col
             style="
@@ -118,8 +118,8 @@
                 max-width: 40px;
               "
               :src="
-                item.employee && item.employee.profile_picture
-                  ? item.employee.profile_picture
+                item.profile_picture
+                  ? item.profile_picture
                   : '/no-profile-image.jpg'
               "
             >
@@ -127,59 +127,35 @@
           </v-col>
           <v-col style="padding: 10px">
             <span class="ml-2" small>
-              {{ item.employee.first_name ?? "---" }}
-              {{ item.employee.last_name ?? "---" }}
+              {{ item.first_name ?? "---" }}
+              {{ item.last_name ?? "---" }}
             </span>
             <div class="secondary-value ml-2">
-              {{ item.employee?.designation?.name }}
+              {{ item.designation_name }}
             </div>
           </v-col>
         </v-row>
       </template>
-      <template v-slot:item.employee.department="{ item }">
-        {{
-          item.employee && item.employee.department
-            ? caps(item.employee.department.name)
-            : "---"
-        }}
-        <div class="secondary-value">
-          {{
-            item.employee && item.employee.sub_department
-              ? caps(item.employee.sub_department.name)
-              : "---"
-          }}
-        </div>
-      </template>
 
-      <template v-slot:item.UserID="{ item }"> #{{ item.UserID }} </template>
-      <template v-slot:item.employee.employee_id="{ item }">
-        {{ item.employee && item.employee.employee_id }}
-      </template>
-      <template v-slot:item.LogTime="{ item }">
-        {{ item.LogTime }}
-      </template>
-
-      <template v-slot:item.branch="{ item }">
-        {{ item?.employee?.branch?.branch_name }} <br />
-        {{ item?.employee?.department?.name }}
+      <template v-slot:item.branch_department="{ item }">
+        {{ item?.branch_name }} <br />
+        {{ item?.department_name }}
       </template>
 
       <template v-slot:item.LogTime="{ item }">
-       <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
-        {{ item.LogTime }}
-       </span>
-      </template>     
+        <span :class="`${item?.device_name == 'Manual' ? 'red' : ''}--text`">
+          {{ item.LogTime }}
+        </span>
+      </template>
 
-      <template v-slot:item.device.device_name="{ item }">
+      <template v-slot:item.device_name="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
           Mobile <br />
           {{ item.gps_location }}
         </div>
         <div class="secondary-value" v-else>
-          {{ item.device ? caps(item.device.name) : "---" }} <br />
-          {{
-            item.device && item.device.location ? item.device.location : "---"
-          }}
+          {{ item.device_name ? caps(item.device_name) : "---" }} <br />
+          {{ item.device_name && item.location ? item.location : "---" }}
         </div>
       </template>
     </v-data-table>
@@ -227,14 +203,14 @@ export default {
           sortable: true,
           filterable: true,
 
-          value: "employee.first_name",
+          value: "employee",
         },
         {
           text: "Branch/Department",
           align: "left",
           sortable: false,
           filterable: true,
-          value: "branch",
+          value: "branch_department",
         },
         {
           text: "Time",
@@ -250,7 +226,7 @@ export default {
           sortable: true,
           filterable: true,
 
-          value: "device.device_name",
+          value: "device_name",
         },
         {
           text: "Mode",
@@ -260,14 +236,6 @@ export default {
 
           value: "mode",
         },
-        // {
-        //   text: "Log",
-        //   align: "left",
-        //   sortable: true,
-        //   filterable: true,
-
-        //   value: "log",
-        // },
       ],
       pagination: {
         current: 1,
@@ -320,12 +288,6 @@ export default {
   },
   computed: {
     employees() {
-      // return this.$store.state.employeeList.map((e) => ({
-      //   system_user_id: e.system_user_id,
-      //   first_name: e.first_name,
-      //   last_name: e.last_name,
-      //   display_name: e.display_name,
-      // }));
       return this.$store.state.employeeList.map((e) => ({
         employee: {
           profile_picture: e.profile_picture,
