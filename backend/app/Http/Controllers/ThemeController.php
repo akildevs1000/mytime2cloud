@@ -8,9 +8,6 @@ use App\Models\Company;
 use App\Models\Department;
 use App\Models\Employee;
 use App\Models\Theme;
-use App\Models\VisitorLog;
-use App\Models\WhatsappNotificationsLog;
-use Carbon\Carbon;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -237,7 +234,7 @@ class ThemeController extends Controller
             "vaccationCount" => $model->where('status', 'V')->count(),
         ];
     }
-    public function dashboardGetCountslast7Days_old(Request $request)
+    public function dashboardGetCountslast7Days(Request $request)
     {
         // $finalarray = [];
 
@@ -357,73 +354,6 @@ class ThemeController extends Controller
 
 
         return  $finalarray;
-    }
-
-
-    public function dashboardGetCountslast7Days(Request $request)
-    {
-        $finalArray = [];
-        $dateStrings = [];
-
-        // Use Carbon to calculate date range if date_from and date_to are provided
-        if ($request->has('date_from') && $request->has('date_to')) {
-            $startDate = Carbon::parse($request->date_from); // Convert to Carbon date
-            $endDate = Carbon::parse($request->date_to);     // Convert to Carbon date
-            $dateStrings = $this->createDateRangeArray($startDate, $endDate);
-        } else {
-            // Default to the last 7 days if no dates are provided
-            $dateStrings = collect(range(6, 0))->map(function ($i) {
-                return Carbon::today()->subDays($i)->toDateString();
-            })->toArray();
-        }
-
-        // Fetch all attendance records in a single query
-        $query = Attendance::with('employee')
-            ->where('company_id', $request->company_id)
-            ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V']);
-
-        if ($request->filled('branch_id')) {
-            $query->whereHas('employee', fn($q) => $q->where('branch_id', $request->branch_id));
-        }
-
-        if ($request->filled('department_id') && $request->department_id > 0) {
-            $query->whereHas('employee', fn($q) => $q->where('department_id', $request->department_id));
-        }
-
-        if ($request->filled('system_user_id')) {
-            $query->where('employee_id', $request->system_user_id);
-        }
-
-        // Get the attendance counts grouped by date and status
-        $attendanceCounts = $query->whereIn('date', $dateStrings)
-            ->selectRaw('date, status, count(*) as count')
-            ->groupBy('date', 'status')
-            ->get()
-            ->groupBy('date'); // Group by date for easier processing later
-
-        // Process the attendance data into final format
-        foreach ($dateStrings as $date) {
-            $attendanceData = $attendanceCounts->get($date, collect()); // Get the counts for the specific date or an empty collection
-
-            $statusCounts = [
-                'P' => 0,
-                'A' => 0,
-                'M' => 0,
-                'O' => 0,
-                'H' => 0,
-                'L' => 0,
-                'V' => 0
-            ];
-
-            // Fill in the counts for each status
-            foreach ($attendanceData as $data) {
-                $statusCounts[$data->status] = $data->count;
-            }
-
-            $finalArray[] = array_merge(['date' => $date], $statusCounts);
-        }
-
-        return $finalArray;
     }
 
     function createDateRangeArray($startDate, $endDate)
