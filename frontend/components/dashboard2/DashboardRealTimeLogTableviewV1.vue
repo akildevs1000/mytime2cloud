@@ -159,13 +159,6 @@
         {{ item.LogTime }}
       </template>
 
-      <template v-slot:item.online="{ item }">
-        <v-icon v-if="item.device && item.device.location" color="green" fill
-          >mdi-map-marker-radius</v-icon
-        >
-        <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
-      </template>
-
       <template v-slot:item.branch="{ item }">
         {{ item?.employee?.branch?.branch_name }} <br />
         {{ item?.employee?.department?.name }}
@@ -175,9 +168,7 @@
        <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
         {{ item.LogTime }}
        </span>
-      </template>
-
-      
+      </template>     
 
       <template v-slot:item.device.device_name="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
@@ -262,12 +253,12 @@ export default {
           value: "device.device_name",
         },
         {
-          text: "Online/Offline",
+          text: "Mode",
           align: "left",
           sortable: true,
           filterable: true,
 
-          value: "online",
+          value: "mode",
         },
         // {
         //   text: "Log",
@@ -306,9 +297,9 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      this.socketConnection();
-    }, 1000 * 10);
+    // setTimeout(() => {
+    //   this.socketConnection();
+    // }, 1000 * 10);
 
     setInterval(() => {
       if (this.$route.name == "dashboard") {
