@@ -118,8 +118,8 @@
                 max-width: 40px;
               "
               :src="
-                item.profile_picture
-                  ? item.profile_picture
+                item.employee && item.employee.profile_picture
+                  ? item.employee.profile_picture
                   : '/no-profile-image.jpg'
               "
             >
@@ -127,35 +127,37 @@
           </v-col>
           <v-col style="padding: 10px">
             <span class="ml-2" small>
-              {{ item.first_name ?? "---" }}
-              {{ item.last_name ?? "---" }}
+              {{ item.employee.first_name ?? "---" }}
+              {{ item.employee.last_name ?? "---" }}
             </span>
             <div class="secondary-value ml-2">
-              {{ item.designation_name }}
+              {{ item.employee?.designation?.name }}
             </div>
           </v-col>
         </v-row>
       </template>
-
-      <template v-slot:item.branch_department="{ item }">
-        {{ item?.branch_name }} <br />
-        {{ item?.department_name }}
+    
+      <template v-slot:item.branch="{ item }">
+        {{ item?.employee?.branch?.branch_name }} <br />
+        {{ item?.employee?.department?.name }}
       </template>
 
       <template v-slot:item.LogTime="{ item }">
-        <span :class="`${item?.device_name == 'Manual' ? 'red' : ''}--text`">
-          {{ item.LogTime }}
-        </span>
-      </template>
+       <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
+        {{ item.LogTime }}
+       </span>
+      </template>     
 
-      <template v-slot:item.device_name="{ item }">
+      <template v-slot:item.device_info="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
           Mobile <br />
           {{ item.gps_location }}
         </div>
         <div class="secondary-value" v-else>
-          {{ item.device_name ? caps(item.device_name) : "---" }} <br />
-          {{ item.device_name && item.location ? item.location : "---" }}
+          {{ item.device ? caps(item.device.name) : "---" }} <br />
+          {{
+            item.device && item.device.location ? item.device.location : "---"
+          }}
         </div>
       </template>
     </v-data-table>
@@ -210,7 +212,7 @@ export default {
           align: "left",
           sortable: false,
           filterable: true,
-          value: "branch_department",
+          value: "branch",
         },
         {
           text: "Time",
@@ -226,7 +228,7 @@ export default {
           sortable: true,
           filterable: true,
 
-          value: "device_name",
+          value: "device_info",
         },
         {
           text: "Mode",
@@ -236,6 +238,14 @@ export default {
 
           value: "mode",
         },
+        // {
+        //   text: "Log",
+        //   align: "left",
+        //   sortable: true,
+        //   filterable: true,
+
+        //   value: "log",
+        // },
       ],
       pagination: {
         current: 1,
@@ -288,6 +298,12 @@ export default {
   },
   computed: {
     employees() {
+      // return this.$store.state.employeeList.map((e) => ({
+      //   system_user_id: e.system_user_id,
+      //   first_name: e.first_name,
+      //   last_name: e.last_name,
+      //   display_name: e.display_name,
+      // }));
       return this.$store.state.employeeList.map((e) => ({
         employee: {
           profile_picture: e.profile_picture,
