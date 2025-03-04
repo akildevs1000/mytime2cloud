@@ -448,7 +448,8 @@ class DeviceController extends Controller
                 'attendance_logs.mode',
                 'employees.first_name',
                 'employees.last_name',
-                'employees.profile_picture',
+                // 'employees.profile_picture', // how to prepend https://backend.myhotel2cloud.com/media/employee/profile_picture/
+                DB::raw("CONCAT('https://backend.myhotel2cloud.com/media/employee/profile_picture/', employees.profile_picture) as profile_picture"), // Prepend the URL to profile_picture
                 'employees.phone_number',
                 'employees.whatsapp_number',
                 'employees.employee_id',
