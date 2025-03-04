@@ -308,15 +308,15 @@ export default {
     }, 1000 * 60);
   },
   created() {
-    let payload = {
-      params: {
-        company_id: this.$auth.user.company_id,
-      },
-    };
+    // let payload = {
+    //   params: {
+    //     company_id: this.$auth.user.company_id,
+    //   },
+    // };
     //this.devices_list = this.$store.dispatch("devices_list", options);
-    this.$axios.get(`device-list`, payload).then(({ data }) => {
-      this.devices_list = data;
-    });
+    // this.$axios.get(`device-list`, payload).then(({ data }) => {
+    //   this.devices_list = data;
+    // });
   },
   computed: {
     employees() {
