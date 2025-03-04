@@ -10,6 +10,7 @@ class FaqController extends Controller
     // Get all FAQs
     public function FAQList()
     {
+
         $query = request('query');
 
         $faqs = Faq::query()
@@ -30,7 +31,7 @@ class FaqController extends Controller
             ->orderByDesc("id")
             ->get(["question", "answer", "search_terms"]);
 
-        return response()->json($faqs, 200);
+        return response()->json(["ask_ai" => env("ASK_AI", false), "data" => $faqs], 200);
     }
 
     public function index()

@@ -118,7 +118,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -140,8 +139,7 @@ export default {
       drawer: false, // Controls drawer visibility
     };
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     async getDataFromApi(query) {
       try {
@@ -166,35 +164,35 @@ export default {
         this.messages.push({ sender: "You", text: this.userInput });
         let userMessage = this.userInput;
         this.userInput = "";
-        // const wordCount = userMessage.trim().split(/\s+/).length;
-
-        // // If the word count is less than 4, go straight to AI
-        // if (wordCount == 1) {
-        //   this.askAI(userMessage);
-        //   return;
-        // }
-
-        /* if (wordCount > 1 && wordCount < 4) {
-          this.messages.push({ sender: "AI", text: "Incomplete sentence" });
-          return;
-        } */
-
         let endpoint = `/faqs-list?query=${encodeURIComponent(userMessage)}`;
+
+        // this.messages.push({
+        //   sender: "AI",
+        //   text: "Thinking...",
+        // });
+        // let botResponseIndex = this.messages.length - 1; // ignore thinking message
+
+        let botResponseIndex = this.messages.length;
 
         try {
           let { data } = await this.$axios.get(endpoint);
 
-          if (!data.length) {
+          if (data.ask_ai) {
             this.askAI(userMessage);
+            return;
+          }
+          if (!data?.data?.length) {
+            this.$set(this.messages, botResponseIndex, {
+              sender: "AI",
+              text: "No answer found",
+            });
             return;
           }
 
           // Join answers with line breaks
-          let answer =
-            `\n` +
-            data
-              .map((item, index) => `<b>${index + 1}.</b> ${item.answer}`)
-              .join("\n\n");
+          let answer = data.data
+            .map((item, index) => `<b>${index + 1}.</b> ${item.answer}`)
+            .join("\n\n");
 
           this.messages.push({ sender: "AI", text: answer });
         } catch (error) {
@@ -207,20 +205,40 @@ export default {
       }
     },
     async askAI(question) {
+      let ollama_app_key = process.env.OLLAMA_APP_KEY;
+      if (!ollama_app_key) {
+        this.messages.push({
+          sender: "AI",
+          text: "Access token is missing or invalid",
+        });
+        return;
+      }
+
+      let botResponseIndex = this.messages.length - 1; // ignore thinking message
       try {
-        const response = await fetch("http://localhost:7799/ask", {
+        const response = await fetch("https://ollama.mytime2cloud.com/ask", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ question }),
+          body: JSON.stringify({
+            question,
+            ollama_app_key,
+          }),
         });
+
+        if (response.status !== 200) {
+          this.$set(this.messages, botResponseIndex, {
+            sender: "AI",
+            text: response.statusText,
+          });
+          return;
+        }
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
 
         let buffer = "";
-        let botResponseIndex = this.messages.length; // Track the next index without pushing a message
         let cleanedResponse = "";
 
         while (true) {
@@ -246,13 +264,17 @@ export default {
                 text: cleanedResponse,
               });
             } catch (error) {
-              console.error("Error parsing JSON chunk:", error);
+              this.messages.push({
+                sender: "AI",
+                text: "Error parsing JSON chunk: " + error.message,
+              });
             }
           }
         }
       } catch (error) {
+        console.log("🚀 ~ askAI ~ error:", error);
         this.messages.push({
-          sender: "Bot",
+          sender: "AI",
           text: "Error fetching response: " + error.message,
         });
       }

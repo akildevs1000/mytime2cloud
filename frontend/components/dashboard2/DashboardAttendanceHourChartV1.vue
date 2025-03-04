@@ -112,6 +112,7 @@ export default {
       this.renderChart(data);
     },
     renderChart(data) {
+      if(!data || !data.length) return;
       let counter = 0;
       data.forEach((item) => {
         this.chartOptions.series[0]["data"][counter] = parseInt(item.count);
