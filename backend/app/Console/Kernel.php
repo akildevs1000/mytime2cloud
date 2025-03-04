@@ -77,9 +77,9 @@ class Kernel extends ConsoleKernel
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
-            $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
+            $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
                 ->everyThirtyMinutes()
-                ->between('00:00', '04:59')
+                ->dailyAt('5:20')
                 ->runInBackground();
 
             // $schedule

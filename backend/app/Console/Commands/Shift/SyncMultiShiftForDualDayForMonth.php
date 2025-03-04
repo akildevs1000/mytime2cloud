@@ -1,59 +1,89 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Shift;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
+use Symfony\Component\Console\Output\BufferedOutput;
 
-class SyncMultiShiftDualDayForMonth extends Command
+class SyncMultiShiftDualDayRange extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'task:sync_multi_shift_dual_day_for_month {employee_id} {year_month} {force}';
+    protected $signature = 'task:sync_multi_shift_dual_day_range';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Run sync_multi_shift_dual_day command for each day of the specified month';
+    protected $description = 'Runs task:sync_multi_shift_dual_day command for a date range';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $employeeId = $this->argument('employee_id');
-        $yearMonth = $this->argument('year_month');
-        $force = $this->argument('force');
+        // Ask for ID
+        $id = $this->ask('Enter ID');
 
-        // Parse the year and month from the input
-        $date = Carbon::createFromFormat('Y-m', $yearMonth);
-        $startOfMonth = $date->copy()->startOfMonth();
-        $endOfMonth = $date->copy()->endOfMonth();
+        // Get first and last date of the current month
+        $defaultStartDate = Carbon::now()->startOfMonth()->toDateString();
+        $defaultEndDate = Carbon::now()->endOfMonth()->toDateString();
 
-        // Loop through each day of the month
-        while ($startOfMonth->lte($endOfMonth)) {
-            $dateString = $startOfMonth->toDateString();
+        // Ask for Start and End Date with default values
+        $startDate = $this->ask("Enter Start Date (YYYY-MM-DD)", $defaultStartDate);
+        $endDate = $this->ask("Enter End Date (YYYY-MM-DD)", $defaultEndDate);
 
-            // Call the child command
-            Artisan::call('task:sync_multi_shift_dual_day', [
-                'employee_id' => $employeeId,
-                'date' => $dateString,
-                'force' => $force,
-            ]);
+        // Set flag to static true
+        $flag = 'true';
 
-            // Output the result
-            $this->info("Processed date: {$dateString}");
-
-            // Move to the next day
-            $startOfMonth->addDay();
+        // Validate Inputs
+        if (!is_numeric($id)) {
+            $this->error('ID must be a number.');
+            return;
         }
 
-        $this->info('All dates processed for the month.');
+        if (!strtotime($startDate) || !strtotime($endDate)) {
+            $this->error('Invalid date format. Please use YYYY-MM-DD.');
+            return;
+        }
+
+        $start = Carbon::parse($startDate);
+        $end = Carbon::parse($endDate);
+
+        if ($start->greaterThan($end)) {
+            $this->error('Start date must be before end date.');
+            return;
+        }
+
+        // Loop through the date range and execute the child command
+        while ($start->lte($end)) {
+            $dateString = $start->toDateString();
+            $this->info("Running: php artisan task:sync_multi_shift_dual_day $id $dateString $flag");
+
+            // Create a buffered output to capture child command response
+            $outputBuffer = new BufferedOutput();
+
+            // Execute child command and capture output
+            $exitCode = $this->call('task:sync_multi_shift_dual_day', [
+                'company_id' => $id,
+                'date' => $dateString,
+                'checked' => $flag,
+            ], $outputBuffer);
+
+            // Show response from child command
+            $this->line($outputBuffer->fetch());
+
+            sleep(5);
+
+            // Move to the next day
+            $start->addDay();
+        }
+
+        $this->info('All commands executed successfully!');
     }
 }
