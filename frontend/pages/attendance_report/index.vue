@@ -255,32 +255,6 @@
               class="violet slidegroup1"
               style="height: 3px"
             ></v-tabs-slider>
-
-            <!-- <v-tab
-              @click="openRegeneratePopup"
-              style="height: 30px"
-              class="black--text slidegroup1"
-            >
-              <span style="font-size: 12px"
-                ><v-icon small>mdi-cached</v-icon> Re-Generate Report</span
-              >
-            </v-tab> -->
-
-            <v-tab
-              @click="openGenerateLogPopup"
-              style="height: 30px"
-              class="black--text slidegroup1"
-            >
-              <span style="font-size: 12px"
-                ><v-icon small>mdi-plus</v-icon> Manual Log</span
-              >
-            </v-tab>
-
-            <!-- <v-tab style="height: 30px" class="black--text slidegroup1">
-              <span style="font-size: 12px"
-                ><v-icon small>mdi-mail</v-icon> Send</span
-              >
-            </v-tab> -->
             <v-tab
               style="height: 30px"
               class="black--text slidegroup1"
@@ -300,26 +274,6 @@
                   </span>
                 </template>
                 <v-list width="200" dense>
-                  <v-list-item
-                    v-if="can(`attendance_report_re_generate`)"
-                    @click="openRegeneratePopup"
-                  >
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="secondary" small> mdi-cached </v-icon>
-                      Re-Generate Report
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item
-                    v-if="can(`attendance_report_manual_entry_access`)"
-                    @click="openGenerateLogPopup"
-                  >
-                    <v-list-item-title style="cursor: pointer">
-                      <v-icon color="secondary" small>
-                        mdi-plus-circle-outline
-                      </v-icon>
-                      Manual Log
-                    </v-list-item-title>
-                  </v-list-item>
                   <v-list-item @click="process_file_in_child_comp(`Monthly`)">
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_print.png" class="iconsize" />
@@ -334,7 +288,6 @@
                       PDF
                     </v-list-item-title>
                   </v-list-item>
-
                   <v-list-item
                     @click="process_file_in_child_comp('Monthly_download_csv')"
                   >
@@ -529,12 +482,6 @@ export default {
     async getStatuses() {
       let { data } = await this.$axios.get(`attendance-statuses`);
       this.statuses = data;
-    },
-    openRegeneratePopup() {
-      this.$refs.attendanceReportRef.reportSync = true;
-    },
-    openGenerateLogPopup() {
-      this.$refs.attendanceReportRef.generateLogsDialog = true;
     },
     openMissingPopup() {
       this.missingLogsDialog = true;

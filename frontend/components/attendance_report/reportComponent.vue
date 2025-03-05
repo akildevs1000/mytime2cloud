@@ -1,5 +1,23 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
+    <style scoped>
+      .short-table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .short-table td,
+      .short-table th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+      }
+
+      .short-table tr:nth-child(even) {
+        background-color: #dddddd;
+      }
+    </style>
     <div class="text-center">
       <v-snackbar
         v-model="snackbar"
@@ -392,44 +410,12 @@
     </v-card>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="time_table_dialog" max-width="600px">
-        <v-card class="darken-1">
-          <v-toolbar class="primary" dense dark flat>
-            <span class="text-h5">Time Slots</span>
-          </v-toolbar>
-          <v-card-text>
-            <ol class="pa-3">
-              <li v-for="(shift, index) in shifts" :key="index">
-                {{ (shift && shift.name) || "---" }}
-                {{
-                  shift.on_duty_time
-                    ? `(${shift.on_duty_time} - ${shift.off_duty_time})`
-                    : ""
-                }}
-              </li>
-            </ol>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-    </v-row>
-
-    <v-row justify="center">
       <v-dialog persistent v-model="dialog" max-width="300px">
+        <WidgetsClose :left="290" @click="dialog = false" />
         <v-card>
-          <v-card-title dark class="popup_background">
-            <span dense>Employee Manual Logs</span>
-            <v-spacer></v-spacer>
-            <v-icon dark @click="dialog = false" outlined>
-              mdi mdi-close-circle
-            </v-icon>
-          </v-card-title>
-          <!-- <v-card-title class="popup_background">
-            <span class="headline"> Employee Manual Log </span>
-            <v-spacer></v-spacer>
-            <v-icon @click="dialog = false" outlined dark>
-              mdi mdi-close-circle
-            </v-icon>
-          </v-card-title> -->
+          <v-alert dark dense flat class="primary">
+            Employee Manual Log
+          </v-alert>
           <v-card-text>
             <v-container>
               <v-row>
@@ -452,7 +438,7 @@
                       min-width="290px"
                     >
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field
+                        <v-text-field outlined dense
                           v-model="editItems.time"
                           label="Time"
                           readonly
@@ -461,7 +447,7 @@
                           v-on="on"
                         ></v-text-field>
                       </template>
-                      <v-time-picker
+                      <v-time-picker no-title
                         v-if="time_menu"
                         v-model="editItems.time"
                         full-width
@@ -492,7 +478,7 @@
                   </v-col>
 
                   <v-col cols="12" class="pa-0">
-                    <v-textarea
+                    <v-textarea outlined dense
                       filled
                       label="Reason"
                       v-model="editItems.reason"
@@ -519,222 +505,6 @@
     </v-row>
 
     <v-row justify="center">
-      <v-dialog persistent v-model="reportSync" max-width="800px">
-        <v-card style="width: 100%">
-          <v-card-title class="popup_background">
-            <span dense> Re-Generate Report </span>
-            <v-spacer></v-spacer>
-            <v-icon dark @click="reportSync = false">mdi-close-circle</v-icon>
-          </v-card-title>
-          <RenderAttendance
-            :key="key"
-            :shift_type_id="shift_type_id"
-            :endpoint="render_endpoint"
-            :display_emp_pic="display_emp_pic"
-            :system_user_id="system_user_id"
-            @update-data-table="getDataFromApi()"
-          />
-        </v-card>
-      </v-dialog>
-    </v-row>
-
-    <v-row justify="center">
-      <v-dialog persistent v-model="generateLogsDialog" max-width="800px">
-        <v-card>
-          <v-card-title class="popup_background">
-            <span dense>Employee Manual Log </span>
-            <v-spacer></v-spacer>
-            <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-circle</v-icon
-            >
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <GenerateLog
-                  @close-popup="generateLogsDialog = false"
-                  :endpoint="render_endpoint"
-                  :system_user_id="system_user_id"
-                  :shift_type_id="shift_type_id"
-                  @update-data-table="getDataFromApi()"
-                />
-              </v-row>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-      <v-dialog persistent v-model="generateMultiLogsDialog" max-width="800px">
-        <v-card>
-          <v-card-title class="popup_background">
-            <span class="headline">Employee Manual Multi Log </span>
-            <v-spacer></v-spacer>
-            <v-icon dark @click="generateLogsDialog = false"
-              >mdi-close-circle</v-icon
-            >
-          </v-card-title>
-          <v-card-text>
-            <v-container>
-              <v-row>
-                <GenerateLogMulti
-                  @close-popup="generateLogsDialog = false"
-                  :endpoint="render_endpoint"
-                  :system_user_id="system_user_id"
-                  :shift_type_id="shift_type_id"
-                  @update-data-table="getDataFromApi()"
-                />
-              </v-row>
-            </v-container>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-    </v-row>
-
-    <v-dialog persistent v-model="add_manual_log" width="700">
-      <v-card>
-        <v-card-title class="popup_background text-h5 darken-2" dark>
-          Manual Log_old
-        </v-card-title>
-
-        <v-card-text class="pa-3">
-          <v-row>
-            <v-col md="12">
-              <v-text-field
-                v-model="log_payload.user_id"
-                label="User Id"
-              ></v-text-field>
-              <span v-if="errors && errors.user_id" class="text-danger mt-2">{{
-                errors.user_id[0]
-              }}</span>
-            </v-col>
-            <v-col md="12">
-              <v-autocomplete
-                label="Select Device"
-                v-model="log_payload.device_id"
-                :items="devices"
-                item-text="name"
-                item-value="id"
-                :rules="deviceRules"
-              >
-              </v-autocomplete>
-              <span
-                v-if="errors && errors.device_id"
-                class="text-danger mt-2"
-                >{{ errors.device_id[0] }}</span
-              >
-            </v-col>
-            <v-col md="12">
-              <v-autocomplete
-                label="In/Out"
-                v-model="log_payload.log_type"
-                :items="['In', 'Out']"
-                :rules="deviceRules"
-              >
-                {{ log_payload.log_type }}
-              </v-autocomplete>
-              <span v-if="errors && errors.log_type" class="text-danger mt-2">{{
-                errors.log_type[0]
-              }}</span>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-menu
-                ref="menu"
-                v-model="menu"
-                :close-on-content-click="false"
-                :return-value.sync="date"
-                transition="scale-transition"
-                offset-y
-                min-width="auto"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="log_payload.date"
-                    label="Date"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                  </v-text-field>
-                </template>
-                <v-date-picker v-model="log_payload.date" no-title scrollable>
-                  <v-spacer></v-spacer>
-                  <v-btn text color="primary" @click="menu = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="$refs.menu.save(log_payload.date)"
-                  >
-                    OK
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </v-col>
-            <v-col cols="12" md="6">
-              <v-menu
-                ref="manual_time_menu_ref"
-                v-model="manual_time_menu"
-                :close-on-content-click="false"
-                :nudge-right="40"
-                :return-value.sync="log_payload.time"
-                transition="scale-transition"
-                offset-y
-                max-width="290px"
-                min-height="320px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <v-text-field
-                    v-model="log_payload.time"
-                    label="Time"
-                    readonly
-                    v-bind="attrs"
-                    v-on="on"
-                  >
-                  </v-text-field>
-                </template>
-                <v-time-picker
-                  v-if="manual_time_menu"
-                  v-model="log_payload.time"
-                  full-width
-                  format="24hr"
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn x-small color="primary" @click="manual_ = false">
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    x-small
-                    color="primary"
-                    @click="$refs.manual_time_menu_ref.save(log_payload.time)"
-                  >
-                    OK
-                  </v-btn>
-                </v-time-picker>
-              </v-menu>
-              <span v-if="errors && errors.time" class="text-danger mt-2">{{
-                errors.time[0]
-              }}</span>
-            </v-col>
-          </v-row>
-        </v-card-text>
-
-        <v-divider></v-divider>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            small
-            :loading="loading"
-            color="primary"
-            @click="store_schedule"
-          >
-            Submit
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-row justify="center">
       <v-dialog persistent v-model="log_details" max-width="800px">
         <v-card class="darken-1">
           <v-card-title dark class="popup_background">
@@ -744,15 +514,6 @@
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
-
-          <!-- <v-toolbar class="popup_background">
-            <span class="headline">Log Details</span>
-            <v-spacer></v-spacer>
-
-            <v-icon color="white" @click="log_details = false"
-              >mdi-close-circle-outline</v-icon
-            >
-          </v-toolbar> -->
           <v-toolbar flat dense>
             Employee Id: <b>{{ log_list?.item?.employee?.system_user_id }}</b>
             <v-spacer></v-spacer>
@@ -765,9 +526,7 @@
               <tr>
                 <td>LogTime</td>
                 <td>Device</td>
-
                 <td>Log Type</td>
-                <!-- <td>Device Function</td> -->
               </tr>
               <tr v-for="(log, index) in log_list" :key="index">
                 <td
@@ -784,11 +543,6 @@
                     <div v-else>Device</div>
                   </b>
                 </td>
-                <!-- <td>
-                  <b>{{
-                    log?.device?.function ? caps(log.device.function) : "---"
-                  }}</b>
-                </td> -->
               </tr>
             </table>
           </v-card-text>
@@ -801,25 +555,15 @@
 <script>
 export default {
   props: [
-    "report_template",
-    "branch_id",
     "title",
     "shift_type_id",
     "headers",
-    "render_endpoint",
-    "process_file_endpoint",
     "payload1",
-    "display_emp_pic",
     "system_user_id",
   ],
 
   data: () => ({
-    donwload_pdf_file: "",
-    view_pdf_file: "",
-
     key: 1,
-    generateMultiLogsDialog: false,
-    currentPage: "",
     tableHeight: 750,
     status: "",
     department_ids: "",
@@ -828,36 +572,23 @@ export default {
     from_date: "",
     to_date: "",
     report_type: "Monthly",
-
     filters: {},
-    attendancFilters: false,
-    isFilter: false,
     totalRowsCount: 0,
     datatable_search_textbox: "",
-    datatable_filter_date: "",
-    filter_employeeid: "",
     snack: false,
     snackColor: "",
     snackText: "",
     date: null,
     menu: false,
-    selectedItems: [],
-    time_table_dialog: false,
     log_details: false,
     overtime: false,
     options: { page: 1 },
-    date: null,
-    menu: false,
     loading: false,
     time_menu: false,
-    manual_time_menu: false,
     Model: "Attendance Reports",
     search: "",
     snackbar: false,
-    add_manual_log: false,
     dialog: false,
-    generateLogsDialog: false,
-    reportSync: false,
     from_menu: false,
     to_menu: false,
     ids: [],
@@ -868,9 +599,6 @@ export default {
     valid: true,
     nameRules: [(v) => !!v || "reason is required"],
     timeRules: [(v) => !!v || "time is required"],
-    deviceRules: [(v) => !!v || "device is required"],
-    main_report_type: "Multi In/Out Report",
-    daily_menu: false,
     dailyDate: false,
     editItems: {
       shift_type_id: 0,
@@ -914,12 +642,6 @@ export default {
     originalTableHeaders: [],
     clearPagenumber: false,
   }),
-
-  computed: {
-    formTitle() {
-      return this.editedIndex === -1 ? "New" : "Edit";
-    },
-  },
 
   watch: {
     dialog(val) {
@@ -972,131 +694,6 @@ export default {
 
       return item.shift && currentDay === item.shift.halfday;
     },
-    changeReportType(report_type) {
-      this.setFromDate();
-
-      switch (report_type) {
-        case "Daily":
-          this.setDailyDate();
-          break;
-        case "Weekly":
-          this.setSevenDays(this.payload.from_date);
-          break;
-        case "Monthly":
-        case "Custom":
-          this.setThirtyDays(this.payload.from_date);
-          break;
-
-        default:
-          this.max_date = null;
-          break;
-      }
-
-      this.getDataFromApi();
-    },
-    datatable_cancel() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_open() {
-      this.datatable_search_textbox = "";
-    },
-    datatable_close() {
-      this.loading = false;
-    },
-
-    setSevenDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 6);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    setThirtyDays(selected_date) {
-      const date = new Date(selected_date);
-
-      date.setDate(date.getDate() + 29);
-
-      let datetime = new Date(date);
-
-      let d = datetime.getDate();
-      d = d < "10" ? "0" + d : d;
-      let m = datetime.getMonth() + 1;
-      m = m < 10 ? "0" + m : m;
-      let y = datetime.getFullYear();
-
-      this.max_date = `${y}-${m}-${d}`;
-      this.payload.to_date = `${y}-${m}-${d}`;
-    },
-
-    set_date_save(from_menu, field) {
-      from_menu.save(field);
-
-      if (this.report_type == "Weekly") {
-        this.setSevenDays(this.payload.from_date);
-      } else if (
-        this.report_type == "Monthly" ||
-        this.report_type == "Custom"
-      ) {
-        this.setThirtyDays(this.payload.from_date);
-      }
-
-      this.getDataFromApi();
-    },
-    setFromDate() {
-      if (this.payload.from_date == null) {
-        const dt = new Date();
-        const y = dt.getFullYear();
-        const m = dt.getMonth() + 1;
-        const formattedMonth = m < 10 ? "0" + m : m;
-        this.payload.from_date = `${y}-${formattedMonth}-01`;
-      }
-    },
-
-    getDeviceList(options) {
-      this.$axios.get(`/device_list`, options).then(({ data }) => {
-        this.devices = data;
-      });
-    },
-
-    setDailyDate() {
-      this.payload.daily_date = new Date().toJSON().slice(0, 10);
-      delete this.payload.from_date;
-      delete this.payload.to_date;
-    },
-
-    store_schedule() {
-      let { user_id, date, time, device_id } = this.log_payload;
-      let log_payload = {
-        UserID: user_id,
-        LogTime: date + " " + time,
-        DeviceID: device_id,
-        company_id: this.$auth.user.company_id,
-      };
-      this.loading = true;
-
-      this.$axios
-        .post(`/generate_log`, log_payload)
-        .then(({ data }) => {
-          this.getDataFromApi();
-          this.add_manual_log = false;
-          this.generateLogsDialog = false;
-          this.loading = false;
-        })
-        .catch(({ message }) => {
-          this.snackbar = true;
-          this.response = message;
-        });
-    },
     update() {
       let log_payload = {
         UserID: this.editItems.UserID,
@@ -1115,15 +712,15 @@ export default {
           if (!data.status) {
             this.errors = data.errors;
           } else {
-            this.render_report(
-              this.editItems.date,
-              this.editItems.shift_type_id
-            );
+            // this.render_report(
+            //   this.editItems.date,
+            //   this.editItems.shift_type_id
+            // );
+            this.regenerateAttendance(this.editItems);
             this.$emit("close-popup");
             this.snackbar = true;
             this.response = data.message;
             this.getDataFromApi();
-            //this.generateLogsDialog = false;
             this.dialog = false;
           }
         })
@@ -1132,93 +729,28 @@ export default {
           this.response = message;
         });
     },
-    render_report(date, shift_type_id) {
+    regenerateAttendance({ date, shift_type_id, UserID }) {
       let payload = {
         params: {
-          dates: [date, date],
-          UserIds: [this.editItems.UserID],
-          company_ids: [this.$auth.user.company_id],
+          date,
+          UserID,
+          shift_type_id,
+          reason: this.reason,
+          company_id :this.$auth.user.company_id,
           user_id: this.$auth.user.id,
           updated_by: this.$auth.user.id,
-          reason: this.reason,
-          employee_ids: [this.editItems.UserID],
-          shift_type_id: shift_type_id,
         },
       };
       this.$axios
-        .get("render_logs", payload)
+        .get("regenerate-attendance", payload)
         .then(({ data }) => {
-          // let message = "";
-          // data.forEach((element) => {
-          //   message = message + " \n \n  \n" + element;
-          // });
           this.snackbar = true;
-          let message = data
-            .map(
-              (message) =>
-                message.replace(
-                  /^\[\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\] /,
-                  ""
-                ) + "<br>"
-            )
-            .join("");
-          let searchString = "No schedule is mapped with   date and employee";
-          let found = data.includes(searchString);
-
-          console.log(found);
-
-          if (found) {
-            message = searchString;
-          }
-          this.response = message;
+          this.response = "Reprot has been regerated";
           this.loading = false;
           this.$emit("update-data-table");
         })
         .catch((e) => console.log(e));
     },
-    setEmployeeId(id) {
-      this.$store.commit("employee_id", id);
-    },
-    get_time_slots() {
-      this.getShift(this.custom_options);
-    },
-    getShift(options) {
-      this.$axios.get(`/shift`, options).then(({ data }) => {
-        this.shifts = data.data.map((e) => ({
-          name: e.name,
-          on_duty_time: (e.time_table && e.time_table.on_duty_time) || "",
-          off_duty_time: (e.time_table && e.time_table.off_duty_time) || "",
-        }));
-        this.time_table_dialog = true;
-      });
-    },
-
-    // getDevices(options) {
-    //   this.$axios.get(`/device`, options).then(({ data }) => {
-    //     this.devices = data.data;
-    //   });
-    // },
-    async getDepartments(options) {
-      const { employee, user_type } = this.$auth.user;
-
-      let url = "departments";
-
-      try {
-        if (user_type === "employee") {
-          const id = employee.id;
-          url = "assigned-department-employee";
-          const { data } = await this.$axios.get(`${url}/${id}`, options);
-          this.departments = data;
-        } else {
-          const { data } = await this.$axios.get(url, options);
-          this.departments = data.data;
-          // this.payload.department_ids = [data.data[0].id];
-        }
-      } catch (error) {
-        console.error("Error fetching departments:", error);
-      }
-    },
-
     caps(str) {
       return str.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
     },
@@ -1226,25 +758,10 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-
-    applyFilters(name, value) {
-      if (value && value.length < 2) return false;
-      this.options.page = 1;
-      this.getDataFromApi();
-    },
-    toggleFilter() {
-      this.isFilter = !this.isFilter;
-    },
-    clearFilters() {
-      this.filters = {};
-      this.isFilter = false;
-      this.getDataFromApi();
-    },
     getDataFromApi() {
       if (!this.payload.from_date) return false;
 
       let { page, itemsPerPage } = this.options;
-
 
       this.loading = true;
 
@@ -1287,37 +804,6 @@ export default {
       this.editItems.date = item.edit_date;
     },
 
-    renderByType(type) {
-      const UserID = this.editItems.UserID;
-      const date = this.editItems.date;
-
-      if (!UserID || !date) {
-        alert("System User Id and Date field is required");
-        return;
-      }
-
-      let payload = {
-        params: {
-          date: this.editItems.date,
-          UserID: this.editItems.UserID,
-          updated_by: this.$auth.user.id,
-          company_id: this.$auth.user.company_id,
-          manual_entry: true,
-          reason: this.editItems.reason,
-        },
-      };
-
-      this.$axios
-        .get("/" + type, payload)
-        .then(({ data }) => {
-          this.loading = false;
-          this.snackbar = true;
-          this.response = data.message;
-          this.getDataFromApi();
-        })
-        .catch((e) => console.log(e));
-    },
-
     viewItem(item) {
       this.log_list = [];
       let options = {
@@ -1342,118 +828,6 @@ export default {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
       }, 300);
-    },
-    pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
-      let pdf = document.createElement("a");
-      pdf.setAttribute("href", path);
-      pdf.setAttribute("target", "_blank");
-      pdf.click();
-    },
-
-    donwload_file() {
-      let path =
-        process.env.BACKEND_URL +
-        "/download_finalfile?file=" +
-        this.donwload_pdf_file;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", path);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      return;
-    },
-    view_report_pdf_file() {
-      let path =
-        process.env.BACKEND_URL +
-        "/view_finalfile?t=" +
-        Math.random(10000, 99000) +
-        "&file=" +
-        this.view_pdf_file;
-
-      let report = document.createElement("a");
-      report.setAttribute("href", path);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      return;
-    },
-
-    verify_generated_pdf_file(data) {
-      let qs =
-        process.env.BACKEND_URL +
-        "/verify_generated_pdf_file?file=" +
-        this.donwload_pdf_file;
-
-      let options = {
-        params: {},
-      };
-      this.$axios.get(qs, options).then(({ data }) => {
-        console.log(data);
-
-        if (data == 1) {
-          this.loading = false;
-
-          this.snackbar = true;
-          this.response =
-            "Processing completed . Now you can Download your Report ";
-        } else {
-          this.loading = false;
-
-          this.snackbar = true;
-          this.response =
-            "Processing Not completed . Wait for few more minutes";
-        }
-      });
-    },
-
-    process_file(type) {
-      if (this.data && !this.data.length) {
-        alert("No data found");
-        return;
-      }
-
-      let path =
-        process.env.BACKEND_URL +
-        "/" +
-        this.process_file_endpoint +
-        type.toLowerCase();
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?report_template=${this.report_template}`;
-      qs += `&main_shift_type=${this.shift_type_id}`;
-
-      if (parseInt(this.payload.branch_id) > 0)
-        qs += `&branch_id=${this.payload.branch_id}`;
-
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
-      if (
-        this.payload.department_ids &&
-        this.payload.department_ids.length > 0
-      ) {
-        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
-      }
-      qs += `&employee_id=${this.payload.employee_id}`;
-      qs += `&report_type=${this.report_type}`;
-
-      if (this.report_type == "Daily") {
-        qs += `&daily_date=${this.payload.daily_date}`;
-      } else {
-        qs += `&from_date=${this.payload.from_date}&to_date=${this.payload.to_date}`;
-      }
-      console.log(qs);
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
-
-      //this.getDataFromApi();
-      return;
     },
     getShortShiftDetails(item) {
       if (item.shift) {
@@ -1498,26 +872,3 @@ export default {
   },
 };
 </script>
-<!-- <style scoped>
-.v-slide-group__content {
-  height: 30px !important;
-}
-</style> -->
-<style scoped>
-.short-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td,
-th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
-}
-</style>

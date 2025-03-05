@@ -18,7 +18,7 @@ class SyncMultiShiftForDualDay extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_multi_shift_dual_day {company_id} {date} {checked?}';
+    protected $signature = 'task:sync_multi_shift_dual_day {company_id} {date} {checked?} {UserID?}';
 
     /**
      * The console command description.
@@ -60,14 +60,18 @@ class SyncMultiShiftForDualDay extends Command
 
         $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
-        $all_new_employee_ids = DB::table('schedule_employees as se')
+        $model = DB::table('schedule_employees as se')
             ->join('attendance_logs as al', 'se.employee_id', '=', 'al.UserID')
             ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
             ->select('al.UserID')
             ->where('sh.shift_type_id', "=", 2) // this condition not workin
-            ->where('al.checked', $this->argument("checked", false) ? true : false)
-            // ->where('al.UserID', 6004)
-            ->where('se.company_id', $id)
+            ->where('al.checked', $this->argument("checked", false) ? true : false);
+
+        if ($this->argument("UserID")) {
+            $model->where('al.UserID', $this->argument("UserID"));
+        }
+
+        $all_new_employee_ids = $model->where('se.company_id', $id)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -272,9 +276,9 @@ class SyncMultiShiftForDualDay extends Command
         $this->info(count($UserIDs) . " Employees data has beed updated for $date");
 
         $end = microtime(true);
-        
+
         $executionTime = $end - $start;
-    
+
         $this->info("Execution Time: " . round($executionTime, 2) . " seconds");
 
         // ld($responseMessage);

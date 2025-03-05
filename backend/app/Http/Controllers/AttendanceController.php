@@ -12,9 +12,11 @@ use App\Models\Shift;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log as Logger;
+use Symfony\Component\Console\Output\BufferedOutput;
 
 class AttendanceController extends Controller
 {
@@ -697,5 +699,21 @@ class AttendanceController extends Controller
 
         $message = "Cron AttendanceSeeder: " . $insertedCount . " record has been inserted.";
         return $message;
+    }
+
+    public function regenerateAttendance(Request $request)
+    {
+        if ($request->shift_type_id == 2) {
+            $outputBuffer = new BufferedOutput();
+
+            Artisan::call('task:sync_multi_shift_dual_day', [
+                'company_id' => $request->company_id,
+                'date' => $request->date,
+                'checked' => true,
+                'UserID' => $request->UserID,
+            ], $outputBuffer);
+
+            return response()->json(['message' => $outputBuffer->fetch()]);
+        }
     }
 }
