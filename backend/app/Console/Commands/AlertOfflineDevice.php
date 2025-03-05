@@ -3,9 +3,11 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\SendWhatsappMessageJob;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceNotification;
+use App\Models\WhatsappClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 
@@ -34,6 +36,19 @@ class AlertOfflineDevice extends Command
         $dateTime = $currentTime->format('F j, Y \a\t h:i:s A');
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:offline_device *****");
+
+        $clientId = null;
+
+        $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
+
+        if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
+            $this->info("No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            return;
+        }
+
+        $clientId = $accounts[0]['clientId'];
 
         $reportNotifications = DeviceNotification::with("managers")
             ->where("company_id", $company_id)
@@ -109,25 +124,13 @@ class AlertOfflineDevice extends Command
 
                             $this->info($message);
 
-                            $endpoint = 'https://wa.mytime2cloud.com/send-message';
-
-                            $payload = [
-                                'clientId' =>  $company->company_code ?? "_1",
-                                'recipient' => $manager->whatsapp_number,
-                                'text' => $message,
-                            ];
-
-                            $res = Http::withoutVerifying()->post($endpoint, $payload);
-
-                            if ($res->successful()) {
-                                $logger->logOutPut($logFilePath, $message);
-                                $logger->logOutPut($logFilePath, "Message sent successfully");
-                                $this->info($message);
-                                $this->info("Message sent successfully");
-                            } else {
-                                $logger->logOutPut($logFilePath, "Failed to send message");
-                                $this->info("Failed to send message!");
-                            }
+                            SendWhatsappMessageJob::dispatch(
+                                $manager->whatsapp_number,
+                                $message,
+                                0,
+                                $clientId,
+                                $logFilePath
+                            );
                         }
                     }
 

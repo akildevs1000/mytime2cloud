@@ -39,13 +39,14 @@ class AlertAccessControl extends Command
 
         $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
 
-        if (!is_array($accounts) || empty($accounts[0]['clientId'])) {
-            $clientId = $accounts[0]['clientId'];
+        if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
             $this->info("No Whatsapp Client found.");
             $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             return;
         }
+
+        $clientId = $accounts[0]['clientId'];
 
         $models = ReportNotification::with("managers")
             ->where('type', 'access_control')
