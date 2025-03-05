@@ -7,6 +7,7 @@ use App\Jobs\SendWhatsappMessageJob;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\ReportNotification;
+use App\Models\WhatsappClient;
 use DateTime;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
@@ -34,9 +35,17 @@ class AlertAccessControl extends Command
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
-        $clientId = Company::where("id", $company_id)->value("company_code") ?? 0;
+        $clientId = null;
 
-        // $clientId = "AE00042";
+        $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
+
+        if (!is_array($accounts) || empty($accounts[0]['clientId'])) {
+            $clientId = $accounts[0]['clientId'];
+            $this->info("No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            return;
+        }
 
         $models = ReportNotification::with("managers")
             ->where('type', 'access_control')
