@@ -73,7 +73,7 @@
             </v-col>
           </v-row>
 
-          <EmployeeShortView :item="selectedItem" />
+          <EmployeeShortView :key="selectedItem.id" :item="selectedItem" />
         </v-container>
       </v-card>
     </v-dialog>

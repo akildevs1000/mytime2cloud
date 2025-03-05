@@ -20,6 +20,7 @@ class AttendanceLogController extends Controller
     {
         return $model->filter($request)->orderBy("LogTime", "desc")->paginate($request->per_page);
     }
+
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
@@ -682,5 +683,32 @@ class AttendanceLogController extends Controller
         }
         AttendanceLog::insert($data);
         return "Attendance Log Seeder: " . count($data) . " records have been inserted.";
+    }
+
+    public function getLastTenLogs(AttendanceLog $model, Request $request)
+    {
+        $query = $model->where("company_id", $request->company_id)
+            ->where("UserID", $request->UserID)
+            ->with([
+                'employee' => function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id)
+                        ->withOut(["schedule", "department", "sub_department", "designation", "user"])
+                        ->select([
+                            "first_name",
+                            "last_name",
+                            "profile_picture",
+                            "employee_id",
+                            "branch_id",
+                            "system_user_id",
+                            "display_name",
+                            "timezone_id",
+                        ]);
+                },
+                'device' => function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id);
+                }
+            ]);
+
+        return $query->orderBy('LogTime', 'DESC')->limit(10)->get();
     }
 }

@@ -126,8 +126,9 @@ Route::post('role/delete/selected', [RoleController::class, 'deleteSelected']);
 
 // AttendanceLogs
 Route::apiResource('attendance_logs', AttendanceLogController::class);
+Route::get('get_last_ten_attendance_logs', [AttendanceLogController::class, 'getLastTenLogs']);
 
-Route::get('attendance_logs/{key}/daily', [AttendanceLogController::class, 'AttendanceLogsDaily']);
+Route::get('attendance_logs/{key}/daily', );
 Route::get('attendance_logs/{key}/monthly', [AttendanceLogController::class, 'AttendanceLogsMonthly']);
 Route::post('generate_manual_log', [AttendanceLogController::class, 'GenerateManualLog']);
 Route::get('attendance_logs/search/{company_id}', [AttendanceLogController::class, 'search']);
