@@ -59,7 +59,11 @@ class AttendanceLog extends Model
     }
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "UserID", "system_user_id");
+        return $this->belongsTo(Employee::class, "UserID", "system_user_id")
+            ->withDefault([
+                "first_name" => "---",
+                "last_name" => "---"
+            ]);
     }
     public function branch()
     {
