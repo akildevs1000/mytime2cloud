@@ -463,7 +463,7 @@ class DeviceController extends Controller
 
         $model->where('LogTime', '>', date('Y-m-01'));
         $model->where('LogTime', '<=', date('Y-m-d 23:59:59'));
-        $model->orderBy('index_serial_number', 'DESC');
+        $model->orderBy('LogTime', 'DESC');
         return $model->paginate(request("per_page",10));
     }
 
