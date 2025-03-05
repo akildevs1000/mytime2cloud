@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Jobs\SendWhatsappMessageJob;
 use App\Models\AttendanceLog;
 use App\Models\Company;
+use App\Models\WhatsappClient;
 use DateTime;
 use Illuminate\Console\Command;
 
@@ -32,18 +33,29 @@ class Attendance extends Command
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:attendance $company_id *****");
 
-        $clientId = Company::where("id", $company_id)
+        $isAllowWhatsappCleintToSendAttendanceAlert = Company::where("id", $company_id)
             ->where("enable_desktop_whatsapp", true)
             ->value("company_code") ?? 0;
 
-        if (!$clientId) {
+        if (!$isAllowWhatsappCleintToSendAttendanceAlert) {
             $logger->logOutPut($logFilePath, "Whatsapp is not enabled for $company_id.");
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:attendance $company_id *****");
             $this->info("Whatsapp is not enabled for Company Id: $company_id.");
             return;
         }
 
-        // $clientId = "AE00042";
+        $clientId = null;
+
+        $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
+
+        if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
+            $this->info("No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+            return;
+        }
+
+        $clientId = $accounts[0]['clientId'];
 
         $records = AttendanceLog::where('company_id', $company_id)
             ->with(["device" => function ($q) use ($company_id) {

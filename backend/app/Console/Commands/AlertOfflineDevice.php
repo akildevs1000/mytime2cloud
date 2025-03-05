@@ -9,7 +9,6 @@ use App\Models\Device;
 use App\Models\DeviceNotification;
 use App\Models\WhatsappClient;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Http;
 
 // use Illuminate\Support\Facades\Log as Logger;
 // use Illuminate\Support\Facades\Mail;
