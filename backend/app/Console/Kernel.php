@@ -64,9 +64,9 @@ class Kernel extends ConsoleKernel
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            $schedule
-                ->command("send_notificatin_for_offline_devices {$companyId}")
-                ->everySixHours();
+            // $schedule
+            //     ->command("send_notificatin_for_offline_devices {$companyId}")
+            //     ->everySixHours();
 
             $schedule
                 ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
@@ -157,9 +157,9 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
 
-        $schedule->call(function () {
-            $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
-        })->dailyAt('05:00');
+        // $schedule->call(function () {
+        //     $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
+        // })->dailyAt('05:00');
         //->withoutOverlapping();
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
@@ -167,10 +167,10 @@ class Kernel extends ConsoleKernel
             // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
         })->hourly();
 
-        $schedule
-            ->command('task:check_device_health')
-            ->everyThirtyMinutes()
-        ;
+        // $schedule
+        //     ->command('task:check_device_health')
+        //     ->everyThirtyMinutes()
+        // ;
 
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
@@ -210,10 +210,10 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:15');
 
         if (env("APP_ENV") == "production") {
-            $schedule
-                ->command('task:db_backup')
-                ->dailyAt('6:00')
-                ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+            // $schedule
+            //     ->command('task:db_backup')
+            //     ->dailyAt('6:00')
+            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
 
 
