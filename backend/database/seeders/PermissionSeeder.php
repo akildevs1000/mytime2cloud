@@ -323,12 +323,6 @@ class PermissionSeeder extends Seeder
             ['module' => 'designation', 'title' => 'edit', 'name' => 'designation_edit'],
             ['module' => 'designation', 'title' => 'delete', 'name' => 'designation_delete'],
 
-            ['module' => 'automation', 'title' => 'access', 'name' => 'automation_access'],
-            ['module' => 'automation', 'title' => 'view', 'name' => 'automation_view'],
-            ['module' => 'automation', 'title' => 'create', 'name' => 'automation_create'],
-            ['module' => 'automation', 'title' => 'edit', 'name' => 'automation_edit'],
-            ['module' => 'automation', 'title' => 'delete', 'name' => 'automation_delete'],
-
             ['module' => 'automation_absent', 'title' => 'access', 'name' => 'automation_absent_access'],
             ['module' => 'automation_absent', 'title' => 'view', 'name' => 'automation_absent_view'],
             ['module' => 'automation_absent', 'title' => 'create', 'name' => 'automation_absent_create'],
@@ -336,25 +330,25 @@ class PermissionSeeder extends Seeder
             ['module' => 'automation_absent', 'title' => 'delete', 'name' => 'automation_absent_delete'],
 
             ['module' => 'automation_attendance', 'title' => 'access', 'name' => 'automation_attendance_access'],
-            ['module' => 'automation_attendance', 'title' => 'view', 'name' => 'automation_attendance_access'],
+            ['module' => 'automation_attendance', 'title' => 'view', 'name' => 'automation_attendance_view'],
             ['module' => 'automation_attendance', 'title' => 'create', 'name' => 'automation_attendance_create'],
             ['module' => 'automation_attendance', 'title' => 'edit', 'name' => 'automation_attendance_create'],
             ['module' => 'automation_attendance', 'title' => 'delete', 'name' => 'automation_attendance_delete'],
 
             ['module' => 'automation_device', 'title' => 'access', 'name' => 'automation_device_access'],
-            ['module' => 'automation_device', 'title' => 'view', 'name' => 'automation_device_access'],
+            ['module' => 'automation_device', 'title' => 'view', 'name' => 'automation_device_view'],
             ['module' => 'automation_device', 'title' => 'create', 'name' => 'automation_device_create'],
             ['module' => 'automation_device', 'title' => 'edit', 'name' => 'automation_device_create'],
             ['module' => 'automation_device', 'title' => 'delete', 'name' => 'automation_device_delete'],
 
             ['module' => 'automation_document', 'title' => 'access', 'name' => 'automation_document_access'],
-            ['module' => 'automation_document', 'title' => 'view', 'name' => 'automation_document_access'],
+            ['module' => 'automation_document', 'title' => 'view', 'name' => 'automation_document_view'],
             ['module' => 'automation_document', 'title' => 'create', 'name' => 'automation_document_create'],
             ['module' => 'automation_document', 'title' => 'edit', 'name' => 'automation_document_create'],
             ['module' => 'automation_document', 'title' => 'delete', 'name' => 'automation_document_delete'],
 
             ['module' => 'automation_access_control', 'title' => 'access', 'name' => 'automation_access_control_access'],
-            ['module' => 'automation_access_control', 'title' => 'view', 'name' => 'automation_access_control_access'],
+            ['module' => 'automation_access_control', 'title' => 'view', 'name' => 'automation_access_control_view'],
             ['module' => 'automation_access_control', 'title' => 'create', 'name' => 'automation_access_control_create'],
             ['module' => 'automation_access_control', 'title' => 'edit', 'name' => 'automation_access_control_create'],
             ['module' => 'automation_access_control', 'title' => 'delete', 'name' => 'automation_access_control_delete'],
@@ -408,15 +402,14 @@ class PermissionSeeder extends Seeder
             ['module' => 'automation_mail_content', 'title' => 'Delete', 'name' => 'automation_mail_content_date_delete'],
         ];
 
-        Permission::truncate();
-        
-        Permission::insert($data);
+        // Permission::truncate();
+        // Permission::insert($data);
+        // echo Permission::count();
 
-        echo Permission::count();
-
-        // foreach ($data as $key => $dataArray) {
-        //     Permission::updateOrCreate(['name' => $dataArray['name']], $dataArray);
-        // }
+        foreach ($data as $key => $dataArray) {
+            $result = Permission::updateOrCreate(['name' => $dataArray['name']], $dataArray);
+            // echo json_encode($result) . "\n";
+        }
         // run this command to seed the data => php artisan db:seed --class=PermissionSeeder
     }
 }

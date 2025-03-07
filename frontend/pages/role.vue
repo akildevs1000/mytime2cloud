@@ -38,7 +38,6 @@
             </v-col>
 
             <v-col cols="12">
-              <pre>{{ permission_ids }}</pre>
               <div style="max-height: 450px; overflow-y: auto">
                 <v-card
                   v-for="(menu, index) in topMenus"
@@ -75,6 +74,12 @@
                         }
                         td {
                           font-size: 12px;
+                        }
+                        .border-top {
+                          border-top: 1px solid #e0e0e0;
+                        }
+                        .border-bottom {
+                          border-bottom: 1px solid #e0e0e0;
                         }
                       </style>
                       <table>
@@ -603,6 +608,121 @@ export default {
         topMenu: "reports",
         module: "document_expiry",
         title: "Document Expiry",
+      },
+      {
+        topMenu: "settings",
+        module: "company_profile",
+        title: "Company Profile",
+      },
+      {
+        topMenu: "settings",
+        module: "license",
+        title: "License",
+      },
+      {
+        topMenu: "settings",
+        module: "document",
+        title: "Document",
+      },
+      {
+        topMenu: "settings",
+        module: "password",
+        title: "Password",
+      },
+      {
+        topMenu: "settings",
+        module: "admin",
+        title: "Admin",
+      },
+      {
+        topMenu: "settings",
+        module: "attendance_rating",
+        title: "Attendance Rating",
+      },
+      {
+        topMenu: "settings",
+        module: "branch",
+        title: "Branch",
+      },
+      {
+        topMenu: "settings",
+        module: "department",
+        title: "Department",
+      },
+      {
+        topMenu: "settings",
+        module: "sub_department",
+        title: "Sub Department",
+      },
+      {
+        topMenu: "settings",
+        module: "designation",
+        title: "Designation",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_absent",
+        title: "Automation Absent",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_attendance",
+        title: "Automation Attendance",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_device",
+        title: "Automation Device",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_document",
+        title: "Automation Document",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_access_control",
+        title: "Automation Access Control",
+      },
+      {
+        topMenu: "settings",
+        module: "role",
+        title: "Role",
+      },
+      {
+        topMenu: "settings",
+        module: "device",
+        title: "Device",
+      },
+      {
+        topMenu: "settings",
+        module: "holiday",
+        title: "Holiday",
+      },
+      {
+        topMenu: "settings",
+        module: "leave_type",
+        title: "Leave Type",
+      },
+      {
+        topMenu: "settings",
+        module: "leave_group",
+        title: "Leave Group",
+      },
+      {
+        topMenu: "settings",
+        module: "payroll_formula",
+        title: "Payroll Formula",
+      },
+      {
+        topMenu: "settings",
+        module: "payroll_generation",
+        title: "Payroll Generation",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_mail_content",
+        title: "Automation Mail Content",
       },
     ],
     compKey: 1,
