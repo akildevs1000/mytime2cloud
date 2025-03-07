@@ -293,6 +293,18 @@ class PermissionSeeder extends Seeder
             ['module' => 'admin', 'title' => 'edit', 'name' => 'admin_edit'],
             ['module' => 'admin', 'title' => 'delete', 'name' => 'admin_delete'],
 
+            ['module' => 'whatsapp', 'title' => 'access', 'name' => 'whatsapp_access'],
+            ['module' => 'whatsapp', 'title' => 'view', 'name' => 'whatsapp_view'],
+            ['module' => 'whatsapp', 'title' => 'create', 'name' => 'whatsapp_create'],
+            ['module' => 'whatsapp', 'title' => 'edit', 'name' => 'whatsapp_edit'],
+            ['module' => 'whatsapp', 'title' => 'delete', 'name' => 'whatsapp_delete'],
+
+            ['module' => 'performance_rating_description', 'title' => 'access', 'name' => 'performance_rating_description_access'],
+            ['module' => 'performance_rating_description', 'title' => 'view', 'name' => 'performance_rating_description_view'],
+            ['module' => 'performance_rating_description', 'title' => 'create', 'name' => 'performance_rating_description_create'],
+            ['module' => 'performance_rating_description', 'title' => 'edit', 'name' => 'performance_rating_description_edit'],
+            ['module' => 'performance_rating_description', 'title' => 'delete', 'name' => 'performance_rating_description_delete'],
+
             ['module' => 'attendance_rating', 'title' => 'access', 'name' => 'attendance_rating_access'],
             ['module' => 'attendance_rating', 'title' => 'view', 'name' => 'attendance_rating_view'],
             ['module' => 'attendance_rating', 'title' => 'create', 'name' => 'attendance_rating_create'],
@@ -410,6 +422,11 @@ class PermissionSeeder extends Seeder
             $result = Permission::updateOrCreate(['name' => $dataArray['name']], $dataArray);
             // echo json_encode($result) . "\n";
         }
+
+        echo "<pre>";
+
+        ld(Permission::pluck("name"));
+
         // run this command to seed the data => php artisan db:seed --class=PermissionSeeder
     }
 }
