@@ -7,7 +7,7 @@
       </v-btn> -->
 
       <!-- Loop through accounts and display each one in a card -->
-      <div style="display: flex; gap: 12px">
+      <div style="display: flex; gap: 12px" v-if="can('whatsapp_view')">
         <v-card
           outlined
           v-for="(account, index) in accounts"
@@ -103,6 +103,9 @@ export default {
   // },
 
   methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
     async deleteItem(index) {
       const confirmDelete = window.confirm(
         "Are you sure you want to delete this account?"
