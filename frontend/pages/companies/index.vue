@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_access')">
+  <div v-if="can('company_profile_access')">
     <div v-if="!preloader">
       <div class="text-center ma-2">
         <v-snackbar
@@ -390,7 +390,7 @@
                             <v-spacer></v-spacer>
                             <div class="text-right">
                               <v-btn
-                                v-if="can('company_edit')"
+                                v-if="can('company_profile_edit')"
                                 small
                                 :loading="loading"
                                 color="primary"
@@ -575,7 +575,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_edit')"
+                            v-if="can('company_profile_edit')"
                             small
                             :loading="loading"
                             color="primary"
@@ -677,7 +677,7 @@
                 <v-col cols="12">
                   <div class="text-right">
                     <v-btn
-                      v-if="can('setting_company_change_password_access')"
+                      v-if="can('company_profile_edit')"
                       dark
                       small
                       :loading="loading_password"
