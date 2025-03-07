@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`timezone_mapping_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -717,7 +717,7 @@
             </template>
             <v-list width="160" dense>
               <v-list-item
-                v-if="can(`employee_schedule_view`)"
+                v-if="can(`timezone_mapping_view`)"
                 @click="ScheduleItem(item, 'view')"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -741,7 +741,7 @@
                 </v-list-item-title>
               </v-list-item> -->
               <v-list-item
-                v-if="can(`employee_schedule_edit`)"
+                v-if="can(`timezone_mapping_edit`)"
                 @click="deviceAccess(item, 'edit')"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -750,8 +750,8 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="can(`employee_schedule_delete`)"
-                @click="deleteItem(item, 'edit')"
+                v-if="can(`timezone_mapping_delete`)"
+                @click="deleteItem(item)"
               >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
