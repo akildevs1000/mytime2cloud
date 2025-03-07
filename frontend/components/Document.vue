@@ -113,14 +113,14 @@
               ><v-btn
                 dense
                 small
-                v-if="can(`employee_document_edit_access`)"
+                v-if="can(`document_create`)"
                 @click="openDocumentpopup"
                 class="primary text-right align-right mb-2"
                 >Add Document +
               </v-btn></v-col
             ></v-row
           >
-          <table style="border-collapse: collapse; width: 100%">
+          <table v-if="can(`document_view`)"  style="border-collapse: collapse; width: 100%">
             <thead>
               <tr>
                 <th
@@ -183,7 +183,7 @@
                     padding: 8px;
                   "
                 >
-                  <v-icon color="black" @click="delete_document(d.id)">
+                  <v-icon v-if="can(`document_delete`)" color="black" @click="delete_document(d.id)">
                     mdi-delete
                   </v-icon>
                 </td>
