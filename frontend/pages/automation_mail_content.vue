@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`automation_contnet_access`)">
+  <div v-if="can(`automation_mail_content_access`)">
     <v-dialog v-model="dialogNew" width="60%">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -119,11 +119,10 @@
             {{ $dateFormat.format1(item.updated_at) }}
           </template>
           <template
-            v-if="can(`automation_contnet_edit`)"
             v-slot:item.action="{ item }"
           >
             <v-icon
-              v-if="can('settings_roles_edit')"
+              v-if="can('automation_mail_content_edit')"
               color="secondary"
               small
               class="mr-2"

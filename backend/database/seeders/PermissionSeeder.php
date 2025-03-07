@@ -395,11 +395,11 @@ class PermissionSeeder extends Seeder
             ['module' => 'payroll_generation', 'title' => 'edit', 'name' => 'payroll_generation_date_edit'],
             ['module' => 'payroll_generation', 'title' => 'Delete', 'name' => 'payroll_generation_date_delete'],
 
-            ['module' => 'automation_mail_content', 'title' => 'access', 'name' => 'automation_mail_content_date_access'],
-            ['module' => 'automation_mail_content', 'title' => 'view  ', 'name' => 'automation_mail_content_date_view'],
-            ['module' => 'automation_mail_content', 'title' => 'create', 'name' => 'automation_mail_content_date_create'],
-            ['module' => 'automation_mail_content', 'title' => 'edit  ', 'name' => 'automation_mail_content_date_edit'],
-            ['module' => 'automation_mail_content', 'title' => 'Delete', 'name' => 'automation_mail_content_date_delete'],
+            ['module' => 'automation_mail_content', 'title' => 'access', 'name' => 'automation_mail_content_access'],
+            ['module' => 'automation_mail_content', 'title' => 'view  ', 'name' => 'automation_mail_content_view'],
+            ['module' => 'automation_mail_content', 'title' => 'create', 'name' => 'automation_mail_content_create'],
+            ['module' => 'automation_mail_content', 'title' => 'edit  ', 'name' => 'automation_mail_content_edit'],
+            ['module' => 'automation_mail_content', 'title' => 'Delete', 'name' => 'automation_mail_content_delete'],
         ];
 
         // Permission::truncate();
