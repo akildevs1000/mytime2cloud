@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat v-if="can(`performance_rating_description_access`)">
     <v-alert dense flat class="grey lighten-3 body-1 mb-2"
       >Attendanc Rating System</v-alert
     >
