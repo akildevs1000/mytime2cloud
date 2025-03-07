@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('company_profile_access')">
+  <div>
     <div v-if="!preloader">
       <div class="text-center ma-2">
         <v-snackbar
@@ -46,7 +46,7 @@
             <span>Attendance Rating</span>
           </v-tab>
           <v-tab-item>
-            <v-card outlined class="ma-5">
+            <v-card v-if="can('company_profile_access')" outlined class="ma-5">
               <v-card-text>
                 <v-row class="mt-5">
                   <v-col cols="2">
@@ -410,7 +410,7 @@
           </v-tab-item>
 
           <v-tab-item>
-            <v-card flat>
+            <v-card flat v-if="can('license_access')">
               <v-card-text>
                 <v-row>
                   <v-col cols="6">
@@ -575,7 +575,7 @@
                       <v-col cols="12">
                         <div class="text-right">
                           <v-btn
-                            v-if="can('company_profile_edit')"
+                            v-if="can('license_edit')"
                             small
                             :loading="loading"
                             color="primary"
@@ -593,11 +593,11 @@
           </v-tab-item>
 
           <v-tab-item>
-            <Document />
+            <Document  v-if="can('document_access')" />
           </v-tab-item>
 
           <v-tab-item>
-            <v-row>
+            <v-row v-if="can('password_access')">
               <v-col cols="3">
                 <v-col cols="12">
                   <!-- <label class="col-form-label"
@@ -677,7 +677,7 @@
                 <v-col cols="12">
                   <div class="text-right">
                     <v-btn
-                      v-if="can('company_profile_edit')"
+                      v-if="can('password_edit')"
                       dark
                       small
                       :loading="loading_password"
@@ -693,7 +693,7 @@
           </v-tab-item>
 
           <v-tab-item>
-            <Admin />
+            <Admin v-if="can('admin_access')" />
             <!-- <v-container>
                   <div style="text-align: center">
                     <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
@@ -709,18 +709,17 @@
           </v-tab-item>
 
           <v-tab-item>
-            <Whatsapp />
+            <Whatsapp v-if="can('whatsapp_access')" />
           </v-tab-item>
 
           <v-tab-item>
-            <PerformanceRatingDescription />
+            <PerformanceRatingDescription v-if="can('performance_rating_description_access')" />
           </v-tab-item>
         </v-tabs>
       </v-card>
     </div>
     <Preloader v-else />
   </div>
-  <NoAccess v-else />
 </template>
 
 <script>
