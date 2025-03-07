@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('visitor_view')">
+  <div v-if="can('visitor_access')">
     <VisitorLogs />
   </div>
   <NoAccess v-else />
