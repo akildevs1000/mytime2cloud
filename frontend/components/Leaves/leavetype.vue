@@ -124,7 +124,7 @@
             <v-spacer></v-spacer>
             <!-- <v-tooltip v-if="can(`leave_type_create`)" top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
+            <v-btn v-if="can(`leave_type_create`)"
               dense
               class="ma-0 px-0"
               x-small

@@ -1,18 +1,15 @@
 <template>
-  <div v-if="can('leave_type_access')">
-    <v-tabs right>
-      <v-tab> Leave Types </v-tab>
-      <v-tab> Groups </v-tab>
-      <v-tab-slider key="1" color="violet"></v-tab-slider>
-      <v-tab-item>
-        <Leavetype />
-      </v-tab-item>
-      <v-tab-item v-if="can('leave_group_access')">
-        <Leavegroups />
-      </v-tab-item>
-    </v-tabs>
-  </div>
-  <NoAccess v-else />
+  <v-tabs right>
+    <v-tab> Leave Types </v-tab>
+    <v-tab> Groups </v-tab>
+    <v-tab-slider key="1" color="violet"></v-tab-slider>
+    <v-tab-item>
+      <Leavetype />
+    </v-tab-item>
+    <v-tab-item v-if="can('leave_group_access')">
+      <Leavegroups />
+    </v-tab-item>
+  </v-tabs>
 </template>
 
 <script>
