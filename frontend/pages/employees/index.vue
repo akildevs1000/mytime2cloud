@@ -981,7 +981,7 @@
                         View/Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item>
+                    <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <WidgetsEmployeeDowloadDialogSingle
                           :key="item.id"
@@ -992,7 +992,7 @@
                       </v-list-item-title>
                     </v-list-item>
 
-                    <v-list-item>
+                    <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
                           iconColor="secondary"
