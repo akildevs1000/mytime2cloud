@@ -163,7 +163,7 @@
             </span>
 
             <v-spacer></v-spacer>
-            <span>
+            <span v-if="can(`holiday_create`)">
               <v-btn
                 x-small
                 :ripple="false"
@@ -219,7 +219,6 @@
                 <v-list
                   width="120"
                   dense
-                  v-if="can(`holiday_edit`) || can(`holiday_delete`)"
                 >
                   <v-list-item
                     @click="editItem(item)"
