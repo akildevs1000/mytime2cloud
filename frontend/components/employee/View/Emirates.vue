@@ -13,15 +13,15 @@
         <v-tab-item>
           <v-card
             flat
-            v-if="visaObject"
+            v-if="visaObject && can('employee_visa_access')"
             class="d-flex flex-column"
           >
-            <div class="text-right">
+            <div class="text-right" v-if="can(!editForm ? 'employee_visa_edit' : 'employee_visa_view')">
               <v-icon small color="primary" @click="editForm = !editForm"
                 >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
               >
             </div>
-            <v-simple-table dense flat class="my-simple-table">
+            <v-simple-table v-if="can('employee_visa_view')" dense flat class="my-simple-table">
               <tbody>
                 <tr>
                   <td style="width: 200px">Visa</td>
@@ -304,15 +304,15 @@
         <v-tab-item>
           <v-card
             flat
-            v-if="emirateObject"
+            v-if="emirateObject && can('employee_emirates_access')"
             class="d-flex flex-column"
           >
-            <div class="text-right">
+            <div class="text-right" v-if="can(!editForm ? 'employee_emirates_edit' : 'employee_emirates_view')">
               <v-icon small color="primary" @click="editForm = !editForm"
                 >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
               >
             </div>
-            <v-simple-table dense flat class="my-simple-table">
+            <v-simple-table v-if="can('employee_emirates_view')" dense flat class="my-simple-table">
               <tbody>
                 <tr>
                   <td style="width: 200px">Emirates Id</td>
@@ -507,15 +507,15 @@
         <v-tab-item>
           <v-card
             flat
-            v-if="passportObject"
+            v-if="passportObject && can('employee_passport_access')"
             class="d-flex flex-column"
           >
-            <div class="text-right">
+            <div class="text-right" v-if="can(!editForm ? 'employee_passport_edit' : 'employee_passport_view')">
               <v-icon small color="primary" @click="editForm = !editForm"
                 >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
               >
             </div>
-            <v-simple-table dense flat class="my-simple-table">
+            <v-simple-table v-if="can('employee_passport_view')" dense flat class="my-simple-table">
               <tbody>
                 <tr>
                   <td style="width: 200px">Passport No</td>
@@ -753,11 +753,9 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
-
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
-
     close() {
       this.emirate_info = false;
       this.errors = [];

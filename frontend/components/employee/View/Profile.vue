@@ -39,7 +39,7 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-row class="d-flex align-center">
+      <v-row v-if="can('employee_profile_view')"  class="d-flex align-center">
         <v-col cols="4">
           <v-card class="pa-4 text-center" flat>
             <v-avatar size="120" @click="onpick_attachment">
@@ -87,12 +87,12 @@
           </v-card>
         </v-col>
         <v-col>
-          <div class="text-right">
+          <div class="text-right" v-if="can(!editForm ? 'employee_profile_edit' : 'employee_profile_view')">
             <v-icon small color="primary" @click="editForm = !editForm"
               >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
             >
           </div>
-          <v-simple-table dense flat class="my-simple-table">
+          <v-simple-table v-if="can('employee_profile_view')" dense flat class="my-simple-table">
             <tbody>
               <tr>
                 <td style="width: 200px">Full Name</td>
@@ -368,7 +368,6 @@
         >Cancel</v-btn
       >
       <v-btn
-        v-if="can('employee_edit')"
         :disabled="!editForm"
         x-small
         class="primary"
@@ -591,8 +590,8 @@ export default {
 
       this.dialogCropping = false;
     },
-    can() {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
     close() {
       this.dialog = false;

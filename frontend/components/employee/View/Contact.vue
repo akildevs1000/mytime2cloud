@@ -1,9 +1,7 @@
 <template>
   <v-card flat>
-    <v-card-text >
-      <v-row
-        class="d-flex align-center"
-      >
+    <v-card-text>
+      <v-row class="d-flex align-center">
         <v-col cols="12">
           <v-tabs v-model="tab">
             <v-tab>Contact</v-tab>
@@ -11,13 +9,13 @@
           </v-tabs>
           <v-tabs-items v-model="tab">
             <v-tab-item>
-              <v-card flat v-if="contactItem">
-                <div class="text-right">
+              <v-card flat v-if="contactItem && can('employee_contact_access')">
+                <div class="text-right" v-if="can(!editForm ? 'employee_contact_edit' : 'employee_contact_view')">
                   <v-icon small color="primary" @click="editForm = !editForm"
                     >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
                   >
                 </div>
-                <v-simple-table dense flat class="my-simple-table">
+                <v-simple-table v-if="can('employee_contact_view')" dense flat class="my-simple-table">
                   <tbody>
                     <tr>
                       <td style="width: 50%">Phone Number</td>
@@ -225,8 +223,8 @@
             </v-tab-item>
 
             <v-tab-item>
-              <v-card flat v-if="contactItem">
-                <div class="text-right">
+              <v-card flat v-if="contactItem && can('employee_home_contact_view')">
+                <div class="text-right" v-if="can('employee_home_contact_edit')">
                   <v-icon small color="primary" @click="editForm = !editForm"
                     >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
                   >
@@ -423,6 +421,7 @@
                     >Cancel</v-btn
                   >
                   <v-btn
+                    v-if="can('employee_home_contact_create')"
                     :disabled="!editForm"
                     x-small
                     class="primary"
@@ -486,8 +485,8 @@ export default {
       }, 1000);
     },
 
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
 
     submit() {

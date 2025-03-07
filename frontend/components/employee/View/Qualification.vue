@@ -1,16 +1,19 @@
 <template>
-  <v-card
-    flat
-    v-if="qualification"
-    class="d-flex flex-column"
-  >
+  <v-card flat v-if="qualification" class="d-flex flex-column">
     <v-card-title
       >Qualification<v-spacer></v-spacer>
-      <v-icon small color="primary" @click="editForm = !editForm"
-        >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
-      ></v-card-title
+      <div v-if="can(!editForm ? 'employee_qualification_edit' : 'employee_qualification_view')">
+        <v-icon small color="primary" @click="editForm = !editForm"
+          >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
+        >
+      </div>
+    </v-card-title>
+    <v-simple-table
+      v-if="can('employee_qualification_view')"
+      dense
+      flat
+      class="my-simple-table"
     >
-    <v-simple-table dense flat class="my-simple-table">
       <tbody>
         <tr>
           <td style="width: 200px">Certificate</td>
@@ -167,6 +170,7 @@
       >
     </v-card-actions>
   </v-card>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -205,10 +209,9 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
-
     submit() {
       this.loading = true;
 

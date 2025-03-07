@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat v-if="can('access')">
     <v-dialog persistent v-model="imageViewerDialog" width="800px">
       <WidgetsClose @click="imageViewerDialog = false" left="790" />
       <v-card style="max-height: 80vh; overflow-y: auto">
@@ -109,11 +109,11 @@
     </v-dialog>
     <v-card-title
       >Documents <v-spacer></v-spacer>
-      <v-btn dark x-small class="primary" @click="addDocumentInfo">
+      <v-btn v-if="can('create')" dark x-small class="primary" @click="addDocumentInfo">
         <v-icon x-small>mdi-plus</v-icon> Add
       </v-btn></v-card-title
     >
-    <v-data-table
+    <v-data-table v-if="can('view')"
       dense
       :headers="headers_table"
       :items="document_list"
@@ -135,13 +135,13 @@
         {{ item.created_at || "30 jan 2025" }}
       </template>
       <template v-slot:item.action="{ item }">
-        <a
+        <a v-if="can('view')"
           title="Download Profile Picture"
           :href="getDonwloadLink(item.employee_id, item.attachment)"
           ><v-icon small color="violet">mdi-download</v-icon></a
         >
 
-        <v-icon
+        <v-icon v-if="can('view')"
           small
           color="violet"
           @click="openImageViewer(item.employee_id, item.attachment)"
@@ -149,12 +149,13 @@
           mdi-eye
         </v-icon>
 
-        <v-icon small color="error" @click="delete_document(item.id)">
+        <v-icon v-if="can('delete')" small color="error" @click="delete_document(item.id)">
           mdi-delete
         </v-icon>
       </template>
     </v-data-table>
   </v-card>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -235,8 +236,8 @@ export default {
         this.loading = false;
       });
     },
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can("employee_document_" + per, this);
     },
     caps(str) {
       if (str == "" || str == null) {
