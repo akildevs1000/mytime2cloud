@@ -660,7 +660,7 @@
             ]"
           ></v-select>
         </span>
-        <span cols="2" class="mt-1" style="max-width: 140px">
+        <span v-if="can(`employee_schedule_create`)" cols="2" class="mt-1" style="max-width: 140px">
           <v-btn
             dense
             class="ma-2 px-1 primary"
@@ -672,7 +672,7 @@
             + Add Schedule
           </v-btn>
         </span>
-        <span cols="2" class="mt-1" style="max-width: 140px">
+        <span v-if="can(`employee_schedule_delete`)" cols="2" class="mt-1" style="max-width: 140px">
           <ScheduleEmployeeDelete
             @response="handleScheduleEmployeeDeleteResponse"
           />
