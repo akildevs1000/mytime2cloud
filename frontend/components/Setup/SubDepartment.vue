@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`department_access`)">
+  <div v-if="can(`sub_department_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -174,7 +174,7 @@
                   </template>
                   <v-list width="120" dense>
                     <v-list-item
-                      v-if="can(`department_edit`)"
+                      v-if="can(`sub_department_edit`)"
                       @click="editItem(item)"
                     >
                       <v-list-item-title style="cursor: pointer">
@@ -183,7 +183,7 @@
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item
-                      v-if="can(`department_delete`)"
+                      v-if="can(`sub_department_delete`)"
                       @click="deleteItem(item)"
                     >
                       <v-list-item-title style="cursor: pointer">
