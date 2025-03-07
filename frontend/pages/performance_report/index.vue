@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`attendance_report_access`)">
+  <div v-if="can(`performance_report_access`)">
     <Performance />
   </div>
   <NoAccess v-else />
