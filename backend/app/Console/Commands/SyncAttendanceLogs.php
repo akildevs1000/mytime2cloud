@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Helpers\BenchmarkHelper;
 use App\Http\Controllers\AttendanceLogController;
 use Illuminate\Console\Command;
 
@@ -28,8 +29,23 @@ class SyncAttendanceLogs extends Command
      */
     public function handle()
     {
+        $this->info("========== START: task:sync_attendance_logs ==========");
 
+        try {
+            $benchmark = BenchmarkHelper::measure(function () {
+                return json_encode((new AttendanceLogController)->store());
+            });
 
-        echo json_encode((new AttendanceLogController)->store());
+            $this->info("✔ Execution Successful");
+            $this->info("▶ Result: {$benchmark['result']}");
+            $this->info("⏳ Execution Time: {$benchmark['execution_time']} sec");
+            $this->info("💾 Memory Used: {$benchmark['memory_used']} MB");
+        } catch (\Exception $e) {
+            $this->error("❌ Error: " . $e->getMessage());
+            return Command::FAILURE;
+        }
+
+        $this->info("========== END: task:sync_attendance_logs ==========");
+        return Command::SUCCESS;
     }
 }
