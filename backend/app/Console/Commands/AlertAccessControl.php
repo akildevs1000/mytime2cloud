@@ -30,11 +30,11 @@ class AlertAccessControl extends Command
 
         $logger = new Controller;
 
-        $logFilePath = 'logs/whatsapp';
+        $logFilePath = 'logs/common_logs';
 
         $company_id = $this->argument("company_id", 0);
 
-        $logFilePath = "$logFilePath/$company_id";
+        $logFilePath = "$logFilePath";
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
 
