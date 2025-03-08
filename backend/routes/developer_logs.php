@@ -5,7 +5,12 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/log-view', function () {
-    $path = storage_path('app/logs/whatsapp/22/2025-03-08/17:13.log');
+
+    $app_key = request("app_key");  // e.g., 22
+
+    if ($app_key != env("APP_KEY")) {
+        return response()->json(['message' => 'Invalid Key'], 400);
+    }
 
     $folder = request("folder");  // e.g., 22
     $date = request("date");      // e.g., 2025-03-08
@@ -18,8 +23,6 @@ Route::get('/log-view', function () {
 
     // Build the log file path dynamically
     $path = storage_path("app/logs/whatsapp/{$folder}/{$date}/{$time}.log");
-
-
 
     if (!File::exists($path)) {
         return response()->json(['message' => 'Log file not found'], 404);
