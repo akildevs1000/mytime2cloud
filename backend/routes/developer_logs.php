@@ -10,8 +10,9 @@ Route::get('/log-view', function () {
     if (!File::exists($path)) {
         return response()->json(['message' => 'Log file not found'], 404);
     }
+    $content = nl2br(File::get($path));
 
-    return Response::make(nl2br(e(File::get($path))), 200, [
+    return Response::make($content, 200, [
         'Content-Type' => 'text/plain',
     ]);
 }); // Optional: Secure access
