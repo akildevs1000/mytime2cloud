@@ -38,7 +38,7 @@ class UpdateCompanyIds extends Command
     {
         $logger = new Controller;
 
-        $logFilePath = 'logs/attendance_logs';
+        $logFilePath = 'logs/common_logs';
 
         $logFilePath = "$logFilePath/";
 
