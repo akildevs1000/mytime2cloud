@@ -52,3 +52,5 @@ include('alarm/api_alarm.php');
 
 include('faqs.php');
 include('whatsapp_clients.php');
+
+include('developer_logs.php');
