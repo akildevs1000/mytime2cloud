@@ -46,12 +46,12 @@ class SyncAttendanceLogs extends Command
             $logger->logOutPut($logFilePath, "✔ Execution Successful");
             $logger->logOutPut($logFilePath, "▶ Result: {$benchmark['result']}");
             $logger->logOutPut($logFilePath, "⏳ Execution Time: {$benchmark['execution_time']} sec");
-            $logger->logOutPut($logFilePath, "💾 Memory Used: {$benchmark['memory_used']} MB");
+            $logger->logOutPut($logFilePath, "💾 Memory Used: {$benchmark['memory_used']}");
 
             $this->info("✔ Execution Successful");
             $this->info("▶ Result: {$benchmark['result']}");
             $this->info("⏳ Execution Time: {$benchmark['execution_time']} sec");
-            $this->info("💾 Memory Used: {$benchmark['memory_used']} MB");
+            $this->info("💾 Memory Used: {$benchmark['memory_used']}");
             
         } catch (\Exception $e) {
             $logger->logOutPut($logFilePath, "❌ Error: " . $e->getMessage());
