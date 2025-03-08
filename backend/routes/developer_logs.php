@@ -12,7 +12,5 @@ Route::get('/log-view', function () {
     }
     $content = nl2br(File::get($path));
 
-    return Response::make($content, 200, [
-        'Content-Type' => 'text/plain',
-    ]);
-}); // Optional: Secure access
+    return Response::make($content, 200);
+});
