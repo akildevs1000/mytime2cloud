@@ -25,6 +25,9 @@ class AlertAccessControl extends Command
 
     public function handle()
     {
+        $startTime = microtime(true);
+        $startMemory = memory_get_usage();
+
         $logger = new Controller;
 
         $logFilePath = 'logs/whatsapp';
@@ -42,6 +45,11 @@ class AlertAccessControl extends Command
         if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
             $this->info("No Whatsapp Client found.");
             $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+            $executionTime = microtime(true) - $startTime;
+            $endMemory = memory_get_usage();
+            $memoryUsed = $endMemory - $startMemory;
+            $logger->logOutPut($logFilePath, "execution_time $executionTime");
+            $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             return;
         }
@@ -57,6 +65,11 @@ class AlertAccessControl extends Command
         if ($models->isEmpty()) {
             $logger->logOutPut($logFilePath, "No Report Notification found.");
             $this->info("No ReportNotification found.");
+            $executionTime = microtime(true) - $startTime;
+            $endMemory = memory_get_usage();
+            $memoryUsed = $endMemory - $startMemory;
+            $logger->logOutPut($logFilePath, "execution_time $executionTime");
+            $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             return;
         }
@@ -77,6 +90,11 @@ class AlertAccessControl extends Command
 
         if (!count($records->toArray())) {
             $logger->logOutPut($logFilePath, "Record count " . count($records->toArray()));
+            $executionTime = microtime(true) - $startTime;
+            $endMemory = memory_get_usage();
+            $memoryUsed = $endMemory - $startMemory;
+            $logger->logOutPut($logFilePath, "execution_time $executionTime");
+            $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
             $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
             $this->info("Record count " . count($records->toArray()));
             return;
@@ -94,6 +112,11 @@ class AlertAccessControl extends Command
             $currentDay = date("w"); // day value as number
             if (!in_array($currentDay, $days) || !count($days)) {
                 $logger->logOutPut($logFilePath, "Day not found");
+                $executionTime = microtime(true) - $startTime;
+                $endMemory = memory_get_usage();
+                $memoryUsed = $endMemory - $startMemory;
+                $logger->logOutPut($logFilePath, "execution_time $executionTime");
+                $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
                 $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
                 $this->info("Day not found");
                 return;
@@ -103,6 +126,11 @@ class AlertAccessControl extends Command
             if ($managers->isEmpty()) {
                 $logger->logOutPut($logFilePath, "No managers found for the specified company ID.");
                 $this->info("No managers found for the specified company ID.");
+                $executionTime = microtime(true) - $startTime;
+                $endMemory = memory_get_usage();
+                $memoryUsed = $endMemory - $startMemory;
+                $logger->logOutPut($logFilePath, "execution_time $executionTime");
+                $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
                 $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
                 return;
             }
@@ -158,6 +186,11 @@ class AlertAccessControl extends Command
 
         $logger->logOutPut($logFilePath, "*****$records logs updated *****");
 
+        $executionTime = microtime(true) - $startTime;
+        $endMemory = memory_get_usage();
+        $memoryUsed = $endMemory - $startMemory;
+        $logger->logOutPut($logFilePath, "execution_time $executionTime");
+        $logger->logOutPut($logFilePath, "memory_used " . number_format($memoryUsed / 1024, 2) . " KB");
         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
     }
 
