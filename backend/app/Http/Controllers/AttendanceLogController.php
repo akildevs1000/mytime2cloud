@@ -134,10 +134,8 @@ class AttendanceLogController extends Controller
 
                     if (date("i") >= "30" && date("i") <= "32") {
                         exec('pm2 reload 1');
-                        $company = Company::where("id", 2)->first();
-
-                        $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
-
+                        // $company = Company::where("id", 2)->first();
+                        // $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
