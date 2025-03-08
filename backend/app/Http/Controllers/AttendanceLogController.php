@@ -132,7 +132,7 @@ class AttendanceLogController extends Controller
 
 
 
-                    if (date("i") >= "30" || date("i") <= "32") {
+                    if (date("i") >= "30" && date("i") <= "32") {
                         exec('pm2 reload 1');
                         $company = Company::where("id", 2)->first();
 
