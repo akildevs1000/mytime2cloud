@@ -172,6 +172,11 @@ class Employee extends Model
         if (!$value) {
             return null;
         }
+
+        if (env("APP_ENV") == "local") {
+            return "https://backend.mytime2cloud.com/media/employee/profile_picture/$value";
+        }
+
         return asset('media/employee/profile_picture/' . $value);
         // return asset(env('BUCKET_URL') . '/' . $value);
 
