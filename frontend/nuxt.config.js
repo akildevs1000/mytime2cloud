@@ -137,10 +137,10 @@ export default {
     interval: 500,
   },
 
-  // server: {
-  //   host: process.env.LOCAL_IP,
-  //   port: process.env.LOCAL_PORT,
-  // },
+  server: {
+    host: process.env.LOCAL_IP,
+    port: process.env.LOCAL_PORT,
+  },
 
   env: {
     SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE,
