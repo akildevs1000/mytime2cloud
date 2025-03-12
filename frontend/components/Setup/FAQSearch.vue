@@ -73,18 +73,7 @@
       temporary
       class="chat-drawer"
     >
-      <v-alert dense class="primary white--text">
-        <v-row no-gutters>
-          <v-col>
-            <div>
-              Ask Anything
-            </div>
-          </v-col>
-          <!-- <v-col cols="6" v-if="$auth?.user?.company?.id == 2">
-            <v-switch dense hide-details label="Use AI" dark ></v-switch>
-          </v-col> -->
-        </v-row>
-      </v-alert>
+      <v-alert dense class="primary white--text">Ask Anything</v-alert>
       <v-card flat class="chat-container">
         <v-card-text
           class="chat-messages"
@@ -227,7 +216,7 @@ export default {
 
       let botResponseIndex = this.messages.length - 1; // ignore thinking message
       try {
-        const response = await fetch("http://localhost:7799/ask", {
+        const response = await fetch("https://ollama.mytime2cloud.com/ask", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
