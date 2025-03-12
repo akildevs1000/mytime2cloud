@@ -251,6 +251,12 @@ class PermissionSeeder extends Seeder
             ['module' => 'performance_report', 'title' => 'edit', 'name' => 'performance_report_edit'],
             ['module' => 'performance_report', 'title' => 'delete', 'name' => 'performance_report_delete'],
 
+            ['module' => 'summary_report', 'title' => 'access', 'name' => 'summary_report_access'],
+            ['module' => 'summary_report', 'title' => 'view', 'name' => 'summary_report_view'],
+            ['module' => 'summary_report', 'title' => 'create', 'name' => 'summary_report_create'],
+            ['module' => 'summary_report', 'title' => 'edit', 'name' => 'summary_report_edit'],
+            ['module' => 'summary_report', 'title' => 'delete', 'name' => 'summary_report_delete'],
+
             ['module' => 'document_expiry', 'title' => 'Web Logs access', 'name' => 'document_expiry_access'],
             ['module' => 'document_expiry', 'title' => 'Web Logs view', 'name' => 'document_expiry_view'],
             ['module' => 'document_expiry', 'title' => 'Web Logs create', 'name' => 'document_expiry_create'],
