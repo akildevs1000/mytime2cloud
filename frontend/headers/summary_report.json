@@ -1,0 +1,66 @@
+[
+  {
+    "text": "Employee",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "employee_name",
+    "key": "employee_name"
+  },
+  {
+    "text": "Present",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "p_count"
+  },
+  {
+    "text": "Absent",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "a_count"
+  },
+  {
+    "text": "Leave",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "l_count"
+  },
+  {
+    "text": "Avg CheckIn",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "avg_check_in"
+  },
+  {
+    "text": "Avg CheckOut",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "avg_check_out"
+  },
+  {
+    "text": "Late In",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "lc_count"
+  },
+  {
+    "text": "Early Out",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "eg_count"
+  },
+  {
+    "text": "Working Hrs",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "working_hrs"
+  }  
+]

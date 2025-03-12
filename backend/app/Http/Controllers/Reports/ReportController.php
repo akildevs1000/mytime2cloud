@@ -284,10 +284,11 @@ class ReportController extends Controller
 
         $model = Attendance::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
             })
+       
             ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('department_id',   $department_ids));
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
             })
             ->when(count($employeeIds), function ($q) use ($employeeIds) {
                 $q->whereIn('employee_id', $employeeIds);

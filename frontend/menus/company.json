@@ -363,6 +363,13 @@
     "module": "reports"
   },
   {
+    "icon": "mdi-calendar-clock",
+    "title": "Summary Report",
+    "to": "/summary_report",
+    "menu": "attendance_report_access",
+    "module": "reports"
+  },
+  {
     "icon": "mdi-lock",
     "title": "Access Control",
     "to": "/access_control_report",
