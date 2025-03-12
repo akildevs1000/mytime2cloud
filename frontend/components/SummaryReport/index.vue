@@ -233,33 +233,8 @@
               </div>
             </div>
           </template>
-          <template v-slot:item.rating="{ item }">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                max-width: 200px;
-              "
-            >
-              <v-rating
-                dense
-                hide-details
-                :value="
-                  $utils.getRating(item.p_count_value, from_date, to_date)
-                "
-                background-color="green lighten-3"
-                color="green"
-                half-increments
-              ></v-rating>
-              <div>
-                <v-chip small class="green white--text"
-                  >{{
-                    $utils.getRating(item.p_count_value, from_date, to_date)
-                  }}
-                  / 5
-                </v-chip>
-              </div>
-            </div>
+          <template v-slot:item.total_hrs="{ item }">
+            {{ calculateHrsToPerform(item) }}
           </template>
         </v-data-table>
       </v-col>
@@ -376,6 +351,62 @@ export default {
   },
 
   methods: {
+    calculateHrsToPerform(item) {
+      const totalHrs = item?.total_hrs ?? 0;
+
+      const result =
+        item?.employee?.schedule_all?.reduce((acc, schedule) => {
+          const workingHours =
+            parseInt(schedule?.shift?.working_hours, 10) || 0;
+
+          return (
+            acc +
+            workingHours *
+              this.countSelectedWeekdaysInMonth(
+                [...new Set(this.months)],
+                schedule?.shift?.days
+              )
+          );
+        }, 0) ?? 0;
+
+      return `${parseInt(totalHrs,10)}/${result}`;
+    },
+    countSelectedWeekdaysInMonth(months, weekdays) {
+      const weekdaysMap = {
+        Sun: 0,
+        Mon: 1,
+        Tue: 2,
+        Wed: 3,
+        Thu: 4,
+        Fri: 5,
+        Sat: 6,
+      };
+
+      // Count the selected weekdays across multiple months
+      let totalCount = 0;
+
+      months.forEach((month) => {
+        const date = new Date(month + "-01"); // Use the first day of the month
+        const year = date.getFullYear();
+        const monthIndex = date.getMonth(); // Get month index (0 for January, 1 for February, etc.)
+
+        // Get the number of days in the month
+        const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+        // Count how many of the selected weekdays occur in the month
+        for (let day = 1; day <= daysInMonth; day++) {
+          const currentDate = new Date(year, monthIndex, day);
+          const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+          // Check if the current day's weekday is in the weekdays array
+          if (weekdays.some((weekday) => weekdaysMap[weekday] === dayOfWeek)) {
+            totalCount++;
+          }
+        }
+      });
+
+      return totalCount;
+    },
     addFirstAndLastDay(months) {
       // Check if the user has selected exactly 2 months
       if (months.length !== 2) {

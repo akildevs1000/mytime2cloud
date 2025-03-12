@@ -33,14 +33,14 @@
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "avg_check_in"
+    "value": "average_in_time"
   },
   {
     "text": "Avg CheckOut",
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "avg_check_out"
+    "value": "average_out_time"
   },
   {
     "text": "Late In",
@@ -61,6 +61,6 @@
     "align": "left",
     "sortable": false,
     "filterable": true,
-    "value": "working_hrs"
+    "value": "total_hrs"
   }  
 ]

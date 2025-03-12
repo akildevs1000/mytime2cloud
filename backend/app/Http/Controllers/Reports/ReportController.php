@@ -286,7 +286,7 @@ class ReportController extends Controller
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
             })
-       
+
             ->when(count($department_ids), function ($q) use ($department_ids) {
                 $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
             })
@@ -294,58 +294,81 @@ class ReportController extends Controller
                 $q->whereIn('employee_id', $employeeIds);
             })
 
-            ->whereBetween('date', [$fromDate, $toDate])
-            ->select(
-                'employee_id',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
+            ->whereBetween('date', [$fromDate, $toDate]);
 
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG') // Early Going count
-            )
+        $model->select(
+            // here i want to add this query
+            'employee_id',
+            $this->getStatusCountWithSuffix('P'), // Present count
+            $this->getStatusCountWithSuffix('A'), // Absent count
+            $this->getStatusCountWithSuffix('L'), // Leave count
+            $this->getStatusCountWithSuffix('M'), // Missing count
+            $this->getStatusCountWithSuffix('LC'), // Late Coming count
+            $this->getStatusCountWithSuffix('EG'), // Early Going count
 
-            ->with(["employee" => function ($q) {
+            $this->getStatusCountValue('P'), // Present count
+            $this->getStatusCountValue('A'), // Absent count
+            $this->getStatusCountValue('L'), // Leave count
+            $this->getStatusCountValue('M'), // Missing count
+            $this->getStatusCountValue('LC'), // Late Coming count
+            $this->getStatusCountValue('EG'), // Early Going count
+
+            DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
+            DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
+            DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
+        );
+
+        $model->whereHas("employee", fn ($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
                 $q->where("company_id", request("company_id"));
-                $q->withOut("schedule", "user");
-                $q->with("reporting_manager:id,reporting_manager_id,first_name");
-                $q->select(
-                    "first_name",
-                    "last_name",
-                    "profile_picture",
-                    "phone_number",
-                    "whatsapp_number",
+                $q->select([
+                    "id",
+                    "shift_id",
                     "employee_id",
-                    "joining_date",
-                    "designation_id",
-                    "department_id",
-                    "user_id",
-                    "sub_department_id",
-                    "overtime",
-                    "title",
-                    "status",
+                    "shift_type_id",
                     "company_id",
-                    "branch_id",
-                    "system_user_id",
-                    "display_name",
-                    "full_name",
-                    "home_country",
-                    "reporting_manager_id",
-                    "local_email",
-                    "home_email",
-                    "leave_group_id"
-                );
-            }])
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
             ->groupBy('employee_id');
-
-        // return $model->count();
 
 
         return $model->paginate($request->per_page ?? 10);
@@ -573,7 +596,7 @@ class ReportController extends Controller
 
         foreach ($result as $item) {
 
-            $arr[date("Y-m-d",strtotime($item->date))] = $statusColors[$item->status] ?? 'grey';
+            $arr[date("Y-m-d", strtotime($item->date))] = $statusColors[$item->status] ?? 'grey';
 
             if (!isset($stats[$item->status])) {
                 $stats[$item->status] = 1; // Initialize the count for this status
