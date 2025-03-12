@@ -1,11 +1,10 @@
 export default ({ $axios, store }, inject) => {
+  // Add an interceptor to modify requests globally
   $axios.onRequest(async (config) => {
-
-    // if (process.env.ENVIRONMENT !== 'production') {
-    //   config.baseURL = `http://${window.location.hostname ?? "localhost"
-    //     }:8000/api`;
-    // }
-
+    // config.baseURL = `http://${
+    //   window.location.hostname ?? "localhost"
+    // }:8000/api`;
+    // Append the branchid parameter to all requests
     let user = store.state.auth.user;
 
     if (user) {
