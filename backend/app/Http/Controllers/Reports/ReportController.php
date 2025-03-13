@@ -297,7 +297,9 @@ class ReportController extends Controller
             ->whereBetween('date', [$fromDate, $toDate]);
 
         $model->select(
-            // here i want to add this query
+            DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
+            DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+            DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
             'employee_id',
             $this->getStatusCountWithSuffix('P'), // Present count
             $this->getStatusCountWithSuffix('A'), // Absent count
@@ -313,12 +315,12 @@ class ReportController extends Controller
             $this->getStatusCountValue('LC'), // Late Coming count
             $this->getStatusCountValue('EG'), // Early Going count
 
-            DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-            DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-            DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
+            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
+            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
+            // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
         );
 
-        $model->whereHas("employee", fn ($q) => $q->where("company_id", request("company_id")));
+        $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
 
         $model->with(["employee" => function ($q) {
             $q->where("company_id", request("company_id"));
@@ -371,15 +373,12 @@ class ReportController extends Controller
             ->groupBy('employee_id');
 
 
-        return $model->paginate($request->per_page ?? 10);
+        return $model->paginate($request->per_page ?? 100);
     }
 
     function getStatusCountWithSuffix($status)
     {
-        return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
-                     CASE WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) = 1 THEN ' day' 
-                          WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
-                          ELSE ' days' END) AS {$status}_count");
+        return DB::raw("LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0') AS {$status}_count");
     }
 
     function getStatusCountValue($status)
