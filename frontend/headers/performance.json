@@ -17,14 +17,14 @@
   },
   {
     "text": "Total Present",
-    "align": "left",
+    "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "p_count"
   },
   {
     "text": "Total Absent",
-    "align": "left",
+    "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "a_count"
@@ -32,21 +32,21 @@
 
   {
     "text": "Late In",
-    "align": "left",
+    "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "lc_count"
   },
   {
     "text": "Early Out",
-    "align": "left",
+    "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "eg_count"
   },
   {
     "text": "Leave",
-    "align": "left",
+    "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "l_count"
