@@ -1,5 +1,19 @@
 <template>
   <span>
+    <style scoped>
+      .v-data-table {
+        padding: 5px !important;
+        border: none;
+      }
+      .v-data-table-header th {
+        border-top: 1px solid #bdbdbd !important; /* Fix color code */
+        border-bottom: 1px solid #bdbdbd !important; /* Fix color code */
+        color: #4390fc !important; /* Change text color */
+        font-weight: normal !important;
+        padding-top: 10px !important; /* Add space above text */
+        padding-bottom: 10px !important; /* Add space below text */
+      }
+    </style>
     <v-card class="mt-5 pa-2" elevation="0">
       <v-toolbar flat dense>
         <v-toolbar-title
@@ -179,7 +193,6 @@
         </div>
       </v-toolbar>
     </v-card>
-
     <v-row no-gutters>
       <v-col cols="12">
         <v-card elevation="0">
@@ -189,6 +202,17 @@
             right
             dark
           >
+            <v-tabs-slider
+              class="violet slidegroup1"
+              style="height: 3px"
+            ></v-tabs-slider>
+            <v-tab
+              @click="downloadPDF"
+              style="height: 30px"
+              class="black--text slidegroup1"
+            >
+              Download
+            </v-tab>
           </v-tabs>
         </v-card>
       </v-col>
@@ -200,10 +224,9 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [10, 30, 50, 100, 500, 1000],
+            itemsPerPageOptions: [100, 200, 500],
             page: true,
           }"
-          class="elevation-1"
           model-value="data.id"
           :server-items-length="totalRowsCount"
           fixed-header
@@ -227,27 +250,50 @@
                   {{ item?.employee?.first_name || "---" }}
                   {{ item?.employee?.last_name || "---" }}
                 </div>
-                <small style="font-size: 12px; color: #6c7184">
-                  {{ item?.employee?.employee_id || "---" }}
-                </small>
+                <div style="font-size: 13px">
+                  <small style="font-size: 12px; color: #6c7184">
+                    {{ item?.employee?.department?.name || "---" }}
+                  </small>
+                </div>
               </div>
             </div>
           </template>
-          <template v-slot:item.total_hrs="{ item }">
-            {{ calculateHrsToPerform(item) }}
+          <template v-slot:item.p_count="{ item }">
+            <span class="green--text">{{ item.p_count }}</span>
+          </template>
+          <template v-slot:item.a_count="{ item }">
+            <span class="red--text">{{ item.p_count }}</span>
+          </template>
+          <template v-slot:item.l_count="{ item }">
+            <span class="orange--text">{{ item.p_count }}</span>
+          </template>
+          <template v-slot:item.average_in_time_array="{ item }">
+            {{ calculateAverageTime(item.average_in_time_array) }}
+          </template>
+
+          <template v-slot:item.average_out_time_array="{ item }">
+            {{ calculateAverageTime(item.average_out_time_array) }}
+          </template>
+          <template v-slot:item.average_working_hrs_array="{ item }">
+            {{
+              calculatePerDayHours(
+                item.total_hrs_array,
+                item?.employee?.schedule_all || []
+              )
+            }}
+          </template>
+          <template v-slot:item.total_hrs_array="{ item }">
+            <b> {{ calculateTotalHrs(item.total_hrs_array) }}</b> /
+            {{ calculateHrsToPerform(item?.employee?.schedule_all || []) }}
           </template>
         </v-data-table>
       </v-col>
     </v-row>
   </span>
 </template>
+
 <script>
-import summaryReportHeaders from "../../headers/summary_report.json";
-import missingrecords from "../../components/attendance_report/missingrecords.vue";
-
 export default {
-  components: { missingrecords },
-
   props: ["title", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
@@ -256,7 +302,79 @@ export default {
     selectAllEmployees: false,
     branches: [],
     tab: null,
-    summaryReportHeaders,
+    summaryReportHeaders: [
+      {
+        text: "Employee",
+        align: "left",
+        sortable: false,
+        filterable: true,
+        value: "employee_name",
+        key: "employee_name",
+      },
+      {
+        text: "Present",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "p_count",
+      },
+      {
+        text: "Absent",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "a_count",
+      },
+      {
+        text: "Leave",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "l_count",
+      },
+      {
+        text: "Avg CheckIn",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "average_in_time_array",
+      },
+      {
+        text: "Avg CheckOut",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "average_out_time_array",
+      },
+      {
+        text: "Late In",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "lc_count",
+      },
+      {
+        text: "Early Out",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "eg_count",
+      },
+      {
+        text: "Avg Working Hrs",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "average_working_hrs_array",
+      },
+      {
+        text: "Working Hrs",
+        align: "center",
+        sortable: false,
+        filterable: true,
+        value: "total_hrs_array",
+      },
+    ],
     date: null,
     menu: false,
     month: null,
@@ -351,11 +469,137 @@ export default {
   },
 
   methods: {
-    calculateHrsToPerform(item) {
-      const totalHrs = item?.total_hrs ?? 0;
+    async downloadPDF() {
+      try {
+        // Ensure company_id is available
+        const companyId = this.$auth?.user?.company_id;
+        if (!companyId) {
+          console.error("Company ID is missing.");
+          return;
+        }
 
+        const queryParams = new URLSearchParams({
+          ...this.payload,
+          from_date: this.from_date,
+          to_date: this.to_date,
+          page: this.options.page,
+          per_page: this.options.itemsPerPage,
+          company_id: this.$auth.user.company_id,
+          report_type: "monthly",
+          filterType: this.filterType,
+        });
+
+        // Construct the URL
+        // const baseUrl = "http://127.0.0.1:5500/index.html";
+        const baseUrl = "https://mytime2cloud-summary-report.netlify.app/";
+        
+        const url = `${baseUrl}?${queryParams.toString()}`;
+
+        // Open in a new tab
+        const newWindow = window.open(url, "_blank");
+
+        // Handle blocked pop-ups
+        if (!newWindow) {
+          console.error("Popup blocked! Allow pop-ups for this site.");
+        }
+      } catch (error) {
+        console.error("Error generating PDF URL:", error);
+      }
+    },
+    calculatePerDayHours(timesString, schedules) {
+      const times = JSON.parse(timesString);
+
+      if (!Array.isArray(times) || times.length === 0) {
+        return "00";
+      }
+
+      const totalWorkingDays =
+        schedules?.reduce((acc, schedule) => {
+          return (
+            acc +
+            this.countSelectedWeekdaysInMonth(
+              [...new Set(this.months)],
+              schedule?.shift?.days
+            )
+          );
+        }, 0) ?? 0;
+
+      // its giving error like map not function
+      if (times && times.length) {
+        let totalMinutes = times.map((time) => {
+          let [hours, minutes] = time.split(":").map(Number);
+          return hours * 60 + minutes;
+        });
+
+        // Calculate the average in minutes
+        let avgMinutes = Math.floor(totalMinutes.reduce((a, b) => a + b, 0));
+
+        // Convert back to HH:MM format
+        let avgHours = Math.floor(avgMinutes / 60);
+        return (avgHours / totalWorkingDays).toFixed(2); // Rounds to 2 decimal places
+      }
+    },
+    calculateAverageTime(timesString) {
+      const times = JSON.parse(timesString);
+
+      if (!Array.isArray(times) || times.length === 0) {
+        console.error(
+          "🚨 Error: times is not an array or is empty:",
+          " type " + typeof times,
+          times
+        );
+        return "0"; // Default value when times is invalid
+      }
+
+      // its giving error like map not function
+      if (times && times.length) {
+        let totalMinutes = times.map((time) => {
+          console.log("🚀 ~ totalMinutes ~ time:", time);
+          let [hours, minutes] = time.split(":").map(Number);
+          return hours * 60 + minutes;
+        });
+
+        // Calculate the average in minutes
+        let avgMinutes = Math.floor(
+          totalMinutes.reduce((a, b) => a + b, 0) / times.length
+        );
+
+        // Convert back to HH:MM format
+        let avgHours = Math.floor(avgMinutes / 60);
+        let avgMins = avgMinutes % 60;
+
+        // Format to 2-digit HH:MM
+        return `${avgHours.toString().padStart(2, "0")}:${avgMins
+          .toString()
+          .padStart(2, "0")}`;
+      }
+    },
+    calculateTotalHrs(timesString) {
+      const times = JSON.parse(timesString);
+
+      if (!Array.isArray(times) || times.length === 0) {
+        return "0";
+      }
+
+      // its giving error like map not function
+      if (times && times.length) {
+        let totalMinutes = times.map((time) => {
+          let [hours, minutes] = time.split(":").map(Number);
+          return hours * 60 + minutes;
+        });
+
+        // Calculate the average in minutes
+        let avgMinutes = Math.floor(totalMinutes.reduce((a, b) => a + b, 0));
+
+        // Convert back to HH:MM format
+        let avgHours = Math.floor(avgMinutes / 60);
+        // Format to 2-digit HH:MM
+        return `${avgHours.toString().padStart(2, "0")}`;
+      }
+    },
+    calculateHrsToPerform(schedules) {
       const result =
-        item?.employee?.schedule_all?.reduce((acc, schedule) => {
+        schedules?.reduce((acc, schedule) => {
           const workingHours =
             parseInt(schedule?.shift?.working_hours, 10) || 0;
 
@@ -369,7 +613,7 @@ export default {
           );
         }, 0) ?? 0;
 
-      return `${parseInt(totalHrs,10)}/${result}`;
+      return result;
     },
     countSelectedWeekdaysInMonth(months, weekdays) {
       const weekdaysMap = {
