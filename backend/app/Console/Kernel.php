@@ -167,11 +167,6 @@ class Kernel extends ConsoleKernel
             // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
         })->hourly();
 
-        // $schedule
-        //     ->command('task:check_device_health')
-        //     ->everyThirtyMinutes()
-        // ;
-
         $payroll_settings = PayrollSetting::get(["id", "date", "company_id"]);
 
         foreach ($payroll_settings as $payroll_setting) {

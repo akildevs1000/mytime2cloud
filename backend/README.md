@@ -46,9 +46,6 @@ php artisan queue:work
 
 nohup php artisan queue:work
 
-//background run  
- php artisan task:check_device_health
-
 // node socket
 nohup node leaveNotifications  
  nohup node employeeLeaveNotifications
