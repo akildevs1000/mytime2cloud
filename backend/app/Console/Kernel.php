@@ -64,10 +64,6 @@ class Kernel extends ConsoleKernel
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            // $schedule
-            //     ->command("send_notificatin_for_offline_devices {$companyId}")
-            //     ->everySixHours();
-
             $schedule
                 ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->everyTenMinutes();
