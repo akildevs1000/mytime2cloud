@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Automation\Alerts;
 
 use App\Http\Controllers\WhatsappController;
 use App\Mail\AdminAlertAbsent;
