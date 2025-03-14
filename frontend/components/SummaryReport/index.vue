@@ -224,7 +224,7 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [100, 200, 500],
+            itemsPerPageOptions: [10, 50, 100, 200, 500],
             page: true,
           }"
           model-value="data.id"
