@@ -1,5 +1,5 @@
 <template>
-  <v-tabs right background-color="popup_background">
+  <v-tabs right background-color="white">
     <v-tab>Attendance</v-tab>
     <v-tab>Summary</v-tab>
     <v-tab>Performance</v-tab>

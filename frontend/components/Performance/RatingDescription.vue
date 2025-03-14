@@ -70,6 +70,11 @@ export default {
       ],
     };
   },
+  methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
+  },
 };
 </script>
 <style scoped>

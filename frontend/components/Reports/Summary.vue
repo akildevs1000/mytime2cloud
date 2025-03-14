@@ -187,7 +187,7 @@
               style="border-radius: 5px"
               @click="getDataFromApi"
               color="primary"
-              primary
+              class="white--text"
               >Generate
             </v-btn>
           </div>
