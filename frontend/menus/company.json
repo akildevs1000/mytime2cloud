@@ -350,23 +350,9 @@
   },
   {
     "icon": "mdi-clock-time-four",
-    "title": "Attendance",
-    "to": "/attendance_report",
-    "menu": "attendance_report_access",
-    "module": "reports"
-  },
-  {
-    "icon": "mdi-trophy",
-    "title": "Performance Report",
-    "to": "/performance_report",
-    "menu": "attendance_report_access",
-    "module": "reports"
-  },
-  {
-    "icon": "mdi-calendar-clock",
-    "title": "Summary Report",
-    "to": "/summary_report",
-    "menu": "attendance_report_access",
+    "title": "Reports",
+    "to": "/reports",
+    "menu": "reports",
     "module": "reports"
   },
   {
