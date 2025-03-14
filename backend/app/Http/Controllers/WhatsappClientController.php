@@ -50,7 +50,7 @@ class WhatsappClientController extends Controller
 
     public function list()
     {
-        $clients = WhatsappClient::pluck("account");
+        $clients = WhatsappClient::pluck("accounts");
         return response()->json($clients);
     }
 }
