@@ -51,7 +51,7 @@
   {
     "icon": "mdi-calendar-today",
     "title": "Reports",
-    "to": "/attendance_report",
+    "to": "/reports",
     "menu": "true",
     "submenu": "attendance",
     "module": "dashboard"
@@ -216,7 +216,7 @@
   {
     "icon": "mdi-calendar-today",
     "title": "Reports",
-    "to": "/attendance_report",
+    "to": "/reports",
     "menu": "attendance_report_access",
     "module": "attendance"
   },
