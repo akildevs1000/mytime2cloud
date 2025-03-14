@@ -490,8 +490,8 @@ export default {
         });
 
         // Construct the URL
-        const baseUrl = "http://127.0.0.1:5500/index.html";
-        // const baseUrl = "https://mytime2cloud-summary-report.netlify.app/";
+        // const baseUrl = "http://127.0.0.1:5500/index.html";
+        const baseUrl = "https://mytime2cloud-summary-report.netlify.app/";
 
         const url = `${baseUrl}?${queryParams.toString()}`;
 
