@@ -15,7 +15,7 @@ class WhatsappClientController extends Controller
     public function show($company_id)
     {
         // WhatsappClient::truncate();
-        
+
         $clients = WhatsappClient::where('company_id', $company_id)->first();
         return response()->json($clients);
     }
@@ -42,9 +42,15 @@ class WhatsappClientController extends Controller
             $whatsappClient->update(['accounts' => $request->accounts]);
         } else {
             // Create new record
-            $whatsappClient = WhatsappClient::create(['company_id' => $request->company_id,'accounts' => $request->accounts]);
+            $whatsappClient = WhatsappClient::create(['company_id' => $request->company_id, 'accounts' => $request->accounts]);
         }
 
         return response()->json($whatsappClient, 200);
+    }
+
+    public function list()
+    {
+        $clients = WhatsappClient::pluck("account");
+        return response()->json($clients);
     }
 }
