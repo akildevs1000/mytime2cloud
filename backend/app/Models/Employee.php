@@ -24,7 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name'];
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name', 'profile_picture_base64'];
 
     public function schedule()
     {
@@ -181,6 +181,39 @@ class Employee extends Model
         // return asset(env('BUCKET_URL') . '/' . $value);
 
     }
+
+    public function getProfilePictureBase64Attribute()
+    {
+        $defaultImage = 'https://randomuser.me/api/portraits/women/45.jpg';
+        $value = $this->attributes['profile_picture'] ?? null;
+
+        if (env("APP_ENV") == "local") {
+            $defaultImage = "https://backend.mytime2cloud.com/media/employee/profile_picture/$value";
+        }
+
+        // If no profile picture is set, return the default image
+        if (!$value) {
+            return $defaultImage;
+        }
+
+        // If the value is a URL (e.g., already a remote image), return it directly
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
+        }
+
+        $path = public_path("media/employee/profile_picture/" . $value);
+
+        // Convert to base64 if the file exists
+        if (file_exists($path) && is_file($path)) {
+            $type = pathinfo($path, PATHINFO_EXTENSION);
+            $data = file_get_contents($path);
+            return 'data:image/' . $type . ';base64,' . base64_encode($data);
+        }
+
+        // Return the default image if the file doesn't exist
+        return $defaultImage;
+    }
+
     public function getProfilePictureRawAttribute()
     {
         // Ensure profile_picture exists and is not empty
