@@ -184,34 +184,7 @@ class Employee extends Model
 
     public function getProfilePictureBase64Attribute()
     {
-        $defaultImage = 'https://randomuser.me/api/portraits/women/45.jpg';
-        $value = $this->attributes['profile_picture'] ?? null;
-
-        if (env("APP_ENV") == "local") {
-            $defaultImage = "https://backend.mytime2cloud.com/media/employee/profile_picture/$value";
-        }
-
-        // If no profile picture is set, return the default image
-        if (!$value) {
-            return $defaultImage;
-        }
-
-        // If the value is a URL (e.g., already a remote image), return it directly
-        if (filter_var($value, FILTER_VALIDATE_URL)) {
-            return $value;
-        }
-
-        $path = public_path("media/employee/profile_picture/" . $value);
-
-        // Convert to base64 if the file exists
-        if (file_exists($path) && is_file($path)) {
-            $type = pathinfo($path, PATHINFO_EXTENSION);
-            $data = file_get_contents($path);
-            return 'data:image/' . $type . ';base64,' . base64_encode($data);
-        }
-
-        // Return the default image if the file doesn't exist
-        return $defaultImage;
+        return null;
     }
 
     public function getProfilePictureRawAttribute()
