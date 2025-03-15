@@ -547,4 +547,16 @@ class CompanyController extends Controller
         return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been merged with Company IDS.\n"; //."Details: " . json_encode($result) . ".\n";
 
     }
+    public function shortInfo($id)
+    {
+        $company = Company::with("user:id,company_id,email")->find($id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        return response()->json($company)->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    }
 }

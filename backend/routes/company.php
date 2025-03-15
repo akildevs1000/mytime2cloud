@@ -327,4 +327,4 @@ Route::post('send-whatsapp-wessage', function (Request $request) {
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
 
-Route::get('company-info/{id}', [CompanyController::class, 'show']);
+Route::get('company-short-info/{id}', [CompanyController::class, 'shortInfo']);
