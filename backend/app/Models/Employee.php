@@ -184,11 +184,10 @@ class Employee extends Model
 
     public function getProfilePictureBase64Attribute()
     {
-        return $this->profile_picture;
-        
-        $imageData = file_get_contents($this->profile_picture);
 
-        return $md5string = base64_encode($imageData);
+        $imageData = file_get_contents('https://randomuser.me/api/portraits/women/45.jpg');
+
+        $md5string = base64_encode($imageData);
 
         return "data:image/png;base64,$md5string";
     }
