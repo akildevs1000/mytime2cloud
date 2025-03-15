@@ -555,8 +555,6 @@ class CompanyController extends Controller
             return response()->json(['error' => 'Company not found'], 404);
         }
 
-        return response()->json($company)->header('Access-Control-Allow-Origin', '*')
-            ->header('Access-Control-Allow-Methods', 'GET')
-            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+        return $company;
     }
 }
