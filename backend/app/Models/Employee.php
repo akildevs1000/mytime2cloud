@@ -184,13 +184,13 @@ class Employee extends Model
 
     public function getProfilePictureBase64Attribute()
     {
-        // $imageData = file_get_contents("https://randomuser.me/api/portraits/women/45.jpg");
+        $value = $this->profile_picture;
+        
+        if (env("APP_ENV") == "local") {
+            return "https://backend.mytime2cloud.com/media/employee/profile_picture/$value";
+        }
 
-        // $md5string = base64_encode($imageData);
-
-        // return "data:image/png;base64,$md5string";
-
-        return null;
+        return asset('media/employee/profile_picture/' . $value);
     }
 
     public function getProfilePictureRawAttribute()
