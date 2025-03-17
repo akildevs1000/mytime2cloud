@@ -534,7 +534,6 @@ export default {
 
   data: () => ({
     zones_list: [],
-    originalURL: process.env.APP_URL + "/register/visitor/", // `https://mytime2cloud.com/register/visitor/`,
     fullCompanyLink: ``,
     encryptedID: "",
     fullLink: "",
@@ -761,7 +760,6 @@ export default {
   }),
 
   async created() {
-    this.originalURL = process.env.APP_URL + "/register/visitor/";
     if (this.$auth.user.branch_id == null || this.$auth.user.branch_id == 0) {
       let branch_header = [
         {
@@ -849,7 +847,6 @@ export default {
     },
     encrypt() {
       this.encryptedID = this.$crypto.encrypt(id);
-      // this.fullLink = this.originalURL + this.encryptedID;
     },
     closeViewDialog() {
       this.viewDialog = false;
@@ -961,9 +958,15 @@ export default {
       this.DialogBox = true;
       this.payload = item;
       this.previewImage = item.logo;
+
       this.fullLink =
-        this.originalURL + this.$auth.user.company_id + "-" + item.id;
+        this.$appUrl +
+        "/register/visitor/" +
+        this.$auth.user.company_id +
+        "-" +
+        item.id;
       this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
+
       this.generateQRCode(this.fullLink);
       this.generateCompanyQRCode(this.fullCompanyLink);
     },

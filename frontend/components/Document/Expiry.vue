@@ -562,7 +562,7 @@ export default {
           return;
         }
 
-        const backendUrl = process.env.BACKEND_URL;
+        const backendUrl = this.$axios.defaults.baseURL;
 
         const queryParams = {
           company_id: this.$auth.user.company_id,

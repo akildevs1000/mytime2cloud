@@ -85,7 +85,7 @@ export default {
       emptyLogmessage: "",
       number_of_records: 10,
       logs: [],
-      url: process.env.SOCKET_ENDPOINT,
+      url: null,
       socket: null,
     };
   },

@@ -342,7 +342,7 @@ export default {
     },
     getDonwloadLink(pic, file_name) {
       return (
-        process.env.BACKEND_URL +
+        this.$axios.defaults.baseURL +
         "/download-emp-documents/" +
         pic +
         "/" +

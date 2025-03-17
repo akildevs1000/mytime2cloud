@@ -223,7 +223,7 @@ export default {
     openImageViewer(pic, file_name) {
       this.imageViewerDialog = true;
       this.imageViewerSrc =
-        process.env.BACKEND_URL +
+        this.$axios.defaults.baseURL +
         "/download-emp-documents/" +
         pic +
         "/" +
@@ -310,7 +310,7 @@ export default {
     },
     getDonwloadLink(pic, file_name) {
       return (
-        process.env.BACKEND_URL +
+        this.$axios.defaults.baseURL +
         "/download-emp-documents/" +
         pic +
         "/" +

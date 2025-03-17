@@ -50,8 +50,7 @@ import QRCode from "qrcode";
 export default {
   data() {
     return {
-      clientId:
-        process.env.WHATSAPP_PROXY_CLIENT_SECRET || "default_client_secret",
+      clientId:"default_client_secret",
       ws: null, // WebSocket instance
       statusMessage: null, // Message for status updates
       qrCodePath: null, // QR code image path
