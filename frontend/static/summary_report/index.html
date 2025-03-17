@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Summary Report</title>
+    <link rel="stylesheet" href="../css/vuetify.min.css">
+    <link rel="stylesheet" href="../css/materialdesignicons.min.css">
+  
+    <script src="../js/axios.min.js"></script>
+    <script src="../js/vue.js"></script>
+    <script src="../js/vuetify.js"></script>
+    <script src="../js/apexcharts.js"></script>
+    <script src="../js/vue-apexcharts.js"></script>
+    <script src="../js/html2canvas.min.js"></script>
+    <script src="../js/jspdf.umd.min.js"></script>
+    <style>
+      .v-data-table-header th {
+        border-top: 1px solid #bdbdbd !important; /* Fix color code */
+        border-bottom: 1px solid #bdbdbd !important; /* Fix color code */
+        font-weight: bold !important;
+        padding-top: 10px !important; /* Add space above text */
+        padding-bottom: 10px !important; /* Add space below text */
+        color: black !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="pt-5">
+      <v-app>
+        <v-card class="mx-auto" id="screenshot-target">
+          <v-container>
+            <v-row>
+              <v-col class="">
+                <div class="d-flex">
+                  <div v-if="company && company.id">
+                    <v-avatar size="100">
+                      <v-img :src="company.logo || 'data:image/png;base64,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' "></v-img>
+                    </v-avatar>
+                  </div>
+                </div>
+              </v-col>
+              <v-col>
+                <div class="text-center pt-5">
+                  <div class="title">Summary Report</div>
+
+                  <small v-if="payload" class="caption text-center py-10"
+                    >{{payload.from_date}} - {{payload.to_date}}</small
+                  >
+                </div>
+              </v-col>
+              <v-col class="text-right">
+                <div class="mt-5">
+                  <div class="title">{{company?.name}}</div>
+                  <div>
+                    <small>{{company?.user?.email}}</small>
+                  </div>
+                  <div>
+                    <small>{{company?.location}}</small>
+                  </div>
+                </div>
+              </v-col>
+            </v-row>
+            <v-data-table
+              class="pt-10"
+              dense
+              :headers="summaryReportHeaders"
+              :items="data"
+              hide-default-footer
+            >
+              <template v-slot:item.employee_name="{ item }">
+                <div
+                  class="pa-1"
+                  style="display: flex; align-items: center; gap: 10px"
+                >
+                  <v-avatar size="35">
+                    <v-img
+                      :src="item?.employee_report_only?.profile_picture_base64 || '/no-profile-image.jpg'"
+                    ></v-img>
+                  </v-avatar>
+                  <div>
+                    <div style="font-size: 13px">
+                      {{ item?.employee_report_only?.first_name || "---" }} {{
+                      item?.employee_report_only?.last_name || "---" }}
+                    </div>
+                    <div style="font-size: 13px">
+                      <small style="font-size: 12px; color: #6c7184">
+                        {{ item?.employee_report_only?.department?.name || "---" }}
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-slot:item.p_count="{ item }">
+                <small>{{ item.p_count }}</small>
+              </template>
+              <template v-slot:item.a_count="{ item }">
+                <small>{{ item.a_count }}</small>
+              </template>
+              <template v-slot:item.l_count="{ item }">
+                <small>{{ item.l_count }}</small>
+              </template>
+              <template v-slot:item.average_in_time_array="{ item }">
+                <small
+                  >{{ calculateAverageTime(item.average_in_time_array) }}</small
+                >
+              </template>
+
+              <template v-slot:item.average_out_time_array="{ item }">
+                <small
+                  >{{ calculateAverageTime(item.average_out_time_array)
+                  }}</small
+                >
+              </template>
+              <template v-slot:item.average_working_hrs_array="{ item }">
+                <small
+                  >{{ calculateAvgWorkingHrs( item.total_hrs_array,
+                  item?.employee_report_only?.schedule_all || [] ) }}</small
+                >
+              </template>
+              <template v-slot:item.total_hrs_array="{ item }">
+                <small>
+                  {{ calculateTotalHrs(item.total_hrs_array) }}/{{
+                  calculateHrsToPerform(item?.employee_report_only?.schedule_all || [])
+                  }}</small
+                >
+              </template>
+            </v-data-table>
+            <v-divider></v-divider>
+            <v-row>
+              <v-col>
+                <div class="pt-5">
+                  <small
+                    style="font-size: 8px !important"
+                    class="caption text-center py-10"
+                    >Printed On
+                    <b>
+                      {{new Date().toDateString()}} {{new
+                      Date().toLocaleTimeString()}}</b
+                    ></small
+                  >
+                </div>
+              </v-col>
+              <v-col></v-col>
+              <v-col>
+                <div class="text-right pt-5">
+                  <small
+                    style="font-size: 8px !important"
+                    v-if="payload"
+                    class="caption text-center py-10"
+                    >This is system generated report</small
+                  >
+                  <br />
+                  <!-- <small v-if="payload" class="text-center py-10"
+                  >{{data.length}}</small
+                > -->
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card>
+        <!-- <v-dialog v-model="dialog" width="1300px"> </v-dialog> -->
+      </v-app>
+    </div>
+
+    <script>
+      Vue.use(Vuetify);
+      Vue.component("apexchart", VueApexCharts);
+
+      new Vue({
+        el: "#app",
+        vuetify: new Vuetify({
+          theme: {
+            dark: false,
+            treeShake: true,
+            themes: {
+              options: {
+                customProperties: true,
+              },
+              typography: {
+                fontFamily: "Source Sans Pro", // Use the same font family name as declared in @font-face
+              },
+              light: {
+                primary: "#6946dd",
+              },
+            },
+          },
+        }),
+        data() {
+          return {
+            BASE_URL: null,
+            dialog: true,
+            summaryReportHeaders: [
+              {
+                text: "Employee",
+                align: "left",
+                sortable: false,
+                filterable: true,
+                value: "employee_name",
+                key: "employee_name",
+              },
+              {
+                text: "Present",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "p_count",
+              },
+              {
+                text: "Absent",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "a_count",
+              },
+              {
+                text: "Leave",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "l_count",
+              },
+              {
+                text: "Avg CheckIn",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "average_in_time_array",
+              },
+              {
+                text: "Avg CheckOut",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "average_out_time_array",
+              },
+              {
+                text: "Late In",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "lc_count",
+              },
+              {
+                text: "Early Out",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "eg_count",
+              },
+              {
+                text: "Avg Working Hrs",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "average_working_hrs_array",
+              },
+              {
+                text: "Working Hrs",
+                align: "center",
+                sortable: false,
+                filterable: true,
+                value: "total_hrs_array",
+              },
+            ],
+            months: [],
+            options: {},
+            ids: [],
+            departments: [],
+            scheduled_employees: [],
+            loading: false,
+            total: 0,
+            totalRowsCount: 0,
+            payload: null,
+            data: [],
+            company: null,
+          };
+        },
+        async mounted() {
+          const params = new URLSearchParams(window.location.search);
+
+          // Check if necessary query parameters exist
+          if (!params.has("company_id")) {
+            console.warn("Required query parameters are missing.");
+            return; // Don't proceed if required parameters are missing
+          }
+
+          if (!params.has("company_id")) {
+            console.warn("Required query parameters are missing.");
+            return; // Don't proceed if required parameters are missing
+          }
+
+          if (!params.has("baseUrl")) {
+            console.warn("Required query parameters are missing.");
+            return; // Don't proceed if required parameters are missing
+          }
+
+          this.BASE_URL = params.get("baseUrl");
+
+          await this.getCompanyInfo(params.get("company_id"));
+
+          await this.getDataFromApi();
+        },
+        methods: {
+          async getCompanyInfo(companyId) {
+            let { data } = await axios.get(
+              `${this.BASE_URL}/company-short-info/${companyId}`
+            );
+
+            this.company = data;
+          },
+          calculateAvgWorkingHrs(timesString, schedules) {
+            const times = JSON.parse(timesString);
+
+            if (!Array.isArray(times) || times.length === 0) {
+              return "00";
+            }
+
+            const totalWorkingDays =
+              schedules?.reduce((acc, schedule) => {
+                return (
+                  acc + this.countSelectedWeekdaysInMonth(schedule?.shift?.days)
+                );
+              }, 0) ?? 0;
+
+            // its giving error like map not function
+            if (times && times.length) {
+              let totalMinutes = times.map((time) => {
+                let [hours, minutes] = time.split(":").map(Number);
+                return hours * 60 + minutes;
+              });
+
+              // Calculate the average in minutes
+              let avgMinutes = Math.floor(
+                totalMinutes.reduce((a, b) => a + b, 0)
+              );
+
+              if (totalWorkingDays == 0) return 0;
+              let avgHours = Math.floor(avgMinutes / 60);
+              return (avgHours / totalWorkingDays).toFixed(2); // Rounds to 2 decimal places
+            }
+          },
+          calculateAverageTime(timesString) {
+            const times = JSON.parse(timesString);
+
+            if (!Array.isArray(times) || times.length === 0) {
+              return "0"; // Default value when times is invalid
+            }
+
+            // its giving error like map not function
+            if (times && times.length) {
+              let totalMinutes = times.map((time) => {
+                let [hours, minutes] = time.split(":").map(Number);
+                return hours * 60 + minutes;
+              });
+
+              // Calculate the average in minutes
+              let avgMinutes = Math.floor(
+                totalMinutes.reduce((a, b) => a + b, 0) / times.length
+              );
+
+              // Convert back to HH:MM format
+              let avgHours = Math.floor(avgMinutes / 60);
+              let avgMins = avgMinutes % 60;
+
+              // Format to 2-digit HH:MM
+              return `${avgHours.toString().padStart(2, "0")}:${avgMins
+                .toString()
+                .padStart(2, "0")}`;
+            }
+          },
+          calculateTotalHrs(timesString) {
+            const times = JSON.parse(timesString);
+
+            if (!Array.isArray(times) || times.length === 0) {
+              return "0";
+            }
+
+            // its giving error like map not function
+            if (times && times.length) {
+              let totalMinutes = times.map((time) => {
+                let [hours, minutes] = time.split(":").map(Number);
+                return hours * 60 + minutes;
+              });
+
+              // Calculate the average in minutes
+              let avgMinutes = Math.floor(
+                totalMinutes.reduce((a, b) => a + b, 0)
+              );
+
+              // Convert back to HH:MM format
+              let avgHours = Math.floor(avgMinutes / 60);
+              // Format to 2-digit HH:MM
+              return `${avgHours.toString().padStart(2, "0")}`;
+            }
+          },
+          calculateHrsToPerform(schedules) {
+            const result =
+              schedules?.reduce((acc, schedule) => {
+                const workingHours =
+                  parseInt(schedule?.shift?.working_hours, 10) || 0;
+                return (
+                  acc +
+                  workingHours *
+                    this.countSelectedWeekdaysInMonth(schedule?.shift?.days)
+                );
+              }, 0) ?? 0;
+            return result;
+          },
+          countSelectedWeekdaysInMonth(weekdays) {
+            let months = this.payload.months;
+            const weekdaysMap = {
+              Sun: 0,
+              Mon: 1,
+              Tue: 2,
+              Wed: 3,
+              Thu: 4,
+              Fri: 5,
+              Sat: 6,
+            };
+
+            // Count the selected weekdays across multiple months
+            let totalCount = 0;
+
+            months.forEach((month) => {
+              const date = new Date(month + "-01"); // Use the first day of the month
+              const year = date.getFullYear();
+              const monthIndex = date.getMonth(); // Get month index (0 for January, 1 for February, etc.)
+
+              // Get the number of days in the month
+              const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+
+              // Count how many of the selected weekdays occur in the month
+              for (let day = 1; day <= daysInMonth; day++) {
+                const currentDate = new Date(year, monthIndex, day);
+                const dayOfWeek = currentDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+                // Check if the current day's weekday is in the weekdays array
+                if (
+                  weekdays.some((weekday) => weekdaysMap[weekday] === dayOfWeek)
+                ) {
+                  totalCount++;
+                }
+              }
+            });
+
+            return totalCount;
+          },
+          async getDataFromApi() {
+            const params = new URLSearchParams(window.location.search);
+
+            // Check if necessary query parameters exist
+            if (
+              !params.has("from_date") ||
+              !params.has("to_date") ||
+              !params.has("company_id")
+            ) {
+              console.warn("Required query parameters are missing.");
+              return; // Don't proceed if required parameters are missing
+            }
+
+            this.payload = {
+              from_date: params.get("from_date"),
+              to_date: params.get("to_date"),
+              page: 1, // Start from page 1
+              per_page: params.get("per_page") || 10, // Default to 10 if not found
+              company_id: params.get("company_id"),
+              employee_id: params.get("employee_id") || [],
+              department_ids: params.get("department_ids") || [],
+              months: params.has("months")
+                ? JSON.parse(params.get("months"))
+                : [], // Default to empty array
+            };
+
+            if (params.get("branch_id") !== "null") {
+              this.payload.branch_id = params.get("branch_id");
+            }
+
+            this.loading = true;
+            this.data = []; // Reset data array
+            let currentPage = 1;
+            let totalPages = 1;
+
+            try {
+              while (currentPage <= totalPages) {
+                this.payload.page = currentPage;
+
+                const { data } = await axios.post(
+                  this.BASE_URL + `/summary-report-download`,
+                  this.payload
+                );
+
+                // If no data returned, skip further processing
+                if (data.data.length === 0) {
+                  console.warn(`No data found for page ${currentPage}`);
+                  break; // Stop if no data is found
+                }
+
+                this.data = data.data; // Update data for the current page
+                this.total = data.total;
+                this.totalRowsCount = data.total;
+
+                // Calculate total pages dynamically
+                totalPages = Math.ceil(this.total / this.payload.per_page);
+
+                console.log(`Fetched page ${currentPage} of ${totalPages}`);
+
+                // Render the new data before capturing the screenshot
+                await this.$nextTick(); // Ensures Vue updates the DOM
+
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                await this.waitForImagesToLoad();
+
+                await this.generatePDF(currentPage);
+
+                currentPage++; // Move to the next page
+                // break;
+              }
+            } catch (error) {
+              console.error("Error fetching data:", error);
+            } finally {
+              this.loading = false;
+            }
+
+            console.log("🚀 ~ Final Data:", this.data);
+          },
+          async generatePDF(pageNumber) {
+            const target = document.getElementById("screenshot-target");
+
+            if (!target) {
+              console.error("Target element not found!");
+              return;
+            }
+
+            const fullHeight = target.scrollHeight;
+            const viewportHeight = window.innerHeight;
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF("l", "mm", "a4"); // Landscape orientation
+            const imgWidth = 297; // A4 width in mm (landscape)
+            let currentHeight = 0; // Keeps track of where we are in the content
+            const scale = 3; // Higher scale for better resolution
+
+            while (currentHeight < fullHeight) {
+              // Capture the current segment using html2canvas
+              await html2canvas(target, {
+                useCORS: true,
+                scale: scale,
+                y: currentHeight, // Offset for the next segment
+                height: Math.min(viewportHeight, fullHeight - currentHeight), // Limit capture height
+                logging: true, // Enable logging
+              }).then((canvas) => {
+                const imgData = canvas.toDataURL("image/png");
+
+                // Calculate the image height for this segment in the PDF
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                // Add the image to the PDF at the appropriate position
+                pdf.addImage(
+                  imgData,
+                  "PNG",
+                  0,
+                  currentHeight * (imgWidth / 297),
+                  imgWidth,
+                  imgHeight
+                );
+
+                // Move to the next section of the page
+                currentHeight += Math.min(
+                  viewportHeight,
+                  fullHeight - currentHeight
+                );
+
+                // If there's more content, add a new page in the PDF
+                if (currentHeight < fullHeight) {
+                  pdf.addPage(); // Start a new page
+                }
+              });
+            }
+
+            // Save the PDF with the current page number
+            pdf.save(`Summary_Report_Page_${pageNumber}.pdf`);
+          },
+          async waitForImagesToLoad(target) {
+            const images = target.getElementsByTagName("img");
+            const promises = [];
+
+            for (let img of images) {
+              if (!img.complete) {
+                promises.push(
+                  new Promise((resolve) => {
+                    img.onload = img.onerror = resolve;
+                  })
+                );
+              }
+            }
+
+            return Promise.all(promises);
+          },
+          async generateImage(pageNumber) {
+            const target = document.getElementById("screenshot-target");
+
+            if (!target) {
+              console.error("Target element not found!");
+              return;
+            }
+
+            try {
+              await this.waitForImagesToLoad(target);
+
+              // Capture the element as an image using html2canvas
+              const canvas = await html2canvas(target, {
+                useCORS: true, // Handle cross-origin images
+                scale: 3, // Higher scale for better quality
+                logging: true,
+              });
+
+              // Convert canvas to a data URL
+              const imgData = canvas.toDataURL("image/png");
+
+              // Create a temporary link to trigger the download
+              const link = document.createElement("a");
+              link.href = imgData;
+              link.download = `Summary_Report_Page_${pageNumber}.png`;
+
+              // Append link, trigger download, and remove link
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+
+              console.log(
+                `✅ Image downloaded: Summary_Report_Page_${pageNumber}.png`
+              );
+            } catch (error) {
+              console.error("Error generating image:", error);
+            }
+          },
+          // **New Method: Wait for all images to load**
+          async waitForImagesToLoad() {
+            const images = Array.from(document.querySelectorAll("img"));
+
+            await Promise.all(
+              images.map((img) => {
+                if (img.complete) return Promise.resolve(); // Skip already loaded images
+                return new Promise((resolve) => {
+                  img.onload = resolve;
+                  img.onerror = resolve; // Resolve even if an image fails to load
+                });
+              })
+            );
+            console.log("✅ All images are loaded.");
+          },
+        },
+      });
+    </script>
+  </body>
+</html>
