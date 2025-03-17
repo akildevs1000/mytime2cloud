@@ -119,6 +119,13 @@ export default {
       },
 
       {
+        text: "Branch",
+        align: "left",
+        sortable: true,
+        key: "branch",
+        value: "branch.branch_name",
+      },
+      {
         text: "Salary Type",
         align: "left",
         sortable: true,

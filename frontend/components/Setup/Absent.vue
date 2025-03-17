@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('automation_access')">
+  <div v-if="can('automation_absent_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -147,7 +147,7 @@
           <v-spacer></v-spacer>
           <span>
             <v-btn
-              v-if="can('automation_create')"
+              v-if="can('automation_absent_create')"
               small
               :ripple="false"
               title="Add Notification"
@@ -366,7 +366,7 @@
               </template>
               <v-list width="120" dense>
                 <v-list-item
-                  v-if="can('automation_view')"
+                  v-if="can('automation_absent_view')"
                   @click="viewItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -375,7 +375,7 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  v-if="can('automation_edit')"
+                  v-if="can('automation_absent_edit')"
                   @click="editItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -384,7 +384,7 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  v-if="can('automation_delete')"
+                  v-if="can('automation_absent_delete')"
                   @click="deleteItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">

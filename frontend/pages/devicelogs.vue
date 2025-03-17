@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`logs_access`)">
+  <div v-if="can(`device_logs_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -44,7 +44,7 @@
           <v-toolbar class="mb-2 white--text" color="white" dense flat>
             <v-toolbar-title>
               <span style="color: black">
-                Attendances Logs</span
+                Attendances Logs(Device)</span
               ></v-toolbar-title
             >
             <!-- <v-tooltip top color="primary">
@@ -92,8 +92,28 @@
             >
               <v-icon class="">mdi mdi-plus-circle</v-icon> 
             </v-btn>-->
+            <span>
+              <v-autocomplete
+                :hide-details="true"
+                outlined
+                dense
+                small
+                v-model="filters['device']"
+                item-text="name"
+                item-value="device_id"
+                :items="[
+                  { name: `All Devices`, device_id: `` },
+                  { name: `Manual`, device_id: `Manual` },
+
+                  ...devices,
+                ]"
+                placeholder="Device Name"
+                class="dropdownautocomplete pr-2"
+                @change="applyFilters('device', id)"
+              ></v-autocomplete
+            ></span>
             <v-btn
-              v-if="can(`logs_create`)"
+              v-if="can(`device_logs_create`)"
               style="margin-top: -6px"
               class="primary"
               small
@@ -101,7 +121,7 @@
               >+ Manual Log</v-btn
             >
             <v-btn
-              v-if="can(`logs_create`)"
+              v-if="can(`device_logs_create`)"
               style="margin-left: 5px; margin-top: -6px"
               class="primary"
               small
@@ -156,7 +176,7 @@
             :loading="loading"
             :options.sync="options"
             :footer-props="{
-              itemsPerPageOptions: [10, 50, 100, 500, 1000],
+              itemsPerPageOptions: [50, 100, 500, 1000],
             }"
             class="elevation-1"
             :server-items-length="totalRowsCount"
@@ -288,7 +308,7 @@
                       dense
                       small
                       v-model="filters[header.key]"
-                      item-text="location"
+                      item-text="name"
                       item-value="location"
                       :items="[{ location: `All Locations` }, ...devices]"
                       placeholder="Location"
@@ -366,16 +386,24 @@
               </div>
             </template>
             <template v-slot:item.LogTime="{ item }">
-              {{ item.LogTime }}
-            </template>
-            <template v-slot:item.option="{ item }">
-              {{ item.log_type ? item.log_type : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+                >{{ item.LogTime }}</span
+              >
             </template>
             <template v-slot:item.function="{ item }">
-              {{ item.device.function ? caps(item.device.function) : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+              >
+                {{ item.device.function ? caps(item.device.function) : "---" }}
+              </span>
             </template>
             <template v-slot:item.device.name="{ item }">
-              {{ item.device ? caps(item.device.name) : "---" }}
+              <span
+                :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
+              >
+                {{ item.device ? caps(item.device.name) : "---" }}
+              </span>
             </template>
             <template v-slot:item.gps_location="{ item }">
               <!-- {{ item.gps_location || "---" }} -->
@@ -392,6 +420,11 @@
                     ? item.device.location
                     : "---"
                 }}
+                <div class="secondary-value">
+                  {{
+                    item.index_serial_number ? item.index_serial_number : "---"
+                  }}
+                </div>
               </div>
             </template>
           </v-data-table>
@@ -474,12 +507,6 @@ export default {
         value: "UserID",
       },
       { text: "DeviceID", align: "center", sortable: false, value: "DeviceID" },
-      // {
-      //   text: "Device Name",
-      //   align: "center",
-      //   sortable: false,
-      //   value: "device.name",
-      // },
       { text: "LogTime", align: "center", sortable: false, value: "LogTime" },
     ],
     ids: [],
@@ -496,7 +523,7 @@ export default {
     options: {
       current: 1,
       total: 0,
-      itemsPerPage: 10,
+      itemsPerPage: 50,
     },
     errors: [],
     response: "",
@@ -522,16 +549,6 @@ export default {
         filterable: true,
         filterSpecial: false,
       },
-
-      // {
-      //   text: "Department",
-      //   align: "left",
-      //   sortable: false,
-      //   key: "department", //sorting
-      //   value: "department.name.id", //edit purpose
-      //   filterable: true,
-      //   filterSpecial: true,
-      // },
       {
         text: "Date  ",
         align: "left",
@@ -543,25 +560,6 @@ export default {
         fieldType: "date_range_picker",
       },
       {
-        text: "Option Value",
-        align: "left",
-        sortable: false,
-        key: "option",
-        value: "option",
-        filterable: true,
-        filterSpecial: true,
-        fieldType: "option",
-      },
-      // {
-      //   text: "Log Time",
-      //   align: "left",
-      //   sortable: true,
-      //   key: "LogTime", //sorting
-      //   value: "LogTime", //edit purpose
-      //   filterable: true,
-      //   filterSpecial: true
-      // },
-      {
         text: "Device Name",
         align: "left",
         sortable: true,
@@ -570,16 +568,6 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
-
-      // {
-      //   text: "Device Function",
-      //   align: "left",
-      //   sortable: true,
-      //   key: "function",
-      //   value: "function",
-      //   filterable: true,
-      //   filterSpecial: true,
-      // },
       {
         text: "Location",
         align: "left",
@@ -663,7 +651,7 @@ export default {
     getDepartments() {
       let options = {
         params: {
-          per_page: 10,
+          per_page: 50,
           company_id: this.$auth.user.company_id,
           //department_ids: this.$auth.user.assignedDepartments,
         },
@@ -779,14 +767,6 @@ export default {
 
       this.loading = true;
       this.$axios.get(url, this.payloadOptions).then(({ data }) => {
-        // if (filter_column != "" && data.data.length == 0) {
-        //   this.snack = true;
-        //   this.snackColor = "error";
-        //   this.snackText = "No Results Found";
-        //   this.loading = false;
-        //   return false;
-        // }
-        //this.server_datatable_totalItems = data.total;
         this.data = data.data;
         this.total = data.total;
         this.loading = false;

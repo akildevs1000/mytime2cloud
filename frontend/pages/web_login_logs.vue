@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`web_logs_access`)">
+  <div v-if="can(`web_login_logs_access`)">
     <v-card class="mb-5 mt-2 rounded-md" elevation="0">
       <v-toolbar class="rounded-md" dense flat>
         <v-toolbar-title><span> Web user Logins</span></v-toolbar-title>

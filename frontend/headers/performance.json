@@ -1,0 +1,62 @@
+[
+  {
+    "text": "Employee",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "employee_name",
+    "key": "employee_name"
+  },
+  {
+    "text": "Join Date",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "employee.show_joining_date",
+    "key": "joining_date"
+  },
+  {
+    "text": "Total Present",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "p_count"
+  },
+  {
+    "text": "Total Absent",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "a_count"
+  },
+
+  {
+    "text": "Late In",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "lc_count"
+  },
+  {
+    "text": "Early Out",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "eg_count"
+  },
+  {
+    "text": "Leave",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "l_count"
+  },
+  {
+    "text": "Rating",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "rating"
+  },
+  { "text": "Actions", "value": "options", "sortable": false }
+]

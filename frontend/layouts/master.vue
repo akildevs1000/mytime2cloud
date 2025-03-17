@@ -9,6 +9,7 @@
       app
       class="no_print"
       color="background"
+      style="width: 180px"
     >
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
         <v-list-item
@@ -139,8 +140,8 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-main>
-      <v-container>
+    <v-main style="padding-left: 160px">
+      <v-container style="padding: 0px">
         <nuxt />
       </v-container>
     </v-main>
@@ -196,6 +197,14 @@ export default {
           to: "/master/companies",
           permission: this.can("company_access"),
         },
+
+        {
+          icon: "mdi mdi-cellphone-wireless",
+          title: "Devices",
+          to: "/master/devices",
+          permission: this.can("company_access"),
+        },
+
         {
           icon: "mdi-account-multiple",
           title: "Communities",
@@ -233,6 +242,12 @@ export default {
               permission: this.can("assign_module_access"),
             },
           ],
+        },
+        {
+          icon: "mdi-help",
+          title: "FAQ",
+          to: "/faq",
+          permission: this.can("/"),
         },
 
         // {
@@ -295,9 +310,10 @@ export default {
     },
 
     getLogo() {
-      return Array.from(
-        this.$auth.user && this.$auth.user.name
-      )[0].toUpperCase();
+      if (this.$auth.user?.name) {
+        return this.$auth.user.name.charAt(0).toUpperCase(); // Get the first character and convert it to uppercase
+      }
+      return ""; // Return an empty string if user or name is not defined
     },
   },
 };

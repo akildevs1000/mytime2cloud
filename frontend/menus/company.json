@@ -51,7 +51,7 @@
   {
     "icon": "mdi-calendar-today",
     "title": "Reports",
-    "to": "/attendance_report",
+    "to": "/reports",
     "menu": "true",
     "submenu": "attendance",
     "module": "dashboard"
@@ -131,7 +131,7 @@
 
   {
     "icon": "mdi mdi-calculator",
-    "title": "Settings",
+    "title": "Payroll Settings",
     "to": "/payroll/create",
     "menu": "payroll_settings_access",
     "open_menu": false,
@@ -216,7 +216,7 @@
   {
     "icon": "mdi-calendar-today",
     "title": "Reports",
-    "to": "/attendance_report",
+    "to": "/reports",
     "menu": "attendance_report_access",
     "module": "attendance"
   },
@@ -242,10 +242,11 @@
     "menu": "timezone",
     "module": "access_control"
   },
+
   {
     "icon": "mdi mdi-credit-card-clock-outline",
-    "title": "Mapped List",
-    "to": "/timezonemapping/list",
+    "title": "Mapping List",
+    "to": "/timezonemapping/employees",
     "menu": "timezone_mapping_list",
     "module": "access_control"
   },
@@ -349,9 +350,9 @@
   },
   {
     "icon": "mdi-clock-time-four",
-    "title": "Attendance",
-    "to": "/attendance_report",
-    "menu": "attendance_report_access",
+    "title": "Reports",
+    "to": "/reports",
+    "menu": "reports",
     "module": "reports"
   },
   {

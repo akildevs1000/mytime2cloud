@@ -305,7 +305,7 @@
               title="Add Branch"
               @click="OpenDialog('Create')"
             >
-              <v-icon right size="x-large" dark v-if="can('employee_create')"
+              <v-icon right size="x-large" dark v-if="can('branch_create')"
                 >mdi-plus-circle</v-icon
               >
             </v-btn>

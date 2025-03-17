@@ -1,8 +1,5 @@
 <template>
-  <div v-if="can('announcement_access')">
-    <AnnouncementType />
-  </div>
-  <NoAccess v-else />
+  <AnnouncementType />
 </template>
 
 <script>

@@ -94,7 +94,7 @@
                 </span>
                 <v-spacer></v-spacer>
                 <v-toolbar-items>
-                  <v-col>
+                  <v-col v-if="can('purpose_create')">
                     <v-btn
                       dense
                       class="ma-0 px-0"

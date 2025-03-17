@@ -48,7 +48,7 @@
       :loading="loading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [10, 50, 100, 500, 1000],
+        itemsPerPageOptions: [50, 100, 500, 1000],
       }"
       class="elevation-1"
       :server-items-length="total"
@@ -203,7 +203,7 @@ export default {
 
       let options = {
         params: {
-          per_page: 10,
+          per_page: 50,
           company_id: this.$auth.user.company_id,
           ...this.filters,
         },

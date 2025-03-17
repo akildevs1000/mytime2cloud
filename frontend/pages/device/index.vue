@@ -1,5 +1,34 @@
 <template>
   <div v-if="can(`device_access`)">
+    <style scoped>
+      .v-text-field.v-text-field--enclosed .v-text-field__details,
+      .v-text-field.v-text-field--enclosed .v-text-field__details,
+      .v-text-field__details,
+      .v-text-field.v-text-field--enclosed .v-text-field__details {
+        margin-bottom: 0px !important;
+        padding: 0px !important;
+      }
+      .v-messages {
+        min-height: 0px !important;
+      }
+    </style>
+
+    <v-dialog v-model="responseBox" width="460">
+      <WidgetsClose left="450" @click="closeResponseBox" />
+      <v-card flat>
+        <v-alert dense flat dark class="primary">Command Response</v-alert>
+        <v-card class="pa-3" elevation="0">
+          <v-card-text>
+            <div
+              class="text-center"
+              :class="selectedDoor.responseStatus == false ? 'red--text' : ''"
+              v-html="selectedDoor.text"
+            ></div>
+          </v-card-text>
+        </v-card>
+      </v-card>
+    </v-dialog>
+
     <v-dialog
       v-model="dialogAccessSettings"
       width="90%"
@@ -259,7 +288,7 @@
                     <!-- <tr>
                       <td>Door</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.door"
                           placeholder="Entry or exit"
@@ -272,7 +301,7 @@
                           outlined
                           dense
                           label="Entry or exit"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr> -->
 
@@ -310,7 +339,7 @@
                     <tr>
                       <td>Volume</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.volume"
                           placeholder="volume"
@@ -318,7 +347,7 @@
                           outlined
                           dense
                           label="volume"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
@@ -339,7 +368,7 @@
                     <tr>
                       <td>Alarm Events Push(msgPush)</td>
                       <td>
-                        <v-select
+                        <v-autocomplete
                           class="pb-0"
                           v-model="deviceSettings.msgPush"
                           placeholder="Push to Live"
@@ -352,7 +381,7 @@
                           outlined
                           dense
                           label="Push to Live"
-                        ></v-select>
+                        ></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
@@ -510,7 +539,7 @@
                 <tr>
                   <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
-                    <v-select
+                    <v-autocomplete
                       :disable="loadingDeviceData"
                       :readOnly="loadingDeviceData"
                       class="pb-0"
@@ -529,7 +558,7 @@
                       outlined
                       dense
                       label="Persons Entry"
-                    ></v-select>
+                    ></v-autocomplete>
                   </td>
                 </tr>
                 <tr>
@@ -537,7 +566,7 @@
                   <td>
                     <v-row>
                       <v-col cols="6">
-                        <v-select
+                        <v-autocomplete
                           :disable="loadingDeviceData"
                           class="pb-0"
                           v-model="deviceCAMVIISettings.verification_mode"
@@ -548,10 +577,10 @@
                           outlined
                           dense
                           label="Open Mode"
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                       <v-col cols="6">
-                        <v-select
+                        <v-autocomplete
                           :disable="loadingDeviceData"
                           class="pb-0"
                           v-model="deviceCAMVIISettings.open_duration"
@@ -560,7 +589,7 @@
                           outlined
                           dense
                           label="Duration - Seconds"
-                        ></v-select>
+                        ></v-autocomplete>
                       </v-col>
                     </v-row>
                   </td>
@@ -702,7 +731,65 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <v-dialog persistent v-model="DialogsyncTimezoneDevice" max-width="1100">
+      <v-card>
+        <v-card-title dense class="popup_background_noviolet">
+          <span class="popup_title" style="color: black"
+            >Updating Timezones Devices
+          </span>
 
+          <v-spacer></v-spacer>
+          <v-icon
+            style="color: black"
+            @click="DialogsyncTimezoneDevice = false"
+            outlined
+          >
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text :key="key">
+          <v-progress-linear
+            v-if="loading_devicesync"
+            :active="loading_devicesync"
+            :indeterminate="loading_devicesync"
+            absolute
+            color="primary"
+          ></v-progress-linear>
+          <table style="width: 100%" class="mt-2">
+            <thead>
+              <tr class=" " dark>
+                <th>#</th>
+                <th style="width: 20%; text-align: left">Name</th>
+                <th style="width: 20%; text-align: left">Device ID</th>
+                <th style="width: 70%; text-align: left">Message</th>
+                <th class="text-center">Status</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="(d, index) in deviceResults" :key="index">
+                <td class="text-left">{{ ++index }}</td>
+                <td class="text-left">{{ d.name }}</td>
+                <td class="text-left">{{ d.DeviceID }}</td>
+
+                <td class="text-left" v-html="d.message"></td>
+                <td class="text-center">
+                  <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
+                  <v-icon color="error" v-else>mdi-close</v-icon>
+                </td>
+              </tr>
+
+              <tr v-if="deviceResults.length == 0">
+                <td colspan="3" class="text-center">No Data available</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- <br />
+          <v-btn small color="grey white--text" @click="DialogsyncTimezoneDevice = false">
+            Close</v-btn> -->
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <div class="text-center ma-5">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -711,8 +798,8 @@
 
     <v-row>
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
-        <v-select class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
-          :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-select>
+        <v-autocomplete class="form-control" @change="getDataFromApi(`device`)" v-model="pagination.per_page"
+          :items="[10, 25, 50, 100]" placeholder="Per Page Records" solo hide-details flat></v-autocomplete>
       </v-col> -->
       <!-- <v-col xs="12" sm="12" md="3" cols="12">
         <v-text-field class="form-control py-0 custom-text-box floating shadow-none" placeholder="Search..." solo flat
@@ -811,7 +898,7 @@
             </span>
           </v-col>
           <v-col md="12">
-            <v-select
+            <v-autocomplete
               outlined
               dense
               class="pb-0"
@@ -820,7 +907,7 @@
               :items="[`OX-866`, `OX-886`, `OX-966`, `OX-900`]"
               label="Model Number *"
               placeholder="Model Number"
-            ></v-select>
+            ></v-autocomplete>
             <!-- <v-text-field></v-text-field> -->
             <span v-if="errors && errors.model_number" class="error--text"
               >{{ errors.model_number[0] }}
@@ -966,7 +1053,7 @@
         </span>
 
         <span v-if="isCompany" style="width: 250px">
-          <v-select
+          <v-autocomplete
             @change="getDataFromApi()"
             class="pt-10 px-2"
             v-model="filters[`branch_id`]"
@@ -977,7 +1064,7 @@
             item-value="id"
             item-text="branch_name"
           >
-          </v-select>
+          </v-autocomplete>
         </span>
         <!-- </template>
           <span>Reload</span>
@@ -1065,7 +1152,7 @@
                   dense
                   autocomplete="off"
                 ></v-text-field>
-                <v-select
+                <v-autocomplete
                   :hide-details="true"
                   @change="applyFilters('status', $event)"
                   item-value="value"
@@ -1082,7 +1169,7 @@
                       title: 'Offline',
                     },
                   ]"
-                ></v-select>
+                ></v-autocomplete>
               </v-container>
             </td>
           </tr>
@@ -1146,20 +1233,20 @@
         </template>
         <template v-slot:item.door_open="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click to Open Door"
-            @click="open_door(item.device_id)"
             src="/icons/door_open.png"
-            class="iconsize30"
+            @click="door_command(`open_door`, item.device_id)"
           />
         </template>
         <template v-slot:item.door_close="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click to Close Door"
-            @click="close_door(item.device_id)"
             src="/icons/door_close.png"
-            class="iconsize30"
+            @click="door_command(`close_door`, item.device_id)"
           />
         </template>
 
@@ -1190,15 +1277,14 @@
 
         <template v-slot:item.sync_date_time="{ item }">
           <img
+            class="iconsize30"
             style="cursor: pointer"
             title="Click Sync UTC Time"
-            @click="sync_date_time(item)"
             src="/icons/sync_date_time.png"
-            class="iconsize30"
+            @click="sync_date_time(item.device_id)"
           />
         </template>
 
-        <template v-slot:item.open_always="{ item }"> </template>
         <template v-slot:item.status_id="{ item }">
           <img
             title="Online"
@@ -1212,61 +1298,7 @@
             src="/icons/device_status_close.png"
             style="width: 30px"
           />
-
-          <!-- <img
-            @click="sync_date_time(item)"
-            :src="getDeviceStatusIcon(item)"
-            class="iconsize30"
-          /> -->
-          <!-- <v-chip
-            small
-            class="p-2 mx-1"
-            :color="item.status.name == 'active' ? 'primary' : 'error'"
-          >
-            {{ item.status.name == "active" ? "online" : "offline" }}
-          </v-chip> -->
         </template>
-        <template v-slot:item.status="{ item }">
-          <!-- <v-chip
-            small
-            class="p-2"
-            color="primary"
-            @click="open_door(item.device_id)"
-          >
-            Open
-          </v-chip>
-          <v-chip
-            small
-            class="p-2 mx-1"
-            color="primary"
-            @click="open_door_always(item.device_id)"
-          >
-            Open Always
-          </v-chip>
-
-          <v-chip
-            small
-            class="p-2"
-            color="error"
-            @click="open_door_always(item.device_id)"
-          >
-            Close
-          </v-chip> -->
-        </template>
-        <!-- <template v-slot:item.sync_date_time="{ item }">
-          <v-chip
-            small
-            class="p-2 mx-1"
-            @click="sync_date_time(item)"
-            :color="'primary'"
-          >
-            {{
-              item.sync_date_time == "---"
-                ? "click to sync"
-                : item.sync_date_time
-            }}
-          </v-chip>
-        </template> -->
         <template v-slot:item.options="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -1276,7 +1308,7 @@
                 </v-btn>
               </div>
             </template>
-            <v-list width="120" dense>
+            <v-list width="140" dense>
               <v-list-item @click="findUser(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small>mdi-magnify </v-icon>
@@ -1313,6 +1345,19 @@
                   Settings
                 </v-list-item-title>
               </v-list-item>
+
+              <v-list-item @click="syncTimezonesToDevice(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="secondary" small> mdi-autorenew </v-icon>
+                  Sync Timezones
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item @click="updateDefault24HoursTimezone(item)">
+                <v-list-item-title style="cursor: pointer">
+                  <v-icon color="red" small> mdi-close-circle </v-icon>
+                  Reset Timezones
+                </v-list-item-title>
+              </v-list-item>
               <v-list-item
                 v-if="can(`device_delete`)"
                 @click="deleteItem(item)"
@@ -1338,6 +1383,21 @@ export default {
   components: { DeviceAccessSettings },
 
   data: () => ({
+    responseBox: false,
+    currentItem: null,
+
+    selectedDoor: {
+      title: null,
+      src: null,
+      command: null,
+      text: null,
+    },
+
+    key: 1,
+    deviceResults: [],
+    loading_devicesync: false,
+
+    DialogsyncTimezoneDevice: false,
     apiDeviceHealthcallStatus: false,
     oneTOsixty: [],
     deviceCAMVIISettings: { voice_volume: 0 },
@@ -1631,6 +1691,67 @@ export default {
   },
 
   methods: {
+    open_confirm_box(item, selectedDoor) {
+      this.currentItem = item;
+      this.selectedDoor = selectedDoor;
+      this.responseBox = true;
+    },
+
+    door_command(command = "open_door", device_id) {
+      let options = {
+        params: { device_id: device_id },
+      };
+      this.$axios
+        .get(command, options)
+        .then(({ data }) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        })
+        .catch((data) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        });
+    },
+    async sync_date_time(device_id) {
+      const dt = new Date();
+      // const year = dt.getFullYear();
+      // const month = String(dt.getMonth() + 1).padStart(2, "0");
+      // const day = String(dt.getDate()).padStart(2, "0");
+      // const hours = String(dt.getHours()).padStart(2, "0");
+      // const minutes = String(dt.getMinutes()).padStart(2, "0");
+      // const seconds = String(dt.getSeconds()).padStart(2, "0");
+      // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+
+      const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
+
+      const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+
+      this.$axios
+        .get(apiUrl, {
+          params: { sync_able_date_time },
+        })
+        .then(({ data }) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        })
+        .catch((data) => {
+          this.selectedDoor.text = data.message;
+          this.selectedDoor.responseStatus = data.status;
+          this.responseBox = true;
+        });
+    },
+    closeResponseBox() {
+      this.responseBox = false;
+      this.selectedDoor = {
+        title: null,
+        src: null,
+        command: null,
+        text: null,
+      };
+    },
     copyToProfileimage(faceImage, userId) {
       if (
         confirm("Are you sure? It will override the Software Profile picture ")
@@ -1692,6 +1813,132 @@ export default {
           { name: "Face Or Card", value: "face_or_card" },
         ];
       }
+    },
+    async updateDefault24HoursTimezone(device) {
+      if (confirm("Reset and Update Default 24hours Access?")) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
+
+        try {
+          this.processDefault24HoursTimeZone([device]);
+        } catch (error) {}
+      }
+    },
+    async syncTimezonesToDevice(device) {
+      if (confirm("Are you sure  want to Sync Timezones To Seletec Device?")) {
+        if (!this.data.length) {
+          this.snackbar = true;
+          this.response = "No data found";
+          return;
+        }
+        this.key++;
+        this.DialogsyncTimezoneDevice = true;
+
+        try {
+          this.syncTimeZones([device]);
+        } catch (error) {}
+      }
+    },
+    processDefault24HoursTimeZone(devices) {
+      this.deviceResults = [];
+      let payload = {
+        company_id: this.$auth.user.company_id,
+      };
+      this.loading_devicesync = true;
+      let counter = 0;
+
+      const processDevices = async () => {
+        for (let device of devices) {
+          try {
+            let endpoint = `${device.device_id}/WriteResetDefaultTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
+
+            let json = {
+              DeviceID: device.device_id,
+              name: device.name,
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID: device.device_id,
+              name: device.name,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
+          }
+        }
+      };
+
+      // Call the async function
+      processDevices();
+    },
+    syncTimeZones(devices) {
+      this.deviceResults = [];
+      let payload = {
+        company_id: this.$auth.user.company_id,
+      };
+      this.loading_devicesync = true;
+      let counter = 0;
+
+      const processDevices = async () => {
+        for (let device of devices) {
+          try {
+            let endpoint = `${device.device_id}/WriteTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
+
+            let json = {
+              DeviceID: device.device_id,
+              name: device.name,
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID: device.device_id,
+              name: device.name,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
+          }
+        }
+      };
+
+      // Call the async function
+      processDevices();
     },
     UpdateAlarmStatus(item, status) {
       if (status == 0) {
@@ -1971,38 +2218,6 @@ export default {
     },
     datatable_close() {
       this.loading = false;
-    },
-    async sync_date_time(item) {
-      if (
-        confirm(
-          "Are you want to change the Device Time to " +
-            item.utc_time_zone +
-            "?"
-        )
-      ) {
-        try {
-          const dt = new Date();
-          const year = dt.getFullYear();
-          const month = String(dt.getMonth() + 1).padStart(2, "0");
-          const day = String(dt.getDate()).padStart(2, "0");
-          const hours = String(dt.getHours()).padStart(2, "0");
-          const minutes = String(dt.getMinutes()).padStart(2, "0");
-          const seconds = String(dt.getSeconds()).padStart(2, "0");
-
-          const apiUrl = `sync_device_date_time/${item.device_id}/${this.$auth.user.company_id}`;
-          const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-          const { data } = await this.$axios.get(apiUrl, {
-            params: { sync_able_date_time },
-          });
-
-          this.snackbar = true;
-          this.response = data.message;
-        } catch (error) {
-          this.snackbar = true;
-          this.response = error;
-          console.error("Error syncing date and time:", error);
-        }
-      }
     },
     closepopup() {
       this.snackbar = true;
@@ -2349,24 +2564,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.v-text-field.v-text-field--enclosed .v-text-field__details,
-.v-text-field.v-text-field--enclosed .v-text-field__details,
-.v-text-field__details,
-.v-text-field.v-text-field--enclosed .v-text-field__details {
-  margin-bottom: 0px !important;
-  padding: 0px !important;
-}
-.v-messages {
-  min-height: 0px !important;
-}
-</style>
-
-<!-- <style>
-.v-dialog {
-  background-color: #fff;
-}
-</style>
-<style scoped>
-@import "https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.10.2/mdb.min.css";
-</style> -->

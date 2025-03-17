@@ -304,7 +304,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     add_number() {
       if (this.number && this.number.length > 10) {

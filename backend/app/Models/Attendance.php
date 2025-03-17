@@ -162,11 +162,11 @@ class Attendance extends Model
         });
 
         $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
-            //$q->whereIn('shift_type_id', [1, 3, 4, 6]);
-            $q->where(function ($query) {
-                $query->whereIn('shift_type_id', [1, 3, 4, 6])
-                    ->orWhere('shift_type_id', '---');
-            });
+            $q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            // $q->where(function ($query) {
+            //     $query->whereIn('shift_type_id', [1, 3, 4, 6])
+            //         ->orWhere('shift_type_id', '---');
+            // });
         });
         
         if (!empty($request->employee_id)) {
@@ -187,6 +187,7 @@ class Attendance extends Model
             $q->where('status', $request->status);
         });
 
+        $model->when(count($request->statuses ?? []) > 0, fn ($q) => $q->whereIn('status', request("statuses")));
 
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
@@ -234,7 +235,7 @@ class Attendance extends Model
             'employee' => function ($q) use ($request) {
                 $q->where('company_id', $request->company_id);
                 $q->where('status', 1);
-                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id","joining_date");
                 $q->with(['department', 'branch']);
             }
         ]);

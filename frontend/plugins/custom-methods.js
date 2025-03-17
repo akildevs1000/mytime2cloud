@@ -76,6 +76,14 @@ export default ({ app }, inject) => {
 
       return `${hours}:${minutes} ${formattedDate}   `;
     },
+    format6: (inputdate) => {
+      const date = new Date(inputdate);
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      return date.toLocaleDateString('en-GB', options).replace(',', '');
+    },
+
+
+
     monthStartEnd: (inputdate) => {
       // Get the current date
       const currentDate = new Date(inputdate);
@@ -167,8 +175,10 @@ export default ({ app }, inject) => {
       return `${currentMonth} ${currentYear}`;
     },
 
+
+
     can(per, thisobj) {
-      let u = thisobj.$auth.user;
+      let u = thisobj.$auth && thisobj.$auth.user;
 
       return (
         (u && u.permissions.some((e) => e == per || per == "/")) ||
@@ -180,7 +190,10 @@ export default ({ app }, inject) => {
 
   inject("pagePermission", {
     can(per, thisobj) {
-      let u = thisobj.$auth.user;
+      let u = thisobj.$auth && thisobj.$auth.user;
+      if (!u) {
+        return false;
+      }
 
       if (
         u.user_type == "company" ||
@@ -189,9 +202,27 @@ export default ({ app }, inject) => {
       ) {
         return true;
       }
-      console.log(u && u.permissions.some((e) => e == per || per == "/"));
-
       return u && u.permissions.some((e) => e == per || per == "/");
     },
+  });
+
+  inject("utils", {
+    getRating(count, from_date, to_date) {
+      // Convert the date strings to Date objects
+      const fromDate = new Date(from_date);
+      const toDate = new Date(to_date);
+
+      // Calculate the difference in time (in milliseconds)
+      const timeDifference = toDate - fromDate;
+
+      // Convert the time difference to days
+      const totalDaysInMonth = Math.ceil(timeDifference / (1000 * 60 * 60 * 24)) + 1;
+
+      // Calculate the rating
+      const rating = (count / totalDaysInMonth) * 5;
+
+      // Return the rating rounded to 2 decimal places
+      return parseFloat(rating.toFixed(2));
+    }
   });
 };

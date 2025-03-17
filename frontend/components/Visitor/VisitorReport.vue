@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="can(`visitor_reports_access`)">
     <v-dialog v-model="viewDialog" width="1200">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -671,7 +671,7 @@
 
           <v-data-table
             dense
-            v-if="can(`attendance_report_view`)"
+            v-if="can(`visitor_reports_view`)"
             :headers="headers"
             :items="data"
             :loading="loading"

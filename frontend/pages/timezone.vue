@@ -5,7 +5,11 @@
         {{ response }}
       </v-snackbar>
     </div>
-    <v-dialog v-model="dialogManualInput" width="300px">
+    <v-dialog
+      v-model="dialogManualInput"
+      :key="'dialogManualInput' + keydialogManualInput"
+      width="300px"
+    >
       <v-card>
         <v-card-title dense class="popup_background">
           <span>Select Hour Range</span>
@@ -45,7 +49,12 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog persistent v-model="dialog" width="80%" :key="editedIndex">
+    <v-dialog
+      persistent
+      v-model="dialog"
+      style="min-width: 1500px"
+      :key="'dialog' + keydialog"
+    >
       <v-card>
         <v-card-title dense class="popup_background">
           <span> {{ Module }}</span>
@@ -56,7 +65,7 @@
         </v-card-title>
         <v-card-text class="mt-2">
           <v-row>
-            <v-col v-if="viewmode" cols="6">
+            <!-- <v-col v-if="viewmode" cols="6">
               <div>
                 <strong class="">Branch</strong>:
                 {{
@@ -87,7 +96,7 @@
               >
                 {{ errors.branch_id[0] }}
               </span>
-            </v-col>
+            </v-col> -->
 
             <v-col>
               <div v-if="viewmode">
@@ -97,6 +106,7 @@
               <v-text-field
                 dense
                 small
+                label="Timezone Name"
                 placeholder="Timezone Name"
                 width="80px"
                 style="padding-top: 8px"
@@ -124,6 +134,7 @@
               </div>
               <v-text-field
                 v-else
+                label="Timezone Description"
                 dense
                 small
                 outlined
@@ -149,7 +160,7 @@
               md="4"
               style="float: right; text-align: right"
             >
-              <v-btn
+              <!-- <v-btn
                 small
                 dense
                 dark
@@ -158,7 +169,7 @@
                 @click="clearSelection()"
               >
                 Cancel
-              </v-btn>
+              </v-btn> -->
               <v-btn small dense dark color="violet" fill @click="submit"
                 >Submit</v-btn
               >
@@ -172,7 +183,7 @@
                 <th></th>
                 <th
                   v-for="(slot, slotIndex) in timeSlots"
-                  :key="slot"
+                  :key="'slot' + slot"
                   class="settings-time"
                 >
                   <div :title="getSlotTitle(slot, timeSlots[slotIndex + 1])">
@@ -214,15 +225,15 @@
 
     <v-dialog persistent v-model="syncDeviceDialog" max-width="1100">
       <v-card>
-        <v-card-title dense class="popup_background">
-          <span class="popup_title">Sync Device</span>
+        <v-card-title dense class="popup_background_noviolet">
+          <span class="popup_title">Updating Timezones to Devices</span>
 
           <v-spacer></v-spacer>
-          <v-icon @click="syncDeviceDialog = false" outlined dark>
+          <v-icon color="black" @click="syncDeviceDialog = false" outlined dark>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
-        <v-card-text>
+        <v-card-text :key="key">
           <v-progress-linear
             v-if="loading_devicesync"
             :active="loading_devicesync"
@@ -233,24 +244,29 @@
           <table style="width: 100%" class="mt-2">
             <thead>
               <tr class=" " dark>
-                <th style="width: 20%">Device ID</th>
-                <th style="width: 70%">Message</th>
+                <th style="text-align: left">#</th>
+                <th style="text-align: left">Device Name</th>
+                <th style="text-align: left">Serial Number</th>
+                <th style="width: 50%">Message</th>
                 <th class="text-center">Status</th>
               </tr>
             </thead>
 
             <tbody>
               <tr v-for="(d, index) in deviceResults" :key="index">
-                <td>{{ d.DeviceID }}</td>
-                <td v-html="d.message"></td>
+                <td class="text-left">{{ ++index }}</td>
+                <td class="text-left">{{ d.name }}</td>
+                <td class="text-left">{{ d.DeviceID }}</td>
+
+                <td class="text-left" v-html="d.message"></td>
                 <td class="text-center">
                   <v-icon color="primary" v-if="d.status">mdi-check</v-icon>
                   <v-icon color="error" v-else>mdi-close</v-icon>
                 </td>
               </tr>
 
-              <tr v-if="deviceResults.length == 0">
-                <td colspan="3" class="text-center">No Data available</td>
+              <tr v-if="!loading_devicesync && deviceResults.length == 0">
+                <td colspan="3" class="text-center">-----</td>
               </tr>
             </tbody>
           </table>
@@ -277,8 +293,8 @@
             >
           </v-btn>
         </span>
-        <div v-if="isCompany" style="width: 250px">
-          <v-select
+        <div v-if="isCompany" style="width: 500px">
+          <!-- <v-select
             @change="getDataFromApi()"
             class="pt-10 px-2"
             v-model="branch_id"
@@ -289,20 +305,36 @@
             item-value="id"
             item-text="branch_name"
           >
-          </v-select>
+          </v-select> -->
+
+          <div style="color: green">{{ sdkmessage }}</div>
         </div>
 
         <v-spacer></v-spacer>
-
+        <span class="pr-5">
+          <v-btn
+            v-if="!defaultTimezoneList || defaultTimezoneList.length < 2"
+            x-small
+            title="Create Default Full Access and No Access Timezones"
+            @click="createDefaultTimezones()"
+            primary
+            class="button primary"
+          >
+            <span>Create Default Timezones</span>
+          </v-btn>
+        </span>
         <span>
           <v-btn
             x-small
-            :ripple="false"
-            text
             title="Sync To Devices"
             @click="openDeviceDialog"
+            primary
+            class="button primary"
           >
-            <v-icon dark fill color="violet"> mdi-sync-circle</v-icon>
+            <v-icon small> mdi-sync-circle</v-icon>
+
+            <span v-if="data.length > 0">Sync Timezones to All Devices</span>
+            <span v-else>Reset Timezones On Device</span>
           </v-btn>
         </span>
         <span>
@@ -346,10 +378,15 @@
           }}
         </template>
 
-        <template v-slot:item.member="{ item }">
-          {{ item.employee_device && item.employee_device.employee_ids.length }}
+        <template v-slot:item.device_timezone_id="{ item }">
+          {{ item.timezone_id }}
         </template>
-
+        <template v-slot:item.description="{ item }">
+          {{ item.description === null ? "---" : item.description }}
+        </template>
+        <template v-slot:item.employees_count="{ item }">
+          {{ item.employees === null ? 0 : item.employees.length }}
+        </template>
         <template v-slot:item.menu="{ item }">
           <v-menu bottom left>
             <template v-slot:activator="{ on, attrs }">
@@ -364,14 +401,17 @@
                   View
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="can(`timezone_edit`)" @click="editItem(item)">
+              <v-list-item
+                v-if="can(`timezone_edit`) && item.is_default == false"
+                @click="editItem(item)"
+              >
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-pencil </v-icon>
                   Edit
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-if="can(`timezone_delete`)"
+                v-if="can(`timezone_delete`) && item.is_default == false"
                 @click="deleteItem(item)"
               >
                 <v-list-item-title style="cursor: pointer">
@@ -403,6 +443,10 @@ let days = [
 export default {
   components: { Back },
   data: () => ({
+    sdkmessage: "",
+    keydialog: 1,
+    keydialogManualInput: 1,
+    key: 1,
     viewmode: false,
     cumulativeIndex: 1,
     perPage: 10,
@@ -455,7 +499,7 @@ export default {
     days,
     editedItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -468,7 +512,7 @@ export default {
     },
     defaultItem: {
       timezone_id: "",
-      timezone_name: "Timezone Name",
+      timezone_name: "",
       interval: [
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
         { interval1: {}, interval2: {}, interval3: {}, interval4: {} },
@@ -489,7 +533,7 @@ export default {
       },
 
       {
-        text: "Zone",
+        text: "TimeZone Name",
         align: "left",
         sortable: true,
         key: "timezone_name",
@@ -504,12 +548,20 @@ export default {
         value: "description",
       },
       {
-        text: "Member",
+        text: "Timezone #Id on Device",
         align: "left",
         sortable: true,
-        key: "member",
-        value: "member",
+        key: "device_timezone_id",
+        value: "device_timezone_id",
       },
+      {
+        text: "Employees Count",
+        align: "left",
+        sortable: true,
+        key: "employees_count",
+        value: "employees_count",
+      },
+
       {
         text: "Created",
         align: "left",
@@ -532,6 +584,7 @@ export default {
     branchesList: [],
     branch_id: "",
     isCompany: true,
+    defaultTimezoneList: null,
   }),
 
   computed: {},
@@ -570,19 +623,19 @@ export default {
       return;
     }
 
-    let branch_header = [
-      {
-        text: "Branch",
-        align: "left",
-        sortable: true,
-        key: "branch_id", //sorting
-        value: "branch.branch_name", //edit purpose
-        width: "300px",
-        filterable: true,
-        filterSpecial: true,
-      },
-    ];
-    this.headers.splice(1, 0, ...branch_header);
+    // let branch_header = [
+    //   {
+    //     text: "Branch",
+    //     align: "left",
+    //     sortable: true,
+    //     key: "branch_id", //sorting
+    //     value: "branch.branch_name", //edit purpose
+    //     width: "300px",
+    //     filterable: true,
+    //     filterSpecial: true,
+    //   },
+    // ];
+    // this.headers.splice(1, 0, ...branch_header);
 
     try {
       const { data } = await this.$axios.get(`branches_list`, {
@@ -609,6 +662,7 @@ export default {
     },
     manualINputSettings(day_index) {
       this.day_index = day_index;
+      this.keydialogManualInput++;
       this.dialogManualInput = true;
     },
     generateTimeSlots(hours) {
@@ -639,19 +693,24 @@ export default {
       }
       return timeSlots;
     },
-    selectTimeRange() {
+    async selectTimeRange() {
       let timeArray = this.generateTimeSlotsRange(
         this.dialog_time_start,
         this.dialog_time_end
       );
-      timeArray.forEach((element) => {
+
+      timeArray.forEach(async (element) => {
         let columnIndex = this.timeSlots.findIndex((item) => item == element);
 
-        this.toggleCellBackground(this.day_index, columnIndex, true);
+        await this.toggleCellBackground(this.day_index, columnIndex, true);
       });
+
       this.dialogManualInput = false;
+      // setTimeout(() => {
+      //   this.dialogManualInput = false;
+      // }, 1000 * 1);
     },
-    toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
+    async toggleCellBackground(rowIndex, columnIndex, isPopup = false) {
       const refName = `cell_${rowIndex}_${columnIndex}`;
       const printableContent = document.getElementById(refName);
 
@@ -675,6 +734,10 @@ export default {
           printableContent.classList.remove("un-selected");
         }
       }
+
+      // if (isPopup) {
+      //   this.selectedCells.add(key);
+      // }
     },
     isSelected(rowIndex, columnIndex) {
       return this.selectedCells.has(`${rowIndex}-${columnIndex}`);
@@ -708,7 +771,9 @@ export default {
     addItem() {
       this.viewmode = false;
       this.clearSelection();
+      this.keydialog++;
       this.dialog = true;
+      this.keydialog++;
       this.readOnly = false;
       this.editedIndex = -1;
       this.editedItem = this.defaultItem;
@@ -718,6 +783,8 @@ export default {
       }
     },
     viewItem(item) {
+      this.keydialog++;
+
       this.viewmode = true;
       this.editedItem = Object.assign({}, item);
       this.dialog = true;
@@ -730,7 +797,6 @@ export default {
       let intervals_raw_data = JSON.parse(item.intervals_raw_data);
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
@@ -750,7 +816,6 @@ export default {
       if (!intervals_raw_data) return;
 
       intervals_raw_data.forEach((element) => {
-        console.log(element);
         const myArray = element.split("-");
         this.toggleCellBackground(myArray[0], myArray[1]);
       });
@@ -798,55 +863,90 @@ export default {
         return res.replace(/\b\w/g, (c) => c.toUpperCase());
       }
     },
+
+    async createDefaultTimezones() {
+      let param = { company_id: this.$auth.user.company_id };
+      let endpoint = "create_default_timezones";
+      const { data } = await this.$axios.post(endpoint, param);
+
+      // if (data) {
+      //   this.snackbar = true;
+      //   this.response = data.message;
+      // }
+
+      this.getDataFromApi();
+    },
     async openDeviceDialog() {
-      if (!this.data.length) {
-        this.snackbar = true;
-        this.response = "No data found";
-        return;
+      if (
+        confirm("Are you want to Update all Timezones to  Company Devices?")
+      ) {
+        // if (!this.data.length) {
+        //   this.snackbar = true;
+        //   this.response = "No data found";
+        //   return;
+        // }
+        this.key++;
+        this.syncDeviceDialog = true;
+
+        this.editedItem.company_id = this.$auth.user.company_id;
+
+        try {
+          let endpoint = "getDevicesCountForTimezone";
+          const { data } = await this.$axios.post(endpoint, this.editedItem);
+          this.processTimeZone(data);
+
+          this.sdkmessage = "";
+        } catch (error) {}
       }
-      this.syncDeviceDialog = true;
-
-      this.editedItem.company_id = this.$auth.user.company_id;
-
-      try {
-        let endpoint = "getDevicesCountForTimezone";
-        const { data } = await this.$axios.post(endpoint, this.editedItem);
-        this.processTimeZone(data);
-      } catch (error) {}
     },
     processTimeZone(devices) {
       this.deviceResults = [];
       let payload = {
         company_id: this.$auth.user.company_id,
       };
+      this.loading_devicesync = true;
       let counter = 0;
-      devices.forEach(async (DeviceID) => {
-        try {
-          this.loading_devicesync = true;
-          let endpoint = `${DeviceID}/WriteTimeGroup`;
-          const { data } = await this.$axios.post(endpoint, payload);
-          let json = {
-            DeviceID,
-            message:
-              '<span style="color:red">Device communication error</span>',
-            status: false,
-          };
 
-          if (data.status == 200) {
-            (json.message =
-              '<span style="color:green">Timezone data has been upload'),
-              (json.status = true);
-            counter++;
-          } else {
-            counter++;
-          }
+      const processDevices = async () => {
+        for (let device of devices) {
+          try {
+            let endpoint = `${device.device_id}/WriteTimeGroup`;
+            const { data } = await this.$axios.post(endpoint, payload);
 
-          this.deviceResults.push(json);
-          if (counter == devices.length) {
-            this.loading_devicesync = false;
+            let json = {
+              DeviceID: device.device_id,
+              name: device.name,
+
+              message:
+                '<span style="color:red">Device communication error</span>',
+              status: false,
+            };
+
+            if (data.status == 200) {
+              json.message =
+                '<span style="color:green">Timezone data has been uploaded</span>';
+              json.status = true;
+            }
+            this.deviceResults.push(json);
+          } catch (error) {
+            // Handle error, if needed
+            this.deviceResults.push({
+              DeviceID: device.device_id,
+              name: device.name,
+              message: '<span style="color:red">Failed to communicate</span>',
+              status: false,
+            });
+          } finally {
+            counter++;
+            if (counter === devices.length) {
+              this.loading_devicesync = false;
+            }
           }
-        } catch (error) {}
-      });
+        }
+      };
+
+      // Call the async function
+      processDevices();
     },
     close() {
       this.dialog = false;
@@ -889,6 +989,11 @@ export default {
         this.pagination.current = data.current_page;
         this.pagination.total = data.last_page;
         this.loading = false;
+
+        this.defaultTimezoneList = this.data.find(
+          (e) =>
+            e.timezone_name == "No Access" || e.timezone_name == "Full Access"
+        );
       });
     },
     searchIt() {
@@ -911,7 +1016,7 @@ export default {
       if (v == 64) {
         this.days.forEach((e, i) => {
           this.editedItem.interval[e.index][`interval1`]["begin"] = "00:00";
-          this.editedItem.interval[e.index][`interval1`]["end"] = "00:00";
+          this.editedItem.interval[e.index][`interval1`]["end"] = "23:59";
         });
       }
     },
@@ -926,7 +1031,6 @@ export default {
     submit() {
       let sortedDays = this.showShortDays(this.editedItem.interval);
 
-      console.log(sortedDays);
       this.editedItem["scheduled_days"] = sortedDays;
 
       this.editedItem.company_id = this.$auth.user.company_id;
@@ -937,6 +1041,8 @@ export default {
       this.editedItem.intervals_raw_data = jsonString;
 
       this.editedItem.input_time_slots = this.timeSlots;
+
+      this.snackbar = true;
 
       return this.editedIndex === -1 ? this.store() : this.update();
     },
@@ -950,8 +1056,17 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
-          this.dialog = false;
+
           this.getDataFromApi();
+
+          setTimeout(() => {
+            this.dialog = false;
+
+            this.response =
+              "Click and Submit Sync Button to Update Timezone Changes to Devies.";
+
+            this.sdkmessage = this.response;
+          }, 1000 * 2);
         })
         .catch((err) => {});
     },
@@ -966,8 +1081,14 @@ export default {
           }
           this.snackbar = data.status;
           this.response = data.message;
-          this.dialog = false;
+
           this.getDataFromApi();
+
+          this.dialog = false;
+
+          this.response =
+            "Click  Sync Button to Update Timezone Changes to Devies.";
+          this.sdkmessage = this.response;
         })
         .catch((err) => {
           console.log(err.message);

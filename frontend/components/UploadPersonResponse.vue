@@ -28,7 +28,9 @@
                   </td>
                   <td>
                     <v-icon
-                      v-if="item?.sdk_response?.status == 200"
+                      v-if="
+                        item?.sdk_response?.status == 200 || item?.status == 200
+                      "
                       color="green"
                       >mdi-check</v-icon
                     >
@@ -41,14 +43,14 @@
               </tbody>
             </v-simple-table>
           </div>
-          <div v-if="cameraResponses.length">
+          <!-- <div v-if="cameraResponses.length">
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses }}</pre>
-          </div>
-          <div v-if="cameraResponses2.length">
+          </div> -->
+          <!-- <div v-if="cameraResponses2.length">
             <h3>Camera Response</h3>
             <pre>{{ cameraResponses2 }}</pre>
-          </div>
+          </div> -->
         </v-card-text>
       </v-card>
     </v-dialog>

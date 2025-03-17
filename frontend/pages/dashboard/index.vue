@@ -134,6 +134,9 @@
           </v-col>
         </v-row>
       </v-col>
+      <v-col cols="12">
+        <SetupFAQSearch />
+      </v-col>
     </v-row>
   </div>
 

@@ -12,73 +12,69 @@
     </div>
 
     <v-dialog v-model="dialog" width="500px">
+      <WidgetsClose left="490" @click="dialog = false" />
       <v-card>
-        <v-card-title dense class="popup_background">
+        <v-alert dense flat class="grey lighten-3">
           <span>{{ formTitle }} </span>
-          <v-spacer></v-spacer>
-          <v-icon @click="dialog = false" outlined dark>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
+        </v-alert>
         <v-card-text>
           <v-container>
             <v-row>
               <v-col v-if="isCompany" cols="12">
-                <label for="" style="margin-bottom: 5px">Branches</label>
                 <v-select
                   v-model="editedItem.branch_id"
                   :items="branchesList"
                   dense
-                  placeholder="Select Branch"
+                  label="Branches"
                   outlined
                   item-value="id"
                   item-text="branch_name"
+                  :hide-details="!errors.branch_id"
                   :error-messages="
                     errors && errors.branch_id ? errors.branch_id[0] : ''
                   "
+                  @change="getLeaveTypes"
                 >
                 </v-select>
               </v-col>
 
               <v-col cols="12">
-                <label for="" style="margin-bottom: 5px">Group Name</label>
                 <v-text-field
+                  label="Group Name"
                   outlined
                   dense
                   v-model="editedItem.group_name"
                   v-bind="attrs"
+                  :hide-details="!errors.group_name"
                   :error-messages="
                     errors && errors.group_name ? errors.group_name[0] : ''
                   "
                 >
                 </v-text-field>
               </v-col>
-            </v-row>
-
-            <v-row v-for="(item, index) in leaveTypes" :key="index">
-              <v-col cols="6">
-                {{ item.name }}
-              </v-col>
-
-              <v-col cols="6">
+              <v-col v-for="(item, index) in leaveTypes" :key="index" cols="12">
                 <v-text-field
+                  :label="item.name"
                   type="number"
                   outlined
                   dense
                   v-model="item.leave_type_count"
                   v-bind="attrs"
+                  :hide-details="true"
                 >
                 </v-text-field>
+              </v-col>
+              <v-col cols="12">
+                <div class="text-right">
+                  <v-btn class="grey white--text" small @click="dialog = false"
+                    >Close</v-btn
+                  >
+                  <v-btn class="primary" small @click="save">Save</v-btn>
+                </div>
               </v-col>
             </v-row>
           </v-container>
         </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-
-          <v-btn class="primary" small @click="save">Save</v-btn>
-        </v-card-actions>
       </v-card>
     </v-dialog>
 
@@ -127,6 +123,7 @@
             <!-- <v-tooltip v-if="can(`leave_group_create`)" top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
+              v-if="can(`leave_group_create`)"
               dense
               class="ma-0 px-0"
               x-small
@@ -134,7 +131,7 @@
               text
               title="Add LeaveGroup"
             >
-              <v-icon class="ml-2" @click="createNew()" dark
+              <v-icon class="ml-2" @click="createNew" dark
                 >mdi mdi-plus-circle</v-icon
               >
             </v-btn>
@@ -433,7 +430,6 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     async getLeaveTypes() {
-      console.log("this.editedItem ", this.editedItem);
       let options = {
         params: {
           per_page: 1000,
@@ -479,7 +475,8 @@ export default {
       });
     },
     async createNew() {
-      this.getLeaveTypes();
+      this.editedIndex = -1;
+      this.formTitle = "New Group";
 
       if (!this.isCompany) {
         this.editedItem.branch_id = this.branch_id;
@@ -494,17 +491,20 @@ export default {
       this.formTitle = "Edit Group Details";
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
-
       this.editedItem.branch_id = item.branch_id;
-      await this.getLeaveTypes();
-      this.leaveTypes.forEach((element) => {
-        element.leave_type_count = this.editedItem.leave_count.filter(
-          (e) => e.leave_type_id == element.id
-        );
-        if (element.leave_type_count[0])
-          element.leave_type_count =
-            element.leave_type_count[0].leave_type_count;
-      });
+      this.leaveTypes = item.leave_count.map((e) => ({
+        ...e.leave_type,
+        leave_type_count: e.leave_type_count,
+      }));
+      // await this.getLeaveTypes();
+      // this.leaveTypes.forEach((element) => {
+      //   element.leave_type_count = this.editedItem.leave_count.filter(
+      //     (e) => e.leave_type_id == element.id
+      //   );
+      //   if (element.leave_type_count[0])
+      //     element.leave_type_count =
+      //       element.leave_type_count[0].leave_type_count;
+      // });
 
       this.dialog = true;
       this.error = [];

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('visitor_view')">
+  <div v-if="can('visitor_request_access')">
     <VisitorRequestsList
       :statsFilterValue="'Pending'"
       title="Visitor Requests"

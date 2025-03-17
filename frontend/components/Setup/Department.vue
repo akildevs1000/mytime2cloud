@@ -194,7 +194,7 @@
               <v-spacer></v-spacer>
               &nbsp;
               <v-btn
-                v-if="can(`sub_department_create`)"
+                v-if="can(`department_create`)"
                 @click="newDepartment"
                 small
                 class="primary"

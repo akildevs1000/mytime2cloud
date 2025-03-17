@@ -6,7 +6,8 @@
     :close-on-content-click="false"
     transition="scale-transition"
     offset-y
-    max-width="150px"
+    max-width="200px"
+    style="overflow: hidden; height: 56px"
   >
     <template v-slot:activator="{ on, attrs }">
       <!-- <label v-if="label != ''" for=""> {{ label }}</label> -->

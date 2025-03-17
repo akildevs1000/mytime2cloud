@@ -137,7 +137,7 @@
               <v-spacer></v-spacer>
               &nbsp;
               <v-btn
-                v-if="can(`sub_designation_create`)"
+                v-if="can(`designation_create`)"
                 @click="newSubDesignation"
                 small
                 class="primary"

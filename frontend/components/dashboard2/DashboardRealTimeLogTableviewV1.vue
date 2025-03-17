@@ -73,7 +73,7 @@
             </v-col>
           </v-row>
 
-          <EmployeeShortView :item="selectedItem" />
+          <EmployeeShortView :key="selectedItem.id" :item="selectedItem" />
         </v-container>
       </v-card>
     </v-dialog>
@@ -86,7 +86,7 @@
       :loading="tableloading"
       :options.sync="options"
       :footer-props="{
-        itemsPerPageOptions: [5, 10],
+        itemsPerPageOptions: [5, 10, 50, 100],
       }"
       class="elevation-0 logtable"
       :server-items-length="totalRowsCount"
@@ -100,7 +100,7 @@
         }}
       </template>
 
-      <template v-slot:item.employee.first_name="{ item, index }">
+      <template v-slot:item.employee="{ item, index }">
         <v-row no-gutters>
           <v-col
             style="
@@ -136,42 +136,19 @@
           </v-col>
         </v-row>
       </template>
-      <template v-slot:item.employee.department="{ item }">
-        {{
-          item.employee && item.employee.department
-            ? caps(item.employee.department.name)
-            : "---"
-        }}
-        <div class="secondary-value">
-          {{
-            item.employee && item.employee.sub_department
-              ? caps(item.employee.sub_department.name)
-              : "---"
-          }}
-        </div>
-      </template>
-
-      <template v-slot:item.UserID="{ item }"> #{{ item.UserID }} </template>
-      <template v-slot:item.employee.employee_id="{ item }">
-        {{ item.employee && item.employee.employee_id }}
-      </template>
-      <template v-slot:item.LogTime="{ item }">
-        {{ item.LogTime }}
-      </template>
-
-      <template v-slot:item.online="{ item }">
-        <v-icon v-if="item.device && item.device.location" color="green" fill
-          >mdi-map-marker-radius</v-icon
-        >
-        <v-icon v-else color="red" fill>mdi-map-marker-radius</v-icon>
-      </template>
 
       <template v-slot:item.branch="{ item }">
         {{ item?.employee?.branch?.branch_name }} <br />
         {{ item?.employee?.department?.name }}
       </template>
 
-      <template v-slot:item.device.device_name="{ item }">
+      <template v-slot:item.LogTime="{ item }">
+        <span :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`">
+          {{ item.LogTime }}
+        </span>
+      </template>
+
+      <template v-slot:item.device_info="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
           Mobile <br />
           {{ item.gps_location }}
@@ -182,6 +159,15 @@
             item.device && item.device.location ? item.device.location : "---"
           }}
         </div>
+      </template>
+
+      <template v-slot:item.mode="{ item }">
+        <v-icon color="secondary" v-if="item.DeviceID?.includes(`Mobile`)">mdi-cellphone</v-icon>
+        <span  v-else>
+          <v-avatar v-for="(icon, index) in getRelatedIcons(item.mode)" :key="index" class="mx-1" tile size="20"
+            ><img style="width: 100%" :src="icon"
+          /></v-avatar>
+        </span>
       </template>
     </v-data-table>
   </div>
@@ -228,7 +214,7 @@ export default {
           sortable: true,
           filterable: true,
 
-          value: "employee.first_name",
+          value: "employee",
         },
         {
           text: "Branch/Department",
@@ -246,20 +232,20 @@ export default {
           value: "LogTime", //edit purpose
         },
         {
+          text: "Mode",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "mode",
+        },
+        {
           text: "Device Name",
           align: "left",
           sortable: true,
           filterable: true,
 
-          value: "device.device_name",
-        },
-        {
-          text: "Online/Offline",
-          align: "left",
-          sortable: true,
-          filterable: true,
-
-          value: "online",
+          value: "device_info",
         },
         // {
         //   text: "Log",
@@ -298,9 +284,9 @@ export default {
     },
   },
   mounted() {
-    setTimeout(() => {
-      this.socketConnection();
-    }, 1000 * 10);
+    // setTimeout(() => {
+    //   this.socketConnection();
+    // }, 1000 * 10);
 
     setInterval(() => {
       if (this.$route.name == "dashboard") {
@@ -309,15 +295,15 @@ export default {
     }, 1000 * 60);
   },
   created() {
-    let payload = {
-      params: {
-        company_id: this.$auth.user.company_id,
-      },
-    };
+    // let payload = {
+    //   params: {
+    //     company_id: this.$auth.user.company_id,
+    //   },
+    // };
     //this.devices_list = this.$store.dispatch("devices_list", options);
-    this.$axios.get(`device-list`, payload).then(({ data }) => {
-      this.devices_list = data;
-    });
+    // this.$axios.get(`device-list`, payload).then(({ data }) => {
+    //   this.devices_list = data;
+    // });
   },
   computed: {
     employees() {
@@ -491,6 +477,49 @@ export default {
       } catch (e) {
         return "--:--";
       }
+    },
+
+    getRelatedIcons(mode) {
+      let iconPath = "/icons/employee-access/";
+      const icons = {
+        Card: [iconPath + "03.png"],
+        Fing: [iconPath + "04.png"],
+        Face: [iconPath + "01.png"],
+        "Fing + Card": [iconPath + "01.png", iconPath + "03.png"],
+        "Face + Fing": [iconPath + "01.png", iconPath + "04.png"],
+        "Face + Card": [iconPath + "01.png", iconPath + "03.png"],
+        "Card + Pin": [iconPath + "03.png", iconPath + "02.png"],
+        "Face + Pin": [iconPath + "01.png", iconPath + "02.png"],
+        "Fing + Pin": [iconPath + "04.png", iconPath + "02.png"],
+        "Fing + Card + Pin": [
+          iconPath + "04.png",
+          iconPath + "03.png",
+          iconPath + "02.png",
+        ],
+        "Face + Card + Pin": [
+          iconPath + "01.png",
+          iconPath + "03.png",
+          iconPath + "02.png",
+        ],
+        "Face + Fing + Pin": [
+          iconPath + "01.png",
+          iconPath + "04.png",
+          iconPath + "02.png",
+        ],
+        "Face + Fing + Card": [
+          iconPath + "01.png",
+          iconPath + "04.png",
+          iconPath + "03.png",
+        ],
+        Manual: [], // assuming no icons for Manual
+        Repeated: [], // assuming no icons for Repeated
+      };
+
+      return (
+        icons[mode] || [
+          iconPath + "02.png",
+        ]
+      );
     },
   },
 };
