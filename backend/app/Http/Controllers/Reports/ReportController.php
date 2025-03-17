@@ -320,9 +320,9 @@ class ReportController extends Controller
             // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
         );
 
-        $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
+        $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
 
-        $model->with(["employee" => function ($q) {
+        $model->with(["employee_report_only" => function ($q) {
             $q->where("company_id", request("company_id"));
             $q->withOut("schedule", "user");
             $q->with("reporting_manager:id,reporting_manager_id,first_name");
