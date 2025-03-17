@@ -953,13 +953,11 @@ export default {
         item: JSON.stringify(this.item),
         employee: JSON.stringify(this.employee),
         company_id: this.$auth.user.company_id,
+        baseUrl: this.$axios.defaults.baseURL
       });
 
       // Open the target page in a new window with the query parameters
-      const url =
-        "https://mytime2cloud-performance-report.netlify.app?" +
-        // "http://127.0.0.1:5500/index.html?" +
-        queryParams.toString();
+      const url = `${this.$appUrl}/performance_report/index.html?${queryParams.toString()}`;
 
       // Open the URL in a new window
       window.open(url, "_blank");
