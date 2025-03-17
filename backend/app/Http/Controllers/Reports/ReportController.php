@@ -492,6 +492,122 @@ class ReportController extends Controller
         return $model->paginate($request->per_page ?? 100);
     }
 
+    public function summaryReportDownload(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+
+        $fromDate = $request->input('from_date', date("Y-m-d"));
+        $toDate = $request->input('to_date', date("Y-m-d"));
+
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $employeeIds = [];
+
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+        }
+
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
+            })
+
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
+
+            ->whereBetween('date', [$fromDate, $toDate]);
+
+        $model->select(
+            DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
+            DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+            DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
+            'employee_id',
+            $this->getStatusCountWithSuffix('P'), // Present count
+            $this->getStatusCountWithSuffix('A'), // Absent count
+            $this->getStatusCountWithSuffix('L'), // Leave count
+            $this->getStatusCountWithSuffix('M'), // Missing count
+            $this->getStatusCountWithSuffix('LC'), // Late Coming count
+            $this->getStatusCountWithSuffix('EG'), // Early Going count
+
+            $this->getStatusCountValue('P'), // Present count
+            $this->getStatusCountValue('A'), // Absent count
+            $this->getStatusCountValue('L'), // Leave count
+            $this->getStatusCountValue('M'), // Missing count
+            $this->getStatusCountValue('LC'), // Late Coming count
+            $this->getStatusCountValue('EG'), // Early Going count
+
+            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
+            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
+            // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
+        );
+
+        $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee_report_only" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
+                $q->where("company_id", request("company_id"));
+                $q->select([
+                    "id",
+                    "shift_id",
+                    "employee_id",
+                    "shift_type_id",
+                    "company_id",
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
+            ->groupBy('employee_id');
+
+
+        return $model->paginate($request->per_page ?? 100);
+    }
+
     function getStatusCountWithSuffix($status)
     {
         return DB::raw("LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0') AS {$status}_count");

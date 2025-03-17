@@ -205,6 +205,7 @@ Route::get('/accessControlReport_download_pdf', [PDFController::class, 'accessCo
 
 Route::post('performance-report', [ReportController::class, 'performanceReport']);
 Route::post('summary-report', [ReportController::class, 'summaryReport']);
+Route::post('summary-report-download', [ReportController::class, 'summaryReportDownload']);
 
 Route::post('last-six-month-performance-report', [ReportController::class, 'lastSixMonthsPerformanceReport']);
 Route::post('last-six-month-salary-report', [ReportController::class, 'lastSixMonthsSalaryReport']);
