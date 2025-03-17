@@ -703,7 +703,7 @@
         this.loading = true;
   
         this.$axios
-          .post(`performance-report`, {
+          .post(`summary-report`, {
             ...this.payload,
             from_date: this.from_date,
             to_date: this.to_date,

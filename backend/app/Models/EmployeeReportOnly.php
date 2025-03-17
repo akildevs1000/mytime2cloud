@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Employee extends Model
+class EmployeeReportOnly extends Model
 {
     use HasFactory;
+
+    protected $table = 'employees'; 
 
     // protected $with = [];
 
