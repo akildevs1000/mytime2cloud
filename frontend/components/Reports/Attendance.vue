@@ -244,6 +244,48 @@
       </v-col>
 
       <v-col cols="6">
+        <v-dialog v-model="regenerateDialog" max-width="480px">
+          <WidgetsClose left="470" @click="regenerateDialog = false" />
+          <v-card>
+            <v-alert dark dense flat class="primary">Regenerate Reprot</v-alert>
+            <v-card-text>
+              <v-container>
+                <div class="mx-1" style="width: 100%">
+                  <CustomFilter
+                    @filter-attr="filterAttrForRegenerate"
+                    :defaultFilterType="1"
+                    height="40px"
+                    width="100%"
+                  />
+                </div>
+                <div
+                  dense
+                  flat
+                  v-if="message"
+                  :class="`${alertType}--text`"
+                  class="ma-4"
+                >
+                  {{ message }}
+                </div>
+                <div class="text-right mt-3">
+                  <v-btn
+                    small
+                    color="grey white--text"
+                    @click="regenerateDialog = false"
+                    >Cancel</v-btn
+                  >
+                  <v-btn
+                    small
+                    color="primary"
+                    :loading="loading"
+                    @click="reenerateReport"
+                    >Submit</v-btn
+                  >
+                </div>
+              </v-container>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
         <v-card elevation="0" v-if="can(`attendance_report_view`)">
           <v-tabs
             class="slidegroup1"
@@ -255,6 +297,22 @@
               class="violet slidegroup1"
               style="height: 3px"
             ></v-tabs-slider>
+
+            <v-tab
+              style="height: 30px"
+              class="black--text slidegroup1"
+              @click="
+                () => {
+                  regenerateDialog = true;
+                  message = '';
+                }
+              "
+            >
+              <span style="font-size: 12px"
+                ><v-icon small>mdi-download</v-icon> Regererate Report</span
+              >
+            </v-tab>
+
             <v-tab
               style="height: 30px"
               class="black--text slidegroup1"
@@ -383,10 +441,17 @@ export default {
     to_date: null,
     departments: [],
     scheduled_employees: [],
-    loading: false,
 
     report_template: "Template1",
     report_type: "Monthly",
+    regenerateDialog: false,
+    form: {
+      company_id: "",
+      from_date: "",
+      to_date: "",
+    },
+    message: "",
+    alertType: "success",
     payload: {
       from_date: null,
       to_date: null,
@@ -445,7 +510,6 @@ export default {
     },
   },
   async created() {
-    this.loading = true;
     this.payload.daily_date = new Date().toJSON().slice(0, 10);
     this.payload.department_ids = [];
 
@@ -500,7 +564,8 @@ export default {
         process_file_endpoint = "multi_in_out_";
       }
 
-      let path = this.$axios.defaults.baseURL + "/" + process_file_endpoint + type;
+      let path =
+        this.$axios.defaults.baseURL + "/" + process_file_endpoint + type;
 
       let qs = ``;
 
@@ -536,6 +601,11 @@ export default {
     },
     toggleEmployeesSelection() {
       this.selectAllEmployees = !this.selectAllEmployees;
+    },
+    filterAttrForRegenerate(data) {
+      this.form.from_date = data.from;
+      this.form.to_date = data.to;
+      this.form.company_id = this.$auth.user.company_id;
     },
     filterAttr(data) {
       this.from_date = data.from;
@@ -647,6 +717,25 @@ export default {
     },
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    async reenerateReport() {
+      this.loading = true;
+      this.message = "";
+      try {
+        const { data } = await this.$axios.post(
+          "/sync-multi-shift-dual-day-range",
+          this.form
+        );
+
+        this.message = data.message;
+        this.alertType = "green";
+      } catch (error) {
+        console.log("🚀 ~ reenerateReport ~ error:", error);
+        this.message = "Failed to failed";
+        this.alertType = "error";
+      }
+
+      this.loading = false;
     },
   },
 };

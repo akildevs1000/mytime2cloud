@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands\Shift;
 
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 use Symfony\Component\Console\Output\BufferedOutput;
 
 class SyncMultiShiftDualDayRange extends Command
@@ -20,10 +20,12 @@ class SyncMultiShiftDualDayRange extends Command
      *
      * @var string
      */
-    protected $description = 'Runs task:sync_multi_shift_dual_day command for a date range';
+    protected $description = 'Command description';
 
     /**
      * Execute the console command.
+     *
+     * @return int
      */
     public function handle()
     {
@@ -63,8 +65,6 @@ class SyncMultiShiftDualDayRange extends Command
         // Loop through the date range and execute the child command
         while ($start->lte($end)) {
             $dateString = $start->toDateString();
-            $this->info("Running: php artisan task:sync_multi_shift_dual_day $id $dateString $flag");
-
             // Create a buffered output to capture child command response
             $outputBuffer = new BufferedOutput();
 
@@ -76,6 +76,7 @@ class SyncMultiShiftDualDayRange extends Command
             ], $outputBuffer);
 
             // Show response from child command
+            $this->info("Running: php artisan task:sync_multi_shift_dual_day $id $dateString $flag");
             $this->line($outputBuffer->fetch());
 
             sleep(5);

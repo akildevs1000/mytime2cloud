@@ -1,5 +1,6 @@
 <template>
   <date-picker
+   style="width: 100%"
     value-type="format"
     format="YYYY-MM-DD"
     type="date"
