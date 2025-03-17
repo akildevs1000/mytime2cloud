@@ -416,11 +416,7 @@ export default {
         to_date: this.to_date,
       };
 
-      let endpoint = `attendance-report-old`;
-
-      if (process.env.STATE == "NEW") {
-        endpoint = `attendance-report-new`;
-      }
+      let endpoint = `attendance-report-new`;
 
       this.$axios.post(endpoint, payload).then(({ data }) => {
         if (data.data.length == 0) {
