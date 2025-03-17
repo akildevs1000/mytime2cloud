@@ -99,6 +99,17 @@ class Attendance extends Model
             ],
         ]);
     }
+
+    public function employee_report_only()
+    {
+        return $this->belongsTo(EmployeeReportOnly::class, "employee_id", "system_user_id")->withOut("schedule")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---",
+            ],
+        ]);
+    }
+
     public function employeeapi()
     {
         return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut(["schedule", "department", "designation", "sub_department", "branch"]);

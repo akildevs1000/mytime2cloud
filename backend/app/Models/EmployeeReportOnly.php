@@ -186,7 +186,6 @@ class EmployeeReportOnly extends Model
 
     public function getProfilePictureBase64Attribute()
     {
-        return null;
         if ($this->profile_picture) {
             $imageData = file_get_contents($this->profile_picture);
 
