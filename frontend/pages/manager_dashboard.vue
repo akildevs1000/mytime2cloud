@@ -1125,7 +1125,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/pdf";
+      let path = this.$axios.defaults.baseURL + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1156,7 +1156,7 @@ export default {
       let data = this.payload;
       let company_id = this.$auth.user.company_id;
       let { page, itemsPerPage } = this.options;
-      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/" + type;
+      let path = this.$axios.defaults.baseURL + "/" + type;
       let qs = `${path}?page=${page}&per_page=${itemsPerPage}&company_id=${company_id}&status=${status}&daily_date=${data.daily_date}&department_id=${data.department_id}&employee_id=${data.employee_id}`;
 
       let report = document.createElement("a");

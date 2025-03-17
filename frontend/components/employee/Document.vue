@@ -342,7 +342,7 @@ export default {
     },
     getDonwloadLink(pic, file_name) {
       return (
-        `http://${window.location.hostname ?? "localhost"}:8000/api` +
+        this.$axios.defaults.baseURL +
         "/download-emp-documents/" +
         pic +
         "/" +

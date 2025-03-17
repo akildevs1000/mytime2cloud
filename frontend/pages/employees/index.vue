@@ -1410,7 +1410,7 @@ export default {
         .post(`/download-profilepic-sdk`, options.params)
         .then(({ data }) => {
           this.downloadProfileLink =
-            process.env.BACKEND_URL +
+            this.$axios.defaults.baseURL +
             "/download-profilepic-disk?image=" +
             data +
             "&name=" +

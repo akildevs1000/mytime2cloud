@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
-class Employee extends Model
+class EmployeeReportOnly extends Model
 {
     use HasFactory;
+
+    protected $table = 'employees'; 
 
     // protected $with = [];
 
@@ -184,7 +186,6 @@ class Employee extends Model
 
     public function getProfilePictureBase64Attribute()
     {
-        return null;
         if ($this->profile_picture) {
             $imageData = file_get_contents($this->profile_picture);
 

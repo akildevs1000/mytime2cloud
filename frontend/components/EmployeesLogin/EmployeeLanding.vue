@@ -901,12 +901,12 @@ export default {
     },
     // getDonwloadLink(pic, employee_id) {
     //   return (
-    //     `http://${window.location.hostname ?? "localhost"}:8000/api` + "/download-emp-pic/" + pic + "/" + employee_id
+    //     this.$axios.defaults.baseURL + "/download-emp-pic/" + pic + "/" + employee_id
     //   );
     // },
     getDonwloadLink(pic, employee_id) {
       return (
-        `http://${window.location.hostname ?? "localhost"}:8000/api` +
+        this.$axios.defaults.baseURL +
         "/download-employee-profile-pdf/" +
         employee_id
       );

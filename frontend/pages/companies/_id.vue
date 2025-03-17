@@ -856,7 +856,7 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     getDonwloadLink() {
-      return `http://${window.location.hostname ?? "localhost"}:8000/api` + "/download_postman_json";
+      return this.$axios.defaults.baseURL + "/download_postman_json";
     },
 
     update_setting() {

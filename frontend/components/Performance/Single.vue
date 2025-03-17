@@ -857,11 +857,7 @@ export default {
     },
     async getEncodedImage(url) {
       try {
-        if (process.env.ENVIRONMENT == "local")
-          url = `https://backend.mytime2cloud.com/media/employee/profile_picture/1706346188.jpg`;
-        let { data } = await this.$axios.get(
-          `https://backend.mytime2cloud.com/api/get-encoded-profile-picture/?url=${url}`
-        );
+        let { data } = await this.$axios.get(`/get-encoded-profile-picture/?url=${url}`);
         this.base64Image = data;
       } catch (error) {
         this.base64Image = null;

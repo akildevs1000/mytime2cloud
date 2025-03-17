@@ -646,7 +646,6 @@ export default {
   },
 
   data: () => ({
-    originalURL: process.env.APP_URL + "/register/visitor/", //`https://mytime2cloud.com/register/visitor/`,
     encryptedID: "",
     fullLink: "",
     qrCodeDataURL: "",
@@ -885,7 +884,6 @@ export default {
   methods: {
     encrypt() {
       this.encryptedID = this.$crypto.encrypt(id);
-      // this.fullLink = this.originalURL + this.encryptedID;
     },
     closeViewDialog() {
       this.viewDialog = false;
@@ -1065,7 +1063,11 @@ export default {
       this.payload = item;
       this.previewImage = item.logo;
       this.fullLink =
-        this.originalURL + this.$auth.user.company_id + "-" + item.id;
+        this.$appUrl +
+        "/register/visitor/" +
+        this.$auth.user.company_id +
+        "-" +
+        item.id;
       this.generateQRCode(this.fullLink);
     },
     deleteItem(item) {

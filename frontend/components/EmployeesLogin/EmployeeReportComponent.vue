@@ -1206,7 +1206,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = `http://${window.location.hostname ?? "localhost"}:8000/api` + "/pdf";
+      let path = this.$axios.defaults.baseURL + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1231,7 +1231,7 @@ export default {
       //type = "monthly";
       //type = type.toLowerCase().replace("custom", "monthly");
       let path =
-        `http://${window.location.hostname ?? "localhost"}:8000/api` +
+        this.$axios.defaults.baseURL +
         "/" +
         this.process_file_endpoint +
         type.toLowerCase();

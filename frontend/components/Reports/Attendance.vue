@@ -500,7 +500,7 @@ export default {
         process_file_endpoint = "multi_in_out_";
       }
 
-      let path = process.env.BACKEND_URL + "/" + process_file_endpoint + type;
+      let path = this.$axios.defaults.baseURL + "/" + process_file_endpoint + type;
 
       let qs = ``;
 

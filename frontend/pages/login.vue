@@ -488,8 +488,6 @@ export default {
                 "You do not have Permission to access this page";
               this.msg = "You do not have Permission to access this page";
 
-              // window.location.href = process.env.EMPLOYEE_APP_URL;
-              // this.$router.push("/login");
               return false;
             }
 

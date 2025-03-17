@@ -109,13 +109,11 @@
                     <v-divider></v-divider>
 
                     <div class="text-center mt-5">
-                      <div>
-                        Visitor QR Code
-                      </div>
+                      <div>Visitor QR Code</div>
                       <div>
                         <v-avatar v-if="qrCompanyCodeDataURL" size="150" tile>
-                        <img :src="qrCompanyCodeDataURL" alt="Avatar" />
-                      </v-avatar>
+                          <img :src="qrCompanyCodeDataURL" alt="Avatar" />
+                        </v-avatar>
                       </div>
                     </div>
                   </v-col>
@@ -593,7 +591,7 @@
           </v-tab-item>
 
           <v-tab-item>
-            <Document  v-if="can('document_access')" />
+            <Document v-if="can('document_access')" />
           </v-tab-item>
 
           <v-tab-item>
@@ -713,7 +711,9 @@
           </v-tab-item>
 
           <v-tab-item>
-            <PerformanceRatingDescription v-if="can('performance_rating_description_access')" />
+            <PerformanceRatingDescription
+              v-if="can('performance_rating_description_access')"
+            />
           </v-tab-item>
         </v-tabs>
       </v-card>
@@ -728,7 +728,6 @@ export default {
 
   data: () => ({
     editForm: false,
-    originalURL: process.env.APP_URL + "register/visitor/walkin/", //`https://mytime2cloud.com/register/visitor/walkin/`,
     fullCompanyLink: null,
     qrCompanyCodeDataURL: null,
     show_password_confirm: false,
@@ -798,10 +797,10 @@ export default {
   async created() {
     try {
       this.getDataFromApi();
-      if (process.env.ENVIRONMENT == "local") {
-        this.originalURL = `http://${process.env.LOCAL_IP}:${process.env.LOCAL_PORT}/register/visitor/walkin/`;
-      }
-      this.fullCompanyLink = this.originalURL + this.$auth.user.company_id;
+
+      this.fullCompanyLink =
+        this.$appUrl + "/register/visitor/walkin/" + this.$auth.user.company_id;
+
       this.generateCompanyQRCode(this.fullCompanyLink);
     } catch (e) {}
   },
