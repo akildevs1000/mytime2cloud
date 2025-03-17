@@ -2,8 +2,6 @@ export default ({ $axios, store }, inject) => {
   // Add an interceptor to modify requests globally
   $axios.onRequest(async (config) => {
     config.baseURL = process.env.BACKEND_URL || `http://${window.location.hostname || "localhost"}:8000/api`
-    console.log("🚀 ~ $axios.onRequest ~ process.env.BACKEND_URL:", process.env.BACKEND_URL)
-    console.log("🚀 ~ $axios.onRequest ~ baseURL:", config.baseURL)
 
     let user = store.state.auth.user;
 
