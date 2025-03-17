@@ -244,8 +244,8 @@
       </v-col>
 
       <v-col cols="6">
-        <v-dialog v-model="syncDialog" max-width="480px">
-          <WidgetsClose left="470" @click="syncDialog = false" />
+        <v-dialog v-model="regenerateDialog" max-width="480px">
+          <WidgetsClose left="470" @click="regenerateDialog = false" />
           <v-card>
             <v-alert dark dense flat class="primary">Regenerate Reprot</v-alert>
             <v-card-text>
@@ -267,17 +267,20 @@
                 >
                   {{ message }}
                 </div>
-                <div class="text-right">
-                  <v-btn small color="grey white--text" @click="syncDialog = false"
-                >Cancel</v-btn
-              >
-              <v-btn
-                small
-                color="primary"
-                :loading="loading"
-                @click="reenerateReport"
-                >Submit</v-btn
-              >
+                <div class="text-right mt-3">
+                  <v-btn
+                    small
+                    color="grey white--text"
+                    @click="regenerateDialog = false"
+                    >Cancel</v-btn
+                  >
+                  <v-btn
+                    small
+                    color="primary"
+                    :loading="loading"
+                    @click="reenerateReport"
+                    >Submit</v-btn
+                  >
                 </div>
               </v-container>
             </v-card-text>
@@ -298,7 +301,12 @@
             <v-tab
               style="height: 30px"
               class="black--text slidegroup1"
-              @click="syncDialog = true"
+              @click="
+                () => {
+                  regenerateDialog = true;
+                  message = '';
+                }
+              "
             >
               <span style="font-size: 12px"
                 ><v-icon small>mdi-download</v-icon> Regererate Report</span
@@ -436,7 +444,7 @@ export default {
 
     report_template: "Template1",
     report_type: "Monthly",
-    syncDialog: false,
+    regenerateDialog: false,
     form: {
       company_id: "",
       from_date: "",
