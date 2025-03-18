@@ -1,5 +1,4 @@
 export default ({ $axios, store }, inject) => {
-  // Define global URLs
 
   const isClient = typeof window !== "undefined";
 
@@ -13,7 +12,6 @@ export default ({ $axios, store }, inject) => {
     appURL = isClient ? `http://${window.location.hostname || "localhost"}:3001` : "http://localhost:3001";
   }
 
-  // Inject globally (accessible via this.$backendUrl and this.$appUrl)
   inject("backendUrl", backendURL);
   inject("appUrl", appURL);
 
