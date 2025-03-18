@@ -1,7 +1,12 @@
 export default ({ $axios, store }, inject) => {
+  // Ensure window is only accessed on the client-side
+  const isClient = typeof window !== "undefined";
+
   // Define global URLs
-  const backendURL = process.env.BACKEND_URL || `http://${window.location.hostname || "localhost"}:8000/api`;
-  const appURL = `http://${window.location.hostname || "localhost"}:3001`;
+  const backendURL =
+    process.env.BACKEND_URL || (isClient ? `http://${window.location.hostname || "localhost"}:8000/api` : "http://localhost:8000/api");
+
+  const appURL = isClient ? `http://${window.location.hostname || "localhost"}:3001` : "http://localhost:3001";
 
   // Inject globally (accessible via this.$backendUrl and this.$appUrl)
   inject("backendUrl", backendURL);
@@ -28,8 +33,10 @@ export default ({ $axios, store }, inject) => {
       };
     }
 
-    console.log("🚀 ~ Backend URL:", backendURL);
-    console.log("🚀 ~ App URL:", appURL);
+    if (isClient) {
+      console.log("🚀 ~ Backend URL:", backendURL);
+      console.log("🚀 ~ App URL:", appURL);
+    }
 
     return config;
   });
