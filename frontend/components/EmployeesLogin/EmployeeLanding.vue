@@ -899,14 +899,9 @@ export default {
         });
       }
     },
-    // getDonwloadLink(pic, employee_id) {
-    //   return (
-    //     this.$axios.defaults.baseURL + "/download-emp-pic/" + pic + "/" + employee_id
-    //   );
-    // },
     getDonwloadLink(pic, employee_id) {
       return (
-        this.$axios.defaults.baseURL +
+        this.$backendUrl +
         "/download-employee-profile-pdf/" +
         employee_id
       );

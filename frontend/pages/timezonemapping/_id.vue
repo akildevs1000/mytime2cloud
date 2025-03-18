@@ -202,7 +202,7 @@ export default {
         },
       };
       let url =
-        this.$axios.defaults.baseURL +
+        this.$backendUrl +
         "/employee_timezone_mapping/" +
         this.$route.params.id;
       this.$axios.get(`${url}`, options).then(({ data }) => {
@@ -236,7 +236,7 @@ export default {
       // ${url}?page=${page}
 
       let url =
-        this.$axios.defaults.baseURL +
+        this.$backendUrl +
         "/employee_timezone_mapping/" +
         this.$route.params.id;
 
@@ -321,7 +321,7 @@ export default {
       // ${url}?page=${page}
 
       let url =
-        this.$axios.defaults.baseURL +
+        this.$backendUrl +
         "/employee_timezone_mapping/" +
         this.$route.params.id;
 

@@ -1372,7 +1372,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = this.$axios.defaults.baseURL + "/pdf";
+      let path = this.$backendUrl + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1391,7 +1391,7 @@ export default {
       }
       type = type.toLowerCase().replace("custom", "monthly");
       let path =
-      this.$axios.defaults.baseURL +
+      this.$backendUrl +
         "/" +
         this.process_file_endpoint +
         type.toLowerCase();

@@ -446,7 +446,7 @@ export default {
       return this.$pagePermission.can(per, this);
     },
     getDonwloadLink() {
-      return this.$axios.defaults.baseURL + "/download_postman_json";
+      return this.$backendUrl + "/download_postman_json";
     },
     regenerateToken() {
       this.loading_bar = true;
