@@ -1,7 +1,16 @@
 export default ({ $axios, store }, inject) => {
   // Define global URLs
-  const backendURL = process.env.BACKEND_URL || `http://${window.location.hostname || "localhost"}:8000/api`;
-  const appURL = `http://${window.location.hostname || "localhost"}:3001`;
+
+  let backendURL = process.env.BACKEND_URL;
+  let appURL = process.env.APP_URL;
+
+
+  if (!process.env.BACKEND_URL) {
+    backendURL = `http://${window.location.hostname || "localhost"}:8000/api`;
+  }
+  if (!process.env.APP_URL) {
+    appURL = `http://${window.location.hostname || "localhost"}:3001`;
+  }
 
   // Inject globally (accessible via this.$backendUrl and this.$appUrl)
   inject("backendUrl", backendURL);
