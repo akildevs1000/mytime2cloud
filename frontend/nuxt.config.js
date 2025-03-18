@@ -58,9 +58,9 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  // axios: {
-  //   baseURL: `http://192.168.2.26:8000/api` ,
-  // },
+  axios: {
+    baseURL: `/` ,
+  },
 
   auth: {
     strategies: {
@@ -142,9 +142,5 @@ export default {
   build: {
     transpile: ["vuetify/lib", "tiptap-vuetify", "vue-apexchart"],
     interval: 500,
-  },
-
-  env: {
-    SECRET_PASS_PHRASE: process.env.SECRET_PASS_PHRASE,
   },
 };
