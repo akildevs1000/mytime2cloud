@@ -446,7 +446,7 @@ export default {
       this.$router.push("/timezonemapping/edit?id=" + rowId);
     },
     deleteItem(rowId, timezone_id) {
-      let url = this.$axios.defaults.baseURL + "/deletetimezone";
+      let url = this.$backendUrl + "/deletetimezone";
       let options = {
         timezone_id: timezone_id,
         id: rowId,

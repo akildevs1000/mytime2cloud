@@ -953,7 +953,7 @@ export default {
         item: JSON.stringify(this.item),
         employee: JSON.stringify(this.employee),
         company_id: this.$auth.user.company_id,
-        baseUrl: this.$axios.defaults.baseURL
+        baseUrl: this.$backendUrl
       });
 
       // Open the target page in a new window with the query parameters

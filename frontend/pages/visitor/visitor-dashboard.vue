@@ -625,12 +625,12 @@ export default {
 
     updateLink(url) {
       if (
-        this.$axios.defaults.baseURL !=
+        this.$backendUrl !=
         "https://stagingbackend.ideahrms.com/api"
       ) {
         url = url.replace(
           "https://stagingbackend.ideahrms.com/api",
-          this.$axios.defaults.baseURL
+          this.$backendUrl
         );
       }
 

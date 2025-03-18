@@ -577,7 +577,7 @@ export default {
     },
 
     pdfDownload() {
-      let path = this.$axios.defaults.baseURL + "/pdf";
+      let path = this.$backendUrl + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -591,7 +591,7 @@ export default {
           return;
         }
 
-        const backendUrl = this.$axios.defaults.baseURL;
+        const backendUrl = this.$backendUrl;
         const queryParams = {
           company_id: this.$auth.user.company_id,
           branch_id: this.payload.branch_id,

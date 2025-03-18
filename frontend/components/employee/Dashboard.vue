@@ -527,9 +527,6 @@ export default {
     const month = date.getMonth() + 1; // Months are zero-based, so we add 1
 
     this.daysCount = new Date(year, month, 0).getDate();
-
-    // this.generalreportIframeSrc=  this.$axios.defaults.baseURL +
-    //     "daily?company_id=8&status=SA&daily_date=2023-05-31&department_id=-1&report_type=Daily",
   },
   computed: {
     first_login() {
@@ -567,12 +564,12 @@ export default {
     },
     updateLink(url) {
       if (
-        this.$axios.defaults.baseURL !=
+        this.$backendUrl !=
         "https://stagingbackend.ideahrms.com/api"
       ) {
         url = url.replace(
           "https://stagingbackend.ideahrms.com/api",
-          this.$axios.defaults.baseURL
+          this.$backendUrl
         );
       }
 

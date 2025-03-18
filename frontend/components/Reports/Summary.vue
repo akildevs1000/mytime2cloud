@@ -487,7 +487,7 @@ export default {
           company_id: this.$auth.user.company_id,
           report_type: "monthly",
           months: JSON.stringify([...new Set(this.months)]),
-          baseUrl: this.$axios.defaults.baseURL
+          baseUrl: this.$backendUrl
         });
         
         const url = `${this.$appUrl}/summary_report/index.html?${queryParams.toString()}`;

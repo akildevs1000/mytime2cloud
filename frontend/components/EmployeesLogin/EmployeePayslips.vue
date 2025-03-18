@@ -536,7 +536,7 @@ export default {
       return false;
     },
     getdownloadLink(employee_id) {
-      const baseURL = this.$axios.defaults.baseURL;
+      const baseURL = this.$backendUrl;
       const id = this.$auth.user.company_id;
       const month = this.payslip_month;
       const year = this.payslip_year;
@@ -710,7 +710,7 @@ export default {
 
           if (this.payslipsDownloadAllEmployeeidsArray.length > 0) {
             this.payslipsDownloadAllURL =
-              this.$axios.defaults.baseURL +
+              this.$backendUrl +
               "/generate-payslips-zip?company_id=" +
               this.$auth.user.company_id +
               "&employee_ids=" +

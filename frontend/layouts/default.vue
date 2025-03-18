@@ -921,7 +921,7 @@ export default {
     playAudioOnUserInteraction() {
       if (!this.audio) {
         this.audio = new Audio(
-          this.$axios.defaults.baseURL.replace("api", "") +
+          this.$backendUrl.replace("api", "") +
             "alarm_sounds/alarm-sound1.mp3"
         );
       }
@@ -930,7 +930,7 @@ export default {
     stopsound() {
       if (!this.audio) {
         this.audio = new Audio(
-          this.$axios.defaults.baseURL.replace("api", "") +
+          this.$backendUrl.replace("api", "") +
             "alarm_sounds/alarm-sound1.mp3"
         );
       }

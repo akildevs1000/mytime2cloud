@@ -565,7 +565,7 @@ export default {
       }
 
       let path =
-        this.$axios.defaults.baseURL + "/" + process_file_endpoint + type;
+        this.$backendUrl + "/" + process_file_endpoint + type;
 
       let qs = ``;
 
