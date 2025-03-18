@@ -243,6 +243,9 @@ class AutoShiftController extends Controller
 
     public function findClosest($shifts, $count, $logs, $date): ?array
     {
+        if (count($shifts) == 1) {
+            return $shifts[0];
+        }
         foreach ($logs as $log) {
             $logType = strtolower($log['log_type'] ?? '');
             $deviceFunction = strtolower($log['device']['function'] ?? '');
