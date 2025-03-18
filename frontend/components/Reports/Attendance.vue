@@ -214,6 +214,12 @@
               style="height: 30px"
               href="#tab-1"
               class="black--text slidegroup1"
+              @click="
+                () => {
+                  shift_type_id = 0;
+                  commonMethod(0);
+                }
+              "
             >
               Single
             </v-tab>
@@ -221,7 +227,12 @@
             <v-tab
               v-if="showTabs.double == true"
               :key="5"
-              @click="commonMethod(2)"
+              @click="
+                () => {
+                  shift_type_id = 5;
+                  commonMethod(2);
+                }
+              "
               style="height: 30px"
               href="#tab-2"
               class="black--text slidegroup1"
@@ -232,7 +243,12 @@
             <v-tab
               v-if="showTabs.multi == true"
               :key="2"
-              @click="commonMethod(3)"
+              @click="
+                () => {
+                  shift_type_id = 2;
+                  commonMethod(3);
+                }
+              "
               style="height: 30px"
               href="#tab-3"
               class="black--text slidegroup1"
@@ -366,7 +382,7 @@
             <AttendanceReport
               ref="attendanceReportRef"
               :key="1"
-              :shift_type_id="1"
+              :shift_type_id="shift_type_id"
               title="General Reports"
               :headers="generalHeaders"
               :report_template="report_template"
@@ -379,7 +395,7 @@
               ref="attendanceReportRef"
               title="Split Reports"
               :key="5"
-              :shift_type_id="5"
+              :shift_type_id="shift_type_id"
               :headers="doubleHeaders"
               :report_template="report_template"
               :payload1="payload11"
@@ -390,7 +406,7 @@
             <AttendanceReport
               ref="attendanceReportRef"
               :key="2"
-              :shift_type_id="2"
+              :shift_type_id="shift_type_id"
               title="Multi In/Out Reports"
               :headers="multiHeaders"
               :report_template="report_template"
@@ -564,8 +580,7 @@ export default {
         process_file_endpoint = "multi_in_out_";
       }
 
-      let path =
-        this.$backendUrl + "/" + process_file_endpoint + type;
+      let path = this.$backendUrl + "/" + process_file_endpoint + type;
 
       let qs = ``;
 
@@ -684,17 +699,6 @@ export default {
         .then(({ data }) => {
           this.showTabs = data;
           this.payload.showTabs = data;
-
-          const valuesMap = {
-            multi: 2,
-            dual: 5,
-            single: 6,
-          };
-          const result = Object.entries(data).find(
-            ([key, value]) => value
-          )?.[0];
-
-          this.shift_type_id = valuesMap[result] || 2;
         });
     },
     async getDepartments() {
