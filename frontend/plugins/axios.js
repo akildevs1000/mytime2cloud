@@ -1,8 +1,4 @@
 export default ({ $axios, store }, inject) => {
-  // Ensure window is only accessed on the client-side
-  const isClient = typeof window !== "undefined";
-
-  // Define global URLs
 
   const isClient = typeof window !== "undefined";
 
