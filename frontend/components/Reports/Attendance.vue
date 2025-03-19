@@ -260,41 +260,112 @@
       </v-col>
 
       <v-col cols="6">
-        <v-dialog v-model="regenerateDialog" max-width="480px">
-          <WidgetsClose left="470" @click="regenerateDialog = false" />
+        <v-dialog v-model="regenerateDialog" max-width="680px">
+          <WidgetsClose
+            left="670"
+            @click="
+              () => {
+                regenerateDialog = false;
+                loading = false;
+              }
+            "
+          />
           <v-card>
-            <v-alert dark dense flat class="primary">Regenerate Reprot</v-alert>
+            <v-alert dark dense flat class="primary">Regenerate Report</v-alert>
             <v-card-text>
               <v-container>
-                <div class="mx-1" style="width: 100%">
+                <div class="mx-1">
                   <CustomFilter
                     @filter-attr="filterAttrForRegenerate"
                     :defaultFilterType="1"
                     height="40px"
-                    width="100%"
+                    width="90%"
                   />
                 </div>
-                <div
-                  dense
-                  flat
-                  v-if="message"
-                  :class="`${alertType}--text`"
-                  class="ma-4"
-                >
-                  {{ message }}
+                <div class="px-1 mt-3" style="width: 100%">
+                  <v-autocomplete
+                    style="width: 100%"
+                    label="Employee ID"
+                    outlined
+                    dense
+                    v-model="form.employee_ids"
+                    :items="scheduled_employees"
+                    multiple
+                    item-value="system_user_id"
+                    item-text="name_with_user_id"
+                    placeholder="Employees"
+                    :hide-details="true"
+                  >
+                    <template v-if="scheduled_employees.length" #prepend-item>
+                      <v-list-item
+                        @click="toggleEmployeesSelectionForRegenerate"
+                      >
+                        <v-list-item-action>
+                          <v-checkbox
+                            @click="toggleEmployeesSelectionForRegenerate"
+                            v-model="selectAllEmployeesForRegenerate"
+                            :indeterminate="
+                              isIndeterminateEmployeeForRegenerate
+                            "
+                            :true-value="true"
+                            :false-value="false"
+                          ></v-checkbox>
+                        </v-list-item-action>
+                        <v-list-item-content>
+                          <v-list-item-title>
+                            {{
+                              selectAllEmployeesForRegenerate
+                                ? "Unselect All"
+                                : "Select All"
+                            }}
+                          </v-list-item-title>
+                        </v-list-item-content>
+                      </v-list-item>
+                    </template>
+                    <template v-slot:selection="{ item, index }">
+                      <span
+                        v-if="index === 0 && form.employee_ids.length == 1"
+                        >{{ item.name_with_user_id }}</span
+                      >
+                      <span
+                        v-else-if="
+                          index === 1 &&
+                          form.employee_ids.length == scheduled_employees.length
+                        "
+                        class=" "
+                        >All Selected
+                      </span>
+                      <span v-else-if="index === 1" class=" ">
+                        {{ form.employee_ids.length }} Employee(s)
+                      </span>
+                    </template>
+                  </v-autocomplete>
                 </div>
+
+                <v-card v-if="message" outlined class="ma-1 pa-1">
+                  <pre dense flat>
+                  {{ message }}
+                </pre
+                  >
+                </v-card>
+
                 <div class="text-right mt-3">
                   <v-btn
                     small
                     color="grey white--text"
-                    @click="regenerateDialog = false"
+                    @click="
+                      () => {
+                        regenerateDialog = false;
+                        loading = false;
+                      }
+                    "
                     >Cancel</v-btn
                   >
                   <v-btn
                     small
                     color="primary"
                     :loading="loading"
-                    @click="reenerateReport"
+                    @click="regnerateReport"
                     >Submit</v-btn
                   >
                 </div>
@@ -440,6 +511,7 @@ export default {
     payload11: null,
     selectAllDepartment: false,
     selectAllEmployees: false,
+    selectAllEmployeesForRegenerate: [],
     branches: [],
     tab: null,
     generalHeaders,
@@ -463,6 +535,7 @@ export default {
     regenerateDialog: false,
     form: {
       company_id: "",
+      employee_ids: "",
       from_date: "",
       to_date: "",
     },
@@ -501,6 +574,12 @@ export default {
         this.payload.employee_id.length < this.scheduled_employees.length
       );
     },
+    isIndeterminateEmployeeForRegenerate() {
+      return (
+        this.form.employee_ids.length > 0 &&
+        this.form.employee_ids.length < this.scheduled_employees.length
+      );
+    },
   },
 
   watch: {
@@ -522,6 +601,15 @@ export default {
         );
       } else {
         this.payload.employee_id = [];
+      }
+    },
+    selectAllEmployeesForRegenerate(value) {
+      if (value) {
+        this.form.employee_ids = this.scheduled_employees.map(
+          (e) => e.system_user_id
+        );
+      } else {
+        this.form.employee_ids = [];
       }
     },
   },
@@ -605,6 +693,12 @@ export default {
 
       qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
 
+      // Convert showTabs object into a URL-friendly format
+      if (this.payload.showTabs) {
+        qs += `&showTabs=${encodeURIComponent(
+          JSON.stringify(this.payload.showTabs)
+        )}`;
+      }
       console.log(qs);
       let report = document.createElement("a");
       report.setAttribute("href", qs);
@@ -617,6 +711,11 @@ export default {
     toggleEmployeesSelection() {
       this.selectAllEmployees = !this.selectAllEmployees;
     },
+    toggleEmployeesSelectionForRegenerate() {
+      this.selectAllEmployeesForRegenerate =
+        !this.selectAllEmployeesForRegenerate;
+    },
+
     filterAttrForRegenerate(data) {
       this.form.from_date = data.from;
       this.form.to_date = data.to;
@@ -639,6 +738,7 @@ export default {
         from_date: this.from_date,
         to_date: this.to_date,
         filterType: this.filterType,
+        showTabs: JSON.stringify(this.showTabs),
         key: this.key++,
       };
 
@@ -722,24 +822,39 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    async reenerateReport() {
+
+    regnerateReport() {
       this.loading = true;
-      this.message = "";
-      try {
-        const { data } = await this.$axios.post(
-          "/sync-multi-shift-dual-day-range",
-          this.form
-        );
+      let payload = {
+        params: {
+          dates: [this.form.from_date, this.form.to_date],
+          UserIds: this.form.employee_ids,
+          company_ids: [this.$auth.user.company_id],
+          user_id: this.$auth.user.id,
+          updated_by: this.$auth.user.id,
+          reason: "",
+          employee_ids: this.form.employee_ids,
+          shift_type_id: this.shift_type_id,
+          company_id: this.$auth.user.company_id,
+        },
+      };
+      console.log("🚀 ~ render_report ~ payload:", payload);
+      // return;
+      this.$axios
+        .get("render_logs", payload)
+        .then(({ data }) => {
+          this.loading = false;
 
-        this.message = data.message;
-        this.alertType = "green";
-      } catch (error) {
-        console.log("🚀 ~ reenerateReport ~ error:", error);
-        this.message = "Failed to failed";
-        this.alertType = "error";
-      }
+          let message = "";
+          data.forEach((element) => {
+            message = message + " \n " + element;
+          });
+          this.message = message;
+          this.loading = false;
 
-      this.loading = false;
+          this.$emit("update-data-table");
+        })
+        .catch((e) => console.log(e));
     },
   },
 };
