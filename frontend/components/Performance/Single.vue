@@ -25,7 +25,7 @@
               >Download <v-icon right>mdi-download</v-icon></v-btn
             >
           </div>
-          <v-row no-gutters class="pa-2" id="screenshot-target">
+          <v-row no-gutters class="pa-2" id="screenshot-element">
             <v-col style="margin-right: 10px">
               <v-row no-gutters>
                 <v-col cols="12" style="margin-top: 10px">
@@ -660,6 +660,8 @@
 </template>
 
 <script>
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 export default {
   props: ["item", "employee"],
   data() {
@@ -961,6 +963,22 @@ export default {
 
       // Open the URL in a new window
       window.open(url, "_blank");
+    },
+    async downloadInternally() {
+      // Select the element you want to screenshot
+      const element = document.getElementById("screenshot-element");
+
+      // Capture the screenshot
+      html2canvas(element, { useCORS: true }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("l", "mm", "a4");
+        const imgWidth = 297; // Width of A4 paper in mm (landscape)
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+        // Add the captured image to the PDF
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("performance-report.pdf"); // Save the PDF
+      });
+      return;
     },
   },
 };
