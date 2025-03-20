@@ -145,7 +145,7 @@
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.p_count_value
+                                    item?.p_count
                                   }}</strong>
                                 </div>
                                 <div>Present</div>
@@ -166,7 +166,7 @@
                               <td>
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.a_count_value
+                                    item?.a_count
                                   }}</strong>
                                 </div>
                                 <div>Absent</div>
@@ -187,10 +187,10 @@
                               <td>
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.l_count_value
+                                    item?.other_count
                                   }}</strong>
                                 </div>
-                                <div>Leave</div>
+                                <div>Other</div>
                               </td>
                             </tr>
                           </table>
@@ -823,9 +823,9 @@ export default {
     await this.getYearlyLeaveQuota();
 
     this.pieSeries = [
-      this.item?.p_count_value,
-      this.item?.a_count_value,
-      this.item?.l_count_value,
+      parseInt(this.item?.p_count),
+      parseInt(this.item?.a_count),
+      parseInt(this.item?.other_count),
     ];
 
     this.isMounted = true;
@@ -859,7 +859,9 @@ export default {
     },
     async getEncodedImage(url) {
       try {
-        let { data } = await this.$axios.get(`/get-encoded-profile-picture/?url=${url}`);
+        let { data } = await this.$axios.get(
+          `/get-encoded-profile-picture/?url=${url}`
+        );
         this.base64Image = data;
       } catch (error) {
         this.base64Image = null;
@@ -955,11 +957,13 @@ export default {
         item: JSON.stringify(this.item),
         employee: JSON.stringify(this.employee),
         company_id: this.$auth.user.company_id,
-        baseUrl: this.$backendUrl
+        baseUrl: this.$backendUrl,
       });
 
       // Open the target page in a new window with the query parameters
-      const url = `${this.$appUrl}/performance_report/index.html?${queryParams.toString()}`;
+      const url = `${
+        this.$appUrl
+      }/performance_report/index.html?${queryParams.toString()}`;
 
       // Open the URL in a new window
       window.open(url, "_blank");

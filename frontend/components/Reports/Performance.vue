@@ -299,9 +299,9 @@
                       :item="{
                         leave_group_id: item?.employee?.leave_group_id,
                         company_id: $auth.user.company_id,
-                        p_count_value: item?.p_count_value || 0,
-                        a_count_value: item?.a_count_value || 0,
-                        l_count_value: item?.l_count_value || 0,
+                        p_count: item?.p_count || 0,
+                        a_count: item?.a_count || 0,
+                        other_count: getOtherCount(item),
                         rating: $utils.getRating(
                           item.p_count_value,
                           from_date,
@@ -445,6 +445,15 @@ export default {
   },
 
   methods: {
+    getOtherCount(item) {
+      return [
+        item?.m_count_value,
+        item?.lc_count_value,
+        item?.eg_count_value,
+        item?.o_count_value,
+        item?.l_count_value,
+      ].reduce((sum, val) => sum + (val || 0), 0).toString();
+    },
     addFirstAndLastDay(months) {
       // Check if the user has selected exactly 2 months
       if (months.length !== 2) {
