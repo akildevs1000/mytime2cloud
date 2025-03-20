@@ -268,22 +268,22 @@
             <span class="orange--text">{{ item.l_count }}</span>
           </template>
           <template v-slot:item.average_in_time_array="{ item }">
-            {{ calculateAverageTime(item.average_in_time_array) }}
+            {{ calculateAverageTime(item?.average_in_time_array || 0) }}
           </template>
 
           <template v-slot:item.average_out_time_array="{ item }">
-            {{ calculateAverageTime(item.average_out_time_array) }}
+            {{ calculateAverageTime(item?.average_out_time_array || 0) }}
           </template>
           <template v-slot:item.average_working_hrs_array="{ item }">
             {{
               calculatePerDayHours(
-                item.total_hrs_array,
+                item?.total_hrs_array || 0,
                 item?.employee?.schedule_all || []
               )
             }}
           </template>
           <template v-slot:item.total_hrs_array="{ item }">
-            <b> {{ calculateTotalHrs(item.total_hrs_array) }}</b> /
+            <b> {{ calculateTotalHrs(item?.total_hrs_array || 0) }}</b> /
             {{ calculateHrsToPerform(item?.employee?.schedule_all || []) }}
           </template>
         </v-data-table>
