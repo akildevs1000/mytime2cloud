@@ -457,6 +457,10 @@ class ReportController extends Controller
                 DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+
+                DB::raw("json_group_array(total_hrs) FILTER (WHERE total_hrs != '---') AS total_hrs_array"),
+                DB::raw("json_group_array(\"in\") FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+                DB::raw("json_group_array(\"out\") FILTER (WHERE \"out\" != '---') AS average_out_time_array")
             );
         } else {
             $model->select(
@@ -477,10 +481,6 @@ class ReportController extends Controller
                 $this->getStatusCountValue('M'), // Missing count
                 $this->getStatusCountValue('LC'), // Late Coming count
                 $this->getStatusCountValue('EG'), // Early Going count
-
-                // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-                // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-                // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
             );
         }
 
@@ -594,6 +594,10 @@ class ReportController extends Controller
                 DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+                
+                DB::raw("json_group_array(total_hrs) FILTER (WHERE total_hrs != '---') AS total_hrs_array"),
+                DB::raw("json_group_array(\"in\") FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+                DB::raw("json_group_array(\"out\") FILTER (WHERE \"out\" != '---') AS average_out_time_array")
             );
         } else {
             $model->select(
