@@ -330,6 +330,7 @@ class ReportController extends Controller
                 $this->getStatusCountWithSuffix('M'), // Missing count
                 $this->getStatusCountWithSuffix('LC'), // Late Coming count
                 $this->getStatusCountWithSuffix('EG'), // Early Going count
+                $this->getStatusCountWithSuffix('O'), // Early Going count
 
                 $this->getStatusCountValue('P'), // Present count
                 $this->getStatusCountValue('A'), // Absent count
@@ -337,14 +338,13 @@ class ReportController extends Controller
                 $this->getStatusCountValue('M'), // Missing count
                 $this->getStatusCountValue('LC'), // Late Coming count
                 $this->getStatusCountValue('EG'), // Early Going count
+                $this->getStatusCountValue('O'), // Early Going count
 
                 // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
                 // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
                 // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
             );
         }
-
-
 
         $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
 
@@ -1116,7 +1116,7 @@ class ReportController extends Controller
         if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->ot_value)) {
             $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
         }
-        
+
 
         $Payroll->earnings = array_merge(
             [

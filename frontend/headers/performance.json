@@ -16,20 +16,26 @@
     "key": "joining_date"
   },
   {
-    "text": "Total Present",
+    "text": "Present",
     "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "p_count"
   },
   {
-    "text": "Total Absent",
+    "text": "Absent",
     "align": "center",
     "sortable": false,
     "filterable": true,
     "value": "a_count"
   },
-
+  {
+    "text": "Incomplete",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "m_count"
+  },
   {
     "text": "Late In",
     "align": "center",
@@ -43,6 +49,13 @@
     "sortable": false,
     "filterable": true,
     "value": "eg_count"
+  },
+  {
+    "text": "Weekoff",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "o_count"
   },
   {
     "text": "Leave",
