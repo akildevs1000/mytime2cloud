@@ -1826,8 +1826,15 @@ class EmployeeController extends Controller
 
     public function getEncodedProfilePicture()
     {
-        $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'));
-
+        $context = stream_context_create([
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ]);
+    
+        $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'), false, $context);
+    
         $md5string = base64_encode($imageData);
 
         return "data:image/png;base64,$md5string";
