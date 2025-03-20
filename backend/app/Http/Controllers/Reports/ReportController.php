@@ -594,7 +594,7 @@ class ReportController extends Controller
                 DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
                 DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
-                
+
                 DB::raw("json_group_array(total_hrs) FILTER (WHERE total_hrs != '---') AS total_hrs_array"),
                 DB::raw("json_group_array(\"in\") FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
                 DB::raw("json_group_array(\"out\") FILTER (WHERE \"out\" != '---') AS average_out_time_array")
@@ -1079,7 +1079,13 @@ class ReportController extends Controller
         $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00";
         $decimalHours = $totalHours + ($remainingMinutes / 60);
         $rate = $Payroll->perHourSalary;
-        $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
+
+        $shortHours = 0; // Set a default value or handle it accordingly
+
+        if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->deduction_value)) {
+            $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
+        }
+
 
         $grouByStatus = $attendances
             ->groupBy('status')
@@ -1104,7 +1110,13 @@ class ReportController extends Controller
         $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
 
         $OTHours = $Payroll->otHours["hours"];
-        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+
+        $OTEarning = 0;
+
+        if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->ot_value)) {
+            $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+        }
+        
 
         $Payroll->earnings = array_merge(
             [

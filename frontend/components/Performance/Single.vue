@@ -890,7 +890,7 @@ export default {
           return;
         }
         this.donutSeries = [
-          data.salary_and_earnings || 1,
+          data.salary_and_earnings_value || 1,
           data.ot_value || 0,
           data.total_deductions_value || 0,
         ];
