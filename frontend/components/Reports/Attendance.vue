@@ -342,11 +342,20 @@
                   </v-autocomplete>
                 </div>
 
-                <v-card v-if="message" outlined class="ma-1 pa-1">
-                  <pre dense flat>
-                  {{ message }}
-                </pre
+                <v-card
+                  v-if="message"
+                  outlined
+                  class="ma-1 pa-1"
+                  style="max-width: 100%"
+                >
+                  <v-sheet
+                    style="max-height: 400px; overflow: auto; padding: 8px"
                   >
+                    <pre>
+      {{ message }}
+    </pre
+                    >
+                  </v-sheet>
                 </v-card>
 
                 <div class="text-right mt-3">
