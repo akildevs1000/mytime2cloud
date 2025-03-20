@@ -298,29 +298,44 @@ class ReportController extends Controller
 
             ->whereBetween('date', [$fromDate, $toDate]);
 
-        $model->select(
-            DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
-            DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
-            DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
-            'employee_id',
-            $this->getStatusCountWithSuffix('P'), // Present count
-            $this->getStatusCountWithSuffix('A'), // Absent count
-            $this->getStatusCountWithSuffix('L'), // Leave count
-            $this->getStatusCountWithSuffix('M'), // Missing count
-            $this->getStatusCountWithSuffix('LC'), // Late Coming count
-            $this->getStatusCountWithSuffix('EG'), // Early Going count
+        $driver = DB::connection()->getDriverName(); // Get the database driver name
 
-            $this->getStatusCountValue('P'), // Present count
-            $this->getStatusCountValue('A'), // Absent count
-            $this->getStatusCountValue('L'), // Leave count
-            $this->getStatusCountValue('M'), // Missing count
-            $this->getStatusCountValue('LC'), // Late Coming count
-            $this->getStatusCountValue('EG'), // Early Going count
+        if ($driver === 'sqlite') {
+            $model->select(
+                'employee_id',
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
 
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-            // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
-        );
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+
+            );
+        } else {
+            $model->select(
+                'employee_id',
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
+
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+            );
+        }
 
         $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
 
@@ -414,29 +429,49 @@ class ReportController extends Controller
 
             ->whereBetween('date', [$fromDate, $toDate]);
 
-        $model->select(
-            DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
-            DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
-            DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
-            'employee_id',
-            $this->getStatusCountWithSuffix('P'), // Present count
-            $this->getStatusCountWithSuffix('A'), // Absent count
-            $this->getStatusCountWithSuffix('L'), // Leave count
-            $this->getStatusCountWithSuffix('M'), // Missing count
-            $this->getStatusCountWithSuffix('LC'), // Late Coming count
-            $this->getStatusCountWithSuffix('EG'), // Early Going count
 
-            $this->getStatusCountValue('P'), // Present count
-            $this->getStatusCountValue('A'), // Absent count
-            $this->getStatusCountValue('L'), // Leave count
-            $this->getStatusCountValue('M'), // Missing count
-            $this->getStatusCountValue('LC'), // Late Coming count
-            $this->getStatusCountValue('EG'), // Early Going count
+        $driver = DB::connection()->getDriverName(); // Get the database driver
 
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-            // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
-        );
+        if ($driver === 'sqlite') {
+            $model->select(
+                'employee_id',
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
+
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+            );
+        } else {
+            $model->select(
+                'employee_id',
+
+                DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
+                DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+                DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
+
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
+                
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+            );
+        }
 
         $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
 
@@ -530,29 +565,42 @@ class ReportController extends Controller
 
             ->whereBetween('date', [$fromDate, $toDate]);
 
-        $model->select(
-            DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
-            DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
-            DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
-            'employee_id',
-            $this->getStatusCountWithSuffix('P'), // Present count
-            $this->getStatusCountWithSuffix('A'), // Absent count
-            $this->getStatusCountWithSuffix('L'), // Leave count
-            $this->getStatusCountWithSuffix('M'), // Missing count
-            $this->getStatusCountWithSuffix('LC'), // Late Coming count
-            $this->getStatusCountWithSuffix('EG'), // Early Going count
 
-            $this->getStatusCountValue('P'), // Present count
-            $this->getStatusCountValue('A'), // Absent count
-            $this->getStatusCountValue('L'), // Leave count
-            $this->getStatusCountValue('M'), // Missing count
-            $this->getStatusCountValue('LC'), // Late Coming count
-            $this->getStatusCountValue('EG'), // Early Going count
+        $driver = DB::connection()->getDriverName(); // Get the database driver
 
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-            // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-            // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
-        );
+        if ($driver === 'sqlite') {
+            $model->select(
+                'employee_id',
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
+
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+            );
+        } else {
+            $model->select(
+                'employee_id',
+
+                DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
+                DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
+                DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
+
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
+            );
+        }
 
         $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
 
@@ -610,16 +658,6 @@ class ReportController extends Controller
         return $model->paginate($request->per_page ?? 100);
     }
 
-    function getStatusCountWithSuffix($status)
-    {
-        return DB::raw("LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0') AS {$status}_count");
-    }
-
-    function getStatusCountValue($status)
-    {
-        return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
-    }
-
     public function lastSixMonthsPerformanceReport(Request $request)
     {
         $companyId = $request->input('company_id', 0);
@@ -642,7 +680,27 @@ class ReportController extends Controller
         }
 
         // Now, use these dates in your query
-        $query = DB::table('attendances')
+        $driver = DB::connection()->getDriverName(); // Get the database driver
+
+        if ($driver === 'sqlite') {
+            // SQLite uses strftime() for extracting Year and Month
+            $query = DB::table('attendances')
+                ->select(
+                    DB::raw("strftime('%Y', date) AS year"),
+                    DB::raw("strftime('%m', date) AS month"),
+                    DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS present_count"),
+                    DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS absent_count")
+                )
+                ->where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereBetween('date', [$startMonth, $endMonth]) // Date-only comparison
+                ->groupBy(DB::raw("strftime('%Y', date)"), DB::raw("strftime('%m', date)"))
+                ->orderBy(DB::raw("strftime('%Y', date)"), 'desc')
+                ->orderBy(DB::raw("strftime('%m', date)"), 'desc')
+                ->get();
+        } else {
+            // PostgreSQL uses EXTRACT()
+            $query = DB::table('attendances')
             ->select(
                 DB::raw('EXTRACT(YEAR FROM date) AS year'),
                 DB::raw('EXTRACT(MONTH FROM date) AS month'),
@@ -656,6 +714,8 @@ class ReportController extends Controller
             ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
             ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
             ->get();
+        }
+
 
         $queryResults = [];
 
@@ -807,19 +867,19 @@ class ReportController extends Controller
             ->select(
                 'date',
                 'status',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
 
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG') // Early Going count
+                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
+                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
             )
             ->orderBy('date')->groupBy('date', 'status')->get();
 
