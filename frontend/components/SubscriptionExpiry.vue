@@ -9,9 +9,6 @@
          <div class="pa-5">
           Your subscription will expire in {{ daysRemaining }} days!
          </div>
-          <div>
-            <v-btn color="grey white--text" @click="showExpiryDialog = false">Close</v-btn>
-          </div>
          </v-container>
         </v-card-text>
       </v-card>
