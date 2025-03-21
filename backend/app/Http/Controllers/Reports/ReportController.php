@@ -680,14 +680,14 @@ class ReportController extends Controller
                 ->select(
                     DB::raw('EXTRACT(YEAR FROM date) AS year'),
                     DB::raw('EXTRACT(MONTH FROM date) AS month'),
-                    DB::raw('COUNT(CASE WHEN status in (\'P\',\'LC\',\'EG\') THEN 1 ELSE 0 END) AS present_count'),
-                    DB::raw('COUNT(CASE WHEN status in (\'A\',\'M\') THEN 1 ELSE 0 END) AS absent_count'),
-                    DB::raw('COUNT(CASE WHEN status in (\'O\') THEN 1 ELSE 0 END) AS week_off_count'),
-                    DB::raw('COUNT(CASE WHEN status in (\'L\',\'V\',\'H\') THEN 1 ELSE 0 END) AS other_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'P\',\'LC\',\'EG\') THEN 1 ELSE 0 END) AS present_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'A\',\'M\') THEN 1 ELSE 0 END) AS absent_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'O\') THEN 1 ELSE 0 END) AS week_off_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'L\',\'V\',\'H\') THEN 1 ELSE 0 END) AS other_count')
                 )
                 ->where('company_id', $companyId)
                 ->where('employee_id', $employeeId)
-                ->whereBetween('date', [$startMonth, $endMonth])  // Date-only comparison
+                ->whereBetween('date', [$startMonth, $endMonth])
                 ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
                 ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
                 ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
@@ -713,8 +713,8 @@ class ReportController extends Controller
                         'month' => $month['month'],
                         'present_count' => $result->present_count,
                         'absent_count' => $result->absent_count,
-                        'week_off_count' => 10,
-                        'other_count' => 10,
+                        'week_off_count' => $result->week_off_count,
+                        'other_count' => $result->other_count,
                         'month_year' => date("M y", strtotime($month_year))
                     ];
                     break;
@@ -729,7 +729,7 @@ class ReportController extends Controller
                     'present_count' => 0,
                     'absent_count' => 31,
                     'week_off_count' => 0,
-                    'other_count' => 31,
+                    'other_count' => 0,
                     'month_year' => date("M y", strtotime($month_year))
                 ];
             }
