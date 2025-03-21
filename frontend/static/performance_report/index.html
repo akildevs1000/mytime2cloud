@@ -34,7 +34,7 @@
   <body>
     <div id="app" class="pt-5">
       <v-app>
-        <v-dialog persistent v-model="dialog" width="1320px">
+        <v-dialog persistent v-model="dialog" width="1350px">
           <v-card style="overflow-y: scroll; max-height: 850px">
             <v-container fluid>
               <v-row no-gutters class="px-5 pt-12" id="screenshot-target">
@@ -148,7 +148,7 @@
                             <div style="flex: 0.7; min-width: 10%">
                               <table style="width: 100%; table-layout: fixed">
                                 <tr>
-                                  <td style="width: 20px; min-width: 10px">
+                                  <td style="width: 20px; min-width: 10px;">
                                     <div
                                       class="success"
                                       style="
@@ -165,7 +165,7 @@
                                         >{{ item?.p_count }}</strong
                                       >
                                     </div>
-                                    <div>Present</div>
+                                    <div style="font-size: 11px;">Present</div>
                                   </td>
                                 </tr>
                                 <tr>
@@ -186,7 +186,28 @@
                                         >{{ item?.a_count }}</strong
                                       >
                                     </div>
-                                    <div>Absent</div>
+                                    <div style="font-size: 11px;">Absent</div>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <div
+                                      class="primary"
+                                      style="
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: 50%;
+                                        display: inline-block;
+                                      "
+                                    ></div>
+                                  </td>
+                                  <td>
+                                    <div class="pt-3">
+                                      <strong style="font-size: 16px"
+                                        >{{ item?.o_count }}</strong
+                                      >
+                                    </div>
+                                    <div style="font-size: 11px;">WeekOff</div>
                                   </td>
                                 </tr>
                                 <tr>
@@ -207,7 +228,7 @@
                                         >{{ item?.other_count }}</strong
                                       >
                                     </div>
-                                    <div>Other</div>
+                                    <div style="font-size: 11px;">Other</div>
                                   </td>
                                 </tr>
                               </table>
@@ -597,14 +618,14 @@
                                     </div>
                                     <div>WeekOff</div>
                                   </td>
-                                  <td style="width: 20px; min-width: 10px;">
+                                  <td style="width: 20px; min-width: 10px">
                                     <div
                                       class="orange"
                                       style="
                                         width: 10px;
                                         height: 10px;
                                         border-radius: 50%;
-                                        margin-left:10px ;
+                                        margin-left: 10px;
                                         display: inline-block;
                                       "
                                     ></div>
@@ -617,7 +638,7 @@
                                       >
                                     </div>
                                     <div>Other</div>
-                                  </td>                                
+                                  </td>
                                 </tr>
                               </table>
                             </template>
@@ -747,8 +768,8 @@
             isMounted: false,
             pieSeries: [86, 5, 6],
             pieOptions: {
-              labels: ["Present", "Absent", "Leave"],
-              colors: ["#00e676", "#dd2c00", "#ff9800"],
+              labels: ["Present", "Absent", "WeekOff", "Others"],
+              colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
               legend: { show: false }, // Hide the legends
               dataLabels: { enabled: false },
             },
@@ -908,6 +929,7 @@
             this.pieSeries = [
               parseInt(this.item?.p_count),
               parseInt(this.item?.a_count),
+              parseInt(this.item?.o_count),
               parseInt(this.item?.other_count),
             ];
 
