@@ -297,6 +297,7 @@
                         company_id: $auth.user.company_id,
                         p_count: getPresentCount(item),
                         a_count: getAbsentCount(item),
+                        o_count: item?.o_count || 0,
                         other_count: getOtherCount(item),
 
                         rating: $utils.getRating(

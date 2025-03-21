@@ -65,6 +65,13 @@
     "value": "l_count"
   },
   {
+    "text": "Holiday",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "h_count"
+  },
+  {
     "text": "Rating",
     "align": "left",
     "sortable": false,

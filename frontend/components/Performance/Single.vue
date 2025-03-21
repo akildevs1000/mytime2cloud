@@ -175,6 +175,27 @@
                             <tr>
                               <td>
                                 <div
+                                  class="primary"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    item?.o_count
+                                  }}</strong>
+                                </div>
+                                <div>WeekOff</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
                                   class="orange"
                                   style="
                                     width: 10px;
@@ -675,8 +696,8 @@ export default {
       isMounted: false,
       pieSeries: [86, 5, 6],
       pieOptions: {
-        labels: ["Present", "Absent", "Leave"],
-        colors: ["#00e676", "#dd2c00", "#ff9800"],
+        labels: ["Present", "Absent", "WeekOff","Others"],
+        colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
         legend: { show: false }, // Hide the legends
         dataLabels: { enabled: false },
       },
@@ -825,6 +846,7 @@ export default {
     this.pieSeries = [
       parseInt(this.item?.p_count),
       parseInt(this.item?.a_count),
+      parseInt(this.item?.o_count),
       parseInt(this.item?.other_count),
     ];
 
