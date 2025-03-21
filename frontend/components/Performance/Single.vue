@@ -704,6 +704,8 @@ export default {
       barSeries: [
         { name: "Present", data: [] },
         { name: "Absent", data: [] },
+        { name: "WeekOff", data: [] },
+        { name: "Others", data: [] },
       ],
       barOptions: {
         chart: {
@@ -714,7 +716,7 @@ export default {
           },
         },
         xaxis: { categories: [] },
-        colors: ["#00e676", "#dd2c00"],
+        colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
         legend: { show: true }, // Hide the legends
         plotOptions: {
           bar: {
@@ -864,11 +866,16 @@ export default {
       const categories = data.map((e) => e.month_year);
       const presentData = data.map((e) => e.present_count);
       const absentData = data.map((e) => e.absent_count);
+      const WeekOffData = data.map((e) => e.week_off_count);
+      const otherData = data.map((e) => e.other_count);
+
 
       this.barOptions.xaxis.categories = categories;
       this.barSeries = [
         { name: "Present", data: presentData },
         { name: "Absent", data: absentData },
+        { name: "WeekOff", data: WeekOffData },
+        { name: "Others", data: otherData },
       ];
     },
     async getCurrentMonthPerformanceReport(payload) {

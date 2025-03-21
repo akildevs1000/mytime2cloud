@@ -148,7 +148,7 @@
                             <div style="flex: 0.7; min-width: 10%">
                               <table style="width: 100%; table-layout: fixed">
                                 <tr>
-                                  <td style="width: 20px; min-width: 10px;">
+                                  <td style="width: 20px; min-width: 10px">
                                     <div
                                       class="success"
                                       style="
@@ -165,7 +165,7 @@
                                         >{{ item?.p_count }}</strong
                                       >
                                     </div>
-                                    <div style="font-size: 11px;">Present</div>
+                                    <div style="font-size: 11px">Present</div>
                                   </td>
                                 </tr>
                                 <tr>
@@ -186,7 +186,7 @@
                                         >{{ item?.a_count }}</strong
                                       >
                                     </div>
-                                    <div style="font-size: 11px;">Absent</div>
+                                    <div style="font-size: 11px">Absent</div>
                                   </td>
                                 </tr>
                                 <tr>
@@ -207,7 +207,7 @@
                                         >{{ item?.o_count }}</strong
                                       >
                                     </div>
-                                    <div style="font-size: 11px;">WeekOff</div>
+                                    <div style="font-size: 11px">WeekOff</div>
                                   </td>
                                 </tr>
                                 <tr>
@@ -228,7 +228,7 @@
                                         >{{ item?.other_count }}</strong
                                       >
                                     </div>
-                                    <div style="font-size: 11px;">Other</div>
+                                    <div style="font-size: 11px">Other</div>
                                   </td>
                                 </tr>
                               </table>
@@ -774,8 +774,10 @@
               dataLabels: { enabled: false },
             },
             barSeries: [
-              { name: "Present", data: [25, 15, 23, 10, 17, 21] },
-              { name: "Absent", data: [6, 16, 8, 21, 14, 10] },
+              { name: "Present", data: [] },
+              { name: "Absent", data: [] },
+              { name: "WeekOff", data: [] },
+              { name: "Others", data: [] },
             ],
             barOptions: {
               chart: {
@@ -786,7 +788,7 @@
                 },
               },
               xaxis: { categories: [] },
-              colors: ["#00e676", "#dd2c00"],
+              colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
               legend: { show: true }, // Hide the legends
               plotOptions: {
                 bar: {
@@ -960,15 +962,18 @@
 
             let { data } = await axios.post(endpoint, payload);
 
-            console.log("🚀 ~ getLastSixMonthReport ~ data:", data);
             const categories = data.map((e) => e.month_year);
             const presentData = data.map((e) => e.present_count);
             const absentData = data.map((e) => e.absent_count);
+            const WeekOffData = data.map((e) => e.week_off_count);
+            const otherData = data.map((e) => e.other_count);
 
             this.barOptions.xaxis.categories = categories;
             this.barSeries = [
               { name: "Present", data: presentData },
               { name: "Absent", data: absentData },
+              { name: "WeekOff", data: WeekOffData },
+              { name: "Others", data: otherData },
             ];
           },
           async getCurrentMonthPerformanceReport(payload) {

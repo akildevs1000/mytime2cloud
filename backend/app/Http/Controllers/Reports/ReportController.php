@@ -526,7 +526,7 @@ class ReportController extends Controller
             $this->getStatusCountWithSuffix('V'),
             $this->getStatusCountWithSuffix('H'),
         );
-        
+
         $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
 
         $model->with(["employee_report_only" => function ($q) {
@@ -662,8 +662,10 @@ class ReportController extends Controller
                 ->select(
                     DB::raw("strftime('%Y', date) AS year"),
                     DB::raw("strftime('%m', date) AS month"),
-                    DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS present_count"),
-                    DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS absent_count")
+                    DB::raw("SUM(CASE WHEN status in ('P','LC','EG') THEN 1 ELSE 0 END) AS present_count"),
+                    DB::raw("SUM(CASE WHEN status in ('A','M') THEN 1 ELSE 0 END) AS absent_count"),
+                    DB::raw("SUM(CASE WHEN status in ('O') THEN 1 ELSE 0 END) AS week_off_count"),
+                    DB::raw("SUM(CASE WHEN status in ('L','V','H',) THEN 1 ELSE 0 END) AS other_count")
                 )
                 ->where('company_id', $companyId)
                 ->where('employee_id', $employeeId)
@@ -678,8 +680,10 @@ class ReportController extends Controller
                 ->select(
                     DB::raw('EXTRACT(YEAR FROM date) AS year'),
                     DB::raw('EXTRACT(MONTH FROM date) AS month'),
-                    DB::raw('COUNT(CASE WHEN status = \'P\' THEN 1 ELSE NULL END) AS present_count'),
-                    DB::raw('COUNT(CASE WHEN status = \'A\' THEN 1 ELSE NULL END) AS absent_count'),
+                    DB::raw('COUNT(CASE WHEN status in (\'P\',\'LC\',\'EG\') THEN 1 ELSE 0 END) AS present_count'),
+                    DB::raw('COUNT(CASE WHEN status in (\'A\',\'M\') THEN 1 ELSE 0 END) AS absent_count'),
+                    DB::raw('COUNT(CASE WHEN status in (\'O\') THEN 1 ELSE 0 END) AS week_off_count'),
+                    DB::raw('COUNT(CASE WHEN status in (\'L\',\'V\',\'H\') THEN 1 ELSE 0 END) AS other_count'),
                 )
                 ->where('company_id', $companyId)
                 ->where('employee_id', $employeeId)
@@ -709,6 +713,8 @@ class ReportController extends Controller
                         'month' => $month['month'],
                         'present_count' => $result->present_count,
                         'absent_count' => $result->absent_count,
+                        'week_off_count' => 10,
+                        'other_count' => 10,
                         'month_year' => date("M y", strtotime($month_year))
                     ];
                     break;
@@ -722,6 +728,8 @@ class ReportController extends Controller
                     'month' => $month['month'],
                     'present_count' => 0,
                     'absent_count' => 31,
+                    'week_off_count' => 0,
+                    'other_count' => 31,
                     'month_year' => date("M y", strtotime($month_year))
                 ];
             }
