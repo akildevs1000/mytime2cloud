@@ -298,45 +298,18 @@ class ReportController extends Controller
 
             ->whereBetween('date', [$fromDate, $toDate]);
 
-        $driver = DB::connection()->getDriverName(); // Get the database driver name
-
-        if ($driver === 'sqlite') {
-            $model->select(
-                'employee_id',
-
-                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
-                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
-                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
-
-                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
-                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
-
-                DB::raw("SUM(CASE WHEN status = 'O' THEN 1 ELSE 0 END) AS o_count"),
-
-                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
-                DB::raw("SUM(CASE WHEN status = 'V' THEN 1 ELSE 0 END) AS v_count"),
-                DB::raw("SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) AS h_count"),
-
-            );
-        } else {
-            $model->select(
-                'employee_id',
-
-
-                $this->getStatusCountWithSuffix('P'),   
-                $this->getStatusCountWithSuffix('LC'), 
-                $this->getStatusCountWithSuffix('EG'),
-
-                $this->getStatusCountWithSuffix('A'),
-                $this->getStatusCountWithSuffix('M'),
-
-                $this->getStatusCountWithSuffix('O'),
-
-                $this->getStatusCountWithSuffix('L'),
-                $this->getStatusCountWithSuffix('V'),
-                $this->getStatusCountWithSuffix('H'),
-            );
-        }
+        $model->select(
+            'employee_id',
+            $this->getStatusCountWithSuffix('P'),
+            $this->getStatusCountWithSuffix('LC'),
+            $this->getStatusCountWithSuffix('EG'),
+            $this->getStatusCountWithSuffix('A'),
+            $this->getStatusCountWithSuffix('M'),
+            $this->getStatusCountWithSuffix('O'),
+            $this->getStatusCountWithSuffix('L'),
+            $this->getStatusCountWithSuffix('V'),
+            $this->getStatusCountWithSuffix('H'),
+        );
 
         $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
 
@@ -675,7 +648,14 @@ class ReportController extends Controller
 
     function getStatusCountWithSuffix($status)
     {
-        return DB::raw("COUNT(CASE WHEN status = '{$status}' THEN 1 END) AS {$status}_count");
+
+        $driver = DB::connection()->getDriverName(); // Get the database driver name
+
+        if ($driver === 'sqlite') {
+            return DB::raw("SUM(CASE WHEN status = '{$status}' THEN 1 END) AS {$status}_count");
+        } else {
+            return DB::raw("COUNT(CASE WHEN status = '{$status}' THEN 1 END) AS {$status}_count");
+        }
     }
 
     function getStatusCountValue($status)
