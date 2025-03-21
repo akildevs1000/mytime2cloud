@@ -880,7 +880,6 @@ class ReportController extends Controller
         }
     }
 
-
     public function currentMonthPerformanceReport(Request $request)
     {
         $companyId = $request->input('company_id', 0);
@@ -890,75 +889,47 @@ class ReportController extends Controller
         $statusColors = [
             'P' => 'green', // Green
             'A' => 'red', // Red
-            'L' => 'orange', // Blue
-            'O' => 'primary', // Blue
         ];
 
-        $driver = DB::connection()->getDriverName(); // Get the database driver
+        $result = Attendance::where('company_id', $companyId)
+            ->where('employee_id', $employeeId)
+            ->whereMonth('date', $lastMonth)
+            ->select(
+                'date',
+                'status',
 
-        if ($driver === 'sqlite') {
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS a_count"),
+                DB::raw("COUNT(CASE WHEN status IN ('M', 'LC', 'EG', 'O', 'L') THEN 1 ELSE 0 END) AS other_count"),
 
-            $result = Attendance::where('company_id', $companyId)
-                ->where('employee_id', $employeeId)
-                ->whereMonth('date', $lastMonth)
-                ->select(
-                    'date',
-                    'status',
-                    DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
-                    DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
-                    DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
-                    DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
-                    DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
-                    DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
-
-                    DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
-                    DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
-                    DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
-                    DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
-                    DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
-                    DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
-                )
-                ->orderBy('date')->groupBy('date', 'status')->get();
-        } else {
-            $result = Attendance::where('company_id', $companyId)
-                ->where('employee_id', $employeeId)
-                ->whereMonth('date', $lastMonth)
-                ->select(
-                    'date',
-                    'status',
-                    $this->getStatusCountWithSuffix('P'), // Present count
-                    $this->getStatusCountWithSuffix('A'), // Absent count
-                    $this->getStatusCountWithSuffix('L'), // Leave count
-                    $this->getStatusCountWithSuffix('M'), // Missing count
-                    $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                    $this->getStatusCountWithSuffix('EG'), // Early Going count
-
-                    $this->getStatusCountValue('P'), // Present count
-                    $this->getStatusCountValue('A'), // Absent count
-                    $this->getStatusCountValue('L'), // Leave count
-                    $this->getStatusCountValue('M'), // Missing count
-                    $this->getStatusCountValue('LC'), // Late Coming count
-                    $this->getStatusCountValue('EG') // Early Going count
-                )
-                ->orderBy('date')->groupBy('date', 'status')->get();
-        }
+            )
+            ->orderBy('date')
+            ->groupBy('date', 'status')
+            ->get();
 
         $arr = [];
         $stats = [];
+        $other_count = 0;
 
         foreach ($result as $item) {
+            $dateKey = date("Y-m-d", strtotime($item->date));
+            $arr[$dateKey] = $statusColors[$item->status] ?? 'orange';
 
-            $arr[date("Y-m-d", strtotime($item->date))] = $statusColors[$item->status] ?? 'grey';
+            // Initialize or increment the status count
+            $stats[$item->status] = ($stats[$item->status] ?? 0) + 1;
 
-            if (!isset($stats[$item->status])) {
-                $stats[$item->status] = 1; // Initialize the count for this status
-            } else {
-                $stats[$item->status]++; // Increment the count for this status
-            }
+            // Accumulate other_count
+            $other_count += $item->other_count;
         }
+
+        // Ensure 'P' and 'A' exist before subtraction
+        $pCount = $stats['P'] ?? 0;
+        $aCount = $stats['A'] ?? 0;
+        $stats["OTHERS_COUNT"] = max(0, $other_count - $pCount - $aCount);
 
         return ["events" => $arr, "stats" => $stats];
     }
+
 
     /**
      * Helper function to sum time values in "HH:MM" format.
