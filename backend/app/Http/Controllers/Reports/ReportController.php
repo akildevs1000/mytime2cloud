@@ -322,19 +322,19 @@ class ReportController extends Controller
             $model->select(
                 'employee_id',
 
-                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
-                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
-                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
 
-                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
-                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+                $this->getStatusCountWithSuffix('P'),   
+                $this->getStatusCountWithSuffix('LC'), 
+                $this->getStatusCountWithSuffix('EG'),
 
-                DB::raw("COUNT(CASE WHEN status = 'O' THEN 1 ELSE 0 END) AS o_count"),
+                $this->getStatusCountWithSuffix('A'),
+                $this->getStatusCountWithSuffix('M'),
 
-                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
-                DB::raw("COUNT(CASE WHEN status = 'V' THEN 1 ELSE 0 END) AS v_count"),
-                DB::raw("COUNT(CASE WHEN status = 'H' THEN 1 ELSE 0 END) AS h_count"),
+                $this->getStatusCountWithSuffix('O'),
 
+                $this->getStatusCountWithSuffix('L'),
+                $this->getStatusCountWithSuffix('V'),
+                $this->getStatusCountWithSuffix('H'),
             );
         }
 
