@@ -258,15 +258,6 @@
               </div>
             </div>
           </template>
-          <template v-slot:item.p_count="{ item }">
-            <span class="green--text">{{ item.p_count }}</span>
-          </template>
-          <template v-slot:item.a_count="{ item }">
-            <span class="red--text">{{ item.a_count }}</span>
-          </template>
-          <template v-slot:item.l_count="{ item }">
-            <span class="orange--text">{{ item.l_count }}</span>
-          </template>
           <template v-slot:item.average_in_time_array="{ item }">
             {{ calculateAverageTime(item?.average_in_time_array || 0) }}
           </template>
