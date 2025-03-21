@@ -309,14 +309,6 @@ class ReportController extends Controller
                 DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
                 DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
                 DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
-
-                DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count_value"),
-                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count_value"),
-                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count_value"),
-                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count_value"),
-                DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count_value"),
-                DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count_value"),
-
             );
         } else {
             $model->select(
@@ -324,25 +316,20 @@ class ReportController extends Controller
                 DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
                 DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
                 'employee_id',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
-                $this->getStatusCountWithSuffix('O'), // Early Going count
+                
+                 DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
+                 DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 END) AS lc_count"),
+                 DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 END) AS eg_count"),
 
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG'), // Early Going count
-                $this->getStatusCountValue('O'), // Early Going count
+                 DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS a_count"),
+                 DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 END) AS m_count"),
+               
+                 DB::raw("COUNT(CASE WHEN status = 'O' THEN 1 END) AS o_count"),
 
-                // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"in\" != '---' THEN \"in\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_in_time"),
-                // DB::raw("TO_CHAR((DATE '1970-01-01' + AVG(CASE WHEN \"out\" != '---' THEN \"out\"::TIME ELSE NULL END))::TIME, 'HH24:MI') as average_out_time"),
-                // DB::raw("TO_CHAR(SUM(CASE WHEN \"total_hrs\" != '---' THEN \"total_hrs\"::TIME ELSE NULL END), 'HH24:MI') as total_hrs")
+                 DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 END) AS l_count"),
+                 DB::raw("COUNT(CASE WHEN status = 'V' THEN 1 END) AS v_count"),
+                 DB::raw("COUNT(CASE WHEN status = 'H' THEN 1 END) AS h_count"),
+
             );
         }
 
@@ -683,7 +670,7 @@ class ReportController extends Controller
 
     function getStatusCountWithSuffix($status)
     {
-        return DB::raw("LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0') AS {$status}_count");
+        return DB::raw("COUNT(CASE WHEN status = '{$status}' THEN 1 END) AS {$status}_count");
     }
 
     function getStatusCountValue($status)
@@ -886,46 +873,39 @@ class ReportController extends Controller
         $employeeId = $request->input('employee_id', 0);
         $lastMonth = $request->input('date', date('m', strtotime('last month')));
 
-        $statusColors = [
-            'P' => 'green', // Green
-            'A' => 'red', // Red
-        ];
-
         $result = Attendance::where('company_id', $companyId)
             ->where('employee_id', $employeeId)
             ->whereMonth('date', $lastMonth)
-            ->select(
-                'date',
-                'status',
-
-                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
-                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS a_count"),
-                DB::raw("COUNT(CASE WHEN status IN ('M', 'LC', 'EG', 'O', 'L') THEN 1 ELSE 0 END) AS other_count"),
-
-            )
+            ->select('date', 'status')
             ->orderBy('date')
             ->groupBy('date', 'status')
             ->get();
 
         $arr = [];
-        $stats = [];
-        $other_count = 0;
+        $stats = [
+            "P" => 0,
+            "A" => 0,
+            "O" => 0,
+            "OTHERS_COUNT" => 0,
+        ];
 
         foreach ($result as $item) {
             $dateKey = date("Y-m-d", strtotime($item->date));
-            $arr[$dateKey] = $statusColors[$item->status] ?? 'orange';
 
-            // Initialize or increment the status count
-            $stats[$item->status] = ($stats[$item->status] ?? 0) + 1;
-
-            // Accumulate other_count
-            $other_count += $item->other_count;
+            if (in_array($item->status, ['P', "LC", "EG"])) {
+                $arr[$dateKey] = "green";
+                $stats["P"] += 1;
+            } else if (in_array($item->status, ['A', "M"])) {
+                $arr[$dateKey] = "red";
+                $stats["A"] += 1;
+            } else if (in_array($item->status, ['O'])) {
+                $arr[$dateKey] = "primary";
+                $stats["O"] += 1;
+            } else {
+                $arr[$dateKey] = "orange";
+                $stats["OTHERS_COUNT"] += 1;
+            }
         }
-
-        // Ensure 'P' and 'A' exist before subtraction
-        $pCount = $stats['P'] ?? 0;
-        $aCount = $stats['A'] ?? 0;
-        $stats["OTHERS_COUNT"] = max(0, $other_count - $pCount - $aCount);
 
         return ["events" => $arr, "stats" => $stats];
     }

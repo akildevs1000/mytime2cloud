@@ -551,6 +551,25 @@
                               </td>
                               <td style="width: 20px; min-width: 10px">
                                 <div
+                                  class="primary"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["O"] || 0
+                                  }}</strong>
+                                </div>
+                                <div>WeekOff</div>
+                              </td>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
                                   class="orange"
                                   style="
                                     width: 10px;

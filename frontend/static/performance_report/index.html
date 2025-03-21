@@ -34,7 +34,7 @@
   <body>
     <div id="app" class="pt-5">
       <v-app>
-        <v-dialog persistent v-model="dialog" width="1300px">
+        <v-dialog persistent v-model="dialog" width="1320px">
           <v-card style="overflow-y: scroll; max-height: 850px">
             <v-container fluid>
               <v-row no-gutters class="px-5 pt-12" id="screenshot-target">
@@ -580,25 +580,6 @@
                                   </td>
                                   <td style="width: 20px; min-width: 10px">
                                     <div
-                                      class="orange"
-                                      style="
-                                        width: 10px;
-                                        height: 10px;
-                                        border-radius: 50%;
-                                        display: inline-block;
-                                      "
-                                    ></div>
-                                  </td>
-                                  <td style="white-space: nowrap">
-                                    <div class="pt-3">
-                                      <strong style="font-size: 16px"
-                                        >{{ eventStats["L"] || 0 }}</strong
-                                      >
-                                    </div>
-                                    <div>Leave</div>
-                                  </td>
-                                  <td style="width: 20px; min-width: 10px">
-                                    <div
                                       class="primary"
                                       style="
                                         width: 10px;
@@ -614,8 +595,29 @@
                                         >{{ eventStats["O"] || 0 }}</strong
                                       >
                                     </div>
-                                    <div>Week Off</div>
+                                    <div>WeekOff</div>
                                   </td>
+                                  <td style="width: 20px; min-width: 10px;">
+                                    <div
+                                      class="orange"
+                                      style="
+                                        width: 10px;
+                                        height: 10px;
+                                        border-radius: 50%;
+                                        margin-left:10px ;
+                                        display: inline-block;
+                                      "
+                                    ></div>
+                                  </td>
+                                  <td style="white-space: nowrap">
+                                    <div class="pt-3">
+                                      <strong style="font-size: 16px"
+                                        >{{ eventStats["OTHERS_COUNT"] || 0
+                                        }}</strong
+                                      >
+                                    </div>
+                                    <div>Other</div>
+                                  </td>                                
                                 </tr>
                               </table>
                             </template>
