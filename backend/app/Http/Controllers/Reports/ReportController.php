@@ -303,32 +303,37 @@ class ReportController extends Controller
         if ($driver === 'sqlite') {
             $model->select(
                 'employee_id',
+
                 DB::raw("SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
-                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
-                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
-                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
                 DB::raw("SUM(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
                 DB::raw("SUM(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
+
+                DB::raw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("SUM(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+
+                DB::raw("SUM(CASE WHEN status = 'O' THEN 1 ELSE 0 END) AS o_count"),
+
+                DB::raw("SUM(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("SUM(CASE WHEN status = 'V' THEN 1 ELSE 0 END) AS v_count"),
+                DB::raw("SUM(CASE WHEN status = 'H' THEN 1 ELSE 0 END) AS h_count"),
+
             );
         } else {
             $model->select(
-                DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array"),
-                DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array"),
-                DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array"),
                 'employee_id',
-                
-                 DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
-                 DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 END) AS lc_count"),
-                 DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 END) AS eg_count"),
 
-                 DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS a_count"),
-                 DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 END) AS m_count"),
-               
-                 DB::raw("COUNT(CASE WHEN status = 'O' THEN 1 END) AS o_count"),
+                DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 ELSE 0 END) AS p_count"),
+                DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 ELSE 0 END) AS lc_count"),
+                DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 ELSE 0 END) AS eg_count"),
 
-                 DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 END) AS l_count"),
-                 DB::raw("COUNT(CASE WHEN status = 'V' THEN 1 END) AS v_count"),
-                 DB::raw("COUNT(CASE WHEN status = 'H' THEN 1 END) AS h_count"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 ELSE 0 END) AS a_count"),
+                DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 ELSE 0 END) AS m_count"),
+
+                DB::raw("COUNT(CASE WHEN status = 'O' THEN 1 ELSE 0 END) AS o_count"),
+
+                DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 ELSE 0 END) AS l_count"),
+                DB::raw("COUNT(CASE WHEN status = 'V' THEN 1 ELSE 0 END) AS v_count"),
+                DB::raw("COUNT(CASE WHEN status = 'H' THEN 1 ELSE 0 END) AS h_count"),
 
             );
         }
