@@ -234,7 +234,9 @@ class Attendance extends Model
                 "schedule",
                 function ($q) use ($company_id, $shift_type_id) {
                     $q->where('company_id', $company_id);
-                    // $q->where('shift_type_id',  $shift_type_id);
+                    if ($shift_type_id > 0) {
+                        $q->where('shift_type_id',  $shift_type_id);
+                    }
                 }
             );
         });
