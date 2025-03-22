@@ -159,7 +159,7 @@ class Attendance extends Model
     public function processAttendanceModel($request)
     {
         $shift_type_id = 0;
-        
+
         $showTabs = json_decode($request->showTabs, true);
         if ($showTabs['multi'] == true) {
             $shift_type_id = 2;
@@ -234,7 +234,7 @@ class Attendance extends Model
                 "schedule",
                 function ($q) use ($company_id, $shift_type_id) {
                     $q->where('company_id', $company_id);
-                    $q->where('shift_type_id',  $shift_type_id);
+                    // $q->where('shift_type_id',  $shift_type_id);
                 }
             );
         });
