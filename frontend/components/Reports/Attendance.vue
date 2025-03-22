@@ -837,7 +837,6 @@ export default {
       let payload = {
         params: {
           dates: [this.form.from_date, this.form.to_date],
-          UserIds: this.form.employee_ids,
           company_ids: [this.$auth.user.company_id],
           user_id: this.$auth.user.id,
           updated_by: this.$auth.user.id,
