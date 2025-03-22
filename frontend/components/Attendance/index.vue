@@ -64,7 +64,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
-            :showTabs="showTabs"
+            :showTabs="showTabsAsString"
           />
         </v-tab-item>
         <v-tab-item value="tab-2"
@@ -74,7 +74,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
-            :showTabs="showTabs"
+            :showTabs="showTabsAsString"
           />
         </v-tab-item>
         <v-tab-item value="tab-3"
@@ -84,7 +84,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
-            :showTabs="showTabs"
+            :showTabs="showTabsAsString"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -205,6 +205,7 @@ export default {
     ],
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
+    showTabsAsString: "",
   }),
 
   watch: {
@@ -254,6 +255,7 @@ export default {
         })
         .then(({ data }) => {
           this.showTabs = data;
+          this.showTabsAsString = JSON.stringify(data);
         });
     },
 
