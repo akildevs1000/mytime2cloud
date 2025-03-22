@@ -133,11 +133,11 @@
 
         <template v-slot:item.shift="{ item }">
           <div>
-            {{ item.shift && item.shift.on_duty_time }} -
-            {{ item.shift && item.shift.off_duty_time }}
+            {{ item?.employee?.schedule?.shift?.on_duty_time || "---" }} -
+            {{ item?.employee?.schedule?.shift?.off_duty_time || "---" }}
           </div>
           <div class="secondary-value">
-            {{ (item.shift && item.shift.name) || "---" }}
+            {{ item?.employee?.schedule?.shift?.name || "---" }}
             <span v-if="checkHalfday(item || `---`)">
               {{ `(Half Day ${item.shift.halfday_working_hours} hrs)` }}
             </span>
@@ -438,7 +438,9 @@
                       min-width="290px"
                     >
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field outlined dense
+                        <v-text-field
+                          outlined
+                          dense
                           v-model="editItems.time"
                           label="Time"
                           readonly
@@ -447,7 +449,8 @@
                           v-on="on"
                         ></v-text-field>
                       </template>
-                      <v-time-picker no-title
+                      <v-time-picker
+                        no-title
                         v-if="time_menu"
                         v-model="editItems.time"
                         full-width
@@ -478,7 +481,9 @@
                   </v-col>
 
                   <v-col cols="12" class="pa-0">
-                    <v-textarea outlined dense
+                    <v-textarea
+                      outlined
+                      dense
                       filled
                       label="Reason"
                       v-model="editItems.reason"
@@ -554,13 +559,7 @@
 </template>
 <script>
 export default {
-  props: [
-    "title",
-    "shift_type_id",
-    "headers",
-    "payload1",
-    "system_user_id",
-  ],
+  props: ["title", "shift_type_id", "headers", "payload1", "system_user_id"],
 
   data: () => ({
     key: 1,
@@ -736,7 +735,7 @@ export default {
           UserID,
           shift_type_id,
           reason: this.reason,
-          company_id :this.$auth.user.company_id,
+          company_id: this.$auth.user.company_id,
           user_id: this.$auth.user.id,
           updated_by: this.$auth.user.id,
         },
