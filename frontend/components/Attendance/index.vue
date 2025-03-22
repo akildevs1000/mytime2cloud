@@ -64,6 +64,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
+            :showTabs="showTabs"
           />
         </v-tab-item>
         <v-tab-item value="tab-2"
@@ -73,6 +74,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
+            :showTabs="showTabs"
           />
         </v-tab-item>
         <v-tab-item value="tab-3"
@@ -82,6 +84,7 @@
             :branch_id="branch_id"
             :from_date="from_date"
             :to_date="to_date"
+            :showTabs="showTabs"
           />
         </v-tab-item>
       </v-tabs-items>
@@ -105,7 +108,6 @@ export default {
     missingLogsDialog: false,
     selectFile: null,
     key: 1,
-    payload: {},
     selectAllDepartment: false,
     selectAllEmployees: false,
     branches: [],
@@ -252,19 +254,6 @@ export default {
         })
         .then(({ data }) => {
           this.showTabs = data;
-          this.payload.showTabs = data;
-
-          const valuesMap = {
-            multi: 2,
-            dual: 5,
-            single: 6,
-          };
-          // Find the first key in `json` that is true and retrieve its value from the map
-          const result = Object.entries(data).find(
-            ([key, value]) => value
-          )?.[0];
-
-          this.shift_type_id = valuesMap[result] || 2;
         });
     },
 
