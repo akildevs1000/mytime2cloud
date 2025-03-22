@@ -242,17 +242,19 @@ class Attendance extends Model
         });
 
         $model->with([
-            'employee' => function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
+            'employee' => function ($q) use ($company_id) {
+                $q->where('company_id', $company_id);
                 $q->where('status', 1);
                 $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
                 $q->with(['department', 'branch']);
                 $q->with([
-                    "schedule" => function ($q) {
+                    "schedule" => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
                         $q->select("id", "shift_id", "employee_id");
                         $q->withOut("shift_type");
                     },
-                    "schedule.shift" => function ($q) {
+                    "schedule.shift" => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
                         $q->select("id", "name", "on_duty_time", "off_duty_time");
                     }
                 ]);
