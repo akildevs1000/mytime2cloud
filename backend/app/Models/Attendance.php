@@ -249,12 +249,12 @@ class Attendance extends Model
                 $q->with(['department', 'branch']);
                 $q->with([
                     "schedule" => function ($q) use ($company_id) {
-                        // $q->where('company_id', $company_id);
+                        $q->where('company_id', $company_id);
                         $q->select("id", "shift_id", "employee_id");
                         $q->withOut("shift_type");
                     },
                     "schedule.shift" => function ($q) use ($company_id) {
-                        // $q->where('company_id', $company_id);
+                        $q->where('company_id', $company_id);
                         $q->select("id", "name", "on_duty_time", "off_duty_time");
                     }
                 ]);
