@@ -1,9 +1,7 @@
-<<<<<<< HEAD
-=======
 backend/composer.json
 backend/composer.lock
 .codegpt
 backend/ssl/cert.crt
 backend/ssl/cert.key
->>>>>>> 1190a163a8f25b666ed8d03136aa39b43e051da2
 .vscode/settings.json
+node_modules

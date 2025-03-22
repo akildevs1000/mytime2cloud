@@ -268,18 +268,14 @@
               <v-rating
                 dense
                 hide-details
-                :value="
-                  $utils.getRating(item.p_count_value, from_date, to_date)
-                "
+                :value="$utils.getRating(item.p_count, from_date, to_date)"
                 background-color="green lighten-3"
                 color="green"
                 half-increments
               ></v-rating>
               <div>
                 <v-chip small class="green white--text"
-                  >{{
-                    $utils.getRating(item.p_count_value, from_date, to_date)
-                  }}
+                  >{{ $utils.getRating(item.p_count, from_date, to_date) }}
                   / 5
                 </v-chip>
               </div>
@@ -299,11 +295,13 @@
                       :item="{
                         leave_group_id: item?.employee?.leave_group_id,
                         company_id: $auth.user.company_id,
-                        p_count_value: item?.p_count_value || 0,
-                        a_count_value: item?.a_count_value || 0,
-                        l_count_value: item?.l_count_value || 0,
+                        p_count: getPresentCount(item),
+                        a_count: getAbsentCount(item),
+                        o_count: item?.o_count || 0,
+                        other_count: getOtherCount(item),
+
                         rating: $utils.getRating(
-                          item.p_count_value,
+                          item.p_count,
                           from_date,
                           to_date
                         ),
@@ -445,6 +443,24 @@ export default {
   },
 
   methods: {
+    getPresentCount(item) {
+      return [item?.p_count, item?.lc_count, item?.eg_count].reduce(
+        (sum, val) => sum + (val || 0),
+        0
+      );
+    },
+    getAbsentCount(item) {
+      return [item?.a_count, item?.m_count].reduce(
+        (sum, val) => sum + (val || 0),
+        0
+      );
+    },
+    getOtherCount(item) {
+      return [item?.l_count, item?.v_count, item?.h_count].reduce(
+        (sum, val) => sum + (val || 0),
+        0
+      );
+    },
     addFirstAndLastDay(months) {
       // Check if the user has selected exactly 2 months
       if (months.length !== 2) {
