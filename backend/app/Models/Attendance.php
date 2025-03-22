@@ -158,6 +158,8 @@ class Attendance extends Model
 
     public function processAttendanceModel($request)
     {
+        $shift_type_id = 0;
+        
         $showTabs = json_decode($request->showTabs, true);
         if ($showTabs['multi'] == true) {
             $shift_type_id = 2;
