@@ -246,6 +246,15 @@ class Attendance extends Model
                 $q->where('status', 1);
                 $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
                 $q->with(['department', 'branch']);
+                $q->with([
+                    "schedule" => function ($q) {
+                        $q->select("id", "shift_id", "employee_id");
+                        $q->withOut("shift_type");
+                    },
+                    "schedule.shift" => function ($q) {
+                        $q->select("id", "name","on_duty_time","off_duty_time");
+                    }
+                ]);
             }
         ]);
 
