@@ -644,7 +644,6 @@ import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
 
-import employee_top_menu from "../menus/employee_modules_top.json";
 import GlobalSearchForm from "../components/Globalsearch/GlobalSearchForm.vue";
 
 export default {
@@ -756,7 +755,6 @@ export default {
       guard_menus,
       host_menus,
       company_top_menu,
-      employee_top_menu,
       pendingLeavesCount: 0,
       pendingNotificationsCount: 0,
       snackNotificationText: "",
