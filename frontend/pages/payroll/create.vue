@@ -1,5 +1,5 @@
 <template>
-  <div >
+  <div v-if="can('payroll_formula_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -119,7 +119,14 @@
                   >
 
                   <v-col cols="6" class="text-right">
-                    <v-btn v-if="can('payroll_formula_create')" small color="primary" @click="store"> Submit </v-btn>
+                    <v-btn
+                      v-if="can('payroll_formula_create')"
+                      small
+                      color="primary"
+                      @click="store"
+                    >
+                      Submit
+                    </v-btn>
                   </v-col>
                 </v-col>
               </v-row>
@@ -173,7 +180,12 @@
                   ></v-autocomplete>
                 </v-col>
                 <v-col cols="7" class="align-end text-right">
-                  <v-btn v-if="can('payroll_generation_date_create')" small color="primary" @click="storeDate">
+                  <v-btn
+                    v-if="can('payroll_generation_date_create')"
+                    small
+                    color="primary"
+                    @click="storeDate"
+                  >
                     Submit
                   </v-btn>
                 </v-col>
@@ -185,6 +197,7 @@
     </div>
     <Preloader v-else />
   </div>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -269,7 +282,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     store() {
       this.errors = [];
