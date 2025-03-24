@@ -64,16 +64,40 @@ class RenderController extends Controller
             return ["Limit  20 Employees  only "];
         }
 
-        if ($request->shift_type_id == 2) {
-            return (new MultiShiftController)->renderData($request);
-        } else if ($request->shift_type_id == 5) {
-            return (new SplitShiftController)->renderData($request);
+        if ($request->channel == "kernel") {
+            if ($request->shift_type_id == 0) {
+                return array_merge(
+                    // 1,6
+                    (new FiloShiftController)->renderData($request),
+
+                    (new SingleShiftController)->renderData($request),
+                );
+            }
+
+            if ($request->shift_type_id == 2) {
+                return (new MultiShiftController)->renderData($request);
+            } else if ($request->shift_type_id == 3) {
+                return array_merge(
+                    (new AutoShiftController)->renderData($request),
+
+
+                    (new SingleShiftController)->renderData($request),
+                    (new SplitShiftController)->renderData($request),
+                    (new NightShiftController)->renderData($request),
+                );
+            } else if ($request->shift_type_id == 4) {
+                return (new NightShiftController)->renderData($request);
+            } else if ($request->shift_type_id == 5) {
+                return (new SplitShiftController)->renderData($request);
+            }
         }
+
 
         return array_merge(
             (new AutoShiftController)->renderData($request),
-            (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
+            (new SplitShiftController)->renderData($request),
+            (new MultiShiftController)->renderData($request),
             (new NightShiftController)->renderData($request),
         );
     }
