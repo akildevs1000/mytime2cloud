@@ -816,10 +816,7 @@ export default {
     },
 
     can(per) {
-      let u = this.$auth.user;
-      return (
-        (u && u.permissions.some((e) => e == per || per == "/")) || u.is_master
-      );
+      return this.$pagePermission.can(per, this);
     },
 
     getDataFromApi(url = this.endpoint) {
