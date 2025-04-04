@@ -411,7 +411,7 @@ export default {
         report_type: "Monthly",
         filterType: "Monthly",
         statuses: this.statuses,
-        branch_id: this.branch_id,
+        branch_id: this.branch_id || this.$auth.user?.branch_id || null,
         from_date: this.from_date,
         to_date: this.to_date,
         showTabs: this.showTabs,
