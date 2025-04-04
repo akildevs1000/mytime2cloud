@@ -844,9 +844,9 @@ export default {
           employee_ids: this.form.employee_ids,
           shift_type_id: this.shift_type_id,
           company_id: this.$auth.user.company_id,
+          showTabs: JSON.stringify(this.showTabs),
         },
       };
-      console.log("🚀 ~ render_report ~ payload:", payload);
       // return;
       this.$axios
         .get("render_logs", payload)
