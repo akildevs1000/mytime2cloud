@@ -35,17 +35,14 @@ class MonthlyController extends Controller
 
         // only for multi in/out
         if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->multi_in_out_monthly_download_pdf($request);
+            return $this->PDFMerge();
         }
-        
+
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
         }
         $file_name = $file_name . '.pdf';
-
-
-
 
         return $this->processPDF($request)->stream($file_name);
     }
