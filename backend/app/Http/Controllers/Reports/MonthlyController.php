@@ -42,6 +42,15 @@ class MonthlyController extends Controller
 
     public function monthly_download_pdf(Request $request)
     {
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', 300); // Increase to 5 minutes
+        
+        $showTabs = json_decode($request->showTabs, true);
+
+        // only for multi in/out
+        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+            return $this->multi_in_out_monthly_download_pdf($request);
+        }
 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
