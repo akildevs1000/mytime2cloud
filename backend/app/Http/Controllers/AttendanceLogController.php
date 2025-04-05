@@ -220,9 +220,9 @@ class AttendanceLogController extends Controller
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
-            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+            // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
-            if (!$isDuplicateLogTime) {
+            // if (!$isDuplicateLogTime) {
                 $records[] = [
                     "UserID" => $columns[0],
                     "DeviceID" => $columns[1],
@@ -237,7 +237,7 @@ class AttendanceLogController extends Controller
 
                     "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
                 ];
-            }
+            // }
         }
 
         try {
