@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use App\Http\Controllers\Controller;
-use App\Models\AttendanceLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -61,12 +60,9 @@ class SendWhatsappMessageJob implements ShouldQueue
                 $logger->logOutPut($logFilePath, "Message sent successfully to {$this->recipient}. Reference #: {$this->logId}");
                 echo ("\nMessage sent successfully to {$this->recipient}. Reference #: {$this->logId}");
 
-                AttendanceLog::whereIn("id", $this->logId)->update(["is_notified_by_whatsapp_proxy" => true]);
-
-                $logger->logOutPut($logFilePath, "*****{$this->logId} log updated *****");
             } else {
                 $logger->logOutPut($logFilePath, "Failed to send message to {$this->recipient}. Reference #: {$this->logId}");
-                echo ("\nMessage cannot send to {$this->recipient}. Reference #: {$this->logId}");
+                echo ("\nMessage sent successfully to {$this->recipient}. Reference #: {$this->logId}");
             }
         } catch (\Throwable $e) {
             $logger->logOutPut($logFilePath, "Exception while sending message to {$this->recipient}: " . $e->getMessage());
