@@ -30,7 +30,7 @@ class AlertAccessControl extends Command
 
         $logger = new Controller;
 
-        $logFilePath = 'logs/common_logs';
+        $logFilePath = 'logs/common_logs/automation/access_control';
 
         $company_id = $this->argument("company_id", 0);
 
