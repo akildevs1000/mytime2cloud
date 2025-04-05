@@ -181,6 +181,12 @@ class AlertAccessControl extends Command
             }
         }
 
+
+        $records = AttendanceLog::whereIn("id", $logIds)
+            ->update(["is_notified_by_whatsapp_proxy" => true]);
+
+        $logger->logOutPut($logFilePath, "*****$records logs updated *****");
+
         $executionTime = microtime(true) - $startTime;
         $endMemory = memory_get_usage();
         $memoryUsed = $endMemory - $startMemory;
