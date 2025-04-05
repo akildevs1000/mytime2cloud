@@ -36,7 +36,7 @@ class AlertAccessControl extends Command
 
         $logFilePath = "$logFilePath";
 
-        $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control $company_id *****");
+        $logger->logOutPut($logFilePath, "*****Cron started for alert:access_control at " . date("H:i") . " $company_id *****");
 
         $clientId = null;
 
