@@ -150,74 +150,80 @@ class MultiShiftController extends Controller
 
             ];
 
+            $totalMinutes = 0;
+            $logsJson = [];
+            $i = 0;
+
+            $totalMinutes = 0;
             $logsJson = [];
 
             $totalMinutes = 0;
+            $logsJson = [];
+            $previousOut = null;
 
-            for ($i = 0; $i < count($data); $i++) {
+            for ($i = 0; $i < count($data); $i += 2) {
                 $currentLog = $data[$i];
-                $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                $item["employee_id"] = $row->system_user_id;
+                $nextLog = $data[$i + 1] ?? null;
 
-                if ($nextLog) {
-                    $i++;
-                    $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                } else if ($currentLog) {
-                    $i++;
-                    $currentLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                }
+                $currentTime = $currentLog['time'] ?? '---';
+                $nextTime = $nextLog['time'] ?? '---';
+
+                $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
+                $validOut = $nextTime !== '---' && $nextTime !== $currentTime;
 
                 $minutes = 0;
 
+                if ($validIn && $validOut) {
+                    $parsedIn = strtotime($currentTime);
+                    $parsedOut = strtotime($nextTime);
 
-                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
-
-
-                    $parsed_out = strtotime($nextLog['time'] ?? 0);
-                    $parsed_in = strtotime($currentLog['time'] ?? 0);
-
-                    if ($parsed_in > $parsed_out) {
-                        //$item["extra"] = $nextLog['time'];
-                        $parsed_out += 86400;
+                    if ($parsedIn > $parsedOut) {
+                        $parsedOut += 86400; // handle midnight crossover
                     }
 
-                    $diff = $parsed_out - $parsed_in;
-
-                    $minutes =  ($diff / 60);
-
-                    //$totalMinutes += $minutes > 0 ? $minutes : 0;
-
+                    $diff = $parsedOut - $parsedIn;
+                    $minutes = $diff / 60;
                     $totalMinutes += $minutes;
                 }
+
                 $logsJson[] = [
-                    "in"  => $this->getLogTime(
-                        $currentLog,
-                        ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
-                        ["Manual", "manual", "MANUAL"]
-                    ),
-                    "out" => $nextLog
+                    "in" => $validIn
+                        ? $this->getLogTime(
+                            $currentLog,
+                            ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
+                            ["Manual", "manual", "MANUAL"]
+                        )
+                        : "---",
+                    "out" => $validOut
                         ? $this->getLogTime(
                             $nextLog,
                             ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"],
                             ["Manual", "manual", "MANUAL"]
                         )
                         : "---",
-                    "device_in"  => $this->getDeviceName($currentLog ?? []),
+                    "device_in" => $this->getDeviceName($currentLog),
                     "device_out" => $this->getDeviceName($nextLog ?? []),
                     "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
-
+                $item["employee_id"] = $row->system_user_id;
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);
 
                 if ($params["isOverTime"]) {
-                    $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
+                    $item["ot"] = $this->calculatedOT(
+                        $item["total_hrs"],
+                        $params["shift"]->working_hours,
+                        $params["shift"]->overtime_interval
+                    );
                 }
 
-                $i++;
+                // Save current out time for next loop
+                if ($validOut) {
+                    $previousOut = $nextTime;
+                }
             }
 
-            $item["logs"] = json_encode($logsJson);
+            $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
 
             $items[] = $item;
         }
