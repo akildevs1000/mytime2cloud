@@ -580,7 +580,7 @@ class ReportController extends Controller
             ->groupBy('employee_id');
 
 
-        return $model->paginate($request->per_page ?? 100);
+        return $model->paginate(10);
     }
 
     function getStatusCountWithSuffix($dbDtatus)
