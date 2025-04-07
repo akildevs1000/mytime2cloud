@@ -103,6 +103,7 @@ class MultiShiftController extends Controller
         $message = "";
         $logsUpdated = 0;
 
+
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
@@ -110,16 +111,13 @@ class MultiShiftController extends Controller
 
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
-
-
             $data = $logs[$row->system_user_id] ?? [];
             if (!count($data)) {
-
-
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
                         "shift_id" => $row->schedule->shift["id"],
-                        "shift_type_id" => $row->schedule->shift["shift_type_id"]
+                        "shift_type_id" => $row->schedule->shift["shift_type_id"],
+                        "status" => "A",
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
@@ -230,31 +228,33 @@ class MultiShiftController extends Controller
 
         try {
 
-            $model = Attendance::query();
-            $model->whereIn("employee_id", array_column($items, "employee_id"));
-            $model->where("date", $date);
-            $model->where("company_id", $id);
-            $model->delete();
+            if (count($items) > 0) {
+                $model = Attendance::query();
+                $model->whereIn("employee_id", array_column($items, "employee_id"));
+                $model->where("date", $date);
+                $model->where("company_id", $id);
+                $model->delete();
 
-            $chunks = array_chunk($items, 100);
+                $chunks = array_chunk($items, 100);
 
-            foreach ($chunks as $chunk) {
-                $model->insert($chunk);
+                foreach ($chunks as $chunk) {
+                    $model->insert($chunk);
+                }
+
+                $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+
+                $logsUpdated = AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", $UserIds ?? [])
+                    ->where("LogTime", ">=", $date)
+                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
+                    // ->where("checked", false)
+                    ->update([
+                        "checked" => true,
+                        "checked_datetime" => date('Y-m-d H:i:s'),
+                        "channel" => $channel,
+                        "log_message" => substr($message, 0, 200)
+                    ]);
             }
-
-            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
-
-            $logsUpdated = AttendanceLog::where("company_id", $id)
-                ->whereIn("UserID", $UserIds ?? [])
-                ->where("LogTime", ">=", $date)
-                ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                // ->where("checked", false)
-                ->update([
-                    "checked" => true,
-                    "checked_datetime" => date('Y-m-d H:i:s'),
-                    "channel" => $channel,
-                    "log_message" => substr($message, 0, 200)
-                ]);
         } catch (\Throwable $e) {
             $this->logOutPut($this->logFilePath, $e->getMessage());
         }
@@ -267,7 +267,7 @@ class MultiShiftController extends Controller
 
         $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") .  "] " . "$logsUpdated " . " updated logs");
         $this->logOutPut($this->logFilePath, $message);
-        return $message;
+        return "[" . $date . " " . date("H:i:s") .  "] " . $message;
     }
 
     public function sync(Request $request)
