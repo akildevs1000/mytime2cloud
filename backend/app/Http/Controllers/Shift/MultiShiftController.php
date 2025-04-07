@@ -302,10 +302,11 @@ class MultiShiftController extends Controller
 
     private function getLogTime($log, $validFunctions, $manualDeviceID)
     {
-        return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)
-            || (isset($log["DeviceID"]) && $log["DeviceID"] == $manualDeviceID)
-            ? $log['time']
-            : "---";
+        return $log && $log['time'] ? $log['time'] : "---";
+        // return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)
+        //     || (isset($log["DeviceID"]) && $log["DeviceID"] == $manualDeviceID)
+        //     ? $log['time']
+        //     : "---";
     }
 
     private function getDeviceName($log)
