@@ -780,7 +780,10 @@ export default {
           this.snack = true;
           this.snackColor = "error";
           this.snackText = "No Results Found";
+          this.data = [];
+          this.total = 0;
           this.loading = false;
+          this.totalRowsCount = 0;
           return false;
         }
 
