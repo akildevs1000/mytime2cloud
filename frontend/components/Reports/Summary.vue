@@ -280,18 +280,6 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <v-dialog :key="showPdfDialogKey" v-model="showPdfDialog" width="1100px">
-      <WidgetsClose left="1090" @click="showPdfDialog = false" />
-      <v-card>
-        <iframe
-            v-if="pdfUrl"
-            :src="pdfUrl"
-            width="100%"
-            height="800px"
-            style="border: none"
-          ></iframe>
-      </v-card>
-    </v-dialog>
   </span>
 </template>
 
@@ -505,6 +493,9 @@ export default {
         this.pdfUrl = `${
           this.$appUrl
         }/summary_report/index.html?${queryParams.toString()}`;
+
+        window.open(this.pdfUrl, "_blank");
+
         this.showPdfDialog = true;
         this.showPdfDialogKey += 1;
       } catch (error) {
