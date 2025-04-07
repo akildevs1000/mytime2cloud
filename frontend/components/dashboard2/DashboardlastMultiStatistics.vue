@@ -106,7 +106,7 @@ export default {
 
   methods: {
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     getDataFromApi() {
       let options = {

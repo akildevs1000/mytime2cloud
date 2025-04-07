@@ -113,11 +113,11 @@ export default {
       this.wallClockTimeString = `${hours}:${minutes}:${seconds} ${day} ${month} ${year}`;
     },
     goToReports() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
 
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     getDataFromApi() {
       this.$axios

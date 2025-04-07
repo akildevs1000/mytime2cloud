@@ -105,7 +105,7 @@ export default {
 
   methods: {
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     async getDataFromApi() {
       const data = await this.$store.dispatch("dashboard/every_hour_count");
