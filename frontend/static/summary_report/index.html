@@ -561,8 +561,8 @@
                 }
 
                 this.data = data.data; // Update data for the current page
-                this.total = data.total;
-                this.totalRowsCount = data.total;
+                this.total = this.payload.per_page;
+                this.totalRowsCount = this.payload.per_page;
 
                 // Calculate total pages dynamically
                 totalPages = Math.ceil(this.total / this.payload.per_page);
