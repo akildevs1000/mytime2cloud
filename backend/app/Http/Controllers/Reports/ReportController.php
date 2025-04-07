@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use NumberFormatter;
 
@@ -498,100 +497,91 @@ class ReportController extends Controller
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
         }
 
-        // Define a unique cache key based on input parameters
-        $cacheKey = 'attendance_summary_' . md5(json_encode([
-            'company_id' => $companyId,
-            'branch_id' => $branch_id,
-            'from_date' => $fromDate,
-            'to_date' => $toDate,
-            'department_ids' => $department_ids,
-            'employee_ids' => $employeeIds,
-        ]));
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
+            })
 
-        // Check if data is cached
-        $model = Cache::rememberForever($cacheKey, function () use ($companyId, $branch_id, $department_ids, $employeeIds, $fromDate, $toDate) {
-            return Attendance::where('company_id', $companyId)
-                ->when($branch_id, function ($q) use ($branch_id) {
-                    $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
-                })
-                ->when(count($department_ids), function ($q) use ($department_ids) {
-                    $q->whereHas('employee', fn($query) => $query->whereIn('department_id', $department_ids));
-                })
-                ->when(count($employeeIds), function ($q) use ($employeeIds) {
-                    $q->whereIn('employee_id', $employeeIds);
-                })
-                ->whereBetween('date', [$fromDate, $toDate])
-                ->select(
-                    'employee_id',
-                    $this->getTotalHours(),
-                    $this->getInHours(),
-                    $this->getOutHours(),
-                    $this->getStatusCountWithSuffix('P'),
-                    $this->getStatusCountWithSuffix('LC'),
-                    $this->getStatusCountWithSuffix('EG'),
-                    $this->getStatusCountWithSuffix('A'),
-                    $this->getStatusCountWithSuffix('M'),
-                    $this->getStatusCountWithSuffix('O'),
-                    $this->getStatusCountWithSuffix('L'),
-                    $this->getStatusCountWithSuffix('V'),
-                    $this->getStatusCountWithSuffix('H'),
-                )
-                ->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")))
-                ->with(["employee_report_only" => function ($q) {
-                    $q->where("company_id", request("company_id"));
-                    $q->withOut("schedule", "user");
-                    $q->with("reporting_manager:id,reporting_manager_id,first_name");
-                    $q->with(["schedule_all" => function ($q) {
-                        $q->where("company_id", request("company_id"));
-                        $q->select([
-                            "id",
-                            "shift_id",
-                            "employee_id",
-                            "shift_type_id",
-                            "company_id",
-                        ]);
-                        $q->with(["shift" => function ($q) {
-                            $q->select([
-                                "id",
-                                "working_hours",
-                                "days",
-                            ]);
-                        }]);
-                    }]);
-                    $q->select(
-                        "first_name",
-                        "last_name",
-                        "profile_picture",
-                        "phone_number",
-                        "whatsapp_number",
-                        "employee_id",
-                        "joining_date",
-                        "designation_id",
-                        "department_id",
-                        "user_id",
-                        "sub_department_id",
-                        "overtime",
-                        "title",
-                        "status",
-                        "company_id",
-                        "branch_id",
-                        "system_user_id",
-                        "display_name",
-                        "full_name",
-                        "home_country",
-                        "reporting_manager_id",
-                        "local_email",
-                        "home_email",
-                        "leave_group_id"
-                    );
-                }])
-                ->groupBy('employee_id')
-                ->paginate(10);
-        });
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
 
-        return $model;
+            ->whereBetween('date', [$fromDate, $toDate]);
+
+        $model->select(
+            'employee_id',
+            $this->getTotalHours(),
+            $this->getInHours(),
+            $this->getOutHours(),
+            $this->getStatusCountWithSuffix('P'),
+            $this->getStatusCountWithSuffix('LC'),
+            $this->getStatusCountWithSuffix('EG'),
+            $this->getStatusCountWithSuffix('A'),
+            $this->getStatusCountWithSuffix('M'),
+            $this->getStatusCountWithSuffix('O'),
+            $this->getStatusCountWithSuffix('L'),
+            $this->getStatusCountWithSuffix('V'),
+            $this->getStatusCountWithSuffix('H'),
+        );
+
+        $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee_report_only" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
+                $q->where("company_id", request("company_id"));
+                $q->select([
+                    "id",
+                    "shift_id",
+                    "employee_id",
+                    "shift_type_id",
+                    "company_id",
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
+            ->groupBy('employee_id');
+
+
+        return $model->paginate(10);
     }
-
 
     function getStatusCountWithSuffix($dbDtatus)
     {
