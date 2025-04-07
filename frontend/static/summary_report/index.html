@@ -565,7 +565,7 @@
                 this.totalRowsCount = this.payload.per_page;
 
                 // Calculate total pages dynamically
-                totalPages = Math.ceil(this.total / this.payload.per_page);
+                totalPages = Math.ceil(this.total / 10);
 
                 console.log(`Fetched page ${currentPage} of ${totalPages}`);
 
