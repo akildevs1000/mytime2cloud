@@ -192,13 +192,13 @@ class MultiShiftController extends Controller
                 $logsJson[] = [
                     "in"  => $this->getLogTime(
                         $currentLog,
-                        ["In", "Auto", "Option", "in", "auto", "option"],
+                        ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
                         ["Manual", "manual", "MANUAL"]
                     ),
                     "out" => $nextLog
                         ? $this->getLogTime(
                             $nextLog,
-                            ["Out", "Auto", "Option", "out", "auto", "option"],
+                            ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"],
                             ["Manual", "manual", "MANUAL"]
                         )
                         : "---",
