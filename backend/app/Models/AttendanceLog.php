@@ -564,4 +564,21 @@ class AttendanceLog extends Model
 
             ->groupBy(['UserID']);
     }
+
+    protected static function booted()
+    {
+        static::created(function ($log) {
+            // Skip this if the log is created from console (CLI, cron, jobs)
+            if (app()->runningInConsole()) {
+                return;
+            }
+
+            recordAction([
+                "action" => "Report",
+                "type" => "LogCreate",
+                "model_type" => "user",
+                "description" => "Created manual log. Payload: " . json_encode($log->toArray(), JSON_PRETTY_PRINT),
+            ]);
+        });
+    }
 }
