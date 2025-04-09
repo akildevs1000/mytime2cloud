@@ -122,10 +122,10 @@
   },
 
   {
-    "icon": "mdi-web-box",
-    "title": "Web Logs",
+    "icon": "mdi-history",
+    "title": "Activity",
     "open_menu": false,
-    "to": "/web_login_logs",
+    "to": "/activity",
     "module": "settings"
   },
 
@@ -399,10 +399,10 @@
     "module": "reports"
   },
   {
-    "icon": "mdi-web-box",
-    "title": "Web Logs",
+    "icon": "mdi-history",
+    "title": "Activity",
     "open_menu": false,
-    "to": "/web_login_logs",
+    "to": "/activity",
     "module": "reports"
   },
 
