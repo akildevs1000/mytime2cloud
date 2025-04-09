@@ -439,7 +439,7 @@
                 </tr>
 
                 <tr>
-                  <td style="width: 200px">Expiry Date</td>
+                  <td style="width: 200px">Date of Birth</td>
                   <td>
                     <span v-if="!editForm">{{
                       emirateObject.date_of_birth
