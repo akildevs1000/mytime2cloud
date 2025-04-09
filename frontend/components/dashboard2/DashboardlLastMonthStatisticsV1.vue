@@ -122,11 +122,11 @@ export default {
 
   methods: {
     goToReports() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
 
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     getDataFromApi() {
       if (this.$store.state.dashboard.previous_week_attendance_count) {

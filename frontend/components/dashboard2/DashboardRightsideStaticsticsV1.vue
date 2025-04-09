@@ -325,7 +325,7 @@ export default {
       this.$router.push("/leaves");
     },
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     viewDevices() {
       this.$router.push("/device");

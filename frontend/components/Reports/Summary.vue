@@ -224,7 +224,7 @@
           :loading="loading"
           :options.sync="options"
           :footer-props="{
-            itemsPerPageOptions: [10, 50, 100, 200, 500],
+            itemsPerPageOptions: [10, 50, 100],
             page: true,
           }"
           model-value="data.id"
@@ -393,6 +393,10 @@ export default {
     data: [],
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
+
+    showPdfDialog: false,
+    showPdfDialogKey: 1,
+    pdfUrl: null,
   }),
 
   computed: {
@@ -438,6 +442,12 @@ export default {
         this.payload.employee_id = [];
       }
     },
+    options: {
+      handler() {
+        this.getDataFromApi();
+      },
+      deep: true,
+    },
   },
   async created() {
     // this.setMonthlyDateRange();
@@ -462,7 +472,6 @@ export default {
   methods: {
     async downloadPDF() {
       try {
-        // Ensure company_id is available
         const companyId = this.$auth?.user?.company_id;
         if (!companyId) {
           console.error("Company ID is missing.");
@@ -475,21 +484,20 @@ export default {
           to_date: this.to_date,
           page: this.options.page,
           per_page: this.options.itemsPerPage,
-          company_id: this.$auth.user.company_id,
+          company_id: companyId,
           report_type: "monthly",
           months: JSON.stringify([...new Set(this.months)]),
-          baseUrl: this.$backendUrl
+          baseUrl: this.$backendUrl,
         });
-        
-        const url = `${this.$appUrl}/summary_report/index.html?${queryParams.toString()}`;
 
-        // Open in a new tab
-        const newWindow = window.open(url, "_blank");
+        this.pdfUrl = `${
+          this.$appUrl
+        }/summary_report/index.html?${queryParams.toString()}`;
 
-        // Handle blocked pop-ups
-        if (!newWindow) {
-          console.error("Popup blocked! Allow pop-ups for this site.");
-        }
+        window.open(this.pdfUrl, "_blank");
+
+        this.showPdfDialog = true;
+        this.showPdfDialogKey += 1;
       } catch (error) {
         console.error("Error generating PDF URL:", error);
       }
@@ -703,9 +711,9 @@ export default {
         })
         .then(({ data }) => {
           this.data = data.data;
-          this.total = data.total;
+          this.total = itemsPerPage;
           this.loading = false;
-          this.totalRowsCount = data.total;
+          this.totalRowsCount = itemsPerPage;
         });
     },
 
