@@ -1,7 +1,0 @@
-backend/composer.json
-backend/composer.lock
-.codegpt
-backend/ssl/cert.crt
-backend/ssl/cert.key
-.vscode/settings.json
-node_modules
