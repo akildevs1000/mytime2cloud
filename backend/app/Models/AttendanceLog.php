@@ -573,11 +573,18 @@ class AttendanceLog extends Model
                 return;
             }
 
+            $payload = [
+                "Employee ID" => $log->UserID,
+                "Log Date Time" => $log->LogTime,
+                "Record Id" => $log->id,
+                "Created At" => date("d M y H:i:s", strtotime($log->created_at)),
+            ];
+
             recordAction([
                 "action" => "Report",
                 "type" => "LogCreate",
                 "model_type" => "user",
-                "description" => "Created manual log. Payload: " . json_encode($log->toArray(), JSON_PRETTY_PRINT),
+                "description" => "Created manual log. Payload: " . json_encode($payload, JSON_PRETTY_PRINT),
             ]);
         });
     }
