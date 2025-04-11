@@ -369,9 +369,9 @@ if (!function_exists('defaultDeviceManual')) {
 if (!function_exists('recordAction')) {
     function recordAction($arr)
     {
-        $user_id = auth()->id();
+        $user_id = auth()->id() ?? $arr["user_id"];
 
-        $company_id = request("company_id", 1);
+        $company_id = request("company_id", 1) ?? $arr["company_id"];
 
         Activity::create([
             "user_id" => $user_id,
