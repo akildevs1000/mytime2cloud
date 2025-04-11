@@ -17,7 +17,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule
-            ->command('task:sync_datetime_to_device')
+            ->command('sync_datetime_to_device')
             ->dailyAt('02:45')
             ->runInBackground();
 
