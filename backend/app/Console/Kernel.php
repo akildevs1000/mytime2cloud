@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('birthday:wish')->dailyAt('00:00');
+
         $schedule
             ->command('sync_datetime_to_device')
             ->dailyAt('02:45')
