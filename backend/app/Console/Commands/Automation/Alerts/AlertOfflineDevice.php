@@ -4,11 +4,13 @@ namespace App\Console\Commands\Automation\Alerts;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWhatsappMessageJob;
+use App\Mail\DeviceOfflineAlertMail;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceNotification;
 use App\Models\WhatsappClient;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Mail;
 
 // use Illuminate\Support\Facades\Log as Logger;
 // use Illuminate\Support\Facades\Mail;
@@ -36,18 +38,9 @@ class AlertOfflineDevice extends Command
 
         $logger->logOutPut($logFilePath, "*****Cron started for alert:offline_device *****");
 
-        $clientId = null;
+        $clientId = 0;
 
         $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
-
-        if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
-            $this->info("No Whatsapp Client found.");
-            $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
-            $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
-            return;
-        }
-
-        $clientId = $accounts[0]['clientId'];
 
         $reportNotifications = DeviceNotification::with("managers")
             ->where("company_id", $company_id)
@@ -115,21 +108,40 @@ class AlertOfflineDevice extends Command
                                 $name = $company->name;
                             }
 
-                            $message = "Device Offline Alert !\n" .
-                                "\n" .
-                                "Dear Admin,\n\n" .
-                                "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
-                                "Thank you!\n";
+                            if (in_array("Email", $reportNotification->mediums ?? [])) {
+                                $message = "Dear Admin,<br><br>" .
+                                    "$deviceName is offline at $name since $dateTime.<br><br>" .
+                                    "Thank you!";
 
-                            $this->info($message);
+                                Mail::to($manager->email)->queue(new DeviceOfflineAlertMail($message));
+                                $this->info("Queued email to admin.");
+                            }
+                            if (in_array("Whatsapp", $reportNotification->mediums ?? [])) {
 
-                            SendWhatsappMessageJob::dispatch(
-                                $manager->whatsapp_number,
-                                $message,
-                                0,
-                                $clientId,
-                                $logFilePath
-                            );
+                                if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
+                                    $this->info("No Whatsapp Client found.");
+                                    $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+                                    $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+                                    $clientId = 0;
+                                } else {
+                                    $clientId = $accounts[0]['clientId'] ?? 1;
+                                }
+
+                                if ($clientId) {
+                                    $message = "Device Offline Alert !\n" .
+                                        "\n" .
+                                        "Dear Admin,\n\n" .
+                                        "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
+                                        "Thank you!\n";
+                                    SendWhatsappMessageJob::dispatch(
+                                        $manager->whatsapp_number,
+                                        $message,
+                                        0,
+                                        $clientId,
+                                        $logFilePath
+                                    );
+                                }
+                            }
                         }
                     }
 
