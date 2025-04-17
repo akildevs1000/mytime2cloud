@@ -10,13 +10,13 @@
           </v-tabs>
           <v-tabs-items v-model="tab">
             <v-tab-item>
-              <v-card v-if="employeeId" flat class="d-flex flex-column">
-                <div class="text-right">
+              <v-card v-if="employeeId && can('employee_setting_access')" flat class="d-flex flex-column">
+                <div class="text-right" v-if="can(!editForm ? 'employee_setting_edit' : 'employee_setting_view')">
                   <v-icon small color="primary" @click="editForm = !editForm"
                     >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
                   >
                 </div>
-                <v-simple-table dense flat class="my-simple-table">
+                <v-simple-table v-if="can('employee_setting_view')" dense flat class="my-simple-table">
                   <tbody>
                     <tr>
                       <td style="width: 50%">Leave Group</td>
@@ -165,7 +165,6 @@
                     >Cancel</v-btn
                   >
                   <v-btn
-                    v-if="can('employee_edit')"
                     :disabled="!editForm"
                     x-small
                     class="primary"
@@ -231,8 +230,8 @@ export default {
     close() {
       this.$emit("close-popup");
     },
-    can(permission) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
     getLeaveGroups() {
       this.payloadOptions.params.company_id = this.$auth.user.company_id;

@@ -1,0 +1,73 @@
+[
+  {
+    "text": "Employee",
+    "align": "left",
+    "sortable": false,
+    "filterable": true,
+    "value": "employee_name",
+    "key": "employee_name"
+  },
+  {
+    "text": "Present",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "p_count"
+  },
+  {
+    "text": "Absent",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "a_count"
+  },
+  {
+    "text": "Leave",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "l_count"
+  },
+  {
+    "text": "Avg CheckIn",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "average_in_time_array"
+  },
+  {
+    "text": "Avg CheckOut",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "average_out_time_array"
+  },
+  {
+    "text": "Late In",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "lc_count"
+  },
+  {
+    "text": "Early Out",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "eg_count"
+  },
+  {
+    "text": "Avg Working Hrs",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "average_working_hrs_array"
+  },
+  {
+    "text": "Working Hrs",
+    "align": "center",
+    "sortable": false,
+    "filterable": true,
+    "value": "total_hrs_array"
+  }  
+]

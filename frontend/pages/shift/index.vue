@@ -104,26 +104,6 @@
             </v-col>
           </v-row>
           <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
-            <v-col cols="4" md="4">
-              <DatePickerCommon
-                label="From Date"
-                :default_value="currentDate"
-                @selectedDate="(value) => (payload.from_date = value)"
-              />
-              <span v-if="errors && errors.from_date" class="text-danger">{{
-                errors.from_date[0]
-              }}</span>
-            </v-col>
-            <v-col cols="4" md="4">
-              <DatePickerCommon
-                label="To Date"
-                :default_value="nextYearDate"
-                @selectedDate="(value) => (payload.to_date = value)"
-              />
-              <span v-if="errors && errors.to_date" class="text-danger">{{
-                errors.to_date[0]
-              }}</span>
-            </v-col>
             <v-col cols="12" style="float: right; text-align: right">
               <v-btn
                 v-if="payload && payload.id > 0"

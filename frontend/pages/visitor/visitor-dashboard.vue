@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`visitor_access`)">
+  <div v-if="can(`visitor_dashboard_access`)">
     <v-dialog v-model="dialogInformation" width="auto">
       <v-card>
         <v-card-title class="popup_background">
@@ -625,12 +625,12 @@ export default {
 
     updateLink(url) {
       if (
-        this.$axios.defaults.baseURL !=
+        this.$backendUrl !=
         "https://stagingbackend.ideahrms.com/api"
       ) {
         url = url.replace(
           "https://stagingbackend.ideahrms.com/api",
-          this.$axios.defaults.baseURL
+          this.$backendUrl
         );
       }
 

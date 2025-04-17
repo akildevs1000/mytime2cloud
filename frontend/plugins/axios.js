@@ -1,43 +1,44 @@
 export default ({ $axios, store }, inject) => {
-  $axios.onRequest(async (config) => {
 
-    // if (process.env.ENVIRONMENT !== 'production') {
-    //   config.baseURL = `http://${window.location.hostname ?? "localhost"
-    //     }:8000/api`;
-    // }
+  const isClient = typeof window !== "undefined";
+
+  let backendURL = process.env.BACKEND_URL;
+  let appURL = process.env.APP_URL;
+
+  if (!process.env.BACKEND_URL) {
+    backendURL = (isClient ? `http://${window.location.hostname || "localhost"}:8000/api` : "http://localhost:8000/api");
+  }
+  if (!process.env.APP_URL) {
+    appURL = isClient ? `http://${window.location.hostname || "localhost"}:3001` : "http://localhost:3001";
+  }
+
+  inject("backendUrl", backendURL);
+  inject("appUrl", appURL);
+
+  $axios.onRequest(async (config) => {
+    config.baseURL = backendURL; // Set backend API URL
 
     let user = store.state.auth.user;
 
     if (user) {
+      config.params = { ...config.params, company_id: user.company_id };
+    }
+
+    if (user?.branch_id && user.branch_id > 0) {
+      config.params = { ...config.params, branch_id: user.branch_id };
+    }
+
+    if (user?.user_type === "department") {
       config.params = {
         ...config.params,
-        company_id: user.company_id,
+        department_id: user.department_id,
+        user_type: user.user_type,
       };
     }
 
-    if (user?.role?.role_type == "guard") {
-      if (user && user.employee && user.employee.branch_id > 0) {
-        config.params = {
-          ...config.params,
-          branch_id: user.employee.branch_id,
-        };
-      }
-    }
-    if (user && user.branch_id && user.branch_id > 0) {
-      config.params = {
-        ...config.params,
-        branch_id: user && user.branch_id,
-      };
-    }
+    console.log("🚀 ~ Backend URL:", backendURL);
+    console.log("🚀 ~ App URL:", appURL);
 
-    if (user && user.user_type == "department") {
-      config.params = {
-        ...config.params,
-        department_id: user && user.department_id,
-        user_type: user && user.user_type,
-      };
-    }
-
-    return config; // Return the modified config
+    return config;
   });
 };

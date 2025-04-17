@@ -18,7 +18,7 @@ class SyncMultiShiftForDualDay extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_multi_shift_dual_day {company_id} {date} {checked?}';
+    protected $signature = 'task:sync_multi_shift_dual_day {company_id} {date} {checked?} {UserID?}';
 
     /**
      * The console command description.
@@ -34,6 +34,8 @@ class SyncMultiShiftForDualDay extends Command
      */
     public function handle()
     {
+        $start = microtime(true);
+
         $id = $this->argument("company_id", 1);
 
         $formattedDate = (new DateTime())->format('d M Y \a\t H:i:s');
@@ -58,14 +60,21 @@ class SyncMultiShiftForDualDay extends Command
 
         $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
-        $all_new_employee_ids = DB::table('schedule_employees as se')
+        $model = DB::table('schedule_employees as se')
             ->join('attendance_logs as al', 'se.employee_id', '=', 'al.UserID')
             ->join('shifts as sh', 'sh.id', '=', 'se.shift_id')
             ->select('al.UserID')
-            ->where('sh.shift_type_id', "=", 2) // this condition not workin
-            ->where('al.checked', $this->argument("checked", false) ? true : false)
-            ->where('al.UserID', 6004)
-            ->where('se.company_id', $id)
+            ->where('sh.shift_type_id', "=", 2); // this condition not workin
+
+        if ($this->argument("checked")) {
+            $model->where('al.checked', $this->argument("checked"));
+        }
+
+        if ($this->argument("UserID")) {
+            $model->where('al.UserID', $this->argument("UserID"));
+        }
+
+        $all_new_employee_ids = $model->where('se.company_id', $id)
             ->where('al.company_id', $id)
             ->whereDate('al.log_date', $date)
             ->orderBy("al.LogTime")
@@ -131,8 +140,6 @@ class SyncMultiShiftForDualDay extends Command
             ->groupBy("UserID")
             ->toArray();
 
-        $this->info(json_encode($filtered_all_new_employee_ids));
-
         $items = [];
 
         if (!$all_logs_for_employee_ids || count($all_logs_for_employee_ids) == 0) {
@@ -156,6 +163,8 @@ class SyncMultiShiftForDualDay extends Command
         }
 
         $UserIDs = [];
+
+        $test = [];
 
         $responseMessage = "";
 
@@ -187,6 +196,9 @@ class SyncMultiShiftForDualDay extends Command
                 $item["ot"] = (new Controller)->calculatedOT($total_hrs, $uniqueEntries[0]->working_hours, $uniqueEntries[0]->overtime_interval);
             }
 
+
+            $test[] = $logs;
+
             $item["logs"] = json_encode($logs);
             $item["total_hrs"] =  $total_hrs;
 
@@ -197,7 +209,9 @@ class SyncMultiShiftForDualDay extends Command
             $responseMessage .= "Name {$uniqueEntries[0]->first_name} with id: {$uniqueEntries[0]->employee_id} \n";
         }
 
-        // ld($items);
+        // $this->info((json_encode($items)));
+
+        // die;
 
         DB::transaction(function () use ($filtered_all_new_employee_ids, $date, $id, $items) {
             // Delete existing attendance records
@@ -221,7 +235,7 @@ class SyncMultiShiftForDualDay extends Command
                     'log_message' => Str::limit(json_encode($items), 200, '...'),
                 ]);
 
-            $this->info($result);
+            $this->info("$result has been updated");
         });
 
         $remaining_logs = DB::table('employees as e')
@@ -259,9 +273,20 @@ class SyncMultiShiftForDualDay extends Command
         $responseMessage .= "*****task:sync_multi_shift payload end*****\n";
         $responseMessage .= "*****Cron ended for task:sync_multi_shift*****\n";
 
+        $this->info($responseMessage);
+
+
+        $this->info(count($UserIDs) . " Employees data has beed updated for $date");
+
+        $end = microtime(true);
+
+        $executionTime = $end - $start;
+
+        $this->info("Execution Time: " . round($executionTime, 2) . " seconds");
+
         // ld($responseMessage);
 
-        (new Controller)->logOutPut($logFilePath, $responseMessage);
+        // (new Controller)->logOutPut($logFilePath, $responseMessage);
         // (new Controller)->logOutPut($logFilePath, $items);
 
     }

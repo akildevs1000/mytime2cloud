@@ -435,10 +435,10 @@
       <v-dialog
         persistent
         v-model="viewDialog"
-        width="1000px"
+        width="1200px"
         :key="employeeId"
       >
-        <WidgetsClose left="990" @click="viewDialog = false" />
+        <WidgetsClose left="1190" @click="viewDialog = false" />
 
         <v-card flat style="overflow: hidden">
           <v-row
@@ -458,117 +458,117 @@
                   style="min-width: 30%; max-width: 30%"
                   class="d-flex flex-column gap-3"
                 >
-                  <v-card class="pa-4 text-center" flat>
-                    <v-avatar size="120">
-                      <img
-                        :src="`${
-                          employeeObject?.profile_picture ||
-                          '/no-profile-image.jpg'
-                        }`"
-                        alt="Profile Image"
-                      />
-                    </v-avatar>
-                    <v-list dense class="mt-3">
-                      <v-list-item>
-                        <v-list-item-content>
-                          <v-list-item-title class="font-weight-bold">
-                            {{ employeeObject.title }}.
-                            {{ employeeObject.full_name }}
-                          </v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{ employeeObject.user.email }}
-                          </v-list-item-subtitle>
-                          <v-list-item-subtitle>
-                            Employee ID: {{ employeeObject.employee_id }}
-                          </v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                    </v-list>
-                    <v-divider></v-divider>
-                  </v-card>
-                  <v-card flat class="d-flex align-center">
-                    <v-card-text class="mt-5 pt-0">
-                      <table
-                        style="width: 100%"
-                        dense
-                        flat
-                        class="my-simple-table"
-                      >
-                        <tbody>
-                          <tr>
-                            <td style="font-size: 10px">Status</td>
-                            <td>
-                              <img
-                                :src="`/${
-                                  employeeObject.status ? 'on1' : 'off1'
-                                }.png`"
-                                style="height: 15px"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 10px">Web Access</td>
-                            <td>
-                              <img
-                                :src="`/${
-                                  employeeObject.user.mobile_app_login_access
-                                    ? 'on1'
-                                    : 'off1'
-                                }.png`"
-                                style="height: 15px"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 10px">Mobile Access</td>
-                            <td>
-                              <img
-                                :src="`/${
-                                  employeeObject.user.web_login_access
-                                    ? 'on1'
-                                    : 'off1'
-                                }.png`"
-                                style="height: 15px"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 10px">Whatsapp OTP</td>
-                            <td>
-                              <img
-                                :src="`/${
-                                  employeeObject.user.enable_whatsapp_otp
-                                    ? 'on1'
-                                    : 'off1'
-                                }.png`"
-                                style="height: 15px"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="font-size: 10px">Location Tracking</td>
-                            <td>
-                              <img
-                                :src="`/${
-                                  employeeObject.user.tracking_status
-                                    ? 'on1'
-                                    : 'off1'
-                                }.png`"
-                                style="height: 15px"
-                              />
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </v-card-text>
-                  </v-card>
+                  <v-container>
+                    <v-card class="pa-4 text-center" flat>
+                      <v-avatar size="120">
+                        <img
+                          :src="`${
+                            employeeObject?.profile_picture ||
+                            '/no-profile-image.jpg'
+                          }`"
+                          alt="Profile Image"
+                        />
+                      </v-avatar>
+                      <v-list dense class="mt-3">
+                        <v-list-item>
+                          <v-list-item-content>
+                            <v-list-item-title class="font-weight-bold">
+                              {{ employeeObject.title }}.
+                              {{ employeeObject.full_name }}
+                            </v-list-item-title>
+                            <v-list-item-subtitle>
+                              {{ employeeObject.user.email }}
+                            </v-list-item-subtitle>
+                            <v-list-item-subtitle>
+                              Employee ID: {{ employeeObject.employee_id }}
+                            </v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </v-list>
+                      <v-divider></v-divider>
+                    </v-card>
+                    <v-card flat class="d-flex align-center">
+                      <v-card-text class="mt-5 pt-0">
+                        <table
+                          style="width: 100%"
+                          dense
+                          flat
+                          class="my-simple-table"
+                        >
+                          <tbody>
+                            <tr>
+                              <td style="font-size: 10px">Status</td>
+                              <td>
+                                <img
+                                  :src="`/${
+                                    employeeObject.status ? 'on1' : 'off1'
+                                  }.png`"
+                                  style="height: 15px"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 10px">Web Access</td>
+                              <td>
+                                <img
+                                  :src="`/${
+                                    employeeObject.user.mobile_app_login_access
+                                      ? 'on1'
+                                      : 'off1'
+                                  }.png`"
+                                  style="height: 15px"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 10px">Mobile Access</td>
+                              <td>
+                                <img
+                                  :src="`/${
+                                    employeeObject.user.web_login_access
+                                      ? 'on1'
+                                      : 'off1'
+                                  }.png`"
+                                  style="height: 15px"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 10px">Whatsapp OTP</td>
+                              <td>
+                                <img
+                                  :src="`/${
+                                    employeeObject.user.enable_whatsapp_otp
+                                      ? 'on1'
+                                      : 'off1'
+                                  }.png`"
+                                  style="height: 15px"
+                                />
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="font-size: 10px">Location Tracking</td>
+                              <td>
+                                <img
+                                  :src="`/${
+                                    employeeObject.user.tracking_status
+                                      ? 'on1'
+                                      : 'off1'
+                                  }.png`"
+                                  style="height: 15px"
+                                />
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </v-card-text>
+                    </v-card>
+                  </v-container>
                 </div>
                 <div
                   style="
                     min-width: 5%;
                     max-width: 5%;
-                    min-height: 44vh;
-                    height: 40vh;
                     background-color: #ecf0f4 !important;
                   "
                   class="d-flex justify-center align-center"
@@ -580,7 +580,7 @@
                     color="violet"
                   >
                     <v-tab
-                      style="margin-left: -20px"
+                      style="margin-left: -15px"
                       dense
                       v-for="(item, index) in viewTabMenu"
                       :key="index"
@@ -594,21 +594,23 @@
                   style="min-width: 65%; max-width: 65%"
                   class="d-flex flex-column gap-3"
                 >
-                  <v-tabs-items v-model="tab">
-                    <v-tab-item
-                      v-for="(item, index) in viewTabMenu"
-                      :key="index"
-                    >
-                      <component
-                        :is="getViewComponents(item.value)"
-                        :employeeId="employeeId"
-                        @close-popup="closePopup2"
-                        @eventFromChild="handleEventFromChild"
-                        v-if="tab == item.value"
-                        :employeeObject="employeeObject"
-                      />
-                    </v-tab-item>
-                  </v-tabs-items>
+                  <v-container>
+                    <v-tabs-items v-model="tab">
+                      <v-tab-item
+                        v-for="(item, index) in viewTabMenu"
+                        :key="index"
+                      >
+                        <component
+                          :is="getViewComponents(item.value)"
+                          :employeeId="employeeId"
+                          @close-popup="closePopup2"
+                          @eventFromChild="handleEventFromChild"
+                          v-if="tab == item.value"
+                          :employeeObject="employeeObject"
+                        />
+                      </v-tab-item>
+                    </v-tabs-items>
+                  </v-container>
                 </div>
               </div>
             </v-col>
@@ -956,7 +958,11 @@
                   v-for="(icon, index) in getRelatedIcons(item)"
                   :key="index"
                 >
-                  <v-avatar class="mx-1" tile size="20" v-if="icon.type == 'image'"
+                  <v-avatar
+                    class="mx-1"
+                    tile
+                    size="20"
+                    v-if="icon.type == 'image'"
                     ><img style="width: 100%" :src="icon.name"
                   /></v-avatar>
                   <v-icon v-else small color="black" class="mr-1">{{
@@ -981,7 +987,7 @@
                         View/Edit
                       </v-list-item-title>
                     </v-list-item>
-                    <v-list-item>
+                    <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <WidgetsEmployeeDowloadDialogSingle
                           :key="item.id"
@@ -992,7 +998,7 @@
                       </v-list-item-title>
                     </v-list-item>
 
-                    <v-list-item>
+                    <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
                           iconColor="secondary"
@@ -1410,7 +1416,7 @@ export default {
         .post(`/download-profilepic-sdk`, options.params)
         .then(({ data }) => {
           this.downloadProfileLink =
-            process.env.BACKEND_URL +
+            this.$backendUrl +
             "/download-profilepic-disk?image=" +
             data +
             "&name=" +

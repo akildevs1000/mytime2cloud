@@ -7,6 +7,8 @@
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
 
+    <SubscriptionExpiry />
+
     <v-row style="width: 100%">
       <v-col lg="9" md="9" sm="12" xs="12">
         <v-row>
@@ -84,7 +86,10 @@
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
-        <v-card class="py-2 mb-2" v-if="branchList.length > 1 && $auth.user.user_type !== 'department'">
+        <v-card
+          class="py-2 mb-2"
+          v-if="branchList.length > 1 && $auth.user.user_type !== 'department'"
+        >
           <!-- <v-row>
             <v-col md="12" class="text-center"> 2222 </v-col>
           </v-row> -->
@@ -133,6 +138,9 @@
             </v-card>
           </v-col>
         </v-row>
+      </v-col>
+      <v-col cols="12">
+        <SetupFAQSearch />
       </v-col>
     </v-row>
   </div>

@@ -1,11 +1,11 @@
 <template>
-  <v-card v-if="employeeId" flat class="d-flex flex-column">
-    <div class="text-right">
+  <v-card flat class="d-flex flex-column">
+    <div class="text-right" v-if="can(!editForm ? 'employee_rfid_edit' : 'employee_rfid_view')">
       <v-icon small color="primary" @click="editForm = !editForm"
         >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
       >
     </div>
-    <v-simple-table dense flat class="my-simple-table">
+    <v-simple-table v-if="can('employee_rfid_view')" dense flat class="my-simple-table">
       <tbody>
         <tr>
           <td style="width: 200px">RFID</td>
@@ -62,7 +62,6 @@
         >Cancel</v-btn
       >
       <v-btn
-        v-if="can('employee_edit')"
         :disabled="!editForm"
         x-small
         class="primary"
@@ -182,8 +181,8 @@ export default {
         })
         .catch((err) => console.log(err));
     },
-    can() {
-      return true;
+    can(per) {
+      return this.$pagePermission.can(per, this);
     },
     getRoles() {
       this.payloadOptions.params.role_type = "employee";

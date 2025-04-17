@@ -56,6 +56,10 @@ class RenderController extends Controller
             }
         }
 
+        if (!$request['employee_ids']) {
+            return ["Employee must be selected"];
+        }
+
         if (isset($request['employee_ids']) && count($request->employee_ids) > 20) {
             return ["Limit  20 Employees  only "];
         }
@@ -78,7 +82,6 @@ class RenderController extends Controller
 
 
                     (new SingleShiftController)->renderData($request),
-                    (new SplitShiftController)->renderData($request),
                     (new NightShiftController)->renderData($request),
                 );
             } else if ($request->shift_type_id == 4) {
@@ -91,8 +94,8 @@ class RenderController extends Controller
 
         return array_merge(
             (new AutoShiftController)->renderData($request),
+            (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
-            (new SplitShiftController)->renderData($request),
             (new MultiShiftController)->renderData($request),
             (new NightShiftController)->renderData($request),
         );
@@ -244,7 +247,7 @@ class RenderController extends Controller
         $data = $model->get()->groupBy(["UserID"]);
 
         if (!count($data)) {
-            return "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto No data found.\n";
+            return "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto No data found.";
         }
 
 

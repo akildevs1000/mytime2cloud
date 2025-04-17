@@ -7,9 +7,14 @@ use App\Http\Requests\EmployeeLeaves\UpdateRequest;
 use App\Models\Employee;
 use App\Models\EmployeeLeaves;
 use App\Models\EmployeeLeaveTimeline;
+use App\Models\Holidays;
 use App\Models\LeaveType;
 use App\Models\Notification;
 use App\Models\User;
+use Carbon\Carbon;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +24,7 @@ class EmployeeLeavesController extends Controller
     public function getDefaultModelSettings($request)
     {
         $model = EmployeeLeaves::query();
-        $model->with(["employee_leave_timelines", "leave_type", "employee.department.branch", "employee.leave_group", "reporting"]);
+        $model->with(["employee_leave_timelines", "leave_type", "employee.department.branch", "employee.leave_group", "reporting", "alternate_employee"]);
         $model->where('company_id', $request->company_id);
 
         // $model->when($request->filled('order'), function ($q) use ($request) {
@@ -330,5 +335,67 @@ class EmployeeLeavesController extends Controller
             ->where("order", ">", 0)
             ->orderBy("order", "desc")
             ->value("order") ?? 0;
+    }
+
+
+    public function getEvents(Request $request)
+    {
+
+        $startDate = new DateTime(); // Today's date
+        $endDate = (new DateTime())->modify('+1 year'); // Next year's date
+        $interval = new DateInterval('P1D'); // 1-day interval
+        $period = new DatePeriod($startDate, $interval, $endDate);
+
+        $companyId = $request->input('company_id', 0);
+
+        $model = EmployeeLeaves::query();
+        $model->with(["employee_leave_timelines", "leave_type", "employee.department.branch", "employee.leave_group", "reporting", "alternate_employee"]);
+        $model->where('company_id', $companyId);
+        $model->where("start_date", ">=", date("Y-m-d"));
+        $model->where('status', 1);
+        $leaves = $model->get(["start_date", "end_date"])->toArray();
+
+        $model = Holidays::query();
+        $model->where('company_id', $request->company_id);
+        $model->where("start_date", ">=", date("Y-m-d"));
+        $holidays = $model->get(["start_date", "end_date"])->toArray();
+
+        $events = [];
+
+
+        foreach ($period as $date) {
+            foreach ($leaves as $leave) {
+                if ($date->format('Y-m-d') >= $leave['start_date'] &&  $date->format('Y-m-d')  <= $leave['end_date']) {
+                    $events[$date->format('Y-m-d')] = "orange";
+                }
+            }
+            foreach ($holidays as $holiday) {
+                if ($date->format('Y-m-d') >= $holiday['start_date'] &&  $date->format('Y-m-d')  <= $holiday['end_date']) {
+                    $events[$date->format('Y-m-d')] = "primary";
+                }
+            }
+        }
+
+        return $events;
+    }
+
+    public function getLeavesForNextThirtyDaysMonth(Request $request)
+    {
+       
+
+        $companyId = $request->input('company_id', 0);
+        $today = date("Y-m-d");
+        $nextThirtyDays = date("Y-m-d", strtotime("+30 days"));
+
+        //  return EmployeeLeaves::where('company_id', $companyId)
+        // ->whereBetween('start_date', [$today, $nextThirtyDays])
+        // ->update(['status'=> 1]);
+
+        return EmployeeLeaves::where('company_id', $companyId)
+            ->whereBetween('start_date', [$today, $nextThirtyDays])
+            ->where('status', 1)
+            ->with(["leave_type","employee.leave_group"])
+            ->get(["start_date", "end_date","employee_id"])
+            ->toArray();
     }
 }

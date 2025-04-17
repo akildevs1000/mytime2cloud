@@ -855,19 +855,6 @@ export default {
           this.deductions = data.deductions;
 
           this.countdifference = data.earnings.length - data.deductions.length;
-
-          // this.getdownloadLink =
-          //   this.$axios.defaults.baseURL +
-          //   "/donwload-payslip-pdf?company_id=" +
-          //   this.$auth.user.company_id +
-          //   "&employee_id=" +
-          //   this.data.employee_id +
-          //   "&month=" +
-          //   this.data.month +
-          //   "&year=" +
-          //   this.data.year;
-
-          // this.loading = false;
         });
     },
     getCompanyDataFromApi() {

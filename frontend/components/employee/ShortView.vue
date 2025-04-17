@@ -1,6 +1,5 @@
 <template>
   <v-row no-gutters v-if="item && item.id">
-    
     <v-col cols="4" style="border-right: 1px solid #dddddd">
       <v-divider></v-divider>
       <v-row class="pa-0 ma-0">
@@ -32,7 +31,7 @@
               </div>
 
               <div style="font-size: 12px">
-                <small >
+                <small>
                   {{ item.employee.phone_number ?? "---" }}
                 </small>
               </div>
@@ -45,7 +44,7 @@
             no-gutters
             v-for="(item, index) in employee_stats.slice(0, 6)"
             :key="index"
-            style="font-size: 15px;height:20px;"
+            style="font-size: 15px; height: 20px"
           >
             <v-col cols="6">
               <small> {{ item.title }}</small>
@@ -77,9 +76,7 @@
         <v-col
           cols="4"
           class="text-center"
-          style="
-            border-bottom: 1px solid #dddddd;
-          "
+          style="border-bottom: 1px solid #dddddd"
         >
           <b style="display: block; height: 20px">
             <small>{{ remainingTime }}</small>
@@ -105,7 +102,7 @@
       <v-row no-gutters class="px-3">
         <v-col cols="12">
           <ComonPreloader icon="face-scan" v-if="!logs_data.length" />
-          <table v-else class="mt-4" style="width:100%;">
+          <table v-else class="mt-4" style="width: 100%">
             <tr>
               <td style="font-size: 12px">
                 <small style="">
@@ -120,19 +117,15 @@
               <td style="font-size: 12px">
                 <small><b>Device</b></small>
               </td>
-            
             </tr>
-            <tr
-              v-for="(item, index) in logs_data"
-              :key="item.id"
-            >
-              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+            <tr v-for="(item, index) in logs_data" :key="item.id">
+              <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ index + 1 }}</small>
               </td>
-              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+              <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ item.date }} {{ item.time }}</small>
               </td>
-              <td style="font-size: 14px;border-bottom: 1px solid #dddddd">
+              <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ item.device ? item.device.name : "---" }}</small>
               </td>
             </tr>
@@ -166,7 +159,7 @@ export default {
   props: ["item"],
   data: () => ({
     logs_data: [],
-    log_endpoint: "attendance_logs",
+    log_endpoint: "get_last_ten_attendance_logs",
     log_headers: [
       {
         text: "#",
@@ -221,19 +214,17 @@ export default {
       return `${year}-${month}-${day}`;
     },
     async getLogs() {
-      this.$axios
-        .get(this.log_endpoint, {
+      try {
+        const { data } = await this.$axios.get(this.log_endpoint, {
           params: {
-            per_page: 10,
-            company_id: this.company_id,
+            company_id: this.$auth.user.company_id,
             UserID: this.item.employee.system_user_id,
-            from_date: this.getDate(),
-            to_date: this.getDate(),
           },
-        })
-        .then(({ data }) => {
-          this.logs_data = data.data;
         });
+        this.logs_data = data;
+      } catch (error) {
+        console.error("Error fetching logs:", error);
+      }
     },
     async getTodayAttendance() {
       this.$axios

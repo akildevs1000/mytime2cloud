@@ -1,11 +1,11 @@
 <template>
-  <v-card flat v-if="payroll" class="d-flex flex-column">
-    <div class="text-right">
+  <v-card flat v-if="payroll && can('access')" class="d-flex flex-column">
+    <div class="text-right" v-if="can(!editForm ? 'edit' : 'view')">
       <v-icon small color="primary" @click="editForm = !editForm"
         >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
       >
     </div>
-    <v-simple-table dense flat class="my-simple-table">
+    <v-simple-table v-if="can('view')" dense flat class="my-simple-table">
       <tbody>
         <tr>
           <td>Effective Date</td>
@@ -77,7 +77,7 @@
       </tbody>
     </v-simple-table>
 
-    <v-simple-table dense flat class="mt-5 my-simple-table">
+    <v-simple-table v-if="can('view')" dense flat class="mt-5 my-simple-table">
       <tbody>
         <tr>
           <th>Particulars</th>
@@ -145,6 +145,7 @@
       >
     </v-card-actions>
   </v-card>
+  <NoAccess v-else />
 </template>
 
 <script>
@@ -204,8 +205,8 @@ export default {
       }
       this.loading = false;
     },
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can("employee_payroll_" + per, this);
     },
     caps(str) {
       if (str == "" || str == null) {

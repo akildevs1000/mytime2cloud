@@ -1377,7 +1377,7 @@ export default {
       }, 300);
     },
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = this.$backendUrl + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -1402,7 +1402,7 @@ export default {
       //type = "monthly";
       //type = type.toLowerCase().replace("custom", "monthly");
       let path =
-        process.env.BACKEND_URL +
+        this.$backendUrl +
         "/" +
         this.process_file_endpoint +
         type.toLowerCase();

@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat v-if="can('access')">
     <v-card-text>
       <v-row class="d-flex align-center">
         <v-col cols="12">
@@ -9,16 +9,13 @@
           </v-tabs>
           <v-tabs-items v-model="tab">
             <v-tab-item>
-              <v-card
-                flat
-                class="d-flex flex-column"
-              >
-                <div class="text-right">
+              <v-card flat class="d-flex flex-column">
+                <div class="text-right" v-if="can(!editForm ? 'edit' : 'view')">
                   <v-icon small color="primary" @click="editForm = !editForm"
                     >mdi-{{ editForm ? "eye" : "pencil" }}</v-icon
                   >
                 </div>
-                <v-simple-table dense flat class="my-simple-table">
+                <v-simple-table v-if="can('view')" dense flat class="my-simple-table">
                   <tbody>
                     <tr>
                       <td style="width: 200px">Account Name</td>
@@ -193,14 +190,15 @@
       </v-row>
     </v-card-text>
   </v-card>
+  <NoAccess v-else />
 </template>
 
 <script>
 export default {
-  props: ["employeeId","employeeObject"],
+  props: ["employeeId", "employeeObject"],
   data() {
     return {
-      tab:null,
+      tab: null,
       editForm: false,
       endpoint: "bankinfo",
       add_other_bank_info: false,
@@ -245,8 +243,8 @@ export default {
           console.log(err);
         });
     },
-    can(item) {
-      return true;
+    can(per) {
+      return this.$pagePermission.can("employee_bank_" + per, this);
     },
     submit() {
       this.loading = true;

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`attendance_report_view`)">
+  <div v-if="can(`access_control_report_access`)">
     <v-card elevation="0" class="mt-2">
       <v-toolbar dense flat>
         <span class="headline black--text"> Access Control Reports </span>
@@ -126,7 +126,7 @@
       </v-card-text>
     </v-card>
     <v-card class="mb-5 mt-5" elevation="0">
-      <div v-if="can(`attendance_report_access`)">
+      <div v-if="can(`access_control_report_view`)">
         <div class="text-center">
           <v-snackbar
             v-model="snackbar"
@@ -577,7 +577,7 @@ export default {
     },
 
     pdfDownload() {
-      let path = process.env.BACKEND_URL + "/pdf";
+      let path = this.$backendUrl + "/pdf";
       let pdf = document.createElement("a");
       pdf.setAttribute("href", path);
       pdf.setAttribute("target", "_blank");
@@ -591,7 +591,7 @@ export default {
           return;
         }
 
-        const backendUrl = process.env.BACKEND_URL;
+        const backendUrl = this.$backendUrl;
         const queryParams = {
           company_id: this.$auth.user.company_id,
           branch_id: this.payload.branch_id,

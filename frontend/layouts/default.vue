@@ -644,7 +644,6 @@ import host_menus from "../menus/host.json";
 
 import company_top_menu from "../menus/company_modules_top.json";
 
-import employee_top_menu from "../menus/employee_modules_top.json";
 import GlobalSearchForm from "../components/Globalsearch/GlobalSearchForm.vue";
 
 export default {
@@ -756,7 +755,6 @@ export default {
       guard_menus,
       host_menus,
       company_top_menu,
-      employee_top_menu,
       pendingLeavesCount: 0,
       pendingNotificationsCount: 0,
       snackNotificationText: "",
@@ -921,7 +919,7 @@ export default {
     playAudioOnUserInteraction() {
       if (!this.audio) {
         this.audio = new Audio(
-          process.env.BACKEND_URL.replace("api", "") +
+          this.$backendUrl.replace("api", "") +
             "alarm_sounds/alarm-sound1.mp3"
         );
       }
@@ -930,7 +928,7 @@ export default {
     stopsound() {
       if (!this.audio) {
         this.audio = new Audio(
-          process.env.BACKEND_URL.replace("api", "") +
+          this.$backendUrl.replace("api", "") +
             "alarm_sounds/alarm-sound1.mp3"
         );
       }
@@ -1057,8 +1055,7 @@ export default {
       this.resetTimer();
     },
     gotoHomePage() {
-      //location.href = process.env.APP_URL + "/dashboard2";
-      location.href = location.href; // process.env.APP_URL + "/dashboard2";
+      location.href = location.href;
     },
     loadNotificationMenu() {
       {
@@ -1182,45 +1179,6 @@ export default {
       this.items = this.company_menus.filter(
         (item) => item.module === this.topMenu_Selected
       );
-    },
-
-    changeLoginType() {
-      try {
-        // if (this.getLoginType == "branch")
-        {
-          // this.$store.commit("loginType", "employee");
-          // this.setMenus();
-          let email = this.$store.state.email;
-          let password = this.$store.state.password;
-
-          email = this.$crypto.encrypt(email);
-          password = this.$crypto.encrypt(password);
-
-          email = encodeURIComponent(email);
-          password = encodeURIComponent(password);
-
-          if (email && password) {
-            window.location.href =
-              process.env.EMPLOYEE_APP_URL +
-              "/loginwithtoken?email=" +
-              email +
-              "&password=" +
-              password;
-
-            return "";
-          } else {
-            console.log("Empty Username and Password");
-          }
-          // this.$router.push("/employees/profile");
-        }
-        // else {
-        //   this.$store.commit("loginType", "branch");
-        //   this.setMenus();
-        //   this.$router.push("/dashboard2");
-        // }
-      } catch (e) {
-        console.log(e);
-      }
     },
     navigateToLeavePage() {
       this.$router.push("/leaves");

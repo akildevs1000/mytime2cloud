@@ -7,7 +7,10 @@ use App\Models\Attendance;
 use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
+use App\Jobs\SyncMultiShiftDualDayJob;
 use App\Models\Employee;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 class MultiShiftController extends Controller
@@ -100,6 +103,7 @@ class MultiShiftController extends Controller
         $message = "";
         $logsUpdated = 0;
 
+
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
@@ -107,16 +111,13 @@ class MultiShiftController extends Controller
 
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
-
-
             $data = $logs[$row->system_user_id] ?? [];
             if (!count($data)) {
-
-
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
                         "shift_id" => $row->schedule->shift["id"],
-                        "shift_type_id" => $row->schedule->shift["shift_type_id"]
+                        "shift_type_id" => $row->schedule->shift["shift_type_id"],
+                        "status" => "A",
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
@@ -147,97 +148,113 @@ class MultiShiftController extends Controller
 
             ];
 
+            $totalMinutes = 0;
+            $logsJson = [];
+            $i = 0;
+
+            $totalMinutes = 0;
             $logsJson = [];
 
             $totalMinutes = 0;
+            $logsJson = [];
+            $previousOut = null;
 
-            for ($i = 0; $i < count($data); $i++) {
+            for ($i = 0; $i < count($data); $i += 2) {
                 $currentLog = $data[$i];
-                $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                $item["employee_id"] = $row->system_user_id;
+                $nextLog = $data[$i + 1] ?? null;
 
-                if ($nextLog && $nextLog['device']['function'] == "In") {
-                    $i++;
-                    $nextLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                } else if ($currentLog && $currentLog['device']['function'] == "Out") {
-                    $i++;
-                    $currentLog = isset($data[$i + 1]) ? $data[$i + 1] : false;
-                }
+                $currentTime = $currentLog['time'] ?? '---';
+                $nextTime = $nextLog['time'] ?? '---';
+
+                $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
+                $validOut = $nextTime !== '---' && $nextTime !== $currentTime;
 
                 $minutes = 0;
 
+                if ($validIn && $validOut) {
+                    $parsedIn = strtotime($currentTime);
+                    $parsedOut = strtotime($nextTime);
 
-                if ((isset($currentLog['time']) && $currentLog['time'] != '---') and (isset($nextLog['time']) && $nextLog['time'] != '---')) {
-
-
-                    $parsed_out = strtotime($nextLog['time'] ?? 0);
-                    $parsed_in = strtotime($currentLog['time'] ?? 0);
-
-                    if ($parsed_in > $parsed_out) {
-                        //$item["extra"] = $nextLog['time'];
-                        $parsed_out += 86400;
+                    if ($parsedIn > $parsedOut) {
+                        $parsedOut += 86400; // handle midnight crossover
                     }
 
-                    $diff = $parsed_out - $parsed_in;
-
-                    $minutes =  ($diff / 60);
-
-                    //$totalMinutes += $minutes > 0 ? $minutes : 0;
-
+                    $diff = $parsedOut - $parsedIn;
+                    $minutes = $diff / 60;
                     $totalMinutes += $minutes;
                 }
 
                 $logsJson[] = [
-                    "in" => (isset($currentLog["device"]["function"]) && ($currentLog["device"]["function"] == "In" || $currentLog["device"]["function"] == "auto")) || (isset($currentLog["DeviceID"]) && $currentLog["DeviceID"] == "Manual") ? $currentLog['time'] : "---",
-                    "out" => ($nextLog && isset($nextLog["device"]["function"]) && ($nextLog["device"]["function"] == "Out" || $nextLog["device"]["function"] == "auto")) || ($nextLog && isset($nextLog["DeviceID"]) && $nextLog["DeviceID"] == "Manual") ? $nextLog['time'] : "---",
-                    "device_in" => isset($currentLog['device']) ? ($currentLog['device']['short_name'] ?? $currentLog['device']['name'] ?? "---") : "---",
-                    "device_out" => isset($nextLog['device']) ? ($nextLog['device']['short_name'] ?? $nextLog['device']['name'] ?? "---") : "---",
+                    "in" => $validIn
+                        ? $this->getLogTime(
+                            $currentLog,
+                            ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
+                            ["Manual", "manual", "MANUAL"]
+                        )
+                        : "---",
+                    "out" => $validOut
+                        ? $this->getLogTime(
+                            $nextLog,
+                            ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"],
+                            ["Manual", "manual", "MANUAL"]
+                        )
+                        : "---",
+                    "device_in" => $this->getDeviceName($currentLog),
+                    "device_out" => $this->getDeviceName($nextLog ?? []),
                     "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
-
-
+                $item["employee_id"] = $row->system_user_id;
                 $item["total_hrs"] = $this->minutesToHours($totalMinutes);
 
                 if ($params["isOverTime"]) {
-                    $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
+                    $item["ot"] = $this->calculatedOT(
+                        $item["total_hrs"],
+                        $params["shift"]->working_hours,
+                        $params["shift"]->overtime_interval
+                    );
                 }
 
-                $i++;
+                // Save current out time for next loop
+                if ($validOut) {
+                    $previousOut = $nextTime;
+                }
             }
 
-            $item["logs"] = json_encode($logsJson);
+            $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
 
             $items[] = $item;
         }
 
         try {
 
-            $model = Attendance::query();
-            $model->whereIn("employee_id", array_column($items, "employee_id"));
-            $model->where("date", $date);
-            $model->where("company_id", $id);
-            $model->delete();
+            if (count($items) > 0) {
+                $model = Attendance::query();
+                $model->whereIn("employee_id", array_column($items, "employee_id"));
+                $model->where("date", $date);
+                $model->where("company_id", $id);
+                $model->delete();
 
-            $chunks = array_chunk($items, 100);
+                $chunks = array_chunk($items, 100);
 
-            foreach ($chunks as $chunk) {
-                $model->insert($chunk);
+                foreach ($chunks as $chunk) {
+                    $model->insert($chunk);
+                }
+
+                $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+
+                $logsUpdated = AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", $UserIds ?? [])
+                    ->where("LogTime", ">=", $date)
+                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
+                    // ->where("checked", false)
+                    ->update([
+                        "checked" => true,
+                        "checked_datetime" => date('Y-m-d H:i:s'),
+                        "channel" => $channel,
+                        "log_message" => substr($message, 0, 200)
+                    ]);
             }
-
-            $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
-
-            $logsUpdated = AttendanceLog::where("company_id", $id)
-                ->whereIn("UserID", $UserIds ?? [])
-                ->where("LogTime", ">=", $date)
-                ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                // ->where("checked", false)
-                ->update([
-                    "checked" => true,
-                    "checked_datetime" => date('Y-m-d H:i:s'),
-                    "channel" => $channel,
-                    "log_message" => substr($message, 0, 200)
-                ]);
         } catch (\Throwable $e) {
             $this->logOutPut($this->logFilePath, $e->getMessage());
         }
@@ -250,6 +267,56 @@ class MultiShiftController extends Controller
 
         $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") .  "] " . "$logsUpdated " . " updated logs");
         $this->logOutPut($this->logFilePath, $message);
-        return $message;
+        return "[" . $date . " " . date("H:i:s") .  "] " . $message;
+    }
+
+    public function sync(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|numeric',
+            'from_date' => 'required|date_format:Y-m-d',
+            'to_date' => 'required|date_format:Y-m-d',
+            'UserID' => 'nullable',
+        ]);
+
+        $id = $request->input('company_id');
+        $startDate = Carbon::parse($request->input('from_date'));
+        $endDate = Carbon::parse($request->input('to_date'));
+        $flag = 'true';
+        $UserID = $request->input('UserID');
+
+        // Check if the date range exceeds 5 days
+        if ($startDate->diffInDays($endDate) > 5) {
+            return response()->json(['error' => 'You cannot select more than 5 dates.'], 400);
+        }
+
+
+        if ($startDate->greaterThan($endDate)) {
+            return response()->json(['error' => 'Start date must be before end date.'], 400);
+        }
+
+        while ($startDate->lte($endDate)) {
+            SyncMultiShiftDualDayJob::dispatch($id, $startDate->toDateString(), $flag, $UserID);
+            $startDate->addDay();
+        }
+
+        return response()->json([
+            'message' => 'Report has been regerated!',
+        ]);
+    }
+
+
+    private function getLogTime($log, $validFunctions, $manualDeviceID)
+    {
+        return $log && $log['time'] ? $log['time'] : "---";
+        // return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)
+        //     || (isset($log["DeviceID"]) && $log["DeviceID"] == $manualDeviceID)
+        //     ? $log['time']
+        //     : "---";
+    }
+
+    private function getDeviceName($log)
+    {
+        return $log['device']['short_name'] ?? $log['device']['name'] ?? "---";
     }
 }

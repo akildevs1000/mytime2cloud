@@ -1459,6 +1459,7 @@ export default {
       short_name: "",
       ip: "",
       port: "",
+      branch_id: null,
       camera_save_images: false,
     },
     Model: "Device",
@@ -1651,7 +1652,7 @@ export default {
     this.loading = true;
 
     if (this.$auth.user.branch_id) {
-      this.filters[branch_id] = this.$auth.user.branch_id;
+      this.filters['branch_id'] = this.$auth.user.branch_id;
       this.isCompany = false;
       return;
     }
@@ -1782,7 +1783,7 @@ export default {
         .post(`/download-profilepic-sdk`, options.params)
         .then(({ data }) => {
           this.downloadProfileLink =
-            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+            this.$backendUrl + "/download-profilepic-disk?image=" + data;
 
           //this.$refs.goTo.click;
 
@@ -2353,7 +2354,7 @@ export default {
           sortBy: sortedBy,
           sortDesc: sortedDesc,
           per_page: itemsPerPage,
-          branch_id: this.branch_id,
+          branch_id: this.$auth.user.branch_id,
           company_id: this.$auth.user.company_id,
           ...this.filters,
         },
@@ -2439,7 +2440,7 @@ export default {
       this.payload = {};
       this.errors = [];
       if (!this.isCompany) {
-        this.payload.branch_id = this.branch_id;
+        this.payload.branch_id = this.$auth.user.branch_id;
       }
 
       this.editedIndex = -1;

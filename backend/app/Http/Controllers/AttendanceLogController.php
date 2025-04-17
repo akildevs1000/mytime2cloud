@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
-use App\Models\Company;
 use App\Models\Device;
 use App\Models\Employee;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -20,6 +18,7 @@ class AttendanceLogController extends Controller
     {
         return $model->filter($request)->orderBy("LogTime", "desc")->paginate($request->per_page);
     }
+
     public function getAttendanceLogs(AttendanceLog $model, Request $request)
     {
         return $model->where("company_id", $request->company_id)->paginate($request->per_page);
@@ -131,12 +130,10 @@ class AttendanceLogController extends Controller
 
 
 
-                    if (date("i") >= "30" || date("i") <= "32") {
+                    if (date("i") >= "30" && date("i") <= "32") {
                         exec('pm2 reload 1');
-                        $company = Company::where("id", 2)->first();
-
-                        $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
-
+                        // $company = Company::where("id", 2)->first();
+                        // $message = "Mytime2cloud: Attendance Log CSV file is not available. Date: " . $date;
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971552205149");
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971554501483");
                         // (new WhatsappController)->sendWhatsappNotification($company, $message, "971553303991");
@@ -221,24 +218,25 @@ class AttendanceLogController extends Controller
         foreach ($result["data"] as $row) {
             $columns = explode(',', $row);
 
-            $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
+            // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
-            if (!$isDuplicateLogTime) {
-                $records[] = [
-                    "UserID" => $columns[0],
-                    "DeviceID" => $columns[1],
-                    "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                    "SerialNumber" => $columns[3],
-                    "status" => $columns[4] ?? "Allowed",
-                    "mode" => $columns[5] ?? "Face",
-                    "reason" => $columns[6] ?? "---",
+            // if (!$isDuplicateLogTime) {
+            $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
+            $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
 
-                    "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, 16),
-                    "index_serial_number" => $columns[3],
-
-                    "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
-                ];
-            }
+            $records[] = [
+                "UserID" => $columns[0] ?? null,
+                "DeviceID" => $columns[1] ?? null,
+                "LogTime" => $logTime,
+                "SerialNumber" => $columns[3] ?? null,
+                "status" => $columns[4] ?? "Allowed",
+                "mode" => $columns[5] ?? "Face",
+                "reason" => $columns[6] ?? "---",
+                "log_date_time" => $logTime,
+                "index_serial_number" => $columns[3] ?? null,
+                "log_date" => $logDate,
+            ];
+            // }
         }
 
         try {
@@ -374,7 +372,17 @@ class AttendanceLogController extends Controller
     public function GenerateManualLog(Request $request)
     {
         try {
-            AttendanceLog::create($request->only(['UserID', 'LogTime', 'DeviceID', 'company_id', 'log_type']));
+
+            $payload = [
+                "UserID" => $request->UserID,
+                "LogTime" => $request->LogTime . ":00",
+                "DeviceID" => $request->DeviceID ?? "Unknown",
+                "company_id" => $request->company_id,
+                "log_type" => $request->log_type ?? "Unknown",
+                "log_date" => date("Y-m-d"),
+            ];
+
+            AttendanceLog::create($payload);
 
             return [
                 'status' => true,
@@ -389,20 +397,20 @@ class AttendanceLogController extends Controller
     {
         $message = "";
 
+        $payload = [
+            "UserID" => $request->UserID,
+            "LogTime" => $request->LogTime . ":00",
+            "DeviceID" => $request->DeviceID ?? "Unknown",
+            "company_id" => $request->company_id,
+            "log_type" => $request->log_type ?? "Unknown",
+            "log_date" => date("Y-m-d"),
+            "gps_location" => $request->gps_location ?? "Unknown",
+        ];
+
         try {
-            $message = AttendanceLog::create([
-                "UserID" => $request->UserID,
-                "LogTime" => $request->LogTime,
-                "DeviceID" => $request->DeviceID ?? "Unknown",
-                "company_id" => $request->company_id,
-                "log_type" => $request->log_type ?? "Unknown",
-                "log_date" => date("Y-m-d"),
-                "gps_location" => $request->gps_location ?? "Unknown",
-            ]);
+            $message = AttendanceLog::create($payload);
 
             if ($message) {
-                // $Attendance = new AttendanceController;
-                // $Attendance->SyncAttendance();
                 return [
                     'status' => true,
                     'message' => 'Log Successfully Updated',
@@ -682,5 +690,32 @@ class AttendanceLogController extends Controller
         }
         AttendanceLog::insert($data);
         return "Attendance Log Seeder: " . count($data) . " records have been inserted.";
+    }
+
+    public function getLastTenLogs(AttendanceLog $model, Request $request)
+    {
+        $query = $model->where("company_id", $request->company_id)
+            ->where("UserID", $request->UserID)
+            ->with([
+                'employee' => function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id)
+                        ->withOut(["schedule", "department", "sub_department", "designation", "user"])
+                        ->select([
+                            "first_name",
+                            "last_name",
+                            "profile_picture",
+                            "employee_id",
+                            "branch_id",
+                            "system_user_id",
+                            "display_name",
+                            "timezone_id",
+                        ]);
+                },
+                'device' => function ($q) use ($request) {
+                    $q->where('company_id', $request->company_id);
+                }
+            ]);
+
+        return $query->orderBy('LogTime', 'DESC')->limit(10)->get();
     }
 }

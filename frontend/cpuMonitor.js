@@ -5,7 +5,7 @@ const { exec } = require('child_process');
 function monitorCPU() {
     os.cpuUsage((usage) => {
         console.log(`CPU Usage: ${(usage * 100).toFixed(2)}%`);
-        getTopProcesses(); // Fetch top CPU-consuming processes
+        // getTopProcesses(); // Fetch top CPU-consuming processes
     });
 }
 

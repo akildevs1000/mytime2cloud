@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`logs_access`)">
+  <div v-if="can(`device_logs_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -113,7 +113,7 @@
               ></v-autocomplete
             ></span>
             <v-btn
-              v-if="can(`logs_create`)"
+              v-if="can(`device_logs_create`)"
               style="margin-top: -6px"
               class="primary"
               small
@@ -121,7 +121,7 @@
               >+ Manual Log</v-btn
             >
             <v-btn
-              v-if="can(`logs_create`)"
+              v-if="can(`device_logs_create`)"
               style="margin-left: 5px; margin-top: -6px"
               class="primary"
               small

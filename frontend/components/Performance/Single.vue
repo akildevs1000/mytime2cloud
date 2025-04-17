@@ -25,7 +25,7 @@
               >Download <v-icon right>mdi-download</v-icon></v-btn
             >
           </div>
-          <v-row no-gutters class="pa-2" id="screenshot-target">
+          <v-row no-gutters class="pa-2" id="screenshot-element">
             <v-col style="margin-right: 10px">
               <v-row no-gutters>
                 <v-col cols="12" style="margin-top: 10px">
@@ -145,7 +145,7 @@
                               <td style="white-space: nowrap">
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.p_count_value
+                                    item?.p_count
                                   }}</strong>
                                 </div>
                                 <div>Present</div>
@@ -166,10 +166,31 @@
                               <td>
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.a_count_value
+                                    item?.a_count
                                   }}</strong>
                                 </div>
                                 <div>Absent</div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <div
+                                  class="primary"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td>
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    item?.o_count
+                                  }}</strong>
+                                </div>
+                                <div>WeekOff</div>
                               </td>
                             </tr>
                             <tr>
@@ -187,10 +208,10 @@
                               <td>
                                 <div class="pt-3">
                                   <strong style="font-size: 16px">{{
-                                    item?.l_count_value
+                                    item?.other_count
                                   }}</strong>
                                 </div>
-                                <div>Leave</div>
+                                <div>Other</div>
                               </td>
                             </tr>
                           </table>
@@ -551,25 +572,6 @@
                               </td>
                               <td style="width: 20px; min-width: 10px">
                                 <div
-                                  class="orange"
-                                  style="
-                                    width: 10px;
-                                    height: 10px;
-                                    border-radius: 50%;
-                                    display: inline-block;
-                                  "
-                                ></div>
-                              </td>
-                              <td style="white-space: nowrap">
-                                <div class="pt-3">
-                                  <strong style="font-size: 16px">{{
-                                    eventStats["L"] || 0
-                                  }}</strong>
-                                </div>
-                                <div>Leave</div>
-                              </td>
-                              <td style="width: 20px; min-width: 10px">
-                                <div
                                   class="primary"
                                   style="
                                     width: 10px;
@@ -585,7 +587,26 @@
                                     eventStats["O"] || 0
                                   }}</strong>
                                 </div>
-                                <div>Week Off</div>
+                                <div>WeekOff</div>
+                              </td>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
+                                  class="orange"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStats["OTHERS_COUNT"] || 0
+                                  }}</strong>
+                                </div>
+                                <div>Other</div>
                               </td>
                             </tr>
                           </table>
@@ -660,6 +681,8 @@
 </template>
 
 <script>
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 export default {
   props: ["item", "employee"],
   data() {
@@ -673,14 +696,16 @@ export default {
       isMounted: false,
       pieSeries: [86, 5, 6],
       pieOptions: {
-        labels: ["Present", "Absent", "Leave"],
-        colors: ["#00e676", "#dd2c00", "#ff9800"],
+        labels: ["Present", "Absent", "WeekOff","Others"],
+        colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
         legend: { show: false }, // Hide the legends
         dataLabels: { enabled: false },
       },
       barSeries: [
         { name: "Present", data: [] },
         { name: "Absent", data: [] },
+        { name: "WeekOff", data: [] },
+        { name: "Others", data: [] },
       ],
       barOptions: {
         chart: {
@@ -691,7 +716,7 @@ export default {
           },
         },
         xaxis: { categories: [] },
-        colors: ["#00e676", "#dd2c00"],
+        colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
         legend: { show: true }, // Hide the legends
         plotOptions: {
           bar: {
@@ -821,9 +846,10 @@ export default {
     await this.getYearlyLeaveQuota();
 
     this.pieSeries = [
-      this.item?.p_count_value,
-      this.item?.a_count_value,
-      this.item?.l_count_value,
+      parseInt(this.item?.p_count),
+      parseInt(this.item?.a_count),
+      parseInt(this.item?.o_count),
+      parseInt(this.item?.other_count),
     ];
 
     this.isMounted = true;
@@ -840,11 +866,16 @@ export default {
       const categories = data.map((e) => e.month_year);
       const presentData = data.map((e) => e.present_count);
       const absentData = data.map((e) => e.absent_count);
+      const WeekOffData = data.map((e) => e.week_off_count);
+      const otherData = data.map((e) => e.other_count);
+
 
       this.barOptions.xaxis.categories = categories;
       this.barSeries = [
         { name: "Present", data: presentData },
         { name: "Absent", data: absentData },
+        { name: "WeekOff", data: WeekOffData },
+        { name: "Others", data: otherData },
       ];
     },
     async getCurrentMonthPerformanceReport(payload) {
@@ -857,10 +888,8 @@ export default {
     },
     async getEncodedImage(url) {
       try {
-        if (process.env.ENVIRONMENT == "local")
-          url = `https://backend.mytime2cloud.com/media/employee/profile_picture/1706346188.jpg`;
         let { data } = await this.$axios.get(
-          `https://backend.mytime2cloud.com/api/get-encoded-profile-picture/?url=${url}`
+          `/get-encoded-profile-picture/?url=${url}`
         );
         this.base64Image = data;
       } catch (error) {
@@ -892,7 +921,7 @@ export default {
           return;
         }
         this.donutSeries = [
-          data.salary_and_earnings || 1,
+          data.salary_and_earnings_value || 1,
           data.ot_value || 0,
           data.total_deductions_value || 0,
         ];
@@ -957,16 +986,32 @@ export default {
         item: JSON.stringify(this.item),
         employee: JSON.stringify(this.employee),
         company_id: this.$auth.user.company_id,
+        baseUrl: this.$backendUrl,
       });
 
       // Open the target page in a new window with the query parameters
-      const url =
-        "https://mytime2cloud-performance-report.netlify.app?" +
-        // "http://127.0.0.1:5500/index.html?" +
-        queryParams.toString();
+      const url = `${
+        this.$appUrl
+      }/performance_report/index.html?${queryParams.toString()}`;
 
       // Open the URL in a new window
       window.open(url, "_blank");
+    },
+    async downloadInternally() {
+      // Select the element you want to screenshot
+      const element = document.getElementById("screenshot-element");
+
+      // Capture the screenshot
+      html2canvas(element, { useCORS: true }).then((canvas) => {
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("l", "mm", "a4");
+        const imgWidth = 297; // Width of A4 paper in mm (landscape)
+        const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+        // Add the captured image to the PDF
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+        pdf.save("performance-report.pdf"); // Save the PDF
+      });
+      return;
     },
   },
 };

@@ -243,11 +243,10 @@ export default {
             },
           ],
         },
-
         {
-          icon: "mdi-whatsapp",
-          title: "Whatsapp",
-          to: "/whatsapp",
+          icon: "mdi-help",
+          title: "FAQ",
+          to: "/faq",
           permission: this.can("/"),
         },
 

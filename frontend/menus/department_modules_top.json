@@ -23,7 +23,7 @@
   {
     "icon": "mdi-bell",
     "title": "Reports",
-    "to": "/attendance_report",
+    "to": "/reports",
     "menu": "reports",
     "module": "topmenu"
   }

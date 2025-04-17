@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('payroll_settings_create')">
+  <div v-if="can('payroll_formula_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -8,7 +8,7 @@
     <div v-if="!preloader">
       <!-- <Back class="primary white--text" /> -->
       <v-row>
-        <v-col md="12"
+        <v-col md="12" v-if="can('payroll_formula_view')"
           ><v-card
             elevation="0"
             class="pa-3 mt-2 mb-5"
@@ -119,14 +119,21 @@
                   >
 
                   <v-col cols="6" class="text-right">
-                    <v-btn small color="primary" @click="store"> Submit </v-btn>
+                    <v-btn
+                      v-if="can('payroll_formula_create')"
+                      small
+                      color="primary"
+                      @click="store"
+                    >
+                      Submit
+                    </v-btn>
                   </v-col>
                 </v-col>
               </v-row>
             </v-container>
           </v-card></v-col
         >
-        <v-col md="12">
+        <v-col md="12" v-if="can('payroll_generation_date_view')">
           <v-card
             elevation="0"
             class="pa-3 mt-2 mb-5"
@@ -173,7 +180,12 @@
                   ></v-autocomplete>
                 </v-col>
                 <v-col cols="7" class="align-end text-right">
-                  <v-btn small color="primary" @click="storeDate">
+                  <v-btn
+                    v-if="can('payroll_generation_date_create')"
+                    small
+                    color="primary"
+                    @click="storeDate"
+                  >
                     Submit
                   </v-btn>
                 </v-col>
@@ -270,7 +282,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    
 
     store() {
       this.errors = [];

@@ -120,8 +120,8 @@ class SingleShiftController extends Controller
             $firstLog = collect($logs)->first(function ($record) use ($key, $previousShifts) {
                 $previousShift = $previousShifts->get($key);
 
-                // Validate against previous shift's out time if shift type is 4
-                if ($previousShift && $previousShift->shift_type_id == 4) {
+                // Validate against previous shift's out time if shift type is 6
+                if ($previousShift && $previousShift->shift_type_id == 6) {
                     return $previousShift->out != $record["time"];
                 }
 
@@ -168,7 +168,7 @@ class SingleShiftController extends Controller
                 "company_id" => $params["company_id"],
                 "employee_id" => $key,
                 "shift_id" => $shift["id"] ?? 0,
-                "shift_type_id" => 4 ?? 0,
+                "shift_type_id" => $schedule["shift_type_id"] ?? 0,
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",

@@ -342,7 +342,7 @@ export default {
     },
     getDonwloadLink(pic, file_name) {
       return (
-        process.env.BACKEND_URL +
+        this.$backendUrl +
         "/download-emp-documents/" +
         pic +
         "/" +

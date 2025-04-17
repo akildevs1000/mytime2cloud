@@ -126,8 +126,9 @@ Route::post('role/delete/selected', [RoleController::class, 'deleteSelected']);
 
 // AttendanceLogs
 Route::apiResource('attendance_logs', AttendanceLogController::class);
+Route::get('get_last_ten_attendance_logs', [AttendanceLogController::class, 'getLastTenLogs']);
 
-Route::get('attendance_logs/{key}/daily', [AttendanceLogController::class, 'AttendanceLogsDaily']);
+Route::get('attendance_logs/{key}/daily',);
 Route::get('attendance_logs/{key}/monthly', [AttendanceLogController::class, 'AttendanceLogsMonthly']);
 Route::post('generate_manual_log', [AttendanceLogController::class, 'GenerateManualLog']);
 Route::get('attendance_logs/search/{company_id}', [AttendanceLogController::class, 'search']);
@@ -135,7 +136,7 @@ Route::get('attendance_logs/{id}/search/{key}', [AttendanceLogController::class,
 Route::get('attendance_log_paginate/{page?}', [AttendanceLogController::class, 'AttendanceLogPaginate']);
 
 //Route::post('generate_logs111111', [AttendanceLogController::class, 'generate_logs']);
-Route::post('generate_log', [AttendanceLogController::class, 'GenerateLog']);
+Route::post('generate_log', [AttendanceLogController::class, 'GenerateLog'])->middleware("auth:sanctum");
 Route::get('logs', [AttendanceLogController::class, 'getAttendanceLogs']);
 
 Route::get('attendance_single_list', [AttendanceLogController::class, 'singleView']);
@@ -300,6 +301,10 @@ Route::get('employee_leaves/reject/{id}', [EmployeeLeavesController::class, 'rej
 Route::get('employee_leaves_new', [EmployeeLeavesController::class, 'newNotifications']);
 Route::get('employee_leaves_new_by_employee', [EmployeeLeavesController::class, 'newEmployeeNotifications']);
 
+Route::get('employee_leaves_events', [EmployeeLeavesController::class, 'getEvents']);
+Route::get('employee_leaves_for_next_thirty_days_month', [EmployeeLeavesController::class, 'getLeavesForNextThirtyDaysMonth']);
+
+
 Route::apiResource('employee_document', EmployeeLeaveDocumentController::class);
 
 //Leave Type
@@ -321,3 +326,5 @@ Route::post('register', [RegisterController::class, 'store']);
 Route::post('send-whatsapp-wessage', function (Request $request) {
     return (new WhatsappNotificationsLogController())->addMessage($request->company_id, $request->mobile_number, $request->message);
 });
+
+Route::get('company-short-info/{id}', [CompanyController::class, 'shortInfo']);

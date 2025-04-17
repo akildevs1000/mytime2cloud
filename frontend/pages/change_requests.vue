@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can(`change_request`)">
+  <div v-if="can(`change_request_access`)">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="purple" elevation="24">
         {{ response }}

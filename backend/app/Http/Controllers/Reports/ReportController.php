@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use NumberFormatter;
 
@@ -53,8 +54,10 @@ class ReportController extends Controller
 
         $data = $model->paginate($perPage);
 
+        $showTabs = json_decode($request->showTabs, true);
+
         // only for multi in/out
-        if ($request->shift_type_id == 2) {
+        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
             foreach ($data as $value) {
 
                 $logs = $value->logs ?? [];
@@ -284,79 +287,355 @@ class ReportController extends Controller
 
         $model = Attendance::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
             })
+
             ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('department_id',   $department_ids));
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
             })
             ->when(count($employeeIds), function ($q) use ($employeeIds) {
                 $q->whereIn('employee_id', $employeeIds);
             })
 
-            ->whereBetween('date', [$fromDate, $toDate])
-            ->select(
-                'employee_id',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
+            ->whereBetween('date', [$fromDate, $toDate]);
 
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG') // Early Going count
-            )
+        $model->select(
+            'employee_id',
+            $this->getStatusCountWithSuffix('P'),
+            $this->getStatusCountWithSuffix('LC'),
+            $this->getStatusCountWithSuffix('EG'),
+            $this->getStatusCountWithSuffix('A'),
+            $this->getStatusCountWithSuffix('M'),
+            $this->getStatusCountWithSuffix('O'),
+            $this->getStatusCountWithSuffix('L'),
+            $this->getStatusCountWithSuffix('V'),
+            $this->getStatusCountWithSuffix('H'),
+        );
 
-            ->with(["employee" => function ($q) {
+        $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
                 $q->where("company_id", request("company_id"));
-                $q->withOut("schedule", "user");
-                $q->with("reporting_manager:id,reporting_manager_id,first_name");
-                $q->select(
-                    "first_name",
-                    "last_name",
-                    "profile_picture",
-                    "phone_number",
-                    "whatsapp_number",
+                $q->select([
+                    "id",
+                    "shift_id",
                     "employee_id",
-                    "joining_date",
-                    "designation_id",
-                    "department_id",
-                    "user_id",
-                    "sub_department_id",
-                    "overtime",
-                    "title",
-                    "status",
+                    "shift_type_id",
                     "company_id",
-                    "branch_id",
-                    "system_user_id",
-                    "display_name",
-                    "full_name",
-                    "home_country",
-                    "reporting_manager_id",
-                    "local_email",
-                    "home_email",
-                    "leave_group_id"
-                );
-            }])
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
             ->groupBy('employee_id');
 
-        // return $model->count();
 
-
-        return $model->paginate($request->per_page ?? 10);
+        return $model->paginate($request->per_page ?? 100);
     }
 
-    function getStatusCountWithSuffix($status)
+    public function summaryReport(Request $request)
     {
-        return DB::raw("CONCAT(LPAD(COUNT(CASE WHEN status = '{$status}' THEN 1 END)::text, 2, '0'), 
-                     CASE WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) = 1 THEN ' day' 
-                          WHEN COUNT(CASE WHEN status = '{$status}' THEN 1 END) > 1 THEN ' days' 
-                          ELSE ' days' END) AS {$status}_count");
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+
+        $fromDate = $request->input('from_date', date("Y-m-d"));
+        $toDate = $request->input('to_date', date("Y-m-d"));
+
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $employeeIds = [];
+
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+        }
+
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
+            })
+
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
+
+            ->whereBetween('date', [$fromDate, $toDate]);
+
+        $model->select(
+            'employee_id',
+            $this->getTotalHours(),
+            $this->getInHours(),
+            $this->getOutHours(),
+            $this->getStatusCountWithSuffix('P'),
+            $this->getStatusCountWithSuffix('LC'),
+            $this->getStatusCountWithSuffix('EG'),
+            $this->getStatusCountWithSuffix('A'),
+            $this->getStatusCountWithSuffix('M'),
+            $this->getStatusCountWithSuffix('O'),
+            $this->getStatusCountWithSuffix('L'),
+            $this->getStatusCountWithSuffix('V'),
+            $this->getStatusCountWithSuffix('H'),
+        );
+
+        $model->whereHas("employee", fn($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
+                $q->where("company_id", request("company_id"));
+                $q->select([
+                    "id",
+                    "shift_id",
+                    "employee_id",
+                    "shift_type_id",
+                    "company_id",
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
+            ->groupBy('employee_id');
+
+
+        return $model->paginate($request->per_page ?? 100);
     }
+
+    public function summaryReportDownload(Request $request)
+    {
+
+
+
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+
+        $fromDate = $request->input('from_date', date("Y-m-d"));
+        $toDate = $request->input('to_date', date("Y-m-d"));
+
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $employeeIds = [];
+
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+        }
+
+        $cacheKey = 'attendance_summary_' . md5(json_encode([
+            'company_id' => $companyId,
+            'branch_id' => $branch_id,
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+            'department_ids' => $department_ids,
+            'employee_ids' => $employeeIds,
+        ]));
+
+        Cache::forget($cacheKey);
+
+        $model = Attendance::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn($query) => $query->where('branch_id', $branch_id));
+            })
+
+            ->when(count($department_ids), function ($q) use ($department_ids) {
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+            })
+            ->when(count($employeeIds), function ($q) use ($employeeIds) {
+                $q->whereIn('employee_id', $employeeIds);
+            })
+
+            ->whereBetween('date', [$fromDate, $toDate]);
+
+        $model->select(
+            'employee_id',
+            $this->getTotalHours(),
+            $this->getInHours(),
+            $this->getOutHours(),
+            $this->getStatusCountWithSuffix('P'),
+            $this->getStatusCountWithSuffix('LC'),
+            $this->getStatusCountWithSuffix('EG'),
+            $this->getStatusCountWithSuffix('A'),
+            $this->getStatusCountWithSuffix('M'),
+            $this->getStatusCountWithSuffix('O'),
+            $this->getStatusCountWithSuffix('L'),
+            $this->getStatusCountWithSuffix('V'),
+            $this->getStatusCountWithSuffix('H'),
+        );
+
+        $model->whereHas("employee_report_only", fn($q) => $q->where("company_id", request("company_id")));
+
+        $model->with(["employee_report_only" => function ($q) {
+            $q->where("company_id", request("company_id"));
+            $q->withOut("schedule", "user");
+            $q->with("reporting_manager:id,reporting_manager_id,first_name");
+            $q->with(["schedule_all" => function ($q) {
+                $q->where("company_id", request("company_id"));
+                $q->select([
+                    "id",
+                    "shift_id",
+                    "employee_id",
+                    "shift_type_id",
+                    "company_id",
+                ]);
+                $q->with(["shift" => function ($q) {
+                    $q->select([
+                        "id",
+                        "working_hours",
+                        "days",
+                    ]);
+                }]);
+            }]);
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "phone_number",
+                "whatsapp_number",
+                "employee_id",
+                "joining_date",
+                "designation_id",
+                "department_id",
+                "user_id",
+                "sub_department_id",
+                "overtime",
+                "title",
+                "status",
+                "company_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "full_name",
+                "home_country",
+                "reporting_manager_id",
+                "local_email",
+                "home_email",
+                "leave_group_id"
+            );
+        }])
+            ->groupBy('employee_id');
+
+
+        return $model->paginate(10);
+    }
+
+    function getStatusCountWithSuffix($dbDtatus)
+    {
+        $status = strtolower($dbDtatus);
+
+        return DB::raw("COUNT(CASE WHEN status = '{$dbDtatus}' THEN 1 END) AS {$status}_count");
+    }
+
+    function getTotalHours()
+    {
+
+        $driver = DB::connection()->getDriverName(); // Get the database driver name
+
+        if ($driver === 'sqlite') {
+            return DB::raw("json_group_array(total_hrs) FILTER (WHERE total_hrs != '---') AS total_hrs_array");
+        } else {
+            return DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array");
+        }
+    }
+    function getInHours()
+    {
+        $driver = DB::connection()->getDriverName(); // Get the database driver name
+        if ($driver === 'sqlite') {
+            return DB::raw("json_group_array(\"in\") FILTER (WHERE \"in\" != '---') AS average_in_time_array");
+        } else {
+            return  DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array");
+        }
+    }
+    function getOutHours()
+    {
+        $driver = DB::connection()->getDriverName(); // Get the database driver name
+        if ($driver === 'sqlite') {
+            return DB::raw("json_group_array(\"out\") FILTER (WHERE \"out\" != '---') AS average_out_time_array");
+        } else {
+            return DB::raw("json_agg(\"out\"::TEXT) FILTER (WHERE \"out\" != '---') AS average_out_time_array");
+        }
+    }
+
+
 
     function getStatusCountValue($status)
     {
@@ -385,20 +664,46 @@ class ReportController extends Controller
         }
 
         // Now, use these dates in your query
-        $query = DB::table('attendances')
-            ->select(
-                DB::raw('EXTRACT(YEAR FROM date) AS year'),
-                DB::raw('EXTRACT(MONTH FROM date) AS month'),
-                DB::raw('COUNT(CASE WHEN status = \'P\' THEN 1 ELSE NULL END) AS present_count'),
-                DB::raw('COUNT(CASE WHEN status = \'A\' THEN 1 ELSE NULL END) AS absent_count'),
-            )
-            ->where('company_id', $companyId)
-            ->where('employee_id', $employeeId)
-            ->whereBetween('date', [$startMonth, $endMonth])  // Date-only comparison
-            ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
-            ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
-            ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
-            ->get();
+        $driver = DB::connection()->getDriverName(); // Get the database driver
+
+        if ($driver === 'sqlite') {
+            // SQLite uses strftime() for extracting Year and Month
+            $query = DB::table('attendances')
+                ->select(
+                    DB::raw("strftime('%Y', date) AS year"),
+                    DB::raw("strftime('%m', date) AS month"),
+                    DB::raw("SUM(CASE WHEN status in ('P','LC','EG') THEN 1 ELSE 0 END) AS present_count"),
+                    DB::raw("SUM(CASE WHEN status in ('A','M') THEN 1 ELSE 0 END) AS absent_count"),
+                    DB::raw("SUM(CASE WHEN status in ('O') THEN 1 ELSE 0 END) AS week_off_count"),
+                    DB::raw("SUM(CASE WHEN status in ('L','V','H',) THEN 1 ELSE 0 END) AS other_count")
+                )
+                ->where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereBetween('date', [$startMonth, $endMonth]) // Date-only comparison
+                ->groupBy(DB::raw("strftime('%Y', date)"), DB::raw("strftime('%m', date)"))
+                ->orderBy(DB::raw("strftime('%Y', date)"), 'desc')
+                ->orderBy(DB::raw("strftime('%m', date)"), 'desc')
+                ->get();
+        } else {
+            // Now, use these dates in your query
+            $query = DB::table('attendances')
+                ->select(
+                    DB::raw('EXTRACT(YEAR FROM date) AS year'),
+                    DB::raw('EXTRACT(MONTH FROM date) AS month'),
+                    DB::raw('SUM(CASE WHEN status IN (\'P\',\'LC\',\'EG\') THEN 1 ELSE 0 END) AS present_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'A\',\'M\') THEN 1 ELSE 0 END) AS absent_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'O\') THEN 1 ELSE 0 END) AS week_off_count'),
+                    DB::raw('SUM(CASE WHEN status IN (\'L\',\'V\',\'H\') THEN 1 ELSE 0 END) AS other_count')
+                )
+                ->where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereBetween('date', [$startMonth, $endMonth])
+                ->groupBy(DB::raw('EXTRACT(YEAR FROM date)'), DB::raw('EXTRACT(MONTH FROM date)'))
+                ->orderBy(DB::raw('EXTRACT(YEAR FROM date)'), 'desc')
+                ->orderBy(DB::raw('EXTRACT(MONTH FROM date)'), 'desc')
+                ->get();
+        }
+
 
         $queryResults = [];
 
@@ -418,6 +723,8 @@ class ReportController extends Controller
                         'month' => $month['month'],
                         'present_count' => $result->present_count,
                         'absent_count' => $result->absent_count,
+                        'week_off_count' => $result->week_off_count,
+                        'other_count' => $result->other_count,
                         'month_year' => date("M y", strtotime($month_year))
                     ];
                     break;
@@ -431,6 +738,8 @@ class ReportController extends Controller
                     'month' => $month['month'],
                     'present_count' => 0,
                     'absent_count' => 31,
+                    'week_off_count' => 0,
+                    'other_count' => 0,
                     'month_year' => date("M y", strtotime($month_year))
                 ];
             }
@@ -530,59 +839,49 @@ class ReportController extends Controller
         }
     }
 
-
     public function currentMonthPerformanceReport(Request $request)
     {
         $companyId = $request->input('company_id', 0);
         $employeeId = $request->input('employee_id', 0);
-        $lastMonth = $request->input('date', date('m', strtotime('last month')));
-
-        $statusColors = [
-            'P' => 'green', // Green
-            'A' => 'red', // Red
-            'L' => 'orange', // Blue
-            'O' => 'primary', // Blue
-        ];
+        $lastMonth = $request->input('date', date('m', strtotime('first day of last month')));
 
         $result = Attendance::where('company_id', $companyId)
             ->where('employee_id', $employeeId)
             ->whereMonth('date', $lastMonth)
-            ->select(
-                'date',
-                'status',
-                $this->getStatusCountWithSuffix('P'), // Present count
-                $this->getStatusCountWithSuffix('A'), // Absent count
-                $this->getStatusCountWithSuffix('L'), // Leave count
-                $this->getStatusCountWithSuffix('M'), // Missing count
-                $this->getStatusCountWithSuffix('LC'), // Late Coming count
-                $this->getStatusCountWithSuffix('EG'), // Early Going count
-
-                $this->getStatusCountValue('P'), // Present count
-                $this->getStatusCountValue('A'), // Absent count
-                $this->getStatusCountValue('L'), // Leave count
-                $this->getStatusCountValue('M'), // Missing count
-                $this->getStatusCountValue('LC'), // Late Coming count
-                $this->getStatusCountValue('EG') // Early Going count
-            )
-            ->orderBy('date')->groupBy('date', 'status')->get();
-
+            ->select('date', 'status')
+            ->orderBy('date')
+            ->groupBy('date', 'status')
+            ->get();
 
         $arr = [];
-        $stats = [];
+        $stats = [
+            "P" => 0,
+            "A" => 0,
+            "O" => 0,
+            "OTHERS_COUNT" => 0,
+        ];
 
         foreach ($result as $item) {
+            $dateKey = date("Y-m-d", strtotime($item->date));
 
-            $arr[date("Y-m-d",strtotime($item->date))] = $statusColors[$item->status] ?? 'grey';
-
-            if (!isset($stats[$item->status])) {
-                $stats[$item->status] = 1; // Initialize the count for this status
+            if (in_array($item->status, ['P', "LC", "EG"])) {
+                $arr[$dateKey] = "green";
+                $stats["P"] += 1;
+            } else if (in_array($item->status, ['A', "M"])) {
+                $arr[$dateKey] = "red";
+                $stats["A"] += 1;
+            } else if (in_array($item->status, ['O'])) {
+                $arr[$dateKey] = "primary";
+                $stats["O"] += 1;
             } else {
-                $stats[$item->status]++; // Increment the count for this status
+                $arr[$dateKey] = "orange";
+                $stats["OTHERS_COUNT"] += 1;
             }
         }
 
         return ["events" => $arr, "stats" => $stats];
     }
+
 
     /**
      * Helper function to sum time values in "HH:MM" format.
@@ -703,7 +1002,13 @@ class ReportController extends Controller
         $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00";
         $decimalHours = $totalHours + ($remainingMinutes / 60);
         $rate = $Payroll->perHourSalary;
-        $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
+
+        $shortHours = 0; // Set a default value or handle it accordingly
+
+        if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->deduction_value)) {
+            $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
+        }
+
 
         $grouByStatus = $attendances
             ->groupBy('status')
@@ -728,7 +1033,13 @@ class ReportController extends Controller
         $Payroll->deductedSalary = round($Payroll->absent * $Payroll->perDaySalary);
 
         $OTHours = $Payroll->otHours["hours"];
-        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+
+        $OTEarning = 0;
+
+        if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->ot_value)) {
+            $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+        }
+
 
         $Payroll->earnings = array_merge(
             [

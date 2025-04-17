@@ -123,6 +123,7 @@
             <!-- <v-tooltip v-if="can(`leave_group_create`)" top color="primary">
               <template v-slot:activator="{ on, attrs }"> -->
             <v-btn
+              v-if="can(`leave_group_create`)"
               dense
               class="ma-0 px-0"
               x-small

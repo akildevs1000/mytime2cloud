@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('employee_access')">
+  <div v-if="can('document_expiry_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
@@ -294,7 +294,7 @@
               </template>
               <v-list width="120" dense>
                 <v-list-item
-                  v-if="can('employee_edit')"
+                  v-if="can('document_expiry_edit')"
                   @click="editItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -562,7 +562,7 @@ export default {
           return;
         }
 
-        const backendUrl = process.env.BACKEND_URL;
+        const backendUrl = this.$backendUrl;
 
         const queryParams = {
           company_id: this.$auth.user.company_id,

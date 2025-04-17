@@ -237,7 +237,7 @@ export default {
         filterSensorname = this.eventFilter;
       }
 
-      let url = process.env.BACKEND_URL;
+      let url = this.$backendUrl;
       if (option == "print") url += "/device_armed_logs_print_pdf";
       if (option == "excel") url += "/device_armed_logs_export_excel";
       if (option == "download") url += "/device_armed_logs_download_pdf";

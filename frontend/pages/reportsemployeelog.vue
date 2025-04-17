@@ -372,7 +372,6 @@ export default {
   //   return {
   //     number_of_records: 10,
   //     logs: [],
-  //     url: process.env.SOCKET_ENDPOINT,
   //     socket: null
   //   };
   // },

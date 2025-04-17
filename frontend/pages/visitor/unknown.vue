@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('visitor_view')">
+  <div v-if="can('unknown_access')">
     <v-row justify="center">
       <v-dialog persistent v-model="previewImage" max-width="500px">
         <v-card>

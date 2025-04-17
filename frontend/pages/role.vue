@@ -1,145 +1,271 @@
 <template>
   <div v-if="can('role_access')">
-    <v-dialog v-model="dialogNewRole" width="60%">
+    <v-dialog persistent v-model="dialogNewRole" width="800">
+      <WidgetsClose left="790" @click="closeDialog" />
       <v-card>
-        <v-card-title dense class="popup_background">
+        <v-alert dense flat dark class="primary">
           {{ formTitle }} {{ Model }} and Permissions
           <v-spacer></v-spacer>
-          <v-icon @click="dialogNewRole = false" outlined dark>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
+        </v-alert>
         <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="4">
-                <v-label>Role Name</v-label>
-                <v-text-field
-                  class="mt-1"
-                  outlined
-                  dense
-                  v-model="editedItem.name"
-                  :disabled="editedItem.name == 'manager'"
-                  placeholder="Enter New Role Name"
-                ></v-text-field>
-                <span v-if="errors && errors.name" class="error--text">
-                  {{ errors.name[0] }}</span
-                >
-              </v-col>
-              <v-col cols="4">
-                <v-label>Role Description</v-label>
-                <v-text-field
-                  class="mt-1"
-                  outlined
-                  dense
-                  v-model="editedItem.description"
-                  placeholder="Enter Role Description"
-                ></v-text-field>
-                <span v-if="errors && errors.description" class="error--text">
-                  {{ errors.description[0] }}</span
-                >
-              </v-col>
-
-              <v-col cols="4" class="text-end">
-                <v-spacer></v-spacer>
-
-                <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
-                <v-btn class="mt-6" color="primary" fill small @click="save"
-                  >Save</v-btn
-                >
-              </v-col>
-
-              <v-col cols="12">
-                <table class="mb-15">
-                  <tr style="text-align: center">
-                    <th
-                      style="
-                        width: 600px;
-                        text-align: center;
-                        padding: 5px 0 !important;
-                      "
-                    >
-                      Module
-                    </th>
-                    <th style="text-align: center; padding-left: 10px">
-                      <v-checkbox
-                        label="Access"
-                        @change="setAllIds('access', $event)"
-                        v-model="selectall1"
-                      >
-                      </v-checkbox>
-                    </th>
-                    <th style="text-align: center; padding-left: 10px">
-                      <v-checkbox
-                        label="View"
-                        @change="setAllIds('view', $event)"
-                        v-model="selectall2"
-                      >
-                      </v-checkbox>
-                    </th>
-                    <th style="text-align: center; padding-left: 10px">
-                      <v-checkbox
-                        label="Create"
-                        @change="setAllIds('create', $event)"
-                        v-model="selectall3"
-                      >
-                      </v-checkbox>
-                    </th>
-                    <th style="text-align: center; padding-left: 10px">
-                      <v-checkbox
-                        label="Edit"
-                        @change="setAllIds('edit', $event)"
-                        v-model="selectall4"
-                      >
-                      </v-checkbox>
-                    </th>
-                    <th style="text-align: center; padding-left: 10px">
-                      <v-checkbox
-                        label="Delete"
-                        @change="setAllIds('delete', $event)"
-                        v-model="selectall5"
-                      >
-                      </v-checkbox>
-                    </th>
-                  </tr>
-                  <tr v-for="(items, idx) in permissions" :key="idx">
-                    <td class="ps-3">{{ capsTitle(idx) }}</td>
-                    <td
-                      v-for="(pa, idx) in items"
-                      :key="idx"
-                      style="text-align: center; padding-left: 50px"
-                      class=""
-                    >
-                      <v-checkbox
-                        :disabled="!can(`settings_permissions_create`)"
-                        :value="pa.id"
-                        v-model="permission_ids"
-                        :hide-details="true"
-                        class="pt-0 py-1 chk-align"
-                      >
-                      </v-checkbox>
-                    </td>
-                  </tr>
-                </table>
-              </v-col>
-              <v-col cols="6" class="text-right">
-                <span v-if="errors && errors.permission_ids" class="red--text">
-                  {{ errors.permission_ids[0] }}
-                </span>
-                <span v-if="errors && errors.name" class="error--text">
-                  {{ errors.name[0] }}</span
-                >
-                <span v-if="errors && errors.description" class="error--text">
-                  {{ errors.description[0] }}</span
-                >
-              </v-col>
-            </v-row>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <!-- <v-btn class="error" small @click="close"> Cancel </v-btn> -->
+          <v-row>
+            <v-col cols="5">
+              <v-text-field
+                hide-details
+                label="Role Name"
+                outlined
+                dense
+                v-model="editedItem.name"
+              ></v-text-field>
+              <span v-if="errors && errors.name" class="error--text">
+                {{ errors.name[0] }}</span
+              >
+            </v-col>
+            <v-col cols="5">
+              <v-text-field
+                hide-details
+                label="Role Description"
+                outlined
+                dense
+                v-model="editedItem.description"
+              ></v-text-field>
+              <span v-if="errors && errors.description" class="error--text">
+                {{ errors.description[0] }}</span
+              >
+            </v-col>
+            <v-col cols="2" class="text-right">
               <v-btn color="primary" fill small @click="save">Save</v-btn>
-            </v-card-actions>
-          </v-container>
+            </v-col>
+
+            <v-col cols="12">
+              <div style="max-height: 450px; overflow-y: auto">
+                <v-card
+                  v-for="(menu, index) in topMenus"
+                  :key="index"
+                  class="mb-2"
+                  flat
+                >
+                  <v-row no-gutters>
+                    <v-col>
+                      <div class="text-color mx-3 my-1">
+                        {{ menu.label }}
+                      </div>
+                    </v-col>
+                    <v-col class="text-right">
+                      <div class="mx-3 my-1">
+                        <v-icon
+                          color="text-color "
+                          small
+                          text
+                          @click="toggleExpand(index)"
+                        >
+                          mdi-chevron-down
+                        </v-icon>
+                      </div>
+                    </v-col>
+                  </v-row>
+                  <v-expand-transition>
+                    <v-card-text v-if="expandedIndex === index">
+                      <style scoped>
+                        table {
+                          border-spacing: 0;
+                          border-collapse: collapse; /* To ensure borders are collapsed like the effect of cellspacing="0" */
+                          width: 100%;
+                        }
+                        td {
+                          font-size: 12px;
+                        }
+                        .border-top {
+                          border-top: 1px solid #e0e0e0;
+                        }
+                        .border-bottom {
+                          border-bottom: 1px solid #e0e0e0;
+                        }
+                      </style>
+                      <table>
+                        <tr>
+                          <td style="width: 30%" class="border-bottom">
+                            <div class="text-color"></div>
+                          </td>
+                          <td class="border-bottom">
+                            <div class="text-color text-center">Access</div>
+                          </td>
+                          <td class="border-bottom">
+                            <div class="text-color text-center">View</div>
+                          </td>
+                          <td class="border-bottom">
+                            <div class="text-color text-center">Create</div>
+                          </td>
+                          <td class="border-bottom">
+                            <div class="text-color text-center">Edit</div>
+                          </td>
+                          <td class="border-bottom">
+                            <div class="text-color text-center">Delete</div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="width: 30%" class="border-bottom">
+                            <div class="text-color">
+                              <b>Select All</b>
+                            </div>
+                          </td>
+                          <td class="border-bottom">
+                            <div
+                              class="text-color text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                dense
+                                hide-details
+                                @change="
+                                  (isChecked) =>
+                                    selectAllByfilteredMenus(
+                                      'access',
+                                      menu.name,
+                                      isChecked
+                                    )
+                                "
+                              ></v-checkbox>
+                            </div>
+                          </td>
+                          <td class="border-bottom">
+                            <div
+                              class="text-color text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                dense
+                                hide-details
+                                @change="
+                                  (isChecked) =>
+                                    selectAllByfilteredMenus(
+                                      'view',
+                                      menu.name,
+                                      isChecked
+                                    )
+                                "
+                              ></v-checkbox>
+                            </div>
+                          </td>
+                          <td class="border-bottom">
+                            <div
+                              class="text-color text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                dense
+                                hide-details
+                                @change="
+                                  (isChecked) =>
+                                    selectAllByfilteredMenus(
+                                      'create',
+                                      menu.name,
+                                      isChecked
+                                    )
+                                "
+                              ></v-checkbox>
+                            </div>
+                          </td>
+                          <td class="border-bottom">
+                            <div
+                              class="text-color text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                dense
+                                hide-details
+                                @change="
+                                  (isChecked) =>
+                                    selectAllByfilteredMenus(
+                                      'edit',
+                                      menu.name,
+                                      isChecked
+                                    )
+                                "
+                              ></v-checkbox>
+                            </div>
+                          </td>
+                          <td class="border-bottom">
+                            <div
+                              class="text-color text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                dense
+                                hide-details
+                                @change="
+                                  (isChecked) =>
+                                    selectAllByfilteredMenus(
+                                      'delete',
+                                      menu.name,
+                                      isChecked
+                                    )
+                                "
+                              ></v-checkbox>
+                            </div>
+                          </td>
+                        </tr>
+                        <tr
+                          v-for="(childMenu, idx) in filteredMenus(menu.name)"
+                          :key="idx"
+                        >
+                          <td style="width: 30%" class="border-bottom">
+                            <div class="text-color">
+                              {{ childMenu.title }}
+                            </div>
+                          </td>
+                          <td
+                            class="border-bottom"
+                            v-for="(perm, permIndex) in filteredPermissions(
+                              childMenu.module
+                            )"
+                            :key="permIndex"
+                          >
+                            <div
+                              class="text-center d-flex align-center justify-center"
+                            >
+                              <v-checkbox
+                                class="py-1 pl-1 ma-0"
+                                color="primary"
+                                :value="perm.id"
+                                v-model="permission_ids"
+                                dense
+                                hide-details
+                                @change="
+                                  $emit(`selectedPermissions`, permission_ids)
+                                "
+                              >
+                              </v-checkbox>
+                            </div>
+                          </td>
+                        </tr>
+                      </table>
+                    </v-card-text>
+                  </v-expand-transition>
+                  <v-divider></v-divider>
+                </v-card>
+              </div>
+            </v-col>
+            <v-col cols="6" class="text-right">
+              <span v-if="errors && errors.permission_ids" class="red--text">
+                {{ errors.permission_ids[0] }}
+              </span>
+              <span v-if="errors && errors.name" class="error--text">
+                {{ errors.name[0] }}</span
+              >
+              <span v-if="errors && errors.description" class="error--text">
+                {{ errors.description[0] }}</span
+              >
+            </v-col>
+            <v-col class="text-right">
+              <v-btn color="primary" fill small @click="save">Save</v-btn>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -166,54 +292,39 @@
         >
           <template v-slot:top>
             <v-card class="mb-5 rounded-md mt-3" elevation="0">
-              <v-toolbar
-                class="rounded-md"
-                style="border-radius: 5px 5px 0px 0px"
-                dense
-                flat
-              >
-                <span> Roles List</span>
-                <!-- <v-tooltip top color="primary">
-                  <template v-slot:activator="{ on, attrs }"> -->
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Add Role"
-                  @click="getDataFromApi()"
-                >
-                  <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
-                </v-btn>
-                <!-- </template>
-                  <span>Reload</span>
-                </v-tooltip> -->
-                <v-spacer></v-spacer>
-                <v-toolbar-items>
-                  <v-col>
-                    <!-- <v-tooltip
-                      top
-                      color="primary"
-                      v-if="can('settings_roles_create')"
-                    >
-                      <template v-slot:activator="{ on, attrs }"> -->
+              <v-toolbar class="rounded-md" dense flat>
+                <span> Roles</span>
+                <v-tooltip top color="primary">
+                  <template v-slot:activator="{ on, attrs }">
                     <v-btn
-                      v-if="can('role_create')"
                       dense
                       class="ma-0 px-0"
                       x-small
                       :ripple="false"
                       text
-                      title="Add Role"
+                      v-bind="attrs"
+                      v-on="on"
+                      @click="getDataFromApi()"
                     >
-                      <v-icon class="ml-2" @click="dispalyNewDialog()" dark
-                        >mdi mdi-plus-circle</v-icon
-                      >
+                      <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
                     </v-btn>
-                    <!-- </template>
-                      <span>Add New Role</span>
-                    </v-tooltip> -->
+                  </template>
+                  <span>Reload</span>
+                </v-tooltip>
+                <v-spacer></v-spacer>
+                <v-toolbar-items>
+                  <v-col>
+                    <v-btn
+                      v-if="can('role_create')"
+                      dark
+                      dense
+                      color="primary"
+                      small
+                      @click="dispalyNewDialog()"
+                    >
+                      <v-icon color="white" small> mdi-plus </v-icon>
+                      Role
+                    </v-btn>
                   </v-col>
                 </v-toolbar-items>
               </v-toolbar>
@@ -233,7 +344,6 @@
             <v-icon
               v-if="can('role_delete')"
               color="error"
-              :disabled="item.name == 'manager'"
               small
               @click="deleteItem(item)"
             >
@@ -252,6 +362,370 @@
 <script>
 export default {
   data: () => ({
+    expandedIndex: null, // Index of the currently expanded item
+    topMenus: [
+      {
+        label: "Dashboard",
+        name: "dashboard",
+      },
+      {
+        label: "Employee",
+        name: "employee",
+      },
+      {
+        label: "Attendance",
+        name: "attendance",
+      },
+      {
+        label: "Payroll",
+        name: "payroll",
+      },
+      {
+        label: "Visitor",
+        name: "visitor",
+      },
+      {
+        label: "Reports",
+        name: "reports",
+      },
+      {
+        label: "Settings",
+        name: "settings",
+      },
+    ],
+    menus: [
+      {
+        topMenu: "dashboard",
+        module: "dashboard",
+        title: "Dashboard",
+      },
+      {
+        topMenu: "employee",
+        module: "employee",
+        title: "Employee",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_profile",
+        title: "Employee Profile",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_contact",
+        title: "Employee Contact",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_home_contact",
+        title: "Employee Home Contact",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_visa",
+        title: "Employee Visa",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_emirates",
+        title: "Employee Emirates",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_passport",
+        title: "Employee Passport",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_bank",
+        title: "Employee Bank",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_payroll",
+        title: "Employee Payroll",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_document",
+        title: "Employee Document",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_qualification",
+        title: "Employee Qualification",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_setting",
+        title: "Employee Setting",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_login",
+        title: "Employee Login",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_rfid",
+        title: "Employee RFID",
+      },
+      {
+        topMenu: "employee",
+        module: "leave_application",
+        title: "Leave Application",
+      },
+      {
+        topMenu: "employee",
+        module: "announcement",
+        title: "Announcement",
+      },
+      {
+        topMenu: "employee",
+        module: "announcement_category",
+        title: "Announcement Category",
+      },
+      {
+        topMenu: "employee",
+        module: "employee_upload",
+        title: "Employee Photo Upload",
+      },
+      {
+        topMenu: "attendance",
+        module: "shift",
+        title: "Shift",
+      },
+      {
+        topMenu: "attendance",
+        module: "employee_schedule",
+        title: "Employee Schedule",
+      },
+      {
+        topMenu: "attendance",
+        module: "change_request",
+        title: "Change Request",
+      },
+      {
+        topMenu: "payroll",
+        module: "payroll",
+        title: "Payroll",
+      },
+      {
+        topMenu: "access_control",
+        module: "timezone",
+        title: "Timezone",
+      },
+      {
+        topMenu: "access_control",
+        module: "timezone_mapping",
+        title: "Timezone Mapping",
+      },
+      {
+        topMenu: "access_control",
+        module: "timezone_device_mapping",
+        title: "Timezone Device Mapping",
+      },
+      {
+        topMenu: "visitor",
+        module: "visitor_dashboard",
+        title: "Visitor Dashboard",
+      },
+      {
+        topMenu: "visitor",
+        module: "visitor_request",
+        title: "Visitor Request",
+      },
+      {
+        topMenu: "visitor",
+        module: "visitor",
+        title: "Visitor",
+      },
+      {
+        topMenu: "visitor",
+        module: "host",
+        title: "Host",
+      },
+      {
+        topMenu: "visitor",
+        module: "purpose",
+        title: "Purpose",
+      },
+      {
+        topMenu: "visitor",
+        module: "visitor_logs",
+        title: "Visitor Logs",
+      },
+      {
+        topMenu: "visitor",
+        module: "zone",
+        title: "Zone",
+      },
+      {
+        topMenu: "visitor",
+        module: "visitor_reports",
+        title: "Visitor Reports",
+      },
+      {
+        topMenu: "visitor",
+        module: "unknown",
+        title: "Unknown",
+      },
+      {
+        topMenu: "reports",
+        module: "attendance_report",
+        title: "Attendance Report",
+      },
+      {
+        topMenu: "reports",
+        module: "performance_report",
+        title: "Performance Report",
+      },
+      {
+        topMenu: "reports",
+        module: "access_control_report",
+        title: "Access Control Report",
+      },
+      {
+        topMenu: "reports",
+        module: "device_logs",
+        title: "Device Logs",
+      },
+      {
+        topMenu: "reports",
+        module: "leave",
+        title: "Leave",
+      },
+      {
+        topMenu: "reports",
+        module: "visitor_reports",
+        title: "Visitor Reports",
+      },
+      {
+        topMenu: "reports",
+        module: "web_login_logs",
+        title: "Web Login",
+      },
+      {
+        topMenu: "reports",
+        module: "document_expiry",
+        title: "Document Expiry",
+      },
+      {
+        topMenu: "settings",
+        module: "company_profile",
+        title: "Company Profile",
+      },
+      {
+        topMenu: "settings",
+        module: "license",
+        title: "License",
+      },
+      {
+        topMenu: "settings",
+        module: "document",
+        title: "Document",
+      },
+      {
+        topMenu: "settings",
+        module: "password",
+        title: "Password",
+      },
+      {
+        topMenu: "settings",
+        module: "admin",
+        title: "Admin",
+      },
+      {
+        topMenu: "settings",
+        module: "attendance_rating",
+        title: "Attendance Rating",
+      },
+      {
+        topMenu: "settings",
+        module: "branch",
+        title: "Branch",
+      },
+      {
+        topMenu: "settings",
+        module: "department",
+        title: "Department",
+      },
+      {
+        topMenu: "settings",
+        module: "sub_department",
+        title: "Sub Department",
+      },
+      {
+        topMenu: "settings",
+        module: "designation",
+        title: "Designation",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_absent",
+        title: "Automation Absent",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_attendance",
+        title: "Automation Attendance",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_device",
+        title: "Automation Device",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_document",
+        title: "Automation Document",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_access_control",
+        title: "Automation Access Control",
+      },
+      {
+        topMenu: "settings",
+        module: "role",
+        title: "Role",
+      },
+      {
+        topMenu: "settings",
+        module: "device",
+        title: "Device",
+      },
+      {
+        topMenu: "settings",
+        module: "holiday",
+        title: "Holiday",
+      },
+      {
+        topMenu: "settings",
+        module: "leave_type",
+        title: "Leave Type",
+      },
+      {
+        topMenu: "settings",
+        module: "leave_group",
+        title: "Leave Group",
+      },
+      {
+        topMenu: "settings",
+        module: "payroll_formula",
+        title: "Payroll Formula",
+      },
+      {
+        topMenu: "settings",
+        module: "payroll_generation",
+        title: "Payroll Generation",
+      },
+      {
+        topMenu: "settings",
+        module: "automation_mail_content",
+        title: "Automation Mail Content",
+      },
+    ],
+    compKey: 1,
     dialogNewRole: false,
     options: {},
     Model: "Role",
@@ -296,11 +770,6 @@ export default {
     permission_ids: [],
     permissions: [],
     formTitle: "New",
-    selectall1: "",
-    selectall2: "",
-    selectall3: "",
-    selectall4: "",
-    selectall5: "",
     editPermissionId: "",
   }),
 
@@ -330,6 +799,13 @@ export default {
   },
 
   methods: {
+    closeDialog() {
+      this.dialogNewRole = false;
+      ++this.compKey;
+    },
+    handleSelectedPermissions(e) {
+      this.permission_ids = e;
+    },
     dispalyNewDialog() {
       this.errors = [];
       this.editedItem = { name: "", description: "" };
@@ -371,17 +847,13 @@ export default {
     },
 
     editItem(item) {
+      console.log(item);
       this.errors = [];
       this.editedIndex = this.data.indexOf(item);
       this.editedItem = Object.assign({}, item);
       //this.dialog = true;
       this.dialogNewRole = true;
 
-      this.selectall1 = false;
-      this.selectall2 = false;
-      this.selectall3 = false;
-      this.selectall4 = false;
-      this.selectall5 = false;
       this.loading = true;
 
       const { page, itemsPerPage } = this.options;
@@ -410,28 +882,6 @@ export default {
         });
     },
 
-    delteteSelectedRecords() {
-      let just_ids = this.ids.map((e) => e.id);
-      confirm(
-        "Are you sure you wish to delete selected records , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .post(`${this.endpoint}/delete/selected`, {
-            ids: just_ids,
-          })
-          .then(({ data }) => {
-            if (!data.status) {
-              this.errors = data.errors;
-            } else {
-              this.getDataFromApi();
-              this.snackbar = data.status;
-              this.ids = [];
-              this.response = "Selected records has been deleted";
-            }
-          })
-          .catch((err) => console.log(err));
-    },
-
     deleteItem(item) {
       confirm(
         "Are you sure you wish to delete , to mitigate any inconvenience in future."
@@ -442,8 +892,6 @@ export default {
             if (!data.status) {
               this.errors = data.errors;
             } else {
-              this.deletePermission();
-
               this.getDataFromApi();
               this.snackbar = data.status;
               this.response = data.message;
@@ -515,16 +963,6 @@ export default {
           .catch((res) => console.log(res));
       }
     },
-    //permissions
-    deletePermission(id) {
-      this.$axios
-        .delete(this.endpoint + "/" + id)
-        .then(({ data }) => {
-          this.snackbar = data.status;
-          this.response = data.message;
-        })
-        .catch((err) => console.log(err));
-    },
     updatePermission(role_id) {
       //alert(this.editPermissionId);
       console.log(this.editPermissionId);
@@ -563,43 +1001,6 @@ export default {
       let title = r.replace(/\b\w/g, (c) => c.toUpperCase());
       return title;
     },
-    setAllIds(filter, e) {
-      let isSelected = e;
-
-      // this.permission_ids = this.just_ids
-      //   ? this.permissions.map(e => e.id)
-      //   : [];
-
-      // Function to filter IDs containing the text "edit"
-      let data = this.permissions;
-      const filteredIds = [];
-
-      // Loop through each module in the data
-      for (const module in data) {
-        if (data.hasOwnProperty(module)) {
-          // Filter the items in the module where the "name" contains "edit"
-          const editItems = data[module].filter((item) =>
-            item.name.includes(filter)
-          );
-
-          // Extract and store the IDs from the filtered items
-          const editItemIds = editItems.map((item) => item.id);
-
-          if (isSelected) this.permission_ids.push(...editItemIds);
-          else {
-            const indexToDelete = this.permission_ids.findIndex(
-              (item) => item === editItemIds[0]
-            );
-
-            if (indexToDelete !== -1) {
-              this.permission_ids.splice(indexToDelete, 1);
-            }
-          }
-        }
-      }
-      const uniqueSet = new Set(this.permission_ids);
-      this.permission_ids = Array.from(uniqueSet);
-    },
 
     savePermisions(role_id) {
       this.errors = [];
@@ -619,127 +1020,40 @@ export default {
         //setTimeout(() => this.$router.push("/assign_permission"), 1000);
       });
     },
+
+    toggleExpand(index) {
+      // If the index is already expanded, collapse it; otherwise, expand it
+      this.expandedIndex = this.expandedIndex === index ? null : index;
+    },
+    filteredPermissions(module) {
+      return this.permissions[module.toLocaleLowerCase()];
+    },
+    filteredMenus(topMenuName) {
+      return this.menus.filter((menu) => menu.topMenu === topMenuName);
+    },
+    selectAllByfilteredMenus(action, topMenuName, isChecked) {
+      const allPermissions = this.menus
+        .filter((menu) => menu.topMenu === topMenuName)
+        .flatMap((menu) =>
+          this.filteredPermissions(menu.module)
+            .filter(
+              (permission) => permission.name === menu.module + "_" + action
+            )
+            .map((permission) => permission.id)
+        );
+
+      if (isChecked) {
+        // If checked, add all permissions to permission_ids
+        this.permission_ids = [
+          ...new Set([...this.permission_ids, ...allPermissions]),
+        ];
+      } else {
+        // If unchecked, remove all permissions for this action
+        this.permission_ids = this.permission_ids.filter(
+          (id) => !allPermissions.includes(id)
+        );
+      }
+    },
   },
 };
 </script>
-
-<style scoped>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-tr:nth-child(even) {
-  background-color: #e9e9e9;
-}
-
-th,
-td {
-  border: 1px solid #dddddd;
-  /* text-align: center; */
-  padding: 5px 5px;
-}
-
-.chk-align {
-  text-align: center !important;
-  margin-top: 8px !important;
-  /* margin-left: 98px !important;*/
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body > div {
-  min-height: 100vh;
-  display: flex;
-  font-family: "Roboto", sans-serif;
-}
-
-.table_responsive {
-  max-width: 900px;
-  border: 1px solid #00bcd4;
-  background-color: #efefef33;
-  padding: 15px;
-  overflow: auto;
-  margin: auto;
-  border-radius: 4px;
-}
-
-table {
-  width: 100%;
-  font-size: 13px;
-  color: #444;
-  white-space: nowrap;
-  border-collapse: collapse;
-}
-
-table > thead {
-  background-color: #00bcd4;
-  color: #fff;
-}
-
-table > thead th {
-  padding: 15px;
-}
-
-table th,
-table td {
-  border: 1px solid #00000017;
-  padding: 0px 0px;
-}
-
-table > tbody > tr > td > img {
-  display: inline-block;
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 4px solid #fff;
-  box-shadow: 0 2px 6px #0003;
-}
-
-.action_btn {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.action_btn > a {
-  text-decoration: none;
-  color: #444;
-  background: #fff;
-  border: 1px solid;
-  display: inline-block;
-  padding: 7px 20px;
-  font-weight: bold;
-  border-radius: 3px;
-  transition: 0.3s ease-in-out;
-}
-
-.action_btn > a:nth-child(1) {
-  border-color: #26a69a;
-}
-
-.action_btn > a:nth-child(2) {
-  border-color: orange;
-}
-
-.action_btn > a:hover {
-  box-shadow: 0 3px 8px #0003;
-}
-
-table > tbody > tr {
-  background-color: #fff;
-  transition: 0.3s ease-in-out;
-}
-
-table > tbody > tr:nth-child(even) {
-  background-color: rgb(238, 238, 238);
-}
-
-table > tbody > tr:hover {
-  filter: drop-shadow(0px 2px 6px #0002);
-}
-</style>

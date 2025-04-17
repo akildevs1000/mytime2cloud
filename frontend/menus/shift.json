@@ -37,24 +37,6 @@
     "filterSpecial": false
   },
   {
-    "text": "From Date",
-    "align": "left",
-    "sortable": true,
-    "key": "from_date",
-    "value": "show_from_date",
-    "filterable": false,
-    "filterSpecial": false
-  },
-  {
-    "text": "To Date",
-    "align": "left",
-    "sortable": true,
-    "key": "to_date",
-    "value": "show_to_date",
-    "filterable": false,
-    "filterSpecial": false
-  },
-  {
     "text": "Auto Shift",
     "align": "left",
     "sortable": true,

@@ -347,8 +347,10 @@ class DeviceController extends Controller
             "device" => $device,
         ];
     }
-    public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
+    public function getLastRecordsHistory_old($id = 0, $count = 0, Request $request)
     {
+        $startTime = microtime(true); // Start time
+        $startMemory = memory_get_usage(); // Get memory usage before query
 
         // return Employee::select("system_user_id")->where('company_id', $request->company_id)->get();
 
@@ -392,8 +394,85 @@ class DeviceController extends Controller
         //$model->orderByDesc("LogTime");
         $logs = $model->paginate($request->per_page);
 
+        $endMemory = memory_get_usage(); // Get memory usage after query
+
+        $executionTime = microtime(true) - $startTime; // Calculate execution time
+        $memoryUsed = $endMemory - $startMemory;
+
+        // return response()->json([
+        //     'execution_time' => $executionTime,
+        //     'memory_used' => number_format($memoryUsed / 1024, 2) . ' KB',
+        //     'data' => $logs
+        // ]);
+
         return $logs;
     }
+
+    public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
+    {
+        // Generate a unique cache key using company_id and request parameters
+        $cacheKey = "attendance_logs_{$id}_" . md5(json_encode($request->all()));
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($id, $request) {
+            $model = AttendanceLog::query();
+
+            $model->where("company_id", $id);
+
+            if ($request->filled("branch_id")) {
+                $model->whereIn("UserID", function ($query) use ($request) {
+                    $query->select("system_user_id")
+                        ->from("employees")
+                        ->where("branch_id", $request->branch_id);
+                });
+            }
+
+            if ($request->filled("department_id") && $request->department_id > 0) {
+                $model->whereIn("UserID", function ($query) use ($request) {
+                    $query->select("system_user_id")
+                        ->from("employees")
+                        ->where("department_id", $request->department_id);
+                });
+            }
+
+            $model->with('employee', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+                $q->withOut(["schedule",  "sub_department", "user"]);
+
+                $q->select(
+                    "first_name",
+                    "last_name",
+                    "profile_picture",
+                    "employee_id",
+                    "branch_id",
+                    "system_user_id",
+                    "display_name",
+                    "timezone_id",
+                );
+            });
+
+            $model->with('device', function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+                $q->select(
+                    "id",
+                    "company_id",
+                    "branch_id",
+                    "status_id",
+                    "name",
+                    "short_name",
+                    "device_id",
+                    "location",
+                    "model_number",
+                );
+            });
+
+            $model->where('LogTime', '>', date('Y-m-01'));
+            $model->where('LogTime', '<=', date('Y-m-d 23:59:59'));
+            $model->orderBy('LogTime', 'DESC');
+
+            return $model->paginate(request("per_page", 10));
+        });
+    }
+
     public function updateDeviceCamVIISettingsToSDK(Request $request)
     {
         if ($request->deviceSettings['device_id'] > 0) {
@@ -963,67 +1042,74 @@ class DeviceController extends Controller
         }
     }
 
+    public function sync_device_date_time($device_id, $company_id)
+    {
+        $device = Device::where("company_id", $company_id)->where("device_id", $device_id)->first();
 
-    public function sync_device_date_time(Request $request, $device_id, $company_id)
+        if (!$device) {
+            return $this->response('Device not found.',  null, true);
+        }
+
+        try {
+
+            $sdkResponse = [];
+
+            $currentDateTime = (new DateTime("now", new DateTimeZone($device->utc_time_zone)))->format('Y-m-d H:i:s');
+
+            if ($device->model_number == 'OX-900') {
+                return (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+            } else {
+                $sdkResponse = (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
+            }
+
+            $payload = [
+                "sync_date_time" => $currentDateTime,
+            ];
+
+            Device::where("device_id", $device_id)->update($payload);
+
+            return $this->response($sdkResponse, null, true);
+        } catch (\Throwable $th) {
+            return $this->response('Time cannot synced to the Device.', null, false);
+        }
+
+
+        return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
+    }
+
+
+    public function sync_device_date_time_old($device_id, $company_id)
     {
 
         $device = Device::where("company_id", $company_id)->where("device_id", $device_id)->first();
-        if ($device) {
-            if ($device->device_category_name == 'CAMERA') {
 
-                try {
-                    if ($device->model_number == 'CAMERA1') {
-                        //(new DeviceCameraController())->updateTimeZone();
-                    }
-                } catch (\Exception $e) {
-                    return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
-                }
-            } else  if ($device->model_number == 'OX-900') {
-                (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
-
-
-                return $this->response('Time has been synced to the Device.',  null, true);
-            } else {
-                // $url = "http://139.59.69.241:7000/$device_id/SyncDateTime";
-                $url = env('SDK_URL') . "/$device_id/SetWorkParam";
-
-                if (env('APP_ENV') == 'desktop') {
-                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/$device_id/SetWorkParam";
-                }
-
-                $utc_time_zone  = Device::where('device_id', $device_id)->pluck("utc_time_zone")->first();;
-                if ($utc_time_zone != '') {
-
-                    $dateObj  = new DateTime("now", new DateTimeZone($utc_time_zone));
-                    $currentDateTime = $dateObj->format('Y-m-d H:i:00');
-
-                    (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
-                    $result = (object)["status" => 200];
-
-                    if ($result && $result->status == 200) {
-                        try {
-                            $record = Device::where("device_id", $device_id)->update([
-                                "sync_date_time" => $currentDateTime,
-                            ]);
-
-                            if ($record) {
-                                return $this->response("Time <b>$currentDateTime</b> has been synced to the Device.", null, true);
-                            } else {
-                                return $this->response('Time cannot synced to the Device.', null, false);
-                            }
-                        } catch (\Throwable $th) {
-                            return $this->response('Time cannot synced to the Device.', null, false);
-                        }
-                    } else if ($result && $result->status == 102) {
-                        return $this->response("The device is not connected to the server or is not registered", $result, false);
-                    }
-
-                    return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
-                } else {
-                    return $this->response("The device details are not exist", null, false);
-                }
-            }
+        if (!$device) {
+            return $this->response('Device not found.',  null, true);
         }
+
+        if ($device->model_number == 'OX-900') {
+            return (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+        }
+
+        try {
+
+            $currentDateTime = (new DateTime("now", new DateTimeZone($device->utc_time_zone)))->format('Y-m-d H:i:s');
+
+            (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
+
+            $payload = [
+                "sync_date_time" => $currentDateTime,
+            ];
+
+            Device::where("device_id", $device_id)->update($payload);
+
+            return $this->response("Time <b>$currentDateTime</b> has been synced to the Device.", null, true);
+        } catch (\Throwable $th) {
+            return $this->response('Time cannot synced to the Device.', null, false);
+        }
+
+
+        return $this->response("Unkown Error. Please retry again after 1 min or contact to technical team", null, false);
     }
 
     public function devcieCountByStatus($company_id)

@@ -99,6 +99,17 @@ class Attendance extends Model
             ],
         ]);
     }
+
+    public function employee_report_only()
+    {
+        return $this->belongsTo(EmployeeReportOnly::class, "employee_id", "system_user_id")->withOut("schedule")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---",
+            ],
+        ]);
+    }
+
     public function employeeapi()
     {
         return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut(["schedule", "department", "designation", "sub_department", "branch"]);
@@ -148,27 +159,13 @@ class Attendance extends Model
     public function processAttendanceModel($request)
     {
 
+        $company_id = $request->company_id;
+
         $model = self::query();
 
         $model->where('company_id', $request->company_id);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 2, function ($q) {
-            $q->where('shift_type_id', 2);
-        });
-
-        $model->when($request->filled('shift_type_id') && $request->shift_type_id == 5, function ($q) {
-            $q->where('shift_type_id', 5);
-        });
-
-        $model->when($request->filled('shift_type_id') && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
-            $q->whereIn('shift_type_id', [1, 3, 4, 6]);
-            // $q->where(function ($query) {
-            //     $query->whereIn('shift_type_id', [1, 3, 4, 6])
-            //         ->orWhere('shift_type_id', '---');
-            // });
-        });
-        
         if (!empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
             $model->whereIn('employee_id', $employeeIds);
@@ -187,7 +184,7 @@ class Attendance extends Model
             $q->where('status', $request->status);
         });
 
-        $model->when(count($request->statuses ?? []) > 0, fn ($q) => $q->whereIn('status', request("statuses")));
+        $model->when(count($request->statuses ?? []) > 0, fn($q) => $q->whereIn('status', request("statuses")));
 
         $model->when($request->status == "ME", function ($q) {
             $q->where('is_manual_entry', true);
@@ -207,7 +204,7 @@ class Attendance extends Model
 
         $model->when($request->filled('branch_id'), function ($q) use ($request) {
             $key = strtolower($request->branch_id);
-            $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+            $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id',   $key));
         });
         // $model->when($request->filled('branch_id'), function ($q) use ($request) {
         //     $q->where('branch_id',   $request->branch_id);
@@ -222,21 +219,49 @@ class Attendance extends Model
             $q->whereBetween("date", [$request->from_date, $request->to_date]);
         });
 
-        // $model->whereBetween("date", [$request->from_date, $request->to_date]);
+        $model->whereHas('employee', function ($q) use ($company_id) {
 
-        $model->whereHas('employee', function ($q) use ($request) {
-            $q->where('company_id', $request->company_id);
+
+
+            $q->where('company_id', $company_id);
             $q->where('status', 1);
-            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
-            $q->with(['department', 'branch']);
+            $q->whereHas(
+                "schedule",
+                function ($q) use ($company_id) {
+                    $q->where('company_id', $company_id);
+
+                    $showTabs = json_decode(request("showTabs"), true);
+
+                    $filteredTabs = array_filter($showTabs, fn($value) => $value === true);
+
+                    if (count($filteredTabs) > 1) {
+                        if (($showTabs['multi'] == true || $showTabs['dual'] == true) && request("shift_type_id", 0) > 0) {
+                            $q->where('shift_type_id',  request("shift_type_id"));
+                        } else {
+                            $q->whereIn('shift_type_id',  [1, 3, 4, 6]);
+                        }
+                    }
+                }
+            );
         });
 
         $model->with([
-            'employee' => function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
+            'employee' => function ($q) use ($company_id) {
+                $q->where('company_id', $company_id);
                 $q->where('status', 1);
-                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id","joining_date");
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
                 $q->with(['department', 'branch']);
+                $q->with([
+                    "schedule" => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
+                        $q->select("id", "shift_id", "employee_id");
+                        $q->withOut("shift_type");
+                    },
+                    "schedule.shift" => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
+                        $q->select("id", "name", "on_duty_time", "off_duty_time");
+                    }
+                ]);
             }
         ]);
 
@@ -277,8 +302,8 @@ class Attendance extends Model
             }
         });
 
-        $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));
-        $model->whereDoesntHave('device_out', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_in', fn($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn($q) => $q->where('device_type', 'Access Control'));
 
 
 
@@ -354,7 +379,7 @@ class Attendance extends Model
 
         $model->when($request->branch_id, function ($q) use ($request) {
             $key = strtolower($request->branch_id);
-            $q->whereHas('employee', fn (Builder $query) => $query->where('branch_id',   $key));
+            $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id',   $key));
         });
         // $model->when($request->filled('branch_id'), function ($q) use ($request) {
         //     $q->where('branch_id',   $request->branch_id);
@@ -424,8 +449,8 @@ class Attendance extends Model
             }
         });
 
-        $model->whereDoesntHave('device_in', fn ($q) => $q->where('device_type', 'Access Control'));
-        $model->whereDoesntHave('device_out', fn ($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_in', fn($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn($q) => $q->where('device_type', 'Access Control'));
 
 
 

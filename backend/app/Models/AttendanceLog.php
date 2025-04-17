@@ -46,12 +46,18 @@ class AttendanceLog extends Model
 
     public function device()
     {
+        $driver = DB::connection()->getDriverName(); // Get the database driver
+
+        if ($driver === 'sqlite') {
+            return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "---", "device_id" => "---"]);
+        }
+
         return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
 
-        if ($this->log_type == 'Mobile') {
-            return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
-        }
-        return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Manual", "device_id" => "Manual"]);
+        // if ($this->log_type == 'Mobile') {
+        //     return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
+        // }
+        // return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Manual", "device_id" => "Manual"]);
     }
     public function company()
     {
@@ -59,7 +65,11 @@ class AttendanceLog extends Model
     }
     public function employee()
     {
-        return $this->belongsTo(Employee::class, "UserID", "system_user_id");
+        return $this->belongsTo(Employee::class, "UserID", "system_user_id")
+            ->withDefault([
+                "first_name" => "---",
+                "last_name" => "---"
+            ]);
     }
     public function branch()
     {
@@ -362,6 +372,7 @@ class AttendanceLog extends Model
             ->where("company_id", $params["company_id"])
             ->whereHas("schedule", fn($q) => $q->where("isAutoShift", true))
             ->distinct("LogTime", "UserID", "company_id")
+            ->orderBy("LogTime", "asc")
             ->get()
             ->load("device")
             ->load(["schedule" => function ($q) use ($params) {
@@ -391,6 +402,7 @@ class AttendanceLog extends Model
             ->where("company_id", $params["company_id"])
             ->whereHas("schedule", fn($q) => $q->where("isAutoShift", false))
             ->distinct("LogTime", "UserID", "company_id")
+            ->orderBy("LogTime", "asc")
             ->get()
             ->load("device")
             ->load(["schedule" => function ($q) use ($params) {
@@ -551,5 +563,29 @@ class AttendanceLog extends Model
             ->get()
 
             ->groupBy(['UserID']);
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($log) {
+            // Skip this if the log is created from console (CLI, cron, jobs)
+            if (app()->runningInConsole()) {
+                return;
+            }
+
+            $payload = [
+                "Employee ID" => $log->UserID,
+                "Log Date Time" => $log->LogTime,
+                "Record Id" => $log->id,
+                "Created At" => date("d M y H:i:s", strtotime($log->created_at)),
+            ];
+
+            recordAction([
+                "action" => "Report",
+                "type" => "LogCreate",
+                "model_type" => "user",
+                "description" => "Created manual log. Payload: " . json_encode($payload, JSON_PRETTY_PRINT),
+            ]);
+        });
     }
 }

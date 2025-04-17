@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat v-if="can(`performance_rating_description_access`)">
     <v-alert dense flat class="grey lighten-3 body-1 mb-2"
       >Attendanc Rating System</v-alert
     >
@@ -69,6 +69,11 @@ export default {
         { percentage: "0% to 10%", rating: 0, description: "No attendance" },
       ],
     };
+  },
+  methods: {
+    can(per) {
+      return this.$pagePermission.can(per, this);
+    },
   },
 };
 </script>

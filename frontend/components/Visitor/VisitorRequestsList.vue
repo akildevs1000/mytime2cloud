@@ -927,7 +927,7 @@ export default {
         .post(`/download-profilepic-sdk`, options.params)
         .then(({ data }) => {
           this.downloadProfileLink =
-            process.env.BACKEND_URL + "/download-profilepic-disk?image=" + data;
+            this.$backendUrl + "/download-profilepic-disk?image=" + data;
 
           //this.$refs.goTo.click;
 

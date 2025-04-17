@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     viewLogs() {
-      this.$router.push("/attendance_report");
+      this.$router.push("/reports");
     },
     getDataFromApi() {
       if (this.$store.state.dashboard.attendance_count_by_department) {

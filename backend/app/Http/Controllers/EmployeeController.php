@@ -1042,15 +1042,22 @@ class EmployeeController extends Controller
         $success = false;
 
         DB::beginTransaction();
+
         try {
             foreach ($dataCSV as $data1) {
+
+                if (Employee::where(["system_user_id" => $data1['employee_device_id']])->exists()) {
+                    continue;
+                }
                 $data = [];
                 foreach ($data1 as $key => $value) {
                     $data[$key] = trim($value);
                 }
 
 
+
                 $validator = $this->validateImportData($data);
+
                 if (!$this->checkIfDepartmentExist($data['department_code'])) {
                     return [
                         "status" => false,
@@ -1328,8 +1335,10 @@ class EmployeeController extends Controller
 
         $rules = [
             'title' => ['required', 'in:Mr,Mrs,Miss,Ms,Dr'],
-            'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
-            'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
+            // 'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
+            // 'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
+            'employee_id' => ['required'],
+            'system_user_id' => ['required'],
             'display_name' => ['required', 'min:3', 'max:10'],
             'email' => 'nullable|min:3|max:191|unique:users',
             'department_code' => ['required'],
@@ -1817,8 +1826,15 @@ class EmployeeController extends Controller
 
     public function getEncodedProfilePicture()
     {
-        $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'));
-
+        $context = stream_context_create([
+            "ssl" => [
+                "verify_peer" => false,
+                "verify_peer_name" => false,
+            ],
+        ]);
+    
+        $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'), false, $context);
+    
         $md5string = base64_encode($imageData);
 
         return "data:image/png;base64,$md5string";

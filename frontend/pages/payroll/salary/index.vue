@@ -73,21 +73,6 @@
               </table>
               <div v-else>No Employees are available</div>
             </template>
-
-            <!-- <v-list lines="one">
-              <v-list-item
-                v-for="(item, index) in payslipsResultsmessages"
-                :key="item.id"
-                :title="item.status_message"
-              >
-                <span v-if="item.status"
-                  >{{ index + 1 }}: {{ item.status_message }}</span
-                >
-                <span style="color: red" v-else
-                  >{{ index + 1 }}: {{ item.status_message }}</span
-                >
-              </v-list-item>
-            </v-list> -->
           </v-container>
         </v-card-text>
       </v-card>
@@ -280,21 +265,6 @@
                   >
                 </v-btn>
               </span>
-              <!-- <span>
-                <v-btn
-                  v-show="can(`payroll_payslip_generate_access`)"
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Filter By Department"
-                >
-                  <v-icon class="ml-2" @click="dialogVisible = true" dark
-                    >mdi-filter-multiple
-                  </v-icon>
-                </v-btn>
-              </span> -->
               <span>
                 <v-btn
                   dense
@@ -312,10 +282,7 @@
               <span>
                 <v-btn
                   v-btn
-                  v-show="
-                    selectedItems.length &&
-                    can(`payroll_payslip_generate_access`)
-                  "
+                  v-show="selectedItems.length"
                   @click="generateNewpayslipsSelected"
                   small
                   class="primary toolbar-button-design1"
@@ -370,7 +337,6 @@
 
               <span>
                 <v-btn
-                  v-show="can(`payroll_payslip_generate_access`)"
                   dense
                   class="ma-0 px-0"
                   x-small
@@ -398,184 +364,7 @@
                   <v-icon class="mx-1">mdi mdi-download</v-icon>
                 </v-btn>
               </span>
-
-              <!-- <v-col cols="12" class="text-right">
-                <v-col cols="2">
-                  <v-autocomplete
-                    placeholder="Department"
-                    outlined
-                    dense
-                    @change="getDataFromApi(`employee`)"
-                    v-model="department_id"
-                    x-small
-                    :items="departments"
-                    item-value="id"
-                    item-text="name"
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="2">
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="handleFilters"
-                    x-small
-                    item-value="id"
-                    item-text="name"
-                    v-model="payslip_year"
-                    :items="dataYears"
-                    placeholder="Year"
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="2">
-                  <v-autocomplete
-                    outlined
-                    dense
-                    @change="handleFilters"
-                    x-small
-                    v-model="payslip_month"
-                    :items="fitleredMonthNames()"
-                    item-text="label"
-                    item-value="value"
-                    placeholder="Month"
-                  ></v-autocomplete>
-                </v-col>
-
-                <v-col cols="4" class="text-right">
-                  <v-btn
-                    v-show="can(`payroll_payslip_generate_access`)"
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    title="Generate Payslips by Department"
-                  >
-                    <v-icon @click="openPayslipDialog" class="mx-1"
-                      >mdi-briefcase-outline</v-icon
-                    >
-                  </v-btn>
-
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-show="downloadAllDisplayStatus"
-                    download
-                    :href="payslipsDownloadAllURL"
-                    small
-                    title="Download All Payslips"
-                  >
-                    <v-icon @click="showFilters = !showFilters" class="mx-1"
-                      >mdi mdi-download</v-icon
-                    >
-                  </v-btn>
-                </v-col>
-              </v-col> -->
             </v-toolbar>
-            <!-- <v-toolbar class="mb-2" dense flat>
-              <v-toolbar-title style="color: black"
-                ><span> Payslips</span></v-toolbar-title
-              >
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Reload"
-                >
-                  <v-icon class="ml-2" @click="clearFilters" dark
-                    >mdi mdi-reload</v-icon
-                  >
-                </v-btn>
-              </span>
-              <span>
-                <v-btn
-                  v-if="can(`payroll_payslip_generate_access`)"
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Filter By Department"
-                >
-                  <v-icon class="ml-2" @click="dialogVisible = true" dark
-                    >mdi-filter-multiple
-                  </v-icon>
-                </v-btn>
-              </span>
-              <span>
-                <v-btn
-                  dense
-                  class="ma-0 px-0"
-                  x-small
-                  :ripple="false"
-                  text
-                  title="Download All Payslips"
-                >
-                  <v-icon class="ml-2" @click="toggleFilter" dark
-                    >mdi-filter
-                  </v-icon>
-                </v-btn>
-              </span>
-              <span>
-                <v-btn
-                  v-btn
-                  v-if="
-                    selectedItems.length &&
-                    can(`payroll_payslip_generate_access`)
-                  "
-                  @click="generateNewpayslipsSelected"
-                  small
-                  class="primary toolbar-button-design1"
-                  color="primary"
-                  title="Payslips For selected"
-                >
-                  Payslips For selected
-                </v-btn>
-              </span>
-
-              <v-col cols="4" class="text-right">
-                <span>
-                  <v-btn
-                    v-if="can(`payroll_payslip_generate_access`)"
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    title="Generate Payslips by Department"
-                  >
-                    <v-icon @click="openPayslipDialog"
-                      >mdi-briefcase-outline</v-icon
-                    >
-                  </v-btn>
-                </span>
-
-                <span>
-                  <v-btn
-                    dense
-                    class="ma-0 px-0"
-                    x-small
-                    :ripple="false"
-                    text
-                    v-if="downloadAllDisplayStatus"
-                    download
-                    :href="payslipsDownloadAllURL"
-                    small
-                    title="Download All Payslips"
-                  >
-                    <v-icon @click="showFilters = !showFilters"
-                      >mdi mdi-download</v-icon
-                    >
-                  </v-btn>
-                </span>
-              </v-col>
-            </v-toolbar> -->
-
             <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
               {{ snackText }}
 
@@ -1162,7 +951,7 @@ export default {
       return false;
     },
     getdownloadLink(employee_id) {
-      const baseURL = this.$axios.defaults.baseURL;
+      const baseURL = this.$backendUrl;
       const id = this.$auth.user.company_id;
       const month = this.payslip_month;
       const year = this.payslip_year;
@@ -1364,7 +1153,7 @@ export default {
 
         if (this.payslipsDownloadAllEmployeeidsArray.length > 0) {
           this.payslipsDownloadAllURL =
-            this.$axios.defaults.baseURL +
+            this.$backendUrl +
             "/generate-payslips-zip?company_id=" +
             this.$auth.user.company_id +
             "&employee_ids=" +

@@ -24,7 +24,7 @@ class Employee extends Model
         'created_at' => 'datetime:d-M-y',
     ];
 
-    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name'];
+    protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name', 'profile_picture_base64'];
 
     public function schedule()
     {
@@ -172,10 +172,37 @@ class Employee extends Model
         if (!$value) {
             return null;
         }
+
+        $driver = DB::connection()->getDriverName(); // Get the database driver
+
+        if ($driver === 'sqlite') {
+            return asset('media/employee/profile_picture/' . $value);
+        }
+
+
+        if (env("APP_ENV") == "local") {
+            return "https://backend.mytime2cloud.com/media/employee/profile_picture/$value";
+        }
+
         return asset('media/employee/profile_picture/' . $value);
         // return asset(env('BUCKET_URL') . '/' . $value);
 
     }
+
+    public function getProfilePictureBase64Attribute()
+    {
+        return null;
+        if ($this->profile_picture) {
+            $imageData = file_get_contents($this->profile_picture);
+
+            $md5string = base64_encode($imageData);
+
+            return "data:image/png;base64,$md5string";
+        }
+
+        return null;
+    }
+
     public function getProfilePictureRawAttribute()
     {
         // Ensure profile_picture exists and is not empty

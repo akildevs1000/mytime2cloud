@@ -343,7 +343,7 @@
 <script>
 import headers from "../../headers/general.json";
 export default {
-  props: ["statuses", "branch_id", "from_date", "to_date"],
+  props: ["statuses", "branch_id", "from_date", "to_date", "showTabs"],
 
   data: () => ({
     headers: headers.filter((e) => e.value !== "actions"),
@@ -411,16 +411,13 @@ export default {
         report_type: "Monthly",
         filterType: "Monthly",
         statuses: this.statuses,
-        branch_id: this.branch_id,
+        branch_id: this.branch_id || this.$auth.user?.branch_id || null,
         from_date: this.from_date,
         to_date: this.to_date,
+        showTabs: this.showTabs,
       };
 
-      let endpoint = `attendance-report-old`;
-
-      if (process.env.STATE == "NEW") {
-        endpoint = `attendance-report-new`;
-      }
+      let endpoint = `attendance-report-new`;
 
       this.$axios.post(endpoint, payload).then(({ data }) => {
         if (data.data.length == 0) {
