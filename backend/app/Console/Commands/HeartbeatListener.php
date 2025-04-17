@@ -22,7 +22,19 @@ class HeartbeatListener extends Command
         //     "OX-8862021010010",
         // ];
 
-        $devices = Device::pluck('device_id')->toArray();
+        $ignoredDeviceList = [
+            "M014200892205000674",
+            "M014200892205000295",
+            "M014200892110000134",
+            "M014200892205000733",
+            "OX-9662210080085",
+            "OX-9662210080057",
+            "OX-9662210080061",
+            "OX-9662210080041",
+            "OX-8862021010010",
+        ];
+
+        $devices = Device::whereNotIn("device_id", $ignoredDeviceList)->pluck('device_id')->toArray();
 
         $lastSeen = [];
         $lastWarned = []; // Track when the last warning was issued for each device
@@ -106,7 +118,7 @@ class HeartbeatListener extends Command
                     }
 
                     foreach (array_keys($offlineCompanies) as $companyId) {
-                        
+
                         Artisan::call('alert:offline_device', [
                             'company_id' => $companyId,
                         ]);
