@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Company;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Http;
 use Symfony\Component\Process\Process;
 
 class GetStoppedAEProcesses extends Command
@@ -76,16 +77,42 @@ class GetStoppedAEProcesses extends Command
             if (count($companies) > 0) {
                 foreach ($companies as $company) {
 
-                    $whatsapp =  $company->contact->whatsapp;
+                    $code = $company->company_code;
+                    $pm2ProcessName = $code < 1000 ? 'AE000' . $code : 'AE' . $code;
+                    $this->info($pm2ProcessName);
 
-                    $whatsapp = env("ADMIN_WHATSAPP_NUMBER");
+                    // $whatsapp =  $company->contact->whatsapp;
 
-                    Artisan::call('send_whatsapp_expiry_notification', [
-                        'client_whatsapp_number' => $whatsapp,
-                    ]);
+                    // $whatsapp = env("ADMIN_WHATSAPP_NUMBER");
 
-                    $this->info("📣 Alert sent to $whatsapp");
+                    // $payload = [
+                    //     'clientId' => env("WHATSAPP_PROXY_CLIENT"),
+                    //     'recipient' => $whatsapp,
+                    //     'text' => $this->generateMessage(),
+                    // ];
 
+                    // $url = 'https://wa.mytime2cloud.com/send-message';
+
+                    // $response = Http::withoutVerifying()->post($url, $payload);
+
+                    // if ($response->successful()) {
+
+                    //     $this->info("📣 Alert sent to $whatsapp");
+
+                    //     $deleteProcess = new Process(['pm2', 'delete', $pm2ProcessName]);
+                    //     $deleteProcess->run();
+
+                    //     if ($deleteProcess->isSuccessful()) {
+                    //         $this->info("🗑️ PM2 process '$pm2ProcessName' deleted successfully.");
+                    //     } else {
+                    //         $this->error("⚠️ Failed to delete PM2 process '$pm2ProcessName': " . $deleteProcess->getErrorOutput());
+                    //     }
+
+                    // } else {
+                    //     echo ("\nMessage cannot $whatsapp.");
+                    // }
+
+                    sleep(3);
                 }
             } else {
                 $this->info('No stopped AE processes found.');
@@ -96,5 +123,15 @@ class GetStoppedAEProcesses extends Command
             $this->error('Exception: ' . $e->getMessage());
             return 1; // Error
         }
+    }
+
+    private function generateMessage()
+    {
+        return "🔔 Whatsapp Expiry Notification! !\n" .
+            "\n" .
+            "Dear Admin,\n\n" .
+            "Your WhatsApp account for Mytime2Cloud has expired.\n\n" .
+            "Please reconnect your WhatsApp as soon as possible to continue using the service..\n\n" .
+            "Thank you!\n";
     }
 }
