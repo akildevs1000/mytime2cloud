@@ -62,14 +62,19 @@ class GetStoppedAEProcesses extends Command
                 ->map(function ($proc) {
                     return explode('_', $proc['name'])[0]; // Extract AE00012 from AE00012_xxxxx
                 })
+                ->map(function ($proc) {
+                    return (int) explode('AE', $proc)[1]; // Extract AE00012 from AE00012_xxxxx
+                })
                 ->unique()
                 ->values()
                 ->all();
 
-            $companies = Company::with("contact:company_id,whatsapp")->whereIn("company_code", $stoppedAEProcesses)->get(["id", "company_code"]);
+            $companies = Company::with("contact:company_id,whatsapp")
+                ->whereIn("company_code", $stoppedAEProcesses)
+                ->get(["id", "company_code"]);
 
             // Output the result
-            if (count($stoppedAEProcesses) > 0) {
+            if (count($companies) > 0) {
                 $this->info('Stopped AE processes:');
                 foreach ($companies as $company) {
                     $this->line("whatsapp: " . $company->contact->whatsapp . " code: " . $company->company_code);
