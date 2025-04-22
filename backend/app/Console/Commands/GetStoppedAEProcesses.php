@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Company;
+use App\Models\WhatsappClient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
@@ -31,6 +32,17 @@ class GetStoppedAEProcesses extends Command
      */
     public function handle()
     {
+        $accounts = WhatsappClient::pluck("accounts")->toArray();
+
+        $clientIds = [];
+
+        foreach ($accounts as $key => $value) {
+
+            if (count($value) > 0) {
+                $clientIds[] = $value[0]['clientId'];
+            }
+        }
+
         $ignoredProcesses = ['pm2-client-connector', 'unused-whatsapp-client'];
 
         // Run the PM2 command to get the process list in JSON format
@@ -53,6 +65,9 @@ class GetStoppedAEProcesses extends Command
                 return 1;
             }
 
+
+
+
             // Filter the processes that are stopped and match AE condition
             $stoppedAEProcesses = collect($processes)
                 ->filter(function ($proc) use ($ignoredProcesses) {
@@ -61,10 +76,10 @@ class GetStoppedAEProcesses extends Command
                         !in_array($proc['name'], $ignoredProcesses);
                 })
                 ->map(function ($proc) {
-                    return explode('_', $proc['name'])[0]; // Extract AE00012 from AE00012_xxxxx
+                    return explode('_', $proc['name'])[0];
                 })
                 ->map(function ($proc) {
-                    return (int) explode('AE', $proc)[1]; // Extract AE00012 from AE00012_xxxxx
+                    return (int) explode('AE', $proc)[1];
                 })
                 ->unique()
                 ->values()
@@ -77,40 +92,47 @@ class GetStoppedAEProcesses extends Command
             if (count($companies) > 0) {
                 foreach ($companies as $company) {
 
-                    $code = $company->company_code;
-                    $pm2ProcessName = $code < 1000 ? 'AE000' . $code : 'AE' . $code;
-                    $this->info($pm2ProcessName);
+                    $code = $company->company_code; // AE00042
 
-                    // $whatsapp =  $company->contact->whatsapp;
+                    // Check if company code exists in the clientIds list
+                    $matchedClientId = collect($clientIds)->first(function ($clientId) use ($code) {
+                        return strpos($clientId, $code) !== false;
+                    });
 
-                    // $whatsapp = env("ADMIN_WHATSAPP_NUMBER");
+                    if ($matchedClientId) {
+                        // If there's a match
+                        $this->info("Found similar client ID: $matchedClientId");
+                        $deleteProcess = new Process(['pm2', 'delete', $matchedClientId]);
+                        $deleteProcess->run();
 
-                    // $payload = [
-                    //     'clientId' => env("WHATSAPP_PROXY_CLIENT"),
-                    //     'recipient' => $whatsapp,
-                    //     'text' => $this->generateMessage(),
-                    // ];
+                        if ($deleteProcess->isSuccessful()) {
+                            $this->info("🗑️ PM2 process '$matchedClientId' deleted successfully.");
 
-                    // $url = 'https://wa.mytime2cloud.com/send-message';
+                            $whatsapp =  $company->contact->whatsapp;
 
-                    // $response = Http::withoutVerifying()->post($url, $payload);
+                            $whatsapp = env("ADMIN_WHATSAPP_NUMBER");
 
-                    // if ($response->successful()) {
+                            $payload = [
+                                'clientId' => env("WHATSAPP_PROXY_CLIENT"),
+                                'recipient' => $whatsapp,
+                                'text' => $this->generateMessage(),
+                            ];
 
-                    //     $this->info("📣 Alert sent to $whatsapp");
+                            $url = 'https://wa.mytime2cloud.com/send-message';
 
-                    //     $deleteProcess = new Process(['pm2', 'delete', $pm2ProcessName]);
-                    //     $deleteProcess->run();
+                            $response = Http::withoutVerifying()->post($url, $payload);
 
-                    //     if ($deleteProcess->isSuccessful()) {
-                    //         $this->info("🗑️ PM2 process '$pm2ProcessName' deleted successfully.");
-                    //     } else {
-                    //         $this->error("⚠️ Failed to delete PM2 process '$pm2ProcessName': " . $deleteProcess->getErrorOutput());
-                    //     }
-
-                    // } else {
-                    //     echo ("\nMessage cannot $whatsapp.");
-                    // }
+                            if ($response->successful()) {
+                                $this->info("📣 Alert sent to $whatsapp");
+                            } else {
+                                echo ("\nMessage cannot $whatsapp.");
+                            }
+                        } else {
+                            $this->error("⚠️ Failed to delete PM2 process '$matchedClientId': " . $deleteProcess->getErrorOutput());
+                        }
+                    } else {
+                        $this->info("No matching client ID found for company code: $code");
+                    }
 
                     sleep(3);
                 }
