@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Company;
 use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -55,8 +56,8 @@ class GetStoppedAEProcesses extends Command
             $stoppedAEProcesses = collect($processes)
                 ->filter(function ($proc) use ($ignoredProcesses) {
                     return $proc['pm2_env']['status'] === 'stopped' &&
-                           str_starts_with($proc['name'], 'AE') &&
-                           !in_array($proc['name'], $ignoredProcesses);
+                        str_starts_with($proc['name'], 'AE') &&
+                        !in_array($proc['name'], $ignoredProcesses);
                 })
                 ->map(function ($proc) {
                     return explode('_', $proc['name'])[0]; // Extract AE00012 from AE00012_xxxxx
@@ -65,11 +66,13 @@ class GetStoppedAEProcesses extends Command
                 ->values()
                 ->all();
 
+            $companies = Company::with("contact:company_id,whatsapp")->whereIn("company_code", $stoppedAEProcesses)->get(["id", "company_code"]);
+
             // Output the result
             if (count($stoppedAEProcesses) > 0) {
                 $this->info('Stopped AE processes:');
-                foreach ($stoppedAEProcesses as $process) {
-                    $this->line($process);
+                foreach ($companies as $company) {
+                    $this->line("whatsapp: " . $company->contact->whatsapp . " code: " . $company->company_code);
                 }
             } else {
                 $this->info('No stopped AE processes found.');
