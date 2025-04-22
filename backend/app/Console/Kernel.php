@@ -28,7 +28,7 @@ class Kernel extends ConsoleKernel
             ->everyMinute();
 
         $schedule
-            ->command('task:sync_attendance_camera_logs')
+            ->command('task:sync_attendance_ox900_logs') //OX900
             ->everyMinute();
 
         $schedule
@@ -110,7 +110,7 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
-            //whatsapp reports 
+            //whatsapp reports
             // $array = ['All', "P", "A", "M", "ME"];
             $array = ['All'];
 
