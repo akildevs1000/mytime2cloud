@@ -4,8 +4,8 @@ namespace App\Console\Commands;
 
 use App\Models\Company;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class GetStoppedAEProcesses extends Command
 {
@@ -73,11 +73,19 @@ class GetStoppedAEProcesses extends Command
                 ->whereIn("company_code", $stoppedAEProcesses)
                 ->get(["id", "company_code"]);
 
-            // Output the result
             if (count($companies) > 0) {
-                $this->info('Stopped AE processes:');
                 foreach ($companies as $company) {
-                    $this->line("whatsapp: " . $company->contact->whatsapp . " code: " . $company->company_code);
+
+                    $whatsapp =  $company->contact->whatsapp;
+
+                    $whatsapp = env("ADMIN_WHATSAPP_NUMBER");
+
+                    Artisan::call('send_whatsapp_expiry_notification', [
+                        'client_whatsapp_number' => $whatsapp,
+                    ]);
+
+                    $this->info("📣 Alert sent to $whatsapp");
+
                 }
             } else {
                 $this->info('No stopped AE processes found.');

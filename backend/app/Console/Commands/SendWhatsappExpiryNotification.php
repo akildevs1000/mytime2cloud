@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Http;
 
 class SendWhatsappExpiryNotification extends Command
 {
-    //argument => env("ADMIN_WHATSAPP_NUMBER")
     protected $signature = 'send_whatsapp_expiry_notification {client_whatsapp_number}';
 
     protected $description = 'send_whatsapp_expiry_notification';
