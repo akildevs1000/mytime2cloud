@@ -43,8 +43,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('pm2:stopped-ae-processes')
-            ->everyThirtyMinutes();
-
+            ->everyFourHours();
 
         $companyIds = Company::pluck("id");
 
