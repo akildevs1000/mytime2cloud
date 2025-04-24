@@ -581,6 +581,7 @@ class AttendanceLog extends Model
             ];
 
             recordAction([
+                "user_id" => auth()->id() ?? 0,
                 "action" => "Report",
                 "type" => "LogCreate",
                 "model_type" => "user",
