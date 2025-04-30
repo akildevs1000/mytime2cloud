@@ -80,13 +80,13 @@
     <v-dialog
       ref="fromDialogRef"
       v-model="fromDialog"
-      :return-value.sync="payload.from_time"
+      :return-value.sync="payload.time"
       persistent
       width="290px"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-text-field
-          v-model="payload.from_time"
+          v-model="payload.time"
           label="From Time"
           append-icon="mdi-clock-time-four-outline"
           prepend-icon=""
@@ -100,53 +100,18 @@
         ></v-text-field>
       </template>
       <v-time-picker
+        no-title
         dense
         format="24hr"
         v-if="fromDialog"
-        v-model="payload.from_time"
+        v-model="payload.time"
         full-width
-        @click:minute="$refs.fromDialogRef.save(payload.from_time)"
+        @click:minute="$refs.fromDialogRef.save(payload.time)"
       />
     </v-dialog>
 
-    <span v-if="errors && errors.from_time" class="error--text">{{
-      errors.from_time[0]
-    }}</span>
-
-    <v-dialog
-      ref="toDialogRef"
-      v-model="toDialog"
-      :return-value.sync="payload.to_time"
-      persistent
-      width="290px"
-    >
-      <template v-slot:activator="{ on, attrs }">
-        <v-text-field
-          v-model="payload.to_time"
-          label="To Time"
-          append-icon="mdi-clock-time-four-outline"
-          prepend-icon=""
-          class="mt-5"
-          outlined
-          dense
-          readonly
-          v-bind="attrs"
-          v-on="on"
-          hide-details
-        ></v-text-field>
-      </template>
-      <v-time-picker
-        dense
-        format="24hr"
-        v-if="toDialog"
-        v-model="payload.to_time"
-        full-width
-        @click:minute="$refs.toDialogRef.save(payload.to_time)"
-      />
-    </v-dialog>
-
-    <span v-if="errors && errors.to_time" class="error--text">{{
-      errors.to_time[0]
+    <span v-if="errors && errors.time" class="error--text">{{
+      errors.time[0]
     }}</span>
 
     <v-divider></v-divider>
@@ -309,7 +274,7 @@ export default {
       day: 1,
       reports: [],
       mediums: [],
-      frequency: "Weekly",
+      frequency: "Daily",
       time: null,
       tos: [],
       ccs: [],
@@ -356,19 +321,10 @@ export default {
 
     if (this.editItemPayload) {
       this.payload.branch_id = this.editItemPayload.branch_id;
-
       this.payload.day = this.editItemPayload.day;
-      this.payload.frequency = this.editItemPayload.frequency;
-
-      this.payload.reports = this.editItemPayload.reports;
-
       this.payload.time = this.editItemPayload.time;
-
-      this.payload.from_time = this.editItemPayload.from_time;
-      this.payload.to_time = this.editItemPayload.to_time;
+      this.payload.reports = this.editItemPayload.reports;
       this.payload.days = this.editItemPayload.days;
-
-
       this.payload.date = this.editItemPayload.date;
       this.payload.company_id = this.editItemPayload.company_id;
       this.payload.branch_id = this.editItemPayload.branch_id;

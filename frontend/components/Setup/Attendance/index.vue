@@ -1,5 +1,5 @@
 <template>
-  <div v-if="can('automation_access')">
+  <div v-if="can('automation_attendance_access')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -25,7 +25,6 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }"
-            class="elevation-0"
             :server-items-length="totalRowsCount_history"
           >
             <template v-slot:item.sno="{ item, index }">
@@ -98,26 +97,28 @@
       >
         <v-card>
           <v-card-title dense class="popup_background">
-            {{ editItemPayload ? "Edit" : "New" }} Automation
+            {{ editItemPayload ? "Edit" : "New" }} Attendance
             <v-spacer></v-spacer>
             <v-icon @click="dialogNew = false" outlined dark>
               mdi mdi-close-circle
             </v-icon>
           </v-card-title>
           <v-card-text class="mt-4">
-            <AlertCreate
-              type="automation"
+            <SetupAttendanceCreate
+              type="attendance"
               @getDataFromApi="getDataFromApi"
               :editItemPayload="editItemPayload"
               :key="newDialogKey"
               @closePopup="closePopup"
-             />
+            />
           </v-card-text>
         </v-card>
       </v-navigation-drawer>
       <v-card class="mb-5 mt-2" elevation="0">
         <v-toolbar class="rounded-md" dense flat>
-          <v-toolbar-title><span> Automation List</span></v-toolbar-title>
+          <v-toolbar-title
+            ><span> Attendance Notification</span></v-toolbar-title
+          >
           <span>
             <v-btn
               dense
@@ -145,24 +146,10 @@
           </span>
 
           <v-spacer></v-spacer>
-
           <span>
             <v-btn
-              v-if="can(`automation_contnet_access`)"
-              x-small
-              :ripple="false"
-              title="EMail Content"
-              @click="gotoPage('/automation_mail_content')"
-              color="violet"
-              class="primary mr-5"
-            >
-              Email Content
-            </v-btn>
-          </span>
-          <span>
-            <v-btn
-              v-if="can('automation_create')"
-              x-small
+              v-if="can('automation_attendance_create')"
+              small
               :ripple="false"
               title="Add Notification"
               @click="openNewPage()"
@@ -192,7 +179,6 @@
           :footer-props="{
             itemsPerPageOptions: [10, 50, 100, 500, 1000],
           }"
-          class="elevation-1"
           :server-items-length="totalRowsCount"
         >
           <template v-slot:header="{ props: { headers } }">
@@ -296,11 +282,37 @@
               <br />
             </div>
           </template>
-          <template v-slot:item.frequency="{ item, index }">
-            {{ item.frequency }}
-            <div class="secondary-value">
-              {{ item.frequency == "Weekly" ? getDayName(item.day) : "" }}
-              {{ item.frequency == "Monthly" ? item.day : "" }}
+          <template v-slot:item.days="{ item, index }">
+            <div
+              style="
+                display: flex;
+                flex-wrap: nowrap;
+              "
+            >
+              <div
+                class="white--text text-center"
+                style="
+                  border-radius: 50%;
+                  height: 30px;
+                  width: 30px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-size: 12px;
+                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                  margin-right: 4px;
+                "
+                v-for="day in days"
+                :key="day.id"
+                fab
+                dark
+                :class="{
+                  primary: item?.days?.includes(day.id),
+                  grey: !item?.days?.includes(day.id),
+                }"
+              >
+                <span>{{ day.name.charAt(0) }}</span>
+              </div>
             </div>
           </template>
           <template v-slot:item.manager1="{ item }">
@@ -380,7 +392,7 @@
               </template>
               <v-list width="120" dense>
                 <v-list-item
-                  v-if="can('automation_view')"
+                  v-if="can('automation_attendance_view')"
                   @click="viewItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -389,7 +401,7 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  v-if="can('automation_edit')"
+                  v-if="can('automation_attendance_edit')"
                   @click="editItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -398,7 +410,7 @@
                   </v-list-item-title>
                 </v-list-item>
                 <v-list-item
-                  v-if="can('automation_delete')"
+                  v-if="can('automation_attendance_delete')"
                   @click="deleteItem(item)"
                 >
                   <v-list-item-title style="cursor: pointer">
@@ -418,9 +430,7 @@
 </template>
 
 <script>
-
 export default {
-
   data: () => ({
     dialogviewHisotry: false,
     totalRowsCount_history: 10,
@@ -438,7 +448,7 @@ export default {
     dialogNew: false,
     showFilters: false,
     filters: {
-      type: "automation",
+      type: "attendance",
     },
     isFilter: false,
     totalRowsCount: 0,
@@ -478,13 +488,13 @@ export default {
     data_history: [],
     options_history: {},
     days: [
-      { id: 1, name: "Monday" },
-      { id: 2, name: "Tuesday" },
-      { id: 3, name: "Wednesday" },
-      { id: 4, name: "Thursday" },
-      { id: 5, name: "Friday" },
-      { id: 6, name: "Saturday" },
-      { id: 0, name: "Sunday" },
+      { id: 1 + "", name: "M" },
+      { id: 2 + "", name: "T" },
+      { id: 3 + "", name: "W" },
+      { id: 4 + "", name: "Th" },
+      { id: 5 + "", name: "F" },
+      { id: 6 + "", name: "Sa" },
+      { id: 0 + "", name: "Su" },
     ],
     headers_table_history: [
       {
@@ -545,22 +555,22 @@ export default {
         filterSpecial: false,
       },
       {
-        text: "Type",
-        align: "left",
-        sortable: true,
-        key: "frequency",
-        value: "frequency",
-        filterable: true,
-        filterSpecial: true,
-      },
-      {
         text: "Time",
         align: "left",
         sortable: true,
         key: "time",
         value: "time",
         filterable: true,
-        filterSpecial: false,
+        filterSpecial: true,
+      },
+      {
+        text: "Days",
+        align: "left",
+        sortable: true,
+        key: "days",
+        value: "days",
+        filterable: true,
+        filterSpecial: true,
       },
       {
         text: "Manager1",
@@ -599,15 +609,6 @@ export default {
         filterSpecial: true,
       },
 
-      {
-        text: "Last Sent",
-        align: "left",
-        sortable: true,
-        key: "time",
-        value: "last_sent",
-        filterable: true,
-        filterSpecial: false,
-      },
       {
         text: "Options",
         align: "left",
