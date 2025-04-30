@@ -71,13 +71,16 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule
+                ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
+                ->hourly()
+                ->between('03:00', '10:00')
+                ->runInBackground();
+
+            $schedule
                 ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            $schedule
-                ->command("render:night_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-                ->everyTenMinutes();
 
             $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
                 ->everyThirtyMinutes()
@@ -210,19 +213,6 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command('task:render_missing')
             ->dailyAt('02:15');
-
-        if (env("APP_ENV") == "production") {
-            // $schedule
-            //     ->command('task:db_backup')
-            //     ->dailyAt('6:00')
-            //     ->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
-
-
-
-            $schedule
-                ->command('restart_sdk')
-                ->dailyAt('4:00');
-        }
     }
 
     /**
