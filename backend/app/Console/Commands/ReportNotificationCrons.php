@@ -61,7 +61,7 @@ class ReportNotificationCrons extends Command
 
 
                     Mail::to($value->email)
-                        ->send(new ReportNotificationMail($model, $value));
+                        ->queue(new ReportNotificationMail($model, $value));
 
 
                     $data = ["company_id" => $value->company_id, "branch_id" => $value->branch_id, "notification_id" => $value->notification_id, "notification_manager_id" => $value->id, "email" => $value->email];
