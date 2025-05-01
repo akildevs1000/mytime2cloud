@@ -128,11 +128,7 @@ class Kernel extends ConsoleKernel
                     ->dailyAt('03:45');
             }
 
-            $schedule
-                ->command("task:send_whatsapp_notification {$companyId}")
-                ->dailyAt('09:00')
-                ->runInBackground();
-
+            
             $schedule
                 ->command("task:sync_leaves $companyId")
                 ->dailyAt('01:00');
