@@ -369,7 +369,7 @@ if (!function_exists('defaultDeviceManual')) {
 if (!function_exists('recordAction')) {
     function recordAction($arr)
     {
-        $user_id = $arr["user_id"];
+        $user_id = $arr["user_id"] ?? 0;
 
         $company_id = request("company_id", 1) ?? $arr["company_id"];
 
