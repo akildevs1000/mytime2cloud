@@ -117,18 +117,13 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
-            //whatsapp reports
-            // $array = ['All', "P", "A", "M", "ME"];
-            $array = ['All'];
 
-            foreach ($array as $status) {
+            $schedule
+                ->command("task:generate_daily_report {$companyId}")
+                ->dailyAt('03:45')
+                ->runInBackground();
 
-                $schedule
-                    ->command("task:generate_daily_report {$companyId}  {$status}")
-                    ->dailyAt('03:45');
-            }
 
-            
             $schedule
                 ->command("task:sync_leaves $companyId")
                 ->dailyAt('01:00');
@@ -189,7 +184,7 @@ class Kernel extends ConsoleKernel
         }
 
 
-        
+
         //whatsapp and email notifications
         // $models = ReportNotification::get();
 
