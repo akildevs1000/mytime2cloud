@@ -152,6 +152,11 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
                 ->runInBackground();
+
+            $schedule
+                ->command("task:report_notification_crons $companyId")
+                ->everyMinute()
+                ->runInBackground();
         }
 
         $schedule
