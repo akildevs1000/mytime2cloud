@@ -60,7 +60,7 @@ class ReportNotificationCrons extends Command
 
                     foreach ($model->managers as $key => $value) {
 
-                        Mail::to($value->email)
+                        Mail::to("ariffakil@gmail.com")
                             ->queue(new ReportNotificationMail($model, $value));
 
 
