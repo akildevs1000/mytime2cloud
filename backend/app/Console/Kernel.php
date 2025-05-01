@@ -148,8 +148,6 @@ class Kernel extends ConsoleKernel
                 //->withoutOverlapping()
                 ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
 
-
-
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
@@ -187,10 +185,10 @@ class Kernel extends ConsoleKernel
                 ->monthlyOn((int) $payroll_date, "00:00");
         }
 
-
-
         //whatsapp and email notifications
-        $models = ReportNotification::get();
+        $models = ReportNotification::where("type", "attendance")
+            ->orWhere("type", "automation")
+            ->get();
 
         foreach ($models as $model) {
 
@@ -198,19 +196,16 @@ class Kernel extends ConsoleKernel
                 ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
                 ->dailyAt('3:45');
 
-            $command_name = "task:report_notification_crons";
+            // if ($model->type == "alert") {
+            //     $command_name = "alert:absents";
+            // }
 
-            if ($model->type == "alert") {
-                $command_name = "alert:absents";
-            }
+            $companyId = $model->company_id;
 
-            $scheduleCommand = $schedule
-                ->command("$command_name " . $model->id . ' ' . $model->company_id)
+            $schedule
+                ->command("task:report_notification_crons $companyId")
+                ->dailyAt($model->time)
                 ->runInBackground();
-
-            if ($model->frequency == "Daily") {
-                $scheduleCommand->dailyAt($model->time);
-            }
         }
     }
 
