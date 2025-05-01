@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Reports\DailyController;
+use App\Jobs\GenerateAttendanceSummaryReport;
 use App\Models\Attendance;
 use App\Models\Company;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -16,7 +17,7 @@ class GeneralDailyReport extends Command
      *
      * @var string
      */
-    protected $signature = 'task:generate_daily_report {id} {status?}';
+    protected $signature = 'task:generate_daily_report {id} {shift_type} {status?}';
 
     /**
      * The console command description.
@@ -27,8 +28,18 @@ class GeneralDailyReport extends Command
 
     public function handle()
     {
+
+        $shift_type = $this->argument("shift_type") ?? "General";
+        $status = $this->argument("status");
+        $company_id = $this->argument("id");
+
+        GenerateAttendanceSummaryReport::dispatch($shift_type, $status, $company_id);
+        echo "Report generation dispatched to queue.\n";
+        return 0;
+
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300);
+        $shift_type = $this->argument("shift_type") ?? "General";
         $status = $this->argument("status");
         $company_id = $this->argument("id");
 
@@ -106,7 +117,7 @@ class GeneralDailyReport extends Command
 
         // return $attendances;
 
-        $arr = ['shift_type' => "Multi", "title" => $title, 'company' => $company, "attendances" => $attendances];
+        $arr = ['shift_type' => $shift_type, "title" => $title, 'company' => $company, "attendances" => $attendances];
 
         $data = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
 

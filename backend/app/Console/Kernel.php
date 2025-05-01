@@ -117,9 +117,13 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
+            $schedule
+                ->command("task:generate_daily_report {$companyId} General")
+                ->dailyAt('03:45')
+                ->runInBackground();
 
             $schedule
-                ->command("task:generate_daily_report {$companyId}")
+                ->command("task:generate_daily_report {$companyId} Multi")
                 ->dailyAt('03:45')
                 ->runInBackground();
 
@@ -186,30 +190,28 @@ class Kernel extends ConsoleKernel
 
 
         //whatsapp and email notifications
-        // $models = ReportNotification::get();
+        $models = ReportNotification::get();
 
-        // foreach ($models as $model) {
+        foreach ($models as $model) {
 
-        //     $schedule
-        //         ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
-        //         ->dailyAt('3:45');
+            $schedule
+                ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
+                ->dailyAt('3:45');
 
-        //     $command_name = "task:report_notification_crons";
+            $command_name = "task:report_notification_crons";
 
-        //     if ($model->type == "alert") {
-        //         $command_name = "alert:absents";
-        //     }
+            if ($model->type == "alert") {
+                $command_name = "alert:absents";
+            }
 
-        //     $scheduleCommand = $schedule
-        //         ->command("$command_name " . $model->id . ' ' . $model->company_id)
-        //         ->runInBackground();
+            $scheduleCommand = $schedule
+                ->command("$command_name " . $model->id . ' ' . $model->company_id)
+                ->runInBackground();
 
-        //     if ($model->frequency == "Daily") {
-        //         $scheduleCommand->dailyAt($model->time);
-        //     }
-        // }
-
-
+            if ($model->frequency == "Daily") {
+                $scheduleCommand->dailyAt($model->time);
+            }
+        }
     }
 
     /**

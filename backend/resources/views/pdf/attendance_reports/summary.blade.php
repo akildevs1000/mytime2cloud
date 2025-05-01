@@ -70,6 +70,15 @@
             <td class="left" style="width: 30px">Employee</td>
             <td class="left">Department</td>
 
+            @if ($shift_type == 'General')
+                <td>
+                    In
+                </td>
+                <td>
+                    Out
+                </td>
+            @endif
+
 
             @if ($shift_type == 'Multi')
                 @for ($i = 0; $i < 5; $i++)
@@ -110,6 +119,16 @@
                     <small>{{ $attendance->employee_id }}</small>
                 </td>
                 <td class="left">{{ $attendance->employee->department->name }}</td>
+
+                @if ($shift_type == 'General')
+                    <td>
+                        {{ $attendance->in }}
+                    </td>
+                    <td>
+                        {{ $attendance->out }}
+                    </td>
+                @endif
+
                 @if ($shift_type == 'Multi')
                     @for ($i = 0; $i < 5; $i++)
                         <td>
