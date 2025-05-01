@@ -35,8 +35,8 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
         ini_set('memory_limit', '512M');
         // ini_set('max_execution_time', 300);
 
-        $from_date = date("Y-04-01");
-        $to_date = date("Y-04-01");
+        $from_date = date("Y-m-d");
+        $to_date = date("Y-m-d");
         $heading = "Summary";
 
         $model = Attendance::query();
