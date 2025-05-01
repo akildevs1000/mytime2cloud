@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Models\Attendance;
@@ -45,29 +46,29 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
 
         $model->whereHas('employee', function ($q) {
             $q->where('company_id', $this->company_id)
-              ->where('status', 1)
-              ->whereHas("schedule", function ($q) {
-                  $q->where('company_id', $this->company_id);
-              });
+                ->where('status', 1)
+                ->whereHas("schedule", function ($q) {
+                    $q->where('company_id', $this->company_id);
+                });
         });
 
         $model->with([
             'employee' => function ($q) {
                 $q->where('company_id', $this->company_id)
-                  ->where('status', 1)
-                  ->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date")
-                  ->with(['department', 'branch'])
-                  ->with([
-                      "schedule" => function ($q) {
-                          $q->where('company_id', $this->company_id)
-                            ->select("id", "shift_id", "employee_id")
-                            ->withOut("shift_type");
-                      },
-                      "schedule.shift" => function ($q) {
-                          $q->where('company_id', $this->company_id)
-                            ->select("id", "name", "on_duty_time", "off_duty_time");
-                      }
-                  ]);
+                    ->where('status', 1)
+                    ->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date")
+                    ->with(['department', 'branch'])
+                    ->with([
+                        "schedule" => function ($q) {
+                            $q->where('company_id', $this->company_id)
+                                ->select("id", "shift_id", "employee_id")
+                                ->withOut("shift_type");
+                        },
+                        "schedule.shift" => function ($q) {
+                            $q->where('company_id', $this->company_id)
+                                ->select("id", "name", "on_duty_time", "off_duty_time");
+                        }
+                    ]);
             },
             'device_in' => fn($q) => $q->where('company_id', $this->company_id),
             'device_out' => fn($q) => $q->where('company_id', $this->company_id),
@@ -99,7 +100,7 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
         ];
 
         $data = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
-        $file_path = "pdf/{$this->company_id}/$title.pdf";
+        $file_path = "pdf/{$this->company_id}/summary_report.pdf";
         Storage::disk('local')->put($file_path, $data);
     }
 }

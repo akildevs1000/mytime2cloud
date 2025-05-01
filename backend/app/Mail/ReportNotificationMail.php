@@ -35,10 +35,17 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
 
         $company_id = $this->model->company_id;
 
-        foreach ($this->model->reports as $file) {
-            if (file_exists(storage_path("app/pdf/$company_id/$file")))
-                $this->attach(storage_path("app/pdf/$company_id/$file"));
+        // foreach ($this->model->reports as $file) {
+        //     if (file_exists(storage_path("app/pdf/$company_id/$file"))) {
+        //         $this->attach(storage_path("app/pdf/$company_id/$file"));
+        //     }
+        // }
+
+        if (file_exists(storage_path("app/pdf/$company_id/summary_report.pdf"))) {
+            $this->attach(storage_path("app/pdf/$company_id/summary_report.pdf"));
         }
+
+
         $body_content =  "Hi, Automated Email Reports. <br/>Thanks.";
         //return $this->view('emails.report')->with(["body" => $this->model->body]);
         if ($this->model->company->company_mail_content) {
