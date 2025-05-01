@@ -153,10 +153,10 @@ class Kernel extends ConsoleKernel
                 ->everyFiveMinutes()
                 ->runInBackground();
 
-            $schedule
-                ->command("task:report_notification_crons $companyId")
-                ->everyMinute()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:report_notification_crons $companyId")
+            //     ->everyMinute()
+            //     ->runInBackground();
         }
 
         $schedule
