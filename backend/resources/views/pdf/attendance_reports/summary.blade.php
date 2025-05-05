@@ -155,10 +155,10 @@
                     $statusColor = '';
                 }
 
-                $pic = getcwd() . '/no-profile-image.jpg';
+                $pic = env('BASE_URL') . '/no-profile-image.jpg';
 
                 if ($attendance->employee->profile_picture) {
-                    $pic = getcwd() . '/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
+                    $pic = env('BASE_URL') . '/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
                 }
 
                 if (env('APP_ENV') !== 'production') {
