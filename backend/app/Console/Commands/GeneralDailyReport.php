@@ -31,7 +31,7 @@ class GeneralDailyReport extends Command
 
         $from_date = date("Y-m-d", strtotime("-1 day"));
         $to_date = date("Y-m-d", strtotime("-1 day"));
-        
+
         $heading = "Summary";
 
         $companyPayload = Company::whereId($company_id)
@@ -49,9 +49,12 @@ class GeneralDailyReport extends Command
             "to_date" => $to_date,
         ];
 
+        $this->info(json_encode($company, JSON_PRETTY_PRINT));
+
         $branchIds = CompanyBranch::where("company_id", $company_id)->pluck("id");
 
-        // GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
+        GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
+        return;
 
         foreach ($branchIds as $branchId) {
             GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, $branchId, $company);
