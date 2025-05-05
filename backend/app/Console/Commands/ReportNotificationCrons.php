@@ -64,7 +64,7 @@ class ReportNotificationCrons extends Command
                 $company_id = $model->company->id;
                 $branchId = $model->branch_id;
 
-                $link = asset("storage/pdf/$yesterday/{$company_id}/summary_report_{$branchId}.pdf");
+                $link = env("BASE_URL") . "/storage/pdf/$yesterday/{$company_id}/summary_report_{$branchId}.pdf";
 
                 $whatsappMessage = "Your Summary attendance report is ready. You can download it from the link below:\n$link";
 
