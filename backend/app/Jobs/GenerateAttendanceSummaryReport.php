@@ -86,7 +86,7 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
             ];
 
             $data = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
-            $date = date("Y-m-d");
+            $date = date("Y-m-d", strtotime("-1 day"));
             $file_path = "pdf/$date/{$this->company_id}/{$this->branchId}/summary_report_$counter.pdf";
             Storage::disk('local')->put($file_path, $data);
 
