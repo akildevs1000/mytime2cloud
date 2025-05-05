@@ -88,7 +88,7 @@
                     @endif
 
                 </div>
-                <div style="margin-top: 15px;">
+                <div style="margin-top: 150px;">
                     <b style="font-size: 11px">
                         Summary Report
                     </b>
