@@ -29,8 +29,9 @@ class GeneralDailyReport extends Command
         $shift_type = $this->argument("shift_type") ?? "General";
         $company_id = $this->argument("id");
 
-        $from_date =  date("Y-m-d");
-        $to_date = date("Y-m-d");
+        $from_date = date("Y-m-d", strtotime("-1 day"));
+        $to_date = date("Y-m-d", strtotime("-1 day"));
+        
         $heading = "Summary";
 
         $companyPayload = Company::whereId($company_id)
