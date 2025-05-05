@@ -346,7 +346,8 @@ class AttendanceLogMissingController  extends Controller
             $daysDifference = $currentDate->diffInDays($recordDate);
             if ($daysDifference <= 30) {
 
-                $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
+                // $logtime = substr(str_replace(" ", " ", $record['recordDate']), 0, -3);
+                $logtime = $record['recordDate'];
                 $data = [
                     "UserID" => $record['userCode'],
                     "DeviceID" => $deviceId,
