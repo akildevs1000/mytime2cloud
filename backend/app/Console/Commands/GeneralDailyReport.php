@@ -39,7 +39,7 @@ class GeneralDailyReport extends Command
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id", "user_id"]);
 
         $company = [
-            "logo" => $companyPayload->logo,
+            "logo_raw" => env("BASE_URL") .   '/' . $companyPayload->logo_raw,
             "name" => $companyPayload->name,
             "email" => $companyPayload->user->email ?? 'mail not found',
             "location" => $companyPayload->location,
@@ -51,11 +51,10 @@ class GeneralDailyReport extends Command
 
         $this->info(json_encode($company, JSON_PRETTY_PRINT));
 
-        $branchIds = CompanyBranch::where("company_id", $company_id)->pluck("id");
-
         GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
         return;
 
+        $branchIds = CompanyBranch::where("company_id", $company_id)->pluck("id");
         foreach ($branchIds as $branchId) {
             GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, $branchId, $company);
         }
