@@ -32,8 +32,9 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
     public function build()
     {
         $this->subject($this->model->subject);
-
         $company_id = $this->model->company_id;
+        $branchId = $this->model->branch_id;
+        $date = date("Y-m-d", strtotime("-1 day"));
 
         // foreach ($this->model->reports as $file) {
         //     if (file_exists(storage_path("app/pdf/$company_id/$file"))) {
@@ -41,10 +42,12 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
         //     }
         // }
 
-        if (file_exists(storage_path("app/pdf/$company_id/summary_report.pdf"))) {
-            $this->attach(storage_path("app/pdf/$company_id/summary_report.pdf"));
-        }
+        $relativePath = "storage/pdf/$date/{$company_id}/summary_report_{$branchId}.pdf";
+        $fullPath = public_path($relativePath);
 
+        if (file_exists($fullPath)) {
+            $this->attach($fullPath);
+        }
 
         $body_content =  "Hi, Automated Email Reports. <br/>Thanks.";
         //return $this->view('emails.report')->with(["body" => $this->model->body]);

@@ -192,7 +192,7 @@ class Kernel extends ConsoleKernel
 
         //whatsapp and email notifications
         $models = ReportNotification::where("type", "attendance")
-            ->orWhere("type", "automation")
+            // ->orWhere("type", "automation")
             ->get();
 
         foreach ($models as $model) {

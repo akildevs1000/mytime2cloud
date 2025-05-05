@@ -76,6 +76,8 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
 
         $counter = 1;
 
+        $yesterday = date("Y-m-d", strtotime("-1 day"));
+
         foreach ($chunks as $chunk) {
 
             $arr = [
@@ -86,15 +88,14 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
             ];
 
             $data = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
-            $date = date("Y-m-d", strtotime("-1 day"));
-            $file_path = "pdf/$date/{$this->company_id}/{$this->branchId}/summary_report_$counter.pdf";
+            $file_path = "pdf/$yesterday/{$this->company_id}/{$this->branchId}/summary_report_$counter.pdf";
             Storage::disk('local')->put($file_path, $data);
 
             $counter++;
         }
 
         // After generating chunked PDFs for each branch:
-        $filesDirectory = storage_path("app/pdf/$date/{$this->company_id}/{$this->branchId}");
+        $filesDirectory = storage_path("app/pdf/$yesterday/{$this->company_id}/{$this->branchId}");
 
         if (!is_dir($filesDirectory)) {
             echo 'Directory not found';
@@ -121,11 +122,14 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
             }
         }
 
-        // Define merged output path
-        $mergedFilePath = storage_path("app/pdf/$date/{$this->company_id}/summary_report_{$this->branchId}.pdf");
+        $relativePath = "public/pdf/$yesterday/{$this->company_id}/summary_report_{$this->branchId}.pdf";
+        
+        Storage::put($relativePath, $pdf->Output('', 'S')); // 'S' returns the file as a string
 
-        // Output the merged file
-        $pdf->Output($mergedFilePath, 'F');
+        // // Define merged output path
+        // $mergedFilePath = storage_path("app/pdf/$date/{$this->company_id}/summary_report_{$this->branchId}.pdf");
+        // // Output the merged file
+        // $pdf->Output($mergedFilePath, 'F');
 
 
         File::deleteDirectory($filesDirectory);
