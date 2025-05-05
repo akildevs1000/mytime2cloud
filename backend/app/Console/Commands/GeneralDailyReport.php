@@ -51,8 +51,8 @@ class GeneralDailyReport extends Command
 
         $this->info(json_encode($company, JSON_PRETTY_PRINT));
 
-        GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
-        return;
+        // GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
+        // return;
 
         $branchIds = CompanyBranch::where("company_id", $company_id)->pluck("id");
         foreach ($branchIds as $branchId) {
