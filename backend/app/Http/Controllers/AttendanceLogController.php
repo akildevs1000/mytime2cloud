@@ -86,11 +86,11 @@ class AttendanceLogController extends Controller
             $records[] = [
                 "UserID" => $columns[0],
                 "DeviceID" => $columns[1],
-                "LogTime" => substr(str_replace("T", " ", $columns[2]), 0, -3),
+                "LogTime" => str_replace("T", " ", $columns[2]),
                 "SerialNumber" => $columns[3],
-                "log_date_time" => substr(str_replace("T", " ", $columns[2]), 0, -3),
+                "log_date_time" => str_replace("T", " ", $columns[2]),
                 "index_serial_number" => $columns[3],
-
+                "source_info" => "renderMissing",
                 "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
             ];
         }
