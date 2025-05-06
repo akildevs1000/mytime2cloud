@@ -112,6 +112,9 @@ class MultiShiftController extends Controller
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
             $data = $logs[$row->system_user_id] ?? [];
+
+            $data = collect($data)->unique('LogTime')->values();
+
             if (!count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
@@ -199,8 +202,14 @@ class MultiShiftController extends Controller
                             ["Manual", "manual", "MANUAL"]
                         )
                         : "---",
-                    "device_in" => $this->getDeviceName($currentLog),
-                    "device_out" => $this->getDeviceName($nextLog ?? []),
+                    "device_in" => $validIn
+                        ? $this->getDeviceName($currentLog ?? [])
+                        : "---",
+
+                    "device_out" => $validOut
+                        ? $this->getDeviceName($nextLog ?? [])
+                        : "---",
+
                     "total_minutes" => $this->minutesToHours($minutes),
                 ];
 
@@ -221,10 +230,20 @@ class MultiShiftController extends Controller
                 }
             }
 
+            $lastLog = end($logsJson);
+
+            // If either 'in' or 'out' is '---', mark as MISSING
+            $item["status"] = ($lastLog['in'] === '---' || $lastLog['out'] === '---')
+                ? Attendance::MISSING
+                : Attendance::PRESENT;
+
+
             $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
 
             $items[] = $item;
         }
+
+        // return json_encode($items, JSON_PRETTY_PRINT);
 
         try {
 
@@ -317,6 +336,10 @@ class MultiShiftController extends Controller
 
     private function getDeviceName($log)
     {
+        if ($log['device']['name'] == "---") {
+            return "Manual";
+        }
+
         return $log['device']['short_name'] ?? $log['device']['name'] ?? "---";
     }
 }

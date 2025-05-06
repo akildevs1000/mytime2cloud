@@ -142,7 +142,7 @@ class GenerateAttendanceReport implements ShouldQueue
 
         $model->where('employee_id', $this->employeeId);
 
-        $model->whereBetween('date', [date("Y-m-01"), date("Y-m-31")]);
+        $model->whereBetween('date', [$this->requestPayload["from_date"], $this->requestPayload["to_date"]]);
 
         $model->orderBy('date', 'asc');
 
