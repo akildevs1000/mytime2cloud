@@ -35,7 +35,7 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_alarm_logs')
             ->everyMinute();
 
-        (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
+        // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
         $schedule
             ->command('task:update_company_ids')
