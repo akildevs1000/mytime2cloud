@@ -16,7 +16,7 @@ class pdfGenerate extends Command
      *
      * @var string
      */
-    protected $signature = 'pdf:generate {company_id} {from_date?} {to_date?}';
+    protected $signature = 'pdf:generate {company_id} {system_user_id?} {from_date?} {to_date?}';
 
     /**
      * The console command description.
@@ -35,6 +35,7 @@ class pdfGenerate extends Command
         $companyId = $this->argument("company_id");
         $fromDate = $this->argument("from_date") ?? date("Y-m-01");
         $toDate = $this->argument("to_date") ?? date("Y-m-t");
+        $system_user_id = $this->argument("system_user_id");
 
         $requestPayload = [
             'company_id' => $companyId,
@@ -45,7 +46,7 @@ class pdfGenerate extends Command
         ];
 
         $employees = Employee::whereCompanyId($requestPayload["company_id"])
-            // ->where("system_user_id", "6008")
+            ->when($system_user_id, fn($q) => $q->where("system_user_id", $system_user_id))
             ->get();
 
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
