@@ -37,124 +37,132 @@ const reasons = {
 };
 
 const { SOCKET_ENDPOINT } = process.env;
+// const  SOCKET_ENDPOINT = "wss://sdk.mytime2cloud.com/WebSocket";
 
-// Create a WebSocket connection
-const socket = new WebSocket(SOCKET_ENDPOINT);
+let socket;
+let reconnectInterval = 5000; // 5 seconds
 
-// Handle WebSocket connection events
-socket.onopen = () => {
-  console.log(
-    `Connected to ${SOCKET_ENDPOINT} at ${getFormattedDate().date}${getFormattedDate().time
-    }`
-  );
-};
+function connectWebSocket() {
+  // Create a WebSocket connection
+  socket = new WebSocket(SOCKET_ENDPOINT);
 
-socket.onerror = (error) => {
-  console.error(
-    `WebSocket error ${error.message} at ${getFormattedDate().date} ${getFormattedDate().time
-    }`
-  );
-};
-// Handle WebSocket close event
-socket.onclose = (event) => {
-  console.error(
-    `WebSocket connection closed with code ${event.code} at ${getFormattedDate().date
-    } ${getFormattedDate().time}`
-  );
-};
+  // Handle WebSocket connection events
+  socket.onopen = () => {
+    console.log(
+      `Connected to ${SOCKET_ENDPOINT} at ${getFormattedDate().date}${getFormattedDate().time
+      }`
+    );
+  };
 
-socket.onmessage = ({ data }) => {
-  const logFilePath = `../backend/storage/app/logs-${getFormattedDate().date
-    }.csv`;
-  const logFilePathAlarm = `../backend/storage/app/alarm/alarm-logs-${getFormattedDate().date
-    }.csv`;
+  socket.onerror = (error) => {
+    console.error(
+      `WebSocket error ${error.message} at ${getFormattedDate().date} ${getFormattedDate().time
+      }`
+    );
+  };
 
-  try {
-    const jsonData = JSON.parse(data).Data;
+  socket.onclose = (event) => {
+    console.warn(`WebSocket closed (code ${event.code}) at ${getFormattedDate().date} ${getFormattedDate().time}`);
+    setTimeout(connectWebSocket, reconnectInterval);
+  };
 
-    const { UserCode, SN, RecordDate, RecordNumber, RecordCode } = jsonData;
+  socket.onmessage = ({ data }) => {
+    const logFilePath = `../backend/storage/app/logs-${getFormattedDate().date
+      }.csv`;
+    const logFilePathAlarm = `../backend/storage/app/alarm/alarm-logs-${getFormattedDate().date
+      }.csv`;
 
-    if (UserCode > 0) {
-      let status = RecordCode > 15 ? "Access Denied" : "Allowed";
+    try {
+      const jsonData = JSON.parse(data).Data;
 
-      let mode = verification_methods[RecordCode] ?? "---";
+      const { UserCode, SN, RecordDate, RecordNumber, RecordCode } = jsonData;
 
-      let reason = reasons[RecordCode] ?? "---";
+      if (UserCode > 0) {
+        let status = RecordCode > 15 ? "Access Denied" : "Allowed";
 
-      const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
+        let mode = verification_methods[RecordCode] ?? "---";
 
-      const uniqueKey = `${UserCode}_${SN}_${RecordDate.slice(0, -3).replace(" ", "")}`;
+        let reason = reasons[RecordCode] ?? "---";
 
-      if (!existingEntries.includes(uniqueKey)) {
-        fs.appendFileSync(logFilePath, logEntry + "\n");
-        existingEntries.push(uniqueKey)
-        console.log(`New Key:`, uniqueKey);
+        const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
+
+        const uniqueKey = `${UserCode}_${SN}_${RecordDate.slice(0, -3).replace(" ", "")}`;
+
+        if (!existingEntries.includes(uniqueKey)) {
+          fs.appendFileSync(logFilePath, logEntry + "\n");
+          existingEntries.push(uniqueKey)
+          console.log(`New Key:`, uniqueKey);
+        } else {
+          console.log(`Duplicate Key:`, uniqueKey);
+          console.log(existingEntries);
+        }
       } else {
-        console.log(`Duplicate Key:`, uniqueKey);
-        console.log(existingEntries);
+        // console.log(data);
       }
-    } else {
-      // console.log(data);
-    }
-    //Alarm Code
+      //Alarm Code
 
-    if (RecordCode == 19) {
-      const alarm_logEntry = `${SN},${RecordDate}`;
-      fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
-      console.log("Alarm", alarm_logEntry);
+      if (RecordCode == 19) {
+        const alarm_logEntry = `${SN},${RecordDate}`;
+        fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
+        console.log("Alarm", alarm_logEntry);
 
-      const params = { 11111: "1111" };
+        const params = { 11111: "1111" };
 
-      const url = "https://backend.mytime2cloud.com/api/loadalarm_csv";
-      try {
-        const response = axios.get(url, {
-          params,
-          timeout: 1000 * 30, // 30 seconds timeout
-        });
-        // console.log("Response from backend:", response);
-      } catch (error) {
-        // console.error("Error getting from backend:", error.message);
-      } finally {
+        const url = "https://backend.mytime2cloud.com/api/loadalarm_csv";
+        try {
+          const response = axios.get(url, {
+            params,
+            timeout: 1000 * 30, // 30 seconds timeout
+          });
+          // console.log("Response from backend:", response);
+        } catch (error) {
+          // console.error("Error getting from backend:", error.message);
+        } finally {
+        }
       }
+    } catch (error) {
+      console.error("Error processing message:", error.message);
     }
-  } catch (error) {
-    console.error("Error processing message:", error.message);
+  };
+
+  // Separate function to format date
+  function getFormattedDate() {
+    const options = {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false, // Use 24-hour format
+      // timeZone: "Asia/Dubai",
+    };
+    const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
+      .format(new Date())
+      .split(",");
+    const [m, d, y] = newDate.split("/");
+
+    return {
+      date: `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`,
+      time: newTime,
+    };
   }
-};
 
-// Separate function to format date
-function getFormattedDate() {
-  const options = {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false, // Use 24-hour format
-    // timeZone: "Asia/Dubai",
-  };
-  const [newDate, newTime] = new Intl.DateTimeFormat("en-US", options)
-    .format(new Date())
-    .split(",");
-  const [m, d, y] = newDate.split("/");
+  process.on("SIGTERM", () => {
+    console.log(
+      `Prcess killed at ${getFormattedDate().date} ${getFormattedDate().time}`
+    );
+    process.exit(0); // Exit the process gracefully
+  });
 
-  return {
-    date: `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`,
-    time: newTime,
-  };
+  process.on("SIGINT", () => {
+    console.log(
+      `Prcess killed at ${getFormattedDate().date} ${getFormattedDate().time}`
+    );
+    process.exit(0); // Exit the process gracefully
+  });
 }
 
-process.on("SIGTERM", () => {
-  console.log(
-    `Prcess killed at ${getFormattedDate().date} ${getFormattedDate().time}`
-  );
-  process.exit(0); // Exit the process gracefully
-});
+connectWebSocket();
 
-process.on("SIGINT", () => {
-  console.log(
-    `Prcess killed at ${getFormattedDate().date} ${getFormattedDate().time}`
-  );
-  process.exit(0); // Exit the process gracefully
-});
+
