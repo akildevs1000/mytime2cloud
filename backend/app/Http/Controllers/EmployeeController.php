@@ -162,28 +162,28 @@ class EmployeeController extends Controller
 
         $employee = Employee::where("id", $id)->first();
 
-        if ($request->employee_role_id) {
+        // if ($request->employee_role_id) {
 
-            $user = User::where('id', $employee->user_id)->first();
+        //     $user = User::where('id', $employee->user_id)->first();
 
-            if ($user) {
-                $user->update(['employee_role_id' => $request->employee_role_id, 'role_id' => $request->employee_role_id]);
-            } else {
-                $user = User::create(
-                    [
-                        "user_type" => "employee",
-                        'name' => 'null',
-                        'email' => "---",
-                        'password' => "---",
-                        'company_id' => $employee->company_id,
-                        'employee_role_id' => $request->employee_role_id,
-                        'role_id' => $request->employee_role_id,
-                    ]
-                );
+        //     if ($user) {
+        //         $user->update(['employee_role_id' => $request->employee_role_id, 'role_id' => $request->employee_role_id]);
+        //     } else {
+        //         $user = User::create(
+        //             [
+        //                 "user_type" => "employee",
+        //                 'name' => 'null',
+        //                 'email' => "---",
+        //                 'password' => "---",
+        //                 'company_id' => $employee->company_id,
+        //                 'employee_role_id' => $request->employee_role_id,
+        //                 'role_id' => $request->employee_role_id,
+        //             ]
+        //         );
 
-                $data["user_id"] = $user->id;
-            }
-        }
+        //         $data["user_id"] = $user->id;
+        //     }
+        // }
 
         if ($request->profile_picture && $request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');

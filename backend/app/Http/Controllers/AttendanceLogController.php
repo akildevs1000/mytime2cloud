@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
@@ -359,11 +360,14 @@ class AttendanceLogController extends Controller
 
     public function singleView(AttendanceLog $model, Request $request)
     {
-        return $model->where('UserID', $request->UserID)
-            ->where('company_id', $request->company_id)
-            ->whereDate('LogTime', $request->LogTime)
-            ->with("device")
-            // ->select("LogTime")
+        $query = $model->where('UserID', $request->UserID)
+            ->where('company_id', $request->company_id);
+
+        if ($request->filled('LogTime') && strtotime($request->LogTime)) {
+            $query->whereDate('LogTime', Carbon::parse($request->LogTime)->toDateString());
+        }
+
+        return $query->with("device")
             ->distinct("LogTime")
             ->orderBy('LogTime')
             ->paginate($request->per_page ?? 100);
