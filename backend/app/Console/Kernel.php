@@ -18,6 +18,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('birthday:wish')->dailyAt('00:00');
 
+        $schedule->command('delete_old_records')->monthlyOn(1, '00:00');
+
         $schedule
             ->command('sync_datetime_to_device')
             ->dailyAt('02:45')
