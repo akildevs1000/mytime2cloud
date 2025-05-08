@@ -46,7 +46,7 @@ class pdfGenerate extends Command
         ];
 
         $employees = Employee::whereCompanyId($requestPayload["company_id"])
-            ->when($system_user_id, fn($q) => $q->where("system_user_id", $system_user_id))
+            // ->when($system_user_id, fn($q) => $q->where("system_user_id", $system_user_id))
             ->get();
 
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);

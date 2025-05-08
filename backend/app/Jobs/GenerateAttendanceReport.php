@@ -2,18 +2,13 @@
 
 namespace App\Jobs;
 
-use App\Http\Controllers\Controller;
 use App\Models\Attendance;
-use App\Models\Employee;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Storage;
 
 class GenerateAttendanceReport implements ShouldQueue
 {
@@ -56,21 +51,26 @@ class GenerateAttendanceReport implements ShouldQueue
         ];
 
         $company_id = $this->requestPayload["company_id"];
-        $status_slug = $this->requestPayload["status_slug"];
         $employeeId = $this->employeeId;
         $template = $this->template;
 
-        $filesPath = public_path("reports/companies/$company_id/$template/$status_slug");
+        $month = date("M", strtotime($this->requestPayload["from_date"]));
 
-        if (!file_exists($filesPath)) {
-            mkdir($filesPath, 0777, true);
+        $reportsDirectory = public_path("reports/$company_id/$template");
+
+        if (!file_exists($reportsDirectory)) {
+            mkdir($reportsDirectory, 0777, true);
         }
 
         $output = Pdf::loadView("pdf.attendance_reports.$template-new", $arr)->output();
 
-        $file_name = "$employeeId.pdf";
+        $fileName = "{$month}_{$employeeId}.pdf";
 
-        file_put_contents($filesPath . '/' . $file_name, $output);
+        $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . $fileName;
+        
+        echo "\nfile created at $filePath\n";
+
+        file_put_contents($filePath, $output);
     }
 
 
