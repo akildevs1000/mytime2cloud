@@ -52,7 +52,7 @@ class pdfGenerate extends Command
 
         foreach ($employees as $employee) {
             GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template1");
-            // GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2");
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2");
         }
 
         $this->info("Report generating in background for {$this->argument('company_id', 0)}");
