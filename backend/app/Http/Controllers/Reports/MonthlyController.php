@@ -1047,7 +1047,7 @@ class MonthlyController extends Controller
 
         $template = request("report_template", 0);
 
-        $filesDirectory = public_path("reports/companies/$company_id/$template/Summary");
+        $filesDirectory = public_path("reports/$company_id/$template");
 
         // Check if the directory exists
         if (!is_dir($filesDirectory)) {
@@ -1056,11 +1056,15 @@ class MonthlyController extends Controller
 
         $pdfFiles = glob($filesDirectory . '/*.pdf');
 
+        $month = date("M", strtotime(request("from_date", date("Y-m-d"))));
+
         if (count($employeeIds)) {
             $pdfFiles = [];
             foreach ($employeeIds as $value) {
-                if (glob($filesDirectory . "/$value.pdf")) {
-                    $pdfFiles[] = glob($filesDirectory . "/$value.pdf")[0];
+                $fileName = "{$month}_$value.pdf";
+                $filePath = $filesDirectory . DIRECTORY_SEPARATOR . $fileName;
+                if (glob($filePath)) {
+                    $pdfFiles[] = glob($filePath)[0];
                 }
             }
         }
