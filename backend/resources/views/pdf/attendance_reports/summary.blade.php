@@ -144,7 +144,7 @@
                     $statusName = 'P';
                 } elseif ($attendance->status == 'A' || $attendance->status == 'M') {
                     $statusColor = 'red';
-                    $statusName = 'A';
+                    $statusName = $attendance->status == 'A' ? "A" : "?";
                 } elseif ($attendance->status == 'O') {
                     $statusColor = 'gray';
                 } elseif ($attendance->status == 'L') {
@@ -200,26 +200,26 @@
 
                 @if ($shift_type == 'General')
                     <td>
-                        {{ $attendance->in }}
+                        {{ $attendance->in ?? '---' }}
                     </td>
                     <td>
-                        {{ $attendance->out }}
+                        {{ $attendance->out ?? '---' }}
                     </td>
                     <td>
-                        {{ $attendance->late_coming }}
+                        {{ $attendance->late_coming ?? '---' }}
                     </td>
                     <td>
-                        {{ $attendance->early_going }}
+                        {{ $attendance->early_going ?? '---' }}
                     </td>
                 @endif
 
                 @if ($shift_type == 'Multi')
                     @for ($i = 0; $i < 5; $i++)
                         <td>
-                            {{ $attendance->logs[$i]['in'] ?? '-' }}
+                            {{ $attendance->logs[$i]['in'] ?? '---' }}
                         </td>
                         <td>
-                            {{ $attendance->logs[$i]['out'] ?? '-' }}
+                            {{ $attendance->logs[$i]['out'] ?? '---' }}
                         </td>
                     @endfor
                 @endif
