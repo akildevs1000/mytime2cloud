@@ -364,8 +364,8 @@ class AttendanceLogController extends Controller
             ->where('company_id', $request->company_id);
 
         if ($request->filled('LogTime') && strtotime($request->LogTime)) {
-            $query->where('LogTime', ">=", Carbon::parse($request->LogTime)->toDateString());
-            $query->where('LogTime', "<=", Carbon::parse($request->LogTime)->toDateString());
+            $query->where('LogTime', ">=", Carbon::parse($request->LogTime)->toDateString() . " 00:00:00");
+            $query->where('LogTime', "<=", Carbon::parse($request->LogTime)->toDateString() . " 23:59:59");
         }
 
         return $query->with("device")
