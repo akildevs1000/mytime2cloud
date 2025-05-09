@@ -19,6 +19,7 @@ class GenerateAttendanceReport implements ShouldQueue
         public $employee,
         public $requestPayload,
         public $template,
+        public $shift_type_id,
     ) {}
 
     public function handle()
@@ -47,10 +48,10 @@ class GenerateAttendanceReport implements ShouldQueue
             'company' => $this->company,
             'info' => $info,
             "employee" => $this->employee,
-            "shift_type_id" => $this->employee->schedule->shift_type_id ?? 0
+            "shift_type_id" => $this->shift_type_id ?? 0
         ];
 
-        echo "\n" . json_encode($arr) . "\n";
+        echo "\n" . json_encode($this->employee) . "\n";
 
         $company_id = $this->requestPayload["company_id"];
         $employeeId = $this->employeeId;
