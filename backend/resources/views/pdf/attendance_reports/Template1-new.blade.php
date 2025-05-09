@@ -229,9 +229,9 @@
                 <td colspan="3" style="text-align: center; padding:5px;"> Early Out </td>
             @endif
 
-            <td style="text-align:  center; "> Total Hours </td>
-            <td style="text-align:  center;width:40px"> OT </td>
-            <td style="text-align:  center;width:40px"> Status </td>
+            <td style="text-align:center; "> Total Hours </td>
+            <td style="text-align:center"> OT </td>
+            <td style="text-align:center"> Status </td>
         </tr>
 
         @foreach ($data as $index => $date)
