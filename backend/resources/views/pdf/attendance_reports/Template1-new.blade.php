@@ -214,24 +214,27 @@
         </tr>
         <tr style="text-align: left;font-weight:bold;margin-top:20px;width:100%">
             <td style="text-align:  left;width:10px"> # </td>
-            <td colspan="2" style="text-align:  center; "> Date </td>
-            <td colspan="2" style="text-align:  center; "> Shift </td>
 
             @if ($shift_type_id == 2)
+                <td colspan="2" style="text-align:  center; "> Date </td>
+                <td colspan="2" style="text-align:  center; "> Shift </td>
                 @for ($i = 0; $i < 7; $i++)
                     <td style="text-align:  center; "> In{{ $i + 1 }} </td>
                     <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
             @else
-                <td colspan="2" style="text-align: center; padding:5px;"> In Time </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Out Time </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Late In </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
-            @endif
+                <td colspan="4" style="text-align:  center; "> Date </td>
+                <td colspan="4" style="text-align:  center; "> Shift </td>
+                @for ($i = 0; $i < 7; $i++)
+                    <td colspan="4" style="text-align: center; padding:5px;"> In Time </td>
+                    <td colspan="4" style="text-align: center; padding:5px;"> Out Time </td>
+                    <td colspan="4" style="text-align: center; padding:5px;"> Late In </td>
+                    <td colspan="4" style="text-align: center; padding:5px;"> Early Out </td>
+                @endif
 
-            <td style="text-align:  center; "> Total Hours </td>
-            <td style="text-align:  center;width:40px"> OT </td>
-            <td style="text-align:  center;width:40px"> Status </td>
+                <td style="text-align:  center; "> Total Hours </td>
+                <td style="text-align:  center;width:40px"> OT </td>
+                <td style="text-align:  center;width:40px"> Status </td>
         </tr>
 
         @foreach ($data as $index => $date)
