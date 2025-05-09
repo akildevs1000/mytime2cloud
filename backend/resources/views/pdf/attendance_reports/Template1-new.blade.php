@@ -223,10 +223,10 @@
                     <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
             @else
-                <td style="text-align: center; padding:5px;"> In Time </td>
-                <td style="text-align: center; padding:5px;"> Out Time </td>
-                <td style="text-align: center; padding:5px;"> Late In </td>
-                <td style="text-align: center; padding:5px;"> Early Out </td>
+                <td colspan="2" style="text-align: center; padding:5px;"> In Time </td>
+                <td colspan="2" style="text-align: center; padding:5px;"> Out Time </td>
+                <td colspan="2" style="text-align: center; padding:5px;"> Late In </td>
+                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
             @endif
 
             <td style="text-align:  center; "> Total Hours </td>
