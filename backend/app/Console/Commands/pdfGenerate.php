@@ -50,7 +50,7 @@ class pdfGenerate extends Command
             $q->withOut(["shift", "shift_type", "branch"]);
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
-            ->where("system_user_id", "1001")
+            // ->where("system_user_id", "1001")
             ->where("company_id", $companyId)
             ->get();
 
