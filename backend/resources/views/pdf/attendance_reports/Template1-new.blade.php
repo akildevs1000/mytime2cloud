@@ -286,9 +286,6 @@
                                     {{ $date->logs[$i]['device_out'] ?? '---' }}
                                 </div>
                             </td>
-                            <td>
-                                {{ $attendance->logs[$i]['out'] ?? '-' }}
-                            </td>
                         @endfor
                     @else
                         <td style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
