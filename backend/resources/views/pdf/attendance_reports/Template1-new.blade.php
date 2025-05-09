@@ -217,25 +217,23 @@
             <td colspan="2" style="text-align:  center; "> Date </td>
             <td colspan="2" style="text-align:  center; "> Shift </td>
 
-            <td style="text-align:  center; "> In1 </td>
-            <td style="text-align:  center;width:40px"> Out1 </td>
-
-            <td style="text-align:  center;width:40px"> In2 </td>
-            <td style="text-align:  center;width:40px"> Out2 </td>
-
-            <td style="text-align:  center;width:40px"> In3 </td>
-            <td style="text-align:  center;width:40px"> Out3 </td>
-
-            <td style="text-align:  center;width:40px"> In4 </td>
-            <td style="text-align:  center;width:40px"> Out4 </td>
-
-            <td style="text-align:  center;width:40px"> In5 </td>
-            <td style="text-align:  center;width:40px"> Out5 </td>
-
-            <td style="text-align:  center;width:40px"> In6 </td>
-            <td style="text-align:  center;width:40px"> Out6 </td>
-            <td style="text-align:  center;width:40px"> In7 </td>
-            <td style="text-align:  center;width:40px"> Out7 </td>
+            @if ($shift_type_id == 2)
+                @for ($i = 0; $i < 5; $i++)
+                    <td style="text-align: center; padding:5px;">
+                        In
+                    </td>
+                    <td style="text-align: center; padding:5px;">
+                        Out{{ $i + 1 }}
+                    </td>
+                    <td style="text-align:  center; "> In{{ $i + 1 }} </td>
+                    <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
+                @endfor
+            @else
+                <td style="text-align: center; padding:5px;"> In Time </td>
+                <td style="text-align: center; padding:5px;"> Out Time </td>
+                <td style="text-align: center; padding:5px;"> Late In </td>
+                <td style="text-align: center; padding:5px;"> Early Out </td>
+            @endif
 
             <td style="text-align:  center; "> Total Hours </td>
             <td style="text-align:  center;width:40px"> OT </td>
@@ -282,77 +280,29 @@
                             @endif
                         </div>
                     </td>
-                    <td style="text-align:  center;"> {{ $date->logs[0]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[0]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[0]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[0]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[1]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[1]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[1]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[1]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[2]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[2]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[2]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[2]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[3]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[3]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[3]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[3]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[4]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[4]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[4]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[4]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
+                    @if ($shift_type_id == 2)
+                        @for ($i = 0; $i < 5; $i++)
+                            <td style="text-align:  center;"> {{ $date->logs[$i]['in'] ?? '---' }}
+                                <div class="secondary-value" style="font-size:6px">
+                                    {{ $date->logs[$i]['device_in'] ?? '---' }}
+                                </div>
+                            </td>
+                            <td style="text-align:  center;"> {{ $date->logs[$i]['out'] ?? '---' }}
+                                <div class="secondary-value" style="font-size:6px">
+                                    {{ $date->logs[$i]['device_out'] ?? '---' }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ $attendance->logs[$i]['out'] ?? '-' }}
+                            </td>
+                        @endfor
+                    @else
+                        <td style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
+                        <td style="text-align:  center;"> {{ $date->out ?? '---' }}</td>
+                        <td style="text-align:  center;"> {{ $date->late_coming ?? '---' }}</td>
+                        <td style="text-align:  center;"> {{ $date->early_going ?? '---' }}</td>
+                    @endif
 
-                    <td style="text-align:  center;"> {{ $date->logs[5]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[5]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[5]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[5]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[6]['in'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[6]['device_in'] ?? '---' }}
-                        </div>
-                    </td>
-                    <td style="text-align:  center;"> {{ $date->logs[6]['out'] ?? '---' }}
-                        <div class="secondary-value" style="font-size:6px">
-                            {{ $date->logs[6]['device_out'] ?? '---' }}
-                        </div>
-                    </td>
                     <td style="text-align:  center;"> {{ $date->total_hrs ?? '---' }} </td>
                     <td style="text-align:  center;"> {{ $date->ot ?? '---' }} </td>
                     <td style="text-align:  center; color:{{ $statusColor }}">
