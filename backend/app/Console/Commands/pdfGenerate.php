@@ -52,7 +52,7 @@ class pdfGenerate extends Command
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("system_user_id", "1001")
             ->where("company_id", $companyId)
-            ->get(["first_name", "last_name", "employee_id", "system_user_id", "department_id", "branch_id", "company_id"]);
+            ->get();
 
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
@@ -64,12 +64,13 @@ class pdfGenerate extends Command
                 "employee_id" => $employee->employee_id,
                 "system_user_id" => $employee->system_user_id,
                 "department" => $employee->department->name ?? "",
+                "shift_type_id" => $employee->schedule->shift_type_id
             ];
 
             echo json_encode($employeePayload, JSON_PRETTY_PRINT);
 
-            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template1", $employee->schedule->shift_type_id);
-            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template2",$employee->schedule->shift_type_id);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template1", $employee->schedule->shift_type_id);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2",$employee->schedule->shift_type_id);
         }
 
         $this->info("Report generating in background for {$this->argument('company_id', 0)}");

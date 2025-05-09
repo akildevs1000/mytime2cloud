@@ -119,12 +119,12 @@
             </td>
 
             <td style="border: nosne;text-align:right" colspan="8">
-                @if ($employee['full_name'])
+                @if ($employee->full_name)
                     <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
                         <tr class="summary-header" style="border: none;background-color:#eeeeee">
                             <td style="border :none; padding:10px">
                                 <b>Full Name:</b>
-                                {{ $employee['full_name'] ?? "---" }}
+                                {{ $employee->full_name }}
                             </td>
 
                         </tr>
@@ -141,13 +141,13 @@
                     </tr>
                     <tr style="border: none">
                         <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                            {{ $employee['employee_id'] ?? '---' }}
+                            {{ $employee->employee_id ?? '---' }}
                         </td>
                         <td style="text-align: center; border:none;font-size:11px">
-                            {{ $employee['first_name'] ?? "---" }}
+                            {{ $empName ?? '---' }}
                         </td>
                         <td style="text-align: center; border:none;font-size:11px">
-                            {{ $employee['department'] ?? '---' }}
+                            {{ $employee->department->name ?? '---' }}
                         </td>
                         <td style="text-align: center; border:none;font-size:11px">
                             Multi In/Out
