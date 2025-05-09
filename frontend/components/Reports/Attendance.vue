@@ -674,6 +674,11 @@ export default {
         return;
       }
 
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
+
       let type = val.toLowerCase();
 
       let process_file_endpoint = "";
