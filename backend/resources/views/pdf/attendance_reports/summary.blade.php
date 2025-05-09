@@ -205,6 +205,12 @@
                     <td>
                         {{ $attendance->out }}
                     </td>
+                    <td>
+                        {{ $attendance->late_coming }}
+                    </td>
+                    <td>
+                        {{ $attendance->early_going }}
+                    </td>
                 @endif
 
                 @if ($shift_type == 'Multi')
