@@ -171,8 +171,13 @@
           dense
           v-model="report_template"
           x-small
-          :items="['Template1', 'Template2']"
-          item-text="['Daily']"
+          :items="[
+            { id: 'Template1', name: 'Monthly 1' },
+            { id: 'Template2', name: 'Monthly 2' },
+            { id: 'Template3', name: 'Daily' },
+          ]"
+          item-text="name"
+          item-value="id"
           :hide-details="true"
         ></v-autocomplete>
         <div class="mx-1">
