@@ -223,13 +223,10 @@
                     <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
             @else
-                <td colspan="2" style="text-align: center; padding:5px;"> In Time </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Out Time </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Late In </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
-                <td colspan="2" style="text-align: center; padding:5px;"> Early Out </td>
+                <td colspan="4" style="text-align: center; padding:5px;"> In Time </td>
+                <td colspan="4" style="text-align: center; padding:5px;"> Out Time </td>
+                <td colspan="3" style="text-align: center; padding:5px;"> Late In </td>
+                <td colspan="3" style="text-align: center; padding:5px;"> Early Out </td>
             @endif
 
             <td style="text-align:  center; "> Total Hours </td>
@@ -291,10 +288,10 @@
                             </td>
                         @endfor
                     @else
-                        <td colspan="2" style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
-                        <td colspan="2" style="text-align:  center;"> {{ $date->out ?? '---' }}</td>
-                        <td colspan="2" style="text-align:  center;"> {{ $date->late_coming ?? '---' }}</td>
-                        <td colspan="2" style="text-align:  center;"> {{ $date->early_going ?? '---' }}</td>
+                        <td colspan="4" style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
+                        <td colspan="4" style="text-align:  center;"> {{ $date->out ?? '---' }}</td>
+                        <td colspan="3" style="text-align:  center;"> {{ $date->late_coming ?? '---' }}</td>
+                        <td colspan="3" style="text-align:  center;"> {{ $date->early_going ?? '---' }}</td>
                     @endif
 
                     <td style="text-align:  center;"> {{ $date->total_hrs ?? '---' }} </td>
