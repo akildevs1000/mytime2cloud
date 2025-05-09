@@ -218,7 +218,7 @@
             <td colspan="2" style="text-align:  center; "> Shift </td>
 
             @if ($shift_type_id == 2)
-                @for ($i = 0; $i < 5; $i++)
+                @for ($i = 0; $i < 7; $i++)
                     <td style="text-align:  center; "> In{{ $i + 1 }} </td>
                     <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
@@ -275,7 +275,7 @@
                         </div>
                     </td>
                     @if ($shift_type_id == 2)
-                        @for ($i = 0; $i < 5; $i++)
+                        @for ($i = 0; $i < 7; $i++)
                             <td style="text-align:  center;"> {{ $date->logs[$i]['in'] ?? '---' }}
                                 <div class="secondary-value" style="font-size:6px">
                                     {{ $date->logs[$i]['device_in'] ?? '---' }}
