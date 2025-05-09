@@ -288,10 +288,10 @@
                             </td>
                         @endfor
                     @else
-                        <td style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
-                        <td style="text-align:  center;"> {{ $date->out ?? '---' }}</td>
-                        <td style="text-align:  center;"> {{ $date->late_coming ?? '---' }}</td>
-                        <td style="text-align:  center;"> {{ $date->early_going ?? '---' }}</td>
+                        <td colspan="2" style="text-align:  center;"> {{ $date->in ?? '---' }}</td>
+                        <td colspan="2" style="text-align:  center;"> {{ $date->out ?? '---' }}</td>
+                        <td colspan="2" style="text-align:  center;"> {{ $date->late_coming ?? '---' }}</td>
+                        <td colspan="2" style="text-align:  center;"> {{ $date->early_going ?? '---' }}</td>
                     @endif
 
                     <td style="text-align:  center;"> {{ $date->total_hrs ?? '---' }} </td>
