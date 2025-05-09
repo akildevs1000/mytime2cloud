@@ -44,17 +44,32 @@ class pdfGenerate extends Command
             'to_date' => $toDate,
         ];
 
-        $employees = Employee::with(["schedule" => fn($q) => $q->where("company_id", $companyId)])
-            // ->where("system_user_id", "6008")
+        $employees = Employee::with(["schedule" => function ($q) use ($companyId) {
+            $q->where("company_id", $companyId);
+            $q->select("id", "shift_id", "shift_type_id", "company_id", "employee_id");
+            $q->withOut(["shift", "shift_type", "branch"]);
+        }])
+            ->withOut(["branch", "designation", "sub_department", "user"])
+            ->where("system_user_id", "1001")
             ->where("company_id", $companyId)
-            ->get();
+            ->get(["first_name", "last_name", "employee_id", "system_user_id", "department_id", "branch_id", "company_id"]);
 
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
         foreach ($employees as $employee) {
-            // echo "Name " . $employee->full_name . "-" . $employee->system_user_id . ", Company Id " . $employee->schedule->company_id . ", Shift Type " . $employee->schedule->shift_type_id . "\n";
-            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template1");
-            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2");
+
+            $employeePayload = [
+                "first_name" => $employee->first_name,
+                "full_name" => $employee->full_name,
+                "employee_id" => $employee->employee_id,
+                "system_user_id" => $employee->system_user_id,
+                "department" => $employee->department->name ?? "",
+            ];
+
+            echo json_encode($employeePayload, JSON_PRETTY_PRINT);
+
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template1", $employee->schedule->shift_type_id);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template2",$employee->schedule->shift_type_id);
         }
 
         $this->info("Report generating in background for {$this->argument('company_id', 0)}");
