@@ -219,12 +219,6 @@
 
             @if ($shift_type_id == 2)
                 @for ($i = 0; $i < 5; $i++)
-                    <td style="text-align: center; padding:5px;">
-                        In
-                    </td>
-                    <td style="text-align: center; padding:5px;">
-                        Out{{ $i + 1 }}
-                    </td>
                     <td style="text-align:  center; "> In{{ $i + 1 }} </td>
                     <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
