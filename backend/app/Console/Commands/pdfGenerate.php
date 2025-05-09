@@ -44,13 +44,15 @@ class pdfGenerate extends Command
             'to_date' => $toDate,
         ];
 
-        $employees = Employee::whereCompanyId($requestPayload["company_id"])
+        $employees = Employee::with(["schedule" => fn($q) => $q->where("company_id", $companyId)])
             // ->where("system_user_id", "6008")
+            ->where("company_id", $companyId)
             ->get();
 
         $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
         foreach ($employees as $employee) {
+            // echo "Name " . $employee->full_name . "-" . $employee->system_user_id . ", Company Id " . $employee->schedule->company_id . ", Shift Type " . $employee->schedule->shift_type_id . "\n";
             GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template1");
             GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employee, $requestPayload, "Template2");
         }
