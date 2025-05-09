@@ -1,27 +1,29 @@
 <?php
 
-namespace App\Console\Commands\AccessControl;
+namespace App\Console\Commands;
 
-use App\Jobs\GenerateAccessControlReport;
-use App\Models\AttendanceLog;
+use App\Http\Controllers\Controller;
+use App\Jobs\GenerateAttendanceReport;
 use App\Models\Company;
+use App\Models\Employee;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
-class PDFReport extends Command
+class pdfGenerate extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'pdf:access-control-report-generate {company_id} {date}';
+    protected $signature = 'pdf:generate {company_id} {from_date?} {to_date?}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'pdf:generate';
 
     /**
      * Execute the console command.
@@ -30,43 +32,46 @@ class PDFReport extends Command
      */
     public function handle()
     {
-        $company_id = $this->argument("company_id", 0);
+        $companyId = $this->argument("company_id");
+        $fromDate = $this->argument("from_date") ?? date("Y-m-01");
+        $toDate = $this->argument("to_date") ?? date("Y-m-t");
 
-        $date = $this->argument("date", date("Y-m-d"));
+        $requestPayload = [
+            'company_id' => $companyId,
+            'status' => "-1",
+            'status_slug' => (new Controller)->getStatusSlug("-1"),
+            'from_date' => $fromDate,
+            'to_date' => $toDate,
+        ];
 
-        $model = AttendanceLog::query();
+        $employees = Employee::with(["schedule" => function ($q) use ($companyId) {
+            $q->where("company_id", $companyId);
+            $q->select("id", "shift_id", "shift_type_id", "company_id", "employee_id");
+            $q->withOut(["shift", "shift_type", "branch"]);
+        }])
+            ->withOut(["branch", "designation", "sub_department", "user"])
+            ->where("system_user_id", "1001")
+            ->where("company_id", $companyId)
+            ->get(["first_name", "last_name", "employee_id", "system_user_id", "department_id", "branch_id", "company_id"]);
 
-        $model->where("company_id", $company_id);
+        $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $model->where('LogTime', '>=', "$date 00:00:00");
+        foreach ($employees as $employee) {
 
-        $model->where('LogTime', '<=', "$date 23:59:59");
+            $employeePayload = [
+                "first_name" => $employee->first_name,
+                "full_name" => $employee->full_name,
+                "employee_id" => $employee->employee_id,
+                "system_user_id" => $employee->system_user_id,
+                "department" => $employee->department->name ?? "",
+            ];
 
-        $model->whereHas('device', function ($q) use ($company_id) {
-            $q->whereIn('device_type', ["all", "Access Control"]);
-            $q->where('company_id', $company_id);
-        });
+            echo json_encode($employeePayload, JSON_PRETTY_PRINT);
 
-        $model->with([
-            'device'    => fn($q) => $q->where('company_id', $company_id),
-            'employee'  => fn($q) => $q->where('company_id', $company_id),
-            'visitor'   => fn($q) => $q->where('company_id', $company_id),
-        ]);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template1", $employee->schedule->shift_type_id);
+            GenerateAttendanceReport::dispatch($employee->system_user_id, $company, $employeePayload, $requestPayload, "Template2",$employee->schedule->shift_type_id);
+        }
 
-
-        $data = $model->get()->toArray();
-
-        $company = Company::whereId($company_id)->first();
-
-        $chunks = array_chunk($data, 10);
-
-        $params = ["report_type" => "Date Wise Report"];
-
-        foreach ($chunks as $index => $chunk) {
-
-            $batchKey = $index + 1;
-
-            GenerateAccessControlReport::dispatch($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks));
-        };
+        $this->info("Report generating in background for {$this->argument('company_id', 0)}");
     }
 }

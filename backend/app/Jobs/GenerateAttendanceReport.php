@@ -51,8 +51,6 @@ class GenerateAttendanceReport implements ShouldQueue
             "shift_type_id" => $this->shift_type_id ?? 0
         ];
 
-        echo "\n" . json_encode($this->employee, JSON_PRETTY_PRINT) . "\n";
-
         $company_id = $this->requestPayload["company_id"];
         $employeeId = $this->employeeId;
         $template = $this->template;
