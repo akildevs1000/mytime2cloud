@@ -198,8 +198,8 @@ class ScheduleEmployeeController extends Controller
                         "employee_id" => $item,
                         "from_date" => $shift["from_date"],
                         "to_date" => $shift["to_date"],
-                        "company_id" => $data["company_id"],
-                        "branch_id" => $data["branch_id"] ?? 0,
+                        "company_id" => $request->company_id,
+                        "branch_id" => $request->branch_id ?? 0,
                     ];
                     $arr[] = $value;
                 }
