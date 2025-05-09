@@ -51,7 +51,7 @@ class GenerateAttendanceReport implements ShouldQueue
             "shift_type_id" => $this->shift_type_id ?? 0
         ];
 
-        echo "\n" . json_encode($this->employee) . "\n";
+        echo "\n" . json_encode($this->employee, JSON_PRETTY_PRINT) . "\n";
 
         $company_id = $this->requestPayload["company_id"];
         $employeeId = $this->employeeId;
@@ -70,7 +70,7 @@ class GenerateAttendanceReport implements ShouldQueue
         $fileName = "{$month}_{$employeeId}.pdf";
 
         $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . $fileName;
-        
+
         echo "\nfile created at $filePath\n";
 
         file_put_contents($filePath, $output);
