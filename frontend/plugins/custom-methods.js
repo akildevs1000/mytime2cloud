@@ -207,6 +207,18 @@ export default ({ app }, inject) => {
   });
 
   inject("utils", {
+    getRemainingDays() {
+      // Get today's date at midnight
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      // Get the last day of the current month at midnight
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      endOfMonth.setHours(0, 0, 0, 0);
+
+      // Calculate remaining days (excluding today)
+      return Math.floor((endOfMonth - today) / (1000 * 60 * 60 * 24));
+    },
     getRating(count, from_date, to_date) {
       // Convert the date strings to Date objects
       const fromDate = new Date(from_date);

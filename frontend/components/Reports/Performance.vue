@@ -257,6 +257,9 @@
               </div>
             </div>
           </template>
+          <template v-slot:item.a_count="{ item }">
+            {{ item.a_count - $utils.getRemainingDays() }}
+          </template>
           <template v-slot:item.rating="{ item }">
             <div
               style="
@@ -335,10 +338,8 @@
 </template>
 <script>
 import performanceHeader from "../../headers/performance.json";
-import missingrecords from "../../components/attendance_report/missingrecords.vue";
 
 export default {
-  components: { missingrecords },
 
   props: ["title", "render_endpoint", "process_file_endpoint"],
 
@@ -453,7 +454,7 @@ export default {
       return [item?.a_count, item?.m_count].reduce(
         (sum, val) => sum + (val || 0),
         0
-      );
+      ) - this.$utils.getRemainingDays();
     },
     getOtherCount(item) {
       return [item?.l_count, item?.v_count, item?.h_count].reduce(

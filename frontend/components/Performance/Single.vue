@@ -118,16 +118,16 @@
                     <v-card-text>
                       <div style="display: flex">
                         <div style="min-width: 340px" class="body-2 text-left">
-                          <b>Last Month</b>
+                          <b>Current Month</b>
                         </div>
                         <div class="body-2 text-left">
                           <b>Last 6 Month</b>
                         </div>
                       </div>
                       <div
-                        style="display: flex; align-items: center; height: 23vh"
+                        class="mt-1"
+                        style="display: flex; align-items: center; height: 30vh"
                       >
-                        <!-- Left Table (Smaller) -->
                         <div style="flex: 0.7; min-width: 10%">
                           <table style="width: 100%; table-layout: fixed">
                             <tr>
@@ -244,75 +244,107 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
+
                 <v-col cols="12" style="margin-top: 10px">
-                  <v-card outlined>
-                    <v-card-text>
-                      <v-row>
-                        <!-- Rating and Joining Date -->
-                        <v-col class="text-center">
-                          <div>Total Hrs</div>
-                          <div>
-                            <strong style="font-size: 16px">{{
-                              hoursReportData?.total_performed?.hours || "---"
-                            }}</strong>
-                            <small style="color: black">Hrs</small> /
-                            <strong style="font-size: 16px">{{
-                              hoursReportData?.total_performed?.days || 0
-                            }}</strong>
-
-                            <small style="color: black">Days</small>
-                          </div>
-                        </v-col>
-                        <v-col class="text-center">
-                          <div>Late In</div>
-                          <div>
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.late_coming?.hours || "---" }}
-                            </strong>
-
-                            <small style="color: black">Hrs</small> /
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.late_coming?.days || 0 }}
-                            </strong>
-
-                            <small style="color: black">Days</small>
-                          </div>
-                        </v-col>
-                        <v-col class="text-center">
-                          <div>Early Out</div>
-                          <div>
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.early_going?.hours || "---" }}
-                            </strong>
-
-                            <small style="color: black">Hrs</small> /
-
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.early_going?.days || 0 }}
-                            </strong>
-                            <small style="color: black">Days</small>
-                          </div>
-                        </v-col>
-                        <v-col class="text-center">
-                          <div>OverTime</div>
-                          <div>
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.overtime?.hours || "---" }}
-                            </strong>
-
-                            <small style="color: black">Hrs</small> /
-
-                            <strong style="font-size: 16px">
-                              {{ hoursReportData?.overtime?.days || 0 }}
-                            </strong>
-                            <small style="color: black">Days</small>
-                          </div>
-                        </v-col>
-                      </v-row>
+                  <v-card
+                    outlined
+                    style="
+                      max-height: 270px;
+                      min-height: 270px;
+                    "
+                  >
+                    <v-card-text class="py-5">
+                      <div class="body-2"><b>(Last 6 Months)</b></div>
+                      <table dense flat style="width: 100%" class="mt-5">
+                        <tbody>
+                          <tr>
+                            <td
+                              class="text-center"
+                              style="border-bottom: 1px solid #eaeaeaea"
+                            >
+                              Month
+                            </td>
+                            <td
+                              class="text-center"
+                              style="border-bottom: 1px solid #eaeaeaea"
+                            >
+                              Total Hrs
+                            </td>
+                            <td
+                              class="text-center"
+                              style="border-bottom: 1px solid #eaeaeaea"
+                            >
+                              Late In
+                            </td>
+                            <td
+                              class="text-center"
+                              style="border-bottom: 1px solid #eaeaeaea"
+                            >
+                              Early Out
+                            </td>
+                            <td
+                              class="text-center"
+                              style="border-bottom: 1px solid #eaeaeaea"
+                            >
+                              OverTime
+                            </td>
+                          </tr>
+                          <tr
+                            v-for="(item, monthLabel) in hoursReportData"
+                            :key="monthLabel"
+                          >
+                            <td
+                              class="text-center"
+                              style="
+                                font-size: 11px;
+                                border-bottom: 1px solid #eaeaeaea;
+                              "
+                            >
+                              {{ monthLabel }}
+                            </td>
+                            <td
+                              class="text-center"
+                              style="
+                                font-size: 11px;
+                                border-bottom: 1px solid #eaeaeaea;
+                              "
+                            >
+                              {{ item?.total_performed?.hours || "---" }}
+                            </td>
+                            <td
+                              class="text-center"
+                              style="
+                                font-size: 11px;
+                                border-bottom: 1px solid #eaeaeaea;
+                              "
+                            >
+                              {{ item?.late_coming?.hours || "---" }}
+                            </td>
+                            <td
+                              class="text-center"
+                              style="
+                                font-size: 11px;
+                                border-bottom: 1px solid #eaeaeaea;
+                              "
+                            >
+                              {{ item?.early_going?.hours || "---" }}
+                            </td>
+                            <td
+                              class="text-center"
+                              style="
+                                font-size: 11px;
+                                border-bottom: 1px solid #eaeaeaea;
+                              "
+                            >
+                              {{ item?.overtime?.hours || "---" }}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="6" style="margin-top: 10px">
+                <!-- <v-col cols="6" style="margin-top: 10px">
                   <v-card
                     outlined
                     style="
@@ -420,8 +452,8 @@
                       </table>
                     </v-card-text>
                   </v-card>
-                </v-col>
-                <v-col
+                </v-col> -->
+                <!-- <v-col
                   style="margin-top: 10px; max-height: 235px; min-height: 235px"
                 >
                   <v-card outlined style="max-height: 235px; min-height: 235px">
@@ -430,7 +462,6 @@
                         <b>Payroll Details (Last Month)</b>
                       </div>
                       <div style="display: flex; align-items: center">
-                        <!-- Left Table (Smaller) -->
                         <div style="flex: 0.7; min-width: 10%">
                           <table style="width: 100%; table-layout: fixed">
                             <tr>
@@ -510,12 +541,117 @@
                       </div>
                     </v-card-text>
                   </v-card>
-                </v-col>
+                </v-col> -->
               </v-row>
             </v-col>
             <v-col cols="4" style="margin-top: 10px">
               <v-row no-gutters>
                 <v-col cols="12">
+                  <v-card outlined>
+                    <v-card-text>
+                      <v-date-picker
+                        hide-details
+                        v-if="selectedDatesForCurrentMonth"
+                        full-width
+                        no-title
+                        dense
+                        :events="Object.keys(eventsForCurrentMonth)"
+                        :event-color="getEventColorsForCurrentMonth"
+                        v-model="selectedDatesForCurrentMonth"
+                        :max="maxDateForCurrentMonth"
+                      >
+                        <template v-slot:default>
+                          <table style="width: 100%; table-layout: fixed">
+                            <tr>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
+                                  class="green"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStatsForCurrentMonth["P"] || 0
+                                  }}</strong>
+                                </div>
+                                <div>Present</div>
+                              </td>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
+                                  class="red"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStatsForCurrentMonth["A"] || 0
+                                  }}</strong>
+                                </div>
+                                <div>Absent</div>
+                              </td>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
+                                  class="primary"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStatsForCurrentMonth["O"] || 0
+                                  }}</strong>
+                                </div>
+                                <div>WeekOff</div>
+                              </td>
+                              <td style="width: 20px; min-width: 10px">
+                                <div
+                                  class="orange"
+                                  style="
+                                    width: 10px;
+                                    height: 10px;
+                                    border-radius: 50%;
+                                    display: inline-block;
+                                  "
+                                ></div>
+                              </td>
+                              <td style="white-space: nowrap">
+                                <div class="pt-3">
+                                  <strong style="font-size: 16px">{{
+                                    eventStatsForCurrentMonth["OTHERS_COUNT"] ||
+                                    0
+                                  }}</strong>
+                                </div>
+                                <div>Other</div>
+                              </td>
+                            </tr>
+                          </table>
+                        </template>
+                      </v-date-picker>
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+                <v-col
+                  v-if="!leaveCardDisplay"
+                  cols="12"
+                  style="margin-top: 10px"
+                >
                   <v-card outlined>
                     <v-card-text>
                       <v-date-picker
@@ -615,7 +751,11 @@
                     </v-card-text>
                   </v-card>
                 </v-col>
-                <v-col cols="12" style="margin-top: 10px">
+                <v-col
+                  v-if="leaveCardDisplay"
+                  cols="12"
+                  style="margin-top: 10px"
+                >
                   <v-card outlined style="min-height: 370px">
                     <v-card-text>
                       <div class="body-2">
@@ -692,11 +832,17 @@ export default {
       maxDate: null,
       events: null,
       eventStats: null,
+
+      selectedDatesForCurrentMonth: null, // Default to today
+      maxDateForCurrentMonth: null,
+      eventsForCurrentMonth: null,
+      eventStatsForCurrentMonth: null,
+
       dialog: false,
       isMounted: false,
       pieSeries: [86, 5, 6],
       pieOptions: {
-        labels: ["Present", "Absent", "WeekOff","Others"],
+        labels: ["Present", "Absent", "WeekOff", "Others"],
         colors: ["#00e676", "#dd2c00", "#6946dd", "#ff9800"],
         legend: { show: false }, // Hide the legends
         dataLabels: { enabled: false },
@@ -800,6 +946,7 @@ export default {
           data: [], // Current year's data
         },
       ],
+      leaveCardDisplay: null,
 
       payslipsData: [],
       hoursReportData: null,
@@ -819,7 +966,12 @@ export default {
       employee_id: employee_id,
     });
 
-    await this.getCurrentMonthPerformanceReport({
+    await this.getPreviousMonthPerformanceReport({
+      company_id,
+      employee_id: employee_id,
+    });
+
+    await this.geCurrentMonthPerformanceReport({
       company_id,
       employee_id: employee_id,
     });
@@ -834,7 +986,7 @@ export default {
       employee_id: employee_id_for_payroll,
     });
 
-    await this.getCurrentMonthSalaryReport({
+    await this.getPreviousMonthSalaryReport({
       company_id,
       employee_id: employee_id_for_payroll,
     });
@@ -869,7 +1021,6 @@ export default {
       const WeekOffData = data.map((e) => e.week_off_count);
       const otherData = data.map((e) => e.other_count);
 
-
       this.barOptions.xaxis.categories = categories;
       this.barSeries = [
         { name: "Present", data: presentData },
@@ -878,14 +1029,24 @@ export default {
         { name: "Others", data: otherData },
       ];
     },
-    async getCurrentMonthPerformanceReport(payload) {
+    async getPreviousMonthPerformanceReport(payload) {
       let { data } = await this.$axios.post(
-        `current-month-performance-report`,
+        `previous-month-performance-report`,
         payload
       );
       this.events = data.events;
       this.eventStats = data.stats;
     },
+
+    async geCurrentMonthPerformanceReport(payload) {
+      let { data } = await this.$axios.post(
+        `current-month-performance-report`,
+        payload
+      );
+      this.eventsForCurrentMonth = data.events;
+      this.eventStatsForCurrentMonth = data.stats;
+    },
+
     async getEncodedImage(url) {
       try {
         let { data } = await this.$axios.get(
@@ -897,7 +1058,7 @@ export default {
       }
     },
     async getCurrentMonthHoursReport(payload) {
-      let endpoint = "current-month-hours-report";
+      let endpoint = "last-six-month-hours-report";
 
       let { data } = await this.$axios.post(endpoint, payload);
 
@@ -910,12 +1071,13 @@ export default {
 
       this.payslipsData = data;
     },
-    async getCurrentMonthSalaryReport(payload) {
-      let endpoint = "current-month-salary-report";
+    async getPreviousMonthSalaryReport(payload) {
+      let endpoint = "previous-month-salary-report";
 
       try {
         let { data } = await this.$axios.post(endpoint, payload);
 
+        console.log("🚀 ~ getPreviousMonthSalaryReport ~ data:", data);
         if (!data) {
           this.donutSeries = [0, 0, 0];
           return;
@@ -964,22 +1126,35 @@ export default {
       this.$axios
         .get("yearly_leave_quota/" + this.item.leave_group_id, options)
         .then(({ data }) => {
+          console.log("🚀 ~ .then ~ data:", data);
           this.leaveChartOptions.xaxis.categories = data.month_names;
           this.leaveChartSeries[0].data = data.month_values;
+
+          this.leaveCardDisplay = data.month_values.some((e) => e > 0);
         });
     },
 
     setDataForDatePicker() {
       const date = new Date(); // This is a Date object, not a string
+      let currentMonth = new Date(date.getFullYear(), date.getMonth() + 1)
+        .toISOString()
+        .substr(0, 7);
+
       let previousMonth = new Date(date.getFullYear(), date.getMonth())
         .toISOString()
         .substr(0, 7);
+
+      this.selectedDatesForCurrentMonth = `${currentMonth}-01`;
+      this.maxDateForCurrentMonth = `${currentMonth}-31`;
 
       this.selectedDate = `${previousMonth}-01`;
       this.maxDate = `${previousMonth}-31`;
     },
     getEventColors(e) {
       return this.events[e] || "";
+    },
+    getEventColorsForCurrentMonth(e) {
+      return this.eventsForCurrentMonth[e] || "";
     },
     download() {
       const queryParams = new URLSearchParams({

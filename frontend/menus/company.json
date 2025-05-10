@@ -117,10 +117,9 @@
     "icon": "mdi-bell",
     "title": "Announcements",
     "open_menu": false,
-    "to": "/announcement_type",
+    "to": "/announcement",
     "module": "settings"
   },
-
   {
     "icon": "mdi-history",
     "title": "Activity",
