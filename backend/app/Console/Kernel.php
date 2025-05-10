@@ -120,12 +120,7 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule
-                ->command("task:generate_daily_report {$companyId} General")
-                ->dailyAt('03:45')
-                ->runInBackground();
-
-            $schedule
-                ->command("task:generate_daily_report {$companyId} Multi")
+                ->command("task:generate_daily_report {$companyId}")
                 ->dailyAt('03:45')
                 ->runInBackground();
 

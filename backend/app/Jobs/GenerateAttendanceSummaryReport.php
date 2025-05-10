@@ -122,7 +122,7 @@ class GenerateAttendanceSummaryReport implements ShouldQueue
             }
         }
 
-        $relativePath = "public/pdf/$yesterday/{$this->company_id}/summary_report_{$this->branchId}.pdf";
+        $relativePath = "public/pdf/$yesterday/{$this->company_id}/summary_report_{$this->branchId}_{$this->shift_type}.pdf";
         
         Storage::put($relativePath, $pdf->Output('', 'S')); // 'S' returns the file as a string
 

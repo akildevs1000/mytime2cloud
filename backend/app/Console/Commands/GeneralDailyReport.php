@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Jobs\GenerateAttendanceSummaryReport;
 use App\Models\Company;
 use App\Models\CompanyBranch;
+use App\Models\Shift;
 use Illuminate\Console\Command;
 
 class GeneralDailyReport extends Command
@@ -14,7 +15,7 @@ class GeneralDailyReport extends Command
      *
      * @var string
      */
-    protected $signature = 'task:generate_daily_report {id} {shift_type} {status?}';
+    protected $signature = 'task:generate_daily_report {id} {status?}';
 
     /**
      * The console command description.
@@ -25,9 +26,20 @@ class GeneralDailyReport extends Command
 
     public function handle()
     {
-
-        $shift_type = $this->argument("shift_type") ?? "General";
         $company_id = $this->argument("id");
+
+        $shift_types = [];
+
+        if (Shift::where("company_id", $company_id)->whereIn("shift_type_id", [1, 4, 6])->exists()) {
+            $shift_types = ["General"];
+        } else if (Shift::where("company_id", $company_id)->whereIn("shift_type_id", [2])->exists()) {
+            $shift_types = ["Multi"];
+        }
+
+        if (!count($shift_types)) {
+            $this->error("No shift found for task:generate_daily_report command");
+            return;
+        }
 
         $from_date = date("Y-m-d", strtotime("-1 day"));
         $to_date = date("Y-m-d", strtotime("-1 day"));
@@ -49,14 +61,18 @@ class GeneralDailyReport extends Command
             "to_date" => $to_date,
         ];
 
-        $this->info(json_encode($company, JSON_PRETTY_PRINT));
-
-        // GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
-        // return;
 
         $branchIds = CompanyBranch::where("company_id", $company_id)->pluck("id");
-        foreach ($branchIds as $branchId) {
-            GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, $branchId, $company);
+
+        // GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, 49, $company);
+
+        foreach ($shift_types as $shift_type) {
+
+            $this->info($shift_type);
+
+            foreach ($branchIds as $branchId) {
+                GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, $branchId, $company);
+            }
         }
     }
 }
