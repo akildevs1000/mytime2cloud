@@ -28,19 +28,14 @@ class GeneralDailyReport extends Command
     {
         $company_id = $this->argument("id");
 
-        $shift_types = [];
+        $shift_types = Shift::getShiftTypesByCompany($company_id);
 
-        if (Shift::where("company_id", $company_id)->whereIn("shift_type_id", [1, 4, 6])->exists()) {
-            $shift_types = ["General"];
-        } else if (Shift::where("company_id", $company_id)->whereIn("shift_type_id", [2])->exists()) {
-            $shift_types = ["Multi"];
-        }
 
-        if (!count($shift_types)) {
+        if (is_null($shift_types)) {
             $this->error("No shift found for task:generate_daily_report command");
             return;
         }
-
+        
         $from_date = date("Y-m-d", strtotime("-1 day"));
         $to_date = date("Y-m-d", strtotime("-1 day"));
 
