@@ -8,6 +8,7 @@ use App\Mail\ReportNotificationMail;
 use App\Models\report_notification_logs;
 use App\Models\ReportNotification;
 use App\Models\ReportNotificationLogs;
+use App\Models\Shift;
 use App\Models\WhatsappClient;
 use Illuminate\Support\Facades\Mail;
 
@@ -48,8 +49,14 @@ class ReportNotificationCrons extends Command
 
         $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
 
+        $shift_types = Shift::getShiftTypesByCompany($company_id);
 
+        $files = $shift_types;
 
+        if (is_null($shift_types)) {
+            $this->error("No shift found for task:generate_daily_report command");
+            return;
+        }
 
         try {
 
@@ -76,7 +83,7 @@ class ReportNotificationCrons extends Command
 
                         if (in_array("Email", $model->mediums ?? [])) {
                             Mail::to($manager->email)
-                                ->queue(new ReportNotificationMail($model, $manager));
+                                ->queue(new ReportNotificationMail($model, $manager, $files));
                         }
 
                         if (in_array("Whatsapp", $model->mediums ?? [])) {
