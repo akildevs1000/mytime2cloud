@@ -974,6 +974,7 @@ class ReportController extends Controller
             "P" => 0,
             "A" => 0,
             "O" => 0,
+            "L" => 0,
             "OTHERS_COUNT" => 0,
         ];
 
@@ -988,6 +989,12 @@ class ReportController extends Controller
                 if ($itemDate <= date("Y-m-d")) {
                     $stats["A"] += 1;
                     $arr[$itemDate] = "red";
+                }
+            } else if (in_array($item->status, ['L'])) {
+                $arr[$itemDate] = "";
+                if ($itemDate <= date("Y-m-d")) {
+                    $stats["L"] += 1;
+                    $arr[$itemDate] = "orange";
                 }
             } else if (in_array($item->status, ['O'])) {
                 $arr[$itemDate] = "primary";

@@ -1832,11 +1832,153 @@ class EmployeeController extends Controller
                 "verify_peer_name" => false,
             ],
         ]);
-    
+
         $imageData = file_get_contents(request("url", 'https://randomuser.me/api/portraits/women/45.jpg'), false, $context);
-    
+
         $md5string = base64_encode($imageData);
 
         return "data:image/png;base64,$md5string";
+    }
+
+    public function attendanceSummary(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'company_id' => 'required|integer|exists:companies,id',
+            'employee_id' => 'required|integer|exists:employees,id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()
+            ], 422);
+        }
+
+        $company_id = $request->company_id;
+        $employee_id = $request->employee_id;
+
+        // Count of each attendance status
+        $statusCounts = Attendance::selectRaw("status, COUNT(*) as total")
+            ->where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->groupBy('status')
+            ->pluck('total', 'status');
+
+        // Get current date and last 12 months
+        $now = Carbon::now();
+        $start = $now->copy()->subMonths(11)->startOfMonth();
+
+        // Get Present counts for last 12 months
+        $monthlyPresents = Attendance::selectRaw("TO_CHAR(date, 'Mon YYYY') as month_label, COUNT(*) as total")
+            ->where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->where('status', 'P')
+            ->whereBetween('date', [$start, $now])
+            ->groupByRaw("TO_CHAR(date, 'Mon YYYY')")
+            ->orderByRaw("TO_DATE(TO_CHAR(date, 'Mon YYYY'), 'Mon YYYY')")
+            ->pluck('total', 'month_label');
+
+
+
+        // Fill missing months
+        $labels = [];
+        $barData = [];
+
+        for ($i = 0; $i < 12; $i++) {
+            $label = $start->copy()->addMonths($i)->format('M Y');
+            $labels[] = date("M", strtotime($label));
+            $barData[] = $monthlyPresents[$label] ?? 0;
+        }
+
+        return response()->json([
+            'attendances' => [
+                ['label' => 'Present', 'value' => $statusCounts['P'] ?? 0, 'icon' => 'mdi-check', 'color' => 'success'],
+                ['label' => 'Leave', 'value' => $statusCounts['L'] ?? 0, 'icon' => 'mdi-calendar', 'color' => 'orange'],
+                ['label' => 'Absent', 'value' => $statusCounts['A'] ?? 0, 'icon' => 'mdi-close', 'color' => 'red'],
+            ],
+            'labels' => $labels,
+            'barChartSeries' => [
+                ['name' => 'Present', 'data' => $barData]
+            ],
+        ]);
+    }
+
+
+    public function avgClockIn(Request $request)
+    {
+        $companyId = $request->input('company_id');
+        $employeeId = $request->input('employee_id');
+        $shiftTypeId = $request->input('shift_type_id');
+
+        // Validate required parameters
+        if (!$companyId || !$employeeId) {
+            return response()->json(['error' => 'Missing required parameters.'], 400);
+        }
+
+        // Define date range (last 7 days including today)
+        $startDate = Carbon::now()->subDays(7)->startOfDay(); // 6 days ago + today
+        $endDate = Carbon::now()->endOfDay();
+
+        $clockIns = [];
+
+        if ($shiftTypeId == 2) {
+            // Handle multiple logs
+            $multiLogs = Attendance::where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->orderBy("date")
+                ->get(["logs", "date"]);
+
+            foreach ($multiLogs as $log) {
+                $firstIn = $log->logs[0]['in'] ?? null;
+                if ($firstIn) {
+                    $clockIns[] = [
+                        "date" => $log->date,
+                        "in" => $firstIn
+                    ];
+                }
+            }
+        } else {
+            // Handle single shift
+            $clockIns = Attendance::where('company_id', $companyId)
+                ->where('employee_id', $employeeId)
+                ->whereBetween('date', [$startDate, $endDate])
+                ->where('in', '!=', '---')
+                ->get(["in", "date"])
+                ->toArray();
+        }
+
+        $totalMinutes = 0;
+        $count = 0;
+        $clockInDetails = [];
+
+        foreach ($clockIns as $entry) {
+            try {
+                $carbonTime = Carbon::createFromFormat('H:i', $entry['in']);
+                $minutes = $carbonTime->hour * 60 + $carbonTime->minute;
+
+                $totalMinutes += $minutes;
+                $count++;
+
+                $clockInDetails[] = [
+                    "date" => Carbon::parse($entry['date'])->format('d M'),
+                    "value" => $minutes
+                ];
+            } catch (\Exception $e) {
+                continue; // Skip invalid time formats
+            }
+        }
+
+        if ($count > 0) {
+            $avgMinutes = (int) ($totalMinutes / $count);
+            $avgTime = sprintf('%02d:%02d', floor($avgMinutes / 60), $avgMinutes % 60);
+        } else {
+            $avgTime = "00:00";
+        }
+
+        return response()->json([
+            "avg_clock_in" => $avgTime,
+            "last_week_clock_ins" => $clockInDetails,
+        ]);
     }
 }
