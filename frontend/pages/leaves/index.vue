@@ -374,11 +374,11 @@ export default {
             color: "primary",
           };
         }
-        if (user?.order >= item.order) {
+        if (item.order == 0) {
           return { label: "Pending", color: "secondary" };
         } else {
           return {
-            label: `Approved ${item.order} - ${user?.order}`,
+            label: `Approved`,
             color: "primary",
           };
         }
