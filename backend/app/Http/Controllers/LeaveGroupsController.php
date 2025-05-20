@@ -55,12 +55,20 @@ class LeaveGroupsController extends Controller
 
                 foreach ($value->leave_count as $key2 => $value2) {
 
-                    $leaves_count = EmployeeLeaves::where('company_id', '=', $request->company_id)
+                    $leaves = EmployeeLeaves::where('company_id', '=', $request->company_id)
                         ->where('leave_type_id', '=', $value2->leave_type_id)
                         ->where('employee_id', '=', $request->employee_id)
-                        ->where('status', '=', 1)->count();
+                        ->where('status', '=', 1)->first(["start_date", "end_date"]);
 
-                    $value2->employee_used = $leaves_count;
+                    $daysUsed = 0;
+
+                    if ($leaves) {
+                        $startDate = \Carbon\Carbon::parse($leaves->start_date);
+                        $endDate = \Carbon\Carbon::parse($leaves->end_date);
+                        $daysUsed = $startDate->diffInDays($endDate) + 1; // Include start date
+                    }
+
+                    $value2->employee_used = $daysUsed;
                     $value2->year = $year;
                 }
             }
