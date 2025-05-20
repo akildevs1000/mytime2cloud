@@ -1115,9 +1115,14 @@ export default {
         value: 5,
       },
       {
+        text: "Leaves",
+        icon: "mdi-calendar",
+        value: 6,
+      },
+      {
         text: "Settings",
         icon: "mdi-cog",
-        value: 6,
+        value: 7,
       },
     ],
     tab: 0,
@@ -1332,10 +1337,14 @@ export default {
     }) {
       let icons = [];
 
+      let iconPath = "/icons/employee-access/";
+
+      let colorMode = this.$vuetify.theme.dark ? "w" : "b"; // b = black, w = white
+
       if (profile_picture) {
         icons.push({
           type: "image",
-          name: "/icons/employee-access/01.png",
+          name: `${iconPath}1-${colorMode}.png`,
         });
       }
 
@@ -1346,7 +1355,7 @@ export default {
       ) {
         icons.push({
           type: "image",
-          name: "/icons/employee-access/02.png",
+          name: `${iconPath}2-${colorMode}.png`,
         });
       }
       if (
@@ -1356,7 +1365,7 @@ export default {
       ) {
         icons.push({
           type: "image",
-          name: "/icons/employee-access/03.png",
+          name: `${iconPath}3-${colorMode}.png`,
         });
 
         icons.push({
@@ -1366,44 +1375,74 @@ export default {
       if (finger_prints.length) {
         icons.push({
           type: "image",
-          name: "/icons/employee-access/04.png",
+          name: `${iconPath}4-${colorMode}.png`,
         });
       }
       if (palms.length) {
         icons.push({
           type: "image",
-          name: "/icons/employee-access/05.png",
+          name: `${iconPath}5-${colorMode}.png`,
         });
       }
-
-      // icons = [
-      //   {
-      //     type: "image",
-      //     name: "/icons/employee-access/01.png",
-      //   },
-      //   {
-      //     type: "image",
-      //     name: "/icons/employee-access/02.png",
-      //   },
-      //   {
-      //     type: "image",
-      //     name: "/icons/employee-access/03.png",
-      //   },
-      //   {
-      //     name: "mdi-qrcode-scan",
-      //   },
-      //   {
-      //     type: "image",
-      //     name: "/icons/employee-access/04.png",
-      //   },
-      //   {
-      //     type: "image",
-      //     name: "/icons/employee-access/05.png",
-      //   },
-      // ];
-
       return icons;
     },
+    // getRelatedIcons(mode) {
+    //   let iconPath = "/icons/employee-access/";
+    //   let colorMode = this.$isDark() ? "w" : "b"; // b = black, w = white
+    //   const icons = {
+    //     Card: [iconPath + "3-" + colorMode + ".png"],
+    //     Fing: [iconPath + "4-" + colorMode + ".png"],
+    //     Face: [iconPath + "1-" + colorMode + ".png"],
+    //     "Fing + Card": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "3-" + colorMode + ".png",
+    //     ],
+    //     "Face + Fing": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "4-" + colorMode + ".png",
+    //     ],
+    //     "Face + Card": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "3-" + colorMode + ".png",
+    //     ],
+    //     "Card + Pin": [
+    //       iconPath + "3-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Face + Pin": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Fing + Pin": [
+    //       iconPath + "4-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Fing + Card + Pin": [
+    //       iconPath + "4-" + colorMode + ".png",
+    //       iconPath + "3-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Face + Card + Pin": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "3-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Face + Fing + Pin": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "4-" + colorMode + ".png",
+    //       iconPath + "2-" + colorMode + ".png",
+    //     ],
+    //     "Face + Fing + Card": [
+    //       iconPath + "1-" + colorMode + ".png",
+    //       iconPath + "4-" + colorMode + ".png",
+    //       iconPath + "3-" + colorMode + ".png",
+    //     ],
+    //     Manual: [], // assuming no icons for Manual
+    //     Repeated: [], // assuming no icons for Repeated
+    //   };
+
+    //   return icons[mode] || [iconPath + "2-" + colorMode + ".png"];
+    // },
     downloadImage(faceImage, userId) {
       let options = {
         params: {
@@ -1485,7 +1524,8 @@ export default {
         3: "EmployeeViewBank",
         4: "EmployeeViewDocument",
         5: "EmployeeViewQualification",
-        6: "EmployeeViewSetting",
+        6: "EmployeeViewLeaveQuotta",
+        7: "EmployeeViewSetting",
       };
       return componentsList[value] || "div"; // default to a div if no component found
     },
