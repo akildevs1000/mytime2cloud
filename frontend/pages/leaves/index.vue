@@ -232,7 +232,7 @@
             <v-list width="120" dense>
               <v-list-item>
                 <v-list-item-title style="cursor: pointer; font-size: 13px">
-                  <LeavesView :editedItem="item" @response="getDataFromApi" />
+                  <LeavesView :editedItem="item" @response="reloadPage" />
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -344,6 +344,9 @@ export default {
   },
 
   methods: {
+    reloadPage() {
+      window.location.reload();
+    },
     showStatus(item, listView = false) {
       let user = this.$auth.user;
 
