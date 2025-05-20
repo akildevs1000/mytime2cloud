@@ -345,7 +345,7 @@ export default {
 
   methods: {
     reloadPage() {
-      window.location.reload();
+      this.getDataFromApi();
     },
     showStatus(item, listView = false) {
       let user = this.$auth.user;
