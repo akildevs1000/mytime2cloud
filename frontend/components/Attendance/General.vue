@@ -407,7 +407,7 @@ export default {
         page: page,
         per_page: itemsPerPage,
         company_id: this.$auth.user.company_id,
-        shift_type_id: 1,
+        shift_type_id: 0,
         report_type: "Monthly",
         filterType: "Monthly",
         statuses: this.statuses,
