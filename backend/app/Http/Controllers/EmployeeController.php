@@ -15,6 +15,7 @@ use App\Http\Requests\Employee\UpdateRequestFromDevice;
 use App\Http\Requests\Employee\UpdateRequest;
 use App\Imports\excelEmployeesData;
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\CompanyBranch;
 use App\Models\CompanyContact;
@@ -1908,77 +1909,76 @@ class EmployeeController extends Controller
     {
         $companyId = $request->input('company_id');
         $employeeId = $request->input('employee_id');
-        $shiftTypeId = $request->input('shift_type_id');
 
         // Validate required parameters
         if (!$companyId || !$employeeId) {
             return response()->json(['error' => 'Missing required parameters.'], 400);
         }
 
-        // Define date range (last 7 days including today)
-        $startDate = Carbon::now()->subDays(7)->startOfDay(); // 6 days ago + today
+        // Define date range (last 10 days including today)
+        $startDate = Carbon::now()->subDays(10)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 
-        $clockIns = [];
+        // Get logs in date range
+        $logs = AttendanceLog::where('company_id', $companyId)
+            ->where('UserID', $employeeId)
+            ->whereBetween('LogTime', [$startDate, $endDate])
+            ->orderBy("LogTime")
+            ->get(['LogTime']);
 
-        if ($shiftTypeId == 2) {
-            // Handle multiple logs
-            $multiLogs = Attendance::where('company_id', $companyId)
-                ->where('employee_id', $employeeId)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->orderBy("date")
-                ->get(["logs", "date"]);
+        // Group logs by date
+        $groupedLogs = $logs->groupBy(function ($log) {
+            return Carbon::parse($log->LogTime)->toDateString();
+        });
 
-            foreach ($multiLogs as $log) {
-                $firstIn = $log->logs[0]['in'] ?? null;
-                if ($firstIn) {
-                    $clockIns[] = [
-                        "date" => $log->date,
-                        "in" => $firstIn
-                    ];
-                }
-            }
-        } else {
-            // Handle single shift
-            $clockIns = Attendance::where('company_id', $companyId)
-                ->where('employee_id', $employeeId)
-                ->whereBetween('date', [$startDate, $endDate])
-                ->where('in', '!=', '---')
-                ->get(["in", "date"])
-                ->toArray();
+        // Prepare all dates range
+        $allDates = collect();
+        $current = Carbon::parse($startDate);
+        while ($current <= $endDate) {
+            $allDates->push($current->toDateString());
+            $current->addDay();
         }
 
         $totalMinutes = 0;
-        $count = 0;
-        $clockInDetails = [];
+        $validDaysCount = 0;
 
-        foreach ($clockIns as $entry) {
-            try {
-                $carbonTime = Carbon::createFromFormat('H:i', $entry['in']);
-                $minutes = $carbonTime->hour * 60 + $carbonTime->minute;
+        // Build final log records
+        $finalLogs = $allDates->map(function ($date) use ($groupedLogs, &$totalMinutes, &$validDaysCount) {
+            if (isset($groupedLogs[$date])) {
+                // Get earliest log time
+                $firstLogTime = Carbon::parse($groupedLogs[$date]->first()->LogTime);
+                $timeStr = $firstLogTime->format('H:i');
+
+                // Convert time to minutes since midnight
+                $minutes = $firstLogTime->hour * 60 + $firstLogTime->minute;
 
                 $totalMinutes += $minutes;
-                $count++;
+                $validDaysCount++;
 
-                $clockInDetails[] = [
-                    "date" => Carbon::parse($entry['date'])->format('d M'),
-                    "value" => $minutes
+                return (object)[
+                    'date' => date("d M y", strtotime($date)),
+                    'value' => $minutes
                 ];
-            } catch (\Exception $e) {
-                continue; // Skip invalid time formats
+            } else {
+                return (object)[
+                    'date' => date("d M y", strtotime($date)),
+                    'value' => 0
+                ];
             }
-        }
+        });
 
-        if ($count > 0) {
-            $avgMinutes = (int) ($totalMinutes / $count);
-            $avgTime = sprintf('%02d:%02d', floor($avgMinutes / 60), $avgMinutes % 60);
-        } else {
-            $avgTime = "00:00";
+        // Calculate average time
+        $avgClockIn = '00:00';
+        if ($validDaysCount > 0) {
+            $avgMinutes = round($totalMinutes / $validDaysCount);
+            $hours = floor($avgMinutes / 60);
+            $minutes = $avgMinutes % 60;
+            $avgClockIn = str_pad($hours, 2, '0', STR_PAD_LEFT) . ':' . str_pad($minutes, 2, '0', STR_PAD_LEFT);
         }
 
         return response()->json([
-            "avg_clock_in" => $avgTime,
-            "last_week_clock_ins" => $clockInDetails,
+            "avg_clock_in" => $avgClockIn,
+            "last_week_clock_ins" => $finalLogs,
         ]);
     }
 }
