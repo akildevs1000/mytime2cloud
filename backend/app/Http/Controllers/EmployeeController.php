@@ -1916,7 +1916,7 @@ class EmployeeController extends Controller
         }
 
         // Define date range (last 10 days including today)
-        $startDate = Carbon::now()->subDays(10)->startOfDay();
+        $startDate = Carbon::now()->subDays(7)->startOfDay();
         $endDate = Carbon::now()->endOfDay();
 
         // Get logs in date range
