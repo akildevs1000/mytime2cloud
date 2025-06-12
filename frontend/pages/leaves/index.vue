@@ -377,13 +377,13 @@ export default {
             color: "primary",
           };
         }
-        if (item.order == 0) {
-          return { label: "Pending", color: "secondary" };
-        } else {
+        if (item.status == 1 && item.order == 0) {
           return {
             label: `Approved`,
             color: "primary",
           };
+        } else {
+          return { label: "Pending", color: "secondary" };
         }
       }
 
