@@ -648,10 +648,9 @@ export default {
       return totalCount;
     },
     addFirstAndLastDay(months) {
-      // Check if the user has selected exactly 2 months
-      if (months.length !== 2) {
-        // Do nothing and wait for the user to select 2 dates
-        return;
+
+      if (months.length === 1) {
+        months = [months[0], months[0]];
       }
 
       // Get the first month

@@ -340,7 +340,6 @@
 import performanceHeader from "../../headers/performance.json";
 
 export default {
-
   props: ["title", "render_endpoint", "process_file_endpoint"],
 
   data: () => ({
@@ -451,10 +450,12 @@ export default {
       );
     },
     getAbsentCount(item) {
-      return [item?.a_count, item?.m_count].reduce(
-        (sum, val) => sum + (val || 0),
-        0
-      ) - this.$utils.getRemainingDays();
+      return (
+        [item?.a_count, item?.m_count].reduce(
+          (sum, val) => sum + (val || 0),
+          0
+        ) - this.$utils.getRemainingDays()
+      );
     },
     getOtherCount(item) {
       return [item?.l_count, item?.v_count, item?.h_count].reduce(
@@ -464,9 +465,8 @@ export default {
     },
     addFirstAndLastDay(months) {
       // Check if the user has selected exactly 2 months
-      if (months.length !== 2) {
-        // Do nothing and wait for the user to select 2 dates
-        return;
+      if (months.length === 1) {
+        months = [months[0], months[0]];
       }
 
       // Get the first month
