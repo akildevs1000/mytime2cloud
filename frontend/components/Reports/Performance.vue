@@ -285,59 +285,38 @@
             </div>
           </template>
           <template v-slot:item.options="{ item }">
-            <v-menu bottom left>
-              <template v-slot:activator="{ on, attrs }">
-                <v-btn dark-2 icon v-bind="attrs" v-on="on">
-                  <v-icon>mdi-dots-vertical</v-icon>
-                </v-btn>
-              </template>
-              <v-list dense>
-                <v-list-item>
-                  <v-list-item-title style="cursor: pointer">
-                    <PerformanceSingle
-                      :item="{
-                        leave_group_id: item?.employee?.leave_group_id,
-                        company_id: $auth.user.company_id,
-                        p_count: getPresentCount(item),
-                        a_count: getAbsentCount(item),
-                        o_count: item?.o_count || 0,
-                        other_count: getOtherCount(item),
+            <PerformanceSingle
+              :item="{
+                leave_group_id: item?.employee?.leave_group_id,
+                company_id: $auth.user.company_id,
+                p_count: getPresentCount(item),
+                a_count: getAbsentCount(item),
+                o_count: item?.o_count || 0,
+                other_count: getOtherCount(item),
 
-                        rating: $utils.getRating(
-                          item.p_count,
-                          from_date,
-                          to_date
-                        ),
-                      }"
-                      :employee="{
-                        name: `${item?.employee?.title} ${item?.employee?.full_name}`,
-                        profile_picture: `${item?.employee?.profile_picture}`,
-                        employee_id: item.employee_id,
-                        employee_id_for_payroll: item?.employee?.employee_id,
-                        employee_id_for_leave: item?.employee?.employee_id,
-                        designation: item.employee?.designation?.name,
-                        branch: item.employee?.branch?.branch_name,
-                        company: $auth?.user?.company?.name,
-                        email: item?.employee?.local_email,
-                        whatsapp_number: item?.employee?.whatsapp_number,
-                        home_country: item?.employee?.home_country,
-                        reporting_manager:
-                          item?.employee?.reporting_manager?.first_name,
-                        joining_date: item?.employee?.show_joining_date,
-                      }"
-                    />
-                  </v-list-item-title>
-                </v-list-item>
-                <v-list-item @click="download(item)">
-                  <v-list-item-title style="cursor: pointer">
-                    <span
-                      ><v-icon color="secondary" small>mdi-download</v-icon>
-                      Download</span
-                    >
-                  </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
+                rating: $utils.getRating(item.p_count, from_date, to_date),
+              }"
+              :employee="{
+                name: `${item?.employee?.title} ${item?.employee?.full_name}`,
+                profile_picture: `${item?.employee?.profile_picture}`,
+                employee_id: item.employee_id,
+                employee_id_for_payroll: item?.employee?.employee_id,
+                employee_id_for_leave: item?.employee?.employee_id,
+                designation: item.employee?.designation?.name,
+                branch: item.employee?.branch?.branch_name,
+                company: $auth?.user?.company?.name,
+                email: item?.employee?.local_email,
+                whatsapp_number: item?.employee?.whatsapp_number,
+                home_country: item?.employee?.home_country,
+                reporting_manager:
+                  item?.employee?.reporting_manager?.first_name,
+                joining_date: item?.employee?.show_joining_date,
+              }"
+            />
+            &nbsp;
+            <span @click="download(item)"
+              ><v-icon color="secondary" small>mdi-download</v-icon>
+            </span>
           </template>
         </v-data-table>
       </v-col>

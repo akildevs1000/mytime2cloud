@@ -4,7 +4,7 @@
       <WidgetsClose left="1290" @click="dialog = false" />
       <template v-slot:activator="{ on, attrs }">
         <span v-bind="attrs" v-on="on"
-          ><v-icon color="secondary" small>mdi-eye</v-icon> View</span
+          ><v-icon color="secondary" small>mdi-eye</v-icon></span
         >
       </template>
       <style scoped>
