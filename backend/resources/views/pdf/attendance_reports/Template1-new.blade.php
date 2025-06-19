@@ -45,193 +45,54 @@
         $i = 0;
     @endphp
 
-    <table class="main-table">
-
-        <tr style=" border: none;backgdround-color:red;padding-top:0px;margin-top:0px">
-            <td style="border: nonse" colspan="6">
-                <div class="row">
-                    <div class="col-12" style="background-coldor: rgb(253, 246, 246);padding:0px;margin:0px 5px">
-                        <table style="padding:0px;margin:0px">
-                            <tr style="text-align: left; border :none; padding:100px 0px;">
-                                <td style="text-align: left; border :none;font-size:12px;padding:0 0 5px 0px;">
-                                    <b style="padding:0px;margin:0px">
-                                        {{ $company->name }}
-                                    </b>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px;">
-                                    <span style="margin-left: 3px">P.O.Box
-                                        {{ $company->p_o_box_no == 'null' ? '---' : $company->p_o_box_no }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->location }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:5px 0px">
-                                    <span style="margin-left: 3px">{{ $company->contact->number ?? '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                            <tr style="text-align: left; border :none;padding:10px 0px">
-                                <td style="text-align: left; border :none;font-size:10px;padding:7px 0px">
-                                    <span style="margin-left: 3px">{{ '' }}</span>
-                                    <br>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
+    <table width="100%" border="0" cellspacing="0" cellpadding="5"
+        style="border-bottom: 1px solid #000; margin-bottom: 10px;">
+        <tr>
+            <td width="33%" style="">
+                <img src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
+                    alt="Company Logo" height="150">
             </td>
-            <td style="border: nonse" colspan="8">
-                <div class="col-12" style="text-align:center;height:85px;  ">
-
-                    <img src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
-                        style=" width:100px;max-width:150px;margin: 0px 0px 0px 0px; ">
-                </div>
-                <div style="clear:both">
-                    <table style="text-align: left; border :none;  ">
-                        <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span class="title-font">
-                                    {{ $info->report_type }} Report
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr>
-                        {{-- <tr style="text-align: left; border :none;">
-                            <td style="text-align: center; border :none">
-                                <span style="font-size: 11px">
-                                    {{ date('d-M-Y', strtotime($company->start)) }} -
-                                    {{ date('d-M-Y', strtotime($company->end)) }}
-                                </span>
-                                <hr style="width: 230px">
-                            </td>
-                        </tr> --}}
-                    </table>
-                </div>
+            <td width="34%" style="font-size: 18px; : bold;text-align: center">
+                <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br>  {{ $employee->full_name }} ({{ $employee->employee_id ?? '---' }}) <br>
+                <small style="font-size:12px;"> {{ date('d-M-Y') }} -
+                    {{ date('d-M-Y') }}</small>
             </td>
-
-            <td style="border: nosne;text-align:right" colspan="8">
-                @if ($employee->full_name)
-                    <table class=" summary-table" style="backgroudnd-color:red; margin-top:20px">
-                        <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                            <td style="border :none; padding:10px">
-                                <b>Full Name:</b>
-                                {{ $employee->full_name }}
-                            </td>
-
-                        </tr>
-                    </table>
-                @endif
-
-                <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">EID</th>
-                        <th style="text-align: center; border :none">Name</th>
-                        <th style="text-align: center; border :none">Department</th>
-                        <th style="text-align: center; border :none">Shift Type </th>
-
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none; padding:5px;font-size:11px">
-                            {{ $employee->employee_id ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $empName ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            {{ $employee->department->name ?? '---' }}
-                        </td>
-                        <td style="text-align: center; border:none;font-size:11px">
-                            Multi In/Out
-                        </td>
-                    </tr>
-
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                        <th style="text-align: center; border :none; padding:5px">Present</th>
-                        <th style="text-align: center; border :none">Absent</th>
-                        <th style="text-align: center; border :none">Week Off</th>
-                        <th style="text-align: center; border :none">Leaves</th>
-                    </tr>
-                    <tr style="border: none">
-
-
-
-
-                        <td style="text-align: center; border :none; padding:5px;color:green">
-                            {{ $info->total_present }}
-                        </td>
-                        <td style="text-align: center; border :none;color:red">
-                            {{ $info->total_absent }}
-                        </td>
-
-                        <td style="text-align: center; border :none;color:gray">
-                            {{ $info->total_off }}
-                        </td>
-                        <td style="text-align: center; border :none;color:blue">
-                            {{ $info->total_leave }}
-                        </td>
-                    </tr>
-                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                        <th style="text-align: center; border :none">Holidays</th>
-                        <th style="text-align: center; border :none">Missing</th>
-
-                        <th style="text-align: center; border :none; padding:5px">Work Hours</th>
-                        <th style="text-align: center; border :none">OT Hours</th>
-                        <th style="text-align: center; border :none"> </th>
-                        {{-- <th style="text-align: center; border :none">Department</th> --}}
-                    </tr>
-                    <tr style="border: none">
-                        <td style="text-align: center; border :none;color:pink">
-                            {{ $info->total_holiday }}
-                        </td>
-                        <td style="text-align: center; border :none;color:orange">
-                            {{ $info->total_missing }}
-                        </td>
-                        <td style="text-align: center; border :none; padding:5px;color:black">
-                            {{ $info->total_hours ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:black">
-                            {{ $info->total_ot_hours ?? 0 }}
-                        </td>
-                        <td style="text-align: center; border :none;color:black"> </td>
-                    </tr>
-                    <tr style="border: none">
-                        <th style="text-align: center; border :none" colspan="4">
-                            <hr>
-                        </th>
-                    </tr>
-                </table>
-                <br>
+            <td width="33%" style="font-size: 18px;  bold;text-align: right">
+                <b>{{ $company->name ?? '' }}</b><br>
+                <small style="font-size:12px;">
+                    {{ $company->user->email ?? '' }}<br>
+                    {{ $company->contact->number ?? '' }}
+                    
+                </small>
+                <div style="font-size: 12px"> 
+                   <small> {{ $company->location }}</small>
+                </div>
             </td>
         </tr>
-        <tr style="text-align: left;font-weight:bold;margin-top:20px;width:100%">
-            <td style="text-align:  left;width:10px"> # </td>
-            <td colspan="2" style="text-align:  center; "> Date </td>
-            <td colspan="2" style="text-align:  center; "> Shift </td>
+    </table>
+
+    <hr>
+    <table class="main-table">
+        <tr style="text-align: left;margin-top:20px;width:100%">
+            <td style="font-size:12px;color: #005edf;text-align:  left;width:10px"> # </td>
+            <td colspan="2" style="font-size:12px;color: #005edf;text-align:  center; "> Date </td>
+            <td colspan="2" style="font-size:12px;color: #005edf;text-align:  center; "> Shift </td>
 
             @if ($shift_type_id == 2)
                 @for ($i = 0; $i < 7; $i++)
-                    <td style="text-align:  center; "> In{{ $i + 1 }} </td>
-                    <td style="text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
+                    <td style="font-size:12px;color: #005edf;text-align:  center; "> In{{ $i + 1 }} </td>
+                    <td style="font-size:12px;color: #005edf;text-align:  center;width:40px"> Out{{ $i + 1 }} </td>
                 @endfor
             @else
-                <td colspan="4" style="text-align: center; padding:5px;"> In Time </td>
-                <td colspan="4" style="text-align: center; padding:5px;"> Out Time </td>
-                <td colspan="3" style="text-align: center; padding:5px;"> Late In </td>
-                <td colspan="3" style="text-align: center; padding:5px;"> Early Out </td>
+                <td colspan="4" style="font-size:12px;color: #005edf;text-align: center; padding:5px;"> In Time </td>
+                <td colspan="4" style="font-size:12px;color: #005edf;text-align: center; padding:5px;"> Out Time </td>
+                <td colspan="3" style="font-size:12px;color: #005edf;text-align: center; padding:5px;"> Late In </td>
+                <td colspan="3" style="font-size:12px;color: #005edf;text-align: center; padding:5px;"> Early Out </td>
             @endif
 
-            <td style="text-align:center; "> Total Hours </td>
-            <td style="text-align:center"> OT </td>
-            <td style="text-align:center"> Status </td>
+            <td style="font-size:12px;color: #005edf;text-align:center; "> Total Hours </td>
+            <td style="font-size:12px;color: #005edf;text-align:center"> OT </td>
+            <td style="font-size:12px;color: #005edf;text-align:center"> Status </td>
         </tr>
 
         @foreach ($data as $index => $date)
@@ -332,6 +193,86 @@
             @php $i = 0; @endphp
         @endforeach
     </table>
+
+
+    <table class="summary-table" style="backgroudnd-color:red; margin-top:20px">
+                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                        <th style="text-align: center; border :none; padding:5px">EID</th>
+                        <th style="text-align: center; border :none">Name</th>
+                        <th style="text-align: center; border :none">Department</th>
+                        <th style="text-align: center; border :none">Shift Type </th>
+
+                    </tr>
+                    <tr style="border: none">
+                        <td style="text-align: center; border :none; padding:5px;font-size:11px">
+                            {{ $employee->employee_id ?? '---' }}
+                        </td>
+                        <td style="text-align: center; border:none;font-size:11px">
+                            {{ $empName ?? '---' }}
+                        </td>
+                        <td style="text-align: center; border:none;font-size:11px">
+                            {{ $employee->department->name ?? '---' }}
+                        </td>
+                        <td style="text-align: center; border:none;font-size:11px">
+                            Multi In/Out
+                        </td>
+                    </tr>
+
+                    <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                        <th style="text-align: center; border :none; padding:5px">Present</th>
+                        <th style="text-align: center; border :none">Absent</th>
+                        <th style="text-align: center; border :none">Week Off</th>
+                        <th style="text-align: center; border :none">Leaves</th>
+                    </tr>
+                    <tr style="border: none">
+
+
+
+
+                        <td style="text-align: center; border :none; padding:5px;color:green">
+                            {{ $info->total_present }}
+                        </td>
+                        <td style="text-align: center; border :none;color:red">
+                            {{ $info->total_absent }}
+                        </td>
+
+                        <td style="text-align: center; border :none;color:gray">
+                            {{ $info->total_off }}
+                        </td>
+                        <td style="text-align: center; border :none;color:blue">
+                            {{ $info->total_leave }}
+                        </td>
+                    </tr>
+                    <tr class="summary-header" style="border: none;background-color:#eeeeee ">
+                        <th style="text-align: center; border :none">Holidays</th>
+                        <th style="text-align: center; border :none">Missing</th>
+
+                        <th style="text-align: center; border :none; padding:5px">Work Hours</th>
+                        <th style="text-align: center; border :none">OT Hours</th>
+                        <th style="text-align: center; border :none"> </th>
+                        {{-- <th style="text-align: center; border :none">Department</th> --}}
+                    </tr>
+                    <tr style="border: none">
+                        <td style="text-align: center; border :none;color:pink">
+                            {{ $info->total_holiday }}
+                        </td>
+                        <td style="text-align: center; border :none;color:orange">
+                            {{ $info->total_missing }}
+                        </td>
+                        <td style="text-align: center; border :none; padding:5px;color:black">
+                            {{ $info->total_hours ?? 0 }}
+                        </td>
+                        <td style="text-align: center; border :none;color:black">
+                            {{ $info->total_ot_hours ?? 0 }}
+                        </td>
+                        <td style="text-align: center; border :none;color:black"> </td>
+                    </tr>
+                    <tr style="border: none">
+                        <th style="text-align: center; border :none" colspan="4">
+                            <hr>
+                        </th>
+                    </tr>
+                </table>
     @php
 
     @endphp
