@@ -328,6 +328,14 @@
                     />
                   </v-list-item-title>
                 </v-list-item>
+                <v-list-item @click="download(item)">
+                  <v-list-item-title style="cursor: pointer">
+                    <span
+                      ><v-icon color="secondary" small>mdi-download</v-icon>
+                      Download</span
+                    >
+                  </v-list-item-title>
+                </v-list-item>
               </v-list>
             </v-menu>
           </template>
@@ -443,6 +451,49 @@ export default {
   },
 
   methods: {
+    download(item) {
+      const { employee } = item || {};
+      const { user } = this.$auth || {};
+      const p_count = this.getPresentCount(item);
+
+      const itemPayload = {
+        leave_group_id: employee?.leave_group_id,
+        company_id: user?.company_id,
+        p_count,
+        a_count: this.getAbsentCount(item),
+        o_count: item?.o_count || 0,
+        other_count: this.getOtherCount(item),
+        rating: this.$utils.getRating(p_count, this.from_date, this.to_date),
+      };
+
+      const employeePayload = {
+        name: `${employee?.title || ""} ${employee?.full_name || ""}`.trim(),
+        profile_picture: employee?.profile_picture,
+        employee_id: item?.employee_id,
+        employee_id_for_payroll: employee?.employee_id,
+        employee_id_for_leave: employee?.employee_id,
+        designation: employee?.designation?.name,
+        branch: employee?.branch?.branch_name,
+        company: user?.company?.name,
+        email: employee?.local_email,
+        whatsapp_number: employee?.whatsapp_number,
+        home_country: employee?.home_country,
+        reporting_manager: employee?.reporting_manager?.first_name,
+        joining_date: employee?.show_joining_date,
+      };
+
+      const queryParams = new URLSearchParams({
+        item: JSON.stringify(itemPayload),
+        employee: JSON.stringify(employeePayload),
+        company_id: user?.company_id,
+        baseUrl: this.$backendUrl,
+      });
+
+      const url = `${
+        this.$appUrl
+      }/performance_report/index.html?${queryParams.toString()}`;
+      window.open(url, "_blank");
+    },
     getPresentCount(item) {
       return [item?.p_count, item?.lc_count, item?.eg_count].reduce(
         (sum, val) => sum + (val || 0),
