@@ -172,8 +172,8 @@
           v-model="report_template"
           x-small
           :items="[
-            { id: 'Template1', name: 'Monthly 1' },
-            { id: 'Template2', name: 'Monthly 2' },
+            { id: 'Template1', name: 'Monthly Report Format A' },
+            { id: 'Template2', name: 'Monthly Report Format B' },
             { id: 'Template3', name: 'Daily' },
           ]"
           item-text="name"
