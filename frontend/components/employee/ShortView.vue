@@ -129,7 +129,19 @@
                 <small>{{ item.date }} {{ item.time }}</small>
               </td>
               <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
-                <small>{{ item.log_type || "---" }}</small>
+                <small>
+                  <span v-if="item.log_type == 'Out'" style="color: red">
+                    {{ item.log_type || "---" }} </span
+                  ><span v-else-if="item.log_type == 'In'" style="color: green">
+                    {{ item.log_type || "---" }} </span
+                  ><span v-else> --- </span></small
+                >
+
+                <span v-if="item.log_type == 'Out'" style="color: red">
+                  {{ item.log_type || "---" }} </span
+                ><span v-else-if="item.log_type == 'In'" style="color: green">
+                  {{ item.log_type || "---" }} </span
+                ><span v-else> --- </span>
               </td>
               <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ item.device ? item.device.name : "---" }}</small>
