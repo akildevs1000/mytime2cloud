@@ -47,18 +47,41 @@
               <v-img :src="account.placeHolderImage"></v-img>
             </div>
 
-            <div class="text-center">
-              <v-btn
-                v-if="account.statusMessage"
-                block
-                small
-                color="#139c4a"
-                class="white--text"
-              >
+            <div class="text-center" v-if="account.statusMessage">
+              <v-btn block small color="#139c4a" class="white--text">
                 {{ account.statusMessage }}
               </v-btn>
+              <br />
+              <v-text-field
+                label="Receiver Number"
+                placeholder="(971xxxxxxxxx)"
+                outlined
+                dense
+                hide-details
+                v-model="receiver"
+              ></v-text-field>
+              <br />
+              <v-text-field
+                label="Message"
+                placeholder="write your message"
+                outlined
+                dense
+                hide-details
+                v-model="message"
+              ></v-text-field>
+              <br />
               <v-btn
-                v-else
+                block
+                small
+                color="blue"
+                class="white--text"
+                @click="sendTestMessage(account.clientId)"
+              >
+                Send Test Message
+              </v-btn>
+            </div>
+            <div class="text-center" v-else>
+              <v-btn
                 block
                 small
                 color="deep-purple accent-4 white--text"
@@ -73,6 +96,16 @@
 
       <!-- <pre>{{ accounts }}</pre> -->
     </v-card-text>
+
+    <v-alert
+      dark
+      dense
+      flat
+      :class="responseMessage?.color"
+      v-if="responseMessage"
+    >
+      {{ responseMessage?.message }}
+    </v-alert>
   </v-card>
 </template>
 
@@ -82,6 +115,9 @@ import QRCode from "qrcode";
 export default {
   data() {
     return {
+      receiver: "971xxxxxxxxx",
+      message: null,
+      responseMessage: null,
       clicked: false,
       accounts: [], // Array to store multiple account info
       intervalId: null, // Store the interval ID
@@ -105,6 +141,34 @@ export default {
   methods: {
     can(per) {
       return this.$pagePermission.can(per, this);
+    },
+    async sendTestMessage(clientId) {
+      try {
+        let payload = {
+          clientId: clientId,
+          recipient: this.receiver,
+          text: this.message,
+        };
+        await this.$axios.post(
+          `https://wa.mytime2cloud.com/send-message`,
+          payload
+        );
+        this.responseMessage = {
+          color: "green",
+          message: "Message Sent",
+        };
+
+        setTimeout(() => {
+          this.receiver = "971xxxxxxxxx";
+          this.message = null;
+          this.responseMessage = null;
+        }, 3000);
+      } catch (e) {
+        this.responseMessage = {
+          color: "red",
+          message: "Cannot send message",
+        };
+      }
     },
     async deleteItem(index) {
       const confirmDelete = window.confirm(
