@@ -115,6 +115,9 @@
                 </small>
               </td>
               <td style="font-size: 12px">
+                <small><b>In/Out</b></small>
+              </td>
+              <td style="font-size: 12px">
                 <small><b>Device</b></small>
               </td>
             </tr>
@@ -124,6 +127,9 @@
               </td>
               <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ item.date }} {{ item.time }}</small>
+              </td>
+              <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
+                <small>{{ item.log_type || "---" }}</small>
               </td>
               <td style="font-size: 14px; border-bottom: 1px solid #dddddd">
                 <small>{{ item.device ? item.device.name : "---" }}</small>
