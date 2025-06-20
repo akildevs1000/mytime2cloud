@@ -16,7 +16,7 @@
   {
     "icon": "mdi-clock-outline",
     "title": "Attendance",
-    "to": "/shift",
+    "to": "/devicelogs",
     "menu": "attendance",
     "module": "topmenu"
   },
