@@ -3,15 +3,16 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
 <body>
-    <footer id="page-bottom-line" >
+    <footer id="page-bottom-line">
         <table>
             <tr style="border :none">
                 <td style="text-align: left;border :none;width:33%;padding:10px;">
                     Printed on : {{ date('d-M-Y ') }}
                 </td>
 
-                <td style="text-align: center;border :none;padding:10px">
-                    Powered by {{ env('APP_NAME') }}
+                <td class="text-center" style="border :none;padding:10px">
+                    Powered by {{ env('APP_NAME') }} &nbsp; <a style="font-size:9px;color:#0097a7 !important;"
+                        href="https://mytime2cloud.com/"> https://mytime2cloud.com/</a>
                 </td>
                 <td style="text-align: right;border :none;padding:10px">
                     <div id="footer">
@@ -40,13 +41,13 @@
             <tr>
                 <td width="33%" style="border:none;">
                     <img src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
-                        alt="Company Logo" height="130">
+                        alt="Company Logo" height="100">
                 </td>
-                <td width="34%" style="font-size: 18px;border:none;" class="text-center">
-                    <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br> {{ $employee->full_name }}
-                    ({{ $employee->employee_id ?? '---' }}) <br>
-                    <small style="font-size:12px;"> {{ date('d-M-Y') }} -
-                        {{ date('d-M-Y') }}</small>
+                <td width="34%" style="border:none;" class="text-center">
+                    <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br> <span>{{ $employee->full_name }}
+                        ({{ $employee->employee_id ?? '---' }})</span>
+                    <br><small style="font-size:12px;"> {{ date('d M Y') }} -
+                        {{ date('dM Y') }}</small>
                 </td>
                 <td width="33%" style="font-size: 18px;  bold;text-align: right;border:none;">
                     <b>{{ $company->name ?? '' }}</b><br>
@@ -67,7 +68,7 @@
         $i = 0;
     @endphp
 
-    <div style="margin-top: 50px;">
+    <div style="margin-top:40px;">
         <hr>
         <table>
             <thead>
@@ -197,13 +198,13 @@
             <tr>
                 <td width="33%" style="border:none;">
                     <img src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
-                        alt="Company Logo" height="130">
+                        alt="Company Logo" height="100">
                 </td>
-                <td width="34%" style="font-size: 18px;border:none;" class="text-center">
-                    <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br> {{ $employee->full_name }}
-                    ({{ $employee->employee_id ?? '---' }}) <br>
-                    <small style="font-size:12px;"> {{ date('d-M-Y') }} -
-                        {{ date('d-M-Y') }}</small>
+                <td width="34%" style="border:none;" class="text-center">
+                    <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br> <span>{{ $employee->full_name }}
+                        ({{ $employee->employee_id ?? '---' }})</span>
+                    <br><small style="font-size:12px;"> {{ date('d M Y') }} -
+                        {{ date('dM Y') }}</small>
                 </td>
                 <td width="33%" style="font-size: 18px;  bold;text-align: right;border:none;">
                     <b>{{ $company->name ?? '' }}</b><br>
@@ -219,7 +220,7 @@
             </tr>
         </table>
     </div>
-    <div style="margin-top: 50px">
+    <div style="margin-top:40px">
         <hr>
         <table>
             <thead>
@@ -244,81 +245,132 @@
                     <td class="text-center th-color th-font-size"> OT </td>
                     <td class="text-center th-color th-font-size"> Status </td>
                 </tr>
+
             </thead>
             <tbody>
                 @endif
                 @endforeach
+
+                <tr>
+                    @if ($shift_type_id !== 2)
+                        <td class="text-center" colspan="13">
+                        </td>
+                        <td class="text-center" colspan="3">
+                            {{ $info->late_coming ?? '---' }}
+                        </td>
+                        <td class="text-center" colspan="3">
+                            {{ $info->early_going ?? '---' }}
+                        </td>
+                    @else
+                        <td class="text-center" colspan="19"></td>
+                    @endif
+
+                    <td class="text-center" style="color: #0097a7 !important;">{{ $info->total_hours ?? 0 }}</td>
+                    <td class="text-center" style="color: #0097a7 !important;"> {{ $info->total_ot_hours ?? 0 }}</td>
+                    <td></td>
+                </tr>
             </tbody>
         </table>
-        <table class="summary-table" style="margin-top:20px">
-            <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                <th style="text-align: center; border :none; padding:5px">EID</th>
-                <th style="text-align: center; border :none">Name</th>
-                <th style="text-align: center; border :none">Department</th>
-                <th style="text-align: center; border :none">Shift Type </th>
-                <th style="text-align: center; border :none;color:#eeeeee;"> -----</th>
+
+
+        <table class="summary-table" style="width:100%;margin-top:40px">
+
+            <tr class="summary-header" style="border: none;background-color:#0097a7;color:#fff;">
+                <th class="text-center" style="border :none; padding:5px">EID</th>
+                <th class="text-center" style="border :none">Name</th>
+                <th class="text-center" style="border :none">Department</th>
+                <th class="text-center" style="border :none">Shift Type </th>
+                <th class="text-center" style="border :none;color:#0097a7;"> -----</th>
 
             </tr>
             <tr style="border: none">
-                <td style="text-align: center; border :none; padding:5px;font-size:11px">
+                <td class="text-center" style="border :none; padding:5px;font-size:11px">
                     {{ $employee->employee_id ?? '---' }}
                 </td>
-                <td style="text-align: center; border:none;font-size:11px">
+                <td class="text-center" style="border:none;font-size:11px">
                     {{ $employee->full_name }}
                 </td>
-                <td style="text-align: center; border:none;font-size:11px">
+                <td class="text-center" style="border:none;font-size:11px">
                     {{ $employee->department->name ?? '---' }}
                 </td>
-                <td style="text-align: center; border:none;font-size:11px">
+                <td class="text-center" style="border:none;font-size:11px">
                     Multi In/Out
                 </td>
             </tr>
 
             <tr class="summary-header" style="border: none;background-color:#eeeeee">
-                <th style="text-align: center; border :none; padding:5px">Present</th>
-                <th style="text-align: center; border :none">Absent</th>
-                <th style="text-align: center; border :none">Week Off</th>
-                <th style="text-align: center; border :none">Leaves</th>
-                <th style="text-align: center; border :none;color:#eeeeee;"> -----</th>
+                <th class="text-center" style="border :none; padding:5px;">Present</th>
+                <th class="text-center" style="border :none; padding:5px;">Absent</th>
+                <th class="text-center" style="border :none; padding:5px;">Week Off</th>
+                <th class="text-center" style="border :none; padding:5px;">Leaves</th>
+                <th class="text-center" style="border :none; padding:5px;background-color:#eeeeee;color:#eeeeee">-----
+                </th>
             </tr>
             <tr style="border: none">
-                <td style="text-align: center; border :none; padding:5px;color:green !important">
-                    {{ $info->total_present }}
+                <td class="text-center" style="border :none; padding:5px;">
+                    {{ $info->total_present }} / {{ count($data) }}
                 </td>
-                <td style="text-align: center; border :none;color:red !important">
-                    {{ $info->total_absent }}
+                <td class="text-center" style="border :none;">
+                    {{ $info->total_absent }} / {{ count($data) }}
                 </td>
 
-                <td style="text-align: center; border :none;color:gray !important">
-                    {{ $info->total_off }}
+                <td class="text-center" style="border :none;">
+                    {{ $info->total_off }} / {{ count($data) }}
                 </td>
-                <td style="text-align: center; border :none;color:blue !important">
-                    {{ $info->total_leave }}
+                <td class="text-center" style="border :none;">
+                    {{ $info->total_leave }} / {{ count($data) }}
                 </td>
             </tr>
-            <tr class="summary-header" style="border: none;background-color:#eeeeee ">
-                <th style="text-align: center; border :none">Holidays</th>
-                <th style="text-align: center; border :none">Missing</th>
+            <tr class="summary-header" style="border: none;background-color:#eeeeee">
+                <th class="text-center" style="border :none;">Holidays</th>
+                <th class="text-center" style="border :none;">Missing</th>
 
-                <th style="text-align: center; border :none; padding:5px">Work Hours</th>
-                <th style="text-align: center; border :none">OT Hours</th>
-                <th style="text-align: center; border :none"> </th>
+                <th class="text-center" style="border :none; padding:5px;">Work Hours</th>
+                <th class="text-center" style="border :none;">OT Hours</th>
+                <th class="text-center" style="border :none;"> </th>
                 {{-- <th style="text-align: center; border :none">Department</th> --}}
             </tr>
             <tr style="border: none">
-                <td style="text-align: center; border :none;color:pink !important">
-                    {{ $info->total_holiday }}
+                <td class="text-center" style="border :none;">
+                    {{ $info->total_holiday }} / {{ count($data) }}
                 </td>
-                <td style="text-align: center; border :none;color:orange !important">
-                    {{ $info->total_missing }}
+                <td class="text-center" style="border :none;">
+                    {{ $info->total_missing }} / {{ count($data) }}
                 </td>
-                <td style="text-align: center; border :none; padding:5px;color:black !important">
+                <td class="text-center" style="border :none; padding:5px;">
                     {{ $info->total_hours ?? 0 }}
                 </td>
-                <td style="text-align: center; border :none;color:black !important">
+                <td class="text-center" style="border :none;">
                     {{ $info->total_ot_hours ?? 0 }}
                 </td>
-                <td style="text-align: center; border :none;color:black !important"> </td>
+                <td class="text-center" style="border :none;"> </td>
+            </tr>
+
+        </table>
+
+        <table style="margin-top: 60px">
+            <tr>
+                <td style="border: none">
+                    <span style="color:green !important; font-size:10px; ">
+                        P = Present,
+                    </span>
+                    <span style="color:red !important; font-size:10px; ">
+                        A = Absent,
+                    </span>
+                    <span style="color:gray !important; font-size:10px; ">
+                        W = Weekoff,
+                    </span>
+                    <span style="color:blue !important; font-size:10px; ">
+                        L = Leaves,
+                    </span>
+                    <span style="color:pink !important; font-size:10px; ">
+                        H = Holiday,
+                    </span>
+                    <span style="color:orange !important; font-size:10px; ">
+                        M = Missing
+                    </span>
+
+                </td>
             </tr>
         </table>
     </div>
@@ -326,7 +378,7 @@
 </body>
 <style>
     .th-color {
-        color: #005edf !important;
+        color: #0097a7 !important;
     }
 
     .th-font-size {
@@ -363,13 +415,13 @@
 
     #pageNumbers div:after {
         content: counter(pageTotal);
-         font-size: 9px
+        font-size: 9px
     }
 
     #page-bottom-line {
         width: 100%;
         position: fixed;
-        bottom: 0px;
+        bottom: 15px;
         text-align: center;
         font-size: 12px;
         counter-reset: pageTotal;
@@ -396,7 +448,7 @@
     }
 
     @page {
-        margin: 5px 30px 0px 30px;
+        margin: 15px 30px 0px 30px;
     }
 
     table {
