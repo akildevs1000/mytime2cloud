@@ -37,6 +37,7 @@ class GenerateAttendanceReport implements ShouldQueue
             'total_missing' => $model->clone()->where('status', 'M')->count(),
             'total_leave' => $model->clone()->where('status', 'L')->count(),
             'total_holiday' => $model->clone()->where('status', 'H')->count(),
+            'total_late' => $model->clone()->where('late_coming', '!=', '---')->count(),
             'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
             'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
