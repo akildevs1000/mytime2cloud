@@ -192,8 +192,8 @@ die();
                 <td width="34%" style="border:none;" class="text-center">
                     <b style="color: #005edf">MONTHLY ATTENDANCE REPORT</b> <br><br> <span>{{ $employee->full_name }}
                         ({{ $employee->employee_id ?? '---' }})</span>
-                     <br><small style="font-size:12px;"> {{ date('d M Y', strtotime($from_date)) }} -
-                        {{ date('d M Y', strtotime($to_date)) }}</small>
+                     <br><small style="font-size:12px;"> {{ date('M Y', strtotime($from_date)) }} -
+                        {{ date('M Y', strtotime($to_date)) }}</small>
                 </td>
                 <td width="33%" style="font-size: 18px;  bold;text-align: right;border:none;">
                     <b>{{ $company->name ?? '' }}</b><br>
