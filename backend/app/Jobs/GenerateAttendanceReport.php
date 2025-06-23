@@ -49,7 +49,10 @@ class GenerateAttendanceReport implements ShouldQueue
             'company' => $this->company,
             'info' => $info,
             "employee" => $this->employee,
-            "shift_type_id" => $this->shift_type_id ?? 0
+            "shift_type_id" => $this->shift_type_id ?? 0,
+
+            "from_date" => $this->requestPayload["from_date"],
+            "to_date" => $this->requestPayload["to_date"],
         ];
 
         $company_id = $this->requestPayload["company_id"];
