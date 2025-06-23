@@ -37,7 +37,53 @@
         <v-dialog persistent v-model="dialog" width="1350px">
           <v-card style="overflow-y: scroll; max-height: 850px">
             <v-container fluid>
-              <v-row no-gutters class="px-5 pt-12" id="screenshot-target">
+              <v-row no-gutters class="pa-5" id="screenshot-target">
+                <v-col cols="12">
+                  <table
+                    style="width: 100%"
+                    border="0"
+                    cellspacing="0"
+                    cellpadding="5"
+                  >
+                    <tr>
+                      <td width="33%" style="border: none">
+                        <img
+                          alt="Company Logo"
+                          height="100"
+                          v-if="logo"
+                          :src="logo"
+                        />
+                      </td>
+                      <td width="34%" style="border: none" class="text-center">
+                        <b style="color: #005edf">PERFORMANCE REPORT</b>
+                        <br />
+                        <span style="font-size: 14px"
+                          >{{ employee?.name }} ({{ employee?.employee_id ??
+                          "---" }})</span
+                        >
+                        <br /><small style="font-size: 12px">
+                          {{ dateRange }}</small
+                        >
+                      </td>
+                      <td
+                        width="33%"
+                        style="font-size: 18px; text-align: right; border: none"
+                      >
+                        <b>{{ user?.company?.name }}</b><br />
+                        <small style="font-size: 12px">
+                          {{user?.email ?? "" }}<br />
+                          {{companyContactInfo ?? "" }}
+                        </small>
+                        <div style="font-size: 12px">
+                          <small> {{user?.company?.location }}</small>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                </v-col>
+                <v-col cols="12" class="my-5">
+                  <hr />
+                </v-col>
                 <v-col style="margin-right: 10px">
                   <v-row no-gutters>
                     <v-col cols="12" style="margin-top: 10px">
@@ -49,7 +95,6 @@
                                 <v-avatar size="60">
                                   <img
                                     v-if="base64Image"
-                                    ref="profileImage"
                                     :src="base64Image"
                                     alt="Profile"
                                   />
@@ -542,6 +587,7 @@
                     </v-col>
                   </v-row>
                 </v-col>
+
                 <v-col cols="4" style="margin-top: 10px">
                   <v-row no-gutters>
                     <v-col cols="12">
@@ -706,6 +752,32 @@
                   </v-row>
                 </v-col>
               </v-row>
+              <v-row no-gutters class="px-5">
+                <v-col cols="12">
+                  <hr />
+                </v-col>
+                <v-col cols="4">
+                  <small>
+                    Printed On
+                    <b>
+                      {{new Date().toDateString()}} {{new
+                      Date().toLocaleTimeString()}}</b
+                    ></small
+                  >
+                </v-col>
+
+                <v-col cols="4" class="text-center">
+                  <small
+                    >Powered By MyTime2Cloud:
+                    <a href="https://mytime2cloud.com/"
+                      >https://mytime2cloud.com/</a
+                    ></small
+                  >
+                </v-col>
+                <v-col cols="4" class="text-right">
+                  <small>This is system generated report</small>
+                </v-col>
+              </v-row>
             </v-container>
           </v-card>
         </v-dialog>
@@ -759,6 +831,9 @@
               reporting_manager: "Behnaz",
               joining_date: "28 Dec 2024",
             },
+
+            user: null,
+            companyContactInfo: null,
 
             selectedDate: null, // Default to today
             maxDate: null,
@@ -876,6 +951,7 @@
             payslipsData: [],
             hoursReportData: null,
             base64Image: null,
+            logo: null,
             leaveQuota: null,
             baseUrl: null,
           };
@@ -885,8 +961,10 @@
           this.baseUrl = params.get("baseUrl");
           const itemObject = params.get("item");
           const employeeObject = params.get("employee");
+          const userObject = params.get("user");
+          console.log("🚀 ~ mounted ~ userObject:", userObject);
 
-          if (!itemObject || !employeeObject) {
+          if (!itemObject || !employeeObject || !userObject) {
             console.warn("Query parameters not found.");
             return;
           }
@@ -894,8 +972,14 @@
           try {
             this.item = JSON.parse(decodeURIComponent(itemObject));
             this.employee = JSON.parse(decodeURIComponent(employeeObject));
+            let user = JSON.parse(decodeURIComponent(userObject));
+
+            this.user = user;
 
             const { company_id } = this.item;
+
+            this.getCompanyContactInfo(company_id);
+
             const { employee_id, employee_id_for_payroll, profile_picture } =
               this.employee;
 
@@ -906,7 +990,6 @@
               );
               return;
             }
-
             // Fetch all data in parallel
             await Promise.all([
               this.getLastSixMonthReport({ company_id, employee_id }),
@@ -924,6 +1007,7 @@
                 employee_id: employee_id_for_payroll,
               }),
               this.getEncodedImage(profile_picture),
+              this.getEncodedLogo(user?.company?.logo),
               this.getLeaveQuota(),
               this.getYearlyLeaveQuota(),
             ]);
@@ -942,7 +1026,7 @@
             // Ensure DOM is updated before taking screenshot
             this.$nextTick(() => {
               setTimeout(() => {
-                this.takeScreenshot();
+                // this.takeScreenshot();
               }, 2000);
             });
           } catch (error) {
@@ -951,6 +1035,26 @@
               error
             );
           }
+        },
+        computed: {
+          dateRange() {
+            const from = this.item?.from_date
+              ? new Date(this.item.from_date)
+              : null;
+            const to = this.item?.to_date ? new Date(this.item.to_date) : null;
+
+            const format = (date) =>
+              new Intl.DateTimeFormat("en-US", {
+                month: "long",
+                year: "numeric",
+              }).format(date);
+
+            if (from && to) {
+              return `${format(from)} to ${format(to)}`;
+            } else {
+              return `${format(from)}`;
+            }
+          },
         },
         methods: {
           async getLastSixMonthReport(payload) {
@@ -976,6 +1080,11 @@
               { name: "Others", data: otherData },
             ];
           },
+          async getCompanyContactInfo(company_id) {
+            let endpoint = `get-company-contact-info/${company_id}`;
+            let { data } = await axios.post(endpoint);
+            this.companyContactInfo = data;
+          },
           async getCurrentMonthPerformanceReport(payload) {
             let endpoint = `current-month-performance-report`;
 
@@ -994,6 +1103,16 @@
               this.base64Image = data;
             } catch (error) {
               this.base64Image = null;
+            }
+          },
+          async getEncodedLogo(url) {
+            try {
+              let { data } = await axios.get(
+                `${this.baseUrl}/get-encoded-profile-picture/?url=${url}`
+              );
+              this.logo = data;
+            } catch (error) {
+              this.logo = null;
             }
           },
           async getCurrentMonthHoursReport(payload) {

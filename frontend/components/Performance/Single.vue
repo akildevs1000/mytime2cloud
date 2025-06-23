@@ -1162,6 +1162,7 @@ export default {
         employee: JSON.stringify(this.employee),
         company_id: this.$auth.user.company_id,
         baseUrl: this.$backendUrl,
+        user: JSON.stringify(this.$auth.user),
       });
 
       // Open the target page in a new window with the query parameters

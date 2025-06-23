@@ -295,6 +295,10 @@
                 other_count: getOtherCount(item),
 
                 rating: $utils.getRating(item.p_count, from_date, to_date),
+
+                from_date: from_date,
+                to_date: to_date,
+
               }"
               :employee="{
                 name: `${item?.employee?.title} ${item?.employee?.full_name}`,
@@ -443,6 +447,8 @@ export default {
         o_count: item?.o_count || 0,
         other_count: this.getOtherCount(item),
         rating: this.$utils.getRating(p_count, this.from_date, this.to_date),
+        from_date: this.from_date,
+        to_date: this.to_date,
       };
 
       const employeePayload = {
@@ -466,6 +472,7 @@ export default {
         employee: JSON.stringify(employeePayload),
         company_id: user?.company_id,
         baseUrl: this.$backendUrl,
+        user: JSON.stringify(this.$auth.user),
       });
 
       const url = `${
