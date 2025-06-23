@@ -98,7 +98,7 @@
                 dense
                 :headers="summaryReportHeaders"
                 :items="data"
-                hide-default-footer
+                hide-default-footer style="min-height: 620px;"
               >
                 <template v-slot:item.employee_name="{ item }">
                   <div
@@ -160,42 +160,27 @@
                 </template>
               </v-data-table>
               <v-divider></v-divider>
-              <v-row>
+              <v-row >
                 <v-col>
-                  <div class="pt-5">
-                    <small
-                      style="font-size: 8px !important"
-                      class="caption text-center py-10"
-                      >Printed On
+                  <small>
+                      Printed On
                       <b>
                         {{new Date().toDateString()}} {{new
                         Date().toLocaleTimeString()}}</b
                       ></small
                     >
-                  </div>
                 </v-col>
-                <v-col>
-                  <div class="text-center pt-5">
-                    <small
-                      style="font-size: 8px !important"
-                      v-if="payload"
-                      class="caption text-center py-10"
-                      >This is system generated report</small
+                <v-col class="text-center">
+                  <small
+                      >Powered By MyTime2Cloud:
+                      <a href="https://mytime2cloud.com/"
+                        >https://mytime2cloud.com/</a
+                      ></small
                     >
-                    <br />
-                  </div>
                 </v-col>
-                <v-col
-                  ><div class="text-right pt-5">
-                    <small
-                      style="font-size: 8px !important"
-                      v-if="payload"
-                      class="caption text-center py-10"
-                      >Page {{pageCounter}}</small
-                    >
-                    <br />
-                  </div>
-                </v-col>
+                <v-col cols="4" class="text-right">
+                    <small>This is system generated report</small>
+                  </v-col>
               </v-row>
             </v-container>
           </v-card>
