@@ -481,7 +481,7 @@ die();
             <th class="text-center" style="border :none">Name</th>
             <th class="text-center" style="border :none">Department</th>
             <th class="text-center" style="border :none">Shift Type </th>
-            <th class="text-center" style="border :none;color:#0097a7;"> -----</th>
+            <th class="text-center" style="border :none;color:#eeeeee;"> -----</th>
 
         </tr>
         <tr style="border: none">

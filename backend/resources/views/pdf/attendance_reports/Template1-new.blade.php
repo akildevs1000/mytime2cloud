@@ -275,12 +275,12 @@
 
         <table class="summary-table" style="width:100%;margin-top:40px">
 
-            <tr class="summary-header" style="border: none;background-color:#0097a7;color:#fff;">
+            <tr class="summary-header" style="border: none;background-color:#eeeeee">
                 <th class="text-center" style="border :none; padding:5px">EID</th>
                 <th class="text-center" style="border :none">Name</th>
                 <th class="text-center" style="border :none">Department</th>
                 <th class="text-center" style="border :none">Shift Type </th>
-                <th class="text-center" style="border :none;color:#0097a7;"> -----</th>
+                <th class="text-center" style="border :none;color:#eeeeee;"> -----</th>
 
             </tr>
             <tr style="border: none">
