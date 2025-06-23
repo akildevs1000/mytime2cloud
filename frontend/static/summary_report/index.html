@@ -16,12 +16,12 @@
     <script src="../js/jspdf.umd.min.js"></script>
     <style>
       .v-data-table-header th {
-        border-top: 1px solid #bdbdbd !important; /* Fix color code */
-        border-bottom: 1px solid #bdbdbd !important; /* Fix color code */
+        border-bottom: 1px solid #fff !important;
         font-weight: bold !important;
-        padding-top: 10px !important; /* Add space above text */
-        padding-bottom: 10px !important; /* Add space below text */
-        color: black !important;
+        padding-top: 5px !important; /* Add space above text */
+        padding-bottom: 5px !important; /* Add space below text */
+        color: #005edf !important;
+        background-color:#eeeeee !important;
       }
       /* HTML:  */
 
@@ -74,10 +74,10 @@
                 </v-col>
                 <v-col>
                   <div class="text-center pt-5">
-                    <div class="title">Summary Report</div>
+                    <div style="color: #005edf">Attendance Summary Report</div>
   
                     <small v-if="payload" class="caption text-center py-10"
-                      >{{payload.from_date}} - {{payload.to_date}}</small
+                      >{{dateRange}}</small
                     >
                   </div>
                 </v-col>
@@ -87,7 +87,7 @@
                     <div>
                       <small>{{company?.user?.email}}</small>
                     </div>
-                    <div>
+                      <div>
                       <small>{{company?.location}}</small>
                     </div>
                   </div>
@@ -345,7 +345,28 @@
 
           await this.getDataFromApi();
         },
+          computed: {
+          dateRange() {
+            const from = this.payload?.from_date
+              ? new Date(this.payload.from_date)
+              : null;
+            const to = this.payload?.to_date ? new Date(this.payload.to_date) : null;
+
+            const format = (date) =>
+              new Intl.DateTimeFormat("en-US", {
+                month: "long",
+                year: "numeric",
+              }).format(date);
+
+            if (from && to) {
+              return `${format(from)} to ${format(to)}`;
+            } else {
+              return `${format(from)}`;
+            }
+          },
+        },
         methods: {
+          
           async getEncodedImage(url) {
             try {
               if (false) {
