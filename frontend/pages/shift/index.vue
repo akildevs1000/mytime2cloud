@@ -1,5 +1,22 @@
 <template>
   <div v-if="can(`shift_access`)">
+    <style scoped>
+      .custom-input {
+        padding: 6px 10px;
+        height: 30px;
+        position: relative;
+        border-radius: 5px;
+        border: 1px solid grey;
+        font-size: 16px;
+        transition: border-color 0.3s ease-in-out;
+        outline: none; /* Remove default outline */
+      }
+
+      .custom-input:focus {
+        border-color: purple;
+      }
+    </style>
+
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ response }}
@@ -81,6 +98,25 @@
               ></v-text-field>
               <span v-if="errors && errors.name" class="text-danger">{{
                 errors.name[0]
+              }}</span>
+            </v-col>
+
+            <v-col
+              v-if="payload.shift_type_id == 4 || payload.shift_type_id == 6"
+              md="3"
+              sm="12"
+              cols="12"
+            >
+              <label>Overtime Type</label>
+              <v-select
+                v-model="payload.overtime_type"
+                :items="[`Both`, `Before Duty`, `After Duty`]"
+                :hide-details="true"
+                dense
+                outlined
+              ></v-select>
+              <span v-if="errors && errors.overtime_type" class="text-danger">{{
+                errors.overtime_type[0]
               }}</span>
             </v-col>
 
@@ -315,6 +351,7 @@ export default {
 
     payload: {
       shift_type_id: 1,
+      overtime_type: `Both`,
     },
     isNew: true,
     options: {},
@@ -612,19 +649,3 @@ export default {
   },
 };
 </script>
-<style scoped>
-.custom-input {
-  padding: 6px 10px;
-  height: 30px;
-  position: relative;
-  border-radius: 5px;
-  border: 1px solid grey;
-  font-size: 16px;
-  transition: border-color 0.3s ease-in-out;
-  outline: none; /* Remove default outline */
-}
-
-.custom-input:focus {
-  border-color: purple;
-}
-</style>
