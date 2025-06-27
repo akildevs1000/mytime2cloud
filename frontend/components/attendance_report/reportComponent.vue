@@ -133,35 +133,15 @@
 
         <template v-slot:item.shift="{ item }">
           <div>
-            {{ item?.employee?.schedule?.shift?.on_duty_time || "---" }} -
-            {{ item?.employee?.schedule?.shift?.off_duty_time || "---" }}
+            {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
           </div>
           <div class="secondary-value">
-            {{ item?.employee?.schedule?.shift?.name || "---" }}
+            {{ (item.shift && item.shift.name) || "---" }}
             <span v-if="checkHalfday(item || `---`)">
               {{ `(Half Day ${item.shift.halfday_working_hours} hrs)` }}
             </span>
           </div>
-          <!-- <v-tooltip v-if="item && item.shift" top color="primary">
-            <template v-slot:activator="{ on, attrs }">
-              <div class="primary--text" v-bind="attrs" v-on="on">
-                <div>
-                  {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
-                </div>
-                {{ (item.shift && item.shift.name) || "---" }}
-              </div>
-            </template>
-            <div v-for="(iterable, index) in item.shift" :key="index">
-              <span v-if="index !== 'id'">
-                {{ caps(index) }}: {{ iterable || "---" }}</span
-              >
-            </div>
-          </v-tooltip>
-          <span v-else>---</span> -->
         </template>
-        <!-- <template v-slot:item.name="{ item }">
-          {{ item.employee.first_name }} {{ item.employee.last_name }}
-        </template> -->
         <template v-slot:item.date="{ item }">
           <div>{{ item.date }}</div>
           <div class="secondary-value">
