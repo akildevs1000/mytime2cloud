@@ -133,7 +133,7 @@
 
         <template v-slot:item.shift="{ item }">
           <div>
-            {{ item.shift.on_duty_time }} - {{ item.shift.off_duty_time }}
+            {{ item?.shift?.on_duty_time || "---" }} - {{ item?.shift?.off_duty_time || "---" }}
           </div>
           <div class="secondary-value">
             {{ (item.shift && item.shift.name) || "---" }}
