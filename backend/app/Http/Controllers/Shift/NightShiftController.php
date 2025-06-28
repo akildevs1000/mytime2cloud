@@ -295,7 +295,7 @@ class NightShiftController extends Controller
                     $outTime = new DateTime($out);
                     $offDutyTime = $off_duty_time ? new DateTime($off_duty_time) : null;
 
-                    if ($shift["overtime_type"] === "After Duty") {
+                    if ($shift["overtime_type"] === "After") {
                         $earlyMinutes = 0;
                         if ($inTime < $onDutyTime) {
                             $earlyDiff = $onDutyTime->diff($inTime);
@@ -305,7 +305,7 @@ class NightShiftController extends Controller
                         $totalOtMinutes = max(0, $totalOtMinutes - $earlyMinutes);
                     }
 
-                    if ($shift["overtime_type"] === "Before Duty") {
+                    if ($shift["overtime_type"] === "Before") {
                         $lateMinutes = 0;
                         if ($offDutyTime && $outTime > $offDutyTime) {
                             $lateDiff = $outTime->diff($offDutyTime);

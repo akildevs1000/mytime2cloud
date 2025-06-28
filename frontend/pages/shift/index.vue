@@ -127,27 +127,28 @@
                       </v-col>
 
                       <v-col
-                      v-if="
-                        payload.shift_type_id == 4 || payload.shift_type_id == 6
-                      "
-                      md="3"
-                      sm="12"
-                      cols="12"
-                    >
-                      <label>Overtime Type</label>
-                      <v-select
-                        v-model="payload.overtime_type"
-                        :items="[`Both`, `Before`, `After`]"
-                        :hide-details="true"
-                        dense
-                        outlined
-                      ></v-select>
-                      <span
-                        v-if="errors && errors.overtime_type"
-                        class="text-danger"
-                        >{{ errors.overtime_type[0] }}</span
+                        v-if="
+                          payload.shift_type_id == 4 ||
+                          payload.shift_type_id == 6
+                        "
+                        md="3"
+                        sm="12"
+                        cols="12"
                       >
-                    </v-col>
+                        <label>Overtime Type</label>
+                        <v-select
+                          v-model="payload.overtime_type"
+                          :items="[`Both`, `Before`, `After`]"
+                          :hide-details="true"
+                          dense
+                          outlined
+                        ></v-select>
+                        <span
+                          v-if="errors && errors.overtime_type"
+                          class="text-danger"
+                          >{{ errors.overtime_type[0] }}</span
+                        >
+                      </v-col>
 
                       <v-col cols="12">
                         <SplitShift
@@ -196,63 +197,42 @@
                     Weekly Duty Schedule
                   </v-alert>
                   <v-card-text class="flex-grow-1 overflow-auto">
-                    <v-row
-                      no-gutters
-                      v-for="(day, index) in payload?.days"
-                      :key="index"
-                    >
+                    <v-row no-gutters v-for="(day, index) in days" :key="index">
                       <v-col cols="2">
                         <div>
                           {{ day }}
                         </div>
                       </v-col>
-                      <v-col class="text-right">
+                      <v-col class="text-right pt-1">
                         <div
-                          style="display: flex; height: 15px; overflow: hidden;"
+                          style="
+                            display: flex;
+                            height: 13px;
+                            overflow: hidden;
+                            border-radius: 5px;
+                          "
                           v-if="index > 0 && flexLayout.isNight"
                         >
                           <div
-                            :style="`flex: 0; background-color: #ddd;`"
-                          ></div>
-
-                          <div
-                            :style="`flex: ${flexLayout?.night?.dutyHours}; background-color: #00b050;
-      border-right: 5px solid orange;
-      `"
-                          ></div>
-
-                          <div
-                            :style="`flex: ${flexLayout?.night?.afterDuty}; background-color: #ddd;`"
-                          ></div>
-
-                          <div
-                            :style="`flex: ${
-                              flexLayout?.night?.Previous
-                            }; background-color: #00b050;
-      border-left: 5px solid #000;
-      border-right: ${!flexLayout.isNight ? 5 : 0}px solid #000;
-      `"
+                            v-for="(item, index) in nightSegment(day)"
+                            :key="index"
+                            :style="item"
                           ></div>
                         </div>
+
                         <div
-                          style="display: flex; height: 15px; overflow: hidden"
+                          style="
+                            display: flex;
+                            height: 13px;
+                            overflow: hidden;
+                            border-radius: 5px;
+                          "
                           v-else
                         >
                           <div
-                            :style="`flex: ${flexLayout.beforeDuty}; background-color: #ddd;`"
-                          ></div>
-
-                          <div
-                            :style="`flex: ${
-                              flexLayout.dutyHours
-                            }; background-color: #00b050;
-      border-left: 5px solid #000;
-      border-right: ${!flexLayout.isNight ? 5 : 0}px solid orange;
-      `"
-                          ></div>
-
-                          <div
-                            :style="`flex: ${flexLayout.afterDuty}; background-color: #ddd;`"
+                            v-for="(item, index) in segment(day)"
+                            :key="index"
+                            :style="item"
                           ></div>
                         </div>
                       </v-col>
@@ -393,7 +373,7 @@
                                       payload.shift_type_id == 4 ||
                                       payload.shift_type_id == 6
                                         ? payload.late_time + " Min"
-                                        :  "Not Applicable"
+                                        : "Not Applicable"
                                     }`
                                   }}
                                 </div>
@@ -406,14 +386,16 @@
                                 <div>Early Grace Time:</div>
                               </v-col>
                               <v-col class="text-right">
-                                <div> {{
+                                <div>
+                                  {{
                                     `${
                                       payload.shift_type_id == 4 ||
                                       payload.shift_type_id == 6
                                         ? payload.early_time + " Min"
-                                        :  "Not Applicable"
+                                        : "Not Applicable"
                                     }`
-                                  }}</div>
+                                  }}
+                                </div>
                               </v-col>
                             </v-row>
                             <v-divider></v-divider>
@@ -626,15 +608,7 @@ export default {
   components: { Back, DatePickerCommon, SplitShift },
 
   data: () => ({
-    days: [
-      { name: "MON", value: 80 },
-      { name: "TUE", value: 100 },
-      { name: "WED", value: 100 },
-      { name: "THU", value: 90 },
-      { name: "FRI", value: 90 },
-      { name: "SAT", value: 50 },
-      { name: "SUN", value: 0 },
-    ],
+    days: ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"],
     showDialog: false,
     branchList: [],
     isFilter: false,
@@ -671,6 +645,14 @@ export default {
     branch_id: 0,
     isCompany: true,
     comp: "",
+    colors: {
+      dutyHoursColor: "#00b050",
+      emptyColor: "#ddd",
+      otColor: "purple",
+      leftBorderColor: "#000",
+      rightBorderColor: "orange",
+    },
+    transition: "flex 0.5s ease",
   }),
 
   watch: {
@@ -692,16 +674,25 @@ export default {
 
     this.getComponent();
   },
+  watch: {
+    "payload.days"(newVal, oldVal) {
+      // Your logic when payload.days changes
+      console.log("payload.days changed:", oldVal, "→", newVal);
+    },
+  },
   computed: {
     flexLayout() {
       const onTime = this.payload?.on_duty_time ?? "00:00";
       const offTime = this.payload?.off_duty_time ?? "00:00";
+      const otInterval = this.payload?.overtime_interval ?? "00:00";
 
       const [onHour, onMin] = onTime.split(":").map(Number);
       const [offHour, offMin] = offTime.split(":").map(Number);
+      const [otHours, otMinutes] = otInterval.split(":").map(Number);
 
       const start = onHour + onMin / 60; // e.g. 09:30 => 9.5
       const end = offHour + offMin / 60; // e.g. 18:00 => 18
+      const otExtra = otHours + otMinutes / 60; // e.g., 0.5 for 00:30
 
       const dutyHours = end - start;
       const beforeDuty = start;
@@ -711,11 +702,15 @@ export default {
         dutyHours < 0 ? Math.abs(afterDuty) - Math.abs(dutyHours) : dutyHours;
 
       return {
+        otExtra,
         beforeDuty,
         dutyHours: Previous,
         afterDuty: dutyHours < 0 ? 0 : afterDuty,
         isNight: end < start,
+        emptyColor: "#ddd",
+        transition: "flex 0.5s ease",
         night: {
+          otExtra,
           beforeDuty: 0,
           dutyHours: Math.abs(Math.abs(Previous) - Math.abs(dutyHours)),
           afterDuty: afterDuty - Previous,
@@ -725,6 +720,117 @@ export default {
     },
   },
   methods: {
+    nightSegment(day) {
+      let { isNight, night, otExtra } = this.flexLayout;
+      let { overtime_type } = this.payload;
+
+      let exceptAfterDuty = overtime_type !== "After";
+      let exceptBeforeDuty = overtime_type !== "Before";
+      let totalOtMultiplier =
+        overtime_type == "Both" || overtime_type == undefined
+          ? otExtra * 2
+          : otExtra;
+      console.log("🚀 ~ nightSegment ~ overtime_type:", overtime_type);
+
+      let result = [
+        {
+          flex: night?.dutyHours,
+          backgroundColor: this.colors.dutyHoursColor,
+          transition: this.transition,
+          borderRight: `3px solid ${this.colors.rightBorderColor}`,
+        },
+        {
+          flex: exceptAfterDuty ? otExtra : 0,
+          backgroundColor: this.colors.emptyColor,
+          transition: this.transition,
+        },
+        {
+          flex: exceptAfterDuty
+            ? Math.abs(night?.dutyHours + night?.Previous - totalOtMultiplier)
+            : 0,
+          backgroundColor: this.colors.otColor,
+          transition: this.transition,
+        },
+        {
+          flex: exceptBeforeDuty
+            ? Math.abs(night?.dutyHours + night?.Previous - totalOtMultiplier)
+            : 0,
+          backgroundColor: this.colors.otColor,
+          transition: this.transition,
+        },
+        {
+          flex: exceptBeforeDuty ? otExtra : 0,
+          backgroundColor: this.colors.emptyColor,
+          transition: this.transition,
+        },
+        {
+          flex: night?.Previous,
+          backgroundColor: this.colors.dutyHoursColor,
+          transition: this.transition,
+          borderLeft: `3px solid ${this.colors.leftBorderColor}`,
+          borderRight: !isNight
+            ? `5px solid ${this.colors.rightBorderColor}`
+            : "0px",
+        },
+      ];
+      console.log("🚀 ~ nightSegment ~ result:", result);
+      return result;
+    },
+    segment(day) {
+      let { isNight, beforeDuty, afterDuty, otExtra, dutyHours } =
+        this.flexLayout;
+      let { overtime_type } = this.payload;
+
+      let exceptAfterDuty = !isNight && overtime_type !== "After";
+      let exceptBeforeDuty = !isNight && overtime_type !== "Before";
+
+      let beforeOtArea = beforeDuty - otExtra;
+      let afterOtArea = afterDuty - otExtra;
+
+      let {
+        otColor,
+        emptyColor,
+        dutyHoursColor,
+        leftBorderColor,
+        rightBorderColor,
+      } = this.colors;
+
+      return [
+        {
+          flex: beforeDuty,
+          backgroundColor: isNight ? otColor : emptyColor,
+          transition: this.transition,
+        },
+        {
+          flex: exceptAfterDuty ? beforeOtArea : 0,
+          backgroundColor: otColor,
+          transition: this.transition,
+        },
+        {
+          flex: exceptAfterDuty ? otExtra : 0,
+          backgroundColor: emptyColor,
+          transition: this.transition,
+        },
+        {
+          flex: dutyHours,
+          backgroundColor: dutyHoursColor,
+          transition: this.transition,
+          borderLeft: `3px solid ${leftBorderColor}`,
+          borderRight:
+            (!isNight ? "3px" : "0px") + ` solid ${rightBorderColor}`,
+        },
+        {
+          flex: !isNight && exceptBeforeDuty ? otExtra : 0,
+          backgroundColor: emptyColor,
+          transition: this.transition,
+        },
+        {
+          flex: !isNight && exceptBeforeDuty ? afterOtArea : 0,
+          backgroundColor: otColor,
+          transition: this.transition,
+        },
+      ];
+    },
     searchData() {
       if (this.filters.search.length == 0 || this.filters.search.length > 3) {
         this.getDataFromApi();
