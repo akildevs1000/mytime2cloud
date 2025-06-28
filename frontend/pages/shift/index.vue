@@ -662,6 +662,10 @@ export default {
       },
       deep: true,
     },
+    "payload.days"(newVal, oldVal) {
+      // Your logic when payload.days changes
+      console.log("payload.days changed:", oldVal, "→", newVal);
+    },
   },
   async created() {
     this.loading = true;
@@ -673,12 +677,6 @@ export default {
     }
 
     this.getComponent();
-  },
-  watch: {
-    "payload.days"(newVal, oldVal) {
-      // Your logic when payload.days changes
-      console.log("payload.days changed:", oldVal, "→", newVal);
-    },
   },
   computed: {
     flexLayout() {
@@ -800,7 +798,11 @@ export default {
       let result = [
         {
           flex: isNight ? firstRow + otExtra : firstRow,
-          backgroundColor: isNight ? otColor :  exceptAfterDuty ? otColor : emptyColor,
+          backgroundColor: isNight
+            ? otColor
+            : exceptAfterDuty
+            ? otColor
+            : emptyColor,
           transition: this.transition,
         },
         {
