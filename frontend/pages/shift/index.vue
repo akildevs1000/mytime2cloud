@@ -730,7 +730,6 @@ export default {
         overtime_type == "Both" || overtime_type == undefined
           ? otExtra * 2
           : otExtra;
-      console.log("🚀 ~ nightSegment ~ overtime_type:", overtime_type);
 
       let result = [
         {
@@ -773,19 +772,20 @@ export default {
             : "0px",
         },
       ];
-      console.log("🚀 ~ nightSegment ~ result:", result);
       return result;
     },
     segment(day) {
-      let { isNight, beforeDuty, afterDuty, otExtra, dutyHours } =
-        this.flexLayout;
+      let { isNight, otExtra, dutyHours } = this.flexLayout;
       let { overtime_type } = this.payload;
 
       let exceptAfterDuty = !isNight && overtime_type !== "After";
       let exceptBeforeDuty = !isNight && overtime_type !== "Before";
 
-      let beforeOtArea = beforeDuty - otExtra;
-      let afterOtArea = afterDuty - otExtra;
+      let isBoth = overtime_type == "Both" || overtime_type == undefined;
+
+      let multiplier = isBoth ? 2 : 1;
+
+      let busyArea = dutyHours + otExtra * multiplier;
 
       let {
         otColor,
@@ -795,19 +795,16 @@ export default {
         rightBorderColor,
       } = this.colors;
 
-      return [
+      let firstRow = (24 - busyArea) / (isNight ? 1 : multiplier);
+
+      let result = [
         {
-          flex: beforeDuty,
-          backgroundColor: isNight ? otColor : emptyColor,
+          flex: isNight ? firstRow + otExtra : firstRow,
+          backgroundColor: isNight ? otColor :  exceptAfterDuty ? otColor : emptyColor,
           transition: this.transition,
         },
         {
-          flex: exceptAfterDuty ? beforeOtArea : 0,
-          backgroundColor: otColor,
-          transition: this.transition,
-        },
-        {
-          flex: exceptAfterDuty ? otExtra : 0,
+          flex: otExtra,
           backgroundColor: emptyColor,
           transition: this.transition,
         },
@@ -820,16 +817,18 @@ export default {
             (!isNight ? "3px" : "0px") + ` solid ${rightBorderColor}`,
         },
         {
-          flex: !isNight && exceptBeforeDuty ? otExtra : 0,
+          flex: isNight ? 0 : otExtra,
           backgroundColor: emptyColor,
           transition: this.transition,
         },
         {
-          flex: !isNight && exceptBeforeDuty ? afterOtArea : 0,
-          backgroundColor: otColor,
+          flex: isNight ? 0 : (24 - busyArea) / multiplier,
+          backgroundColor: exceptBeforeDuty ? otColor : emptyColor,
           transition: this.transition,
         },
       ];
+
+      return result;
     },
     searchData() {
       if (this.filters.search.length == 0 || this.filters.search.length > 3) {
