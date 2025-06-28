@@ -9,7 +9,8 @@
         border: 1px solid grey;
         font-size: 16px;
         transition: border-color 0.3s ease-in-out;
-        outline: none; /* Remove default outline */
+        outline: none;
+        /* Remove default outline */
       }
 
       .custom-input:focus {
@@ -24,50 +25,68 @@
     </div>
     <!-- <Back class="primary white--text" /> -->
 
-    <v-dialog persistent v-model="showDialog" width="1100">
-      <v-card>
-        <v-card-title dark class="popup_background">
-          {{ Model }}
-          <v-spacer></v-spacer>
-          <v-icon @click="showDialog = false" dark outlined>
-            mdi mdi-close-circle
-          </v-icon>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <v-checkbox
-                hide-details
-                small
-                color="primary"
-                v-model="payload.isAutoShift"
-                label="Auto Shift"
-              >
-              </v-checkbox>
-            </v-col>
-            <v-col md="3" sm="12" cols="12">
-              <label>Type of Schedule <span class="error--text">*</span></label>
-              <v-select
-                @change="getRelatedShiftComponent"
-                v-model="payload.shift_type_id"
-                :items="[
-                  { id: 1, name: `Flexible` },
-                  { id: 4, name: `Night` },
-                  { id: 6, name: `Single` },
-                  { id: 5, name: `Dual` },
-                  { id: 2, name: `Multi` },
-                ]"
-                item-value="id"
-                item-text="name"
-                :hide-details="true"
-                dense
-                outlined
-              ></v-select>
-              <span v-if="errors && errors.shift_type_id" class="text-danger">{{
-                errors.shift_type_id[0]
-              }}</span>
-            </v-col>
-            <!-- <v-col v-if="isCompany" md="3" sm="12" cols="12">
+    <v-dialog persistent v-model="showDialog" width="1200">
+      <WidgetsClose @click="showDialog = false" left="1190" />
+      <v-card style="background-color: #ddd !important">
+        <style scoped>
+          .card-wrapper {
+            height: 700px; /* Or any fixed height like 500px */
+            display: flex;
+            flex-direction: column;
+          }
+          .fill {
+            height: 100%;
+          }
+        </style>
+        <div class="card-wrapper">
+          <v-container fluid class="fill pb-0">
+            <v-row class="fill" align="stretch">
+              <v-col cols="8" class="fill">
+                <v-card class="fill d-flex flex-column">
+                  <v-alert dense flat dark class="primary">
+                    {{ Model }}
+                  </v-alert>
+                  <v-card-text class="flex-grow-1 overflow-auto pt-1">
+                    <v-row>
+                      <v-col cols="12">
+                        <v-checkbox
+                          hide-details
+                          small
+                          color="primary"
+                          v-model="payload.isAutoShift"
+                          label="Auto Shift"
+                          dense
+                        >
+                        </v-checkbox>
+                      </v-col>
+                      <v-col md="3" sm="12" cols="12">
+                        <label
+                          >Type of Schedule
+                          <span class="error--text">*</span></label
+                        >
+                        <v-select
+                          @change="getRelatedShiftComponent"
+                          v-model="payload.shift_type_id"
+                          :items="[
+                            { id: 1, name: `Flexible` },
+                            { id: 4, name: `Night` },
+                            { id: 6, name: `Single` },
+                            { id: 5, name: `Dual` },
+                            { id: 2, name: `Multi` },
+                          ]"
+                          item-value="id"
+                          item-text="name"
+                          :hide-details="true"
+                          dense
+                          outlined
+                        ></v-select>
+                        <span
+                          v-if="errors && errors.shift_type_id"
+                          class="text-danger"
+                          >{{ errors.shift_type_id[0] }}</span
+                        >
+                      </v-col>
+                      <!-- <v-col v-if="isCompany" md="3" sm="12" cols="12">
               <label>Branch <span class="error--text">*</span></label>
               <v-select
                 clearable
@@ -88,74 +107,348 @@
               }}</span>
             </v-col> -->
 
-            <v-col md="3" sm="12" cols="12">
-              <label>Name of Schedule<span class="error--text">*</span></label>
-              <v-text-field
-                v-model="payload.name"
-                :hide-details="true"
-                dense
-                outlined
-              ></v-text-field>
-              <span v-if="errors && errors.name" class="text-danger">{{
-                errors.name[0]
-              }}</span>
-            </v-col>
+                      <v-col md="3" sm="12" cols="12">
+                        <label
+                          >Name of Schedule<span class="error--text"
+                            >*</span
+                          ></label
+                        >
+                        <v-text-field
+                          v-model="payload.name"
+                          :hide-details="true"
+                          dense
+                          outlined
+                        ></v-text-field>
+                        <span
+                          v-if="errors && errors.name"
+                          class="text-danger"
+                          >{{ errors.name[0] }}</span
+                        >
+                      </v-col>
 
-            <v-col
-              v-if="payload.shift_type_id == 4 || payload.shift_type_id == 6"
-              md="3"
-              sm="12"
-              cols="12"
-            >
-              <label>Overtime Type</label>
-              <v-select
-                v-model="payload.overtime_type"
-                :items="[`Both`, `Before Duty`, `After Duty`]"
-                :hide-details="true"
-                dense
-                outlined
-              ></v-select>
-              <span v-if="errors && errors.overtime_type" class="text-danger">{{
-                errors.overtime_type[0]
-              }}</span>
-            </v-col>
+                      <v-col
+                      v-if="
+                        payload.shift_type_id == 4 || payload.shift_type_id == 6
+                      "
+                      md="3"
+                      sm="12"
+                      cols="12"
+                    >
+                      <label>Overtime Type</label>
+                      <v-select
+                        v-model="payload.overtime_type"
+                        :items="[`Both`, `Before`, `After`]"
+                        :hide-details="true"
+                        dense
+                        outlined
+                      ></v-select>
+                      <span
+                        v-if="errors && errors.overtime_type"
+                        class="text-danger"
+                        >{{ errors.overtime_type[0] }}</span
+                      >
+                    </v-col>
 
-            <v-col cols="12">
-              <SplitShift
-                v-if="payload.shift_type_id == 5"
-                :key="renderComponent"
-                :shift_type_id="payload.shift_type_id"
-                :name="payload.name"
-                @success="getDataFromApi"
-                :payload="payload"
-                @close-popup="showDialog = false"
-              />
-              <component
-                v-if="payload.shift_type_id != 5"
-                :key="renderComponent"
-                :errors="errors"
-                :payload="payload"
-                :is="comp"
-              />
-            </v-col>
-          </v-row>
-          <v-row v-if="can(`shift_create`) && payload.shift_type_id != 5">
-            <v-col cols="12" style="float: right; text-align: right">
-              <v-btn
-                v-if="payload && payload.id > 0"
-                small
-                color="primary"
-                @click="update"
-              >
-                Update
-              </v-btn>
+                      <v-col cols="12">
+                        <SplitShift
+                          v-if="payload.shift_type_id == 5"
+                          :key="renderComponent"
+                          :shift_type_id="payload.shift_type_id"
+                          :name="payload.name"
+                          @success="getDataFromApi"
+                          :payload="payload"
+                          @close-popup="showDialog = false"
+                        />
+                        <component
+                          v-if="payload.shift_type_id != 5"
+                          :key="renderComponent"
+                          :errors="errors"
+                          :payload="payload"
+                          :is="comp"
+                        />
+                      </v-col>
+                    </v-row>
+                    <v-row
+                      v-if="can(`shift_create`) && payload.shift_type_id != 5"
+                    >
+                      <v-col cols="12" style="float: right; text-align: right">
+                        <v-btn
+                          v-if="payload && payload.id > 0"
+                          small
+                          color="primary"
+                          @click="update"
+                        >
+                          Update
+                        </v-btn>
 
-              <v-btn v-else small color="primary" @click="submit">
-                Submit
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
+                        <v-btn v-else small color="primary" @click="submit">
+                          Submit
+                        </v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+
+              <v-col class="fill">
+                <v-card class="fill d-flex flex-column">
+                  <v-alert dense flat dark class="primary">
+                    Weekly Duty Schedule
+                  </v-alert>
+                  <v-card-text class="flex-grow-1 overflow-auto">
+                    <v-row
+                      no-gutters
+                      v-for="(day, index) in payload?.days"
+                      :key="index"
+                    >
+                      <v-col cols="2">
+                        <div>
+                          {{ day }}
+                        </div>
+                      </v-col>
+                      <v-col class="text-right">
+                        <div
+                          style="display: flex; height: 15px; overflow: hidden;"
+                          v-if="index > 0 && flexLayout.isNight"
+                        >
+                          <div
+                            :style="`flex: 0; background-color: #ddd;`"
+                          ></div>
+
+                          <div
+                            :style="`flex: ${flexLayout?.night?.dutyHours}; background-color: #00b050;
+      border-right: 5px solid orange;
+      `"
+                          ></div>
+
+                          <div
+                            :style="`flex: ${flexLayout?.night?.afterDuty}; background-color: #ddd;`"
+                          ></div>
+
+                          <div
+                            :style="`flex: ${
+                              flexLayout?.night?.Previous
+                            }; background-color: #00b050;
+      border-left: 5px solid #000;
+      border-right: ${!flexLayout.isNight ? 5 : 0}px solid #000;
+      `"
+                          ></div>
+                        </div>
+                        <div
+                          style="display: flex; height: 15px; overflow: hidden"
+                          v-else
+                        >
+                          <div
+                            :style="`flex: ${flexLayout.beforeDuty}; background-color: #ddd;`"
+                          ></div>
+
+                          <div
+                            :style="`flex: ${
+                              flexLayout.dutyHours
+                            }; background-color: #00b050;
+      border-left: 5px solid #000;
+      border-right: ${!flexLayout.isNight ? 5 : 0}px solid orange;
+      `"
+                          ></div>
+
+                          <div
+                            :style="`flex: ${flexLayout.afterDuty}; background-color: #ddd;`"
+                          ></div>
+                        </div>
+                      </v-col>
+                    </v-row>
+
+                    <v-row no-gutters class="mt-5" align="stretch">
+                      <v-col cols="12">
+                        <v-card elevation="0" flat>
+                          <v-card-text>
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Schedule Name:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.name || "---" }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Type Schedule -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Type Schedule:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  {{
+                                    [
+                                      { id: 1, name: `Flexible` },
+                                      { id: 4, name: `Night` },
+                                      { id: 6, name: `Single` },
+                                      { id: 5, name: `Dual` },
+                                      { id: 2, name: `Multi` },
+                                    ].find((e) => e.id == payload.shift_type_id)
+                                      ?.name
+                                  }}
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Duty Hours -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Duty Hours:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  {{ payload.on_duty_time }} to
+                                  {{ payload.off_duty_time }}
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Week Days -->
+                            <v-row no-gutters>
+                              <v-col cols="3">
+                                <div>Days:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  {{
+                                    payload?.days?.length
+                                      ? payload.days.join(",")
+                                      : "---"
+                                  }}
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Half Day -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Half Day:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.halfday }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Half Day Duty Hours -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Half Day Duty Hours:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.halfday_working_hours }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Week End 1 -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Week End 1:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.weekend1 }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Week End 2 -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Week End 2:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.weekend2 }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Monthly Flexible Holidays -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Monthly Flexible Holidays:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  {{
+                                    payload.monthly_flexi_holidays == 0
+                                      ? "Not Applicable"
+                                      : payload.monthly_flexi_holidays + " Day"
+                                  }}{{
+                                    payload.monthly_flexi_holidays > 1
+                                      ? "s"
+                                      : ""
+                                  }}
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Late Grace Time -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Late Grace Time:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  {{
+                                    `${
+                                      payload.shift_type_id == 4 ||
+                                      payload.shift_type_id == 6
+                                        ? payload.late_time + " Min"
+                                        :  "Not Applicable"
+                                    }`
+                                  }}
+                                </div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Early Grace Time -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>Early Grace Time:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div> {{
+                                    `${
+                                      payload.shift_type_id == 4 ||
+                                      payload.shift_type_id == 6
+                                        ? payload.early_time + " Min"
+                                        :  "Not Applicable"
+                                    }`
+                                  }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- OT -->
+                            <v-row no-gutters>
+                              <v-col>
+                                <div>OT Type:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>{{ payload.overtime_type || "---" }}</div>
+                              </v-col>
+                            </v-row>
+                            <v-divider></v-divider>
+                            <!-- Condition -->
+                            <v-row no-gutters>
+                              <v-col cols="3">
+                                <div>Condition:</div>
+                              </v-col>
+                              <v-col class="text-right">
+                                <div>
+                                  Over time starts {{ payload.overtime_type }}
+                                  {{ payload.overtime_interval }} mins only
+                                </div>
+                              </v-col>
+                            </v-row>
+                          </v-card-text>
+                        </v-card>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </div>
       </v-card>
     </v-dialog>
     <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
@@ -333,6 +626,15 @@ export default {
   components: { Back, DatePickerCommon, SplitShift },
 
   data: () => ({
+    days: [
+      { name: "MON", value: 80 },
+      { name: "TUE", value: 100 },
+      { name: "WED", value: 100 },
+      { name: "THU", value: 90 },
+      { name: "FRI", value: 90 },
+      { name: "SAT", value: 50 },
+      { name: "SUN", value: 0 },
+    ],
     showDialog: false,
     branchList: [],
     isFilter: false,
@@ -390,7 +692,38 @@ export default {
 
     this.getComponent();
   },
+  computed: {
+    flexLayout() {
+      const onTime = this.payload?.on_duty_time ?? "00:00";
+      const offTime = this.payload?.off_duty_time ?? "00:00";
 
+      const [onHour, onMin] = onTime.split(":").map(Number);
+      const [offHour, offMin] = offTime.split(":").map(Number);
+
+      const start = onHour + onMin / 60; // e.g. 09:30 => 9.5
+      const end = offHour + offMin / 60; // e.g. 18:00 => 18
+
+      const dutyHours = end - start;
+      const beforeDuty = start;
+      const afterDuty = 24 - end;
+
+      let Previous =
+        dutyHours < 0 ? Math.abs(afterDuty) - Math.abs(dutyHours) : dutyHours;
+
+      return {
+        beforeDuty,
+        dutyHours: Previous,
+        afterDuty: dutyHours < 0 ? 0 : afterDuty,
+        isNight: end < start,
+        night: {
+          beforeDuty: 0,
+          dutyHours: Math.abs(Math.abs(Previous) - Math.abs(dutyHours)),
+          afterDuty: afterDuty - Previous,
+          Previous,
+        },
+      };
+    },
+  },
   methods: {
     searchData() {
       if (this.filters.search.length == 0 || this.filters.search.length > 3) {
