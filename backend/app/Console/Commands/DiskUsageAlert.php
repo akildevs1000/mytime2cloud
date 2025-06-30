@@ -15,12 +15,14 @@ class DiskUsageAlert extends Command
         $output = shell_exec("df / | grep / | awk '{ print $5 }'");
         $usage = (int) trim(str_replace('%', '', $output));
 
+        $to = env("ADMIN_MAIL_RECEIVERS", "francisgill1000@gmail.com");
+
         $this->info("SENDER MAIL: " . env("MAIL_FROM_ADDRESS", "francisgill1000@gmail.com"));
 
-        $this->info("RECEIVERS MAIL: " . env("ADMIN_MAIL_RECEIVERS", "francisgill1000@gmail.com"));
+        $this->info("RECEIVERS MAIL: " . $to);
 
         if ($usage > 80) {
-            $to = 'your@email.com';
+            
             Mail::raw("⚠️ Disk usage on / has reached {$usage}%", function ($message) use ($to, $usage) {
                 $message->to($to)
                     ->subject("Disk Alert: {$usage}% used");
