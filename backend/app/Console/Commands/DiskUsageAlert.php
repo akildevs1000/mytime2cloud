@@ -22,8 +22,8 @@ class DiskUsageAlert extends Command
         $this->info("RECEIVERS MAIL: " . $to);
 
         if ($usage > 80) {
-            
-            Mail::raw("⚠️ Disk usage on / has reached {$usage}%", function ($message) use ($to, $usage) {
+
+            Mail::raw("⚠️ Your disk has reached {$usage}%", function ($message) use ($to, $usage) {
                 $message->to($to)
                     ->subject("Disk Alert: {$usage}% used");
             });
