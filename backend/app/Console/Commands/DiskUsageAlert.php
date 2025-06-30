@@ -53,7 +53,6 @@ EOT;
             });
 
             $this->info("Alert email sent with fix instructions. Usage: {$usage}%");
-            
         } else {
             $this->info("Disk usage is fine: {$usage}%");
         }
