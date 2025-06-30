@@ -23,12 +23,37 @@ class DiskUsageAlert extends Command
 
         if ($usage > 80) {
 
-            Mail::raw("⚠️ Your disk has reached {$usage}%", function ($message) use ($to, $usage) {
+            $fixSteps = <<<EOT
+⚠️ Your disk has reached {$usage}%.
+
+Suggested steps to free space:
+
+1. Check large folders and files:
+   sudo du -h --max-depth=1 / | sort -hr | head -n 10
+
+2. Clean apt cache:
+   sudo apt-get clean
+
+3. Clear old logs:
+   sudo journalctl --vacuum-time=2d
+
+4. Remove old Snap versions:
+   sudo snap list --all
+   sudo snap remove --purge <package-name> --revision=<old-revision>
+
+5. Delete temporary files:
+   sudo rm -rf /tmp/*
+
+Please take immediate action to avoid system issues.
+EOT;
+
+            Mail::raw($fixSteps, function ($message) use ($to, $usage) {
                 $message->to($to)
                     ->subject("Disk Alert: {$usage}% used");
             });
 
-            $this->info("Alert email sent. Usage: {$usage}%");
+            $this->info("Alert email sent with fix instructions. Usage: {$usage}%");
+            
         } else {
             $this->info("Disk usage is fine: {$usage}%");
         }
