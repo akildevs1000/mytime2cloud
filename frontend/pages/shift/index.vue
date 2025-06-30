@@ -23,6 +23,7 @@
         width: 100%;
         max-width: 600px;
         margin: 5px 0;
+        overflow: hidden;
       }
 
       .segment {
@@ -186,7 +187,7 @@
                         <label>Overtime Type</label>
                         <v-select
                           v-model="payload.overtime_type"
-                          :items="[`Both`, `Before`, `After`,`None`]"
+                          :items="[`Both`, `Before`, `After`, `None`]"
                           :hide-details="true"
                           dense
                           outlined
@@ -255,11 +256,22 @@
                         <div class="custom-slider" ref="slider">
                           <!-- Segments -->
                           <div
+                            v-if="flexLayout.isNight && index > 0"
+                            class="segment before"
+                            :style="{
+                              width: (flexLayout.start / 24) * 100 + '%',
+                              backgroundColor: '#8e44ff',
+                            }"
+                          ></div>
+
+                          <div
+                            v-else
                             class="segment before"
                             :style="{
                               width: (flexLayout.start / 24) * 100 + '%',
                               backgroundColor:
-                                payload.overtime_type == `After` ||  payload.overtime_type == `None`
+                                payload.overtime_type == `After` ||
+                                payload.overtime_type == `None`
                                   ? `#e0e0e0`
                                   : `#d8bfff`,
                             }"
@@ -280,7 +292,8 @@
                               left: (flexLayout.end / 24) * 100 + '%',
                               width: ((24 - flexLayout.end) / 24) * 100 + '%',
                               backgroundColor:
-                                payload.overtime_type == `Before` ||  payload.overtime_type == `None`
+                                payload.overtime_type == `Before` ||
+                                payload.overtime_type == `None`
                                   ? `#e0e0e0`
                                   : `#d8bfff`,
                             }"
@@ -295,6 +308,13 @@
                             @mousedown="startDrag('start')"
                           ></div>
                           <div
+                            v-if="flexLayout.isNight && index !== 0"
+                            class="handle"
+                            :style="{ left: (flexLayout.end / 24) * 100 + '%' }"
+                            @mousedown="startDrag('end')"
+                          ></div>
+                           <div
+                            v-else-if="!flexLayout.isNight"
                             class="handle"
                             :style="{ left: (flexLayout.end / 24) * 100 + '%' }"
                             @mousedown="startDrag('end')"
@@ -798,15 +818,12 @@ export default {
     flexLayout() {
       const onTime = this.payload?.on_duty_time ?? "00:00";
       const offTime = this.payload?.off_duty_time ?? "00:00";
-      const otInterval = this.payload?.overtime_interval ?? "00:00";
 
       const [onHour, onMin] = onTime.split(":").map(Number);
       const [offHour, offMin] = offTime.split(":").map(Number);
-      const [otHours, otMinutes] = otInterval.split(":").map(Number);
 
       const start = onHour + onMin / 60; // e.g. 09:30 => 9.5
       const end = offHour + offMin / 60; // e.g. 18:00 => 18
-      const otExtra = otHours + otMinutes / 60; // e.g., 0.5 for 00:30
 
       const dutyHours = end - start;
       const beforeDuty = start;
@@ -815,10 +832,9 @@ export default {
       let Previous =
         dutyHours < 0 ? Math.abs(afterDuty) - Math.abs(dutyHours) : dutyHours;
 
-      return {
+      let result = {
         start,
         end,
-        otExtra,
         beforeDuty,
         dutyHours: Previous,
         afterDuty: dutyHours < 0 ? 0 : afterDuty,
@@ -826,60 +842,18 @@ export default {
         emptyColor: "#ddd",
         transition: "flex 0.5s ease",
         night: {
-          otExtra,
           beforeDuty: 0,
           dutyHours: Math.abs(Math.abs(Previous) - Math.abs(dutyHours)),
           afterDuty: afterDuty - Previous,
           Previous,
         },
       };
+      console.log("🚀 ~ flexLayout ~ result:", result);
+
+      return result;
     },
   },
   methods: {
-    nightSegment(day) {
-      let { isNight, night, otExtra } = this.flexLayout;
-      let { overtime_type } = this.payload;
-
-      let exceptAfterDuty = overtime_type !== "After";
-      let exceptBeforeDuty = overtime_type !== "Before";
-      let totalOtMultiplier =
-        overtime_type == "Both" || overtime_type == undefined
-          ? otExtra * 2
-          : otExtra;
-
-      let result = [
-        {
-          flex: night?.dutyHours,
-          backgroundColor: this.colors.dutyHoursColor,
-          transition: this.transition,
-          borderRight: `3px solid ${this.colors.rightBorderColor}`,
-        },
-
-        {
-          flex: exceptAfterDuty
-            ? Math.abs(night?.dutyHours + night?.Previous - totalOtMultiplier)
-            : 0,
-          backgroundColor: this.colors.otColor,
-          transition: this.transition,
-        },
-
-        {
-          flex: exceptBeforeDuty ? otExtra : 0,
-          backgroundColor: this.colors.emptyColor,
-          transition: this.transition,
-        },
-        {
-          flex: night?.Previous,
-          backgroundColor: this.colors.dutyHoursColor,
-          transition: this.transition,
-          borderLeft: `3px solid ${this.colors.leftBorderColor}`,
-          borderRight: !isNight
-            ? `5px solid ${this.colors.rightBorderColor}`
-            : "0px",
-        },
-      ];
-      return result;
-    },
     searchData() {
       if (this.filters.search.length == 0 || this.filters.search.length > 3) {
         this.getDataFromApi();
