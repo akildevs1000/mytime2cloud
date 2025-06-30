@@ -16,6 +16,8 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('monitor:disk')->dailyAt('08:00');
+
         $schedule->command('birthday:wish')->dailyAt('00:00');
 
         $schedule->command('delete_old_records')->monthlyOn(1, '00:00');
@@ -95,7 +97,7 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
-                ->everyThirtyMinutes()
+                // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
                 ->runInBackground();
 
