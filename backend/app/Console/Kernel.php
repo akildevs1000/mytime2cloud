@@ -96,14 +96,14 @@ class Kernel extends ConsoleKernel
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
-            // $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
-            //     // ->everyThirtyMinutes()
-            //     ->dailyAt('5:20')
-            //     ->runInBackground();
-
-            $schedule->command("task:sync_multishift_includes_two_datesonly")
-                ->everySixHours()
+            $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
+                // ->everyThirtyMinutes()
+                ->dailyAt('5:20')
                 ->runInBackground();
+
+            // $schedule->command("task:sync_multishift_includes_two_datesonly")
+            //     ->everySixHours()
+            //     ->runInBackground();
 
             // $schedule
             //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
