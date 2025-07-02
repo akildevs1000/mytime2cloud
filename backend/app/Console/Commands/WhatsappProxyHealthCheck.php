@@ -6,17 +6,23 @@ use Illuminate\Console\Command;
 
 class WhatsappProxyHealthCheck extends Command
 {
-    protected $signature = 'whatsapp:proxy-health-check {path=/root/wa}';
+    protected $signature = 'whatsapp:proxy-health-check {minutes=240} {path=/root/wa}';
     protected $description = 'Check recently updated WhatsApp proxy CSV files (last 2 hours) using shell';
 
     public function handle()
     {
         $path = $this->argument('path');
 
-        // Sanitize path
+        $minutes = $this->argument('path');
+
         $escapedPath = escapeshellarg($path);
 
-        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin -120";
+        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin -$minutes";
+
+        $this->line("Checking for recently updated CSV files in $path...");
+
+        $this->line("Running command: $command");
+
 
         $output = shell_exec($command);
 
