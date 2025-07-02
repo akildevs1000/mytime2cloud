@@ -19,7 +19,7 @@ class WhatsappProxyHealthCheck extends Command
 
         $escapedPath = escapeshellarg($path);
 
-        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin -$minutes";
+        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin +$minutes";
 
         $this->info("Checking for recently updated CSV files in $path");
         $this->info("Running command: $command");
