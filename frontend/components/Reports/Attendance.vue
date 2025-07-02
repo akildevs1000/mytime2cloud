@@ -289,6 +289,32 @@
                 </div>
                 <div class="px-1 mt-3" style="width: 100%">
                   <v-autocomplete
+                    class="mx-1"
+                    v-if="isCompany"
+                    label="Branch"
+                    @change="
+                      () => {
+                        getScheduledEmployees();
+                        getDepartments();
+                      }
+                    "
+                    placeholder="Branch"
+                    outlined
+                    dense
+                    v-model="payload.branch_id"
+                    x-small
+                    clearable
+                    :items="[
+                      { id: null, branch_name: 'All Branches' },
+                      ...branches,
+                    ]"
+                    item-value="id"
+                    item-text="branch_name"
+                    :hide-details="true"
+                  ></v-autocomplete>
+                </div>
+                <div class="px-1 mt-3" style="width: 100%">
+                  <v-autocomplete
                     style="width: 100%"
                     label="Employee ID"
                     outlined
