@@ -869,6 +869,11 @@ export default {
     },
 
     regnerateReport() {
+      
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
       this.loading = true;
       let payload = {
         params: {
