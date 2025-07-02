@@ -13,7 +13,7 @@ class WhatsappProxyHealthCheck extends Command
     {
         $path = $this->argument('path');
 
-        $minutes = $this->argument('path');
+        $minutes = $this->argument('minutes');
 
         $escapedPath = escapeshellarg($path);
 
