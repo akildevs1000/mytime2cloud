@@ -69,16 +69,16 @@ class WhatsappProxyHealthCheck extends Command
         return Command::SUCCESS;
     }
 
-    protected function sendEmailsForCsvIds($to = 'francisgill1000@gmail.com')
+    protected function sendEmailsForCsvIds($to = 'akildevs1000@gmail.com')
     {
         if ($to) {
             Mail::raw("Dear Admin,\n\nYour WhatsApp account has expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
                 $message->to($to)
-                    // ->bcc('francisgill1000@gmail.com')
+                    // ->bcc('akildevs1000@gmail.com')
                     ->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
 
-            $this->info("Email sent to $to with BCC to francisgill1000@gmail.com");
+            $this->info("Email sent to $to with BCC to akildevs1000@gmail.com");
         }
     }
 }
