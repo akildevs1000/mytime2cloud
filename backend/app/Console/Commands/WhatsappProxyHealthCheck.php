@@ -26,14 +26,22 @@ class WhatsappProxyHealthCheck extends Command
 
         $output = shell_exec($command);
 
-        $companies = Company::get(["id", "company_code"]);
+        $companies = Company::with('user')->get(['id', 'company_code', 'user_id']);
+
+        if ($companies->isEmpty()) {
+            $this->info("No company found.");
+            return;
+        }
+
+        // Key by company_code for easy access
+        $companyEmails = $companies->keyBy('company_code')->map(function ($company) {
+            return $company->user?->email; // use null safe operator
+        })->toArray();
 
         if (!count($companies)) {
             $this->info("No company found.");
             return;
         }
-
-        $companyids = array_column($companies->toArray(), "company_code");
 
         if ($output) {
             $this->info("CSV files modified in the last $minutes minutes:");
@@ -45,9 +53,12 @@ class WhatsappProxyHealthCheck extends Command
                 if (preg_match('/\/([^\/]+)_logs\.csv$/', $line, $matches)) {
                     $id = explode("_", $matches[1])[0] ?? null; // e.g. AE00042
 
-                    if ($id && in_array($id, $companyids)) {
-                        $this->sendEmailsForCsvIds($id, "francisgill1000@gmail.com");
-                        $this->info("Id from file: $id, Company IDs: " . implode(", ", $companyids));
+                    if ($id && isset($companyEmails[$id])) {
+                        $companyEmail = $companyEmails[$id];
+
+                        $this->sendEmailsForCsvIds();
+
+                        $this->info("Email sent for $id to $companyEmail (bcc to Francis)");
                     }
                 }
             }
@@ -58,16 +69,16 @@ class WhatsappProxyHealthCheck extends Command
         return Command::SUCCESS;
     }
 
-    protected function sendEmailsForCsvIds($to)
+    protected function sendEmailsForCsvIds($to = 'francisgill1000@gmail.com')
     {
-
         if ($to) {
-            Mail::raw("Dear Admin,\n\nYour whatsapp account has been expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
+            Mail::raw("Dear Admin,\n\nYour WhatsApp account has expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
                 $message->to($to)
-                    ->subject("Mytime2cloud: Whatsapp Account Expired");
+                    // ->bcc('francisgill1000@gmail.com')
+                    ->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
 
-            $this->info("Email sent to $to");
+            $this->info("Email sent to $to with BCC to francisgill1000@gmail.com");
         }
     }
 }
