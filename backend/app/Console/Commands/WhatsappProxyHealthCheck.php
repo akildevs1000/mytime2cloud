@@ -19,7 +19,7 @@ class WhatsappProxyHealthCheck extends Command
 
         $escapedPath = escapeshellarg($path);
 
-        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin -$minutes";
+        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin +$minutes";
 
         $this->info("Checking for recently updated CSV files in $path");
         $this->info("Running command: $command");
@@ -56,7 +56,7 @@ class WhatsappProxyHealthCheck extends Command
                     if ($id && isset($companyEmails[$id])) {
                         $companyEmail = $companyEmails[$id];
 
-                        $this->sendEmailsForCsvIds();
+                        $this->sendEmailsForCsvIds($companyEmail);
 
                         $this->info("Email sent for $id to $companyEmail (bcc to Francis)");
                     }
@@ -74,7 +74,7 @@ class WhatsappProxyHealthCheck extends Command
         if ($to) {
             Mail::raw("Dear Admin,\n\nYour WhatsApp account has expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
                 $message->to($to)
-                    // ->bcc('akildevs1000@gmail.com')
+                    ->bcc('akildevs1000@gmail.com')
                     ->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
 
