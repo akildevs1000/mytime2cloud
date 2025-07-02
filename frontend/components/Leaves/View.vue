@@ -264,7 +264,7 @@
                           block
                           :disabled="!allowAction"
                           class="error align-right mr-5"
-                          v-if="editedItem.status == 0"
+                          v-if="editedItem.status == 0 || $auth?.user?.is_master"
                           small
                           @click="rejectLeave(editedItem.id)"
                         >
@@ -276,7 +276,7 @@
                           block
                           :disabled="!allowAction"
                           class="primary"
-                          v-if="editedItem.status == 0"
+                           v-if="editedItem.status == 0 || $auth?.user?.is_master"
                           small
                           @click="approveLeave(editedItem.id)"
                           >Approve</v-btn
@@ -443,14 +443,9 @@ export default {
       return this.formatDate(this.editedItem.end_date);
     },
     allowAction() {
+      if(this.$auth?.user?.is_master) return true;
       let item = this.editedItem;
       let user = this.$auth.user;
-      console.log(
-        item.employee.department_id,
-        user?.department_id,
-        item.status,
-        item.order
-      );
 
       if (user?.user_type == "department") {
         return (
