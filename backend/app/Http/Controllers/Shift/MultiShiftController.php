@@ -240,12 +240,6 @@ class MultiShiftController extends Controller
 
             $lastLog = end($logsJson);
 
-            // If either 'in' or 'out' is '---', mark as MISSING
-            $item["status"] = ($lastLog['in'] === '---' || $lastLog['out'] === '---')
-                ? Attendance::MISSING
-                : Attendance::PRESENT;
-
-
             $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
 
             // return $item["logs"];
