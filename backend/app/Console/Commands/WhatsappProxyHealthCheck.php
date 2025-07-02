@@ -12,23 +12,36 @@ class WhatsappProxyHealthCheck extends Command
     public function handle()
     {
         $path = $this->argument('path');
-
         $minutes = $this->argument('minutes');
 
         $escapedPath = escapeshellarg($path);
 
-        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin -$minutes";
+        $command = "find $escapedPath -type f -iname \"*.csv\" -mmin +$minutes";
 
-        $this->line("Checking for recently updated CSV files in $path...");
-
-        $this->line("Running command: $command");
-
+        $this->info("Checking for recently updated CSV files in $path");
+        $this->info("Running command: $command");
 
         $output = shell_exec($command);
 
         if ($output) {
-            $this->info("CSV files modified in the last 2 hours:");
+            $this->info("CSV files modified in the last $minutes minutes:");
             $this->line($output);
+
+            $lines = explode("\n", trim($output));
+            $ids = [];
+
+            foreach ($lines as $line) {
+                if (preg_match('/\/([^\/]+)_logs\.csv$/', $line, $matches)) {
+                    $ids[] = $matches[1]; // e.g. AE00042_1751446185853
+                }
+            }
+
+            if (!empty($ids)) {
+                $this->info("Extracted IDs:");
+                $this->line(json_encode($ids, JSON_PRETTY_PRINT));
+            } else {
+                $this->warn("No valid CSV filenames matched the pattern.");
+            }
         } else {
             $this->warn("No recent CSV files found or an error occurred.");
         }
