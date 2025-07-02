@@ -16,6 +16,11 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+
+        $schedule->command('whatsapp:proxy-health-check')
+            ->everyTwoHours()
+            ->withoutOverlapping();
+
         $schedule->command('monitor:disk')->dailyAt('08:00');
 
         $schedule->command('birthday:wish')->dailyAt('00:00');

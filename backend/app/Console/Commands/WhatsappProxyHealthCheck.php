@@ -14,6 +14,8 @@ class WhatsappProxyHealthCheck extends Command
 
     public function handle()
     {
+        $this->logCommandOutput("WhatsappProxyHealthCheck command ran at: " . now());
+
         $path = $this->argument('path');
         $minutes = $this->argument('minutes');
 
@@ -21,15 +23,15 @@ class WhatsappProxyHealthCheck extends Command
 
         $command = "find $escapedPath -type f -iname \"*.csv\" -mmin +$minutes";
 
-        $this->info("Checking for recently updated CSV files in $path");
-        $this->info("Running command: $command");
+        $this->logCommandOutput("Checking for recently updated CSV files in $path");
+        $this->logCommandOutput("Running command: $command");
 
         $output = shell_exec($command);
 
         $companies = Company::with('user')->get(['id', 'company_code', 'user_id']);
 
         if ($companies->isEmpty()) {
-            $this->info("No company found.");
+            $this->logCommandOutput("No company found.");
             return;
         }
 
@@ -39,12 +41,12 @@ class WhatsappProxyHealthCheck extends Command
         })->toArray();
 
         if (!count($companies)) {
-            $this->info("No company found.");
+            $this->logCommandOutput("No company found.");
             return;
         }
 
         if ($output) {
-            $this->info("CSV files modified in the last $minutes minutes:");
+            $this->logCommandOutput("CSV files modified in the last $minutes minutes:");
             $this->line($output);
 
             $lines = explode("\n", trim($output));
@@ -58,12 +60,12 @@ class WhatsappProxyHealthCheck extends Command
 
                         $this->sendEmailsForCsvIds($companyEmail);
 
-                        $this->info("Email sent for $id to $companyEmail (bcc to Francis)");
+                        $this->logCommandOutput("Email sent for $id to $companyEmail (bcc to Francis)");
                     }
                 }
             }
         } else {
-            $this->warn("No recent CSV files found or an error occurred.");
+            $this->logCommandOutput("No recent CSV files found or an error occurred.");
         }
 
         return Command::SUCCESS;
@@ -77,8 +79,14 @@ class WhatsappProxyHealthCheck extends Command
                     ->bcc('akildevs1000@gmail.com')
                     ->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
-
-            $this->info("Email sent to $to with BCC to akildevs1000@gmail.com");
+            $this->logCommandOutput("Email sent to $to with BCC to akildevs1000@gmail.com");
         }
+    }
+
+    protected function logCommandOutput(string $message)
+    {
+        $logFile = storage_path('logs/whatsapp-health.log');
+
+        file_put_contents($logFile, "[" . now() . "] " . $message . PHP_EOL, FILE_APPEND);
     }
 }
