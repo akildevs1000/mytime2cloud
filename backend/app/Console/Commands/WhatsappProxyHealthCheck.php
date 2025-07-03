@@ -96,6 +96,8 @@ class WhatsappProxyHealthCheck extends Command
 
     protected function logCommandOutput(string $message)
     {
+        $this->info($message);
+
         $logFile = storage_path('logs/whatsapp-health.log');
 
         file_put_contents($logFile, "[" . now() . "] " . $message . PHP_EOL, FILE_APPEND);
