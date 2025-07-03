@@ -1619,20 +1619,28 @@ class DeviceController extends Controller
 
     public function decrypt()
     {
-        Device::truncate();
-
+        //Device::truncate();
         try {
-            // Insert devices
+            // Insert only new devices (skip duplicates)
             $devices = request()->input('devices');
             if (!empty($devices)) {
-                Device::insert($devices);
+                $deviceIds = collect($devices)->pluck('device_id')->all();
+                $existingDeviceIds = Device::whereIn('device_id', $deviceIds)->pluck('device_id')->toArray();
+
+                $newDevices = collect($devices)->filter(function ($device) use ($existingDeviceIds) {
+                    return !in_array($device['device_id'], $existingDeviceIds);
+                })->values()->all();
+
+                if (!empty($newDevices)) {
+                    Device::insert($newDevices);
+                }
             }
 
             // Update company_id for specified devices
-            $deviceIds = request()->input('device_ids');
+            $deviceIdsToUpdate = request()->input('device_ids');
             $companyId = request()->input('company_id');
-            if (!empty($deviceIds) && !empty($companyId)) {
-                Device::whereIn('device_id', $deviceIds)->update(['company_id' => $companyId]);
+            if (!empty($deviceIdsToUpdate) && !empty($companyId)) {
+                Device::whereIn('device_id', $deviceIdsToUpdate)->update(['company_id' => $companyId]);
             }
 
             return $this->response('Devices have been inserted and updated.', request()->all(), true);
