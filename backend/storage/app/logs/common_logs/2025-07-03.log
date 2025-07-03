@@ -1,0 +1,120 @@
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:21:05] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.048919916152954 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:21:08] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.14455008506775 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:22:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.0016131401062012 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:22:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.02678918838501 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:23:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.0022628307342529 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:23:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.026389122009277 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:24:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.001755952835083 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:24:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.029779195785522 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:25:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.001903772354126 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:25:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.026374816894531 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:26:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.001629114151001 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:26:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.026500940322876 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:27:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.0020320415496826 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:27:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.031063079833984 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:28:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.0018329620361328 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:28:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.027277946472168 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:29:01] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 0.0017678737640381 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:29:03] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.026627779006958 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****
+*****Cron started for task:sync_attendance_logs  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:30:05] Cron: Sync Attenance Logs. File doest not exist.\n"
+⏳ Execution Time: 3.7760272026062 sec
+💾 Memory Used: 114.42 KB
+*****Cron Ended for task:sync_attendance_logs  *****
+*****Cron started for task:update_company_ids  *****
+✔ Execution Successful
+▶ Result: "[2025-07-03 16:30:07] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n"
+⏳ Execution Time: 0.035234212875366 sec
+💾 Memory Used: 1,589.75 KB
+*****Cron Ended for task:update_company_ids  *****

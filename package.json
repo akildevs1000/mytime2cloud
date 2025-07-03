@@ -1,0 +1,11 @@
+{
+  "name": "nginx-launcher",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^29.0.0",
+    "simple-git": "^3.28.0"
+  }
+}

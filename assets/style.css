@@ -1,0 +1,109 @@
+body {
+  max-width: 70%;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Segoe UI", "Roboto", sans-serif;
+  background-color: #1e1e2e;
+  color: #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+}
+
+h2 {
+  margin-bottom: 20px;
+  color: #00b0ff;
+}
+
+#logs {
+  width: 100%;
+  height: 480px;
+  background: #121212;
+  border-radius: 10px;
+  overflow-y: auto;
+  box-shadow: 0 0 12px rgba(0, 176, 255, 0.2);
+  white-space: pre-wrap;
+  font-family: monospace;
+  border: 1px solid #ccc;
+  color: #0f0;
+  font-family: monospace;
+  margin-top: 10px;
+}
+
+
+#searchInput {
+  width: 100%;
+  max-width: 900px;
+  background: #121212;
+  padding: 16px;
+  border-radius: 10px;
+  overflow-y: auto;
+  box-shadow: 0 0 12px rgba(0, 176, 255, 0.2);
+  white-space: pre-wrap;
+  font-family: monospace;
+  border: 1px solid #ccc;
+  color: #0f0;
+  font-family: monospace;
+  margin-top: 10px;
+}
+
+input[type="number"] {
+  width: 160px;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid #333;
+  border-radius: 5px;
+  font-size: 16px;
+  background-color: #2a2a2a;
+  color: #eeeeee;
+  outline: none;
+}
+
+input[type="number"]::placeholder {
+  color: #888;
+}
+
+.btn {
+  padding: 14px;
+  margin-top: 5px;
+  height: 45px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 6px;
+  background-color: #121212;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0 0 12px rgba(0, 176, 255, 0.2);
+  border: 1px solid #ccc;
+  color: #fff;
+}
+
+.btn:hover {
+  background-color: #0093dd;
+  transform: scale(1.03);
+}
+
+.btn:active {
+  background-color: #007bb8;
+}
+
+.search-controls {
+
+width: 100%;
+
+border-radius: 10px;
+
+white-space: pre-wrap;
+
+font-family: monospace;
+
+margin-top: 10px;
+
+display: flex;
+
+align-items: center;
+
+gap: 10px;
+}
