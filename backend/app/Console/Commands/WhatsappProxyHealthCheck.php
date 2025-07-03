@@ -58,7 +58,8 @@ class WhatsappProxyHealthCheck extends Command
                     if ($id && isset($companyEmails[$id])) {
                         $companyEmail = $companyEmails[$id];
 
-                        $this->sendEmailsForCsvIds($companyEmail);
+                        // $this->sendEmailsForCsvIds($companyEmail);
+                        $this->sendEmailsForCsvIds();
 
                         $this->logCommandOutput("Email sent for $id to $companyEmail (bcc to Francis)");
 
@@ -81,7 +82,7 @@ class WhatsappProxyHealthCheck extends Command
         return Command::SUCCESS;
     }
 
-    protected function sendEmailsForCsvIds($to = 'akildevs1000@gmail.com')
+    protected function sendEmailsForCsvIds($to = 'francisgill1000@gmail.com')
     {
         if ($to) {
             Mail::raw("Dear Admin,\n\nYour WhatsApp account has expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
