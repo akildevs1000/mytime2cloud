@@ -76,7 +76,8 @@ class WhatsappProxyHealthCheck extends Command
                 }
             }
         } else {
-            $this->logCommandOutput("No recent CSV files found or an error occurred.");
+            $this->logCommandOutput("No CSV files found older than $minutes minutes.");
+            $this->sendEmailsForTest($minutes);
         }
 
         return Command::SUCCESS;
@@ -89,6 +90,16 @@ class WhatsappProxyHealthCheck extends Command
                 $message->to($to)
                     ->bcc('akildevs1000@gmail.com')
                     ->subject("MyTime2Cloud: WhatsApp Account Expired");
+            });
+            $this->logCommandOutput("Email sent to $to with BCC to akildevs1000@gmail.com");
+        }
+    }
+
+    protected function sendEmailsForTest($minutes, $to = 'francisgill1000@gmail.com')
+    {
+        if ($to) {
+            Mail::raw("Dear Admin,\n\No CSV files found older than $minutes minutes or an error occurred.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
+                $message->to($to)->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
             $this->logCommandOutput("Email sent to $to with BCC to akildevs1000@gmail.com");
         }
