@@ -101,7 +101,7 @@ class WhatsappProxyHealthCheck extends Command
             Mail::raw("Dear Admin,\n\No CSV files found older than $minutes minutes or an error occurred.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
                 $message->to($to)->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
-            $this->logCommandOutput("Email sent to $to with BCC to akildevs1000@gmail.com");
+            $this->logCommandOutput("Email sent to $to");
         }
     }
 
