@@ -309,6 +309,8 @@ class DeviceController extends Controller
             $data["serial_number"] = $data["device_id"];
             $data["ip"] = "0.0.0.0";
             $data["port"] = "0000";
+            $data["is_manual_create"] = true;
+
             $record = $model->create($data);
             $this->updateDevicesJson();
             if ($record) {

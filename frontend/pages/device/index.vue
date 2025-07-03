@@ -915,7 +915,7 @@
           </v-col>
           <v-col md="12">
             <v-text-field
-              :disabled="true"
+              :disabled="!payload.is_manual_create"
               class="pb-0"
               :hide-details="!payload.device_id"
               v-model="payload.device_id"
@@ -1099,9 +1099,8 @@
           </v-btn>
         </span>
         <span>
-          <DeviceUploader @success="(e) => getDataFromApi()" />
-          <!-- <v-btn
-            v-if="can(`device_create`)"
+          <v-btn
+            v-if="can(`device_create`) && data.length < 2"
             x-small
             :ripple="false"
             text
@@ -1109,7 +1108,9 @@
             @click="addItem()"
           >
             <v-icon dark white>mdi-plus-circle</v-icon>
-          </v-btn> -->
+          </v-btn>
+          <DeviceUploader v-else @success="(e) => getDataFromApi()" />
+
         </span>
       </v-toolbar>
 
