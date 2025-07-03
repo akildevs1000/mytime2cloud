@@ -147,6 +147,13 @@
           {{ item.LogTime }}
         </span>
       </template>
+      <template v-slot:item.inout="{ item }">
+        <span v-if="item.log_type == 'Out'" style="color: red">
+          {{ item.log_type || "---" }} </span
+        ><span v-else-if="item.log_type == 'In'" style="color: green">
+          {{ item.log_type || "---" }} </span
+        ><span v-else> --- </span>
+      </template>
 
       <template v-slot:item.device_info="{ item }">
         <div class="secondary-value" v-if="item.DeviceID?.includes(`Mobile`)">
@@ -162,9 +169,16 @@
       </template>
 
       <template v-slot:item.mode="{ item }">
-        <v-icon color="secondary" v-if="item.DeviceID?.includes(`Mobile`)">mdi-cellphone</v-icon>
-        <span  v-else>
-          <v-avatar v-for="(icon, index) in getRelatedIcons(item.mode)" :key="index" class="mx-1" tile size="20"
+        <v-icon color="secondary" v-if="item.DeviceID?.includes(`Mobile`)"
+          >mdi-cellphone</v-icon
+        >
+        <span v-else>
+          <v-avatar
+            v-for="(icon, index) in getRelatedIcons(item.mode)"
+            :key="index"
+            class="mx-1"
+            tile
+            size="20"
             ><img style="width: 100%" :src="icon"
           /></v-avatar>
         </span>
@@ -230,6 +244,14 @@ export default {
           filterable: true,
 
           value: "LogTime", //edit purpose
+        },
+        {
+          text: "In/Out",
+          align: "left",
+          sortable: true,
+          filterable: true,
+
+          value: "inout",
         },
         {
           text: "Mode",
@@ -515,11 +537,7 @@ export default {
         Repeated: [], // assuming no icons for Repeated
       };
 
-      return (
-        icons[mode] || [
-          iconPath + "02.png",
-        ]
-      );
+      return icons[mode] || [iconPath + "02.png"];
     },
   },
 };

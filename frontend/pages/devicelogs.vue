@@ -90,7 +90,7 @@
               text
               @click="generateLogsDialog = true"
             >
-              <v-icon class="">mdi mdi-plus-circle</v-icon> 
+              <v-icon class="">mdi mdi-plus-circle</v-icon>
             </v-btn>-->
             <span>
               <v-autocomplete
@@ -385,6 +385,13 @@
                 }}
               </div>
             </template>
+            <template v-slot:item.inout="{ item }">
+              <span v-if="item.log_type == 'Out'" style="color: red">
+                {{ item.log_type || "---" }} </span
+              ><span v-else-if="item.log_type == 'In'" style="color: green">
+                {{ item.log_type || "---" }} </span
+              ><span v-else> --- </span>
+            </template>
             <template v-slot:item.LogTime="{ item }">
               <span
                 :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
@@ -565,6 +572,15 @@ export default {
         sortable: true,
         key: "device",
         value: "device.name",
+        filterable: true,
+        filterSpecial: true,
+      },
+      {
+        text: "In/Out",
+        align: "left",
+        sortable: true,
+        key: "inout",
+        value: "inout",
         filterable: true,
         filterSpecial: true,
       },

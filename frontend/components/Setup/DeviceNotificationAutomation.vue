@@ -25,7 +25,6 @@
             :footer-props="{
               itemsPerPageOptions: [10, 50, 100, 500, 1000],
             }"
-            class="elevation-1"
             :server-items-length="totalRowsCount_history"
           >
             <template v-slot:item.sno1="{ item }">
@@ -180,7 +179,6 @@
           :footer-props="{
             itemsPerPageOptions: [10, 50, 100, 500, 1000],
           }"
-          class="elevation-1"
           :server-items-length="totalRowsCount"
         >
           <template v-slot:header="{ props: { headers } }">

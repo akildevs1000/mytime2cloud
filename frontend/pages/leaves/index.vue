@@ -232,7 +232,7 @@
             <v-list width="120" dense>
               <v-list-item>
                 <v-list-item-title style="cursor: pointer; font-size: 13px">
-                  <LeavesView :editedItem="item" @response="getDataFromApi" />
+                  <LeavesView :editedItem="item" @response="reloadPage" />
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -344,6 +344,9 @@ export default {
   },
 
   methods: {
+    reloadPage() {
+      this.getDataFromApi();
+    },
     showStatus(item, listView = false) {
       let user = this.$auth.user;
 
@@ -374,13 +377,13 @@ export default {
             color: "primary",
           };
         }
-        if (user?.order >= item.order) {
-          return { label: "Pending", color: "secondary" };
-        } else {
+        if (item.status == 1 && item.order == 0) {
           return {
-            label: `Approved ${item.order} - ${user?.order}`,
+            label: `Approved`,
             color: "primary",
           };
+        } else {
+          return { label: "Pending", color: "secondary" };
         }
       }
 

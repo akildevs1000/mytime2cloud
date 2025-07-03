@@ -171,8 +171,13 @@
           dense
           v-model="report_template"
           x-small
-          :items="['Template1', 'Template2']"
-          item-text="['Daily']"
+          :items="[
+            { id: 'Template1', name: 'Monthly Report Format A' },
+            { id: 'Template2', name: 'Monthly Report Format B' },
+            { id: 'Template3', name: 'Daily' },
+          ]"
+          item-text="name"
+          item-value="id"
           :hide-details="true"
         ></v-autocomplete>
         <div class="mx-1">
@@ -281,6 +286,32 @@
                     height="40px"
                     width="90%"
                   />
+                </div>
+                <div class="px-1 mt-3" style="width: 100%">
+                  <v-autocomplete
+                    class="mx-1"
+                    v-if="isCompany"
+                    label="Branch"
+                    @change="
+                      () => {
+                        getScheduledEmployees();
+                        getDepartments();
+                      }
+                    "
+                    placeholder="Branch"
+                    outlined
+                    dense
+                    v-model="payload.branch_id"
+                    x-small
+                    clearable
+                    :items="[
+                      { id: null, branch_name: 'All Branches' },
+                      ...branches,
+                    ]"
+                    item-value="id"
+                    item-text="branch_name"
+                    :hide-details="true"
+                  ></v-autocomplete>
                 </div>
                 <div class="px-1 mt-3" style="width: 100%">
                   <v-autocomplete
@@ -669,6 +700,11 @@ export default {
         return;
       }
 
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
+
       let type = val.toLowerCase();
 
       let process_file_endpoint = "";
@@ -833,6 +869,11 @@ export default {
     },
 
     regnerateReport() {
+      
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
       this.loading = true;
       let payload = {
         params: {

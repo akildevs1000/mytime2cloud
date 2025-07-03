@@ -64,8 +64,8 @@
         fab
         dark
         :class="{
-          primary: payload.days.includes(day.id),
-          grey: !payload.days.includes(day.id),
+          primary: payload?.days?.includes(day.id),
+          grey: !payload?.days?.includes(day.id),
         }"
         @click="toggleSelection(day.id)"
       >

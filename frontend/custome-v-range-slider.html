@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Range Slider with Colored Segments</title>
+  <style>
+    .slider-container {
+      position: relative;
+      width: 500px;
+      height: 24px;
+      margin: 80px auto;
+    }
+
+    .track-segment {
+      position: absolute;
+      top: 50%;
+      height: 6px;
+      transform: translateY(-50%);
+      border-radius: 3px;
+    }
+
+    .track-before {
+      background-color: #e0e0e0; /* light gray */
+      left: 0;
+    }
+
+    .track-range {
+      background-color: #8e44ff; /* purple */
+      z-index: 1;
+    }
+
+    .track-after {
+      background-color: #3498db; /* 🔵 blue */
+      right: 0;
+    }
+
+    .slider-handle {
+      position: absolute;
+      top: 50%;
+      width: 24px;
+      height: 24px;
+      border: 5px solid #8e44ff;
+      border-radius: 50%;
+      background-color: white;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="slider-container" id="slider">
+  <div class="track-segment track-before" id="track-before"></div>
+  <div class="track-segment track-range" id="track-range"></div>
+  <div class="track-segment track-after" id="track-after"></div>
+
+  <div class="slider-handle" id="handle-left" style="left: 20%;"></div>
+  <div class="slider-handle" id="handle-right" style="left: 80%;"></div>
+</div>
+
+
+
+<script>
+  const slider = document.getElementById('slider');
+  const handleLeft = document.getElementById('handle-left');
+  const handleRight = document.getElementById('handle-right');
+  const trackBefore = document.getElementById('track-before');
+  const trackRange = document.getElementById('track-range');
+  const trackAfter = document.getElementById('track-after');
+
+  function updateTracks() {
+    const left = parseFloat(handleLeft.style.left);
+    const right = parseFloat(handleRight.style.left);
+
+    trackBefore.style.width = left + '%';
+    trackRange.style.left = left + '%';
+    trackRange.style.width = (right - left) + '%';
+    trackAfter.style.left = right + '%';
+    trackAfter.style.width = (100 - right) + '%';
+  }
+
+  function enableDrag(handle) {
+    handle.onmousedown = function (e) {
+      document.onmousemove = function (e) {
+        const rect = slider.getBoundingClientRect();
+        let percent = ((e.clientX - rect.left) / rect.width) * 100;
+        percent = Math.max(0, Math.min(100, percent));
+        if (handle === handleLeft) {
+          percent = Math.min(percent, parseFloat(handleRight.style.left));
+        } else {
+          percent = Math.max(percent, parseFloat(handleLeft.style.left));
+        }
+        handle.style.left = percent + '%';
+        updateTracks();
+      };
+      document.onmouseup = () => document.onmousemove = null;
+    };
+  }
+
+  enableDrag(handleLeft);
+  enableDrag(handleRight);
+  updateTracks();
+</script>
+
+</body>
+</html>
