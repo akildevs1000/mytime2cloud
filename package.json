@@ -1,11 +1,73 @@
 {
-  "name": "nginx-launcher",
+  "name": "mytime2cloud-desktop-app",
+  "version": "7.0.0",
+  "description": "mytime2cloud-desktop-app",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "dev": "electron .",
+    "build": "electron-builder"
   },
-  "dependencies": {
-    "electron": "^29.0.0",
-    "simple-git": "^3.28.0"
+  "build": {
+    "appId": "desktop.mytime2cloud",
+    "files": [
+      "main.js",
+      "index.html",
+      "helpers/**/*",
+      "nginx.exe",
+      "dotnet_sdk/**/*",
+      "java_sdk/**/*",
+      "backend/**/*",
+      "assets/**/*",
+      "frontend/dist/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "nginx.exe",
+        "to": "nginx.exe"
+      },
+      {
+        "from": "dotnet_sdk",
+        "to": "dotnet_sdk"
+      },
+      {
+        "from": "java_sdk",
+        "to": "java_sdk"
+      },
+      {
+        "from": "backend",
+        "to": "backend"
+      },
+      {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
+        "from": "frontend/dist",
+        "to": "frontend/dist"
+      }
+    ],
+    "productName": "MyTime2Cloud",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "artifactName": "${productName}-Setup-${version}.${ext}",
+      "icon": "frontend/dist/favicon-256x256.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "license": "license.txt",
+      "createDesktopShortcut": true
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^30.0.0",
+    "electron-builder": "^24.13.3"
   }
 }

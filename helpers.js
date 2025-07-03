@@ -2,6 +2,10 @@ const simpleGit = require('simple-git');
 const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
+const os = require("os");
+
+const networkInterfaces = os.networkInterfaces();
+
 
 const appDir = path.join(__dirname, 'app');
 
@@ -122,10 +126,77 @@ function cloneTheRepoIfRequired(mainWindow, appDir, targetDir, backendDir, phpPa
     }
 }
 
+const timezoneOptions = {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false, // Use 24-hour format
+    timeZone: "Asia/Dubai",
+};
+
+const verification_methods = {
+    1: "Card",
+    2: "Fing",
+    3: "Face",
+    4: "Fing + Card",
+    5: "Face + Fing",
+    6: "Face + Card",
+    7: "Card + Pin",
+    8: "Face + Pin",
+    9: "Fing + Pin",
+    10: "Manual",
+    11: "Fing + Card + Pin",
+    12: "Face + Card + Pin",
+    13: "Face + Fing + Pin",
+    14: "Face + Fing + Card",
+    15: "Repeated",
+};
+
+const reasons = {
+    16: "Date Expire",
+    17: "Timezone Expire",
+    18: "Holiday",
+    19: "Unregistered",
+    20: "Detection lock",
+    23: "Loss Card",
+    24: "Blacklisted",
+    25: "Without Verification",
+    26: "No Card Verification",
+    27: "No Fingerprint",
+};
+
+function getFormattedDate() {
+    const [newDate, newTime] = new Intl.DateTimeFormat("en-US", timezoneOptions)
+        .format(new Date())
+        .split(",");
+    const [m, d, y] = newDate.split("/");
+
+    return {
+        date: `${d.padStart(2, 0)}-${m.padStart(2, 0)}-${y}`,
+        time: newTime,
+    };
+}
+
+let ipv4Address = "localhost";
+
+Object.keys(networkInterfaces).forEach((interfaceName) => {
+    networkInterfaces[interfaceName].forEach((networkInterface) => {
+        // Only consider IPv4 addresses, ignore internal and loopback addresses
+        if (networkInterface.family === "IPv4" && !networkInterface.internal) {
+            ipv4Address = networkInterface.address;
+        }
+    });
+});
+
 module.exports = {
     log,
     tailLogFile,
     spawnWrapper,
     stopProcess,
-    cloneTheRepoIfRequired
+    cloneTheRepoIfRequired,
+    getFormattedDate,
+    timezoneOptions, verification_methods, reasons, ipv4Address
 }
