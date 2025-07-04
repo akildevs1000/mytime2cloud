@@ -3,7 +3,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require("fs")
 const WebSocket = require("ws");
-const { log, spawnWrapper, stopProcess, getFormattedDate, verification_methods, reasons, ipv4Address } = require('./helpers');
+const { log, spawnWrapper, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -23,6 +23,9 @@ const jsonPath = path.join(dotnetSDK, 'appsettings.json');
 
 const nginxPath = path.join(appDir, 'nginx.exe');
 const phpPathCli = path.join(phpPath, 'php.exe');
+const phpCGi = path.join(phpPath, 'php-cgi.exe');
+
+
 const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
 const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 
@@ -91,91 +94,98 @@ function startWebSocketClient(mainWindow) {
 }
 
 function createWindow() {
+
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   mainWindow = new BrowserWindow({
     width,
     height,
+    // show: false, // enable to hide the window
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
-    }
+      contextIsolation: false,
+    },
   });
 
   mainWindow.loadFile('index.html');
 
   mainWindow.webContents.once('did-finish-load', () => {
     // cloneTheRepoIfRequired(mainWindow, appDir, targetDir, srcDirectory, phpPathCli, repoUrl);
-    ipUpdaterForDotNetSDK(mainWindow)
+    ipUpdaterForDotNetSDK(mainWindow, jsonPath);
+    startServices(mainWindow);
   });
 }
 
-function ipUpdaterForDotNetSDK(mainWindow) {
-  const jsonData = fs.readFileSync(jsonPath, 'utf-8'); // read as string
-  const data = JSON.parse(jsonData);
+function startServices(mainWindow) {
 
-  data.urls = `http://${ipv4Address}:8080`;
-  data.Options.LocalIP = ipv4Address;
+  const address = `http://${ipv4Address}:3001`;
 
-  const updatedJsonData = JSON.stringify(data, null, 2);
 
-  // Write the updated JSON data to the file
-  fs.writeFile(jsonPath, updatedJsonData, (err) => {
-    if (err) throw err;
-    log(mainWindow, `[Device] JSON file has been updated! `);
+  spawnWrapper(mainWindow, "[Application]", phpCGi, ['-b', `127.0.0.1:9000`], {
+    cwd: appDir
+  });
+
+  NginxProcess = spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });
+
+  log(mainWindow, `[Application] started on ${address}`);
+
+  dotnetSDKProcess = spawnWrapper(mainWindow, "[Device]", dotnetExe, ['FCardProtocolAPI.dll'], {
+    cwd: dotnetSDK
+  });
+
+  dotnetSDKProcess.stdout.on('data', (data) => {
+    if (data.includes('Now listening on')) {
+      startWebSocketClient(mainWindow);
+    }
+  });
+
+  ScheduleProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'schedule:work'], {
+    cwd: srcDirectory
+  });
+
+  QueueProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'queue:work'], {
+    cwd: srcDirectory
+  });
+
+  javaSDKProcess = spawnWrapper(mainWindow, "[Device]", javaExe, ['-jar', jarPath], {
+    cwd: javaSDK
+  });
+
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
+  const nginxWindow = new BrowserWindow({
+    width,
+    height,
+    frame: true,         // ✅ Include title bar with buttons
+    fullscreen: false,   // ❌ No true fullscreen
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  });
+
+  nginxWindow.loadURL(`http://${ipv4Address}:3001`);
+  nginxWindow.maximize(); // ✅ Make it look fullscreen with buttons
+
+}
+
+function stopServices(mainWindow) {
+  stopProcess(mainWindow, ScheduleProcess);
+  stopProcess(mainWindow, QueueProcess);
+  stopProcess(mainWindow, NginxProcess);
+  stopProcess(mainWindow, dotnetSDKProcess);
+  stopProcess(mainWindow, javaSDKProcess);
+
+  const forFullStop = spawn('taskkill', ['/F', '/IM', 'nginx.exe']);
+  forFullStop.on('close', () => {
+    log(mainWindow, '[Application] Server stopped.');
   });
 }
 
 app.whenReady().then(() => {
-
   createWindow();
-
-  ipcMain.on('start-server', (event) => {
-
-
-    log(mainWindow, `[Application] started on http://${ipv4Address}:3001`);
-
-    spawn(path.join(phpPath, 'php-cgi.exe'), ['-b', `127.0.0.1:9000`], { cwd: appDir });
-
-    NginxProcess = spawnWrapper(mainWindow, "Nginx", nginxPath, { cwd: appDir });
-
-    ScheduleProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'schedule:work'], {
-      cwd: srcDirectory
-    });
-
-    QueueProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'queue:work'], {
-      cwd: srcDirectory
-    });
-
-    dotnetSDKProcess = spawnWrapper(mainWindow, "[Device]", dotnetExe, ['FCardProtocolAPI.dll'], {
-      cwd: dotnetSDK
-    });
-
-    dotnetSDKProcess.stdout.on('data', (data) => {
-      if (data.includes('Now listening on')) {
-        startWebSocketClient(mainWindow);
-      }
-    });
-
-    javaSDKProcess = spawnWrapper(mainWindow, "[Device]", javaExe, ['-jar', jarPath], {
-      cwd: javaSDK
-    });
-  });
-
-  ipcMain.on('stop-server', () => {
-
-    stopProcess(mainWindow, ScheduleProcess);
-    stopProcess(mainWindow, QueueProcess);
-    stopProcess(mainWindow, NginxProcess);
-    stopProcess(mainWindow, dotnetSDKProcess);
-    stopProcess(mainWindow, javaSDKProcess);
-
-
-    const forFullStop = spawn('taskkill', ['/F', '/IM', 'nginx.exe']);
-    forFullStop.on('close', () => {
-      log(mainWindow, '[Application] Server stopped.');
-    });
-  });
+  ipcMain.on('start-server', () => startServices(mainWindow));
+  ipcMain.on('stop-server', () => stopServices(mainWindow));
 });
 
 app.on('window-all-closed', () => {

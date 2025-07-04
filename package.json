@@ -10,30 +10,47 @@
   "build": {
     "appId": "desktop.mytime2cloud",
     "files": [
-      "assets/*/",
-      "conf/*/",
-      "contrib/*/",
-      "docs/*/",
+      "assets/**/*",
       "helpers.js",
       "index.html",
       "main.js"
     ],
     "extraResources": [
       {
+        "from": "assets",
+        "to": "assets"
+      },
+      {
         "from": "conf",
         "to": "conf"
       },
       {
-        "from": "backend",
-        "to": "backend"
+        "from": "www",
+        "to": "www"
       },
       {
         "from": "logs",
         "to": "logs"
       },
       {
-        "from": "www",
-        "to": "www"
+        "from": "temp",
+        "to": "temp"
+      },
+      {
+        "from": "contrib",
+        "to": "contrib"
+      },
+      {
+        "from": "docs",
+        "to": "docs"
+      },
+      {
+        "from": "nginx.exe",
+        "to": "nginx.exe"
+      },
+      {
+        "from": "backend",
+        "to": "backend"
       },
       {
         "from": "dotnet_sdk",
@@ -44,7 +61,7 @@
         "to": "java_sdk"
       }
     ],
-    "productName": "MyTime2Cloud",
+    "productName": "MyTime2Desktop",
     "directories": {
       "output": "dist"
     },

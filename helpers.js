@@ -6,8 +6,16 @@ const os = require("os");
 
 const networkInterfaces = os.networkInterfaces();
 
+let ipv4Address = "localhost";
 
-const appDir = path.join(__dirname, 'app');
+Object.keys(networkInterfaces).forEach((interfaceName) => {
+    networkInterfaces[interfaceName].forEach((networkInterface) => {
+        // Only consider IPv4 addresses, ignore internal and loopback addresses
+        if (networkInterface.family === "IPv4" && !networkInterface.internal) {
+            ipv4Address = networkInterface.address;
+        }
+    });
+});
 
 function tailLogFile(logFilePath) {
     const tail = spawn('powershell.exe', [
@@ -23,13 +31,6 @@ function tailLogFile(logFilePath) {
         log(`[NGINX-ERROR] ${data.toString()}`);
     });
 }
-
-// const accessLogPath = path.join(appDir, 'logs', 'access.log');
-// const errorLogPath = path.join(appDir, 'logs', 'error.log');
-
-// tailLogFile(accessLogPath);
-// tailLogFile(errorLogPath);
-
 
 // Flexible spawn wrapper
 function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOptions) {
@@ -77,6 +78,22 @@ function log(mainWindow, message) {
     const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
     mainWindow.webContents.send('log', `[${timestamp}] ${message}\n`);
+}
+
+function ipUpdaterForDotNetSDK(mainWindow, jsonPath) {
+    const jsonData = fs.readFileSync(jsonPath, 'utf-8'); // read as string
+    const data = JSON.parse(jsonData);
+
+    data.urls = `http://${ipv4Address}:8080`;
+    data.Options.LocalIP = ipv4Address;
+
+    const updatedJsonData = JSON.stringify(data, null, 2);
+
+    // Write the updated JSON data to the file
+    fs.writeFile(jsonPath, updatedJsonData, (err) => {
+        if (err) throw err;
+        log(mainWindow, `[Device] JSON file has been updated! `);
+    });
 }
 
 function stopProcess(mainWindow, Process) {
@@ -180,23 +197,12 @@ function getFormattedDate() {
     };
 }
 
-let ipv4Address = "localhost";
-
-Object.keys(networkInterfaces).forEach((interfaceName) => {
-    networkInterfaces[interfaceName].forEach((networkInterface) => {
-        // Only consider IPv4 addresses, ignore internal and loopback addresses
-        if (networkInterface.family === "IPv4" && !networkInterface.internal) {
-            ipv4Address = networkInterface.address;
-        }
-    });
-});
-
 module.exports = {
     log,
     tailLogFile,
     spawnWrapper,
     stopProcess,
     cloneTheRepoIfRequired,
-    getFormattedDate,
+    getFormattedDate, ipUpdaterForDotNetSDK,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }
