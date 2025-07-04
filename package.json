@@ -16,6 +16,7 @@
     "files": [
       "assets/**/*",
       "helpers.js",
+      "updater.js",
       "index.html",
       "main.js"
     ],
