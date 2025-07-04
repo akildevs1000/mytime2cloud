@@ -20,6 +20,10 @@
     ],
     "extraResources": [
       {
+        "from": "conf",
+        "to": "conf"
+      },
+      {
         "from": "backend",
         "to": "backend"
       },
@@ -38,10 +42,6 @@
       {
         "from": "java_sdk",
         "to": "java_sdk"
-      },
-      {
-        "from": "nginx.exe",
-        "to": "nginx.exe"
       }
     ],
     "productName": "MyTime2Cloud",
