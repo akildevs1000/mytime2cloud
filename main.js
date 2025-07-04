@@ -41,24 +41,24 @@ function startWebSocketClient(mainWindow) {
 
   function connect() {
 
-    log(mainWindow, `Attempting to connect to ${SOCKET_ENDPOINT}...`);
+    log(mainWindow, `[LISTENER] Attempting to connect to ${SOCKET_ENDPOINT}...`);
 
     const socket = new WebSocket(SOCKET_ENDPOINT);
 
     socket.onopen = () => {
-      log(mainWindow, `Connected to ${SOCKET_ENDPOINT}...`);
+      log(mainWindow, `[LISTENER] Connected to ${SOCKET_ENDPOINT}`);
     };
 
     socket.onerror = (error) => {
-      log(mainWindow, "WebSocket error:", error.message || error);
+      log(mainWindow, "[LISTENER] WebSocket error:", error.message || error);
       // Retry connection after 3 seconds
       setTimeout(connect, 3000);
     };
 
     socket.onclose = (event) => {
-      log(mainWindow, `WebSocket connection closed with code ${event.code} at ${getFormattedDate().date} ${getFormattedDate().time}`);
+      log(mainWindow, `[LISTENER] WebSocket connection closed with code ${event.code} at ${getFormattedDate().date} ${getFormattedDate().time}`);
       // Retry connection after 3 seconds
-      setTimeout(connect, 3000);
+      // setTimeout(connect, 3000);
     };
 
     socket.onmessage = ({ data }) => {
@@ -73,16 +73,16 @@ function startWebSocketClient(mainWindow) {
           let reason = reasons[RecordCode] ?? "---";
           const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
           fs.appendFileSync(logFilePath, logEntry + "\n");
-          log(mainWindow, logEntry);
+          log(mainWindow, `[LISTENER] ${logEntry}`);
         }
 
         if (UserCode == 0 && RecordCode == 19) {
           const alarm_logEntry = `${SN},${RecordDate}`;
           fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
-          log(mainWindow, "Error processing message: " + alarm_logEntry);
+          log(mainWindow, "[LISTENER] Error processing message: " + alarm_logEntry);
         }
       } catch (error) {
-        log(mainWindow, "Error processing message: " + error.message);
+        log(mainWindow, "[LISTENER] Error processing message: " + error.message);
       }
     };
   }
@@ -122,9 +122,7 @@ function ipUpdaterForDotNetSDK(mainWindow) {
   // Write the updated JSON data to the file
   fs.writeFile(jsonPath, updatedJsonData, (err) => {
     if (err) throw err;
-    console.log();
-    log(mainWindow, `"JSON file has been updated!"`);
-
+    log(mainWindow, `[Device] JSON file has been updated! `);
   });
 }
 
@@ -134,30 +132,34 @@ app.whenReady().then(() => {
 
   ipcMain.on('start-server', (event) => {
 
+
+    log(mainWindow, `[Application] started on http://${ipv4Address}:3001`);
+
     spawn(path.join(phpPath, 'php-cgi.exe'), ['-b', `127.0.0.1:9000`], { cwd: appDir });
 
-    NginxProcess = spawnWrapper(mainWindow, nginxPath, { cwd: appDir });
+    NginxProcess = spawnWrapper(mainWindow, "Nginx", nginxPath, { cwd: appDir });
 
-    log(mainWindow, `Application Server started on http://${ipv4Address}:3001`);
-
-    javaSDKProcess = spawnWrapper(mainWindow, javaExe, ['-jar', jarPath], {
-      cwd: javaSDK
-    });
-
-    ScheduleProcess = spawnWrapper(mainWindow, phpPathCli, ['artisan', 'schedule:work'], {
+    ScheduleProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'schedule:work'], {
       cwd: srcDirectory
     });
 
-    QueueProcess = spawnWrapper(mainWindow, phpPathCli, ['artisan', 'queue:work'], {
+    QueueProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'queue:work'], {
       cwd: srcDirectory
     });
 
-    dotnetSDKProcess = spawnWrapper(mainWindow, dotnetExe, ['FCardProtocolAPI.dll'], {
+    dotnetSDKProcess = spawnWrapper(mainWindow, "[Device]", dotnetExe, ['FCardProtocolAPI.dll'], {
       cwd: dotnetSDK
     });
 
-    startWebSocketClient(mainWindow);
+    dotnetSDKProcess.stdout.on('data', (data) => {
+      if (data.includes('Now listening on')) {
+        startWebSocketClient(mainWindow);
+      }
+    });
 
+    javaSDKProcess = spawnWrapper(mainWindow, "[Device]", javaExe, ['-jar', jarPath], {
+      cwd: javaSDK
+    });
   });
 
   ipcMain.on('stop-server', () => {
@@ -171,7 +173,7 @@ app.whenReady().then(() => {
 
     const forFullStop = spawn('taskkill', ['/F', '/IM', 'nginx.exe']);
     forFullStop.on('close', () => {
-      log(mainWindow, 'Server stopped.');
+      log(mainWindow, '[Application] Server stopped.');
     });
   });
 });

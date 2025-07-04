@@ -32,7 +32,7 @@ function tailLogFile(logFilePath) {
 
 
 // Flexible spawn wrapper
-function spawnWrapper(mainWindow, command, argsOrOptions, maybeOptions) {
+function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOptions) {
     let args = [];
     let options = {};
 
@@ -46,19 +46,19 @@ function spawnWrapper(mainWindow, command, argsOrOptions, maybeOptions) {
     const child = spawn(command, args, options);
 
     child.stdout.on('data', (data) => {
-        log(mainWindow, data.toString());
+        log(mainWindow, `${processType} ${data.toString()}`);
     });
 
     child.stderr.on('data', (data) => {
-        log(mainWindow, data.toString());
+        log(mainWindow, `${processType} ${data.toString()}`);
     });
 
     child.on('close', (code) => {
-        console.log(`exited with code ${code} for  ${JSON.stringify(argsOrOptions)}`);
+        log(mainWindow, `${processType} exited with code ${code} for ${JSON.stringify(argsOrOptions)}`);
     });
 
     child.on('error', (err) => {
-        log(mainWindow, err.message);
+        log(mainWindow, `${processType} ${err.message}`);
     });
 
     return child;
@@ -104,14 +104,14 @@ function cloneTheRepoIfRequired(mainWindow, appDir, targetDir, backendDir, phpPa
                 log(mainWindow, 'Repository cloned successfully.');
 
                 // Run `composer install`
-                return spawnWrapper(mainWindow, phpPath, [composerPhar, 'install'], {
+                return spawnWrapper(mainWindow, "Repo", phpPath, [composerPhar, 'install'], {
                     cwd: backendDir
                 });
             })
             .then(() => {
                 // Run `php artisan migrate --force`
                 log(mainWindow, 'Running php artisan migrate --force');
-                return spawnWrapper(mainWindow, phpPath, ['artisan', 'migrate', '--force'], {
+                return spawnWrapper(mainWindow, "Repo", phpPath, ['artisan', 'migrate', '--force'], {
                     cwd: backendDir
                 });
             })

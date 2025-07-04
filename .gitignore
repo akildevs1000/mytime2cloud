@@ -6,3 +6,5 @@ www
 composer.phar
 logs/*
 package.json
+*.pid
+*.log
