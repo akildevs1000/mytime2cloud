@@ -67,5 +67,9 @@
   "devDependencies": {
     "electron": "^30.0.0",
     "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "simple-git": "^3.28.0",
+    "ws": "^8.18.3"
   }
 }

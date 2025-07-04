@@ -19,6 +19,7 @@ const phpPath = path.join(srcDirectory, 'php');
 const dotnetSDK = path.join(appDir, 'dotnet_sdk');
 const javaSDK = path.join(appDir, 'java_sdk');
 const jarPath = path.join(javaSDK, 'SxDeviceManager.jar');
+const jsonPath = path.join(dotnetSDK, 'appsettings.json');
 
 const nginxPath = path.join(appDir, 'nginx.exe');
 const phpPathCli = path.join(phpPath, 'php.exe');
@@ -105,6 +106,25 @@ function createWindow() {
 
   mainWindow.webContents.once('did-finish-load', () => {
     // cloneTheRepoIfRequired(mainWindow, appDir, targetDir, srcDirectory, phpPathCli, repoUrl);
+    ipUpdaterForDotNetSDK(mainWindow)
+  });
+}
+
+function ipUpdaterForDotNetSDK(mainWindow) {
+  const jsonData = fs.readFileSync(jsonPath, 'utf-8'); // read as string
+  const data = JSON.parse(jsonData);
+
+  data.urls = `http://${ipv4Address}:8080`;
+  data.Options.LocalIP = ipv4Address;
+
+  const updatedJsonData = JSON.stringify(data, null, 2);
+
+  // Write the updated JSON data to the file
+  fs.writeFile(jsonPath, updatedJsonData, (err) => {
+    if (err) throw err;
+    console.log();
+    log(mainWindow, `"JSON file has been updated!"`);
+
   });
 }
 
@@ -113,23 +133,6 @@ app.whenReady().then(() => {
   createWindow();
 
   ipcMain.on('start-server', (event) => {
-
-    const jsonPath = path.join(dotnetSDK, 'appsettings.json');
-    const jsonData = fs.readFileSync(jsonPath, 'utf-8'); // read as string
-    const data = JSON.parse(jsonData);
-
-    data.urls = `http://${ipv4Address}:8080`;
-    data.Options.LocalIP = ipv4Address;
-
-    const updatedJsonData = JSON.stringify(data, null, 2);
-
-    // Write the updated JSON data to the file
-    fs.writeFile(jsonPath, updatedJsonData, (err) => {
-      if (err) throw err;
-      console.log();
-      log(mainWindow, `"JSON file has been updated!"`);
-
-    });
 
     spawn(path.join(phpPath, 'php-cgi.exe'), ['-b', `127.0.0.1:9000`], { cwd: appDir });
 
