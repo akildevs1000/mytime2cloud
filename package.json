@@ -68,7 +68,7 @@
     "win": {
       "target": "nsis",
       "artifactName": "${productName}-Setup-${version}.${ext}",
-      "icon": "frontend/dist/favicon-256x256.png"
+      "icon": "www/favicon-256x256.png"
     },
     "nsis": {
       "oneClick": false,
