@@ -3,10 +3,38 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fs = require("fs")
 const WebSocket = require("ws");
+const { log, spawnWrapper, stopProcess, getFormattedDate, verification_methods, reasons, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
-const { log, spawnWrapper, stopProcess, getFormattedDate, verification_methods, reasons, ipv4Address } = require('./helpers');
+let appDir;
+if (isDev) {
+  appDir = path.join(__dirname);
+} else {
+  appDir = process.resourcesPath; // where extraResources are placed
+}
+
+const nginxPath = path.join(appDir, 'nginx.exe');
+const srcDirectory = path.join(appDir, 'backend');
+const phpPath = path.join(srcDirectory, 'php');
+const phpPathCli = path.join(phpPath, 'php.exe');
+
+const dotnetSDK = path.join(appDir, 'dotnet_sdk');
+
+
+const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
+
+const javaSDK = path.join(appDir, 'java_sdk');
+const javaExe = path.join(javaSDK, 'bin', 'java.exe');
+const jarPath = path.join(javaSDK, 'SxDeviceManager.jar');
+
+let mainWindow;
+let NginxProcess;
+let ScheduleProcess;
+let QueueProcess;
+let dotnetSDKProcess;
+let javaSDKProcess;
+
 
 
 function startWebSocketClient(mainWindow) {
@@ -22,7 +50,6 @@ function startWebSocketClient(mainWindow) {
 
     socket.onopen = () => {
       log(mainWindow, `Connected to ${SOCKET_ENDPOINT}...`);
-
     };
 
     socket.onerror = (error) => {
@@ -65,35 +92,6 @@ function startWebSocketClient(mainWindow) {
 
   connect();
 }
-
-let appDir;
-if (isDev) {
-  appDir = path.join(__dirname);
-} else {
-  appDir = path.join(app.getAppPath());
-}
-const nginxPath = path.join(appDir, 'nginx.exe');
-const srcDirectory = path.join(appDir, 'backend');
-const phpPath = path.join(srcDirectory, 'php');
-const phpPathCli = path.join(phpPath, 'php.exe');
-
-const dotnetSDK = path.join(appDir, 'dotnet_sdk');
-
-
-const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
-
-const javaSDK = path.join(appDir, 'java_sdk');
-const javaExe = path.join(javaSDK, 'bin', 'java.exe');
-const jarPath = path.join(javaSDK, 'SxDeviceManager.jar');
-
-
-let mainWindow;
-let NginxProcess;
-let ScheduleProcess;
-let QueueProcess;
-let dotnetSDKProcess;
-let javaSDKProcess;
-
 
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;

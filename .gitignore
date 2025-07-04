@@ -2,3 +2,7 @@ node_modules
 java_sdk
 dotnet_sdk
 dist
+www
+composer.phar
+logs/*
+package.json
