@@ -3,6 +3,16 @@ const fs = require('fs');
 const path = require('path');
 const { spawn } = require('child_process');
 const os = require("os");
+const { app, Notification } = require('electron');
+
+const isDev = !app.isPackaged;
+
+let appDir;
+if (isDev) {
+    appDir = path.join(__dirname);
+} else {
+    appDir = process.resourcesPath; // where extraResources are placed
+}
 
 const networkInterfaces = os.networkInterfaces();
 
@@ -197,12 +207,25 @@ function getFormattedDate() {
     };
 }
 
+function notify(title = "", body = "", icon = 'favicon-256x256.png', onClick = null) {
+    const notification = new Notification({
+        title,
+        body,
+        icon: path.join(appDir, 'www', icon)
+    });
+
+    if (onClick && typeof onClick === 'function') {
+        notification.on('click', onClick);
+    }
+    notification.show();
+}
+
 module.exports = {
     log,
     tailLogFile,
     spawnWrapper,
     stopProcess,
     cloneTheRepoIfRequired,
-    getFormattedDate, ipUpdaterForDotNetSDK,
+    getFormattedDate, ipUpdaterForDotNetSDK, notify,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }

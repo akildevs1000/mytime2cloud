@@ -1,9 +1,15 @@
-const { app, BrowserWindow, ipcMain, screen } = require('electron');
+const { app, BrowserWindow, ipcMain, screen, } = require('electron');
+
 const path = require('path');
 const { spawn } = require('child_process');
 const fs = require("fs")
 const WebSocket = require("ws");
-const { log, spawnWrapper, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
+
+app.setName('MyTime2Desktop');
+app.setAppUserModelId('MyTime2Desktop');
+
+const { log, spawnWrapper, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, notify, verification_methods, reasons, ipv4Address } = require('./helpers');
+const { initAutoUpdater } = require('./updater');
 
 const isDev = !app.isPackaged;
 
@@ -113,6 +119,7 @@ function createWindow() {
     // cloneTheRepoIfRequired(mainWindow, appDir, targetDir, srcDirectory, phpPathCli, repoUrl);
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
     startServices(mainWindow);
+    initAutoUpdater(mainWindow);
   });
 }
 
