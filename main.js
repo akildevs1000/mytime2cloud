@@ -14,19 +14,16 @@ if (isDev) {
   appDir = process.resourcesPath; // where extraResources are placed
 }
 
-const nginxPath = path.join(appDir, 'nginx.exe');
 const srcDirectory = path.join(appDir, 'backend');
 const phpPath = path.join(srcDirectory, 'php');
-const phpPathCli = path.join(phpPath, 'php.exe');
-
 const dotnetSDK = path.join(appDir, 'dotnet_sdk');
-
-
-const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
-
 const javaSDK = path.join(appDir, 'java_sdk');
-const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 const jarPath = path.join(javaSDK, 'SxDeviceManager.jar');
+
+const nginxPath = path.join(appDir, 'nginx.exe');
+const phpPathCli = path.join(phpPath, 'php.exe');
+const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
+const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 
 let mainWindow;
 let NginxProcess;
@@ -34,7 +31,6 @@ let ScheduleProcess;
 let QueueProcess;
 let dotnetSDKProcess;
 let javaSDKProcess;
-
 
 
 function startWebSocketClient(mainWindow) {
