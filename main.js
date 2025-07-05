@@ -36,6 +36,8 @@ const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
 const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 
 let mainWindow;
+let nginxWindow;
+
 let NginxProcess;
 let ScheduleProcess;
 let QueueProcess;
@@ -124,9 +126,7 @@ function createWindow() {
 }
 
 function startServices(mainWindow) {
-
   const address = `http://${ipv4Address}:3001`;
-
 
   spawnWrapper(mainWindow, "[Application]", phpCGi, ['-b', `127.0.0.1:9000`], {
     cwd: appDir
@@ -160,20 +160,28 @@ function startServices(mainWindow) {
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-  const nginxWindow = new BrowserWindow({
-    width,
-    height,
-    frame: true,         // ✅ Include title bar with buttons
-    fullscreen: false,   // ❌ No true fullscreen
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true
-    }
-  });
+  // ✅ Only create a new window if it's not already open
+  if (!nginxWindow || nginxWindow.isDestroyed()) {
+    nginxWindow = new BrowserWindow({
+      width,
+      height,
+      frame: true,
+      fullscreen: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true
+      }
+    });
 
-  nginxWindow.loadURL(`http://${ipv4Address}:3001`);
-  nginxWindow.maximize(); // ✅ Make it look fullscreen with buttons
+    nginxWindow.loadURL(`http://${ipv4Address}:3001`);
+    nginxWindow.maximize();
 
+    nginxWindow.on('closed', () => {
+      nginxWindow = null;
+    });
+  } else {
+    nginxWindow.focus(); // ✅ Bring existing window to front
+  }
 }
 
 function stopServices(mainWindow) {
