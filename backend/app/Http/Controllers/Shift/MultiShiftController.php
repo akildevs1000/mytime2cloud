@@ -154,73 +154,94 @@ class MultiShiftController extends Controller
             $totalMinutes = 0;
             $logsJson = [];
             $previousOut = null;
-            $i = 0;
 
+            // ✅ Special case: only 1 log
+            if (count($data) === 1) {
+                $log = $data[0];
+                $time = $log['time'] ?? '---';
 
-            while ($i < count($data)) {
-                $currentLog = $data[$i];
-                $currentTime = $currentLog['time'] ?? '---';
-
-                $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
-
-                $validInTime = $validIn
-                    ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                    : "---";
-
-                if (!$validIn || $validInTime === "---") {
-                    $i++;
-                    continue;
-                }
-
-                // Find next valid OUT log
-                $nextLog = null;
-                $validOutTime = "---";
-
-                for ($j = $i + 1; $j < count($data); $j++) {
-                    $candidateLog = $data[$j];
-                    $candidateTime = $candidateLog['time'] ?? '---';
-
-                    $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
-
-                    $validOutTime = $validOut
-                        ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
-
-                    if ($validOut && $validOutTime !== "---") {
-                        $nextLog = $candidateLog;
-                        $i = $j; // jump i to the matched out
-                        break;
-                    }
-                }
-
-                if (!$nextLog) {
-                    $i++;
-                    continue;
-                }
-
-                $parsedIn = strtotime($currentTime);
-                $parsedOut = strtotime($nextLog['time'] ?? '---');
-
-                if ($parsedIn > $parsedOut) {
-                    $parsedOut += 86400; // handle midnight
-                }
-
-                $minutes = ($parsedOut - $parsedIn) / 60;
-                $totalMinutes += $minutes;
+                $validInTime = $this->getLogTime(
+                    $log,
+                    ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
+                    ["Manual", "manual", "MANUAL"]
+                );
 
                 $logsJson[] = [
-                    "in" => $validInTime,
-                    "out" => $validOutTime,
-                    "device_in" => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                    "device_out" => $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"]),
-                    "total_minutes" => $minutes,
+                    "in" => $validInTime !== "---" ? $validInTime : "---",
+                    "out" => "---",
+                    "device_in" => $this->getDeviceName($log, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                    "device_out" => "---",
+                    "total_minutes" => 0,
                 ];
+            } else {
+                // ✅ Normal multiple-log processing
+                $i = 0;
+                while ($i < count($data)) {
+                    $currentLog = $data[$i];
+                    $currentTime = $currentLog['time'] ?? '---';
 
-                $previousOut = $nextLog['time'] ?? null;
-                $i++; // move to next log
+                    $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
+
+                    $validInTime = $validIn
+                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                        : "---";
+
+                    if (!$validIn || $validInTime === "---") {
+                        $i++;
+                        continue;
+                    }
+
+                    // Try to find a valid OUT log after this IN
+                    $nextLog = null;
+                    $validOutTime = "---";
+
+                    for ($j = $i + 1; $j < count($data); $j++) {
+                        $candidateLog = $data[$j];
+                        $candidateTime = $candidateLog['time'] ?? '---';
+
+                        $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
+
+                        $validOutTime = $validOut
+                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                            : "---";
+
+                        if ($validOut && $validOutTime !== "---") {
+                            $nextLog = $candidateLog;
+                            $i = $j; // jump to OUT log
+                            break;
+                        }
+                    }
+
+                    $minutes = 0;
+
+                    if ($nextLog) {
+                        $parsedIn = strtotime($currentTime);
+                        $parsedOut = strtotime($nextLog['time'] ?? '---');
+
+                        if ($parsedIn > $parsedOut) {
+                            $parsedOut += 86400; // handle midnight
+                        }
+
+                        $minutes = ($parsedOut - $parsedIn) / 60;
+                        $totalMinutes += $minutes;
+                    }
+
+                    $logsJson[] = [
+                        "in" => $validInTime,
+                        "out" => $nextLog ? $validOutTime : "---",
+                        "device_in" => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                        "device_out" => $nextLog
+                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
+                            : "---",
+                        "total_minutes" => $minutes,
+                    ];
+
+                    $previousOut = $nextLog['time'] ?? null;
+                    $i++; // move forward
+                }
             }
 
-            // Final employee record
+            // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
             $item["total_hrs"] = $this->minutesToHours($totalMinutes);
 
