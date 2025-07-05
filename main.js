@@ -119,7 +119,7 @@ function createWindow() {
     // cloneTheRepoIfRequired(mainWindow, appDir, targetDir, srcDirectory, phpPathCli, repoUrl);
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
     startServices(mainWindow);
-    initAutoUpdater(mainWindow);
+    // initAutoUpdater(mainWindow);
   });
 }
 
