@@ -86,8 +86,27 @@ function log(mainWindow, message) {
     const seconds = String(now.getSeconds()).padStart(2, '0');
 
     const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const fullMessage = `[${timestamp}] ${message}\n`;
 
-    mainWindow.webContents.send('log', `[${timestamp}] ${message}\n`);
+    // Send to frontend
+    if (mainWindow && mainWindow.webContents) {
+        mainWindow.webContents.send('log', fullMessage);
+    }
+
+    // Write to file in logs directory within appDir
+    const logDir = path.join(appDir, 'logs');
+    const logFile = path.join(logDir, `${year}-${month}-${day}.log`);
+
+    // Create logs directory if it doesn't exist
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    fs.appendFile(logFile, fullMessage, (err) => {
+        if (err) {
+            console.error("❌ Failed to write log file:", err);
+        }
+    });
 }
 
 function ipUpdaterForDotNetSDK(mainWindow, jsonPath) {

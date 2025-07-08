@@ -108,7 +108,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width,
     height,
-    // show: false, // enable to hide the window
+    show: false, // enable to hide the window
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -118,7 +118,6 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 
   mainWindow.webContents.once('did-finish-load', () => {
-    // cloneTheRepoIfRequired(mainWindow, appDir, targetDir, srcDirectory, phpPathCli, repoUrl);
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
     startServices(mainWindow);
     // initAutoUpdater(mainWindow);
@@ -202,7 +201,17 @@ app.whenReady().then(() => {
   ipcMain.on('start-server', () => startServices(mainWindow));
   ipcMain.on('stop-server', () => stopServices(mainWindow));
 });
+let isQuitting = false;
 
+app.on('before-quit', (e) => {
+  if (!isQuitting) {
+    e.preventDefault(); // prevent quit
+    log(mainWindow, "Stopping services before quitting...");
+    stopServices(mainWindow); // assume this is sync or finishes quickly
+    isQuitting = true;
+    app.quit(); // trigger quit again
+  }
+});
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
