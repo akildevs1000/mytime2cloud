@@ -915,9 +915,9 @@
           </v-col>
           <v-col md="12">
             <v-text-field
-              :disabled="!payload.is_manual_create"
+              :disabled="editedIndex !== -1 && !payload.is_manual_create"
               class="pb-0"
-              :hide-details="!payload.device_id"
+              :hide-details="true"
               v-model="payload.device_id"
               placeholder="Serial Number"
               outlined
@@ -1110,7 +1110,6 @@
             <v-icon dark white>mdi-plus-circle</v-icon>
           </v-btn>
           <DeviceUploader v-else @success="(e) => getDataFromApi()" />
-
         </span>
       </v-toolbar>
 
@@ -1655,7 +1654,7 @@ export default {
     this.loading = true;
 
     if (this.$auth.user.branch_id) {
-      this.filters['branch_id'] = this.$auth.user.branch_id;
+      this.filters["branch_id"] = this.$auth.user.branch_id;
       this.isCompany = false;
       return;
     }
