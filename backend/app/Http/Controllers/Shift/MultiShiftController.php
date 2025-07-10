@@ -166,6 +166,10 @@ class MultiShiftController extends Controller
                     ["Manual", "manual", "MANUAL"]
                 );
 
+                if (strtolower($log['log_type']) == "in") {
+                    $validInTime = $time;
+                }
+
                 $logsJson[] = [
                     "in" => $validInTime !== "---" ? $validInTime : "---",
                     "out" => "---",
@@ -186,6 +190,10 @@ class MultiShiftController extends Controller
                         ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
                         : "---";
 
+                    if (strtolower($currentLog['log_type']) == "in") {
+                        $validInTime = $currentTime;
+                    }
+
                     if (!$validIn || $validInTime === "---") {
                         $i++;
                         continue;
@@ -204,6 +212,10 @@ class MultiShiftController extends Controller
                         $validOutTime = $validOut
                             ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
                             : "---";
+
+                        if (strtolower($candidateLog['log_type']) == "out") {
+                            $validOutTime = $candidateTime;
+                        }
 
                         if ($validOut && $validOutTime !== "---") {
                             $nextLog = $candidateLog;
@@ -343,13 +355,13 @@ class MultiShiftController extends Controller
     {
         // return $log && $log['time'] ? $log['time'] : "---";
 
+        if (isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)) {
+            return $log['time'];
+        } else if (in_array($log["DeviceID"], $manualDeviceID)) {
+            return $log['time'];
+        }
 
-        return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions) ? $log['time'] : "---";
-
-        // return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)
-        //     || (isset($log["DeviceID"]) && $log["DeviceID"] == $manualDeviceID)
-        //     ? $log['time']
-        //     : "---";
+        return "---";
     }
 
     private function getDeviceName($log, $validFunctions)
