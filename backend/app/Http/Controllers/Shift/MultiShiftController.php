@@ -166,6 +166,10 @@ class MultiShiftController extends Controller
                     ["Manual", "manual", "MANUAL"]
                 );
 
+                if (strtolower($log['log_type']) == "in") {
+                    $validInTime = $time;
+                }
+
                 $logsJson[] = [
                     "in" => $validInTime !== "---" ? $validInTime : "---",
                     "out" => "---",
@@ -186,6 +190,10 @@ class MultiShiftController extends Controller
                         ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
                         : "---";
 
+                    if (strtolower($currentTime['log_type']) == "in") {
+                        $validInTime = $currentTime;
+                    }
+
                     if (!$validIn || $validInTime === "---") {
                         $i++;
                         continue;
@@ -204,6 +212,10 @@ class MultiShiftController extends Controller
                         $validOutTime = $validOut
                             ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
                             : "---";
+
+                        if (strtolower($candidateLog['log_type']) == "out") {
+                            $validOutTime = $candidateTime;
+                        }
 
                         if ($validOut && $validOutTime !== "---") {
                             $nextLog = $candidateLog;
