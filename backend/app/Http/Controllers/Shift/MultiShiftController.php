@@ -343,13 +343,13 @@ class MultiShiftController extends Controller
     {
         // return $log && $log['time'] ? $log['time'] : "---";
 
+        if (isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)) {
+            return $log['time'];
+        } else if (in_array($log["DeviceID"], $manualDeviceID)) {
+            return $log['time'];
+        }
 
-        return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions) ? $log['time'] : "---";
-
-        // return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)
-        //     || (isset($log["DeviceID"]) && $log["DeviceID"] == $manualDeviceID)
-        //     ? $log['time']
-        //     : "---";
+        return "---";
     }
 
     private function getDeviceName($log, $validFunctions)
