@@ -190,7 +190,7 @@ class MultiShiftController extends Controller
                         ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
                         : "---";
 
-                    if (strtolower($currentTime['log_type']) == "in") {
+                    if (strtolower($currentLog['log_type']) == "in") {
                         $validInTime = $currentTime;
                     }
 
