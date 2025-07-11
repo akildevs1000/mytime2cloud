@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Mail;
 
 class WhatsappProxyHealthCheck extends Command
 {
-    protected $signature = 'whatsapp:proxy-health-check {minutes=240} {path=/root/wa}';
+    protected $signature = 'whatsapp:proxy-health-check {minutes=60} {path=/root/wa}';
     protected $description = 'Check recently updated WhatsApp proxy CSV files (last 2 hours) using shell';
 
     public function handle()
@@ -88,7 +88,7 @@ class WhatsappProxyHealthCheck extends Command
         if ($to) {
             Mail::raw("Dear Admin,\n\nYour WhatsApp account has expired. Please update your account.\n\nBest regards,\nMyTime2Cloud", function ($message) use ($to) {
                 $message->to($to)
-                    ->bcc('akildevs1000@gmail.com')
+                    ->bcc('francisgill1000@gmail.com')
                     ->subject("MyTime2Cloud: WhatsApp Account Expired");
             });
             $this->logCommandOutput("Email sent to $to with BCC to akildevs1000@gmail.com");
