@@ -58,8 +58,8 @@ class WhatsappProxyHealthCheck extends Command
                     if ($id && isset($companyEmails[$id])) {
                         $companyEmail = $companyEmails[$id];
 
-                        // $this->sendEmailsForCsvIds($companyEmail);
-                        $this->sendEmailsForCsvIds();
+                        $this->sendEmailsForCsvIds($companyEmail);
+                        // $this->sendEmailsForCsvIds();
 
                         $this->logCommandOutput("Email sent for $id to $companyEmail (bcc to Francis)");
 
