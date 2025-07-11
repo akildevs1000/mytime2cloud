@@ -18,7 +18,7 @@ class Kernel extends ConsoleKernel
     {
 
         $schedule->command('whatsapp:proxy-health-check')
-            ->everyFifteenMinutes()
+            ->hourly()
             ->withoutOverlapping();
 
         $schedule->command('monitor:disk')->dailyAt('08:00');
