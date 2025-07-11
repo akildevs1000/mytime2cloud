@@ -58,20 +58,20 @@ class WhatsappProxyHealthCheck extends Command
                     if ($id && isset($companyEmails[$id])) {
                         $companyEmail = $companyEmails[$id];
 
-                        $this->sendEmailsForCsvIds($companyEmail);
-                        // $this->sendEmailsForCsvIds();
+                        // $this->sendEmailsForCsvIds($companyEmail);
+                        $this->sendEmailsForCsvIds();
 
                         $this->logCommandOutput("Email sent for $id to $companyEmail (bcc to Francis)");
 
                         // ✅ DELETE the file after sending
-                        // if (file_exists($line)) {
-                        //     unlink($line);
-                        //     $this->info("Deleted file: $line");
-                        //     $this->logCommandOutput("Deleted file: $line");
-                        // } else {
-                        //     $this->warn("File not found for deletion: $line");
-                        //     $this->logCommandOutput("File not found for deletion: $line");
-                        // }
+                        if (file_exists($line)) {
+                            unlink($line);
+                            $this->info("Deleted file: $line");
+                            $this->logCommandOutput("Deleted file: $line");
+                        } else {
+                            $this->warn("File not found for deletion: $line");
+                            $this->logCommandOutput("File not found for deletion: $line");
+                        }
                     }
                 }
             }
