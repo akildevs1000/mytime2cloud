@@ -19,6 +19,7 @@ use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WhatsappProxyHealthCheckController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -137,3 +138,5 @@ Route::get('reset_file/{token}/{file}', [CommonController::class, 'destroy']);
 Route::get('downloadfiles', [SdkLogcsvfileController::class, 'list']);
 Route::get('download/{key}', [SdkLogcsvfileController::class, 'download']);
 Route::get('upcoming-holiday', [HolidaysController::class, 'upcomingHoliday']);
+
+Route::get('/whatsapp/health-check', [WhatsappProxyHealthCheckController::class, 'check']);
