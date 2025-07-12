@@ -1,1 +1,0 @@
-__NUXT_JSONP__("/camera", {data:[{}],fetch:{},mutations:[]});

@@ -1,1 +1,0 @@
-__NUXT_JSONP__("/loginwithtoken", {data:[{}],fetch:{},mutations:[]});
