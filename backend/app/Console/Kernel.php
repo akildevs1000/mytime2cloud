@@ -64,6 +64,9 @@ class Kernel extends ConsoleKernel
                 ->hourly()
                 ->runInBackground();
 
+
+            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
             $schedule->command("pdf:generate $companyId")->monthlyOn(1, '03:35')->runInBackground();
 
             $schedule->command("pdf:generate $companyId")
@@ -71,8 +74,14 @@ class Kernel extends ConsoleKernel
                 ->when(fn() => now()->day == now()->endOfMonth()->day)
                 ->runInBackground();
 
+            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
+
+            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
             $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->dailyAt('04:35')->runInBackground();
+
+            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
@@ -135,10 +144,12 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
+           // --------------------Daily Report Generation for automation-------------------- //
             $schedule
                 ->command("task:generate_daily_report {$companyId}")
                 ->dailyAt('03:45')
                 ->runInBackground();
+           // --------------------Daily Report Generation for automation-------------------- //
 
 
             $schedule
