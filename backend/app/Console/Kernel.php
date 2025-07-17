@@ -163,24 +163,18 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 ->dailyAt('02:00')
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground();
 
 
             $schedule
                 ->command("task:sync_off $companyId")
                 ->dailyAt('02:00')
-                //->withoutOverlapping()
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground();
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
                 ->runInBackground();
-
-            // $schedule
-            //     ->command("task:report_notification_crons $companyId")
-            //     ->everyMinute()
-            //     ->runInBackground();
         }
 
         $schedule
