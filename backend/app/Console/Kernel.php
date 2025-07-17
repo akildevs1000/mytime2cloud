@@ -215,14 +215,6 @@ class Kernel extends ConsoleKernel
 
         foreach ($models as $model) {
 
-            $schedule
-                ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
-                ->dailyAt('3:45');
-
-            // if ($model->type == "alert") {
-            //     $command_name = "alert:absents";
-            // }
-
             $companyId = $model->company_id;
 
             $schedule
