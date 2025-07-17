@@ -8,55 +8,49 @@ use Illuminate\Support\Facades\Mail;
 class DiskUsageAlert extends Command
 {
     protected $signature = 'monitor:disk';
-    protected $description = 'Send email alert if disk usage exceeds threshold';
+    protected $description = 'Send email alert if disk usage exceeds a defined threshold';
 
     public function handle()
     {
-        $output = shell_exec("df / | grep / | awk '{ print $5 }'");
-        $usage = (int) trim(str_replace('%', '', $output));
+        $threshold = (int) env('DISK_USAGE_THRESHOLD', 80); // set in .env file if needed
+        $usage = $this->getDiskUsage();
 
-        $to = env("ADMIN_MAIL_RECEIVERS", "francisgill1000@gmail.com");
+        $from = env('MAIL_FROM_ADDRESS', 'noreply@example.com');
+        $to = explode(',', env('ADMIN_MAIL_RECEIVERS', 'francisgill1000@gmail.com'));
 
-        $this->info("SENDER MAIL: " . env("MAIL_FROM_ADDRESS", "francisgill1000@gmail.com"));
+        $this->info("📤 Sender: {$from}");
+        $this->info("📥 Receivers: " . implode(', ', $to));
+        $this->info("📊 Current disk usage: {$usage}%");
 
-        $this->info("RECEIVERS MAIL: " . $to);
+        $subject = "Disk Usage Alert: {$usage}% used";
+        $emailMessage = $this->buildMessage($usage, $threshold);
 
-        if ($usage > 80) {
+        Mail::raw($emailMessage, function ($message) use ($to, $subject, $from) {
+            $message->to($to)
+                ->from($from)
+                ->subject($subject);
+        });
 
-            $fixSteps = <<<EOT
-⚠️ Your disk has reached {$usage}%.
-
-Suggested steps to free space:
-
-1. Check large folders and files:
-   sudo du -h --max-depth=1 / | sort -hr | head -n 10
-
-2. Clean apt cache:
-   sudo apt-get clean
-
-3. Clear old logs:
-   sudo journalctl --vacuum-time=2d
-
-4. Remove old Snap versions:
-   sudo snap list --all
-   sudo snap remove --purge <package-name> --revision=<old-revision>
-
-5. Delete temporary files:
-   sudo rm -rf /tmp/*
-
-Please take immediate action to avoid system issues.
-EOT;
-
-            Mail::raw($fixSteps, function ($message) use ($to, $usage) {
-                $message->to($to)
-                    ->subject("Disk Alert: {$usage}% used");
-            });
-
-            $this->info("Alert email sent with fix instructions. Usage: {$usage}%");
-        } else {
-            $this->info("Disk usage is fine: {$usage}%");
-        }
+        $this->info("✅ Email sent successfully.");
 
         return 0;
+    }
+
+    protected function getDiskUsage(): int
+    {
+        $output = shell_exec("df / | grep / | awk '{ print $5 }'");
+        return (int) trim(str_replace('%', '', $output));
+    }
+
+    protected function buildMessage(int $usage, int $threshold): string
+    {
+        $statusMessage = $usage > $threshold
+            ? "🚨 Disk usage exceeded the threshold ({$threshold}%).\nCurrent usage: {$usage}%."
+            : "✅ Disk usage is within safe limits.\nCurrent usage: {$usage}%.";
+
+        $statusMessage .= "\n\n🔧 Tip: Run the following command on the server to investigate disk usage:\n";
+        $statusMessage .= "sudo du -ahx / | sort -rh | head -n 20";
+
+        return $statusMessage;
     }
 }
