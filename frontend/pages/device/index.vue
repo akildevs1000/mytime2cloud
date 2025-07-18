@@ -1133,47 +1133,6 @@
         :options.sync="options"
         :server-items-length="totalRowsCount"
       >
-        <!-- <template v-slot:header="{ props: { headers } }">
-          <tr v-if="isFilter">
-            <td
-              style="width: 50px"
-              v-for="header in headers"
-              :key="header.text"
-            >
-              <v-container>
-                <v-text-field
-                  clearable
-                  :hide-details="true"
-                  v-if="header.filterable && !header.filterSpecial"
-                  v-model="filters[header.value]"
-                  :id="header.value"
-                  @input="applyFilters(header.key, $event)"
-                  outlined
-                  dense
-                  autocomplete="off"
-                ></v-text-field>
-                <v-autocomplete
-                  :hide-details="true"
-                  @change="applyFilters('status', $event)"
-                  item-value="value"
-                  item-text="title"
-                  v-model="filters[header.text]"
-                  outlined
-                  dense
-                  v-else-if="header.filterSpecial && header.text == 'Status'"
-                  :items="[
-                    { value: '', title: 'All' },
-                    { value: '1', title: 'Online' },
-                    {
-                      value: '2',
-                      title: 'Offline',
-                    },
-                  ]"
-                ></v-autocomplete>
-              </v-container>
-            </td>
-          </tr>
-        </template> -->
         <template v-slot:item.sno="{ item, index }">
           {{ ++index }}
         </template>

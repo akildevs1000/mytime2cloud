@@ -29,9 +29,9 @@
         "from": "conf",
         "to": "conf"
       },
-      {
-        "from": "www",
-        "to": "www"
+     {
+        "from": "frontend/dist",
+        "to": "frontend/dist"
       },
       {
         "from": "employee/dist",
