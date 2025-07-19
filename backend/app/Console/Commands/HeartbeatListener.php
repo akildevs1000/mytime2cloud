@@ -5,22 +5,19 @@ use App\Models\Device;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use WebSocket\Client;
+use WebSocket\TimeoutException;
 
 class HeartbeatListener extends Command
 {
-    protected $signature   = 'heartbeat:listener'; // ✅ Updated here
-    protected $description = 'Listen to WebSocket heartbeat events';
+    protected $signature   = 'heartbeat:listener';
+    protected $description = 'Listen to WebSocket heartbeat events from devices';
 
     public function handle()
     {
-        $baseUrl = $this->getBaseUrl();
-
+        $baseUrl        = $this->getBaseUrl();
         $dotnetEndpoint = "ws://$baseUrl:8080/WebSocket";
-        $javaEndpoint   = "$baseUrl:8888";
-
-        // $this->info($dotnetEndpoint);
-        // $this->info($javaEndpoint);
-        // return;
+        $dotnetEndpoint = "ws://192.168.3.245:8080/WebSocket";
+        
 
         $ignoredDeviceList = [];
 
@@ -30,65 +27,73 @@ class HeartbeatListener extends Command
 
         foreach ($devices as $deviceId) {
             $lastSeen[$deviceId] = null;
-
-            // $this->info("DeviceId: $deviceId, BaseUrl:$baseUrl");
-
-            // $response              = $this->getCURL($deviceId, $baseUrl);
-            // if (isset($response["serial_no"])) {
-
-            //     Device::where("device_id", $response["serial_no"])->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
-            //     $online_devices_count++;
-            // }
-
         }
-
-        // $this->info(json_encode($lastSeen, JSON_PRETTY_PRINT));
 
         try {
             $this->info("Connecting to WebSocket at $dotnetEndpoint");
 
             $client = new Client($dotnetEndpoint, [
-                'timeout' => 300,
+                'timeout' => 0.5, // ⏳ Short timeout to prevent blocking forever
             ]);
 
+            static $lastCheck = null;
+
             while (true) {
-                $message = $client->receive();
-                $decoded = json_decode($message, true);
+                try {
+                    $message = $client->receive(); // Will throw TimeoutException if nothing is received
+                    $decoded = json_decode($message, true);
 
-                if (isset($decoded['Data'])) {
-                    $data    = $decoded['Data'];
-                    $sn      = $data['SN'] ?? null;
-                    $rawTime = $data['KeepAliveTime'] ?? null;
+                    if (isset($decoded['Data'])) {
+                        $data    = $decoded['Data'];
+                        $sn      = $data['SN'] ?? null;
+                        $rawTime = $data['KeepAliveTime'] ?? null;
 
-                    if ($sn && in_array($sn, $devices)) {
-                        $keepAliveTime = $rawTime
-                        ? Carbon::parse($rawTime)->format('Y-m-d H:i:s')
-                        : 'N/A';
+                        if ($sn && in_array($sn, $devices)) {
+                            $keepAliveTime = $rawTime
+                            ? Carbon::parse($rawTime)->format('Y-m-d H:i:s')
+                            : 'N/A';
 
-                        $lastSeen[$sn] = now();
+                            $lastSeen[$sn] = now();
 
-                        Device::where('device_id', $sn)->where('status_id', 2)->update(['status_id' => 1]);
+                            Device::where('device_id', $sn)
+                                ->where('status_id', 2)
+                                ->update(['status_id' => 1]);
 
-                        $this->info("💓 KeepAliveTime: $keepAliveTime | SN: $sn");
+                            $this->info("💓 KeepAliveTime: $keepAliveTime | SN: $sn");
+                        }
+                    } else {
+                        $this->warn("Unknown message format: $message");
                     }
-                } else {
-                    $this->warn("Unknown message format: $message");
+                } catch (TimeoutException $e) {
+                    // No message received within timeout — continue to next loop iteration
+                } catch (\Exception $e) {
+                    // Show which devices have not sent heartbeat
+                    $offlineDevices = [];
+                    foreach ($lastSeen as $deviceId => $lastTime) {
+                        if (! $lastTime || now()->diffInSeconds($lastTime) > 30) {
+                            $offlineDevices[] = $deviceId;
+                            $this->warn("❌ No heartbeat from: " . $deviceId);
+
+                        }
+                    }
+                    sleep(5);        // wait before trying to reconnect
+                    $this->handle(); // retry connection
+                    return;
                 }
 
-                // Check only every 30 seconds
-                static $lastCheck = null;
+                // Perform device check every 30 seconds
                 if (! $lastCheck || now()->diffInSeconds($lastCheck) >= 30) {
                     $lastCheck = now();
 
-                    $offlineDevices   = []; // Collect devices to be marked offline
-                    $offlineCompanies = []; // Collect unique company IDs for Artisan call
+                    $offlineDevices   = [];
+                    $offlineCompanies = [];
 
                     foreach ($devices as $deviceId) {
                         $lastTime = $lastSeen[$deviceId];
 
-                        // If no heartbeat received or heartbeat older than 30 seconds
-                        if (! $lastTime || now()->diffInSeconds($lastTime) > 30) {
-
+                        if (! $lastTime) {
+                            $this->warn("⏳ Device $deviceId has not connected yet (no heartbeat received).");
+                        } elseif (now()->diffInSeconds($lastTime) > 30) {
                             $this->warn("❌ No heartbeat from $deviceId in the last 30 seconds!");
 
                             $found = Device::where("device_id", $deviceId)
@@ -106,13 +111,14 @@ class HeartbeatListener extends Command
                         Device::whereIn('id', $offlineDevices)->update(['status_id' => 2]);
                         $this->info("🔧 Updated status for " . count($offlineDevices) . " offline device(s).");
                     }
-                } 
-                usleep(100000); // Small delay
+                }
+
+                usleep(100000); // 0.1 second delay to reduce CPU usage
             }
         } catch (\Exception $e) {
-            $this->warn("Communication error: trying to reconnect in 5 seconds...");
+            $this->error("Failed to connect to WebSocket: " . $e->getMessage());
             sleep(5);
-            $this->handle();
+            $this->handle(); // Retry on initial connection failure
         }
     }
 
@@ -133,20 +139,19 @@ class HeartbeatListener extends Command
             CURLOPT_CUSTOMREQUEST  => 'GET',
             CURLOPT_HTTPHEADER     => [
                 'Cookie: sessionID=' . $sessionId,
-                'sxdmToken: ' . $this->getToken(), //get from Device manufacturer
-                'sxdmSn:  ' . $device_id,          //get from Device serial number
+                'sxdmToken: ' . $this->getToken(),
+                'sxdmSn: ' . $device_id,
             ],
         ]);
 
         $response = curl_exec($curl);
 
         curl_close($curl);
-        return $response = json_decode($response, true);
+        return json_decode($response, true);
     }
 
     public function getActiveSessionId($device_id, $url)
     {
-
         set_time_limit(120);
 
         $curl = curl_init();
@@ -171,17 +176,14 @@ class HeartbeatListener extends Command
         curl_close($curl);
 
         $response = json_decode($response, true);
-        if (isset($response["session_id"])) {
-            return $response["session_id"];
-        } else {
-            return '';
-        }
+        return $response["session_id"] ?? '';
     }
 
     public function getToken()
     {
         return "7VOarATI4IfbqFWLF38VdWoAbHUYlpAY";
     }
+
     public function getBaseUrl()
     {
         return gethostbyname(gethostname());
