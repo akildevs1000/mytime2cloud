@@ -16,24 +16,34 @@ class HeartbeatListener extends Command
     {
         $baseUrl        = $this->getBaseUrl();
         $dotnetEndpoint = "ws://$baseUrl:8080/WebSocket";
-        $dotnetEndpoint = "ws://192.168.3.245:8080/WebSocket";
-        
+        $javaEndpoint   = "$baseUrl:8888";
 
         $ignoredDeviceList = [];
 
-        $devices = Device::whereNotIn("device_id", $ignoredDeviceList)->pluck('device_id')->toArray();
+        $ox900  = Device::whereNotIn("device_id", $ignoredDeviceList)->where("model_number", "OX-900")->pluck('device_id')->toArray();
+        $others = Device::whereNotIn("device_id", $ignoredDeviceList)->whereNot("model_number", "OX-900")->pluck('device_id')->toArray();
 
+        $this->processDotNetDevices($others, $dotnetEndpoint);
+
+        $this->processJavaDevices($ox900, $javaEndpoint);
+        while (true) {
+            $this->processJavaDevices($ox900, $javaEndpoint);
+            sleep(30); // wait for 30 seconds
+        }
+    }
+
+    public function processDotNetDevices($devices, $dotnetEndpoint)
+    {
         $lastSeen = [];
 
         foreach ($devices as $deviceId) {
             $lastSeen[$deviceId] = null;
         }
-
         try {
             $this->info("Connecting to WebSocket at $dotnetEndpoint");
 
             $client = new Client($dotnetEndpoint, [
-                'timeout' => 0.5, // ⏳ Short timeout to prevent blocking forever
+                'timeout' => 10, // ⏳ Short timeout to prevent blocking forever
             ]);
 
             static $lastCheck = null;
@@ -92,7 +102,7 @@ class HeartbeatListener extends Command
                         $lastTime = $lastSeen[$deviceId];
 
                         if (! $lastTime) {
-                            $this->warn("⏳ Device $deviceId has not connected yet (no heartbeat received).");
+                            $this->warn("⏳ Device $deviceId has not connected yet.");
                         } elseif (now()->diffInSeconds($lastTime) > 30) {
                             $this->warn("❌ No heartbeat from $deviceId in the last 30 seconds!");
 
@@ -120,6 +130,30 @@ class HeartbeatListener extends Command
             sleep(5);
             $this->handle(); // Retry on initial connection failure
         }
+    }
+
+    public function processJavaDevices($devices, $javaEndpoint)
+    {
+        $onlineDevices  = [];
+        $offlineDevices = [];
+
+        $keepAliveTime = date("Y-m-d H:i:s");
+
+        foreach ($devices as $device_id) {
+            $response = $this->getCURL($device_id, $javaEndpoint);
+            if (isset($response["serial_no"])) {
+                $onlineDevices[] = $device_id;
+                $this->info("💓 KeepAliveTime: $keepAliveTime | SN: $device_id");
+            } else {
+                $offlineDevices[] = $device_id;
+                $this->warn("❌ No heartbeat from: " . $device_id);
+            }
+        }
+
+        $onlineUpdatedDevices  = Device::whereIn("device_id", $onlineDevices)->update(["status_id" => 1, "last_live_datetime" => $keepAliveTime]);
+        $offlineUpdatedDevices = Device::whereIn("device_id", $offlineDevices)->update(["status_id" => 2]);
+
+        $this->info("$onlineUpdatedDevices devices online, $offlineUpdatedDevices devices offline");
     }
 
     public function getCURL($device_id, $url)
@@ -187,5 +221,10 @@ class HeartbeatListener extends Command
     public function getBaseUrl()
     {
         return gethostbyname(gethostname());
+    }
+
+    public function showJson($arr)
+    {
+        return json_encode($arr, JSON_PRETTY_PRINT);
     }
 }
