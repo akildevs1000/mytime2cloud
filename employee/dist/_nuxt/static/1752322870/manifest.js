@@ -1,1 +1,0 @@
-__NUXT_JSONP__("manifest.js", {routes:["\u002Fcamera\u002Fold","\u002Floginwithtoken","\u002Flogin","\u002Ftestnuxt","\u002Fcamera"]})

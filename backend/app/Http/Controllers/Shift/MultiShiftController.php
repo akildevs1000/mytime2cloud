@@ -180,6 +180,9 @@ class MultiShiftController extends Controller
             } else {
                 // ✅ Normal multiple-log processing
                 $i = 0;
+
+                $validLogCount = 0;
+
                 while ($i < count($data)) {
                     $currentLog = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
@@ -198,6 +201,8 @@ class MultiShiftController extends Controller
                         $i++;
                         continue;
                     }
+
+                    $validLogCount++;
 
                     // Try to find a valid OUT log after this IN
                     $nextLog = null;
@@ -220,6 +225,7 @@ class MultiShiftController extends Controller
                         if ($validOut && $validOutTime !== "---") {
                             $nextLog = $candidateLog;
                             $i = $j; // jump to OUT log
+                            $validLogCount++;
                             break;
                         }
                     }
@@ -251,7 +257,10 @@ class MultiShiftController extends Controller
                     $previousOut = $nextLog['time'] ?? null;
                     $i++; // move forward
                 }
+
             }
+            
+            $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
@@ -264,6 +273,7 @@ class MultiShiftController extends Controller
                     $params["shift"]->overtime_interval
                 );
             }
+
 
             $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
             $items[] = $item;

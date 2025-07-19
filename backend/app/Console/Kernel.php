@@ -51,6 +51,9 @@ class Kernel extends ConsoleKernel
                 ->hourly()
                 ->runInBackground();
 
+
+            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
             $schedule->command("pdf:generate $companyId")->monthlyOn(1, '03:35')->runInBackground();
 
             $schedule->command("pdf:generate $companyId")
@@ -58,8 +61,14 @@ class Kernel extends ConsoleKernel
                 ->when(fn() => now()->day == now()->endOfMonth()->day)
                 ->runInBackground();
 
+            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
+
+            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
             $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
                 ->dailyAt('04:35')->runInBackground();
+
+            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
@@ -122,10 +131,12 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
+           // --------------------Daily Report Generation for automation-------------------- //
             $schedule
                 ->command("task:generate_daily_report {$companyId}")
-                ->dailyAt('03:45')
+                ->dailyAt('09:00')
                 ->runInBackground();
+           // --------------------Daily Report Generation for automation-------------------- //
 
 
             $schedule
@@ -139,24 +150,18 @@ class Kernel extends ConsoleKernel
             $schedule
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 ->dailyAt('02:00')
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground();
 
 
             $schedule
                 ->command("task:sync_off $companyId")
                 ->dailyAt('02:00')
-                //->withoutOverlapping()
-                ->runInBackground(); //->emailOutputOnFailure(env("ADMIN_MAIL_RECEIVERS"));
+                ->runInBackground();
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
                 ->everyFiveMinutes()
                 ->runInBackground();
-
-            // $schedule
-            //     ->command("task:report_notification_crons $companyId")
-            //     ->everyMinute()
-            //     ->runInBackground();
         }
 
         $schedule
@@ -196,14 +201,6 @@ class Kernel extends ConsoleKernel
             ->get();
 
         foreach ($models as $model) {
-
-            $schedule
-                ->command("multi:daily_report " . $model->company_id . " " . $model->branch_id)
-                ->dailyAt('3:45');
-
-            // if ($model->type == "alert") {
-            //     $command_name = "alert:absents";
-            // }
 
             $companyId = $model->company_id;
 
