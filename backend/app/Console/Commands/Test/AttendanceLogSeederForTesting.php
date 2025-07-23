@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Test;
 
 use App\Http\Controllers\AttendanceLogController;
 use App\Models\Employee;
