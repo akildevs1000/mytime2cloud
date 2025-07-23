@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\Test;
 
 use App\Mail\SimpleEmail;
 use Illuminate\Support\Facades\Mail;
