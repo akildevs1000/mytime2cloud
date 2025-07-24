@@ -36,6 +36,7 @@
             margin: 25px
         }
     </style>
+    <title>Daily</title>
 </head>
 
 <body class="container">
