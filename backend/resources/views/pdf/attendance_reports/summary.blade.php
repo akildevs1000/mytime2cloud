@@ -158,7 +158,7 @@
                 $pic = env('BASE_URL') . '/no-profile-image.jpg';
 
                 if ($attendance->employee->profile_picture) {
-                    $pic = $attendance->employee->profile_picture;
+                    $pic = env('BASE_URL') . '/media/employee/profile_picture/' . $attendance->employee->profile_picture;
                 }
 
             @endphp
