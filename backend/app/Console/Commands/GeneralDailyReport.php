@@ -83,6 +83,10 @@ class GeneralDailyReport extends Command
 
                 $this->info("Process Type for Company $name with Id = $company_id on Branch $branchName with Branch id = $branchId and with $shift_type");
 
+
+                $this->info(env("APP_ENV"));
+
+
                 GenerateAttendanceSummaryReport::dispatch($shift_type, $company_id, $branchId, $company);
 
                 // $this->info(showJson($company));

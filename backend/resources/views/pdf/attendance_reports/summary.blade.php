@@ -161,10 +161,6 @@
                     $pic = env('BASE_URL') . '/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
                 }
 
-                if (env('APP_ENV') !== 'production') {
-                    $pic = 'https://backend.mytime2cloud.com/media/employee/profile_picture/1722679555.jpg';
-                }
-
             @endphp
             <tr>
                 <td style="text-align:left;width:200px;">
