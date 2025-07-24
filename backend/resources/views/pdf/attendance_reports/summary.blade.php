@@ -173,8 +173,6 @@
                                 {{ $attendance->employee->first_name }}
                                 <br>
                                 <small>{{ $attendance->employee->employee_id }}</small>
-                                <br>
-                                <small>{{$pic}}</small>
                             </td>
                         </tr>
                     </table>
