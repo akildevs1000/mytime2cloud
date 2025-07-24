@@ -157,7 +157,7 @@
 
                 // $pic = env('BASE_URL') . '/no-profile-image.jpg';
 
-                $pic = env('BASE_URL') . '/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
+                $pic = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
 
             @endphp
             <tr>
@@ -169,9 +169,12 @@
                                 <img src="{{ $pic }}" style="border-radius:50%;width:25px; " />
                             </td>
                             <td style="border: none;text-align:left;padding-left:8px;">
+                            
                                 {{ $attendance->employee->first_name }}
                                 <br>
                                 <small>{{ $attendance->employee->employee_id }}</small>
+                                <br>
+                                <small>{{$attendance->employee->profile_picture_raw}}</small>
                             </td>
                         </tr>
                     </table>
