@@ -1,6 +1,7 @@
 <?php
 namespace App\Console\Commands;
 
+use App\Jobs\GenerateAttendanceSummaryReport;
 use App\Models\Company;
 use App\Models\Shift;
 use Illuminate\Console\Command;
