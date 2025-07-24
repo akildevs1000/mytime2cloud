@@ -384,3 +384,10 @@ if (!function_exists('recordAction')) {
         ]);
     }
 }
+
+if (! function_exists('showJson')) {
+    function showJson($arr)
+    {
+        return json_encode($arr, JSON_PRETTY_PRINT);
+    }
+}

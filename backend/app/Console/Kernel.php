@@ -1,15 +1,11 @@
 <?php
-
 namespace App\Console;
 
-use App\Http\Controllers\DeviceController;
-use App\Http\Controllers\ThemeController;
 use App\Models\Company;
 use App\Models\PayrollSetting;
 use App\Models\ReportNotification;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
-use Illuminate\Http\Request;
 
 class Kernel extends ConsoleKernel
 {
@@ -44,6 +40,13 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_alarm_logs')
             ->everyMinute();
 
+        // --------------------Daily Report Generation for automation-------------------- //
+        $schedule
+            ->command("task:generate_daily_report")
+            ->dailyAt('09:00')
+            ->runInBackground();
+        // --------------------Daily Report Generation for automation-------------------- //
+
         // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
         $schedule
@@ -56,14 +59,12 @@ class Kernel extends ConsoleKernel
 
         $companyIds = Company::pluck("id");
 
-
         foreach ($companyIds as $companyId) {
 
             $schedule
                 ->command("alert:offline_device $companyId")
                 ->hourly()
                 ->runInBackground();
-
 
             // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
 
@@ -75,7 +76,6 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
-
 
             // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
             $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
@@ -104,14 +104,13 @@ class Kernel extends ConsoleKernel
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-
             $schedule->command("task:sync_multi_shift {$companyId} " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
-                // ->everyThirtyMinutes()
+            // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
                 ->runInBackground();
 
@@ -144,14 +143,6 @@ class Kernel extends ConsoleKernel
                 ->everyMinute()
                 ->runInBackground();
 
-           // --------------------Daily Report Generation for automation-------------------- //
-            $schedule
-                ->command("task:generate_daily_report {$companyId}")
-                ->dailyAt('09:00')
-                ->runInBackground();
-           // --------------------Daily Report Generation for automation-------------------- //
-
-
             $schedule
                 ->command("task:sync_leaves $companyId")
                 ->dailyAt('01:00');
@@ -164,7 +155,6 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 ->dailyAt('02:00')
                 ->runInBackground();
-
 
             $schedule
                 ->command("task:sync_off $companyId")
@@ -181,7 +171,6 @@ class Kernel extends ConsoleKernel
             ->command("task:files-delete-old-log-files")
             ->dailyAt('23:30')
             ->runInBackground();
-
 
         // $schedule->call(function () {
         //     $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
@@ -210,7 +199,7 @@ class Kernel extends ConsoleKernel
 
         //whatsapp and email notifications
         $models = ReportNotification::where("type", "attendance")
-            // ->orWhere("type", "automation")
+        // ->orWhere("type", "automation")
             ->get();
 
         foreach ($models as $model) {
