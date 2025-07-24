@@ -174,7 +174,7 @@
                                 <br>
                                 <small>{{ $attendance->employee->employee_id }}</small>
                                 <br>
-                                <small>{{$attendance->employee->profile_picture_raw}}</small>
+                                <small>{{$pic}}</small>
                             </td>
                         </tr>
                     </table>
