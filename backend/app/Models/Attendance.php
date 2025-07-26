@@ -249,10 +249,10 @@ class Attendance extends Model
             'employee' => function ($q) use ($company_id) {
                 $q->where('company_id', $company_id);
                 $q->where('status', 1);
-                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
-                $q->with(['department', 'branch']);
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id","designation_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
+                $q->with(['department', 'branch',"designation"]);
                 $q->with([
-                    "schedule" => function ($q) use ($company_id) {
+                    "schedule"       => function ($q) use ($company_id) {
                         $q->where('company_id', $company_id);
                         $q->select("id", "shift_id", "employee_id");
                         $q->withOut("shift_type");
@@ -260,9 +260,9 @@ class Attendance extends Model
                     "schedule.shift" => function ($q) use ($company_id) {
                         $q->where('company_id', $company_id);
                         $q->select("id", "name", "on_duty_time", "off_duty_time");
-                    }
+                    },
                 ]);
-            }
+            },
         ]);
 
         $model->with('device_in', function ($q) use ($request) {
