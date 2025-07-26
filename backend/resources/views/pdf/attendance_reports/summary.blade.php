@@ -36,6 +36,7 @@
             margin: 25px
         }
     </style>
+    <title>Daily</title>
 </head>
 
 <body class="container">
@@ -155,15 +156,9 @@
                     $statusColor = '';
                 }
 
-                $pic = env('BASE_URL') . '/no-profile-image.jpg';
+                // $pic = env('BASE_URL') . '/no-profile-image.jpg';
 
-                if ($attendance->employee->profile_picture) {
-                    $pic = env('BASE_URL') . '/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
-                }
-
-                if (env('APP_ENV') !== 'production') {
-                    $pic = 'https://backend.mytime2cloud.com/media/employee/profile_picture/1722679555.jpg';
-                }
+                $pic = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . $attendance->employee->profile_picture_raw;
 
             @endphp
             <tr>
@@ -175,6 +170,7 @@
                                 <img src="{{ $pic }}" style="border-radius:50%;width:25px; " />
                             </td>
                             <td style="border: none;text-align:left;padding-left:8px;">
+                            
                                 {{ $attendance->employee->first_name }}
                                 <br>
                                 <small>{{ $attendance->employee->employee_id }}</small>

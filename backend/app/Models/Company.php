@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Models;
 
-use App\Models\TradeLicense;
 use App\Models\CompanyContact;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Notifications\Notifiable;
+use App\Models\TradeLicense;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Company extends Model
 {
@@ -25,9 +24,9 @@ class Company extends Model
 
     protected $casts = [
         'member_from' => 'date:Y/m/d',
-        'expiry' => 'date:Y/m/d',
-        'created_at' => 'datetime:d-M-y',
-        'no_branch' => 'boolean',
+        'expiry'      => 'date:Y/m/d',
+        'created_at'  => 'datetime:d-M-y',
+        'no_branch'   => 'boolean',
     ];
     protected $appends = ['show_member_from', 'show_expiry', "logo_raw"];
 
@@ -39,8 +38,8 @@ class Company extends Model
     public function contact()
     {
         return $this->hasOne(CompanyContact::class)->withDefault([
-            'name' => "-------",
-            'number' => "-------",
+            'name'     => "-------",
+            'number'   => "-------",
             'position' => "-------",
             'whatsapp' => "-------",
         ]);
@@ -74,7 +73,6 @@ class Company extends Model
         return $this->hasMany(MailContent::class, "company_id")->where('name', 'whatsapp');
     }
 
-
     public function shifts()
     {
         return $this->hasMany(Shift::class);
@@ -84,7 +82,6 @@ class Company extends Model
     {
         return $this->hasMany(AttendanceLog::class);
     }
-
 
     public function attendances()
     {
@@ -115,7 +112,7 @@ class Company extends Model
     }
     public function getLogoAttribute($value)
     {
-        if (!$value) {
+        if (! $value) {
             return null;
         }
         return asset('upload/' . $value);
@@ -149,8 +146,14 @@ class Company extends Model
     protected function companyCode(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => $value < 1000 ? 'AE000' . $value : 'AE' . $value,
-            set: fn ($value) => $value,
+            get: fn($value) => $value < 1000 ? 'AE000' . $value : 'AE' . $value,
+            set: fn($value) => $value,
         );
     }
+
+    public function report_notifications()
+    {
+        return $this->hasMany(ReportNotification::class);
+    }
+
 }
