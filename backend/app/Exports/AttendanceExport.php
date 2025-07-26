@@ -3,25 +3,26 @@
 namespace App\Exports;
 
 use App\Models\Attendance;
-use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+use Illuminate\Database\Query\Builder;
+use Maatwebsite\Excel\Concerns\FromQuery;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-
-class AttendanceExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize
+class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize
 {
-    protected $data;
+    protected $query;
 
-    public function __construct($data)
+    public function __construct(Builder|\Illuminate\Database\Eloquent\Builder $query)
     {
-        $this->data = $data;
+        $this->query = $query;
     }
 
-    public function collection()
+    public function query()
     {
-        return collect($this->data);
+        // Use `select()` to reduce fetched columns if possible
+        return $this->query;
     }
 
     public function headings(): array
@@ -32,20 +33,13 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
             "Full Name",
             "Department",
             "Position",
-            "In1",
-            "Out1",
-            "In2",
-            "Out2",
-            "In3",
-            "Out3",
-            "In4",
-            "Out4",
-            "In5",
-            "Out5",
-            "In6",
-            "Out6",
-            "In7",
-            "Out7",
+            "In1", "Out1",
+            "In2", "Out2",
+            "In3", "Out3",
+            "In4", "Out4",
+            "In5", "Out5",
+            "In6", "Out6",
+            "In7", "Out7",
             "Total Hrs",
             "OT",
             "Status",
@@ -54,30 +48,34 @@ class AttendanceExport implements FromCollection, WithHeadings, WithMapping, Sho
 
     public function map($row): array
     {
-        return [
-            $row['date'],
-            (string)$row['employee']["employee_id"] ?? "---",
-            $row['employee']["full_name"] ?? $row['employee']["first_name"] . " " . $row['employee']["last_name"],
-            $row['employee']["department"]["name"],
-            $row['employee']["designation"]["name"],
-            $row["in1"] ?? "---",
-            $row["out1"] ?? "---",
-            $row["in2"] ?? "---",
-            $row["out2"] ?? "---",
-            $row["in3"] ?? "---",
-            $row["out3"] ?? "---",
-            $row["in4"] ?? "---",
-            $row["out4"] ?? "---",
-            $row["in5"] ?? "---",
-            $row["out5"] ?? "---",
-            $row["in6"] ?? "---",
-            $row["out6"] ?? "---",
-            $row["in7"] ?? "---",
-            $row["out7"] ?? "---",
-            $row["total_hrs"] ?? "---",
-            $row["ot"] ?? "---",
-            $row["status"] ?? "---",
-        ];
+        // Append default log values if logs are missing
+        $logArray = [];
+
+        $logs = $row->logs ?? [];
+        $count = count($logs);
+
+        if ($count < 7) {
+            for ($i = $count; $i < 7; $i++) {
+                $logs[] = null;
+            }
+        }
+
+        foreach (range(0, 6) as $index) {
+            $logArray[] = $logs[$index]["in"] ?? "---";
+            $logArray[] = $logs[$index]["out"] ?? "---";
+        }
+
+        return array_merge([
+            $row->date,
+            (string) ($row->employee->employee_id ?? "---"),
+            $row->employee->full_name ?? $row->employee->first_name . ' ' . $row->employee->last_name,
+            $row->employee->department->name ?? "---",
+            $row->employee->designation->name ?? "---",
+        ], $logArray, [
+            $row->total_hrs ?? "---",
+            $row->ot ?? "---",
+            $row->status ?? "---",
+        ]);
     }
 
     public function styles($sheet)

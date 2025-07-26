@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Reports;
 
 use App\Exports\AttendanceExport;
@@ -7,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAttendanceReport;
 use App\Models\Attendance;
 use App\Models\Company;
-use App\Models\Department;
 use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Roster;
@@ -39,7 +37,7 @@ class MonthlyController extends Controller
         $company_id = $request->company_id;
 
         $from_date = $request->from_date;
-        $to_date = $request->to_date;
+        $to_date   = $request->to_date;
 
         $heading = "Summary";
 
@@ -48,23 +46,27 @@ class MonthlyController extends Controller
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id", "user_id"]);
 
         $company = [
-            "logo_raw" => env("BASE_URL") .   '/' . $companyPayload->logo_raw,
-            "name" => $companyPayload->name,
-            "email" => $companyPayload->user->email ?? 'mail not found',
-            "location" => $companyPayload->location,
-            "contact" => $companyPayload->contact->number ?? 'contact not found',
+            "logo_raw"    => env("BASE_URL") . '/' . $companyPayload->logo_raw,
+            "name"        => $companyPayload->name,
+            "email"       => $companyPayload->user->email ?? 'mail not found',
+            "location"    => $companyPayload->location,
+            "contact"     => $companyPayload->contact->number ?? 'contact not found',
             "report_type" => $heading,
-            "from_date" => $from_date,
-            "to_date" => $to_date,
+            "from_date"   => $from_date,
+            "to_date"     => $to_date,
         ];
 
         if ($request->report_template == 'Template3') {
 
             $branchId = $request->branch_id;
 
-            if (!$branchId) return "Branch must be selected";
+            if (! $branchId) {
+                return "Branch must be selected";
+            }
 
-            if ($from_date !== $to_date) return "From Date and To Date must be same for (Daily) report";
+            if ($from_date !== $to_date) {
+                return "From Date and To Date must be same for (Daily) report";
+            }
 
             return $this->processTemplate3($shift_type, $company_id, $branchId, $company);
         }
@@ -95,7 +97,7 @@ class MonthlyController extends Controller
         $company_id = $request->company_id;
 
         $from_date = $request->from_date;
-        $to_date = $request->to_date;
+        $to_date   = $request->to_date;
 
         $heading = "Summary";
 
@@ -104,23 +106,27 @@ class MonthlyController extends Controller
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id", "user_id"]);
 
         $company = [
-            "logo_raw" => env("BASE_URL") .   '/' . $companyPayload->logo_raw,
-            "name" => $companyPayload->name,
-            "email" => $companyPayload->user->email ?? 'mail not found',
-            "location" => $companyPayload->location,
-            "contact" => $companyPayload->contact->number ?? 'contact not found',
+            "logo_raw"    => env("BASE_URL") . '/' . $companyPayload->logo_raw,
+            "name"        => $companyPayload->name,
+            "email"       => $companyPayload->user->email ?? 'mail not found',
+            "location"    => $companyPayload->location,
+            "contact"     => $companyPayload->contact->number ?? 'contact not found',
             "report_type" => $heading,
-            "from_date" => $from_date,
-            "to_date" => $to_date,
+            "from_date"   => $from_date,
+            "to_date"     => $to_date,
         ];
 
         if ($request->report_template == 'Template3') {
 
             $branchId = $request->branch_id;
 
-            if (!$branchId) return "Branch must be selected";
+            if (! $branchId) {
+                return "Branch must be selected";
+            }
 
-            if ($from_date !== $to_date) return "From Date and To Date must be same for (Daily) report";
+            if ($from_date !== $to_date) {
+                return "From Date and To Date must be same for (Daily) report";
+            }
 
             return $this->processTemplate3($shift_type, $company_id, $branchId, $company, "D");
         }
@@ -135,7 +141,7 @@ class MonthlyController extends Controller
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
         }
         $file_name = $file_name . '.pdf';
-        $report = $this->processPDF($request);
+        $report    = $this->processPDF($request);
         return $report->download($file_name);
     }
 
@@ -167,7 +173,7 @@ class MonthlyController extends Controller
     {
         $data = $this->processPDF($request)->output();
 
-        $id =  $request->company_id;
+        $id = $request->company_id;
 
         $status = $request->status;
 
@@ -185,16 +191,16 @@ class MonthlyController extends Controller
     public function getFileNameByStatus($status)
     {
         $arr = [
-            "A" => "absent",
-            "M" => "missing",
-            "P" => "present",
-            "O" => "weekoff",
-            "L" => "leave",
-            "H" => "holiday",
-            "V" => "vaccation",
+            "A"  => "absent",
+            "M"  => "missing",
+            "P"  => "present",
+            "O"  => "weekoff",
+            "L"  => "leave",
+            "H"  => "holiday",
+            "V"  => "vaccation",
             "LC" => "latein",
             "EG" => "earlyout",
-            "-1" => "summary"
+            "-1" => "summary",
         ];
 
         return $arr[$status];
@@ -224,7 +230,7 @@ class MonthlyController extends Controller
         }
 
         // $report = $this->processPDF($request);
-        $report = $this->processPDF($request);
+        $report    = $this->processPDF($request);
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
             $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
@@ -235,30 +241,33 @@ class MonthlyController extends Controller
 
     public function monthly_download_csv(Request $request)
     {
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', 600);
 
         $showTabs = json_decode($request->showTabs, true);
 
-        // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->multi_in_out_monthly_download_csv($request);
-        }
-
-        $data = (new Attendance)->processAttendanceModel($request)->get();
+        $model = (new Attendance)->processAttendanceModel($request);
 
         $file_name = "Attendance Report";
-        if (isset($request->from_date) && isset($request->to_date)) {
-            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $file_name .= ' - ' . $request->from_date . ' to ' . $request->to_date;
         }
-        $file_name = $file_name . '.csv';
 
+        // only for multi in/out
+        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+            return Excel::download(new AttendanceExport($model), $file_name . '.xlsx');
+        }
 
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$file_name",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0",
-        );
+        $data = $model->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$file_name.csv'",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
 
         $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
@@ -293,113 +302,6 @@ class MonthlyController extends Controller
         return response()->stream($callback, 200, $headers);
     }
 
-    public function multi_in_out_monthly_download_csv(Request $request)
-    {
-        $data = (new Attendance)->processAttendanceModel($request)->get();
-
-        foreach ($data as $value) {
-            $count = count($value->logs ?? []);
-            if ($count > 0) {
-                if ($count < 8) {
-                    $diff = 7 - $count;
-                    $count = $count + $diff;
-                }
-                $i = 1;
-                for ($a = 0; $a < $count; $a++) {
-
-                    $holder = $a;
-                    $holder_key = ++$holder;
-
-                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
-                    $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
-                    $value["device_in" . $holder_key] = $value->logs[$a]["device_in"]["short_name"] ?? "---";
-                    $value["device_out" . $holder_key] = $value->logs[$a]["device_in"]["short_name"] ?? "---";
-                }
-            }
-        }
-
-        $file_name = "Attendance Report";
-        if (isset($request->from_date) && isset($request->to_date)) {
-            $file_name = "Attendance Report - " . $request->from_date . ' to ' . $request->to_date;
-        }
-        // $file_name = $file_name . '.csv';
-
-        $file_name = $file_name . '.xlsx';
-
-        return Excel::download(new AttendanceExport($data), $file_name);
-
-
-
-        $headers = array(
-            "Content-type" => "text/csv",
-            "Content-Disposition" => "attachment; filename=$file_name",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0",
-        );
-
-        $callback = function () use ($data) {
-            $file = fopen('php://output', 'w');
-            $i = 0;
-            fputcsv($file, [
-                "#",
-                "Date",
-                "E.ID",
-                "Name",
-                "In1",
-                "Out1",
-                "In2",
-                "Out2",
-                "In3",
-                "Out3",
-                "In4",
-                "Out4",
-                "In5",
-                "Out5",
-                "In6",
-                "Out6",
-                "In7",
-                "Out7",
-                "Total Hrs",
-                "OT",
-                "Status",
-
-
-            ]);
-            foreach ($data as $col) {
-                fputcsv($file, [
-                    ++$i,
-                    $col['date'],
-                    (string)$col['employee']["employee_id"] ?? "---",
-                    $col['employee']["display_name"] ?? "---",
-
-                    $col["in1"] ?? "---",
-                    $col["out1"] ?? "---",
-                    $col["in2"] ?? "---",
-                    $col["out2"] ?? "---",
-                    $col["in3"] ?? "---",
-                    $col["out3"] ?? "---",
-                    $col["in4"] ?? "---",
-                    $col["out4"] ?? "---",
-                    $col["in5"] ?? "---",
-                    $col["out5"] ?? "---",
-                    $col["in6"] ?? "---",
-                    $col["out6"] ?? "---",
-                    $col["in7"] ?? "---",
-                    $col["out7"] ?? "---",
-                    $col["total_hrs"] ?? "---",
-                    $col["ot"] ?? "---",
-                    $col["status"] ?? "---",
-
-                ], ",");
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
-    }
-
     public function processPDF($request)
     {
         // return [$request->from_date, $request->to_date];
@@ -407,28 +309,26 @@ class MonthlyController extends Controller
         $companyID = $request->company_id;
 
         $model = (new Attendance)->processAttendanceModel($request);
-        $data = $model->get()->groupBy(['employee_id', 'date']);
+        $data  = $model->get()->groupBy(['employee_id', 'date']);
 
-
-
-        $company = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $company                    = Company::whereId($companyID)->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['department_name'] = DB::table('departments')->whereId($request->department_id)->first(["name"])->name ?? '';
-        $company['report_type'] = $this->getStatusText($request->status);
-        $company['start'] = $request->from_date ?? ''; //date('Y-10-01');
-        $company['end'] = $request->to_date ??  ''; //date('Y-10-31');
-        $collection = $model->clone()->get();
+        $company['report_type']     = $this->getStatusText($request->status);
+        $company['start']           = $request->from_date ?? ''; //date('Y-10-01');
+        $company['end']             = $request->to_date ?? '';   //date('Y-10-31');
+        $collection                 = $model->clone()->get();
 
         $info = (object) [
-            'total_absent' => $model->clone()->where('status', 'A')->count(),
-            'total_present' => $model->clone()->where('status', 'P')->count(),
-            'total_off' => $model->clone()->where('status', 'O')->count(),
-            'total_missing' => $model->clone()->where('status', 'M')->count(),
-            'total_early' => $model->clone()->where('early_going', '!=', '---')->count(),
-            'total_hours' => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+            'total_absent'   => $model->clone()->where('status', 'A')->count(),
+            'total_present'  => $model->clone()->where('status', 'P')->count(),
+            'total_off'      => $model->clone()->where('status', 'O')->count(),
+            'total_missing'  => $model->clone()->where('status', 'M')->count(),
+            'total_early'    => $model->clone()->where('early_going', '!=', '---')->count(),
+            'total_hours'    => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
-            'report_type' => $request->report_type ?? "",
-            'shift_type_id' => $request->shift_type_id ?? 0,
-            'total_leave' => 0,
+            'report_type'    => $request->report_type ?? "",
+            'shift_type_id'  => $request->shift_type_id ?? 0,
+            'total_leave'    => 0,
         ];
 
         // if ($request->employee_id && $request->filled('employee_id')) {
@@ -439,22 +339,23 @@ class MonthlyController extends Controller
         $fileName = $request->main_shift_type == 2 ? "multi-in-out" : "general";
 
         if ($request->from_date == $request->to_date) {
-            $fileName =  $fileName . "-whatsapp";
+            $fileName = $fileName . "-whatsapp";
         }
 
         $main_shift_name = 'Single Shift';
-        if ($request->main_shift_type == 2)
+        if ($request->main_shift_type == 2) {
             $main_shift_name = 'Multi Shift';
-        else   if ($request->main_shift_type == 5)
+        } else if ($request->main_shift_type == 5) {
             $main_shift_name = 'Double Shift';
-
+        }
 
         $arr = ['request' => $request, 'data' => $data, 'company' => $company, 'info' => $info, 'main_shift_name' => $main_shift_name];
 
-
         //return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
-        if ($request->report_template == 'Template2')
+        if ($request->report_template == 'Template2') {
             return Pdf::loadView('pdf.attendance_reports.' . $request->report_template, $arr);
+        }
+
         if ($request->report_template == 'Template1') {
             return Pdf::loadView('pdf.attendance_reports.' . $request->report_template . '-' . $fileName, $arr);
         }
@@ -462,7 +363,7 @@ class MonthlyController extends Controller
 
     public function getHTML($data, $company)
     {
-        $mob = $company->contact->number ?? '---';
+        $mob         = $company->contact->number ?? '---';
         $companyLogo = "";
 
         if (env('APP_ENV') !== 'local') {
@@ -679,11 +580,11 @@ class MonthlyController extends Controller
 
     public function renderTable($data, $company)
     {
-        $str = "";
-        $model = Device::query();
-        $shiftModel = Shift::query();
+        $str            = "";
+        $model          = Device::query();
+        $shiftModel     = Shift::query();
         $shiftTypeModel = ShiftType::query();
-        $rosterModel = Roster::query();
+        $rosterModel    = Roster::query();
 
         foreach ($data as $eid => $row) {
 
@@ -706,12 +607,12 @@ class MonthlyController extends Controller
 
             $str .= '<table class="main-table" style="margin-top: 5px !important;  padding-bottom: 1px;">';
 
-            $dates = '<tr"><td><b>Dates</b></td>';
-            $days = '<tr"><td><b>Days</b></td>';
-            $in = '<tr"><td><b>In</b></td>';
-            $out = '<tr"><td><b>Out</b></td>';
-            $work = '<tr"><td><b>Work</b></td>';
-            $ot = '<tr"><td><b>OT</b></td>';
+            $dates  = '<tr"><td><b>Dates</b></td>';
+            $days   = '<tr"><td><b>Days</b></td>';
+            $in     = '<tr"><td><b>In</b></td>';
+            $out    = '<tr"><td><b>Out</b></td>';
+            $work   = '<tr"><td><b>Work</b></td>';
+            $ot     = '<tr"><td><b>OT</b></td>';
             $roster = '<tr"><td><b>Roster</b></td>';
             // $shift_type = '<tr "><td><b>Shift Type</b></td>';
             // $din = '<tr"><td><b>Device In</b></td>';
@@ -742,7 +643,7 @@ class MonthlyController extends Controller
                 // $shift_name =  $shiftModel->where("id", $record[0]['shift_id'])->first()->name ?? '';
                 // $shift_type_name =  $shiftTypeModel->where("id", $record[0]['shift_type_id'])->first()->name ?? '';
 
-                $device_short_name_in = $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
+                $device_short_name_in  = $model->clone()->where("device_id", $record[0]['device_id_in'])->first()->short_name ?? '';
                 $device_short_name_out = $model->clone()->where("device_id", $record[0]['device_id_out'])->first()->short_name ?? '';
 
                 $dates .= '<td style="text-align: center;"> ' . substr($key, 0, 2) . ' </td>';
@@ -788,17 +689,17 @@ class MonthlyController extends Controller
     public function getCalculation($arr)
     {
         $work_minutes = 0;
-        $ot_minutes = 0;
+        $ot_minutes   = 0;
 
         $presents = 0;
-        $absents = 0;
+        $absents  = 0;
         $missings = 0;
-        $manuals = 0;
+        $manuals  = 0;
 
         foreach ($arr as $a) {
             $status = $a[0]->status;
-            $work = $a[0]->total_hrs;
-            $ot = $a[0]->ot;
+            $work   = $a[0]->total_hrs;
+            $ot     = $a[0]->ot;
 
             if ($status == 'P') {
                 $presents++;
@@ -830,20 +731,20 @@ class MonthlyController extends Controller
         $ot_minutes -= $ot_hours * 60;
 
         return [
-            'work' => $work_hours . ':' . $work_minutes,
-            'ot' => $ot_hours . ':' . $ot_minutes,
+            'work'     => $work_hours . ':' . $work_minutes,
+            'ot'       => $ot_hours . ':' . $ot_minutes,
             'presents' => $presents,
-            'absents' => $absents,
+            'absents'  => $absents,
             'missings' => $missings,
-            'manuals' => $manuals,
+            'manuals'  => $manuals,
         ];
     }
 
     public function getPageNumbers($data)
     {
-        $p = count($data);
+        $p   = count($data);
         $str = '';
-        $l = $p / 4;
+        $l   = $p / 4;
         if ($p <= 3) {
             $str .= '<span></span>';
         } else if ($p <= 5) {
@@ -861,8 +762,8 @@ class MonthlyController extends Controller
         $sum_minutes = 0;
         foreach ($times as $time) {
             if ($time != "---") {
-                $parts = explode(":", $time);
-                $hours = intval($parts[0]);
+                $parts   = explode(":", $time);
+                $hours   = intval($parts[0]);
                 $minutes = intval($parts[1]);
                 $sum_minutes += $hours * 60 + $minutes;
             }
@@ -875,8 +776,8 @@ class MonthlyController extends Controller
     public function csvPdf()
     {
         $first = true;
-        $file = fopen(public_path('transactions.csv'), 'r');
-        $data = [];
+        $file  = fopen(public_path('transactions.csv'), 'r');
+        $data  = [];
 
         // 0 => "﻿Employee ID"
         // 1 => "First Name"
@@ -897,14 +798,14 @@ class MonthlyController extends Controller
 
                 $data[] = [
                     'employee_id' => $line[0],
-                    'first_name' => $line[1],
-                    'department' => $line[2],
-                    'date' => $line[3],
-                    'time' => $line[4],
+                    'first_name'  => $line[1],
+                    'department'  => $line[2],
+                    'date'        => $line[3],
+                    'time'        => $line[4],
                     'punch_state' => $line[5],
-                    'work_code' => $line[6],
-                    'area_name' => $line[7],
-                    'serial_no' => $line[8],
+                    'work_code'   => $line[6],
+                    'area_name'   => $line[7],
+                    'serial_no'   => $line[8],
                     'device_name' => $line[9],
                     'upload_time' => $line[10],
                 ];
@@ -924,19 +825,19 @@ class MonthlyController extends Controller
         set_time_limit(60);
 
         $requestPayload = [
-            'company_id' => 22,
-            'status' => "-1",
-            'date' => date("Y-m-d", strtotime("-1 day")), // Yesterday's date
-            "status_slug" => $this->getStatusSlug("-1")
+            'company_id'  => 22,
+            'status'      => "-1",
+            'date'        => date("Y-m-d", strtotime("-1 day")), // Yesterday's date
+            "status_slug" => $this->getStatusSlug("-1"),
         ];
 
-        $this->requestPayload =  $requestPayload;
+        $this->requestPayload = $requestPayload;
 
         $employees = Employee::whereCompanyId($requestPayload["company_id"])->take(100)->get();
 
         $totalEmployees = $employees->count();
 
-        $company = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+        $company                = Company::whereId($requestPayload["company_id"])->with('contact:id,company_id,number')->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
         $company['report_type'] = $this->getStatusText($requestPayload['status']);
 
         // Dont use in production -----------------------------------------------------------------------
@@ -944,12 +845,10 @@ class MonthlyController extends Controller
         DB::table("failed_jobs")->truncate();
         // Dont use in production -----------------------------------------------------------------------
 
-
         foreach ($employees as $index => $employee) {
 
-            $employeeId = $employee->system_user_id;
+            $employeeId       = $employee->system_user_id;
             $this->employeeId = $employee->system_user_id;
-
 
             // $company_id = $this->requestPayload["company_id"];
             // $date = $this->requestPayload["date"];
@@ -983,8 +882,6 @@ class MonthlyController extends Controller
 
             // $template = "Template1";
 
-
-
             // $filesPath = public_path("reports/companies/$company_id/$date/$status_slug/$template");
 
             // if (!file_exists($filesPath)) {
@@ -1012,7 +909,7 @@ class MonthlyController extends Controller
 
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-        if (!empty($requestPayload["status"])) {
+        if (! empty($requestPayload["status"])) {
             if ($requestPayload["status"] != "-1") {
                 $model->where('status', $requestPayload["status"]);
             }
@@ -1047,7 +944,7 @@ class MonthlyController extends Controller
                 $q->where('status', 1);
                 $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
                 $q->with(['department', 'branch']);
-            }
+            },
         ]);
 
         $model->with('device_in', function ($q) {
@@ -1089,7 +986,7 @@ class MonthlyController extends Controller
 
         $employee_id = request("employee_id", 0);
 
-        if (!empty($employee_id)) {
+        if (! empty($employee_id)) {
             $employeeIds = is_array($employee_id) ? $employee_id : explode(",", $employee_id);
         }
 
@@ -1102,7 +999,7 @@ class MonthlyController extends Controller
         $filesDirectory = public_path("reports/$company_id/$template");
 
         // Check if the directory exists
-        if (!is_dir($filesDirectory)) {
+        if (! is_dir($filesDirectory)) {
             return response()->json(['error' => 'Directory not found'], 404);
         }
 
@@ -1132,12 +1029,11 @@ class MonthlyController extends Controller
         return (new Controller)->mergePdfFiles($pdfFiles, $action);
     }
 
-
     public function processTemplate3($shift_type, $company_id, $branchId, $company, $action = "I")
     {
 
         $from_date = $company["from_date"] ?? date("Y-m-d");
-        $to_date =  $company["to_date"] ?? date("Y-m-d");
+        $to_date   = $company["to_date"] ?? date("Y-m-d");
 
         $model = Attendance::query();
         $model->where('company_id', $company_id);
@@ -1154,13 +1050,13 @@ class MonthlyController extends Controller
         });
 
         $model->with([
-            'employee' => function ($q) use ($company_id) {
+            'employee'   => function ($q) use ($company_id) {
                 $q->where('company_id', $company_id)
                     ->where('status', 1)
                     ->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date")
                     ->with(['department', 'branch'])
                     ->with([
-                        "schedule" => function ($q) use ($company_id) {
+                        "schedule"       => function ($q) use ($company_id) {
                             $q->where('company_id', $company_id)
                                 ->select("id", "shift_id", "employee_id")
                                 ->withOut("shift_type");
@@ -1168,20 +1064,22 @@ class MonthlyController extends Controller
                         "schedule.shift" => function ($q) use ($company_id) {
                             $q->where('company_id', $company_id)
                                 ->select("id", "name", "on_duty_time", "off_duty_time");
-                        }
+                        },
                     ]);
             },
-            'device_in' => fn($q) => $q->where('company_id', $company_id),
+            'device_in'  => fn($q)  => $q->where('company_id', $company_id),
             'device_out' => fn($q) => $q->where('company_id', $company_id),
-            'shift' => fn($q) => $q->where('company_id', $company_id),
-            'schedule' => fn($q) => $q->where('company_id', $company_id),
+            'shift'      => fn($q)      => $q->where('company_id', $company_id),
+            'schedule'   => fn($q)   => $q->where('company_id', $company_id),
         ]);
 
         $attendances = $model->get();
 
         $count = count($attendances->toArray());
 
-        if (!$count) return;
+        if (! $count) {
+            return;
+        }
 
         $chunks = $attendances->chunk(15); // Split into groups of 15
 
@@ -1192,13 +1090,13 @@ class MonthlyController extends Controller
         foreach ($chunks as $chunk) {
 
             $arr = [
-                'shift_type' => $shift_type,
-                'company' => $company,
+                'shift_type'  => $shift_type,
+                'company'     => $company,
                 'attendances' => $chunk, // pass pages instead of all attendances
-                'counter' => $counter,
+                'counter'     => $counter,
             ];
 
-            $data = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
+            $data      = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
             $file_path = "pdf/$yesterday/{$company_id}/{$branchId}/summary_report_$counter.pdf";
             Storage::disk('local')->put($file_path, $data);
 
@@ -1208,7 +1106,7 @@ class MonthlyController extends Controller
         // After generating chunked PDFs for each branch:
         $filesDirectory = storage_path("app/pdf/$yesterday/{$company_id}/{$branchId}");
 
-        if (!is_dir($filesDirectory)) {
+        if (! is_dir($filesDirectory)) {
             echo 'Directory not found';
         }
 
@@ -1225,7 +1123,7 @@ class MonthlyController extends Controller
 
             for ($i = 1; $i <= $pageCount; $i++) {
                 $tplId = $pdf->importPage($i);
-                $size = $pdf->getTemplateSize($tplId);
+                $size  = $pdf->getTemplateSize($tplId);
 
                 $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';
                 $pdf->AddPage($orientation, [$size['width'], $size['height']]);
