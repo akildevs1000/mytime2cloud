@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Reports;
 
 use App\Exports\AttendanceExport;
+use App\Exports\AttendanceExportGeneral;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAttendanceReport;
 use App\Models\Attendance;
@@ -244,62 +245,24 @@ class MonthlyController extends Controller
         ini_set('memory_limit', '2048M');
         ini_set('max_execution_time', 600);
 
-        $showTabs = json_decode($request->showTabs, true);
+        $showTabs = json_decode($request->showTabs, true) ?? [];
+        $multiTab = $showTabs['multi'] ?? false;
+        $dualTab  = $showTabs['dual'] ?? false;
 
         $model = (new Attendance)->processAttendanceModel($request);
 
         $file_name = "Attendance Report";
-
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $file_name .= ' - ' . $request->from_date . ' to ' . $request->to_date;
         }
 
-        // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return Excel::download(new AttendanceExport($model), $file_name . '.xlsx');
+        $file_name = preg_replace('/[^\w\s\-]/', '', $file_name) . '.xlsx';
+
+        if ($multiTab || $dualTab) {
+            return Excel::download(new AttendanceExport($model), $file_name);
         }
 
-        $data = $model->get();
-
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$file_name.csv'",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0",
-        ];
-
-        $callback = function () use ($data) {
-            $file = fopen('php://output', 'w');
-
-            $i = 0;
-
-            fputcsv($file, ["#", "Date", "E.ID", "Name", "Dept", "Shift Type", "Shift", "Status", "In", "Out", "Total Hrs", "OT", "Late coming", "Early Going", "D.In", "D.Out"]);
-            foreach ($data as $col) {
-                fputcsv($file, [
-                    ++$i,
-                    $col['date'],
-                    $col['employee_id'] ?? "---",
-                    $col['employee']["display_name"] ?? "---",
-                    $col['employee']["department"]["name"] ?? "---",
-                    $col["shift_type"]["name"] ?? "---",
-                    $col["shift"]["name"] ?? "---",
-                    $col["status"] ?? "---",
-                    $col["in"] ?? "---",
-                    $col["out"] ?? "---",
-                    $col["total_hrs"] ?? "---",
-                    $col["ot"] ?? "---",
-                    $col["late_coming"] ?? "---",
-                    $col["early_going"] ?? "---",
-                    $col["device_in"]["short_name"] ?? "---",
-                    $col["device_out"]["short_name"] ?? "---",
-                ], ",");
-            }
-
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return Excel::download(new AttendanceExportGeneral($model), $file_name);
     }
 
     public function processPDF($request)
