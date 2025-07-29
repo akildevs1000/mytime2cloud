@@ -726,7 +726,7 @@ export default {
 
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
-      // qs += `&status=${this.payload.status & this.payload.status || "-1"}`;
+      
       if (
         this.payload.department_ids &&
         this.payload.department_ids.length > 0
@@ -737,6 +737,7 @@ export default {
       qs += `&report_type=${this.report_type}`;
 
       qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
+      qs += `&status=${this.payload.statuses}`;
 
       // Convert showTabs object into a URL-friendly format
       if (this.payload.showTabs) {
@@ -744,7 +745,6 @@ export default {
           JSON.stringify(this.payload.showTabs)
         )}`;
       }
-      console.log(qs);
       let report = document.createElement("a");
       report.setAttribute("href", qs);
       report.setAttribute("target", "_blank");
@@ -847,14 +847,14 @@ export default {
         });
     },
     async getDepartments() {
-      let config = {
-        params: {
-          branch_id: this.payload.branch_id,
-          company_id: this.$auth.user.company_id,
-        },
-      };
+     let config = {
+      params:{
+        branch_id: this.payload.branch_id,
+        company_id:this.$auth.user.company_id
+      }
+     };
       try {
-        const { data } = await this.$axios.get(`department-list`, config);
+        const { data } = await this.$axios.get(`department-list`,config);
         this.departments = data;
         this.toggleDepartmentSelection();
         setTimeout(() => {
