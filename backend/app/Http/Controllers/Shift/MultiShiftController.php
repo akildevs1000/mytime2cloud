@@ -1,17 +1,13 @@
 <?php
-
 namespace App\Http\Controllers\Shift;
 
-use App\Http\Controllers\API\SharjahUniversityAPI;
-use App\Models\Attendance;
-use Illuminate\Http\Request;
-use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncMultiShiftDualDayJob;
+use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 
 class MultiShiftController extends Controller
 {
@@ -27,13 +23,13 @@ class MultiShiftController extends Controller
         } else {
             $endDateString = $request->dates[0];
         }
-        $company_id = $request->company_ids[0];
+        $company_id   = $request->company_ids[0];
         $employee_ids = $request->employee_ids;
-        $channel = $request->channel ?? "browser";
+        $channel      = $request->channel ?? "browser";
 
         // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($startDateString);
-        $endDate = new \DateTime($endDateString);
+        $endDate   = new \DateTime($endDateString);
 
         $response = [];
 
@@ -59,14 +55,14 @@ class MultiShiftController extends Controller
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
-            "company_id" => $id,
-            "date" => $date,
+            "company_id"    => $id,
+            "date"          => $date,
             "shift_type_id" => $shift_type_id,
             "custom_render" => $custom_render,
-            "UserIds" => $UserIds,
+            "UserIds"       => $UserIds,
         ];
 
-        if (!$custom_render) {
+        if (! $custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
@@ -75,20 +71,16 @@ class MultiShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
-
-
-
-        //update shift ID for No logs 
+        //update shift ID for No logs
         if (count($employees) == 0) {
             $employees = (new Employee)->GetEmployeeWithShiftDetails($params);
 
             foreach ($employees as $key => $value) {
 
-
                 if ($value->schedule->shift && $value->schedule->shift["id"] > 0) {
                     $data1 = [
-                        "shift_id" => $value->schedule->shift["id"],
-                        "shift_type_id" => $value->schedule->shift["shift_type_id"]
+                        "shift_id"      => $value->schedule->shift["id"],
+                        "shift_type_id" => $value->schedule->shift["shift_type_id"],
                     ];
                     $model1 = Attendance::query();
                     $model1->whereIn("employee_id", $UserIds);
@@ -99,15 +91,14 @@ class MultiShiftController extends Controller
             }
         }
 
-        $items = [];
-        $message = "";
+        $items       = [];
+        $message     = "";
         $logsUpdated = 0;
-
 
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
-            $params["shift"] = $row->schedule->shift ?? false;
+            $params["shift"]      = $row->schedule->shift ?? false;
 
             $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
@@ -115,12 +106,12 @@ class MultiShiftController extends Controller
 
             $data = collect($data)->unique('LogTime')->values();
 
-            if (!count($data)) {
+            if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
-                        "shift_id" => $row->schedule->shift["id"],
+                        "shift_id"      => $row->schedule->shift["id"],
                         "shift_type_id" => $row->schedule->shift["shift_type_id"],
-                        "status" => "A",
+                        "status"        => "A",
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
@@ -131,33 +122,33 @@ class MultiShiftController extends Controller
                 $message .= "{$row->system_user_id}   has No Logs to render";
                 continue;
             }
-            if (!$params["shift"]["id"]) {
+            if (! $params["shift"]["id"]) {
                 $message .= "{$row->system_user_id} : No shift configured on date: $date";
                 continue;
             }
 
             $item = [
-                "total_hrs" => 0,
-                "in" => "---",
-                "out" => "---",
-                "ot" => "---",
-                "device_id_in" => "---",
+                "total_hrs"     => 0,
+                "in"            => "---",
+                "out"           => "---",
+                "ot"            => "---",
+                "device_id_in"  => "---",
                 "device_id_out" => "---",
-                "date" => $params["date"],
-                "company_id" => $params["company_id"],
-                "shift_id" => $params["shift"]["id"] ?? 0,
-                "shift_type_id" => $params["shift"]["shift_type_id"]  ?? 0,
-                "status" => count($data) % 2 !== 0 ?  Attendance::MISSING : Attendance::PRESENT,
+                "date"          => $params["date"],
+                "company_id"    => $params["company_id"],
+                "shift_id"      => $params["shift"]["id"] ?? 0,
+                "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
+                "status"        => count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT,
 
             ];
 
             $totalMinutes = 0;
-            $logsJson = [];
-            $previousOut = null;
+            $logsJson     = [];
+            $previousOut  = null;
 
             // ✅ Special case: only 1 log
             if (count($data) === 1) {
-                $log = $data[0];
+                $log  = $data[0];
                 $time = $log['time'] ?? '---';
 
                 $validInTime = $this->getLogTime(
@@ -171,10 +162,10 @@ class MultiShiftController extends Controller
                 }
 
                 $logsJson[] = [
-                    "in" => $validInTime !== "---" ? $validInTime : "---",
-                    "out" => "---",
-                    "device_in" => $this->getDeviceName($log, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                    "device_out" => "---",
+                    "in"            => $validInTime !== "---" ? $validInTime : "---",
+                    "out"           => "---",
+                    "device_in"     => $this->getDeviceName($log, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                    "device_out"    => "---",
                     "total_minutes" => 0,
                 ];
             } else {
@@ -184,20 +175,20 @@ class MultiShiftController extends Controller
                 $validLogCount = 0;
 
                 while ($i < count($data)) {
-                    $currentLog = $data[$i];
+                    $currentLog  = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
 
                     $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
 
                     $validInTime = $validIn
-                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
+                    ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                    : "---";
 
                     if (strtolower($currentLog['log_type']) == "in") {
                         $validInTime = $currentTime;
                     }
 
-                    if (!$validIn || $validInTime === "---") {
+                    if (! $validIn || $validInTime === "---") {
                         $i++;
                         continue;
                     }
@@ -205,18 +196,18 @@ class MultiShiftController extends Controller
                     $validLogCount++;
 
                     // Try to find a valid OUT log after this IN
-                    $nextLog = null;
+                    $nextLog      = null;
                     $validOutTime = "---";
 
                     for ($j = $i + 1; $j < count($data); $j++) {
-                        $candidateLog = $data[$j];
+                        $candidateLog  = $data[$j];
                         $candidateTime = $candidateLog['time'] ?? '---';
 
                         $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
 
                         $validOutTime = $validOut
-                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                            : "---";
+                        ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                        : "---";
 
                         if (strtolower($candidateLog['log_type']) == "out") {
                             $validOutTime = $candidateTime;
@@ -224,7 +215,7 @@ class MultiShiftController extends Controller
 
                         if ($validOut && $validOutTime !== "---") {
                             $nextLog = $candidateLog;
-                            $i = $j; // jump to OUT log
+                            $i       = $j; // jump to OUT log
                             $validLogCount++;
                             break;
                         }
@@ -233,7 +224,7 @@ class MultiShiftController extends Controller
                     $minutes = 0;
 
                     if ($nextLog) {
-                        $parsedIn = strtotime($currentTime);
+                        $parsedIn  = strtotime($currentTime);
                         $parsedOut = strtotime($nextLog['time'] ?? '---');
 
                         if ($parsedIn > $parsedOut) {
@@ -245,12 +236,12 @@ class MultiShiftController extends Controller
                     }
 
                     $logsJson[] = [
-                        "in" => $validInTime,
-                        "out" => $nextLog ? $validOutTime : "---",
-                        "device_in" => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                        "device_out" => $nextLog
-                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
-                            : "---",
+                        "in"            => $validInTime,
+                        "out"           => $nextLog ? $validOutTime : "---",
+                        "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                        "device_out"    => $nextLog
+                        ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
+                        : "---",
                         "total_minutes" => $minutes,
                     ];
 
@@ -259,12 +250,14 @@ class MultiShiftController extends Controller
                 }
 
             }
-            
-            $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
+
+            $item["status"] = (isset($validLogCount) && $validLogCount % 2 === 0)
+            ? Attendance::PRESENT
+            : Attendance::MISSING;
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
-            $item["total_hrs"] = $this->minutesToHours($totalMinutes);
+            $item["total_hrs"]   = $this->minutesToHours($totalMinutes);
 
             if ($params["isOverTime"]) {
                 $item["ot"] = $this->calculatedOT(
@@ -274,9 +267,8 @@ class MultiShiftController extends Controller
                 );
             }
 
-
             $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
-            $items[] = $item;
+            $items[]      = $item;
         }
 
         // return json_encode($items, JSON_PRETTY_PRINT);
@@ -296,18 +288,18 @@ class MultiShiftController extends Controller
                     $model->insert($chunk);
                 }
 
-                $message = "[" . $date . " " . date("H:i:s") .  "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+                $message = "[" . $date . " " . date("H:i:s") . "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
 
                 $logsUpdated = AttendanceLog::where("company_id", $id)
                     ->whereIn("UserID", $UserIds ?? [])
                     ->where("LogTime", ">=", $date)
                     ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                    // ->where("checked", false)
+                // ->where("checked", false)
                     ->update([
-                        "checked" => true,
+                        "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
-                        "channel" => $channel,
-                        "log_message" => substr($message, 0, 200)
+                        "channel"          => $channel,
+                        "log_message"      => substr($message, 0, 200),
                     ]);
             }
         } catch (\Throwable $e) {
@@ -316,35 +308,34 @@ class MultiShiftController extends Controller
 
         $this->logOutPut($this->logFilePath, [
             "UserIds" => $UserIds,
-            "params" => $params,
-            "items" => $items,
+            "params"  => $params,
+            "items"   => $items,
         ]);
 
-        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") .  "] " . "$logsUpdated " . " updated logs");
+        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") . "] " . "$logsUpdated " . " updated logs");
         $this->logOutPut($this->logFilePath, $message);
-        return "[" . $date . " " . date("H:i:s") .  "] " . $message;
+        return "[" . $date . " " . date("H:i:s") . "] " . $message;
     }
 
     public function sync(Request $request)
     {
         $request->validate([
             'company_id' => 'required|numeric',
-            'from_date' => 'required|date_format:Y-m-d',
-            'to_date' => 'required|date_format:Y-m-d',
-            'UserID' => 'nullable',
+            'from_date'  => 'required|date_format:Y-m-d',
+            'to_date'    => 'required|date_format:Y-m-d',
+            'UserID'     => 'nullable',
         ]);
 
-        $id = $request->input('company_id');
+        $id        = $request->input('company_id');
         $startDate = Carbon::parse($request->input('from_date'));
-        $endDate = Carbon::parse($request->input('to_date'));
-        $flag = 'true';
-        $UserID = $request->input('UserID');
+        $endDate   = Carbon::parse($request->input('to_date'));
+        $flag      = 'true';
+        $UserID    = $request->input('UserID');
 
         // Check if the date range exceeds 5 days
         if ($startDate->diffInDays($endDate) > 5) {
             return response()->json(['error' => 'You cannot select more than 5 dates.'], 400);
         }
-
 
         if ($startDate->greaterThan($endDate)) {
             return response()->json(['error' => 'Start date must be before end date.'], 400);
@@ -359,7 +350,6 @@ class MultiShiftController extends Controller
             'message' => 'Report has been regerated!',
         ]);
     }
-
 
     private function getLogTime($log, $validFunctions, $manualDeviceID)
     {
