@@ -436,7 +436,7 @@ class CompanyController extends Controller
         }
     }
 
-    public function UpdateCompanyIds()
+    public function UpdateCompanyIds_old()
     {
         $date = date("Y-m-d H:i:s");
 
@@ -448,7 +448,7 @@ class CompanyController extends Controller
             $query->where('company_id', '!=', 0);
         });
 
-        $model->take(100);
+        $model->take(10);
         $model->with("device:device_id,company_id,location,device_type");
         $rows = $model->get(["DeviceID"]);
 
@@ -462,69 +462,62 @@ class CompanyController extends Controller
             try {
                 $i++;
 
-                $logsModel = AttendanceLog::where("DeviceID", $arr["DeviceID"])->where("company_id", 0);
-
-                $logs = $logsModel->clone()->pluck("id");
-
-                // this is too slow i  found here
-                $count = $logsModel->update([
-                    "company_id"   => $arr["device"]["company_id"] ?? 0,
-                    "gps_location" => $arr["device"]["location"],
-                    //"log_type" => $arr["device"]["function"]
-                ]);
-                // try {
-                //     (new WhatsappNotificationsLogController())->addAttendanceMessageEmployeeIdLog($logs);
-                // } catch (\Throwable $th) {
-                // }
+                AttendanceLog::where("DeviceID", $arr["DeviceID"])->where("company_id", 0)
+                    ->update([
+                        "company_id"   => $arr["device"]["company_id"] ?? 0,
+                        "gps_location" => $arr["device"]["location"] ?? null,
+                    ]);
             } catch (\Throwable $th) {
-
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
-
-                $data = [
-                    'title' => 'Quick action required',
-                    'body'  => $th,
-                ];
-
-                // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
-                // return "[" . $date . "] Cron: UpdateCompanyIds. Error occured while updating company ids.\n";
             }
         }
 
-        return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been merged with Company IDS.\n"; //."Details: " . json_encode($result) . ".\n";
+        return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been Process.\n"; //."Details: " . json_encode($result) . ".\n";
 
     }
 
-    public function UpdateCompanyIds_new()
+    public function UpdateCompanyIds()
     {
-        $date = date("Y-m-d H:i:s");
+        $date = now();
 
-        AttendanceLog::where('company_id', 0)
-            ->whereHas('device', fn($q) => $q->where('company_id', '!=', 0))
+        // Step 1: Get 10 distinct DeviceIDs with related device info
+        $rows = AttendanceLog::query()
             ->select('DeviceID')
+            ->where("company_id", 0)
+            ->whereHas('device', function ($query) {
+                $query->where('company_id', '!=', 0);
+            })
+            ->with(['device:id,device_id,company_id,location'])
             ->distinct()
-            ->chunk(100, function ($deviceIds) use (&$i) {
-                foreach ($deviceIds as $device) {
-                    $deviceId = $device->DeviceID;
+            ->take(10)
+            ->get();
 
-                    // Get company_id and location from device relation (eager loaded)
-                    $deviceData = \App\Models\Device::where('device_id', $deviceId)->first(['company_id', 'location']);
+        if ($rows->isEmpty()) {
+            return "[$date] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+        }
 
-                    if (! $deviceData) {
-                        continue;
-                    }
+        $i = 0;
 
-                    AttendanceLog::where('DeviceID', $deviceId)
-                        ->where('company_id', 0)
-                        ->update([
-                            'company_id'   => $deviceData->company_id,
-                            'gps_location' => $deviceData->location,
-                        ]);
+        foreach ($rows as $log) {
+            if (! $log->device) {
+                continue;
+            }
 
-                    $i++;
-                }
-            });
+            try {
+                $i++;
 
-        return "[" . $date . "] Cron: UpdateCompanyIds. $i Devices updated.\n";
+                AttendanceLog::where("DeviceID", $log->DeviceID)
+                    ->where("company_id", 0)
+                    ->update([
+                        "company_id"   => $log->device->company_id,
+                        "gps_location" => $log->device->location,
+                    ]);
+            } catch (\Throwable $th) {
+                Logger::channel('custom')->error('Cron: UpdateCompanyIds. Error Details: ' . $th->getMessage());
+            }
+        }
+
+        return "[$date] Cron: UpdateCompanyIds. $i Logs have been processed.\n";
     }
 
     public function UpdateCompanyIdsForVisitor()
