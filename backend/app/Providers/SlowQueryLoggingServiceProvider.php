@@ -25,7 +25,7 @@ class SlowQueryLoggingServiceProvider extends ServiceProvider
     public function boot()
     {
         DB::listen(function ($query) {
-            if ($query->time > 2000) { // 2000 ms = 2 seconds
+            if ($query->time > 1000) { // 1000 ms = 1 seconds
                 $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
 
                 $caller = collect($backtrace)->first(function ($trace) {
