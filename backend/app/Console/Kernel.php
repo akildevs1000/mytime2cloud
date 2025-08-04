@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
     {
 
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
-        //$schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
+        $schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
         $schedule->command('whatsapp:proxy-health-check')
@@ -55,7 +55,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:update_company_ids')
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyFifteenMinutes()
+            ->runInBackground();
 
         // $schedule
         //     ->command('pm2:stopped-ae-processes')

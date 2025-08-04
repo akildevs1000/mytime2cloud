@@ -436,7 +436,7 @@ class CompanyController extends Controller
         }
     }
 
-    public function UpdateCompanyIds_old()
+    public function UpdateCompanyIds()
     {
         $date = date("Y-m-d H:i:s");
 
@@ -494,7 +494,7 @@ class CompanyController extends Controller
 
     }
 
-    public function UpdateCompanyIds()
+    public function UpdateCompanyIds_new()
     {
         $date = date("Y-m-d H:i:s");
 
