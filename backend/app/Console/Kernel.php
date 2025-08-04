@@ -55,7 +55,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:update_company_ids')
-            ->everyFifteenMinutes()
+            ->everyMinute()
             ->runInBackground();
 
         // $schedule
