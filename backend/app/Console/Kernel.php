@@ -13,6 +13,11 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
+        $schedule
+            ->command("check:mytime2cloud-health")
+            ->everyThirtyMinutes()
+            ->runInBackground();
+
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
         $schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
@@ -84,8 +89,8 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
-
-                ->everyThirtyMinutes();
+                ->everyThirtyMinutes()
+                ->runInBackground();
 
             $schedule
                 ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
