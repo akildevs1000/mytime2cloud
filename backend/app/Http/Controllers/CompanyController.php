@@ -1,42 +1,41 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Branch;
-use App\Models\Device;
-use App\Models\Company;
-use App\Models\AssignModule;
-use App\Models\AttendanceLog;
-use Illuminate\Http\Request;
-use App\Models\CompanyContact;
-use TechTailor\RPG\Facade\RPG;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
-use App\Http\Requests\Company\UserRequest;
-use App\Http\Requests\Company\StoreRequest;
 use App\Http\Requests\Company\CompanyRequest;
-use App\Http\Requests\Company\ContactRequest;
-use Illuminate\Support\Facades\Log as Logger;
-use App\Http\Requests\Company\UserUpdateRequest;
-use App\Notifications\CompanyCreationNotification;
 use App\Http\Requests\Company\CompanyUpdateRequest;
+use App\Http\Requests\Company\ContactRequest;
 use App\Http\Requests\Company\GeographicUpdateRequest;
+use App\Http\Requests\Company\StoreRequest;
+use App\Http\Requests\Company\UserRequest;
+use App\Http\Requests\Company\UserUpdateRequest;
 use App\Mail\NotifyIfLogsDoesNotGenerate;
 use App\Models\AnnouncementsCategories;
+use App\Models\AssignModule;
+use App\Models\AttendanceLog;
+use App\Models\Branch;
+use App\Models\Company;
 use App\Models\CompanyBranch;
+use App\Models\CompanyContact;
 use App\Models\Department;
 use App\Models\Designation;
+use App\Models\Device;
 use App\Models\Employee;
 use App\Models\MailContent;
+use App\Models\Role;
 use App\Models\Theme;
+use App\Models\User;
 use App\Models\VisitorLog;
+use App\Notifications\CompanyCreationNotification;
 use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Storage;
+use TechTailor\RPG\Facade\RPG;
 
 class CompanyController extends Controller
 {
@@ -73,7 +72,7 @@ class CompanyController extends Controller
     public function getMasterDashboardCounts()
     {
         $companiesCount = Company::query()->count();
-        $empCount = Employee::query()->count();
+        $empCount       = Employee::query()->count();
 
         return ["companies" => $companiesCount, "employees" => $empCount];
     }
@@ -82,8 +81,8 @@ class CompanyController extends Controller
         $record = Company::with(['user', 'contact', 'modules', 'trade_license'])->withCount('employees')->where('id', $id)->first();
 
         return Response::json([
-            'record' => $record,
-            'status' => true,
+            'record'  => $record,
+            'status'  => true,
             'message' => null,
         ], 200);
     }
@@ -98,41 +97,41 @@ class CompanyController extends Controller
 
         $data = $request->validated();
         $user = [
-            "name" => "ignore",
-            "password" => Hash::make($randPass),
-            "email" => $data['email'],
-            "is_master" => 1,
+            "name"        => "ignore",
+            "password"    => Hash::make($randPass),
+            "email"       => $data['email'],
+            "is_master"   => 1,
             "first_login" => 1,
-            "user_type" => "company",
+            "user_type"   => "company",
         ];
 
         $company = [
-            "name" => $data['company_name'],
-            "location" => $data['location'],
-            "member_from" => $data['member_from'],
-            "expiry" => $data['expiry'],
+            "name"         => $data['company_name'],
+            "location"     => $data['location'],
+            "member_from"  => $data['member_from'],
+            "expiry"       => $data['expiry'],
             "max_employee" => $data['max_employee'],
-            "max_devices" => $data['max_devices'],
+            "max_devices"  => $data['max_devices'],
             "company_code" => Company::max('id') + 1,
 
-            "no_branch" => $request->no_branch ? 1 : 0,
+            "no_branch"    => $request->no_branch ? 1 : 0,
             "max_branches" => $request->max_branches ? 1 : 0,
-            "lat" => $request->lat,
-            "lon" => $request->lon,
+            "lat"          => $request->lat,
+            "lon"          => $request->lon,
         ];
 
         if (isset($request->logo)) {
 
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
+            $file     = $request->file('logo');
+            $ext      = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
             $request->file('logo')->move(public_path('/upload'), $fileName);
             $company['logo'] = $fileName;
         }
 
         $contact = [
-            "name" => $data['contact_name'],
-            "number" => $data['number'],
+            "name"     => $data['contact_name'],
+            "number"   => $data['number'],
             "position" => $data['position'],
             "whatsapp" => $data['whatsapp'],
         ];
@@ -142,20 +141,20 @@ class CompanyController extends Controller
         try {
             $role = Role::firstOrCreate(['name' => 'company']);
 
-            if (!$role) {
+            if (! $role) {
                 return $this->response('Role cannot add.', null, false);
             }
 
             $user["role_id"] = $role->id;
 
-            if (!$user) {
+            if (! $user) {
                 return $this->response('User cannot add.', null, false);
             }
 
             $company = Company::create($company);
 
             $user["company_id"] = $company->id;
-            $user = User::create($user);
+            $user               = User::create($user);
 
             $company->user_id = $user->id;
             $company->save();
@@ -167,7 +166,7 @@ class CompanyController extends Controller
                 }
             } catch (Exception $e) {
             }
-            if (!$company) {
+            if (! $company) {
                 return $this->response('Company cannot add.', null, false);
             }
 
@@ -175,7 +174,7 @@ class CompanyController extends Controller
 
             $contact = CompanyContact::create($contact);
 
-            if (!$contact) {
+            if (! $contact) {
                 return $this->response('Contact cannot add.', null, false);
             }
 
@@ -183,10 +182,10 @@ class CompanyController extends Controller
 
             DB::commit();
 
-            $record = Company::with(['user', 'contact'])->find($company->id);
+            $record       = Company::with(['user', 'contact'])->find($company->id);
             $record->pass = $randPass;
 
-            if (!$this->addDefaults($company->id)) {
+            if (! $this->addDefaults($company->id)) {
                 return $this->response('Default cannot add.', null, false);
             }
 
@@ -200,7 +199,7 @@ class CompanyController extends Controller
     public function addDefaults($id)
     {
         $cardData = defaultCards($id);
-        $style = $cardData['style'];
+        $style    = $cardData['style'];
         unset($cardData['style']);
 
         Theme::where($cardData)->delete();
@@ -208,16 +207,15 @@ class CompanyController extends Controller
         $cardData["style"] = $style;
 
         $theme = Theme::create($cardData);
-        $role = Role::insert(defaultRoles($id));
+        $role  = Role::insert(defaultRoles($id));
 
-        $designations = Designation::insert(defaultDesignations($id));
+        $designations            = Designation::insert(defaultDesignations($id));
         $AnnouncementsCategories = AnnouncementsCategories::insert(defaultAnnouncementCategories($id));
-        $MailContent = MailContent::insert(defaultMailContent($id));
+        $MailContent             = MailContent::insert(defaultMailContent($id));
 
-        $devices = Device::insert(defaultDeviceManual($id));
-        $branches = CompanyBranch::create(defaultBranch($id));
+        $devices    = Device::insert(defaultDeviceManual($id));
+        $branches   = CompanyBranch::create(defaultBranch($id));
         $department = Department::insert(defaultDepartments($id, $branches->id));
-
 
         if ($theme && $role && $department) {
             return true;
@@ -228,11 +226,11 @@ class CompanyController extends Controller
 
     public function destroy($id)
     {
-        $record = Company::find($id);
-        $user = User::find($record->user_id);
-        $users = User::where('company_id', $id);
-        $employees = Employee::where('company_id', $id);
-        $contact = CompanyContact::where('company_id', $id);
+        $record       = Company::find($id);
+        $user         = User::find($record->user_id);
+        $users        = User::where('company_id', $id);
+        $employees    = Employee::where('company_id', $id);
+        $contact      = CompanyContact::where('company_id', $id);
         $assignModule = AssignModule::where('company_id', $id);
         if ($contact->delete()) {
             $record->delete();
@@ -254,7 +252,7 @@ class CompanyController extends Controller
             'name',
             'location',
             'contact' => ['name', 'number', 'position', 'whatsapp'],
-            'user' => ['name', 'email'],
+            'user'    => ['name', 'email'],
         ];
 
         $model = $this->process_search($model, $key, $fields);
@@ -278,12 +276,12 @@ class CompanyController extends Controller
 
     public function update_log($request, $id)
     {
-        $file = $request->file('logo');
-        $ext = $file->getClientOriginalExtension();
+        $file     = $request->file('logo');
+        $ext      = $file->getClientOriginalExtension();
         $fileName = time() . '.' . $ext;
         $request->file('logo')->move(public_path('/upload'), $fileName);
         $company = Company::find($id)->update(["logo" => $fileName]);
-        if (!$company) {
+        if (! $company) {
             return $this->response('Company cannot updated.', null, false);
         }
         return $this->response('Logo successfully updated.', $company, true);
@@ -296,7 +294,7 @@ class CompanyController extends Controller
         if ($request->logo_only == 1) {
             return $this->update_log($request, $id);
         }
-        $data["no_branch"] = $request->no_branch ? 1 : 0;
+        $data["no_branch"]    = $request->no_branch ? 1 : 0;
         $data["max_branches"] = $request->max_branches;
         // $data["lat"] = $request->lat;
         // $data["lon"] = $request->lon;
@@ -304,21 +302,20 @@ class CompanyController extends Controller
 
         if ($request->email != '') {
             $dataUser["email"] = $request->email;
-            $user = User::find(Company::find($id)->user_id);
+            $user              = User::find(Company::find($id)->user_id);
             $user->update($dataUser);
         }
 
-
         if (isset($request->logo)) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
+            $file     = $request->file('logo');
+            $ext      = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
             $request->file('logo')->move(public_path('/upload'), $fileName);
             $data['logo'] = $fileName;
         }
 
         $company = Company::find($id)->update($data);
-        if (!$company) {
+        if (! $company) {
             return $this->response('Company cannot updated.', null, false);
         }
 
@@ -329,7 +326,7 @@ class CompanyController extends Controller
     {
         $contact = CompanyContact::where('company_id', $id)->update($request->validated());
 
-        if (!$contact) {
+        if (! $contact) {
             return $this->response('Contact cannot updated.', null, false);
         }
 
@@ -340,7 +337,7 @@ class CompanyController extends Controller
     {
         $geographic = Company::find($id)->update($request->validated());
 
-        if (!$geographic) {
+        if (! $geographic) {
             return $this->response('Geographic Info cannot updated.', null, false);
         }
 
@@ -349,20 +346,17 @@ class CompanyController extends Controller
     public function updateCompanyUserWhatsapp(Request $request, $id)
     {
 
-        $user = User::find(Company::find($id)->user_id);
+        $user    = User::find(Company::find($id)->user_id);
         $company = Company::find($id);
-        $arr = [
+        $arr     = [
 
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
 
-
-
         $record = $company->update($arr);
         $record = $user->update($arr);
 
-
-        if (!$record) {
+        if (! $record) {
             return $this->response('User cannot update.', null, false);
         }
         return $this->response('User successfully updated.', $record, true);
@@ -375,17 +369,15 @@ class CompanyController extends Controller
 
         $arr = [
 
-            "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
-            "whatsapp_instance_id" => $request->whatsapp_instance_id,
-            "whatsapp_access_token" => $request->whatsapp_access_token,
+            "enable_whatsapp_otp"     => $request->enable_whatsapp_otp ? 1 : 0,
+            "whatsapp_instance_id"    => $request->whatsapp_instance_id,
+            "whatsapp_access_token"   => $request->whatsapp_access_token,
             "enable_desktop_whatsapp" => $request->enable_desktop_whatsapp,
         ];
 
-
         $record = $company->update($arr);
 
-
-        if (!$record) {
+        if (! $record) {
             return $this->response('Company cannot update.', null, false);
         }
         return $this->response('Company successfully updated.', $record, true);
@@ -394,9 +386,7 @@ class CompanyController extends Controller
     public function updateCompanyModulesSettings(Request $request, $id)
     {
 
-
         if ($request->filled("modules")) {
-
 
             $arr = [
 
@@ -404,11 +394,9 @@ class CompanyController extends Controller
 
             ];
 
-
             $record = Company::whereId($id)->update($arr);
 
-
-            if (!$record) {
+            if (! $record) {
                 return $this->response('Company cannot update.', null, false);
             }
             return $this->response('Company successfully updated.', $record, true);
@@ -416,21 +404,20 @@ class CompanyController extends Controller
         return $this->response('Company cannot update.', null, false);
     }
 
-
     public function updateCompanyUser(UserUpdateRequest $request, $id)
     {
         $data = $request->validated();
         $user = User::find(Company::find($id)->user_id);
 
         $arr = [
-            "password" => Hash::make($data["password"]),
-            "first_login" => 0,
+            "password"            => Hash::make($data["password"]),
+            "first_login"         => 0,
             "enable_whatsapp_otp" => $request->enable_whatsapp_otp ? 1 : 0,
         ];
         if ($request->current_password != '') {
             if (Hash::check($request->current_password, $user->password)) {
                 $record = $user->update($arr);
-                if (!$record) {
+                if (! $record) {
                     return $this->response('User cannot update.', null, false);
                 }
                 return $this->response('User successfully updated.', $record, true);
@@ -442,14 +429,14 @@ class CompanyController extends Controller
             }
         } else {
             $record = $user->update($arr);
-            if (!$record) {
+            if (! $record) {
                 return $this->response('User cannot update.', null, false);
             }
             return $this->response('User successfully updated.', $record, true);
         }
     }
 
-    public function UpdateCompanyIds()
+    public function UpdateCompanyIds_old()
     {
         $date = date("Y-m-d H:i:s");
 
@@ -479,8 +466,9 @@ class CompanyController extends Controller
 
                 $logs = $logsModel->clone()->pluck("id");
 
-                $count =  $logsModel->update([
-                    "company_id" => $arr["device"]["company_id"] ?? 0,
+                // this is too slow i  found here
+                $count = $logsModel->update([
+                    "company_id"   => $arr["device"]["company_id"] ?? 0,
                     "gps_location" => $arr["device"]["location"],
                     //"log_type" => $arr["device"]["function"]
                 ]);
@@ -490,12 +478,11 @@ class CompanyController extends Controller
                 // }
             } catch (\Throwable $th) {
 
-
                 Logger::channel("custom")->error('Cron: UpdateCompanyIds. Error Details: ' . $th);
 
                 $data = [
                     'title' => 'Quick action required',
-                    'body' => $th,
+                    'body'  => $th,
                 ];
 
                 // Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
@@ -505,6 +492,39 @@ class CompanyController extends Controller
 
         return "[" . $date . "] Cron: UpdateCompanyIds. $i Logs has been merged with Company IDS.\n"; //."Details: " . json_encode($result) . ".\n";
 
+    }
+
+    public function UpdateCompanyIds()
+    {
+        $date = date("Y-m-d H:i:s");
+
+        AttendanceLog::where('company_id', 0)
+            ->whereHas('device', fn($q) => $q->where('company_id', '!=', 0))
+            ->select('DeviceID')
+            ->distinct()
+            ->chunk(100, function ($deviceIds) use (&$i) {
+                foreach ($deviceIds as $device) {
+                    $deviceId = $device->DeviceID;
+
+                    // Get company_id and location from device relation (eager loaded)
+                    $deviceData = \App\Models\Device::where('device_id', $deviceId)->first(['company_id', 'location']);
+
+                    if (! $deviceData) {
+                        continue;
+                    }
+
+                    AttendanceLog::where('DeviceID', $deviceId)
+                        ->where('company_id', 0)
+                        ->update([
+                            'company_id'   => $deviceData->company_id,
+                            'gps_location' => $deviceData->location,
+                        ]);
+
+                    $i++;
+                }
+            });
+
+        return "[" . $date . "] Cron: UpdateCompanyIds. $i Devices updated.\n";
     }
 
     public function UpdateCompanyIdsForVisitor()
@@ -535,7 +555,7 @@ class CompanyController extends Controller
 
                     $data = [
                         'title' => 'Quick action required',
-                        'body' => $th,
+                        'body'  => $th,
                     ];
 
                     Mail::to(env("ADMIN_MAIL_RECEIVERS"))->send(new NotifyIfLogsDoesNotGenerate($data));
@@ -551,7 +571,7 @@ class CompanyController extends Controller
     {
         $company = Company::with("user:id,company_id,email")->find($id);
 
-        if (!$company) {
+        if (! $company) {
             return response()->json(['error' => 'Company not found'], 404);
         }
 
@@ -562,7 +582,7 @@ class CompanyController extends Controller
     {
         $contact = CompanyContact::whereCompanyId($id)->find($id);
 
-        if (!$contact) {
+        if (! $contact) {
             return response()->json(['error' => 'Company not found'], 404);
         }
 
