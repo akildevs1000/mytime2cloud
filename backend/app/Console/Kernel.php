@@ -34,15 +34,15 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyMinute()->runInBackground();
+            ->everyFifteenMinutes()->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyMinute()->runInBackground();
+            ->everyFifteenMinutes()->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
-            ->everyMinute()->runInBackground();
+            ->everyFifteenMinutes()->runInBackground();
 
         // --------------------Daily Report Generation for automation-------------------- //
         $schedule
@@ -55,7 +55,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:update_company_ids')
-            ->everyMinute()->runInBackground();
+            ->everyFifteenMinutes()->runInBackground();
 
         // $schedule
         //     ->command('pm2:stopped-ae-processes')
@@ -133,12 +133,12 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("alert:access_control {$companyId}")
-                ->everyMinute()
+                ->everyFifteenMinutes()
                 ->runInBackground();
 
             $schedule
                 ->command("alert:attendance {$companyId}")
-                ->everyMinute()
+                ->everyFifteenMinutes()
                 ->runInBackground();
 
             $schedule
