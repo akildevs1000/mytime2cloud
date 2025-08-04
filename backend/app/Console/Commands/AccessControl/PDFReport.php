@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands\AccessControl;
 
 use App\Jobs\GenerateAccessControlReport;
@@ -14,7 +13,7 @@ class PDFReport extends Command
      *
      * @var string
      */
-    protected $signature = 'pdf:access-control-report-generate {company_id} {date}';
+    protected $signature = 'pdf:access-control-report-generate {date}';
 
     /**
      * The console command description.
@@ -30,9 +29,41 @@ class PDFReport extends Command
      */
     public function handle()
     {
-        $company_id = $this->argument("company_id", 0);
 
         $date = $this->argument("date", date("Y-m-d"));
+
+        if (! $date) {
+            $this->error("Date argument is required.");
+            return 1;
+        }
+
+        $companyIds = Company::get();
+
+        if ($companyIds->isEmpty()) {
+            $this->error("No companies found.");
+            return 1;
+        }
+
+        $totalProcessed = 0;
+
+        foreach ($companyIds as $company) {
+            $this->info("Processing company ID: {$company->id} for date: $date");
+
+            // $this->info(showJson($company));
+
+            $processedCount = $this->processByCompany($company, $date);
+            
+            $totalProcessed += $processedCount;
+
+        }
+
+        $this->info("Total records processed for all companies: $totalProcessed");
+        return 0;
+    }
+
+    public function processByCompany($company, $date)
+    {
+        $company_id = $company->id;
 
         $model = AttendanceLog::query();
 
@@ -48,15 +79,14 @@ class PDFReport extends Command
         });
 
         $model->with([
-            'device'    => fn($q) => $q->where('company_id', $company_id),
-            'employee'  => fn($q) => $q->where('company_id', $company_id),
-            'visitor'   => fn($q) => $q->where('company_id', $company_id),
+            'device'   => fn($q)   => $q->where('company_id', $company_id),
+            'employee' => fn($q) => $q->where('company_id', $company_id),
+            'visitor'  => fn($q)  => $q->where('company_id', $company_id),
         ]);
-
 
         $data = $model->get()->toArray();
 
-        $company = Company::whereId($company_id)->first();
+        $this->info("Total records found: " . count($data));
 
         $chunks = array_chunk($data, 10);
 
@@ -64,9 +94,14 @@ class PDFReport extends Command
 
         foreach ($chunks as $index => $chunk) {
 
+            $this->info("Total records found: " . count($chunk));
+
             $batchKey = $index + 1;
 
             GenerateAccessControlReport::dispatch($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks));
-        };
+        }
+
+        return count($data);
+
     }
 }

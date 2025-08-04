@@ -13,6 +13,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
 
+        // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
+        //$schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
+        // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
+
         $schedule->command('whatsapp:proxy-health-check')
             ->hourly()
             ->withoutOverlapping();
@@ -30,15 +34,15 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyMinute();
+            ->everyMinute()->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyMinute();
+            ->everyMinute()->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
-            ->everyMinute();
+            ->everyMinute()->runInBackground();
 
         // --------------------Daily Report Generation for automation-------------------- //
         $schedule
@@ -51,7 +55,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:update_company_ids')
-            ->everyMinute();
+            ->everyMinute()->runInBackground();
 
         // $schedule
         //     ->command('pm2:stopped-ae-processes')
@@ -76,12 +80,6 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
-
-            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
-            $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-                ->dailyAt('04:35')->runInBackground();
-
-            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
