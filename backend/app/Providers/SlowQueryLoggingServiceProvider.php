@@ -25,10 +25,11 @@ class SlowQueryLoggingServiceProvider extends ServiceProvider
     public function boot()
     {
         DB::listen(function ($query) {
-            if ($query->time > 1000) { // threshold in ms
+            if ($query->time > 500) {
                 $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 10);
-                $caller    = collect($backtrace)->first(function ($trace) {
-                    return isset($trace['file']) && ! str_contains($trace['file'], 'vendor/laravel/framework');
+
+                $caller = collect($backtrace)->first(function ($trace) {
+                    return isset($trace['file']) && str_starts_with($trace['file'], app_path());
                 });
 
                 Log::channel('slowqueries')->warning('⏱️ Slow Query Detected', [
@@ -40,5 +41,6 @@ class SlowQueryLoggingServiceProvider extends ServiceProvider
                 ]);
             }
         });
+
     }
 }
