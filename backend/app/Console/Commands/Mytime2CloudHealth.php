@@ -12,7 +12,7 @@ class Mytime2CloudHealth extends Command
 
     public function handle()
     {
-        $to  = 'francisgill1000@gmail.com.com';
+        $to = 'francisgill1000@gmail.com.com';
 
         $url = 'https://mytime2cloud.com/health';
 
@@ -21,6 +21,8 @@ class Mytime2CloudHealth extends Command
 
             if ($response->successful() && $response->json('status') === 'ok') {
                 $message = "✅ Mytime2Cloud Server is UP.";
+                $this->info($message);
+
                 // $this->sendDownEmail($to, "UP", $message);
             } else {
                 $status  = $response->status();
@@ -43,7 +45,7 @@ The Server at https://mytime2cloud.com/health is $status.
 
 🛑 Reason: $reason
 
-⏱ Checked at: {$this->now()}
+⏱ Checked at: {$this->now();}
 
 — Laravel Health Monitor
 EOT;
