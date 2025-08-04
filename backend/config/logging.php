@@ -17,7 +17,7 @@ return [
     |
      */
 
-    'default' => env('LOG_CHANNEL', 'stack'),
+    'default'      => env('LOG_CHANNEL', 'stack'),
 
     /*
     |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ return [
 
     'deprecations' => [
         'channel' => env('LOG_DEPRECATIONS_CHANNEL', 'null'),
-        'trace' => false,
+        'trace'   => false,
     ],
 
     /*
@@ -50,105 +50,112 @@ return [
     |
      */
 
-    'channels' => [
-        'stack' => [
-            'driver' => 'stack',
-            'channels' => ['single'],
+    'channels'     => [
+        'stack'              => [
+            'driver'            => 'stack',
+            'channels'          => ['single'],
             'ignore_exceptions' => false,
         ],
-        'camerasdk' => [
+        'camerasdk'          => [
             'driver' => 'single',
-            'path' => storage_path('logs/camerasdk_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/camerasdk_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
-        'jobs' => [
+        'jobs'               => [
             'driver' => 'single',
-            'path' => storage_path('logs/jobs_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/jobs_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
         'render_manual_logs' => [
             'driver' => 'single',
-            'path' => storage_path('logs/render_manual_logs_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/render_manual_logs_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
-        'whatsapp_logs' => [
+        'whatsapp_logs'      => [
             'driver' => 'single',
-            'path' => storage_path('logs/whatsapp_logs_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/whatsapp_logs_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'camera_log' => [
+        'camera_log'         => [
             'driver' => 'single',
-            'path' => storage_path('logs/camera_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/camera_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'custom' => [
+        'custom'             => [
             'driver' => 'single',
-            'path' => storage_path('logs/custom_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/custom_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'single' => [
+        'single'             => [
             'driver' => 'single',
-            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+            'path'   => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'daily' => [
+        'daily'              => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => 14,
+            'path'   => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
+            'level'  => env('LOG_LEVEL', 'debug'),
+            'days'   => 14,
         ],
 
-        'slack' => [
-            'driver' => 'slack',
-            'url' => env('LOG_SLACK_WEBHOOK_URL'),
+        'slack'              => [
+            'driver'   => 'slack',
+            'url'      => env('LOG_SLACK_WEBHOOK_URL'),
             'username' => 'Laravel Log',
-            'emoji' => ':boom:',
-            'level' => env('LOG_LEVEL', 'critical'),
+            'emoji'    => ':boom:',
+            'level'    => env('LOG_LEVEL', 'critical'),
         ],
 
-        'papertrail' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
+        'papertrail'         => [
+            'driver'       => 'monolog',
+            'level'        => env('LOG_LEVEL', 'debug'),
+            'handler'      => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
             'handler_with' => [
-                'host' => env('PAPERTRAIL_URL'),
-                'port' => env('PAPERTRAIL_PORT'),
+                'host'             => env('PAPERTRAIL_URL'),
+                'port'             => env('PAPERTRAIL_PORT'),
                 'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
             ],
         ],
 
-        'stderr' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => StreamHandler::class,
+        'stderr'             => [
+            'driver'    => 'monolog',
+            'level'     => env('LOG_LEVEL', 'debug'),
+            'handler'   => StreamHandler::class,
             'formatter' => env('LOG_STDERR_FORMATTER'),
-            'with' => [
+            'with'      => [
                 'stream' => 'php://stderr',
             ],
         ],
 
-        'syslog' => [
+        'syslog'             => [
             'driver' => 'syslog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'errorlog' => [
+        'errorlog'           => [
             'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
+            'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'null' => [
-            'driver' => 'monolog',
+        'null'               => [
+            'driver'  => 'monolog',
             'handler' => NullHandler::class,
         ],
 
-        'emergency' => [
+        'emergency'          => [
             'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
         ],
+
+        'slowqueries'        => [
+            'driver' => 'single',
+            'path'   => storage_path('logs/slowqueries.log'),
+            'level'  => 'warning',
+        ],
+
     ],
 
 ];
