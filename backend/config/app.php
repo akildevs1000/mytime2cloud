@@ -197,7 +197,7 @@ return [
 
         TechTailor\RPG\RPGServiceProvider::class,
         Webklex\PDFMerger\Providers\PDFMergerServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
+        Maatwebsite\Excel\ExcelServiceProvider::class,  
 
         App\Providers\SlowQueryLoggingServiceProvider::class,
 
