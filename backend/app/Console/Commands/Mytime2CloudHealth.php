@@ -45,7 +45,7 @@ The Server at https://mytime2cloud.com/health is $status.
 
 🛑 Reason: $reason
 
-⏱ Checked at: {$this->now();}
+⏱ Checked at: {$this->now()}
 
 — Laravel Health Monitor
 EOT;
