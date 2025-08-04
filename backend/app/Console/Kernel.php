@@ -21,7 +21,7 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->withoutOverlapping();
 
-        $schedule->command('monitor:disk')->dailyAt('08:00');
+        $schedule->command('monitor:system')->dailyAt('08:00');
 
         $schedule->command('birthday:wish')->dailyAt('00:00');
 
