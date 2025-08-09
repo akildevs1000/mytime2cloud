@@ -189,7 +189,20 @@
     "menu": "employee_photo_upload",
     "module": "employees"
   },
-
+  {
+    "icon": "mdi mdi-camera-account",
+    "title": "OXSAI Devices",
+    "to": "/employee_photo_upload_ox900",
+    "menu": "employee_photo_upload_ox900",
+    "module": "employees"
+  },
+  {
+    "icon": "mdi-clipboard-text-clock",
+    "title": "Device Logs",
+    "to": "/devicelogs",
+    "menu": "logs_access",
+    "module": "attendance"
+  },
   {
     "icon": "mdi-clock-outline",
     "title": "Shifts",
@@ -205,13 +218,7 @@
     "menu": "employee_schedule_access",
     "module": "attendance"
   },
-  {
-    "icon": "mdi-clipboard-text-clock",
-    "title": "Device Logs",
-    "to": "/devicelogs",
-    "menu": "logs_access",
-    "module": "attendance"
-  },
+
   {
     "icon": "mdi-calendar-today",
     "title": "Reports",

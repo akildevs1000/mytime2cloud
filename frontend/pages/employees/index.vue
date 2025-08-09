@@ -17,7 +17,7 @@
       }
     </style>
 
-    <div class="text-center ma-2">
+    <div class="text-center ma-6">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
@@ -97,7 +97,7 @@
     </v-dialog>
     <v-dialog persistent v-model="employeeDialog" width="900">
       <v-card>
-        <v-toolbar dark dense class="primary" style="font-weight: 400">
+        <v-card-title dense class="popup_background">
           Add {{ Model }}
           <v-spacer></v-spacer>
 
@@ -113,7 +113,8 @@
           <v-icon @click="employeeDialog = false" outlined dark>
             mdi-close-circle
           </v-icon>
-        </v-toolbar>
+        </v-card-title>
+
         <v-card-text>
           <v-row>
             <v-col md="6" sm="12" cols="12" class="mt-5" dense>
@@ -566,12 +567,8 @@
                   </v-container>
                 </div>
                 <div
-                  style="
-                    min-width: 5%;
-                    max-width: 5%;
-                    background-color: #ecf0f4 !important;
-                  "
-                  class="d-flex justify-center align-center"
+                  style="min-width: 5%; max-width: 5%"
+                  class="d-flex justify-center align-center popup_background_noviolet"
                 >
                   <v-tabs
                     vertical
@@ -767,9 +764,10 @@
                       <div style="margin: 4px 0 0 5px">
                         <span style="font-size: 12px"
                           ><a
-                            style="text-decoration: none; color: black"
+                            style="text-decoration: none"
                             href="/employees.csv"
                             download
+                            class="button text"
                           >
                             Download Sample File</a
                           ></span
@@ -907,7 +905,7 @@
                       {{ item.first_name ? item.first_name : "" }}
                       {{ item.last_name ? item.last_name : "" }}
                     </div>
-                    <small style="font-size: 12px; color: #6c7184"
+                    <small style="font-size: 12px"
                       >{{ item.designation.name }}
                     </small>
                   </v-col>
@@ -983,8 +981,18 @@
                       @click="viewItem(item)"
                     >
                       <v-list-item-title style="cursor: pointer">
-                        <v-icon color="secondary" small> mdi-eye </v-icon>
+                        <v-icon small> mdi-eye </v-icon>
                         View/Edit
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item v-if="can('employee_edit')">
+                      <v-list-item-title style="cursor: pointer">
+                        <EmployeeUploadToDevice
+                          :key="item.id"
+                          :id="item.id"
+                          :employee="item"
+                          :system_user_id="item.system_user_id"
+                        />
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item v-if="can('employee_edit')">
@@ -1001,7 +1009,6 @@
                     <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
-                          iconColor="secondary"
                           label="Employee"
                           :key="generateRandomId()"
                           :system_user_id="item.system_user_id"
@@ -1035,6 +1042,7 @@
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 import { getQrCode } from "@/utils/cardqrercode.js"; // Adjust the path as needed
+import EmployeeUploadToDevice from "../../components/widgets/EmployeeUploadToSingleDevice.vue";
 
 export default {
   head() {
@@ -1049,6 +1057,7 @@ export default {
   },
   components: {
     VueCropper,
+    EmployeeUploadToDevice,
   },
 
   data: () => ({
