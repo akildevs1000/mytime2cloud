@@ -21,6 +21,8 @@ Route::post('/{id}/WriteResetDefaultTimeGroup', [SDKController::class, 'WriteRes
 // Route::post('/Person/AddRange/Photos', [SDKController::class, 'PersonAddRangePhotos']);
 
 Route::post('/SDK/AddPerson', [SDKController::class, 'AddPerson']);
+Route::get('/SDK/personids-from-ox900device', [SDKController::class, 'GetPersonsIdsFromOX900Device']);
+
 Route::post('/SDK/{id}/{command}', [SDKController::class, 'handleCommand']);
 Route::get('/SDK/get-device-person-details/{device_id}/{user_code}', [SDKController::class, 'getPersonDetails']);
 Route::delete('/SDK/delete-device-person-details/{device_id}', [SDKController::class, 'deletePersonDetails']);
