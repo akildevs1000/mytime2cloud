@@ -16,13 +16,13 @@ class FetchMissingLogs extends Command
         $deviceId = $this->argument('device_id');
         $dateArg  = $this->argument('date');
 
-        if (!$deviceId) {
-           $deviceId = $this->ask('Please enter the Device Id',"M014200892110002790");
+        if (! $deviceId) {
+            $deviceId = $this->ask('Please enter the Device Id', "M014200892110002790");
         }
 
-        if (!$dateArg) {
-            $defaultDate = now()->format('Y-m-d');  // current date as string
-            $dateArg = $this->ask('Please enter the date (YYYY-MM-DD)', $defaultDate);
+        if (! $dateArg) {
+            $defaultDate = now()->format('Y-m-d'); // current date as string
+            $dateArg     = $this->ask('Please enter the date (YYYY-MM-DD)', $defaultDate);
         }
                                 // Defaults
         $company_id        = 1; // Replace with actual
@@ -65,25 +65,45 @@ class FetchMissingLogs extends Command
             info("Fetching logs: Offset = {$offset}");
 
             $responseArray = $deviceSession->getHistory($deviceId, $json);
+            
 
-            // Reset session if needed
-            if (isset($responseArray['status'])) {
-                $this->warn("Session reset for device {$deviceId}");
-                $deviceSession = new DeviceCameraModel2Controller($device->camera_sdk_url, $device->device_id);
-                $responseArray = $deviceSession->getHistory($deviceId, $json);
-            }
-
-            // Stop if no data
             if (empty($responseArray['data'])) {
                 $this->info("No more logs found.");
                 info("No more logs found.");
                 break;
             }
 
+            // Extract composite keys for all fetched logs
+            $keys = [];
             foreach ($responseArray['data'] as $record) {
+                $timestamp = Carbon::parse($record["timestamp"])->format('Y-m-d H:i:s');
+                $keys[]    = [
+                    'UserID'   => $record['person_code'],
+                    'DeviceID' => $deviceId,
+                    'LogTime'  => $timestamp,
+                ];
+            }
 
-                $timestamp = $record["timestamp"];
-                $logtime   = Carbon::parse($timestamp)->format('Y-m-d H:i:s');
+            // Get existing logs in bulk
+            $existingLogs = AttendanceLog::where('DeviceID', $deviceId)
+                ->whereIn('LogTime', array_column($keys, 'LogTime'))
+                ->whereIn('UserID', array_column($keys, 'UserID'))
+                ->get(['UserID', 'DeviceID', 'LogTime'])
+                ->map(function ($item) {
+                    return $item->UserID . '|' . $item->DeviceID . '|' . $item->LogTime;
+                })->toArray();
+
+            // Now insert only non-existing logs
+            foreach ($responseArray['data'] as $record) {
+                $timestamp = Carbon::parse($record["timestamp"])->format('Y-m-d H:i:s');
+                $key       = $record['person_code'] . '|' . $deviceId . '|' . $timestamp;
+
+                if (in_array($key, $existingLogs)) {
+                    $ignoredCount++;
+                    $this->info("Ignored (exists): User {$record['person_code']} at {$timestamp}");
+                    info("Ignored (exists): User {$record['person_code']} at {$timestamp}");
+                    continue;
+                }
 
                 $clock_status = $clockStatusOption === 'Clock On' ? 'In' :
                 ($clockStatusOption === 'Clock Off' ? 'Out' : $clockStatusOption);
@@ -91,32 +111,24 @@ class FetchMissingLogs extends Command
                 $data = [
                     "UserID"        => $record['person_code'],
                     "DeviceID"      => $deviceId,
-                    "LogTime"       => $logtime,
+                    "LogTime"       => $timestamp,
                     "SerialNumber"  => null,
                     "status"        => "Allowed",
                     "mode"          => $record['pass_mode'] ?? "---",
                     "log_type"      => $clock_status,
                     "company_id"    => $company_id,
                     "source_info"   => $source_info,
-                    "log_date_time" => $logtime,
-                    "log_date"      => Carbon::parse($timestamp)->format('Y-m-d'),
+                    "log_date_time" => $timestamp,
+                    "log_date"      => Carbon::parse($record["timestamp"])->format('Y-m-d'),
                 ];
 
-                $exists = AttendanceLog::where('UserID', $record['person_code'])
-                    ->where('DeviceID', $deviceId)
-                    ->where('LogTime', $logtime)
-                    ->exists();
+                AttendanceLog::create($data);
+                $insertedCount++;
+                $this->info("Inserted: User {$record['person_code']} at {$timestamp}");
+                info("Inserted: User {$record['person_code']} at {$timestamp}");
 
-                if (! $exists) {
-                    AttendanceLog::create($data);
-                    $insertedCount++;
-                    $this->info("Inserted: User {$record['person_code']} at {$logtime}");
-                    info("Inserted: User {$record['person_code']} at {$logtime}");
-                } else {
-                    $ignoredCount++;
-                    $this->info("Ignored (exists): User {$record['person_code']} at {$logtime}");
-                    info("Ignored (exists): User {$record['person_code']} at {$logtime}");
-                }
+                // Also add to existingLogs to avoid duplicates within this batch
+                $existingLogs[] = $key;
             }
 
             $offset += $limit;
