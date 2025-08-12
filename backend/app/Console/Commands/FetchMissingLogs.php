@@ -8,7 +8,7 @@ use Illuminate\Console\Command;
 
 class FetchMissingLogs extends Command
 {
-    protected $signature   = 'logs:fetch-missing {device_id} {date?}';
+    protected $signature   = 'logs:fetch-missing {device_id?} {date?}';
     protected $description = 'Fetch missing logs from a device for the last 24 hours with offset loop';
 
     public function handle()
@@ -16,6 +16,14 @@ class FetchMissingLogs extends Command
         $deviceId = $this->argument('device_id');
         $dateArg  = $this->argument('date');
 
+        if (!$deviceId) {
+           $deviceId = $this->ask('Please enter the Device Id',"M014200892110002790");
+        }
+
+        if (!$dateArg) {
+            $defaultDate = now()->format('Y-m-d');  // current date as string
+            $dateArg = $this->ask('Please enter the date (YYYY-MM-DD)', $defaultDate);
+        }
                                 // Defaults
         $company_id        = 1; // Replace with actual
         $source_info       = 'Auto';
@@ -38,6 +46,9 @@ class FetchMissingLogs extends Command
         $offset = 0;
         $limit  = 1;
 
+        $insertedCount = 0; // Count of new inserted logs
+        $ignoredCount  = 0; // Count of logs already existing
+
         while (true) {
             $json = json_encode([
                 "limit"            => $limit,
@@ -51,13 +62,13 @@ class FetchMissingLogs extends Command
             ]);
 
             $this->info("Fetching logs: Offset = {$offset}");
+            info("Fetching logs: Offset = {$offset}");
 
             $responseArray = $deviceSession->getHistory($deviceId, $json);
 
             // Reset session if needed
             if (isset($responseArray['status'])) {
                 $this->warn("Session reset for device {$deviceId}");
-                // (new SDKController())->clearSessionData($deviceId);
                 $deviceSession = new DeviceCameraModel2Controller($device->camera_sdk_url, $device->device_id);
                 $responseArray = $deviceSession->getHistory($deviceId, $json);
             }
@@ -65,14 +76,14 @@ class FetchMissingLogs extends Command
             // Stop if no data
             if (empty($responseArray['data'])) {
                 $this->info("No more logs found.");
+                info("No more logs found.");
                 break;
             }
 
             foreach ($responseArray['data'] as $record) {
 
                 $timestamp = $record["timestamp"];
-
-                $logtime = Carbon::parse($timestamp)->format('Y-m-d H:i:s');
+                $logtime   = Carbon::parse($timestamp)->format('Y-m-d H:i:s');
 
                 $clock_status = $clockStatusOption === 'Clock On' ? 'In' :
                 ($clockStatusOption === 'Clock Off' ? 'Out' : $clockStatusOption);
@@ -91,9 +102,6 @@ class FetchMissingLogs extends Command
                     "log_date"      => Carbon::parse($timestamp)->format('Y-m-d'),
                 ];
 
-                $this->info($record['person_code'] . "," . $timestamp);
-                info($record['person_code'] . "," . $timestamp);
-
                 $exists = AttendanceLog::where('UserID', $record['person_code'])
                     ->where('DeviceID', $deviceId)
                     ->where('LogTime', $logtime)
@@ -101,13 +109,25 @@ class FetchMissingLogs extends Command
 
                 if (! $exists) {
                     AttendanceLog::create($data);
+                    $insertedCount++;
                     $this->info("Inserted: User {$record['person_code']} at {$logtime}");
+                    info("Inserted: User {$record['person_code']} at {$logtime}");
+                } else {
+                    $ignoredCount++;
+                    $this->info("Ignored (exists): User {$record['person_code']} at {$logtime}");
+                    info("Ignored (exists): User {$record['person_code']} at {$logtime}");
                 }
             }
 
             $offset += $limit;
         }
 
-        $this->info("✅ Completed fetching logs for last 24 hours for device {$deviceId}.");
+        $this->info("✅ Completed fetching logs for {$dateArg} for device {$deviceId}.");
+        $this->info("Total inserted logs: {$insertedCount}");
+        $this->info("Total ignored logs: {$ignoredCount}");
+
+        info("✅ Completed fetching logs for {$dateArg} for device {$deviceId}.");
+        info("Total inserted logs: {$insertedCount}");
+        info("Total ignored logs: {$ignoredCount}");
     }
 }
