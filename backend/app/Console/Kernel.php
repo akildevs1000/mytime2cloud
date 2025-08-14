@@ -22,6 +22,17 @@ class Kernel extends ConsoleKernel
         $schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
+        // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
+        $schedule->command("pdf:generate")->monthlyOn(1, '03:35')->runInBackground();
+
+        $schedule->command("pdf:generate")
+            ->dailyAt('03:35')
+            ->when(fn() => now()->day == now()->endOfMonth()->day)
+            ->runInBackground();
+
+        // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
+
         $schedule->command('whatsapp:proxy-health-check')
             ->hourly()
             ->withoutOverlapping();
@@ -75,17 +86,6 @@ class Kernel extends ConsoleKernel
                 ->command("alert:offline_device $companyId")
                 ->hourly()
                 ->runInBackground();
-
-            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
-
-            $schedule->command("pdf:generate $companyId")->monthlyOn(1, '03:35')->runInBackground();
-
-            $schedule->command("pdf:generate $companyId")
-                ->dailyAt('03:35')
-                ->when(fn() => now()->day == now()->endOfMonth()->day)
-                ->runInBackground();
-
-            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")

@@ -24,6 +24,8 @@ class GenerateAttendanceReport implements ShouldQueue
 
     public function handle()
     {
+        ini_set('memory_limit', '1G'); // or '1G' if needed
+
         $model = $this->getModel($this->requestPayload);
 
         $data = $model->get();
