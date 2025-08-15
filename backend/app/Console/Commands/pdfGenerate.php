@@ -31,8 +31,8 @@ class pdfGenerate extends Command
     public function handle()
     {
 
-        $fromDate = $this->argument("from_date") ?? date("Y-07-01");
-        $toDate   = $this->argument("to_date") ?? date("Y-07-31");
+        $fromDate = $this->argument("from_date") ?? date("Y-m-01");
+        $toDate   = $this->argument("to_date") ?? date("Y-m-t");
 
         $companyIds = Company::pluck("id");
 
