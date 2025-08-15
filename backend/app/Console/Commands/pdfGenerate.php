@@ -3,6 +3,7 @@ namespace App\Console\Commands;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAttendanceReport;
+use App\Jobs\GenerateAttendanceReportPDF;
 use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Console\Command;
@@ -74,7 +75,7 @@ class pdfGenerate extends Command
             ->where("company_id", $companyId)
             ->chunk(50, function ($employees) use ($company, $requestPayload, &$processed) {
                 foreach ($employees as $employee) {
-                    GenerateAttendanceReport::dispatch(
+                    GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
@@ -83,7 +84,7 @@ class pdfGenerate extends Command
                         $employee->schedule->shift_type_id
                     )->onQueue('pdf-reports');
 
-                    GenerateAttendanceReport::dispatch(
+                    GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
