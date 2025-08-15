@@ -2,7 +2,6 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\GenerateAttendanceReport;
 use App\Jobs\GenerateAttendanceReportPDF;
 use App\Models\Company;
 use App\Models\Employee;
@@ -37,6 +36,8 @@ class pdfGenerate extends Command
 
         $companyIds = Company::pluck("id");
 
+        $this->info("Total " . count($companyIds) . "companies found");
+
         foreach ($companyIds as $companyId) {
 
             $requestPayload = [
@@ -64,8 +65,6 @@ class pdfGenerate extends Command
         $totalEmployees = Employee::where('company_id', $companyId)->count();
         $this->info("Total employees for company $companyId: $totalEmployees");
 
-        $processed = 0; // counter
-
         Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
@@ -73,33 +72,21 @@ class pdfGenerate extends Command
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("company_id", $companyId)
-            ->chunk(50, function ($employees) use ($company, $requestPayload, &$processed) {
+            ->chunk(50, function ($employees) use ($company, $requestPayload) {
                 foreach ($employees as $employee) {
                     GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
                         $requestPayload,
-                        "Template1",
                         $employee->schedule->shift_type_id
                     )->onQueue('pdf-reports');
 
-                    GenerateAttendanceReportPDF::dispatch(
-                        $employee->system_user_id,
-                        $company,
-                        $employee,
-                        $requestPayload,
-                        "Template2",
-                        $employee->schedule->shift_type_id
-                    )->onQueue('pdf-reports');
-
-                    $processed++;
                     // $this->info("[$processed] Employee processed: {$employee->full_name}");
                 }
 
                 gc_collect_cycles();
             });
 
-        $this->info("Report generating in background for company $companyId. Total queued: $processed");
     }
 }
