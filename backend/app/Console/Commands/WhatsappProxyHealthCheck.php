@@ -54,6 +54,8 @@ class WhatsappProxyHealthCheck extends Command
 
             $lines = explode("\n", trim($output));
 
+            $notFound = [];
+
             foreach ($lines as $line) {
                 if (preg_match('/\/([^\/]+)_logs\.csv$/', $line, $matches)) {
                     $id = explode("_", $matches[1])[0] ?? null; // e.g. AE00042
@@ -76,8 +78,11 @@ class WhatsappProxyHealthCheck extends Command
                             $this->logCommandOutput("File not found for deletion: $line");
                         }
                     } else {
-                        $this->info($matches[1]);
+                        $notFound[] = $matches[1];
                     }
+
+                    $this->logCommandOutput("Following Ids not found");
+                    $this->logCommandOutput(json_encode($notFound));
                 }
             }
         } else {
