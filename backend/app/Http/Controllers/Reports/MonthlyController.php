@@ -135,9 +135,11 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->PDFMerge("D");
-        }
+        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        //     return $this->PDFMerge("D");
+        // }
+
+         return $this->PDFMerge("D");
 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
