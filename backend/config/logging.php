@@ -156,6 +156,12 @@ return [
             'level'  => 'warning',
         ],
 
+        'whatsapp-health'    => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/whatsapp-health.log'),
+            'level'  => 'info',
+            'days'   => 30, // Keep logs for 30 days
+        ],
     ],
 
 ];
