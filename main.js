@@ -8,7 +8,7 @@ const WebSocket = require("ws");
 app.setName('MyTime2Desktop');
 app.setAppUserModelId('MyTime2Desktop');
 
-const { log, spawnWrapper, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, notify, verification_methods, reasons, ipv4Address } = require('./helpers');
+const { log, spawnWrapper,spawnPhpCgiWorker, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, notify, verification_methods, reasons, ipv4Address } = require('./helpers');
 const { initAutoUpdater } = require('./updater');
 
 const isDev = !app.isPackaged;
@@ -135,8 +135,9 @@ function createWindow() {
 function startServices(mainWindow) {
   const address = `http://${ipv4Address}:3001`;
 
-  spawnWrapper(mainWindow, "[Application]", phpCGi, ['-b', `127.0.0.1:9000`], {
-    cwd: appDir
+  const phpPorts = [9000, 9001, 9002, 9003, 9004];
+  phpPorts.forEach(port => {
+    spawnPhpCgiWorker(mainWindow, phpCGi,port);
   });
 
   NginxProcess = spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });

@@ -75,6 +75,37 @@ function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOpti
     return child;
 }
 
+function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
+    const args = ['-b', `127.0.0.1:${port}`];
+    const options = { cwd: appDir };
+
+    function start() {
+        const child = spawn(phpCGi, args, options);
+
+        child.stdout.on('data', (data) => {
+            log(mainWindow, `[PHP-CGI:${port}] ${data.toString()}`);
+        });
+
+        child.stderr.on('data', (data) => {
+            log(mainWindow, `[PHP-CGI:${port}] ${data.toString()}`);
+        });
+
+        child.on('close', (code) => {
+            log(mainWindow, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
+            setTimeout(start, 2000); // auto-restart after 2 seconds
+        });
+
+        child.on('error', (err) => {
+            log(mainWindow, `[PHP-CGI:${port}] error: ${err.message}`);
+        });
+
+        return child;
+    }
+
+    return start();
+}
+
+
 function log(mainWindow, message) {
     const now = new Date();
 
@@ -242,7 +273,7 @@ function notify(title = "", body = "", icon = 'favicon-256x256.png', onClick = n
 module.exports = {
     log,
     tailLogFile,
-    spawnWrapper,
+    spawnWrapper, spawnPhpCgiWorker,
     stopProcess,
     cloneTheRepoIfRequired,
     getFormattedDate, ipUpdaterForDotNetSDK, notify,
