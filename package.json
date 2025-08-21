@@ -22,6 +22,10 @@
     ],
     "extraResources": [
       {
+        "from": "kill-processes.bat",
+        "to": "kill-processes.bat"
+      },
+      {
         "from": "assets",
         "to": "assets"
       },
@@ -29,7 +33,7 @@
         "from": "conf",
         "to": "conf"
       },
-     {
+      {
         "from": "frontend/dist",
         "to": "frontend/dist"
       },

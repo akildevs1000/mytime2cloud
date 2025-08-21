@@ -73,8 +73,11 @@ function startWebSocketClient(mainWindow) {
 
     socket.onmessage = ({ data }) => {
       try {
-        let logFilePath = `./backend/storage/app/logs-${getFormattedDate().date}.csv`;
-        let logFilePathAlarm = `./backend/storage/app/alarm-logs-${getFormattedDate().date}.csv`;
+
+        const storage = path.join(srcDirectory, 'storage', 'app');
+
+        let logFilePath = path.join(storage, `logs-${getFormattedDate().date}.csv`);
+        let logFilePathAlarm = path.join(storage, `alarm-logs-${getFormattedDate().date}.csv`);
 
         // Ensure directory exists
         fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
@@ -100,6 +103,7 @@ function startWebSocketClient(mainWindow) {
         log(mainWindow, "[LISTENER] Error processing message: " + error.message);
       }
     };
+
   }
 
   connect();
@@ -188,16 +192,9 @@ function startServices(mainWindow) {
 }
 
 function stopServices(mainWindow) {
-  stopProcess(mainWindow, ScheduleProcess);
-  stopProcess(mainWindow, QueueProcess);
-  stopProcess(mainWindow, NginxProcess);
-  stopProcess(mainWindow, dotnetSDKProcess);
-  stopProcess(mainWindow, javaSDKProcess);
-
-  const forFullStop = spawn('taskkill', ['/F', '/IM', 'nginx.exe']);
-  forFullStop.on('close', () => {
-    log(mainWindow, '[Application] Server stopped.');
-  });
+  const batFile = path.join(appDir, 'stop-services.bat');
+  spawn('cmd.exe', ['/c', batFile], { windowsHide: true });
+  log(mainWindow, '[Application] stop-services.bat executed.');
 }
 
 app.whenReady().then(() => {
