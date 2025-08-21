@@ -48,7 +48,6 @@ let javaSDKProcess;
 function startWebSocketClient(mainWindow) {
 
   const SOCKET_ENDPOINT = `ws://${ipv4Address}:8080/WebSocket`;
-  const logFilePathAlarm = `./backend/storage/app/alarm/alarm-logs-${getFormattedDate().date}.csv`;
 
   function connect() {
 
@@ -73,8 +72,13 @@ function startWebSocketClient(mainWindow) {
     };
 
     socket.onmessage = ({ data }) => {
-      let logFilePath = `./backend/storage/app/logs-${getFormattedDate().date}.csv`;
       try {
+        let logFilePath = `./backend/storage/app/logs-${getFormattedDate().date}.csv`;
+        let logFilePathAlarm = `./backend/storage/app/alarm-logs-${getFormattedDate().date}.csv`;
+
+        // Ensure directory exists
+        fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
+
         const jsonData = JSON.parse(data).Data;
         const { UserCode, SN, RecordDate, RecordNumber, RecordCode } = jsonData;
 
