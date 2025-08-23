@@ -110,7 +110,7 @@
                                     <span class="title-font">
                                         <!-- {{ $info->report_type }}  -->
 
-                                        {{ $company->report_type }} Report
+                                        Attendance Report
                                     </span>
                                     <hr style="width: 230px">
                                 </td>
