@@ -73,9 +73,9 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->PDFMerge();
-        }
+        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        //     return $this->PDFMerge();
+        // }
 
         // return $this->PDFMerge();
 
