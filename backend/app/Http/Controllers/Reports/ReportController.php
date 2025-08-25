@@ -45,7 +45,9 @@ class ReportController extends Controller
             'status_slug'  => (new Controller)->getStatusSlug("-1"),
             'from_date'    => $request->from_date,
             'to_date'      => $request->to_date,
-            'employee_ids' => $request->input('employee_id', []),
+            'employee_ids' => $request->input('employee_id', []),            
+            'templates' => [$request->input('report_template')],
+
             // 'employee_ids' => explode(",", $request->input('employee_id', [])),
         ];
 
