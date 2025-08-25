@@ -17,7 +17,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         public $company,
         public $employee,
         public $requestPayload,
-        public $shift_type_id
+        public $shift_type_id,
     ) {}
 
     public function handle()
@@ -154,10 +154,8 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         return $work_hours . ':' . $sum_minutes;
     }
 
-    public function generateAttendanceReports($companyId, $employeeId, $month, array $arr)
+    public function generateAttendanceReports($companyId, $employeeId, $month, array $arr, array $templates = ['Template1', 'Template2'])
     {
-        $templates = $this->requestPayload["templates"] ?? ['Template1','Template2'];
-        
         $fileName = "{$month}_{$employeeId}.pdf";
 
         foreach ($templates as $template) {
