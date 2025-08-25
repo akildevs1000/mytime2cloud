@@ -21,9 +21,9 @@ class ReportController extends Controller
     public function processReportForCompany(Request $request)
     {
         // Generate a unique cache key based on the request payload
-        // $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
+        $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
 
-        // Cache::forget($cacheKey);
+        Cache::forget($cacheKey);
 
         // Check if this request has been processed in the last 1 hour
         // if (Cache::has($cacheKey)) {
