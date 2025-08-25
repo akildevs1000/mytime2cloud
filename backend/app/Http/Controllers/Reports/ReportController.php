@@ -1,31 +1,93 @@
 <?php
-
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateAttendanceReportPDF;
 use App\Models\Attendance;
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Payroll;
 use Carbon\Carbon;
 use DateTime;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use NumberFormatter;
-
 
 class ReportController extends Controller
 {
+    public function processReportForCompany(Request $request)
+    {
+        // Generate a unique cache key based on the request payload
+        $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
+
+        // Cache::forget($cacheKey);
+
+        // Check if this request has been processed in the last 1 hour
+        if (Cache::has($cacheKey)) {
+            // Cache::forget($cacheKey);
+            return response()->json([
+                'status'  => 'ignored',
+                'message' => 'This report is already being processed or cached.',
+            ]);
+        }
+
+        // Cache the request for 1 hour to prevent duplicate processing
+        Cache::put($cacheKey, true, now()->addHour());
+
+        info($cacheKey);
+
+        $requestPayload = [
+            'company_id'   => $request->company_id,
+            'status'       => "-1",
+            'status_slug'  => (new Controller)->getStatusSlug("-1"),
+            'from_date'    => $request->from_date,
+            'to_date'      => $request->to_date,
+            'employee_ids' => $request->input('employee_id', []),
+            // 'employee_ids' => explode(",", $request->input('employee_id', [])),
+        ];
+
+        $companyId    = $requestPayload["company_id"];
+        $employee_ids = $requestPayload["employee_ids"];
+
+        $company = Company::whereId($companyId)
+            ->with('contact:id,company_id,number')
+            ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+
+        Employee::with(["schedule" => function ($q) use ($companyId) {
+            $q->where("company_id", $companyId)
+                ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
+                ->withOut(["shift", "shift_type", "branch"]);
+        }])
+            ->withOut(["branch", "designation", "sub_department", "user"])
+            ->where("company_id", $companyId)
+            ->whereIn("employee_id", $employee_ids)
+            ->chunk(50, function ($employees) use ($company, $requestPayload) {
+                foreach ($employees as $employee) {
+                    GenerateAttendanceReportPDF::dispatch(
+                        $employee->system_user_id,
+                        $company,
+                        $employee,
+                        $requestPayload,
+                        optional($employee->schedule)->shift_type_id ?? 0
+                    )->onQueue('pdf-reports');
+                }
+
+                gc_collect_cycles();
+            });
+
+        return response()->json([
+            'status'  => 'processing',
+            'message' => 'Report generation has started and will be cached for 1 hour.',
+        ]);
+    }
+
     public function index(Request $request)
     {
         //    return $request->all();
         $model = (new Attendance)->processAttendanceModel($request);
-
-
 
         if ($request->shift_type_id == 1) {
             return $this->general($model, $request->per_page ?? 1000);
@@ -48,6 +110,10 @@ class ReportController extends Controller
 
     public function fetchDataNEW(Request $request)
     {
+        $this->processReportForCompany($request);
+
+        sleep(3);
+
         $perPage = $request->per_page ?? 100;
 
         $model = (new Attendance)->processAttendanceModel($request);
@@ -63,17 +129,17 @@ class ReportController extends Controller
                 $logs = $value->logs ?? [];
 
                 $logs = array_pad($logs, 7, [
-                    "in" => "---",
-                    "out" => "---",
-                    "device_in" => "---",
+                    "in"         => "---",
+                    "out"        => "---",
+                    "device_in"  => "---",
                     "device_out" => "---",
                 ]);
 
                 // Populate log details for each entry
                 foreach ($logs as $index => $log) {
-                    $value["in" . ($index + 1)] = $log["in"];
-                    $value["out" . ($index + 1)] = $log["out"];
-                    $value["device_in" . ($index + 1)] = $log["device_in"];
+                    $value["in" . ($index + 1)]         = $log["in"];
+                    $value["out" . ($index + 1)]        = $log["out"];
+                    $value["device_in" . ($index + 1)]  = $log["device_in"];
                     $value["device_out" . ($index + 1)] = $log["device_out"];
                 }
             }
@@ -90,16 +156,16 @@ class ReportController extends Controller
     public function multiInOut($model, $per_page = 100)
     {
         foreach ($model as $value) {
-            $logs = $value->logs ?? [];
-            $count = count($logs);
+            $logs         = $value->logs ?? [];
+            $count        = count($logs);
             $requiredLogs = max($count, 7); // Ensure at least 8 logs
 
             for ($a = 0; $a < $requiredLogs; $a++) {
-                $log = $logs[$a] ?? [];
-                $value["in" . ($a + 1)] = $log["in"] ?? "---";
-                $value["out" . ($a + 1)] = $log["out"] ?? "---";
-                $value["device_" . "in" . ($a + 1)]   = $log["device_in"] ?? "---";
-                $value["device_" . "out" . ($a + 1)]  = $log["device_out"] ?? "---";
+                $log                                 = $logs[$a] ?? [];
+                $value["in" . ($a + 1)]              = $log["in"] ?? "---";
+                $value["out" . ($a + 1)]             = $log["out"] ?? "---";
+                $value["device_" . "in" . ($a + 1)]  = $log["device_in"] ?? "---";
+                $value["device_" . "out" . ($a + 1)] = $log["device_out"] ?? "---";
             }
         }
 
@@ -108,7 +174,7 @@ class ReportController extends Controller
 
     public function paginate($items, $perPage = 15, $page = null, $options = [])
     {
-        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $page  = $page ?: (Paginator::resolveCurrentPage() ?: 1);
         $items = $items instanceof Collection ? $items : Collection::make($items);
 
         $perPage == 0 ? 50 : $perPage;
@@ -116,7 +182,7 @@ class ReportController extends Controller
         $resultArray = [];
 
         foreach ($items->forPage($page, $perPage) as $object) {
-            $resultArray[] =   $object;
+            $resultArray[] = $object;
         }
 
         return new LengthAwarePaginator($resultArray, $items->count(), $perPage, $page, $options);
@@ -129,13 +195,13 @@ class ReportController extends Controller
 
         $fileName = 'report.csv';
 
-        $headers = array(
+        $headers = [
             "Content-type"        => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        );
+            "Expires"             => "0",
+        ];
 
         $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
@@ -160,7 +226,7 @@ class ReportController extends Controller
                     $col["late_coming"] ?? "---",
                     $col["early_going"] ?? "---",
                     $col["device_in"]["short_name"] ?? "---",
-                    $col["device_out"]["short_name"] ?? "---"
+                    $col["device_out"]["short_name"] ?? "---",
                 ], ",");
             }
 
@@ -178,16 +244,16 @@ class ReportController extends Controller
             $count = count($value->logs ?? []);
             if ($count > 0) {
                 if ($count < 8) {
-                    $diff = 7 - $count;
+                    $diff  = 7 - $count;
                     $count = $count + $diff;
                 }
                 $i = 1;
                 for ($a = 0; $a < $count; $a++) {
 
-                    $holder = $a;
+                    $holder     = $a;
                     $holder_key = ++$holder;
 
-                    $value["in" . $holder_key] = $value->logs[$a]["in"] ?? "---";
+                    $value["in" . $holder_key]  = $value->logs[$a]["in"] ?? "---";
                     $value["out" . $holder_key] = $value->logs[$a]["out"] ?? "---";
                 }
             }
@@ -195,17 +261,17 @@ class ReportController extends Controller
 
         $fileName = 'report.csv';
 
-        $headers = array(
-            "Content-type" => "text/csv",
+        $headers = [
+            "Content-type"        => "text/csv",
             "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma" => "no-cache",
-            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
-            "Expires" => "0",
-        );
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0",
+        ];
 
         $callback = function () use ($data) {
             $file = fopen('php://output', 'w');
-            $i = 0;
+            $i    = 0;
             fputcsv($file, [
                 "#",
                 "Date",
@@ -268,10 +334,8 @@ class ReportController extends Controller
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
-
         $fromDate = $request->input('from_date', date("Y-m-d"));
-        $toDate = $request->input('to_date', date("Y-m-d"));
-
+        $toDate   = $request->input('to_date', date("Y-m-d"));
 
         $department_ids = $request->department_ids;
 
@@ -281,7 +345,7 @@ class ReportController extends Controller
 
         $employeeIds = [];
 
-        if (!empty($request->employee_id)) {
+        if (! empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
         }
 
@@ -291,7 +355,7 @@ class ReportController extends Controller
             })
 
             ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id', $department_ids));
             })
             ->when(count($employeeIds), function ($q) use ($employeeIds) {
                 $q->whereIn('employee_id', $employeeIds);
@@ -364,7 +428,6 @@ class ReportController extends Controller
         }])
             ->groupBy('employee_id');
 
-
         return $model->paginate($request->per_page ?? 100);
     }
 
@@ -373,10 +436,8 @@ class ReportController extends Controller
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
-
         $fromDate = $request->input('from_date', date("Y-m-d"));
-        $toDate = $request->input('to_date', date("Y-m-d"));
-
+        $toDate   = $request->input('to_date', date("Y-m-d"));
 
         $department_ids = $request->department_ids;
 
@@ -386,7 +447,7 @@ class ReportController extends Controller
 
         $employeeIds = [];
 
-        if (!empty($request->employee_id)) {
+        if (! empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
         }
 
@@ -396,7 +457,7 @@ class ReportController extends Controller
             })
 
             ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id', $department_ids));
             })
             ->when(count($employeeIds), function ($q) use ($employeeIds) {
                 $q->whereIn('employee_id', $employeeIds);
@@ -472,22 +533,17 @@ class ReportController extends Controller
         }])
             ->groupBy('employee_id');
 
-
         return $model->paginate($request->per_page ?? 100);
     }
 
     public function summaryReportDownload(Request $request)
     {
 
-
-
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
-
         $fromDate = $request->input('from_date', date("Y-m-d"));
-        $toDate = $request->input('to_date', date("Y-m-d"));
-
+        $toDate   = $request->input('to_date', date("Y-m-d"));
 
         $department_ids = $request->department_ids;
 
@@ -497,17 +553,17 @@ class ReportController extends Controller
 
         $employeeIds = [];
 
-        if (!empty($request->employee_id)) {
+        if (! empty($request->employee_id)) {
             $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
         }
 
         $cacheKey = 'attendance_summary_' . md5(json_encode([
-            'company_id' => $companyId,
-            'branch_id' => $branch_id,
-            'from_date' => $fromDate,
-            'to_date' => $toDate,
+            'company_id'     => $companyId,
+            'branch_id'      => $branch_id,
+            'from_date'      => $fromDate,
+            'to_date'        => $toDate,
             'department_ids' => $department_ids,
-            'employee_ids' => $employeeIds,
+            'employee_ids'   => $employeeIds,
         ]));
 
         Cache::forget($cacheKey);
@@ -518,7 +574,7 @@ class ReportController extends Controller
             })
 
             ->when(count($department_ids), function ($q) use ($department_ids) {
-                $q->whereHas('employee', fn($query) => $query->whereIn('department_id',   $department_ids));
+                $q->whereHas('employee', fn($query) => $query->whereIn('department_id', $department_ids));
             })
             ->when(count($employeeIds), function ($q) use ($employeeIds) {
                 $q->whereIn('employee_id', $employeeIds);
@@ -594,18 +650,17 @@ class ReportController extends Controller
         }])
             ->groupBy('employee_id');
 
-
         return $model->paginate(10);
     }
 
-    function getStatusCountWithSuffix($dbDtatus)
+    public function getStatusCountWithSuffix($dbDtatus)
     {
         $status = strtolower($dbDtatus);
 
         return DB::raw("COUNT(CASE WHEN status = '{$dbDtatus}' THEN 1 END) AS {$status}_count");
     }
 
-    function getTotalHours()
+    public function getTotalHours()
     {
 
         $driver = DB::connection()->getDriverName(); // Get the database driver name
@@ -616,16 +671,16 @@ class ReportController extends Controller
             return DB::raw("json_agg(\"total_hrs\"::TEXT) FILTER (WHERE \"total_hrs\" != '---') AS total_hrs_array");
         }
     }
-    function getInHours()
+    public function getInHours()
     {
         $driver = DB::connection()->getDriverName(); // Get the database driver name
         if ($driver === 'sqlite') {
             return DB::raw("json_group_array(\"in\") FILTER (WHERE \"in\" != '---') AS average_in_time_array");
         } else {
-            return  DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array");
+            return DB::raw("json_agg(\"in\"::TEXT) FILTER (WHERE \"in\" != '---') AS average_in_time_array");
         }
     }
-    function getOutHours()
+    public function getOutHours()
     {
         $driver = DB::connection()->getDriverName(); // Get the database driver name
         if ($driver === 'sqlite') {
@@ -635,35 +690,32 @@ class ReportController extends Controller
         }
     }
 
-
-
-    function getStatusCountValue($status)
+    public function getStatusCountValue($status)
     {
         return DB::raw("COUNT(CASE WHEN status = '$status' THEN 1 END) AS {$status}_count_value");
     }
 
     public function lastSixMonthsPerformanceReport(Request $request)
     {
-        $companyId = $request->input('company_id', 0);
+        $companyId  = $request->input('company_id', 0);
         $employeeId = $request->input('employee_id', 0);
 
-        $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString();  // Removes time
-        $endMonth = Carbon::now()->endOfMonth()->toDateString();  // Removes time
-        // $endMonth = Carbon::now()->toDateString();  // Removes time
-
+        $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString(); // Removes time
+        $endMonth   = Carbon::now()->endOfMonth()->toDateString();                 // Removes time
+                                                                                   // $endMonth = Carbon::now()->toDateString();  // Removes time
 
         $startMonthOnly = Carbon::now()->subMonths(5)->startOfMonth();
-        $endMonthOnly = Carbon::now()->endOfMonth();
+        $endMonthOnly   = Carbon::now()->endOfMonth();
 
         $months = [];
         for ($month = $startMonthOnly; $month <= $endMonthOnly; $startMonthOnly->addMonth()) {
             $months[] = [
-                'year' => $month->year,
+                'year'  => $month->year,
                 'month' => $month->month,
             ];
         }
 
-        // Now, use these dates in your query
+                                                     // Now, use these dates in your query
         $driver = DB::connection()->getDriverName(); // Get the database driver
 
         if ($driver === 'sqlite') {
@@ -704,7 +756,6 @@ class ReportController extends Controller
                 ->get();
         }
 
-
         $queryResults = [];
 
         // Get today's date
@@ -713,41 +764,41 @@ class ReportController extends Controller
         $endOfMonth = new DateTime('last day of this month');
 
         // Calculate remaining days (excluding today)
-        $remainingDays = (int)$today->diff($endOfMonth)->format('%a');
+        $remainingDays = (int) $today->diff($endOfMonth)->format('%a');
 
         foreach ($months as $month) {
             $found = false;
 
             $monthFormatted = str_pad($month['month'], 2, '0', STR_PAD_LEFT);
-            $month_year = date("M Y", strtotime("{$month['year']}-{$monthFormatted}-01"));
+            $month_year     = date("M Y", strtotime("{$month['year']}-{$monthFormatted}-01"));
 
             foreach ($query as $result) {
                 if ($result->year == $month['year'] && $result->month == $month['month']) {
-                    $found = true;
+                    $found          = true;
                     $isCurrentMonth = ($month['year'] == date('Y') && $month['month'] == date('n'));
                     $queryResults[] = (object) [
-                        'year' => $month['year'],
-                        'month' => $month['month'],
-                        'present_count' => $result->present_count,
-                        'absent_count' => $isCurrentMonth ? ($result->absent_count - $remainingDays) : $result->absent_count,
+                        'year'           => $month['year'],
+                        'month'          => $month['month'],
+                        'present_count'  => $result->present_count,
+                        'absent_count'   => $isCurrentMonth ? ($result->absent_count - $remainingDays) : $result->absent_count,
                         'week_off_count' => $result->week_off_count,
-                        'other_count' => $result->other_count,
-                        'month_year' => date("M y", strtotime($month_year))
+                        'other_count'    => $result->other_count,
+                        'month_year'     => date("M y", strtotime($month_year)),
                     ];
                     break;
                 }
             }
 
-            if (!$found) {
+            if (! $found) {
                 // If the month was not found in the results, add it with counts as 0
                 $queryResults[] = (object) [
-                    'year' => $month['year'],
-                    'month' => $month['month'],
-                    'present_count' => 0,
-                    'absent_count' => 31,
+                    'year'           => $month['year'],
+                    'month'          => $month['month'],
+                    'present_count'  => 0,
+                    'absent_count'   => 31,
                     'week_off_count' => 0,
-                    'other_count' => 0,
-                    'month_year' => date("M y", strtotime($month_year))
+                    'other_count'    => 0,
+                    'month_year'     => date("M y", strtotime($month_year)),
                 ];
             }
         }
@@ -758,13 +809,13 @@ class ReportController extends Controller
     public function lastSixMonthsSalaryReport(Request $request)
     {
         $startMonthOnly = Carbon::now()->subMonths(6)->startOfMonth();
-        $endMonthOnly = Carbon::now()->subMonths(1)->endOfMonth();
+        $endMonthOnly   = Carbon::now()->subMonths(1)->endOfMonth();
 
         $result = [];
 
         for ($month_year = $startMonthOnly; $month_year <= $endMonthOnly; $startMonthOnly->addMonth()) {
-            $year = $month_year->year;
-            $month = str_pad($month_year->month, 2, "0", STR_PAD_LEFT);
+            $year     = $month_year->year;
+            $month    = str_pad($month_year->month, 2, "0", STR_PAD_LEFT);
             $result[] = $this->getRenderedSalary($request->company_id, $request->employee_id, $month, $year);
         }
 
@@ -775,7 +826,7 @@ class ReportController extends Controller
     {
         // Get the first day of the previous month
         $previousMonth = date("m", strtotime("first day of previous month"));
-        $year = date("Y", strtotime("first day of previous month"));
+        $year          = date("Y", strtotime("first day of previous month"));
 
         // Ensure the month is two digits (e.g., "01" for January)
         $month = str_pad($previousMonth, 2, "0", STR_PAD_LEFT);
@@ -790,12 +841,12 @@ class ReportController extends Controller
     {
         // Validate input
         $request->validate([
-            'company_id' => 'required|integer|min:1',
+            'company_id'  => 'required|integer|min:1',
             'employee_id' => 'required|integer|min:1',
         ]);
 
-        $companyId = $request->input('company_id');
-        $employeeId = $request->input('employee_id');
+        $companyId     = $request->input('company_id');
+        $employeeId    = $request->input('employee_id');
         $previousMonth = date('m', strtotime('last month'));
 
         try {
@@ -806,39 +857,39 @@ class ReportController extends Controller
                 ->whereMonth('date', $previousMonth);
 
             // Fetch total performed hours
-            $totalHours = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
+            $totalHours          = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
             $totalPerformedHours = $this->sumTimeValues($totalHours);
 
             // Fetch late coming hours
             $totalLateComings = (clone $baseQuery)->where('late_coming', '!=', '---')->pluck('late_coming')->toArray();
-            $lateComingHours = $this->sumTimeValues($totalLateComings);
+            $lateComingHours  = $this->sumTimeValues($totalLateComings);
 
             // Fetch early going hours
             $totalEarlyGoings = (clone $baseQuery)->where('early_going', '!=', '---')->pluck('early_going')->toArray();
-            $earlyGoingHours = $this->sumTimeValues($totalEarlyGoings);
+            $earlyGoingHours  = $this->sumTimeValues($totalEarlyGoings);
 
             // Fetch overtime hours
 
             $totalOtHours = (clone $baseQuery)->where('ot', '!=', '---')->pluck('ot')->toArray();
-            $otHours = $this->sumTimeValues($totalOtHours);
+            $otHours      = $this->sumTimeValues($totalOtHours);
 
             return response()->json([
                 'total_performed' => [
                     "hours" => $this->formatMinutesToTime($totalPerformedHours),
-                    "days" => count($totalHours)
+                    "days"  => count($totalHours),
                 ],
-                'late_coming' => [
+                'late_coming'     => [
                     "hours" => $this->formatMinutesToTime($lateComingHours),
-                    "days" => count($totalLateComings)
+                    "days"  => count($totalLateComings),
                 ],
-                'early_going' => [
+                'early_going'     => [
                     "hours" => $this->formatMinutesToTime($earlyGoingHours),
-                    "days" => count($totalEarlyGoings)
+                    "days"  => count($totalEarlyGoings),
                 ],
-                'overtime' => [
+                'overtime'        => [
                     "hours" => $this->formatMinutesToTime($otHours),
-                    "days" => count($totalOtHours)
-                ]
+                    "days"  => count($totalOtHours),
+                ],
             ]);
         } catch (\Exception $e) {
             // Handle any exceptions
@@ -850,11 +901,11 @@ class ReportController extends Controller
     {
         // Validate input
         $request->validate([
-            'company_id' => 'required|integer|min:1',
+            'company_id'  => 'required|integer|min:1',
             'employee_id' => 'required|integer|min:1',
         ]);
 
-        $companyId = $request->input('company_id');
+        $companyId  = $request->input('company_id');
         $employeeId = $request->input('employee_id');
 
         try {
@@ -862,7 +913,7 @@ class ReportController extends Controller
 
             for ($i = 0; $i < 6; $i++) {
                 $month = date('m', strtotime("-$i month"));
-                $year = date('Y', strtotime("-$i month"));
+                $year  = date('Y', strtotime("-$i month"));
 
                 // Base query for the given month
                 $baseQuery = DB::table('attendances')
@@ -872,37 +923,37 @@ class ReportController extends Controller
                     ->whereYear('date', $year);
 
                 // Fetch and sum hours
-                $totalHours = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
+                $totalHours          = (clone $baseQuery)->where('status', 'P')->pluck('total_hrs')->toArray();
                 $totalPerformedHours = $this->sumTimeValues($totalHours);
 
                 $totalLateComings = (clone $baseQuery)->where('late_coming', '!=', '---')->pluck('late_coming')->toArray();
-                $lateComingHours = $this->sumTimeValues($totalLateComings);
+                $lateComingHours  = $this->sumTimeValues($totalLateComings);
 
                 $totalEarlyGoings = (clone $baseQuery)->where('early_going', '!=', '---')->pluck('early_going')->toArray();
-                $earlyGoingHours = $this->sumTimeValues($totalEarlyGoings);
+                $earlyGoingHours  = $this->sumTimeValues($totalEarlyGoings);
 
                 $totalOtHours = (clone $baseQuery)->where('ot', '!=', '---')->pluck('ot')->toArray();
-                $otHours = $this->sumTimeValues($totalOtHours);
+                $otHours      = $this->sumTimeValues($totalOtHours);
 
                 $monthLabel = date('M Y', strtotime("-$i month"));
 
                 $report[$monthLabel] = [
                     'total_performed' => [
                         "hours" => $this->formatMinutesToTime($totalPerformedHours),
-                        "days" => count($totalHours)
+                        "days"  => count($totalHours),
                     ],
-                    'late_coming' => [
+                    'late_coming'     => [
                         "hours" => $this->formatMinutesToTime($lateComingHours),
-                        "days" => count($totalLateComings)
+                        "days"  => count($totalLateComings),
                     ],
-                    'early_going' => [
+                    'early_going'     => [
                         "hours" => $this->formatMinutesToTime($earlyGoingHours),
-                        "days" => count($totalEarlyGoings)
+                        "days"  => count($totalEarlyGoings),
                     ],
-                    'overtime' => [
+                    'overtime'        => [
                         "hours" => $this->formatMinutesToTime($otHours),
-                        "days" => count($totalOtHours)
-                    ]
+                        "days"  => count($totalOtHours),
+                    ],
                 ];
             }
 
@@ -914,9 +965,9 @@ class ReportController extends Controller
 
     public function previousMonthPerformanceReport(Request $request)
     {
-        $companyId = $request->input('company_id', 0);
+        $companyId  = $request->input('company_id', 0);
         $employeeId = $request->input('employee_id', 0);
-        $lastMonth = $request->input('date', date('m', strtotime('first day of last month')));
+        $lastMonth  = $request->input('date', date('m', strtotime('first day of last month')));
 
         $result = Attendance::where('company_id', $companyId)
             ->where('employee_id', $employeeId)
@@ -926,11 +977,11 @@ class ReportController extends Controller
             ->groupBy('date', 'status')
             ->get();
 
-        $arr = [];
+        $arr   = [];
         $stats = [
-            "P" => 0,
-            "A" => 0,
-            "O" => 0,
+            "P"            => 0,
+            "A"            => 0,
+            "O"            => 0,
             "OTHERS_COUNT" => 0,
         ];
 
@@ -957,8 +1008,8 @@ class ReportController extends Controller
 
     public function currentMonthPerformanceReport(Request $request)
     {
-        $companyId = $request->input('company_id', 0);
-        $employeeId = $request->input('employee_id', 0);
+        $companyId    = $request->input('company_id', 0);
+        $employeeId   = $request->input('employee_id', 0);
         $currentMonth = $request->input('date', date('m'));
 
         $result = Attendance::where('company_id', $companyId)
@@ -969,12 +1020,12 @@ class ReportController extends Controller
             ->groupBy('date', 'status')
             ->get();
 
-        $arr = [];
+        $arr   = [];
         $stats = [
-            "P" => 0,
-            "A" => 0,
-            "O" => 0,
-            "L" => 0,
+            "P"            => 0,
+            "A"            => 0,
+            "O"            => 0,
+            "L"            => 0,
             "OTHERS_COUNT" => 0,
         ];
 
@@ -1008,7 +1059,6 @@ class ReportController extends Controller
         return ["events" => $arr, "stats" => $stats];
     }
 
-
     /**
      * Helper function to sum time values in "HH:MM" format.
      *
@@ -1035,7 +1085,7 @@ class ReportController extends Controller
      */
     private function formatMinutesToTime(int $minutes): string
     {
-        $hours = floor($minutes / 60);
+        $hours   = floor($minutes / 60);
         $minutes = $minutes % 60;
         return sprintf('%02d:%02d', $hours, $minutes);
     }
@@ -1052,17 +1102,17 @@ class ReportController extends Controller
             throw new \InvalidArgumentException("Invalid time format: {$time}. Expected 'hh:mm'.");
         }, 0);
 
-        $hours = intdiv($totalMinutes, 60);
+        $hours   = intdiv($totalMinutes, 60);
         $minutes = $totalMinutes % 60;
 
         return [
-            "hours" => $hours,
+            "hours"   => $hours,
             "minutes" => $minutes,
-            "hm" => sprintf("%02d:%02d", $hours, $minutes), // Format as 'hh:mm'
+            "hm"      => sprintf("%02d:%02d", $hours, $minutes), // Format as 'hh:mm'
         ];
     }
 
-    function getRenderedSalary($company_id, $id, $month, $year)
+    public function getRenderedSalary($company_id, $id, $month, $year)
     {
         // Fetch the last six months' payroll data
         $Payroll = Payroll::where("employee_id", $id)
@@ -1073,7 +1123,7 @@ class ReportController extends Controller
             }])
             ->first(["basic_salary", "net_salary", "earnings", "employee_id", "company_id", "created_at"]);
 
-        if (!$Payroll) {
+        if (! $Payroll) {
             return response()->json(["message" => "No Data Found"], 404);
         }
 
@@ -1088,12 +1138,12 @@ class ReportController extends Controller
         $Payroll->date = $Payroll->created_at->format('j F Y');
 
         $Payroll->SELECTEDSALARY = $salary_type == "basic_salary" ? $Payroll->basic_salary : $Payroll->net_salary;
-        $Payroll->perDaySalary = number_format($Payroll->SELECTEDSALARY / $Payroll->total_month_days, 2);
-        $Payroll->perHourSalary = number_format($Payroll->perDaySalary / 8, 2);
+        $Payroll->perDaySalary   = number_format($Payroll->SELECTEDSALARY / $Payroll->total_month_days, 2);
+        $Payroll->perHourSalary  = number_format($Payroll->perDaySalary / 8, 2);
 
         $conditions = [
-            "company_id" => $company_id,
-            "employee_id" => $Payroll->employee->system_user_id
+            "company_id"  => $company_id,
+            "employee_id" => $Payroll->employee->system_user_id,
         ];
 
         $allStatuses = ['P', 'A', 'M', 'O', 'LC', 'EG'];
@@ -1119,22 +1169,21 @@ class ReportController extends Controller
             return $attendance->ot !== '---';
         })->pluck('ot')->toArray();
 
-        $Payroll->lateHours = $this->calculateHoursAndMinutes($lateHours);
-        $Payroll->earlyHours = $this->calculateHoursAndMinutes($earlyHours);
-        $Payroll->otHours = $this->calculateHoursAndMinutes($otHours);
-        $shortHours = array_merge($lateHours, $earlyHours);
+        $Payroll->lateHours          = $this->calculateHoursAndMinutes($lateHours);
+        $Payroll->earlyHours         = $this->calculateHoursAndMinutes($earlyHours);
+        $Payroll->otHours            = $this->calculateHoursAndMinutes($otHours);
+        $shortHours                  = array_merge($lateHours, $earlyHours);
         $Payroll->combimedShortHours = $this->calculateHoursAndMinutes($shortHours);
-        $totalHours = $Payroll->combimedShortHours["hours"] ?? 0;
-        $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00";
-        $decimalHours = $totalHours + ($remainingMinutes / 60);
-        $rate = $Payroll->perHourSalary;
+        $totalHours                  = $Payroll->combimedShortHours["hours"] ?? 0;
+        $remainingMinutes            = $Payroll->combimedShortHours["minutes"] ?? "00:00";
+        $decimalHours                = $totalHours + ($remainingMinutes / 60);
+        $rate                        = $Payroll->perHourSalary;
 
         $shortHours = 0; // Set a default value or handle it accordingly
 
         if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->deduction_value)) {
             $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
         }
-
 
         $grouByStatus = $attendances
             ->groupBy('status')
@@ -1151,7 +1200,7 @@ class ReportController extends Controller
 
         $Payroll->absent = array_sum([
             $attendanceCounts["A"],
-            $attendanceCounts["M"]
+            $attendanceCounts["M"],
         ]);
 
         $Payroll->week_off = $attendanceCounts["O"];
@@ -1165,7 +1214,6 @@ class ReportController extends Controller
         if ($Payroll->payroll_formula && isset($Payroll->payroll_formula->ot_value)) {
             $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
         }
-
 
         $Payroll->earnings = array_merge(
             [
@@ -1187,7 +1235,7 @@ class ReportController extends Controller
 
         if ($Payroll->present == 0) {
             $Payroll->salary_and_earnings = 0;
-            $Payroll->finalSalary = 0;
+            $Payroll->finalSalary         = 0;
         }
 
         $Payroll->finalSalary = (($Payroll->salary_and_earnings) - $Payroll->totalDeductions);
@@ -1195,17 +1243,17 @@ class ReportController extends Controller
         $Payroll->payslip_month_year = $days_countdate->format('F Y');
 
         return [
-            "finalSalary" => number_format($Payroll->finalSalary < 0 ? 0 : $Payroll->finalSalary, 2),
-            'year' => $year,
-            'month' => DateTime::createFromFormat('!m', $month)->format('M'), // Convert month number to month name (e.g., "Jan")
-            'salary_type' => $Payroll->salary_type,
-            'salary_and_earnings' => number_format($Payroll->salary_and_earnings, 2),
-            'ot' => number_format($OTEarning, 2),
-            'total_deductions' => number_format($Payroll->totalDeductions, 2),
+            "finalSalary"               => number_format($Payroll->finalSalary < 0 ? 0 : $Payroll->finalSalary, 2),
+            'year'                      => $year,
+            'month'                     => DateTime::createFromFormat('!m', $month)->format('M'), // Convert month number to month name (e.g., "Jan")
+            'salary_type'               => $Payroll->salary_type,
+            'salary_and_earnings'       => number_format($Payroll->salary_and_earnings, 2),
+            'ot'                        => number_format($OTEarning, 2),
+            'total_deductions'          => number_format($Payroll->totalDeductions, 2),
 
             'salary_and_earnings_value' => round($Payroll->salary_and_earnings),
-            'ot_value' => round($OTEarning),
-            'total_deductions_value' => round($Payroll->totalDeductions),
+            'ot_value'                  => round($OTEarning),
+            'total_deductions_value'    => round($Payroll->totalDeductions),
         ];
     }
 
@@ -1223,7 +1271,7 @@ class ReportController extends Controller
         $endOfMonth = new DateTime('last day of this month');
 
         // Calculate remaining days (excluding today)
-        $remainingDays = (int)$today->diff($endOfMonth)->format('%a');
+        $remainingDays = (int) $today->diff($endOfMonth)->format('%a');
 
         $model->select(
             DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
@@ -1239,7 +1287,7 @@ class ReportController extends Controller
 
         $first = $model->first();
 
-        $first->a_count = ($first->a_count + $first->m_count) -  $remainingDays;
+        $first->a_count     = ($first->a_count + $first->m_count) - $remainingDays;
         $first->other_count = $first->l_count + $first->v_count + $first->h_count + $first->lc_count + $first->eg_count;
 
         return $first;

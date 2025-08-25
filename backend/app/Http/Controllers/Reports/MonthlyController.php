@@ -28,6 +28,7 @@ class MonthlyController extends Controller
 
     public function monthly(Request $request)
     {
+
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
@@ -76,6 +77,7 @@ class MonthlyController extends Controller
         // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
         //     return $this->PDFMerge();
         // }
+        sleep(5);
 
         return $this->PDFMerge();
 
@@ -139,7 +141,9 @@ class MonthlyController extends Controller
         //     return $this->PDFMerge("D");
         // }
 
-         return $this->PDFMerge("D");
+        sleep(5);
+
+        return $this->PDFMerge("D");
 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
