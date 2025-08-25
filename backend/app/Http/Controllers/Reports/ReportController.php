@@ -23,19 +23,18 @@ class ReportController extends Controller
         // Generate a unique cache key based on the request payload
         $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
 
-        Cache::forget($cacheKey);
+        // Cache::forget($cacheKey);
 
-        // Check if this request has been processed in the last 1 hour
-        // if (Cache::has($cacheKey)) {
-        //     // Cache::forget($cacheKey);
-        //     return response()->json([
-        //         'status'  => 'ignored',
-        //         'message' => 'This report is already being processed or cached.',
-        //     ]);
-        // }
+        if (Cache::has($cacheKey)) {
+            // Cache::forget($cacheKey);
+            return response()->json([
+                'status'  => 'ignored',
+                'message' => 'This report is already being processed or cached.',
+            ]);
+        }
 
         // Cache the request for 1 hour to prevent duplicate processing
-        // Cache::put($cacheKey, true, now()->addHour());
+        Cache::put($cacheKey, true, now()->addHour());
 
         // info($cacheKey);
 
@@ -114,7 +113,7 @@ class ReportController extends Controller
     {
         $this->processReportForCompany($request);
 
-        sleep(3);
+        // sleep(3);
 
         $perPage = $request->per_page ?? 100;
 
