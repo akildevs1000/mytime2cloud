@@ -21,23 +21,23 @@ class ReportController extends Controller
     public function processReportForCompany(Request $request)
     {
         // Generate a unique cache key based on the request payload
-        $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
+        // $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
 
         // Cache::forget($cacheKey);
 
         // Check if this request has been processed in the last 1 hour
-        if (Cache::has($cacheKey)) {
-            // Cache::forget($cacheKey);
-            return response()->json([
-                'status'  => 'ignored',
-                'message' => 'This report is already being processed or cached.',
-            ]);
-        }
+        // if (Cache::has($cacheKey)) {
+        //     // Cache::forget($cacheKey);
+        //     return response()->json([
+        //         'status'  => 'ignored',
+        //         'message' => 'This report is already being processed or cached.',
+        //     ]);
+        // }
 
         // Cache the request for 1 hour to prevent duplicate processing
-        Cache::put($cacheKey, true, now()->addHour());
+        // Cache::put($cacheKey, true, now()->addHour());
 
-        info($cacheKey);
+        // info($cacheKey);
 
         $requestPayload = [
             'company_id'   => $request->company_id,
@@ -78,10 +78,10 @@ class ReportController extends Controller
                 gc_collect_cycles();
             });
 
-        return response()->json([
-            'status'  => 'processing',
-            'message' => 'Report generation has started and will be cached for 1 hour.',
-        ]);
+        // return response()->json([
+        //     'status'  => 'processing',
+        //     'message' => 'Report generation has started and will be cached for 1 hour.',
+        // ]);
     }
 
     public function index(Request $request)
