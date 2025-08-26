@@ -18,77 +18,6 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    public function processReportForCompany(Request $request)
-    {
-        // Generate a unique cache key based on the request payload
-        $cacheKey = 'attendance_report_' . md5(json_encode($request->all()));
-
-        // Cache::forget($cacheKey);
-
-        if (Cache::has($cacheKey)) {
-            // Cache::forget($cacheKey);
-            return response()->json([
-                'status'  => 'ignored',
-                'message' => 'This report is already being processed or cached.',
-            ]);
-        }
-
-        // Cache the request for 1 hour to prevent duplicate processing
-        Cache::put($cacheKey, true, now()->addHour());
-
-        info($cacheKey);
-
-        $requestPayload = [
-            'company_id'   => $request->company_id,
-            'status'       => "-1",
-            'status_slug'  => (new Controller)->getStatusSlug("-1"),
-            'from_date'    => $request->from_date,
-            'to_date'      => $request->to_date,
-            'employee_ids' => $request->input('employee_id', []),
-            'templates'    => [$request->input('report_template')],
-
-            // 'employee_ids' => explode(",", $request->input('employee_id', [])),
-        ];
-
-        info(showJson($requestPayload));
-
-        $companyId    = $requestPayload["company_id"];
-        $employee_ids = $requestPayload["employee_ids"];
-
-        $company = Company::whereId($companyId)
-            ->with('contact:id,company_id,number')
-            ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-
-        Employee::with(["schedule" => function ($q) use ($companyId) {
-            $q->where("company_id", $companyId)
-                ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
-                ->withOut(["shift", "shift_type", "branch"]);
-        }])
-            ->withOut(["branch", "designation", "sub_department", "user"])
-            ->where("company_id", $companyId)
-            ->whereIn("employee_id", $employee_ids)
-            ->chunk(50, function ($employees) use ($company, $requestPayload) {
-                foreach ($employees as $employee) {
-                    GenerateAttendanceReportPDF::dispatch(
-                        $employee->system_user_id,
-                        $company,
-                        $employee,
-                        $requestPayload,
-                        optional($employee->schedule)->shift_type_id ?? 0,
-                        $request->report_template ?? ["Template1"]
-
-                    )->onQueue('pdf-reports');
-                }
-
-                gc_collect_cycles();
-            });
-
-        // return response()->json([
-        //     'status'  => 'processing',
-        //     'message' => 'Report generation has started and will be cached for 1 hour.',
-        // ]);
-    }
-
     public function index(Request $request)
     {
         //    return $request->all();
@@ -115,10 +44,6 @@ class ReportController extends Controller
 
     public function fetchDataNEW(Request $request)
     {
-        $this->processReportForCompany($request);
-
-        // sleep(3);
-
         $perPage = $request->per_page ?? 100;
 
         $model = (new Attendance)->processAttendanceModel($request);
