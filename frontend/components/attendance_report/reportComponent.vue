@@ -539,7 +539,7 @@
 </template>
 <script>
 export default {
-  props: ["title", "shift_type_id", "headers", "payload1", "system_user_id","report_template"],
+  props: ["shift_type_id", "headers", "payload1", "system_user_id","report_template"],
 
   data: () => ({
     key: 1,
@@ -772,6 +772,8 @@ export default {
         this.total = data.total;
         this.loading = false;
         this.totalRowsCount = data.total;
+
+        this.$emit("returnedPayload",payload);
 
         if (this.clearPagenumber) {
           this.options.page = 1;
