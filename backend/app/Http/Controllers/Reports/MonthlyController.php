@@ -46,6 +46,8 @@ class MonthlyController extends Controller
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
+        $counter = 0;
+
         Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
@@ -54,7 +56,7 @@ class MonthlyController extends Controller
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("company_id", $companyId)
             ->whereIn("employee_id", $employee_ids)
-            ->chunk(50, function ($employees) use ($company, $requestPayload) {
+            ->chunk(50, function ($employees) use ($company, $requestPayload, $counter) {
                 foreach ($employees as $employee) {
                     GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
@@ -65,12 +67,22 @@ class MonthlyController extends Controller
                         $request->report_template ?? ["Template1"]
 
                     )->onQueue('pdf-reports');
+
+                    $counter++;
                 }
 
                 gc_collect_cycles();
             });
 
-        sleep(5);
+        if ($counter == 1) {
+            sleep(3);
+
+        } else if ($counter < 5) {
+            sleep(5);
+
+        } else {
+            sleep(20);
+        }
 
         return response()->json([
             'status'  => 'processing',
