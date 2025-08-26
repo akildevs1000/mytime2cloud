@@ -1621,31 +1621,45 @@ class DeviceController extends Controller
 
     public function decrypt()
     {
-        //Device::truncate();
+        $companyId         = request()->input('company_id');
+        $deviceIdsToUpdate = request()->input('device_ids');
+        $devices = request()->input('devices');
+
+        $newDevices = [];
         try {
-            // Insert only new devices (skip duplicates)
-            $devices = request()->input('devices');
-            if (!empty($devices)) {
-                $deviceIds = collect($devices)->pluck('device_id')->all();
-                $existingDeviceIds = Device::whereIn('device_id', $deviceIds)->pluck('device_id')->toArray();
+            if (! empty($devices)) {
+                $deviceIds         = collect($devices)->pluck('device_id')->all();
+                $existingDeviceIds = Device::whereIn('device_id', $deviceIds)
+                    ->pluck('device_id')
+                    ->toArray();
 
-                $newDevices = collect($devices)->filter(function ($device) use ($existingDeviceIds) {
-                    return !in_array($device['device_id'], $existingDeviceIds);
-                })->values()->all();
+                // Filter only new devices
+                $newDevices = collect($devices)
+                    ->filter(function ($device) use ($existingDeviceIds) {
+                        return ! in_array($device['device_id'], $existingDeviceIds);
+                    })
+                    // Remove `id` key if it exists
+                    ->map(function ($device) use ($companyId) {
+                        $device["company_id"] = $companyId;
+                        unset($device['id']);
+                        return $device;
+                    })
+                    ->values()
+                    ->all();
 
-                if (!empty($newDevices)) {
+                // return $newDevices;
+
+                if (! empty($newDevices)) {
                     Device::insert($newDevices);
                 }
             }
 
             // Update company_id for specified devices
-            $deviceIdsToUpdate = request()->input('device_ids');
-            $companyId = request()->input('company_id');
-            if (!empty($deviceIdsToUpdate) && !empty($companyId)) {
-                Device::whereIn('device_id', $deviceIdsToUpdate)->update(['company_id' => $companyId]);
+            if (! empty($deviceIdsToUpdate) && ! empty($companyId)) {
+                Device::whereIn('device_id', $deviceIdsToUpdate)
+                    ->update(['company_id' => $companyId]);
             }
-
-            return $this->response('Devices have been inserted and updated.', request()->all(), true);
+            return $this->response('Devices have been inserted and updated.', $newDevices, true);
         } catch (\Exception $e) {
             return $this->response($e->getMessage(), null, false);
         }
