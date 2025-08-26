@@ -18,6 +18,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         public $employee,
         public $requestPayload,
         public $shift_type_id,
+        public $templates
     ) {}
 
     public function handle()
@@ -39,10 +40,12 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             'total_holiday'  => $model->clone()->where('status', 'H')->count(),
             'total_late'     => $model->clone()->where('late_coming', '!=', '---')->count(),
             'total_early'    => $model->clone()->where('early_going', '!=', '---')->count(),
-            'total_hours'    => $this->getTotalHours(array_column($collection->toArray(), 'total_hrs')),
-            'total_ot_hours' => $this->getTotalHours(array_column($collection->toArray(), 'ot')),
+            'total_hours'    => getTotalHours(array_column($collection->toArray(), 'total_hrs')),
+            'total_ot_hours' => getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type'    => $this->requestPayload["status_slug"],
         ];
+
+        info(showJson($info));
 
         $arr = [
             'data'          => $data,
@@ -50,17 +53,27 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             'info'          => $info,
             "employee"      => $this->employee,
             "shift_type_id" => $this->shift_type_id ?? 0,
-
             "from_date"     => $this->requestPayload["from_date"],
             "to_date"       => $this->requestPayload["to_date"],
         ];
 
-        $company_id = $this->requestPayload["company_id"];
-        $employeeId = $this->employeeId;
+        $templates = $this->templates ?? ['Template1', 'Template2'];
 
-        $month = date("M", strtotime($this->requestPayload["from_date"]));
+        foreach ($templates as $template) {
+            $reportsDirectory = public_path("reports/{$this->requestPayload["company_id"]}/{$template}");
 
-        $this->generateAttendanceReports($company_id, $employeeId, $month, $arr);
+            if (! is_dir($reportsDirectory)) {
+                mkdir($reportsDirectory, 0777, true);
+            }
+
+            $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
+            $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
+
+            file_put_contents($filePath, $output);
+
+            echo "\nFile created at {$filePath}\n";
+        }
+
     }
 
     public function getModel($requestPayload)
@@ -138,39 +151,5 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         return $model;
     }
 
-    public function getTotalHours($times)
-    {
-        $sum_minutes = 0;
-        foreach ($times as $time) {
-            if ($time != "---") {
-                $parts   = explode(":", $time);
-                $hours   = intval($parts[0]);
-                $minutes = intval($parts[1]);
-                $sum_minutes += $hours * 60 + $minutes;
-            }
-        }
-        $work_hours = floor($sum_minutes / 60);
-        $sum_minutes -= $work_hours * 60;
-        return $work_hours . ':' . $sum_minutes;
-    }
-
-    public function generateAttendanceReports($companyId, $employeeId, $month, array $arr, array $templates = ['Template1', 'Template2'])
-    {
-        $fileName = "{$month}_{$employeeId}.pdf";
-
-        foreach ($templates as $template) {
-            $reportsDirectory = public_path("reports/{$companyId}/{$template}");
-
-            if (! is_dir($reportsDirectory)) {
-                mkdir($reportsDirectory, 0777, true);
-            }
-
-            $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
-            $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . $fileName;
-
-            file_put_contents($filePath, $output);
-
-            echo "\nFile created at {$filePath}\n";
-        }
-    }
+    
 }

@@ -36,7 +36,7 @@ class ReportController extends Controller
         // Cache the request for 1 hour to prevent duplicate processing
         Cache::put($cacheKey, true, now()->addHour());
 
-        // info($cacheKey);
+        info($cacheKey);
 
         $requestPayload = [
             'company_id'   => $request->company_id,
@@ -44,11 +44,13 @@ class ReportController extends Controller
             'status_slug'  => (new Controller)->getStatusSlug("-1"),
             'from_date'    => $request->from_date,
             'to_date'      => $request->to_date,
-            'employee_ids' => $request->input('employee_id', []),            
-            'templates' => [$request->input('report_template')],
+            'employee_ids' => $request->input('employee_id', []),
+            'templates'    => [$request->input('report_template')],
 
             // 'employee_ids' => explode(",", $request->input('employee_id', [])),
         ];
+
+        info(showJson($requestPayload));
 
         $companyId    = $requestPayload["company_id"];
         $employee_ids = $requestPayload["employee_ids"];
@@ -72,7 +74,9 @@ class ReportController extends Controller
                         $company,
                         $employee,
                         $requestPayload,
-                        optional($employee->schedule)->shift_type_id ?? 0
+                        optional($employee->schedule)->shift_type_id ?? 0,
+                        $request->report_template ?? ["Template1"]
+
                     )->onQueue('pdf-reports');
                 }
 
