@@ -56,7 +56,7 @@
           v-model="payload.branch_id"
           x-small
           clearable
-          :items="[{ id: null, branch_name: 'All Branches' }, ...branches]"
+          :items="branches"
           item-value="id"
           item-text="branch_name"
           :hide-details="true"
@@ -659,10 +659,7 @@ export default {
 
     this.getAttendanceTabs();
 
-    setTimeout(() => {
-      this.getBranches();
-      this.getScheduledEmployees();
-    }, 3000);
+    this.getBranches();
 
     let dt = new Date();
     let y = dt.getFullYear();
@@ -726,7 +723,7 @@ export default {
 
       qs += `&shift_type_id=${this.shift_type_id}`;
       qs += `&company_id=${this.$auth.user.company_id}`;
-      
+
       if (
         this.payload.department_ids &&
         this.payload.department_ids.length > 0
@@ -772,6 +769,19 @@ export default {
       this.filterType = "Monthly"; // data.type;
     },
     commonMethod(id = 0) {
+
+     
+
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
+
+       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
+        alert("Employee not selected");
+        return;
+      }
+
       if (this.$auth.user.user_type == "department") {
         this.payload.department_ids = [this.$auth.user.department_id];
       }
@@ -788,8 +798,6 @@ export default {
       };
 
       this.getScheduledEmployees();
-
-      this.getAttendanceTabs();
     },
     getScheduledEmployees() {
       let options = {
@@ -847,19 +855,16 @@ export default {
         });
     },
     async getDepartments() {
-     let config = {
-      params:{
-        branch_id: this.payload.branch_id,
-        company_id:this.$auth.user.company_id
-      }
-     };
+      let config = {
+        params: {
+          branch_id: this.payload.branch_id,
+          company_id: this.$auth.user.company_id,
+        },
+      };
       try {
-        const { data } = await this.$axios.get(`department-list`,config);
+        const { data } = await this.$axios.get(`department-list`, config);
         this.departments = data;
-        this.toggleDepartmentSelection();
-        setTimeout(() => {
-          this.commonMethod();
-        }, 3000);
+        // this.toggleDepartmentSelection();
       } catch (error) {
         console.error("Error fetching departments:", error);
       }
@@ -869,7 +874,6 @@ export default {
     },
 
     regnerateReport() {
-      
       if (!this.payload.branch_id) {
         alert("Branch must be selected");
         return;
