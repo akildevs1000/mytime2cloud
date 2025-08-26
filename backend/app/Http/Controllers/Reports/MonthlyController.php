@@ -953,8 +953,6 @@ class MonthlyController extends Controller
 
         $company_id = request("company_id", 0);
 
-        $status = $this->getStatusSlug(request("status", 0));
-
         $employee_id = request("employee_id", 0);
 
         if (! empty($employee_id)) {
@@ -976,13 +974,12 @@ class MonthlyController extends Controller
 
         $pdfFiles = glob($filesDirectory . '/*.pdf');
 
-        $month = date("M", strtotime(request("from_date", date("Y-m-d"))));
-
         if (count($employeeIds)) {
             $pdfFiles = [];
             foreach ($employeeIds as $value) {
-                $fileName = "{$month}_$value.pdf";
+                $fileName = "Attendance_Report_{$template}_{$value}.pdf";
                 $filePath = $filesDirectory . DIRECTORY_SEPARATOR . $fileName;
+
                 if (glob($filePath)) {
                     $pdfFiles[] = glob($filePath)[0];
                 }
