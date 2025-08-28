@@ -687,8 +687,6 @@ export default {
 
     this.getAttendanceTabs();
 
-    this.getBranches();
-
     let dt = new Date();
     let y = dt.getFullYear();
     let m = dt.getMonth() + 1;
@@ -709,6 +707,16 @@ export default {
       this.tab = "tab-1";
     }, 1000);
     await this.getStatuses();
+
+    if (this.$auth.user.branch_id) {
+      this.payload.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      this.getScheduledEmployees();
+      this.getDepartments();
+      return;
+    }
+
+    this.getBranches();
   },
 
   methods: {
@@ -866,13 +874,6 @@ export default {
         });
     },
     getBranches() {
-      if (this.$auth.user.branch_id) {
-        this.payload.branch_id = this.$auth.user.branch_id;
-
-        this.isCompany = false;
-        return;
-      }
-
       this.$axios
         .get("branch", {
           params: {
