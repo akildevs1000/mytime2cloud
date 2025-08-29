@@ -24,18 +24,18 @@ class Kernel extends ConsoleKernel
 
         // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
 
-        $schedule->command("pdf:generate")->monthlyOn(1, '03:35')->runInBackground();
+        // $schedule->command("pdf:generate")->monthlyOn(1, '03:35')->runInBackground();
 
-        $schedule->command("pdf:generate")
-            ->dailyAt('03:35')
-            ->when(fn() => now()->day == now()->endOfMonth()->day)
-            ->runInBackground();
+        // $schedule->command("pdf:generate")
+        //     ->dailyAt('03:35')
+        //     ->when(fn() => now()->day == now()->endOfMonth()->day)
+        //     ->runInBackground();
 
         // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
 
-        $schedule->command('whatsapp:proxy-health-check')
-            ->hourly()
-            ->withoutOverlapping();
+        // $schedule->command('whatsapp:proxy-health-check')
+        //     ->hourly()
+        //     ->withoutOverlapping();
 
         $schedule->command('monitor:system')->dailyAt('08:00');
 
