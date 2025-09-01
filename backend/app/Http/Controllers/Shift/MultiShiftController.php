@@ -169,14 +169,20 @@ class MultiShiftController extends Controller
                     "total_minutes" => 0,
                 ];
             } else {
-                // ✅ Normal multiple-log processing
-                $i = 0;
 
+                // ✅ Normal multiple-log processing
+                $i             = 0;
                 $validLogCount = 0;
 
                 while ($i < count($data)) {
                     $currentLog  = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
+
+                    // Check if the next log exists and has the same log_type
+                    if (isset($data[$i + 1]) && strtolower($currentLog['log_type']) == strtolower($data[$i + 1]['log_type'])) {
+                        $i++; // Jump to the next iteration, skipping the current log
+                        continue;
+                    }
 
                     $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
 
@@ -248,6 +254,7 @@ class MultiShiftController extends Controller
                     $previousOut = $nextLog['time'] ?? null;
                     $i++; // move forward
                 }
+                $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
 
             }
 
