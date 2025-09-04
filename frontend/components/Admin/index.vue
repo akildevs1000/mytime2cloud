@@ -89,7 +89,7 @@
                     hide-details
                   ></v-autocomplete>
                 </v-col>
-                <v-col cols="12">
+                <!-- <v-col cols="12">
                   <v-text-field
                     type="number"
                     v-model="editedItem.order"
@@ -98,7 +98,7 @@
                     dense
                     hide-details
                   ></v-text-field>
-                </v-col>
+                </v-col> -->
                 <v-col v-if="errResponse" cols="12" class="red--text">
                   {{ errResponse }}
                 </v-col>
