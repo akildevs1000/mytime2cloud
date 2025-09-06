@@ -1,23 +1,19 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Employee\ContactRequest;
 use App\Http\Requests\Employee\EmployeeContactRequest;
-use App\Http\Requests\Employee\EmployeeImportRequest;
 use App\Http\Requests\Employee\EmployeeOtherRequest;
 use App\Http\Requests\Employee\EmployeeRequest;
 use App\Http\Requests\Employee\EmployeeUpdateContact;
 use App\Http\Requests\Employee\EmployeeUpdateRequest;
 use App\Http\Requests\Employee\StoreRequest;
 use App\Http\Requests\Employee\StoreRequestFromDevice;
-use App\Http\Requests\Employee\UpdateRequestFromDevice;
 use App\Http\Requests\Employee\UpdateRequest;
-use App\Imports\excelEmployeesData;
+use App\Http\Requests\Employee\UpdateRequestFromDevice;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Company;
-use App\Models\CompanyBranch;
 use App\Models\CompanyContact;
 use App\Models\Department;
 use App\Models\Designation;
@@ -25,10 +21,8 @@ use App\Models\Device;
 use App\Models\Employee;
 use App\Models\FingerPrint;
 use App\Models\Palm;
-use App\Models\Payroll;
 use App\Models\Payslips;
 use App\Models\ScheduleEmployee;
-use App\Models\Timezone;
 use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
@@ -40,7 +34,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\ValidationException;
 
 class EmployeeController extends Controller
@@ -53,7 +46,7 @@ class EmployeeController extends Controller
         $model->when(request()->filled('department_id'), fn($q) => $q->where('department_id', request('department_id')));
         //$model->excludeRelations();
         $model->with(["department", "sub_department", "designation"]);
-        $model->select("profile_picture", "id",  "first_name as name",   "first_name", "last_name", "system_user_id",  "employee_id", "branch_id", "department_id", "designation_id", "sub_department_id");
+        $model->select("profile_picture", "id", "first_name as name", "first_name", "last_name", "system_user_id", "employee_id", "branch_id", "department_id", "designation_id", "sub_department_id");
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         $model->with("schedule_all:employee_id,shift_type_id");
         $model->with("latestSchedule:employee_id,shift_type_id");
@@ -79,7 +72,6 @@ class EmployeeController extends Controller
 
         if (isset($request->file_name)) {
 
-
             $filePath = storage_path(urldecode($request->file_name));
 
             // Check if the file exists
@@ -97,17 +89,15 @@ class EmployeeController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('profile_picture')) {
-            $file = $request->file('profile_picture');
-            $ext = $file->getClientOriginalExtension();
+            $file     = $request->file('profile_picture');
+            $ext      = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
             $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
             $data['profile_picture'] = $fileName;
         }
 
         $maximumEmployeeCount = Company::whereId($data["company_id"])->pluck("max_employee")[0];
-        $existEmployeeCount = Employee::where("company_id", $data["company_id"])->count();
-
-
+        $existEmployeeCount   = Employee::where("company_id", $data["company_id"])->count();
 
         if ($maximumEmployeeCount - $existEmployeeCount <= 0) {
             return $this->response("Account Maximum " . $maximumEmployeeCount . " Employee count is reached.", null, false);
@@ -118,14 +108,14 @@ class EmployeeController extends Controller
         if ($request->filled('email')) {
 
             $user = User::create([
-                "user_type" => "employee",
-                "name" => "null",
-                "email" => $request->email,
-                "password" => Hash::make("secret"),
+                "user_type"  => "employee",
+                "name"       => "null",
+                "email"      => $request->email,
+                "password"   => Hash::make("secret"),
                 "company_id" => $data["company_id"],
             ]);
 
-            if (!$user) {
+            if (! $user) {
                 return $this->response('User cannot add.', null, false);
             }
 
@@ -137,17 +127,16 @@ class EmployeeController extends Controller
         try {
 
             $employee = Employee::create($data);
-            if (!$employee) {
+            if (! $employee) {
                 return $this->response('Employee cannot add.', null, false);
             }
             $employee->profile_picture = asset('media/employee/profile_picture' . $employee->profile_picture);
 
             // DB::commit();
 
-            //set default attendance data for new Employees(1 month) 
+            //set default attendance data for new Employees(1 month)
 
             (new AttendanceController)->seedDefaultData($data["company_id"], [$data["system_user_id"]], $data["branch_id"]);
-
 
             return $this->response('Employee successfully created.', null, true);
         } catch (\Throwable $th) {
@@ -187,13 +176,12 @@ class EmployeeController extends Controller
         // }
 
         if ($request->profile_picture && $request->hasFile('profile_picture')) {
-            $file = $request->file('profile_picture');
-            $ext = $file->getClientOriginalExtension();
+            $file     = $request->file('profile_picture');
+            $ext      = $file->getClientOriginalExtension();
             $fileName = time() . '.' . $ext;
             $request->profile_picture->move(public_path('media/employee/profile_picture/'), $fileName);
             $data['profile_picture'] = $fileName;
         }
-
 
         // if ($data['sub_department_id']=='---')
         // {
@@ -201,7 +189,7 @@ class EmployeeController extends Controller
         // }
         try {
             $updated = $employee->update($data);
-            if (!$updated) {
+            if (! $updated) {
                 return $this->response('Employee cannot update.', null, false);
             }
 
@@ -230,7 +218,7 @@ class EmployeeController extends Controller
 
     public function indexV1(Employee $employee, Request $request)
     {
-        return  $employee->filterV1($request)->paginate($request->per_page ?? 100);
+        return $employee->filterV1($request)->paginate($request->per_page ?? 100);
     }
 
     public function document_expiry(Request $request)
@@ -238,7 +226,6 @@ class EmployeeController extends Controller
 
         $expiryDate = date("Y-m-d", strtotime("+30 days"));
         $company_id = request("company_id");
-
 
         $data = (new Employee)->document_expiry_filter($request);
 
@@ -256,17 +243,16 @@ class EmployeeController extends Controller
             });
         });
 
-
         $data->with([
             "passport" => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry_date", "<=", $expiryDate);
             },
-            "emirate" => function ($q) use ($expiryDate, $company_id) {
+            "emirate"  => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry", "<=", $expiryDate);
             },
-            "visa" => function ($q) use ($expiryDate, $company_id) {
+            "visa"     => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry_date", "<=", $expiryDate);
             },
@@ -275,7 +261,7 @@ class EmployeeController extends Controller
             "department",
             "designation",
 
-            "user" => fn($q) => $q->select("id", "email")
+            "user"     => fn($q)     => $q->select("id", "email"),
         ]);
 
         $data->withOut("schedule");
@@ -293,7 +279,7 @@ class EmployeeController extends Controller
             "user_id",
             "system_user_id",
             "display_name",
-            "branch_id"
+            "branch_id",
         ]);
 
         return $data->paginate($request->per_page ?? 100);
@@ -326,17 +312,16 @@ class EmployeeController extends Controller
             });
         });
 
-
         $data->with([
             "passport" => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry_date", "<=", $expiryDate);
             },
-            "emirate" => function ($q) use ($expiryDate, $company_id) {
+            "emirate"  => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry", "<=", $expiryDate);
             },
-            "visa" => function ($q) use ($expiryDate, $company_id) {
+            "visa"     => function ($q) use ($expiryDate, $company_id) {
                 $q->whereCompanyId($company_id)
                     ->whereDate("expiry_date", "<=", $expiryDate);
             },
@@ -345,7 +330,7 @@ class EmployeeController extends Controller
             "department",
             "designation",
 
-            "user" => fn($q) => $q->select("id", "email")
+            "user"     => fn($q)     => $q->select("id", "email"),
         ]);
 
         $data->withOut("schedule");
@@ -363,7 +348,7 @@ class EmployeeController extends Controller
             "user_id",
             "system_user_id",
             "display_name",
-            "branch_id"
+            "branch_id",
         ]);
 
         return $this->print_pdf($request, $data->get()->toArray());
@@ -372,9 +357,9 @@ class EmployeeController extends Controller
     public function print_pdf($request, $data)
     {
         return Pdf::loadView("pdf.document_expiry.custom", [
-            "data" => $data,
+            "data"    => $data,
             "company" => Company::whereId($request->company_id ?? 0)->first(),
-            "params" => $request->all()
+            "params"  => $request->all(),
         ])->stream();
     }
 
@@ -426,7 +411,7 @@ class EmployeeController extends Controller
             }
 
             $value->payroll_month = $value["month"];
-            $value->payroll_year = $request["year"];
+            $value->payroll_year  = $request["year"];
         }
         return $payroll;
         // $payroll = Payroll::where("company_id", $request->company_id)->where('employee_id', $request->employee_id)->get();
@@ -449,7 +434,6 @@ class EmployeeController extends Controller
         //     $row['net_salary'] = 1000;
         //     $row['basic_salary'] = 1000;
 
-
         //     $payslips[] = $row;
         // }
         // $data['payroll'] = $payroll;
@@ -470,7 +454,7 @@ class EmployeeController extends Controller
                 }
 
                 $value->payroll_month = $request["month"];
-                $value->payroll_year = $request["year"];
+                $value->payroll_year  = $request["year"];
             }
         }
 
@@ -497,8 +481,8 @@ class EmployeeController extends Controller
     }
     public function employeesList(Request $request)
     {
-        $columns = $request->columns;
-        $condition = gettype($columns) == "array" && !in_array("*", $columns) && count($columns) > 0 ? true : false;
+        $columns   = $request->columns;
+        $condition = gettype($columns) == "array" && ! in_array("*", $columns) && count($columns) > 0 ? true : false;
 
         $model = Employee::query();
         $model->where(function ($q) use ($request) {
@@ -522,14 +506,13 @@ class EmployeeController extends Controller
         return Employee::where("company_id", $request->company_id)->find($id)->announcements()->with(["category", "user.employee", "user.employeeData", "user.company"])->paginate($request->per_page ?? 100);
     }
 
-
     public function employeesByDepartmentForAnnoucements(Request $request)
     {
         $model = Employee::query();
 
         $model->where('company_id', $request->company_id);
 
-        if (!in_array("---", $request->department_ids)) {
+        if (! in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
 
@@ -548,7 +531,7 @@ class EmployeeController extends Controller
         });
         $model->where('company_id', $request->company_id);
 
-        if (!in_array("---", $request->department_ids)) {
+        if (! in_array("---", $request->department_ids)) {
             $model->whereIn("department_id", $request->department_ids);
         }
 
@@ -567,7 +550,7 @@ class EmployeeController extends Controller
             $q->where('company_id', $request->company_id);
         });
         $model->whereCompanyId($request->company_id);
-        if (!in_array("---", $request->sub_department_ids)) {
+        if (! in_array("---", $request->sub_department_ids)) {
             $model->whereIn("sub_department_id", $request->sub_department_ids);
         }
 
@@ -629,9 +612,9 @@ class EmployeeController extends Controller
             throw $th;
         }
         return Response::json([
-            'record' => Company::with(['contact'])->find($id),
+            'record'  => Company::with(['contact'])->find($id),
             'message' => 'Company Successfully updated.',
-            'status' => true,
+            'status'  => true,
         ], 200);
     }
     public function employeeContactUpdate(Employee $model, ContactRequest $request)
@@ -640,7 +623,7 @@ class EmployeeController extends Controller
             $model->find($request->employee_id)->update($request->validated());
             return Response::json([
                 'message' => 'Contact Successfully updated.',
-                'status' => true,
+                'status'  => true,
             ], 200);
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -652,11 +635,11 @@ class EmployeeController extends Controller
         try {
             $record = Employee::find($id);
 
-            if (!$record) {
+            if (! $record) {
                 return response()->json(['message' => 'No such record found.'], 404);
             }
 
-            $user_id = $record->user_id;
+            $user_id     = $record->user_id;
             $employee_id = $record->employee_id;
 
             DB::transaction(function () use ($record, $user_id, $employee_id) {
@@ -749,15 +732,15 @@ class EmployeeController extends Controller
     }
     public function updateEmployee(EmployeeUpdateRequest $request, $id)
     {
-        $data = $request->except(['user_name', 'email', 'password', 'password_confirmation']);
+        $data            = $request->except(['user_name', 'email', 'password', 'password_confirmation']);
         $data['role_id'] = $request->role_id ?? 0;
-        $employee = Employee::find($id);
+        $employee        = Employee::find($id);
 
         $user_arr = [
-            'name' => $request->display_name,
-            'email' => $request->email,
+            'name'             => $request->display_name,
+            'email'            => $request->email,
             'employee_role_id' => $request->role_id ?? 0,
-            'role_id' => $request->role_id ?? 0,
+            'role_id'          => $request->role_id ?? 0,
         ];
 
         if ($request->password) {
@@ -779,14 +762,14 @@ class EmployeeController extends Controller
             //$profile_picture = $request->profile_picture->getClientOriginalName();
             $profile_picture = $id . '.jpg';
             $request->profile_picture->move(public_path('media/employee/profile_picture/'), $profile_picture);
-            $product_image = url('media/employee/profile_picture/' . $profile_picture);
+            $product_image           = url('media/employee/profile_picture/' . $profile_picture);
             $data['profile_picture'] = $profile_picture;
         }
         $employee->update($data);
         return Response::json([
-            'record' => $employee,
+            'record'  => $employee,
             'message' => 'Employee Successfully Updated.',
-            'status' => true,
+            'status'  => true,
         ], 200);
     }
     public function downloadEmployeePic(Request $request, $id, $employee_id)
@@ -806,7 +789,7 @@ class EmployeeController extends Controller
     public function downloadEmployeeDocuments(Request $request, $employee_id, $file_name)
     {
         // Define the path to the file in the public folder
-        $filePath = public_path("documents/" . $employee_id) .  '/' . $file_name;
+        $filePath = public_path("documents/" . $employee_id) . '/' . $file_name;
 
         // Check if the file exists
         if (file_exists($filePath)) {
@@ -820,25 +803,23 @@ class EmployeeController extends Controller
     public function downloadEmployeeProfilepdfView(Request $request, $id)
     {
 
-
-
         $employeeProfile = $this->getSingleEmployeeProfile($id);
-        return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
-        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download();; //->donwload();
+        return View('pdf.employee_profile', ["employee" => $employeeProfile]);                                                 //->donwload();
+        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download(); //->donwload();
     }
     public function downloadEmployeeProfilepdf(Request $request, $id)
     {
 
         $employeeProfile = $this->getSingleEmployeeProfile($id);
-        //return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
-        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download();; //->donwload();
+                                                                                                                               //return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
+        return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download(); //->donwload();
     }
     public function employeeLoginUpdate(Request $request, $id)
     {
-        $arr = [];
-        $arr["name"] = "null";
-        $arr["email"] = $request->email;
-        $arr["company_id"] = $request->company_id;
+        $arr                     = [];
+        $arr["name"]             = "null";
+        $arr["email"]            = $request->email;
+        $arr["company_id"]       = $request->company_id;
         $arr["employee_role_id"] = 0;
 
         if ($request->password != '' || $request->password != "********") {
@@ -850,7 +831,7 @@ class EmployeeController extends Controller
 
             Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
 
-            if (!$user) {
+            if (! $user) {
                 return $this->response('Employee cannot update.', null, false);
             }
 
@@ -863,26 +844,24 @@ class EmployeeController extends Controller
 
     public function employeeLoginUpdate_old(Request $request, $id)
     {
-        $arr = [];
-        $arr["user_type"] = "employee";
-        $arr["name"] = "null";
-        $arr["email"] = $request->email;
-        $arr["company_id"] = $request->company_id;
+        $arr                     = [];
+        $arr["user_type"]        = "employee";
+        $arr["name"]             = "null";
+        $arr["email"]            = $request->email;
+        $arr["company_id"]       = $request->company_id;
         $arr["employee_role_id"] = $request->employee_role_id;
-        $arr["role_id"] = $request->employee_role_id ?? 0;
+        $arr["role_id"]          = $request->employee_role_id ?? 0;
 
-
-        $isEmailExist = User::with(["employee"])->where("id", '!=',  $id)->where("email",   $request->email)->get();
-
+        $isEmailExist = User::with(["employee"])->where("id", '!=', $id)->where("email", $request->email)->get();
 
         if (count($isEmailExist) > 0) {
 
             //return ["status" => false, "errors" => ["email" => ['Employee Email is already exist  ']]];
             if ($isEmailExist[0]->employee) {
-                $name = $isEmailExist[0]->employee->first_name  . ' ' . $isEmailExist[0]->employee->last_name;
+                $name = $isEmailExist[0]->employee->first_name . ' ' . $isEmailExist[0]->employee->last_name;
                 return [
                     "status" => false,
-                    "errors" => ["email" => ['Employee Email is already exist with Name:' . $name]]
+                    "errors" => ["email" => ['Employee Email is already exist with Name:' . $name]],
 
                 ];
 
@@ -900,7 +879,7 @@ class EmployeeController extends Controller
             $user = User::updateOrCreate(['id' => $id], $arr);
             Employee::where("id", $request->employee_id)->update(["user_id" => $user->id]);
 
-            if (!$user) {
+            if (! $user) {
                 return $this->response('Employee cannot update.', null, false);
             }
 
@@ -914,8 +893,6 @@ class EmployeeController extends Controller
     public function employeeRFIDUpdate(Request $request, $id)
     {
 
-
-
         // $validatedData = $request->validate([
         //     'rfid_card_number' => 'required|max:15',
 
@@ -923,7 +900,7 @@ class EmployeeController extends Controller
 
         // ]);
 
-        //if ($validatedData) 
+        //if ($validatedData)
 
         // if ($request->rfid_card_number == '' ||  $request->rfid_card_password == '') {
 
@@ -934,7 +911,7 @@ class EmployeeController extends Controller
         $updateData = true;
         if ($request->rfid_card_number != '') {
 
-            $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
+            $isRFIdExist = Employee::where("id", '!=', $request->employee_id)->where("rfid_card_number", $request->rfid_card_number)->get();
 
             if (count($isRFIdExist) > 0) {
 
@@ -943,12 +920,12 @@ class EmployeeController extends Controller
         }
 
         try {
-            $data['rfid_card_number'] = $request->rfid_card_number;
+            $data['rfid_card_number']   = $request->rfid_card_number;
             $data['rfid_card_password'] = $request->rfid_card_password;
             if (count($data)) {
-                $user = Employee::where("id",   $request->employee_id)->update($data);
+                $user = Employee::where("id", $request->employee_id)->update($data);
 
-                if (!$user) {
+                if (! $user) {
                     return $this->response('Employee cannot update.', null, false);
                 }
             } else {
@@ -959,20 +936,16 @@ class EmployeeController extends Controller
             throw $th;
         }
 
-
-
-
-
-        $isRFIdExist = Employee::where("id", '!=',  $request->employee_id)->where("rfid_card_number",   $request->rfid_card_number)->get();
+        $isRFIdExist = Employee::where("id", '!=', $request->employee_id)->where("rfid_card_number", $request->rfid_card_number)->get();
 
         if (count($isRFIdExist) == 0) {
 
             try {
 
                 if (count($data)) {
-                    $user = Employee::where("id",   $request->employee_id)->update($data);
+                    $user = Employee::where("id", $request->employee_id)->update($data);
 
-                    if (!$user) {
+                    if (! $user) {
                         return $this->response('Employee cannot update.', null, false);
                     }
                 } else {
@@ -983,8 +956,10 @@ class EmployeeController extends Controller
                 throw $th;
             }
         } else {
-            if ($request->rfid_card_number != '')
+            if ($request->rfid_card_number != '') {
                 return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
+            }
+
         }
 
         return $this->response('Employee successfully updated.', null, true);
@@ -995,9 +970,9 @@ class EmployeeController extends Controller
         // return $request->all();
         $model->whereId($id)->update($request->all());
         return Response::json([
-            'record' => $model,
+            'record'  => $model,
             'message' => 'Contact successfully Updated.',
-            'status' => true,
+            'status'  => true,
         ], 200);
     }
     public function updateOther(Employee $model, EmployeeOtherRequest $request, $id): JsonResponse
@@ -1005,33 +980,32 @@ class EmployeeController extends Controller
         $data = $request->except(['sub_department_id']);
         $model->whereId($id)->update($data);
         return Response::json([
-            'record' => $model,
+            'record'  => $model,
             'message' => 'Other details successfully Updated.',
-            'status' => true,
+            'status'  => true,
         ], 200);
     }
     public function import(Request $request)
     {
 
-
-        $file = $request->file('employees');
+        $file     = $request->file('employees');
         $rowCount = file($file);
 
         $this->company_id = $request->company_id ?? 0;
-        $branch_id = $request->branch_id ?? 0;
+        $branch_id        = $request->branch_id ?? 0;
 
-        $company = Company::withCount('employees')->find($this->company_id);
-        $totalEmployee = $company->employees_count ?? 0;
-        $maxEmployee = $company->max_employee ?? 0;
+        $company           = Company::withCount('employees')->find($this->company_id);
+        $totalEmployee     = $company->employees_count ?? 0;
+        $maxEmployee       = $company->max_employee ?? 0;
         $remainingEmployee = max(0, (int) $maxEmployee - (int) $totalEmployee);
 
-        if (!(count($rowCount) - 1 <= $remainingEmployee)) {
+        if (! (count($rowCount) - 1 <= $remainingEmployee)) {
             return ["status" => false, "errors" => ["Employee limit reached. Maximum limit is " . $maxEmployee]];
         }
 
         $dataCSV = $this->saveFile($file);
 
-        if (is_array($dataCSV) && !$dataCSV["status"]) {
+        if (is_array($dataCSV) && ! $dataCSV["status"]) {
             return ["status" => false, "errors" => $dataCSV["errors"]];
         }
 
@@ -1055,11 +1029,9 @@ class EmployeeController extends Controller
                     $data[$key] = trim($value);
                 }
 
-
-
                 $validator = $this->validateImportData($data);
 
-                if (!$this->checkIfDepartmentExist($data['department_code'])) {
+                if (! $this->checkIfDepartmentExist($data['department_code'])) {
                     return [
                         "status" => false,
                         "errors" => ["Department code ({$data['department_code']}) does not exist"],
@@ -1075,21 +1047,20 @@ class EmployeeController extends Controller
                 $imageName = '';
 
                 $employee = [
-                    'title' => trim($data['title']),
-                    'display_name' => trim($data['display_name']),
-                    'first_name' => trim($data['first_name']),
-                    'last_name' => trim($data['last_name']),
-                    'employee_id' => trim($data['employee_id']),
-                    'company_id' => $this->company_id,
-                    'system_user_id' => trim($data['employee_device_id']),
-                    'department_id' => trim($data['department_code']),
-                    'branch_id' => trim($branch_id),
-
+                    'title'          => $this->clean($data['title']),
+                    'display_name'   => $this->clean($data['display_name']),
+                    'first_name'     => $this->clean($data['first_name']),
+                    'last_name'      => $this->clean($data['last_name']),
+                    'employee_id'    => $this->clean($data['employee_id']),
+                    'company_id'     => $this->company_id,
+                    'system_user_id' => $this->clean($data['employee_device_id']),
+                    'department_id'  => $this->clean($data['department_code']),
+                    'branch_id'      => $this->clean($branch_id),
                 ];
 
                 if ($data['profile_picture'] != '') {
                     if (file_exists($data['profile_picture'])) {
-                        $imageName = (time() + rand(10000, 20000)) . ".png";
+                        $imageName       = (time() + rand(10000, 20000)) . ".png";
                         $newFileLocation = public_path('media/employee/profile_picture/') . '/' . $imageName;
                         copy($data['profile_picture'], $newFileLocation);
 
@@ -1097,25 +1068,21 @@ class EmployeeController extends Controller
                     }
                 }
 
+                // $record = null;
 
+                // if ($data['email'] != "") {
+                //     $record = User::create([
+                //         "user_type"  => "employee",
+                //         'name'       => 'null',
+                //         'email'      => $data['email'],
+                //         'password'   => Hash::make('secret'),
+                //         'company_id' => $this->company_id,
+                //     ]);
 
-                $record = null;
-
-                if ($data['email'] != "") {
-                    $record = User::create([
-                        "user_type" => "employee",
-                        'name' => 'null',
-                        'email' => $data['email'],
-                        'password' => Hash::make('secret'),
-                        'company_id' => $this->company_id,
-                    ]);
-
-                    $employee['user_id'] = $record->id;
-                }
+                //     $employee['user_id'] = $record->id;
+                // }
 
                 $success = Employee::create($employee) ? true : false;
-
-
 
                 (new AttendanceController)->seedDefaultData($employee["company_id"], [$employee['system_user_id']], $branch_id);
             }
@@ -1147,23 +1114,21 @@ class EmployeeController extends Controller
             }
         }
     }
-    public function  defaultAttendanceForMissingScheduleIds(Request $request)
+    public function defaultAttendanceForMissingScheduleIds(Request $request)
     {
-        $company_id = $request->company_id;
+        $company_id     = $request->company_id;
         $system_user_id = $request->system_user_id;
-        $date = $request->date;
+        $date           = $request->date;
         $this->AttendanceForMissingScheduleIds($company_id, $system_user_id, $date);
     }
     public function AttendanceForMissingScheduleIds($company_id, $system_user_id, $date)
     {
 
-
-
         //$company_id = $request->company_id;
         //$system_user_id = $request->system_user_id;
         //$date = $request->date;
         $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
-        $employees = Employee::query();
+        $employees   = Employee::query();
 
         $employees->with(["schedule_active" => function ($q) use ($company_id, $date) {
             $q->where("company_id", $company_id);
@@ -1175,9 +1140,8 @@ class EmployeeController extends Controller
             $q->orderBy("to_date", "asc");
         }]);
 
-
-        $employeesEmptyShiftids = Attendance::where('date', ">=", date("Y-m-", strtotime($date)) . sprintf("%02d",  01))
-            ->where('date', "<=", date("Y-m-", strtotime($date)) . sprintf("%02d",  $daysInMonth))
+        $employeesEmptyShiftids = Attendance::where('date', ">=", date("Y-m-", strtotime($date)) . sprintf("%02d", 01))
+            ->where('date', "<=", date("Y-m-", strtotime($date)) . sprintf("%02d", $daysInMonth))
             ->where(function ($query) {
                 $query->where("shift_id", null)
                     ->Orwhere("shift_id", 0);
@@ -1187,71 +1151,54 @@ class EmployeeController extends Controller
                 $q->where("employee_id", $system_user_id);
             })->pluck("employee_id");
 
-
-
         $employees->whereIn("system_user_id", $employeesEmptyShiftids);
 
         $employees->where("company_id", $company_id);
-        if ($system_user_id > 0)
+        if ($system_user_id > 0) {
             $employees = $employees->where("system_user_id", $system_user_id);
-
-
+        }
 
         $employees = $employees->get();
 
-
-
         $data = [];
 
-        foreach ($employees as $employee) { {
+        foreach ($employees as $employee) {{
 
+            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date');
 
+            foreach (range(1, $daysInMonth) as $day) {
+                $date          = date("Y-m-", strtotime($date)) . sprintf("%02d", $day);
+                $attendance    = Attendance::where("company_id", $company_id);
+                $attendanceRow = $attendance->where("employee_id", $employee->system_user_id)->where("shift_id", null)->where("date", $date)->get();
+                $count         = $attendanceRow->count();
 
-                //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date'); 
+                if ($count == 1 && $employee->system_user_id != '') {
 
+                    $data[] = $updateData = [
 
-                foreach (range(1, $daysInMonth) as $day) {
-                    $date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
-                    $attendance = Attendance::where("company_id", $company_id);
-                    $attendanceRow = $attendance->where("employee_id", $employee->system_user_id)->where("shift_id", null)->where("date", $date)->get();
-                    $count = $attendanceRow->count();
+                        "employee_id"   => $employee->system_user_id,
+                        "shift_id"      => $employee->schedule_active->shift_id,
+                        "shift_type_id" => $employee->schedule_active->shift_type_id,
 
-                    if ($count == 1 && $employee->system_user_id != '') {
+                        "created_at"    => date('Y-m-d H:i:s'),
+                        "updated_at"    => date('Y-m-d H:i:s'),
+                    ];
 
-
-
-
-                        $data[] =  $updateData  = [
-
-                            "employee_id" => $employee->system_user_id,
-                            "shift_id" => $employee->schedule_active->shift_id,
-                            "shift_type_id" => $employee->schedule_active->shift_type_id,
-
-                            "created_at" => date('Y-m-d H:i:s'),
-                            "updated_at" => date('Y-m-d H:i:s'),
-                        ];
-
-                        Attendance::where("id", $attendanceRow[0]->id)->update($updateData);
-                    }
+                    Attendance::where("id", $attendanceRow[0]->id)->update($updateData);
                 }
             }
-        }
-
-
-
+        }}
 
         return "Successfully Updated " . count($data);
     }
     public function defaultAttendanceForMissing(Request $request)
     {
 
-
-
-        $company_id = $request->company_id;
+        $company_id     = $request->company_id;
         $system_user_id = $request->system_user_id;
-        $date = $request->date;
-        $daysInMonth = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
-        $employees = Employee::query();
+        $date           = $request->date;
+        $daysInMonth    = Carbon::now()->month(date('m', strtotime($date)))->daysInMonth;
+        $employees      = Employee::query();
 
         $employees->with(["schedule_active" => function ($q) use ($request, $date) {
             $q->where("company_id", $request->company_id);
@@ -1265,54 +1212,47 @@ class EmployeeController extends Controller
 
         // $employees->whereHas('attendances', fn (Builder $query) => $query->where('date', ">=", date("Y-m-") . "1")->where('date', "<=", date("Y-m-") .  $daysInMonth));
         $employees->where("company_id", $company_id);
-        if ($system_user_id)
+        if ($system_user_id) {
             $employees = $employees->where("system_user_id", $system_user_id);
+        }
 
         $employees = $employees->get();
-
-
 
         $data = [];
 
         foreach ($employees as $employee) {
 
-            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date'); 
-
+            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date');
 
             // foreach (range(1, $daysInMonth) as $day)
             {
                 //$date = date("Y-m-", strtotime($date)) . sprintf("%02d",  $day);
                 $attendance = Attendance::where("company_id", $company_id);
-                $count = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->get()->count();
-
+                $count      = $attendance->where("employee_id", $employee->system_user_id)->where("date", $date)->get()->count();
 
                 if ($count == 0 && $employee->system_user_id != '') {
 
-
-
-
                     $data[] = [
-                        "date" =>  $date,
-                        "employee_id" => $employee->system_user_id,
-                        "shift_id" => $employee->schedule_active->shift_id,
+                        "date"          => $date,
+                        "employee_id"   => $employee->system_user_id,
+                        "shift_id"      => $employee->schedule_active->shift_id,
                         "shift_type_id" => $employee->schedule_active->shift_type_id,
-                        "status" => "A",
-                        "in" => "---",
-                        "out" => "---",
-                        "total_hrs" => "---",
-                        "ot" => "---",
-                        "late_coming" => "---",
-                        "early_going" => "---",
-                        "device_id_in" => "---",
+                        "status"        => "A",
+                        "in"            => "---",
+                        "out"           => "---",
+                        "total_hrs"     => "---",
+                        "ot"            => "---",
+                        "late_coming"   => "---",
+                        "early_going"   => "---",
+                        "device_id_in"  => "---",
                         "device_id_out" => "---",
-                        "company_id" => $company_id,
-                        "created_at" => date('Y-m-d H:i:s'),
-                        "updated_at" => date('Y-m-d H:i:s'),
+                        "company_id"    => $company_id,
+                        "created_at"    => date('Y-m-d H:i:s'),
+                        "updated_at"    => date('Y-m-d H:i:s'),
                     ];
                 }
             }
         }
-
 
         $attendance = Attendance::query();
         $attendance->insert($data);
@@ -1321,40 +1261,41 @@ class EmployeeController extends Controller
     }
     public function validateImportData($data)
     {
-        if (isset($data["employee_device_id"]))
+        if (isset($data["employee_device_id"])) {
             $data["system_user_id"] = $data["employee_device_id"];
+        }
 
         $employee = [
             "employee_id" => $data["employee_id"],
-            "company_id" => $this->company_id,
+            "company_id"  => $this->company_id,
         ];
 
         $employeeDevice = [
             "system_user_id" => $data["system_user_id"],
-            "company_id" => $this->company_id,
+            "company_id"     => $this->company_id,
         ];
 
         $rules = [
-            'title' => ['required', 'in:Mr,Mrs,Miss,Ms,Dr'],
+            'title'           => ['required', 'in:Mr,Mrs,Miss,Ms,Dr'],
             // 'employee_id' => ['required', $this->uniqueRecord("employees", $employee)],
             // 'system_user_id' => ['required', $this->uniqueRecord("employees", $employeeDevice)],
-            'employee_id' => ['required'],
-            'system_user_id' => ['required'],
-            'display_name' => ['required', 'min:3', 'max:10'],
-            'email' => 'nullable|min:3|max:191|unique:users',
+            'employee_id'     => ['required'],
+            'system_user_id'  => ['required'],
+            'display_name'    => ['required', 'min:3', 'max:10'],
+            // 'email'           => 'nullable|min:3|max:191|unique:users',
             'department_code' => ['required'],
-            'first_name' => ['required'],
-            'last_name' => ['required'],
+            'first_name'      => ['required'],
+            'last_name'       => ['required'],
         ];
 
         $messages = [
-            'title.in' => "Invalid title. Valid titles are (Mr,Mrs,Miss,Ms,Dr)",
+            'title.in'                => "Invalid title. Valid titles are (Mr,Mrs,Miss,Ms,Dr)",
             'system_user_id.required' => "The employee device id is required",
-            'system_user_id.unique' => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
-            'employee_id.unique' => "The employee id (" . $data["employee_id"] . ") has already been taken",
-            'email.unique' => "The employee email (" . $data["email"] . ") has already been taken",
-            'first_name.required' => "The employee First Name required.",
-            'last_name.required' => "The employee Last Name required.",
+            'system_user_id.unique'   => "The employee device id (" . $data["system_user_id"] . ") has already been taken",
+            'employee_id.unique'      => "The employee id (" . $data["employee_id"] . ") has already been taken",
+            'email.unique'            => "The employee email (" . $data["email"] . ") has already been taken",
+            'first_name.required'     => "The employee First Name required.",
+            'last_name.required'      => "The employee Last Name required.",
         ];
 
         return Validator::make($data, $rules, $messages);
@@ -1388,10 +1329,10 @@ class EmployeeController extends Controller
             "profile_picture",
         ];
         $header = null;
-        $data = [];
+        $data   = [];
         if (($filedata = fopen($filepath, "r")) !== false) {
             while (($row = fgetcsv($filedata, 1000, ',')) !== false) {
-                if (!$header) {
+                if (! $header) {
                     $header = $row;
                     // dd($row);
                     if ($header != $columns) {
@@ -1454,13 +1395,11 @@ class EmployeeController extends Controller
 
         $users = User::where('id', $request->user_id);
 
-
-
         $users->update([
-            'web_login_access' => $request->web_login_access ?? 0,
+            'web_login_access'        => $request->web_login_access ?? 0,
             'mobile_app_login_access' => $request->mobile_app_login_access ?? 0,
-            'enable_whatsapp_otp' => $request->enable_whatsapp_otp ?? 0,
-            'tracking_status' => $request->tracking_status ?? 0
+            'enable_whatsapp_otp'     => $request->enable_whatsapp_otp ?? 0,
+            'tracking_status'         => $request->tracking_status ?? 0,
         ]);
 
         return response()->json(['status' => true, 'message' => 'Setting successfully updated']);
@@ -1470,13 +1409,13 @@ class EmployeeController extends Controller
     {
 
         $data = [
-            "snList" => Device::where("company_id", $company_id)->where("status_id", 1)->pluck("device_id"),
+            "snList"     => Device::where("company_id", $company_id)->where("status_id", 1)->pluck("device_id"),
             "personList" => [
                 [
-                    "name" => $model->first_name,
-                    "userCode" =>  $model->system_user_id,
-                    "timeGroup" => $status == 1 ? 1 : 64
-                ]
+                    "name"      => $model->first_name,
+                    "userCode"  => $model->system_user_id,
+                    "timeGroup" => $status == 1 ? 1 : 64,
+                ],
             ],
         ];
 
@@ -1518,7 +1457,7 @@ class EmployeeController extends Controller
     {
         $fullPath = storage_path("app/mycsv.csv");
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return ["error" => true, "message" => 'File doest not exist.'];
         }
 
@@ -1526,16 +1465,16 @@ class EmployeeController extends Controller
 
         $records = [];
 
-        foreach ($data  as $row) {
-            $columns = explode(',', $row);
+        foreach ($data as $row) {
+            $columns   = explode(',', $row);
             $records[] = [
-                "title" => $columns[0],
-                "first_name" => $columns[1],
-                "last_name" => $columns[2],
-                "display_name" => $columns[3],
-                "employee_id" => $columns[4],
+                "title"          => $columns[0],
+                "first_name"     => $columns[1],
+                "last_name"      => $columns[2],
+                "display_name"   => $columns[3],
+                "employee_id"    => $columns[4],
                 "system_user_id" => $columns[5],
-                "company_id" => 22
+                "company_id"     => 22,
             ];
         }
 
@@ -1582,12 +1521,12 @@ class EmployeeController extends Controller
         //     $userDepartments[$item['system_user_id']] = (string) $item['department_id'];
         // }
 
-        $userDepartments =  $request->all();
+        $userDepartments = $request->all();
 
         // return $userDepartments;
 
         // Define the chunk size for batch processing
-        $chunkSize = 50;
+        $chunkSize   = 50;
         $resultCount = 0;
 
         // Chunk the array into smaller parts for batch processing
@@ -1609,21 +1548,21 @@ class EmployeeController extends Controller
 
     public function employeeStoreFromDevice(StoreRequestFromDevice $request)
     {
-        $employeeData = $request->validated();
+        $employeeData                 = $request->validated();
         $employeeData["display_name"] = $employeeData["full_name"];
-        $nameAsArray = explode(" ", $employeeData["full_name"], 2);
-        $employeeData["first_name"] = $nameAsArray[0];
-        $employeeData["last_name"] = $nameAsArray[1] ?? "";
+        $nameAsArray                  = explode(" ", $employeeData["full_name"], 2);
+        $employeeData["first_name"]   = $nameAsArray[0];
+        $employeeData["last_name"]    = $nameAsArray[1] ?? "";
 
         // Save profile picture if available
-        if (!empty($employeeData["profile_picture"])) {
+        if (! empty($employeeData["profile_picture"])) {
             try {
                 $employeeData["profile_picture"] = $this->saveProfilePicture($employeeData);
             } catch (\Exception $e) {
                 $results[] = [
-                    'status' => false,
-                    'message' => 'Failed to save profile picture: ' . $e->getMessage(),
-                    'employee' => $employeeData
+                    'status'   => false,
+                    'message'  => 'Failed to save profile picture: ' . $e->getMessage(),
+                    'employee' => $employeeData,
                 ];
             }
         }
@@ -1632,9 +1571,9 @@ class EmployeeController extends Controller
 
         try {
             DB::transaction(function () use ($employeeData) {
-                $company_id = $employeeData["company_id"];
-                $fp = $employeeData["fp"];
-                $palm = $employeeData["palm"];
+                $company_id     = $employeeData["company_id"];
+                $fp             = $employeeData["fp"];
+                $palm           = $employeeData["palm"];
                 $system_user_id = $employeeData["system_user_id"]; // Assuming this is unique for each employee
 
                 unset($employeeData["fp"]);
@@ -1654,7 +1593,7 @@ class EmployeeController extends Controller
                 $fpArray = [];
                 foreach ($fp as $value) {
                     $fpArray[] = [
-                        "fp" => $value,
+                        "fp"          => $value,
                         "employee_id" => $system_user_id,
                     ];
                 }
@@ -1662,7 +1601,7 @@ class EmployeeController extends Controller
                 $palmArray = [];
                 foreach ($palm as $value) {
                     $palmArray[] = [
-                        "palm" => $value,
+                        "palm"        => $value,
                         "employee_id" => $system_user_id,
                     ];
                 }
@@ -1684,16 +1623,15 @@ class EmployeeController extends Controller
 
     public function employeeUpdateFromDevice(UpdateRequestFromDevice $request, $id)
     {
-        $employeeData = $request->validated();
+        $employeeData                 = $request->validated();
         $employeeData["display_name"] = $employeeData["full_name"];
-        $nameAsArray = explode(" ", $employeeData["full_name"], 2);
-        $employeeData["first_name"] = $nameAsArray[0];
-        $employeeData["last_name"] = $nameAsArray[1] ?? "";
-        $system_user_id = $employeeData["system_user_id"]; // Assuming this is unique for each employee
-
+        $nameAsArray                  = explode(" ", $employeeData["full_name"], 2);
+        $employeeData["first_name"]   = $nameAsArray[0];
+        $employeeData["last_name"]    = $nameAsArray[1] ?? "";
+        $system_user_id               = $employeeData["system_user_id"]; // Assuming this is unique for each employee
 
         // Save profile picture if available
-        if (!empty($employeeData["profile_picture"])) {
+        if (! empty($employeeData["profile_picture"])) {
             try {
                 $employeeData["profile_picture"] = $this->saveProfilePicture($employeeData);
             } catch (\Exception $e) {
@@ -1701,25 +1639,25 @@ class EmployeeController extends Controller
             }
         }
 
-        $fpArray = [];
+        $fpArray   = [];
         $palmArray = [];
 
         // Populate fingerprint data
-        if (!empty($employeeData["fp"])) {
+        if (! empty($employeeData["fp"])) {
             foreach ($employeeData["fp"] as $value) {
                 $fpArray[] = [
-                    "fp" => $value,
-                    "employee_id" => $system_user_id
+                    "fp"          => $value,
+                    "employee_id" => $system_user_id,
                 ];
             }
         }
 
         // Populate palm data
-        if (!empty($employeeData["palm"])) {
+        if (! empty($employeeData["palm"])) {
             foreach ($employeeData["palm"] as $value) {
                 $palmArray[] = [
-                    "palm" => $value,
-                    "employee_id" => $system_user_id
+                    "palm"        => $value,
+                    "employee_id" => $system_user_id,
                 ];
             }
         }
@@ -1731,16 +1669,16 @@ class EmployeeController extends Controller
             DB::transaction(function () use ($employeeData, $palmArray, $fpArray, $id) {
                 // Update employee data
                 $employeePayload = [
-                    "full_name" => $employeeData["full_name"],
-                    "profile_picture" => $employeeData["profile_picture"]
+                    "full_name"       => $employeeData["full_name"],
+                    "profile_picture" => $employeeData["profile_picture"],
                 ];
 
                 // Add RFID card data if valid
-                if (!empty($employeeData["rfid_card_number"]) && $employeeData["rfid_card_number"] != "0") {
+                if (! empty($employeeData["rfid_card_number"]) && $employeeData["rfid_card_number"] != "0") {
                     $employeePayload["rfid_card_number"] = $employeeData["rfid_card_number"];
                 }
 
-                if (!empty($employeeData["rfid_card_password"]) && $employeeData["rfid_card_password"] != "FFFFFFFF") {
+                if (! empty($employeeData["rfid_card_password"]) && $employeeData["rfid_card_password"] != "FFFFFFFF") {
                     $employeePayload["rfid_card_password"] = $employeeData["rfid_card_password"];
                 }
 
@@ -1751,11 +1689,11 @@ class EmployeeController extends Controller
                 // Palm::where("employee_id", $id)->delete();
 
                 // Insert new fingerprints and palms if they exist
-                if (!empty($fpArray)) {
+                if (! empty($fpArray)) {
                     FingerPrint::insert($fpArray);
                 }
 
-                if (!empty($palmArray)) {
+                if (! empty($palmArray)) {
                     Palm::insert($palmArray);
                 }
             });
@@ -1775,11 +1713,11 @@ class EmployeeController extends Controller
             throw new \Exception('Invalid base64 image data');
         }
 
-        $imageName = $employeeData["system_user_id"] . time() . '.png';
+        $imageName       = $employeeData["system_user_id"] . time() . '.png';
         $publicDirectory = public_path('media/employee/profile_picture');
 
         // Ensure directory exists
-        if (!file_exists($publicDirectory)) {
+        if (! file_exists($publicDirectory)) {
             mkdir($publicDirectory, 0777, true);
         }
 
@@ -1812,7 +1750,7 @@ class EmployeeController extends Controller
 
         return [
             'token' => $user->createToken('myApp')->plainTextToken,
-            'user' => $user,
+            'user'  => $user,
         ];
     }
 
@@ -1829,7 +1767,7 @@ class EmployeeController extends Controller
     {
         $context = stream_context_create([
             "ssl" => [
-                "verify_peer" => false,
+                "verify_peer"      => false,
                 "verify_peer_name" => false,
             ],
         ]);
@@ -1844,18 +1782,18 @@ class EmployeeController extends Controller
     public function attendanceSummary(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'company_id' => 'required|integer|exists:companies,id',
+            'company_id'  => 'required|integer|exists:companies,id',
             'employee_id' => 'required|integer|exists:employees,id',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
+                'status'  => 'error',
+                'message' => $validator->errors(),
             ], 422);
         }
 
-        $company_id = $request->company_id;
+        $company_id  = $request->company_id;
         $employee_id = $request->employee_id;
 
         // Count of each attendance status
@@ -1866,7 +1804,7 @@ class EmployeeController extends Controller
             ->pluck('total', 'status');
 
         // Get current date and last 12 months
-        $now = Carbon::now();
+        $now   = Carbon::now();
         $start = $now->copy()->subMonths(11)->startOfMonth();
 
         // Get Present counts for last 12 months
@@ -1879,45 +1817,42 @@ class EmployeeController extends Controller
             ->orderByRaw("TO_DATE(TO_CHAR(date, 'Mon YYYY'), 'Mon YYYY')")
             ->pluck('total', 'month_label');
 
-
-
         // Fill missing months
-        $labels = [];
+        $labels  = [];
         $barData = [];
 
         for ($i = 0; $i < 12; $i++) {
-            $label = $start->copy()->addMonths($i)->format('M Y');
-            $labels[] = date("M", strtotime($label));
+            $label     = $start->copy()->addMonths($i)->format('M Y');
+            $labels[]  = date("M", strtotime($label));
             $barData[] = $monthlyPresents[$label] ?? 0;
         }
 
         return response()->json([
-            'attendances' => [
+            'attendances'    => [
                 ['label' => 'Present', 'value' => $statusCounts['P'] ?? 0, 'icon' => 'mdi-check', 'color' => 'success'],
                 ['label' => 'Leave', 'value' => $statusCounts['L'] ?? 0, 'icon' => 'mdi-calendar', 'color' => 'orange'],
                 ['label' => 'Absent', 'value' => $statusCounts['A'] ?? 0, 'icon' => 'mdi-close', 'color' => 'red'],
             ],
-            'labels' => $labels,
+            'labels'         => $labels,
             'barChartSeries' => [
-                ['name' => 'Present', 'data' => $barData]
+                ['name' => 'Present', 'data' => $barData],
             ],
         ]);
     }
 
-
     public function avgClockIn(Request $request)
     {
-        $companyId = $request->input('company_id');
+        $companyId  = $request->input('company_id');
         $employeeId = $request->input('employee_id');
 
         // Validate required parameters
-        if (!$companyId || !$employeeId) {
+        if (! $companyId || ! $employeeId) {
             return response()->json(['error' => 'Missing required parameters.'], 400);
         }
 
         // Define date range (last 10 days including today)
         $startDate = Carbon::now()->subDays(7)->startOfDay();
-        $endDate = Carbon::now()->endOfDay();
+        $endDate   = Carbon::now()->endOfDay();
 
         // Get logs in date range
         $logs = AttendanceLog::where('company_id', $companyId)
@@ -1933,13 +1868,13 @@ class EmployeeController extends Controller
 
         // Prepare all dates range
         $allDates = collect();
-        $current = Carbon::parse($startDate);
+        $current  = Carbon::parse($startDate);
         while ($current <= $endDate) {
             $allDates->push($current->toDateString());
             $current->addDay();
         }
 
-        $totalMinutes = 0;
+        $totalMinutes   = 0;
         $validDaysCount = 0;
 
         // Build final log records
@@ -1947,7 +1882,7 @@ class EmployeeController extends Controller
             if (isset($groupedLogs[$date])) {
                 // Get earliest log time
                 $firstLogTime = Carbon::parse($groupedLogs[$date]->first()->LogTime);
-                $timeStr = $firstLogTime->format('H:i');
+                $timeStr      = $firstLogTime->format('H:i');
 
                 // Convert time to minutes since midnight
                 $minutes = $firstLogTime->hour * 60 + $firstLogTime->minute;
@@ -1955,14 +1890,14 @@ class EmployeeController extends Controller
                 $totalMinutes += $minutes;
                 $validDaysCount++;
 
-                return (object)[
-                    'date' => date("d M y", strtotime($date)),
-                    'value' => $minutes
+                return (object) [
+                    'date'  => date("d M y", strtotime($date)),
+                    'value' => $minutes,
                 ];
             } else {
-                return (object)[
-                    'date' => date("d M y", strtotime($date)),
-                    'value' => 0
+                return (object) [
+                    'date'  => date("d M y", strtotime($date)),
+                    'value' => 0,
                 ];
             }
         });
@@ -1971,14 +1906,30 @@ class EmployeeController extends Controller
         $avgClockIn = '00:00';
         if ($validDaysCount > 0) {
             $avgMinutes = round($totalMinutes / $validDaysCount);
-            $hours = floor($avgMinutes / 60);
-            $minutes = $avgMinutes % 60;
+            $hours      = floor($avgMinutes / 60);
+            $minutes    = $avgMinutes % 60;
             $avgClockIn = str_pad($hours, 2, '0', STR_PAD_LEFT) . ':' . str_pad($minutes, 2, '0', STR_PAD_LEFT);
         }
 
         return response()->json([
-            "avg_clock_in" => $avgClockIn,
+            "avg_clock_in"        => $avgClockIn,
             "last_week_clock_ins" => $finalLogs,
         ]);
+    }
+
+    public function clean($value)
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // Convert encoding to UTF-8
+        $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8, ISO-8859-1, Windows-1252');
+
+        // Remove non-printable characters (including BOM)
+        $value = preg_replace('/[[:^print:]]/', '', $value);
+
+        // Trim spaces
+        return trim($value);
     }
 }
