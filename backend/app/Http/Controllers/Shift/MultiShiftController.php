@@ -178,8 +178,11 @@ class MultiShiftController extends Controller
                     $currentLog  = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
 
-                    // Check if the next log exists and has the same log_type
-                    if (isset($data[$i + 1]) && strtolower($currentLog['log_type']) == strtolower($data[$i + 1]['log_type'])) {
+                    if (
+                        isset($data[$i + 1]) &&
+                        in_array(strtolower($currentLog['log_type']), ['in', 'out']) &&
+                        strtolower($currentLog['log_type']) === strtolower($data[$i + 1]['log_type'])
+                    ) {
                         $i++; // Jump to the next iteration, skipping the current log
                         continue;
                     }
@@ -187,8 +190,8 @@ class MultiShiftController extends Controller
                     $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
 
                     $validInTime = $validIn
-                    ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                    : "---";
+                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                        : "---";
 
                     if (strtolower($currentLog['log_type']) == "in") {
                         $validInTime = $currentTime;
@@ -212,8 +215,8 @@ class MultiShiftController extends Controller
                         $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
 
                         $validOutTime = $validOut
-                        ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
+                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
+                            : "---";
 
                         if (strtolower($candidateLog['log_type']) == "out") {
                             $validOutTime = $candidateTime;
@@ -246,8 +249,8 @@ class MultiShiftController extends Controller
                         "out"           => $nextLog ? $validOutTime : "---",
                         "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
                         "device_out"    => $nextLog
-                        ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
-                        : "---",
+                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
+                            : "---",
                         "total_minutes" => $minutes,
                     ];
 
@@ -259,8 +262,8 @@ class MultiShiftController extends Controller
             }
 
             $item["status"] = (isset($validLogCount) && $validLogCount % 2 === 0)
-            ? Attendance::PRESENT
-            : Attendance::MISSING;
+                ? Attendance::PRESENT
+                : Attendance::MISSING;
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
