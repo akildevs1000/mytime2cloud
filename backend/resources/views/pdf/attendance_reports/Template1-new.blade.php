@@ -153,7 +153,7 @@
                                 </td>
                             @endfor
                         @else
-                            <td class="text-center" colspan="4" style="font-size:6px; color: {{ ($date->device_in->name ?? '') === 'Manual' ? 'red' : '' }}">{{ $date->in ?? '---' }}</td>
+                            <td class="text-center" colspan="4" style="font-size:6px; color: {{ ($date->device_in->name ?? '') === 'Manual' ? 'red' : '' }}">{{ $date->in ?? '---' }} {{$date->device_in->name}}</td>
                             <td class="text-center" colspan="4" style="font-size:6px; color: {{ ($date->device_out->name ?? '') === 'Manual' ? 'red' : '' }}">{{ $date->out ?? '---' }}</td>
                             <td class="text-center" colspan="3">{{ $date->late_coming ?? '---' }}</td>
                             <td class="text-center" colspan="3">{{ $date->early_going ?? '---' }}</td>
