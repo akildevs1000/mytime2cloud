@@ -189,7 +189,7 @@ class ThemeController extends Controller
             "leaveCount"     => $leaveCount,
             "vaccationCount" => $vaccationCount,
 
-            ...$this->getAdditionalCount($request),
+            "additional"     =>  $this->getAdditionalCount($request),
         ];
     }
     public function dashboardGetCountDepartment(Request $request)
