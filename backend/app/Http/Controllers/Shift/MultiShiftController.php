@@ -368,5 +368,9 @@ class MultiShiftController extends Controller
         }
 
         return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions) ? $log["device"]["function"] : "---";
+
+
+
+        
     }
 }
