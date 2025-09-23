@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
@@ -33,7 +32,7 @@ class AttendanceLogController extends Controller
 
         $fullPath = storage_path($csvPath);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
             return ["error" => true, "message" => "File doest not exist on $date."];
         }
 
@@ -41,7 +40,7 @@ class AttendanceLogController extends Controller
 
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        if (!count($data)) {
+        if (! count($data)) {
             return ["error" => true, "message" => 'File is empty.'];
         }
 
@@ -62,9 +61,9 @@ class AttendanceLogController extends Controller
         fclose($file);
 
         return [
-            "date" => $date,
+            "date"       => $date,
             "totalLines" => $totalLines,
-            "data" => array_slice($data, $currentLength)
+            "data"       => array_slice($data, $currentLength),
 
         ];
     }
@@ -85,14 +84,14 @@ class AttendanceLogController extends Controller
             $columns = explode(',', $row);
 
             $records[] = [
-                "UserID" => $columns[0],
-                "DeviceID" => $columns[1],
-                "LogTime" => str_replace("T", " ", $columns[2]),
-                "SerialNumber" => $columns[3],
-                "log_date_time" => str_replace("T", " ", $columns[2]),
+                "UserID"              => $columns[0],
+                "DeviceID"            => $columns[1],
+                "LogTime"             => str_replace("T", " ", $columns[2]),
+                "SerialNumber"        => $columns[3],
+                "log_date_time"       => str_replace("T", " ", $columns[2]),
                 "index_serial_number" => $columns[3],
-                "source_info" => "renderMissing",
-                "log_date" => explode('T', $columns[2])[0] ?? date("Y-m-d"),
+                "source_info"         => "renderMissing",
+                "log_date"            => explode('T', $columns[2])[0] ?? date("Y-m-d"),
             ];
         }
 
@@ -123,13 +122,11 @@ class AttendanceLogController extends Controller
 
         $fullPath = storage_path($csvPath);
 
-        if (!file_exists($fullPath)) {
+        if (! file_exists($fullPath)) {
 
             try {
 
                 if (strtotime(date("Y-m-d H:i:s")) >= strtotime(date("Y-m-d 11:30:00"))) {
-
-
 
                     if (date("i") >= "30" && date("i") <= "32") {
                         exec('pm2 reload 1');
@@ -150,7 +147,7 @@ class AttendanceLogController extends Controller
 
         $data = file($fullPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-        if (!count($data)) {
+        if (! count($data)) {
             return ["error" => true, "message" => 'File is empty.'];
         }
 
@@ -171,15 +168,14 @@ class AttendanceLogController extends Controller
         fclose($file);
 
         return [
-            "date" => $date,
+            "date"       => $date,
             "totalLines" => $totalLines,
-            "data" => array_slice($data, $currentLength)
+            "data"       => array_slice($data, $currentLength),
 
         ];
     }
     public function readLastAttendanceLogTime($employee_id)
     {
-
 
         // Reading the serialized data from the file
         $infotxt = file_get_contents(storage_path('app') . '' . '/attendance-last-logtime-employeeid.txt');
@@ -187,7 +183,7 @@ class AttendanceLogController extends Controller
         // Unserializing data back into an array
         $info = unserialize($infotxt);
 
-        return  isset($info[$employee_id]) ? $info[$employee_id] : '';
+        return isset($info[$employee_id]) ? $info[$employee_id] : '';
     }
     public function writeLastAttendanceLogTime($employee_id, $date)
     {
@@ -226,16 +222,16 @@ class AttendanceLogController extends Controller
             $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
 
             $records[] = [
-                "UserID" => $columns[0] ?? null,
-                "DeviceID" => $columns[1] ?? null,
-                "LogTime" => $logTime,
-                "SerialNumber" => $columns[3] ?? null,
-                "status" => $columns[4] ?? "Allowed",
-                "mode" => $columns[5] ?? "Face",
-                "reason" => $columns[6] ?? "---",
-                "log_date_time" => $logTime,
+                "UserID"              => $columns[0] ?? null,
+                "DeviceID"            => $columns[1] ?? null,
+                "LogTime"             => $logTime,
+                "SerialNumber"        => $columns[3] ?? null,
+                "status"              => $columns[4] ?? "Allowed",
+                "mode"                => $columns[5] ?? "Face",
+                "reason"              => $columns[6] ?? "---",
+                "log_date_time"       => $logTime,
                 "index_serial_number" => $columns[3] ?? null,
-                "log_date" => $logDate,
+                "log_date"            => $logDate,
             ];
             // }
         }
@@ -272,16 +268,12 @@ class AttendanceLogController extends Controller
 
     //     foreach ($result["data"] as $row) {
 
-
     //         $columns = explode(',', $row);
-
 
     //         if (
     //             date("Y-m-d H:i", strtotime($columns[2])) >= '2024-02-24 00:00'
     //             && date("Y-m-d H:i", strtotime($columns[2])) <= '2024-02-24 14:30'
     //         ) {
-
-
 
     //             // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
 
@@ -306,7 +298,6 @@ class AttendanceLogController extends Controller
     //             }
 
     //             //
-
 
     //             // try {
     //             //     AttendanceLog::insert($records);
@@ -341,8 +332,8 @@ class AttendanceLogController extends Controller
             $timeDiff = env("LOGTIME_DUPLICATE_THRESHHOLD");
         }
         $isDuplicateLogTime = false;
-        $currentLogTime =  (substr(str_replace("T", " ", $columns[2]), 0, 19));
-        $previousLogTime = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);
+        $currentLogTime     = (substr(str_replace("T", " ", $columns[2]), 0, 19));
+        $previousLogTime    = $this->readLastAttendanceLogTime($columns[1] . '-' . $columns[0]);
         if ($previousLogTime != '') {
             strtotime($currentLogTime) - strtotime($previousLogTime);
             if (strtotime($currentLogTime) - strtotime($previousLogTime) <= $timeDiff) {
@@ -353,7 +344,6 @@ class AttendanceLogController extends Controller
         } else {
             $this->writeLastAttendanceLogTime($columns[1] . '-' . $columns[0], substr(str_replace("T", " ", $columns[2]), 0, 19));
         }
-
 
         return $isDuplicateLogTime;
     }
@@ -379,18 +369,18 @@ class AttendanceLogController extends Controller
         try {
 
             $payload = [
-                "UserID" => $request->UserID,
-                "LogTime" => $request->LogTime . ":00",
-                "DeviceID" => $request->DeviceID ?? "Unknown",
+                "UserID"     => $request->UserID,
+                "LogTime"    => $request->LogTime . ":00",
+                "DeviceID"   => $request->DeviceID ?? "Unknown",
                 "company_id" => $request->company_id,
-                "log_type" => $request->log_type ?? "Unknown",
-                "log_date" => date("Y-m-d"),
+                "log_type"   => $request->log_type ?? "Unknown",
+                "log_date"   => date("Y-m-d"),
             ];
 
             AttendanceLog::create($payload);
 
             return [
-                'status' => true,
+                'status'  => true,
                 'message' => 'Log Successfully Updated',
             ];
         } catch (\Throwable $th) {
@@ -403,12 +393,12 @@ class AttendanceLogController extends Controller
         $message = "";
 
         $payload = [
-            "UserID" => $request->UserID,
-            "LogTime" => $request->LogTime . ":00",
-            "DeviceID" => $request->DeviceID ?? "Unknown",
-            "company_id" => $request->company_id,
-            "log_type" => $request->log_type ?? "Unknown",
-            "log_date" => date("Y-m-d"),
+            "UserID"       => $request->UserID,
+            "LogTime"      => $request->LogTime . ":00",
+            "DeviceID"     => $request->DeviceID ?? "Unknown",
+            "company_id"   => $request->company_id,
+            "log_type"     => $request->log_type ?? "Unknown",
+            "log_date"     => date("Y-m-d"),
             "gps_location" => $request->gps_location ?? "Unknown",
         ];
 
@@ -417,7 +407,7 @@ class AttendanceLogController extends Controller
 
             if ($message) {
                 return [
-                    'status' => true,
+                    'status'  => true,
                     'message' => 'Log Successfully Updated',
                 ];
             }
@@ -431,8 +421,6 @@ class AttendanceLogController extends Controller
 
     public function SyncCompanyIdsWithDevices()
     {
-
-
 
         // return 282+499+245+257+335+209;
         // get device ids with company ids = 0
@@ -489,7 +477,7 @@ class AttendanceLogController extends Controller
             foreach ($value as $av) {
                 $arr[]["logs"] = [
                     "first" => $av[0],
-                    "last" => $av[count($av) - 1],
+                    "last"  => $av[count($av) - 1],
                 ];
             }
         }
@@ -533,8 +521,8 @@ class AttendanceLogController extends Controller
     {
 
         // return  $model = $model->count();
-        $array = $model->limit($request->input("per_page"))->get()->toArray();
-        $total = count($array);
+        $array        = $model->limit($request->input("per_page"))->get()->toArray();
+        $total        = count($array);
         $current_page = $request->input("page") ?? 1;
 
         $starting_point = ($current_page * $request->input("per_page")) - $request->input("per_page");
@@ -542,7 +530,7 @@ class AttendanceLogController extends Controller
         $array = array_slice($array, $starting_point, $request->input("per_page"), true);
 
         $array = new Paginator($array, $total, $request->input("per_page"), $current_page, [
-            'path' => $request->url(),
+            'path'  => $request->url(),
             'query' => $request->query(),
         ]);
 
@@ -561,8 +549,8 @@ class AttendanceLogController extends Controller
         }
 
         // Doing binary search
-        $i = 0;
-        $j = $n;
+        $i   = 0;
+        $j   = $n;
         $mid = 0;
         while ($i < $j) {
             $mid = ($i + $j) / 2;
@@ -650,7 +638,6 @@ class AttendanceLogController extends Controller
             ->paginate($request->per_page ?? 100);
     }
 
-
     public function bulkStore(Request $request)
     {
         try {
@@ -687,9 +674,9 @@ class AttendanceLogController extends Controller
             $logTime = date("Y-m-d") . " " . Arr::random($logs) . ":" . Arr::random($logs);
 
             $data[] = [
-                'UserID' => $user_id,
-                'LogTime' => $logTime,
-                'DeviceID' => Arr::random($deviceIds),
+                'UserID'     => $user_id,
+                'LogTime'    => $logTime,
+                'DeviceID'   => Arr::random($deviceIds),
                 'company_id' => $company_id,
             ];
         }
@@ -716,11 +703,47 @@ class AttendanceLogController extends Controller
                             "timezone_id",
                         ]);
                 },
-                'device' => function ($q) use ($request) {
+                'device'   => function ($q) use ($request) {
                     $q->where('company_id', $request->company_id);
-                }
+                },
             ]);
 
         return $query->orderBy('LogTime', 'DESC')->limit(10)->get();
+    }
+
+    public function getLogsCount(Request $request)
+    {
+        $model = AttendanceLog::query();
+
+        $model->where("company_id", $request->company_id);
+
+        $model
+            ->when($request->filled('department_ids'), function ($q) use ($request) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('department_id', $request->department_ids));
+            })
+
+            ->when($request->from_date, function ($query) use ($request) {
+                return $query->where('LogTime', '>=', $request->from_date);
+            })
+            ->when($request->to_date, function ($query) use ($request) {
+                return $query->where('LogTime', '<=', date("Y-m-d", strtotime($request->to_date . " +1 day")));
+            })
+
+            ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
+                $q->where(function ($query) use ($request) {
+                    $query->where('LogTime', '>=', $request->dates[0])
+                        ->where('LogTime', '<=', date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
+                });
+            })
+
+            ->when($request->filled('department'), function ($q) use ($request) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('department_id', $request->department));
+            })
+
+            ->when($request->filled('branch_id'), function ($q) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', request("branch_id")));
+            });
+
+        return $model->count();
     }
 }
