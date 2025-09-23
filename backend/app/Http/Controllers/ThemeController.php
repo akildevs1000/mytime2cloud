@@ -5,6 +5,7 @@ use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Theme;
 use DateTime;
@@ -182,14 +183,23 @@ class ThemeController extends Controller
 
         $vaccationCount = $model->where('status', 'V')->count();
 
+        $offlineCount = Device::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
+            })
+            ->where('status_id', 1)
+            ->where('device_id', "!=", "Manual")
+            ->count();
+
         return [
             "employeeCount"  => $employeeCount,
             "presentCount"   => $presentCount,
             "absentCount"    => $employeeCount - ($presentCount + $leaveCount + $vaccationCount),
             "leaveCount"     => $leaveCount,
             "vaccationCount" => $vaccationCount,
+            "additional"     => $this->getAdditionalCount($request),
+            "offlineCount"   => $offlineCount,
 
-            "additional"     =>  $this->getAdditionalCount($request),
         ];
     }
     public function dashboardGetCountDepartment(Request $request)
