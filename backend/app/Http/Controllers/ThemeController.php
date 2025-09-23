@@ -187,7 +187,7 @@ class ThemeController extends Controller
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
             })
-            ->where('status_id', 1)
+            ->where('status_id', 2)
             ->where('device_id', "!=", "Manual")
             ->count();
 
