@@ -167,6 +167,8 @@ class ThemeController extends Controller
             "absentCount" => $employeeCount - ($presentCount + $leaveCount + $vaccationCount),
             "leaveCount" => $leaveCount,
             "vaccationCount" => $vaccationCount,
+
+            "additional" => $this->dashboardShortViewCount($request)
         ];
     }
     public function dashboardGetCountDepartment(Request $request)
