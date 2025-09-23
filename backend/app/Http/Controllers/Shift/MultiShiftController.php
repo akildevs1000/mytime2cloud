@@ -170,75 +170,59 @@ class MultiShiftController extends Controller
                 ];
             } else {
 
-                // ✅ Normal multiple-log processing
                 $i             = 0;
                 $validLogCount = 0;
 
                 while ($i < count($data)) {
                     $currentLog  = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
+                    $currentType = strtolower($currentLog['log_type']);
 
-                    if (
-                        isset($data[$i + 1]) &&
-                        in_array(strtolower($currentLog['log_type']), ['in', 'out']) &&
-                        strtolower($currentLog['log_type']) === strtolower($data[$i + 1]['log_type'])
-                    ) {
-                        $i++; // Jump to the next iteration, skipping the current log
-                        continue;
-                    }
-
-                    $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
-
-                    $validInTime = $validIn
-                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
-
-                    if (strtolower($currentLog['log_type']) == "in") {
-                        $validInTime = $currentTime;
-                    }
-
-                    if (! $validIn || $validInTime === "---") {
+                    // ✅ Only process IN logs as start of a new record
+                    if ($currentType !== "in" || $currentTime === '---' || $currentTime === $previousOut) {
                         $i++;
                         continue;
                     }
 
+                    $validInTime = $currentTime;
+
                     $validLogCount++;
 
-                    // Try to find a valid OUT log after this IN
+                    // Skip all consecutive IN logs after taking the first
+                    while (isset($data[$i + 1]) && strtolower($data[$i]['log_type']) === "in") {
+                        $i++;
+                    }
+
+                    // Find next valid OUT
                     $nextLog      = null;
                     $validOutTime = "---";
 
                     for ($j = $i + 1; $j < count($data); $j++) {
                         $candidateLog  = $data[$j];
                         $candidateTime = $candidateLog['time'] ?? '---';
+                        $candidateType = strtolower($candidateLog['log_type']);
 
-                        $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
-
-                        $validOutTime = $validOut
-                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                            : "---";
-
-                        if (strtolower($candidateLog['log_type']) == "out") {
-                            $validOutTime = $candidateTime;
+                        if ($candidateType !== "out" || $candidateTime === '---' || $candidateTime === $currentTime) {
+                            continue;
                         }
 
-                        if ($validOut && $validOutTime !== "---") {
-                            $nextLog = $candidateLog;
-                            $i       = $j; // jump to OUT log
-                            $validLogCount++;
-                            break;
-                        }
+                        $nextLog      = $candidateLog;
+                        $validOutTime = $candidateTime;
+                        $i            = $j; // jump to this OUT
+                        $validLogCount++;
+                        break;
                     }
 
                     $minutes = 0;
 
                     if ($nextLog) {
-                        $parsedIn  = strtotime($currentTime);
-                        $parsedOut = strtotime($nextLog['time'] ?? '---');
+                        $parsedIn  = strtotime($validInTime);
+                        $parsedOut = strtotime($validOutTime);
 
                         if ($parsedIn > $parsedOut) {
-                            $parsedOut += 86400; // handle midnight
+                            $parsedOut += 86400;
                         }
+                        // handle midnight
 
                         $minutes = ($parsedOut - $parsedIn) / 60;
                         $totalMinutes += $minutes;
@@ -248,16 +232,19 @@ class MultiShiftController extends Controller
                         "in"            => $validInTime,
                         "out"           => $nextLog ? $validOutTime : "---",
                         "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                        "device_out"    => $nextLog
-                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
-                            : "---",
+                        "device_out"    => $nextLog ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"]) : "---",
                         "total_minutes" => $minutes,
                     ];
 
                     $previousOut = $nextLog['time'] ?? null;
-                    $i++; // move forward
+                    $i++;
                 }
+
                 $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
+
+                $item["status"] = $validLogCount % 2 === 0
+                    ? Attendance::PRESENT
+                    : Attendance::MISSING;
 
             }
 
