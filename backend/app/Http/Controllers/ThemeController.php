@@ -183,7 +183,7 @@ class ThemeController extends Controller
 
         $vaccationCount = $model->where('status', 'V')->count();
 
-        $offlineCount = Device::where('company_id', $companyId)
+        $offlineDevices = Device::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
             })
@@ -198,7 +198,7 @@ class ThemeController extends Controller
             "leaveCount"     => $leaveCount,
             "vaccationCount" => $vaccationCount,
             "additional"     => $this->getAdditionalCount($request),
-            "offlineCount"   => $offlineCount,
+            "offlineDevices"   => $offlineDevices,
 
         ];
     }
