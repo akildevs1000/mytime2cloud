@@ -717,24 +717,15 @@ class AttendanceLogController extends Controller
 
         $model->where("company_id", $request->company_id);
 
+        $from_date = date("Y-m-d");
+
         $model
             ->when($request->filled('department_ids'), function ($q) use ($request) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('department_id', $request->department_ids));
             })
 
-            ->when($request->from_date, function ($query) use ($request) {
-                return $query->where('LogTime', '>=', $request->from_date);
-            })
-            ->when($request->to_date, function ($query) use ($request) {
-                return $query->where('LogTime', '<=', date("Y-m-d", strtotime($request->to_date . " +1 day")));
-            })
-
-            ->when($request->filled('dates') && count($request->dates) > 1, function ($q) use ($request) {
-                $q->where(function ($query) use ($request) {
-                    $query->where('LogTime', '>=', $request->dates[0])
-                        ->where('LogTime', '<=', date("Y-m-d", strtotime($request->dates[1] . " +1 day")));
-                });
-            })
+            ->where('LogTime', '>=', $from_date)
+            ->where('LogTime', '<=', date("Y-m-d", strtotime($from_date . " +1 day")))
 
             ->when($request->filled('department'), function ($q) use ($request) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('department_id', $request->department));
