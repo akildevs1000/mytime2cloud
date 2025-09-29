@@ -219,7 +219,8 @@ class SyncMultiShift extends Command
                     'checked' => true,
                     'checked_datetime' => now(),
                     'channel' => 'kernel',
-                    'log_message' => Str::limit(json_encode($items), 200, '...'),
+                    // 'log_message' => Str::limit(json_encode($items), 200, '...'),
+                    'log_message' => null,
                 ]);
 
             $this->info($result);

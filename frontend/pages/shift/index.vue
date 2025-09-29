@@ -22,14 +22,14 @@
         height: 24px;
         width: 100%;
         max-width: 600px;
-        margin: 5px 0;
+        margin: 6px 0;
         overflow: hidden;
       }
 
       .segment {
         position: absolute;
         top: 50%;
-        height: 6px;
+        height: 3px;
         transform: translateY(-50%);
         border-radius: 3px;
       }
@@ -53,13 +53,7 @@
       .handle {
         position: absolute;
         top: 50%;
-        width: 18px;
-        height: 18px;
-        border: 5px solid #8e44ff;
-        background-color: white;
-        border-radius: 50%;
         transform: translate(-50%, -50%);
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         cursor: pointer;
         z-index: 2;
       }
@@ -72,8 +66,8 @@
     </div>
     <!-- <Back class="primary white--text" /> -->
 
-    <v-dialog persistent v-model="showDialog" width="1700">
-      <WidgetsClose @click="showDialog = false" left="1690" />
+    <v-dialog persistent v-model="showDialog" width="1400">
+      <WidgetsClose @click="showDialog = false" left="1390" />
       <v-card style="background-color: #ddd !important">
         <style scoped>
           .card-wrapper {
@@ -277,6 +271,17 @@
                             }"
                           ></div>
                           <div
+                            v-if="ensureIgnoredDays(day)"
+                            class="segment range"
+                            :style="{
+                              left: '0%',
+                              width: '100%',
+                              backgroundColor: `#cdc6c6`,
+                            }"
+                          ></div>
+
+                          <div
+                            v-else
                             class="segment range"
                             :style="{
                               left: (flexLayout.start / 24) * 100 + '%',
@@ -286,7 +291,18 @@
                                 '%',
                             }"
                           ></div>
+
                           <div
+                            v-if="ensureIgnoredDays(day)"
+                            class="segment after"
+                            :style="{
+                              left: '0%',
+                              width: '100%',
+                              backgroundColor: `#cdc6c6`,
+                            }"
+                          ></div>
+                          <div
+                            v-else
                             class="segment after"
                             :style="{
                               left: (flexLayout.end / 24) * 100 + '%',
@@ -299,263 +315,203 @@
                             }"
                           ></div>
 
-                          <!-- Handles -->
                           <div
                             class="handle"
                             :style="{
                               left: (flexLayout.start / 24) * 100 + '%',
                             }"
-                            @mousedown="startDrag('start')"
-                          ></div>
+                          >
+                            <v-icon
+                              :color="
+                                ensureIgnoredDays(day) ? `#878787` : `#8e44ff`
+                              "
+                              size="25px"
+                            >
+                              mdi-play</v-icon
+                            >
+                          </div>
+
+                          <!-- END Handle -->
                           <div
-                            v-if="flexLayout.isNight && index !== 0"
+                            v-if="
+                              !flexLayout.isNight ||
+                              (flexLayout.isNight && index !== 0)
+                            "
                             class="handle"
                             :style="{ left: (flexLayout.end / 24) * 100 + '%' }"
-                            @mousedown="startDrag('end')"
-                          ></div>
-                           <div
-                            v-else-if="!flexLayout.isNight"
-                            class="handle"
-                            :style="{ left: (flexLayout.end / 24) * 100 + '%' }"
-                            @mousedown="startDrag('end')"
-                          ></div>
+                          >
+                            <v-icon
+                              :color="
+                                ensureIgnoredDays(day) ? '#878787' : '#8e44ff'
+                              "
+                              size="22px"
+                            >
+                              mdi-stop
+                            </v-icon>
+                          </div>
                         </div>
                       </v-col>
                     </v-row>
+                  </v-card-text>
 
-                    <v-row
-                      no-gutters
-                      class="mt-5"
-                      style="height: 250px"
-                      align="stretch"
-                    >
-                      <v-col cols="6" class="fill">
-                        <v-card outlined class="fill d-flex flex-column ma-1">
-                          <v-card-text>
-                            <v-container class="pa-1">
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Schedule Name:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{ payload.name || "---" }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Type Schedule -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Type:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>
-                                      {{
-                                        [
-                                          { id: 1, name: `Flexible` },
-                                          { id: 4, name: `Night` },
-                                          { id: 6, name: `Single` },
-                                          { id: 5, name: `Dual` },
-                                          { id: 2, name: `Multi` },
-                                        ].find(
-                                          (e) => e.id == payload.shift_type_id
-                                        )?.name
-                                      }}
-                                    </small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Duty Hours -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Duty Hours:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small
-                                      >{{ payload.on_duty_time }} to
-                                      {{ payload.off_duty_time }}</small
-                                    >
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Week Days -->
-                              <v-row no-gutters>
-                                <v-col cols="3">
-                                  <div><small>Days:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{
-                                      payload?.days?.length
-                                        ? payload.days.join(",")
-                                        : "---"
-                                    }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
+                  <v-card-text class="flex-grow-1 overflow-auto">
+                    <v-row no-gutters>
+                      <v-col>
+                        <v-tabs v-model="tab">
+                          <v-tab>Schedule Details</v-tab>
+                          <v-tab>Other Details</v-tab>
+                        </v-tabs>
 
-                              <v-divider></v-divider>
-                              <!-- OT -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>OT Type:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{
-                                      payload.overtime_type || "---"
-                                    }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Condition -->
-                              <v-row no-gutters>
-                                <v-col cols="3">
-                                  <div><small>Condition:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>
-                                      Over time starts
-                                      {{ payload.overtime_type }}
-                                      {{ payload.overtime_interval }} mins
-                                      only</small
-                                    >
-                                  </div>
-                                </v-col>
-                              </v-row>
-                            </v-container>
-                          </v-card-text>
-                        </v-card>
-                      </v-col>
-                      <v-col cols="6" class="fill">
-                        <v-card outlined class="fill d-flex flex-column ma-1">
-                          <v-card-text>
-                            <v-container class="pa-1">
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Half Day:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{ payload.halfday }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Half Day Duty Hours -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Half Day Duty Hours:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{
-                                      payload.halfday_working_hours
-                                    }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Week End 1 -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Week End 1:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{ payload.weekend1 }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Week End 2 -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Week End 2:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>{{ payload.weekend2 }}</small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Monthly Flexible Holidays -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div>
-                                    <small> Monthly Flexible Holidays: </small>
-                                  </div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>
-                                      {{
-                                        payload.monthly_flexi_holidays == 0
-                                          ? "Not Applicable"
-                                          : payload.monthly_flexi_holidays +
-                                            " Day"
-                                      }}{{
-                                        payload.monthly_flexi_holidays > 1
-                                          ? "s"
-                                          : ""
-                                      }}</small
-                                    >
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Late Grace Time -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Late Grace Time:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>
-                                      {{
-                                        `${
-                                          payload.shift_type_id == 4 ||
-                                          payload.shift_type_id == 6
-                                            ? payload.late_time + " Min"
-                                            : "Not Applicable"
-                                        }`
-                                      }}
-                                    </small>
-                                  </div>
-                                </v-col>
-                              </v-row>
-                              <v-divider></v-divider>
-                              <!-- Early Grace Time -->
-                              <v-row no-gutters>
-                                <v-col>
-                                  <div><small>Early Grace Time:</small></div>
-                                </v-col>
-                                <v-col class="text-right">
-                                  <div>
-                                    <small>
-                                      {{
-                                        `${
-                                          payload.shift_type_id == 4 ||
-                                          payload.shift_type_id == 6
-                                            ? payload.early_time + " Min"
-                                            : "Not Applicable"
-                                        }`
-                                      }}</small
-                                    >
-                                  </div>
-                                </v-col>
-                              </v-row>
-                            </v-container>
-                          </v-card-text>
-                        </v-card>
+                        <v-tabs-items v-model="tab">
+                          <!-- Schedule Details -->
+                          <v-tab-item>
+                            <v-card>
+                              <v-card-text>
+                                <v-simple-table dense>
+                                  <template v-slot:default>
+                                    <tbody>
+                                      <tr>
+                                        <td>Schedule Name</td>
+                                        <td>
+                                          {{ payload.name || "---" }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Type</td>
+                                        <td>
+                                          {{
+                                            [
+                                              { id: 1, name: "Flexible" },
+                                              { id: 4, name: "Night" },
+                                              { id: 6, name: "Single" },
+                                              { id: 5, name: "Dual" },
+                                              { id: 2, name: "Multi" },
+                                            ].find(
+                                              (e) =>
+                                                e.id == payload.shift_type_id
+                                            )?.name || "---"
+                                          }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Duty Hours</td>
+                                        <td>
+                                          {{ payload.on_duty_time }} –
+                                          {{ payload.off_duty_time }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Days</td>
+                                        <td>
+                                          {{
+                                            payload?.days?.length
+                                              ? payload.days.join(", ")
+                                              : "---"
+                                          }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>OT Type</td>
+                                        <td>
+                                          {{ payload.overtime_type || "---" }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Condition</td>
+                                        <td>
+                                          Over time starts
+                                          {{ payload.overtime_type }}
+                                          {{ payload.overtime_interval }} mins
+                                          only
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </template>
+                                </v-simple-table>
+                              </v-card-text>
+                            </v-card>
+                          </v-tab-item>
+
+                          <!-- Other Details -->
+                          <v-tab-item>
+                            <v-card>
+                              <v-card-text>
+                                <v-simple-table dense>
+                                  <template v-slot:default>
+                                    <tbody>
+                                      <tr>
+                                        <td style="width: 50%">Half Day</td>
+                                        <td>{{ payload.halfday }}</td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Half Day Duty Hours</td>
+                                        <td>
+                                          {{ payload.halfday_working_hours }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Weekend 1</td>
+                                        <td>{{ payload.weekend1 }}</td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Weekend 2</td>
+                                        <td>{{ payload.weekend2 }}</td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Monthly Flexi Holidays</td>
+                                        <td>
+                                          {{
+                                            payload.monthly_flexi_holidays == 0
+                                              ? "Not Applicable"
+                                              : payload.monthly_flexi_holidays +
+                                                " Day" +
+                                                (payload.monthly_flexi_holidays >
+                                                1
+                                                  ? "s"
+                                                  : "")
+                                          }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Late Grace Time</td>
+                                        <td>
+                                          {{
+                                            payload.shift_type_id == 4 ||
+                                            payload.shift_type_id == 6
+                                              ? payload.late_time + " Min"
+                                              : "Not Applicable"
+                                          }}
+                                        </td>
+                                      </tr>
+
+                                      <tr>
+                                        <td>Early Grace Time</td>
+                                        <td>
+                                          {{
+                                            payload.shift_type_id == 4 ||
+                                            payload.shift_type_id == 6
+                                              ? payload.early_time + " Min"
+                                              : "Not Applicable"
+                                          }}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </template>
+                                </v-simple-table>
+                              </v-card-text>
+                            </v-card>
+                          </v-tab-item>
+                        </v-tabs-items>
                       </v-col>
                     </v-row>
                   </v-card-text>
@@ -741,6 +697,8 @@ export default {
   components: { Back, DatePickerCommon, SplitShift },
 
   data: () => ({
+    tab: 0, // default tab index
+
     startHour: 9, // 09:00
     endHour: 18, // 18:00
     dragging: null,
@@ -762,7 +720,7 @@ export default {
     nextYearDate,
 
     payload: {
-      shift_type_id: 1,
+      shift_type_id: 6,
       overtime_type: `Both`,
     },
     isNew: true,
@@ -854,6 +812,13 @@ export default {
     },
   },
   methods: {
+    ensureIgnoredDays(day) {
+      let payload = this.payload;
+
+      return (
+        payload.days && !payload.days.map((e) => e.toUpperCase()).includes(day)
+      );
+    },
     searchData() {
       if (this.filters.search.length == 0 || this.filters.search.length > 3) {
         this.getDataFromApi();
@@ -941,7 +906,7 @@ export default {
     goToCreate() {
       this.isNew = true;
       this.payload = {
-        shift_type_id: 1,
+        shift_type_id: 6,
         branch_id: this.branch_id,
         ...this.defaults[this.payload.shift_type_id],
       };

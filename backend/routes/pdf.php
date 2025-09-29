@@ -119,6 +119,7 @@ Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_cs
 
 //monthly _OLD without merge 
 Route::get('/monthly', [MonthlyController::class, 'monthly']);
+Route::get('/start-report-generation', [MonthlyController::class, 'startReportGeneration']);
 Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
 Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
 Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);

@@ -5,6 +5,7 @@ use App\Exports\AttendanceExport;
 use App\Exports\AttendanceExportGeneral;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAttendanceReport;
+use App\Jobs\GenerateAttendanceReportPDF;
 use App\Models\Attendance;
 use App\Models\Company;
 use App\Models\Device;
@@ -26,8 +27,72 @@ class MonthlyController extends Controller
 
     public $employeeId;
 
+    public function startReportGeneration(Request $request)
+    {
+        $requestPayload = [
+            'company_id'   => $request->company_id,
+            'status'       => "-1",
+            'status_slug'  => (new Controller)->getStatusSlug("-1"),
+            'from_date'    => $request->from_date,
+            'to_date'      => $request->to_date,
+            'employee_ids' => $request->input('employee_id', []),
+            'templates'    => [$request->input('report_template')],
+        ];
+
+        $companyId    = $requestPayload["company_id"];
+        $employee_ids = $requestPayload["employee_ids"];
+
+        $company = Company::whereId($companyId)
+            ->with('contact:id,company_id,number')
+            ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
+
+        $counter = 0;
+
+        Employee::with(["schedule" => function ($q) use ($companyId) {
+            $q->where("company_id", $companyId)
+                ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
+                ->withOut(["shift", "shift_type", "branch"]);
+        }])
+            ->withOut(["branch", "designation", "sub_department", "user"])
+            ->where("company_id", $companyId)
+            ->whereIn("employee_id", $employee_ids)
+            ->chunk(50, function ($employees) use ($company, $requestPayload, $counter) {
+                foreach ($employees as $employee) {
+                    GenerateAttendanceReportPDF::dispatch(
+                        $employee->system_user_id,
+                        $company,
+                        $employee,
+                        $requestPayload,
+                        optional($employee->schedule)->shift_type_id ?? 0,
+                        $request->report_template ?? ["Template1"]
+
+                    )->onQueue('pdf-reports');
+
+                    $counter++;
+                }
+
+                gc_collect_cycles();
+            });
+
+        if ($counter == 1) {
+            sleep(3);
+
+        } else if ($counter < 5) {
+            sleep(5);
+
+        } else {
+            sleep(20);
+        }
+
+        return response()->json([
+            'status'  => 'processing',
+            'message' => 'Report generation has started.',
+        ]);
+    }
+
     public function monthly(Request $request)
     {
+
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
@@ -73,9 +138,12 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->PDFMerge();
-        }
+        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        //     return $this->PDFMerge();
+        // }
+        sleep(5);
+
+        return $this->PDFMerge();
 
         $file_name = "Attendance Report";
         if (isset($from_date) && isset($to_date)) {
@@ -133,9 +201,13 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
-            return $this->PDFMerge("D");
-        }
+        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        //     return $this->PDFMerge("D");
+        // }
+
+        sleep(5);
+
+        return $this->PDFMerge("D");
 
         $file_name = "Attendance Report";
         if (isset($request->from_date) && isset($request->to_date)) {
@@ -945,8 +1017,6 @@ class MonthlyController extends Controller
 
         $company_id = request("company_id", 0);
 
-        $status = $this->getStatusSlug(request("status", 0));
-
         $employee_id = request("employee_id", 0);
 
         if (! empty($employee_id)) {
@@ -968,13 +1038,12 @@ class MonthlyController extends Controller
 
         $pdfFiles = glob($filesDirectory . '/*.pdf');
 
-        $month = date("M", strtotime(request("from_date", date("Y-m-d"))));
-
         if (count($employeeIds)) {
             $pdfFiles = [];
             foreach ($employeeIds as $value) {
-                $fileName = "{$month}_$value.pdf";
+                $fileName = "Attendance_Report_{$template}_{$value}.pdf";
                 $filePath = $filesDirectory . DIRECTORY_SEPARATOR . $fileName;
+
                 if (glob($filePath)) {
                     $pdfFiles[] = glob($filePath)[0];
                 }

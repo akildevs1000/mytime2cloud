@@ -4,7 +4,7 @@ use App\Models\Activity;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
-if (!function_exists('getStatus2')) {
+if (! function_exists('getStatus2')) {
     function getStatus2($employeeData)
     {
         $countA = 0;
@@ -15,7 +15,7 @@ if (!function_exists('getStatus2')) {
         $countH = 0;
 
         foreach ($employeeData as $employee) {
-            if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+            if (! is_array($employee) || empty($employee[0]) || ! isset($employee[0]['total_hrs'])) {
                 throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
             }
             $status = $employee[0]['status'];
@@ -43,33 +43,33 @@ if (!function_exists('getStatus2')) {
         ];
     }
 }
-if (!function_exists('getTotalHours2')) {
+if (! function_exists('getTotalHours2')) {
     function getTotalHours2($employeeData, $type)
     {
-        if (!is_array($employeeData)) {
+        if (! is_array($employeeData)) {
             throw new InvalidArgumentException('Invalid employee data: must be an array');
         }
         $totalMinutes = 0;
         foreach ($employeeData as $employee) {
-            if (!is_array($employee) || empty($employee[0]) || !isset($employee[0]['total_hrs'])) {
+            if (! is_array($employee) || empty($employee[0]) || ! isset($employee[0]['total_hrs'])) {
                 throw new InvalidArgumentException("Invalid employee data: each employee must be an array with a 'total_hrs' key");
             }
             $time = $employee[0][$type];
             if ($time != '---') {
-                $parts = explode(':', $time);
-                $hours = intval($parts[0]);
+                $parts   = explode(':', $time);
+                $hours   = intval($parts[0]);
                 $minutes = intval($parts[1]);
                 $totalMinutes += $hours * 60 + $minutes;
             }
         }
 
-        $hours = floor($totalMinutes / 60);
+        $hours   = floor($totalMinutes / 60);
         $minutes = $totalMinutes % 60;
 
         return sprintf('%02d:%02d', $hours, $minutes);
     }
 }
-if (!function_exists('removeFile')) {
+if (! function_exists('removeFile')) {
     function removeFile($path, $file_name)
     {
         $delete = public_path($path . $file_name);
@@ -78,22 +78,22 @@ if (!function_exists('removeFile')) {
         }
     }
 }
-if (!function_exists('saveFile')) {
+if (! function_exists('saveFile')) {
     function saveFile($request, $destination, $attribute_name = null, $prefix = "", $sufix = "", $imageObj = null, $return_ext = false)
     {
-        if (isset($imageObj) && !empty($imageObj) && $attribute_name == null) {
-            $temp = $imageObj;
-            $file = $imageObj->getClientOriginalName();
+        if (isset($imageObj) && ! empty($imageObj) && $attribute_name == null) {
+            $temp     = $imageObj;
+            $file     = $imageObj->getClientOriginalName();
             $file_ext = $imageObj->getClientOriginalExtension();
             $fileName = pathinfo($file, PATHINFO_FILENAME);
-            $image = ((!empty($prefix)) ? (str_ireplace(" ", "-", $prefix) . "-") : "") . str_ireplace(" ", "-", $fileName) . ((!empty($sufix)) ? "-" . str_ireplace(" ", "-", $sufix) : "") . "." . $file_ext;
+            $image    = ((! empty($prefix)) ? (str_ireplace(" ", "-", $prefix) . "-") : "") . str_ireplace(" ", "-", $fileName) . ((! empty($sufix)) ? "-" . str_ireplace(" ", "-", $sufix) : "") . "." . $file_ext;
             $temp->move($destination, $image);
         } else if (isset($attribute_name) && $request->hasFile($attribute_name) && $attribute_name != null) {
-            $temp = $request->file($attribute_name);
-            $file = $request->$attribute_name->getClientOriginalName();
+            $temp     = $request->file($attribute_name);
+            $file     = $request->$attribute_name->getClientOriginalName();
             $file_ext = $request->$attribute_name->getClientOriginalExtension();
             $fileName = pathinfo($file, PATHINFO_FILENAME);
-            $image = ((!empty($prefix)) ? (str_ireplace(" ", "-", $prefix) . "-") : "") . str_ireplace(" ", "-", $fileName) . ((!empty($sufix)) ? "-" . str_ireplace(" ", "-", $sufix) : "") . "." . $file_ext;
+            $image    = ((! empty($prefix)) ? (str_ireplace(" ", "-", $prefix) . "-") : "") . str_ireplace(" ", "-", $fileName) . ((! empty($sufix)) ? "-" . str_ireplace(" ", "-", $sufix) : "") . "." . $file_ext;
             $temp->move($destination, $image);
         }
 
@@ -104,7 +104,7 @@ if (!function_exists('saveFile')) {
     }
 }
 
-if (!function_exists('ld')) {
+if (! function_exists('ld')) {
     function ld($arr)
     {
         echo "<pre>";
@@ -112,198 +112,198 @@ if (!function_exists('ld')) {
         die;
     }
 }
-if (!function_exists('defaultCards')) {
+if (! function_exists('defaultCards')) {
     function defaultCards($id = 1)
     {
         return [
-            "page" => "dashboard1",
-            "type" => "card",
-            "company_id" =>  $id,
-            "style" => [
+            "page"       => "dashboard1",
+            "type"       => "card",
+            "company_id" => $id,
+            "style"      => [
                 [
-                    "title" => "Total Employee",
-                    "value" => "employeeCount",
-                    "color" => "#9C27B0",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "09"
+                    "title"            => "Total Employee",
+                    "value"            => "employeeCount",
+                    "color"            => "#9C27B0",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "09",
                 ],
                 [
-                    "title" => "Present",
-                    "value" => "presentCount",
-                    "color" => "#512DA8FF",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "00"
+                    "title"            => "Present",
+                    "value"            => "presentCount",
+                    "color"            => "#512DA8FF",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "00",
                 ],
                 [
-                    "title" => "Absent",
-                    "value" => "absentCount",
-                    "color" => "#BF360CFF",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "00"
+                    "title"            => "Absent",
+                    "value"            => "absentCount",
+                    "color"            => "#BF360CFF",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "00",
                 ],
                 [
-                    "title" => "Late",
-                    "value" => "missingCount",
-                    "color" => "#263238FF",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "00"
+                    "title"            => "Late",
+                    "value"            => "missingCount",
+                    "color"            => "#263238FF",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "00",
                 ],
                 [
-                    "title" => "Leave",
-                    "value" => "leaveCount",
-                    "color" => "#78909CFF",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "00"
+                    "title"            => "Leave",
+                    "value"            => "leaveCount",
+                    "color"            => "#78909CFF",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "00",
                 ],
                 [
-                    "title" => "Vacation",
-                    "value" => "vacationCount",
-                    "color" => "#558B2FFF",
-                    "icon" => "mdi mdi-account",
-                    "cols" => "12",
-                    "sm" => "6",
-                    "md" => "2",
-                    "calculated_value" => "00"
-                ]
-            ]
+                    "title"            => "Vacation",
+                    "value"            => "vacationCount",
+                    "color"            => "#558B2FFF",
+                    "icon"             => "mdi mdi-account",
+                    "cols"             => "12",
+                    "sm"               => "6",
+                    "md"               => "2",
+                    "calculated_value" => "00",
+                ],
+            ],
         ];
     }
 }
-if (!function_exists('defaultBranch')) {
+if (! function_exists('defaultBranch')) {
     function defaultBranch($id = 1)
     {
         return
             [
-                "branch_code" => "BRN1",
-                "branch_name" => "Branch1",
-                "user_id" => 0,
-                "company_id" => $id,
-            ];
+            "branch_code" => "BRN1",
+            "branch_name" => "Branch1",
+            "user_id"     => 0,
+            "company_id"  => $id,
+        ];
     }
 }
-if (!function_exists('defaultRoles')) {
+if (! function_exists('defaultRoles')) {
     function defaultRoles($id = 1)
     {
         return [
             [
-                "name" => "Employee",
-                "role_type" => "employee",
+                "name"       => "Employee",
+                "role_type"  => "employee",
                 "company_id" => $id,
             ],
             [
-                "name" => "Manager",
-                "role_type" => "employee",
+                "name"       => "Manager",
+                "role_type"  => "employee",
                 "company_id" => $id,
             ],
         ];
     }
 }
-if (!function_exists('defaultDepartments')) {
+if (! function_exists('defaultDepartments')) {
     function defaultDepartments($id = 1, $branch_id = 1)
     {
 
         return [
             [
-                "name" => "Accounts",
+                "name"       => "Accounts",
                 "company_id" => $id,
-                "branch_id" => $branch_id,
+                "branch_id"  => $branch_id,
             ],
             [
-                "name" => "Admin",
+                "name"       => "Admin",
                 "company_id" => $id,
-                "branch_id" => $branch_id,
+                "branch_id"  => $branch_id,
             ],
             [
-                "name" => "It Dep",
+                "name"       => "It Dep",
                 "company_id" => $id,
-                "branch_id" => $branch_id,
+                "branch_id"  => $branch_id,
             ],
             [
-                "name" => "Sales",
+                "name"       => "Sales",
                 "company_id" => $id,
-                "branch_id" => $branch_id,
-            ]
+                "branch_id"  => $branch_id,
+            ],
         ];
     }
 }
-if (!function_exists('defaultDesignations')) {
+if (! function_exists('defaultDesignations')) {
     function defaultDesignations($id = 1)
     {
 
         return [
             [
-                "name" => "Supervisior",
+                "name"       => "Supervisior",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "Technician",
+                "name"       => "Technician",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "It Dep",
+                "name"       => "It Dep",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "General Sales",
+                "name"       => "General Sales",
                 "company_id" => $id,
-                "branch_id" => 1,
-            ]
+                "branch_id"  => 1,
+            ],
         ];
     }
 }
-if (!function_exists('defaultAnnouncementCategories')) {
+if (! function_exists('defaultAnnouncementCategories')) {
     function defaultAnnouncementCategories($id = 1)
     {
 
         return [
             [
-                "name" => "Urgent",
+                "name"       => "Urgent",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "Informational",
+                "name"       => "Informational",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "Meeting",
+                "name"       => "Meeting",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "Priority",
+                "name"       => "Priority",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
             [
-                "name" => "Low Priority",
+                "name"       => "Low Priority",
                 "company_id" => $id,
-                "branch_id" => 1,
+                "branch_id"  => 1,
             ],
 
         ];
     }
 }
-if (!function_exists('log_message')) {
+if (! function_exists('log_message')) {
     /**
      * Log a device message to a specific log file.
      *
@@ -313,60 +313,59 @@ if (!function_exists('log_message')) {
     function log_message(string $message, string $filename = null): void
     {
         $file_name_raw = $filename ?: "helper_log_";
-        $file_name_raw .=   date("d-m-Y") . ".txt";
+        $file_name_raw .= date("d-m-Y") . ".txt";
         $log_entry = date("Y-m-d H:i:s") . " - " . $message;
         Storage::append("helper_logs/" . $file_name_raw, $log_entry);
     }
 }
-if (!function_exists('defaultMailContent')) {
+if (! function_exists('defaultMailContent')) {
     function defaultMailContent($id = 1)
     {
 
         return [
             [
-                "name" => "email",
+                "name"       => "email",
                 "company_id" => $id,
-                "branch_id" => 1,
-                "content" =>  "<p>Hi,</p><p>This is Automated Generated Mail for Daily reports. </p><p>Your email id is subscribed for Automated email reports.</p><p></p><p>Thanks ,</p><p></p>"
+                "branch_id"  => 1,
+                "content"    => "<p>Hi,</p><p>This is Automated Generated Mail for Daily reports. </p><p>Your email id is subscribed for Automated email reports.</p><p></p><p>Thanks ,</p><p></p>",
             ],
             [
-                "name" => "whatsapp",
+                "name"       => "whatsapp",
                 "company_id" => $id,
-                "branch_id" => 1,
-                "content" =>  "Automatic generated whatsapp Notifications.
-            Thanks"
+                "branch_id"  => 1,
+                "content"    => "Automatic generated whatsapp Notifications.
+            Thanks",
             ],
         ];
     }
 }
-if (!function_exists('defaultDeviceManual')) {
+if (! function_exists('defaultDeviceManual')) {
     function defaultDeviceManual($id = 1)
     {
 
         return [
-            "company_id" => $id,
+            "company_id"    => $id,
 
-            "name" => "Manual",
-            "short_name" => "Manual",
-            "branch_id" => 1,
-            "location" => "Manual",
+            "name"          => "Manual",
+            "short_name"    => "Manual",
+            "branch_id"     => 1,
+            "location"      => "Manual",
             "utc_time_zone" => "Asia/Dubai",
-            "model_number" => "Manual",
-            "device_id" => "Manual",
-            "function" => "auto",
-            "device_type" => "all",
-            "status_id" => 2,
+            "model_number"  => "Manual",
+            "device_id"     => "Manual",
+            "function"      => "auto",
+            "device_type"   => "all",
+            "status_id"     => 2,
 
-            "ip" => "0.0.0.0",
+            "ip"            => "0.0.0.0",
             "serial_number" => "Manual",
-            "port" => "0000"
+            "port"          => "0000",
 
         ];
     }
 }
 
-
-if (!function_exists('recordAction')) {
+if (! function_exists('recordAction')) {
     function recordAction($arr)
     {
         $user_id = $arr["user_id"] ?? 0;
@@ -374,12 +373,12 @@ if (!function_exists('recordAction')) {
         $company_id = request("company_id", 1) ?? $arr["company_id"];
 
         Activity::create([
-            "user_id" => $user_id,
-            "action" => $arr["action"],
-            "type" => $arr["type"],
-            "model_id" => $user_id,
-            "model_type" =>  "user",
-            "company_id" => $company_id,
+            "user_id"     => $user_id,
+            "action"      => $arr["action"],
+            "type"        => $arr["type"],
+            "model_id"    => $user_id,
+            "model_type"  => "user",
+            "company_id"  => $company_id,
             "description" => "User with id ($user_id) {$arr['description']}",
         ]);
     }
@@ -389,5 +388,23 @@ if (! function_exists('showJson')) {
     function showJson($arr)
     {
         return json_encode($arr, JSON_PRETTY_PRINT);
+    }
+}
+
+if (! function_exists('getTotalHours')) {
+    function getTotalHours($times)
+    {
+        $sum_minutes = 0;
+        foreach ($times as $time) {
+            if ($time != "---") {
+                $parts   = explode(":", $time);
+                $hours   = intval($parts[0]);
+                $minutes = intval($parts[1]);
+                $sum_minutes += $hours * 60 + $minutes;
+            }
+        }
+        $work_hours = floor($sum_minutes / 60);
+        $sum_minutes -= $work_hours * 60;
+        return $work_hours . ':' . $sum_minutes;
     }
 }

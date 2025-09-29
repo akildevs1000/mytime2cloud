@@ -1,23 +1,24 @@
 <?php
-
 namespace App\Console\Commands;
 
 use App\Models\Company;
-use App\Models\WhatsappClient;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class WhatsappProxyHealthCheck extends Command
 {
-    protected $signature = 'whatsapp:proxy-health-check {minutes=60} {path=/root/wa}';
+    protected $signature   = 'whatsapp:proxy-health-check {minutes=60} {path=/root/wa}';
     protected $description = 'Check recently updated WhatsApp proxy CSV files (last 2 hours) using shell';
 
     public function handle()
     {
         $this->logCommandOutput("WhatsappProxyHealthCheck command ran at: " . now());
 
-        $path = $this->argument('path');
+        $path    = $this->argument('path');
         $minutes = $this->argument('minutes');
+
+        // $this->info($minutes);
 
         $escapedPath = escapeshellarg($path);
 
@@ -40,7 +41,9 @@ class WhatsappProxyHealthCheck extends Command
             return $company->user?->email; // use null safe operator
         })->toArray();
 
-        if (!count($companies)) {
+        // $this->info(showJson($companyEmails));
+
+        if (! count($companies)) {
             $this->logCommandOutput("No company found.");
             return;
         }
@@ -50,6 +53,8 @@ class WhatsappProxyHealthCheck extends Command
             $this->line($output);
 
             $lines = explode("\n", trim($output));
+
+            $notFound = [];
 
             foreach ($lines as $line) {
                 if (preg_match('/\/([^\/]+)_logs\.csv$/', $line, $matches)) {
@@ -72,7 +77,12 @@ class WhatsappProxyHealthCheck extends Command
                             $this->warn("File not found for deletion: $line");
                             $this->logCommandOutput("File not found for deletion: $line");
                         }
+                    } else {
+                        $notFound[] = $matches[1];
                     }
+
+                    $this->logCommandOutput("Following Ids not found");
+                    $this->logCommandOutput(json_encode($notFound));
                 }
             }
         } else {
@@ -108,9 +118,6 @@ class WhatsappProxyHealthCheck extends Command
     protected function logCommandOutput(string $message)
     {
         $this->info($message);
-
-        $logFile = storage_path('logs/whatsapp-health.log');
-
-        file_put_contents($logFile, "[" . now() . "] " . $message . PHP_EOL, FILE_APPEND);
+        Log::channel('whatsapp-health')->info($message);
     }
 }

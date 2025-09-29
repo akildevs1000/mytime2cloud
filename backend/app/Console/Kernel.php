@@ -21,15 +21,15 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyMinute();
+            ->everyFifteenMinutes()->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyMinute();
+            ->everyFifteenMinutes()->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
-            ->everyMinute();
+            ->everyFifteenMinutes()->runInBackground();
 
         // --------------------Daily Report Generation for automation-------------------- //
         $schedule
@@ -42,7 +42,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:update_company_ids')
-            ->everyMinute();
+            ->everyMinute()
+            ->runInBackground();
 
         $companyIds = Company::pluck("id");
 
@@ -53,27 +54,10 @@ class Kernel extends ConsoleKernel
                 ->hourly()
                 ->runInBackground();
 
-            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
-
-            $schedule->command("pdf:generate $companyId")->monthlyOn(1, '03:35')->runInBackground();
-
-            $schedule->command("pdf:generate $companyId")
-                ->dailyAt('03:35')
-                ->when(fn() => now()->day == now()->endOfMonth()->day)
-                ->runInBackground();
-
-            // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
-
-            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
-            $schedule->command("pdf:access-control-report-generate {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-                ->dailyAt('04:35')->runInBackground();
-
-            // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
-
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
-
-                ->everyThirtyMinutes();
+                ->everyThirtyMinutes()
+                ->runInBackground();
 
             $schedule
                 ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
@@ -122,12 +106,12 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("alert:access_control {$companyId}")
-                ->everyMinute()
+                ->everyFifteenMinutes()
                 ->runInBackground();
 
             $schedule
                 ->command("alert:attendance {$companyId}")
-                ->everyMinute()
+                ->everyFifteenMinutes()
                 ->runInBackground();
 
             $schedule

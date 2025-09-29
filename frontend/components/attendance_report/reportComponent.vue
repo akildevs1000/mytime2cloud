@@ -539,7 +539,7 @@
 </template>
 <script>
 export default {
-  props: ["title", "shift_type_id", "headers", "payload1", "system_user_id"],
+  props: ["shift_type_id", "headers", "payload1", "system_user_id","report_template"],
 
   data: () => ({
     key: 1,
@@ -752,6 +752,7 @@ export default {
         company_id: this.$auth.user.company_id,
         report_type: this.report_type,
         shift_type_id: this.shift_type_id,
+        report_template:this.report_template,
         overtime: this.overtime ? 1 : 0,
         ...this.filters,
         ...this.payload,
@@ -773,6 +774,8 @@ export default {
         this.total = data.total;
         this.loading = false;
         this.totalRowsCount = data.total;
+
+        this.$emit("returnedPayload",payload);
 
         if (this.clearPagenumber) {
           this.options.page = 1;

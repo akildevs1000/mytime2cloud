@@ -1,5 +1,30 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
+    <v-dialog v-model="loadingDialog" persistent max-width="400">
+      <v-card>
+        <v-alert dense flat dark color="primary">Attendance Report</v-alert>
+        <v-card-text
+          class="d-flex flex-column align-center justify-center"
+          style="min-height: 200px"
+        >
+          <!-- Centered spinner -->
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="50"
+            width="5"
+            class="mb-4"
+          ></v-progress-circular>
+
+          <div class="text-h6 font-weight-medium text-center">
+            Report is generating
+          </div>
+          <div class="text-subtitle-2 grey--text text-center">
+            Please wait while we prepare your report...
+          </div>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -56,7 +81,7 @@
           v-model="payload.branch_id"
           x-small
           clearable
-          :items="[{ id: null, branch_name: 'All Branches' }, ...branches]"
+          :items="branches"
           item-value="id"
           item-text="branch_name"
           :hide-details="true"
@@ -499,6 +524,7 @@
               :report_template="report_template"
               :payload1="payload11"
               render_endpoint="render_general_report"
+              @returnedPayload="handleReturnedPayload"
             />
           </v-tab-item>
           <v-tab-item value="tab-2">
@@ -545,6 +571,7 @@ export default {
   props: ["title", "render_endpoint"],
 
   data: () => ({
+    loadingDialog: false, // renamed
     missingLogsDialog: false,
     key: 1,
     shift_type_id: 0,
@@ -599,6 +626,7 @@ export default {
     statuses: [],
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
+    returnedPayload: null,
   }),
 
   computed: {
@@ -659,11 +687,6 @@ export default {
 
     this.getAttendanceTabs();
 
-    setTimeout(() => {
-      this.getBranches();
-      this.getScheduledEmployees();
-    }, 3000);
-
     let dt = new Date();
     let y = dt.getFullYear();
     let m = dt.getMonth() + 1;
@@ -684,9 +707,22 @@ export default {
       this.tab = "tab-1";
     }, 1000);
     await this.getStatuses();
+
+    if (this.$auth.user.branch_id) {
+      this.payload.branch_id = this.$auth.user.branch_id;
+      this.isCompany = false;
+      this.getScheduledEmployees();
+      this.getDepartments();
+      return;
+    }
+
+    this.getBranches();
   },
 
   methods: {
+    handleReturnedPayload(e) {
+      this.returnedPayload = e;
+    },
     async getStatuses() {
       let { data } = await this.$axios.get(`attendance-statuses`);
       this.statuses = data;
@@ -694,7 +730,7 @@ export default {
     openMissingPopup() {
       this.missingLogsDialog = true;
     },
-    process_file_in_child_comp(val) {
+    async process_file_in_child_comp(val) {
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
@@ -705,50 +741,67 @@ export default {
         return;
       }
 
-      let type = val.toLowerCase();
+      this.loadingDialog = true;
 
-      let process_file_endpoint = "";
+      try {
+        let options = {
+          params: {
+            ...this.returnedPayload,
+          },
+        };
 
-      if (this.shift_type_id == 2 || this.shift_type_id == 5) {
-        process_file_endpoint = "multi_in_out_";
+        await this.$axios.get(`start-report-generation`, options);
+
+        let type = val.toLowerCase();
+
+        let process_file_endpoint = "";
+
+        if (this.shift_type_id == 2 || this.shift_type_id == 5) {
+          process_file_endpoint = "multi_in_out_";
+        }
+
+        let path = this.$backendUrl + "/" + process_file_endpoint + type;
+
+        let qs = ``;
+
+        qs += `${path}`;
+        qs += `?report_template=${this.report_template}`;
+        qs += `&main_shift_type=${this.shift_type_id}`;
+
+        if (parseInt(this.payload.branch_id) > 0)
+          qs += `&branch_id=${this.payload.branch_id}`;
+
+        qs += `&shift_type_id=${this.shift_type_id}`;
+        qs += `&company_id=${this.$auth.user.company_id}`;
+
+        if (
+          this.payload.department_ids &&
+          this.payload.department_ids.length > 0
+        ) {
+          qs += `&department_ids=${this.payload.department_ids.join(",")}`;
+        }
+        qs += `&employee_id=${this.payload.employee_id}`;
+        qs += `&report_type=${this.report_type}`;
+
+        qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
+        qs += `&status=${this.payload.statuses}`;
+
+        // Convert showTabs object into a URL-friendly format
+        if (this.payload.showTabs) {
+          qs += `&showTabs=${encodeURIComponent(
+            JSON.stringify(this.payload.showTabs)
+          )}`;
+        }
+        let report = document.createElement("a");
+        report.setAttribute("href", qs);
+        report.setAttribute("target", "_blank");
+        report.click();
+      } catch (error) {
+        console.error(error);
+        // handle error UI
+      } finally {
+        this.loadingDialog = false; // always close
       }
-
-      let path = this.$backendUrl + "/" + process_file_endpoint + type;
-
-      let qs = ``;
-
-      qs += `${path}`;
-      qs += `?report_template=${this.report_template}`;
-      qs += `&main_shift_type=${this.shift_type_id}`;
-
-      if (parseInt(this.payload.branch_id) > 0)
-        qs += `&branch_id=${this.payload.branch_id}`;
-
-      qs += `&shift_type_id=${this.shift_type_id}`;
-      qs += `&company_id=${this.$auth.user.company_id}`;
-      
-      if (
-        this.payload.department_ids &&
-        this.payload.department_ids.length > 0
-      ) {
-        qs += `&department_ids=${this.payload.department_ids.join(",")}`;
-      }
-      qs += `&employee_id=${this.payload.employee_id}`;
-      qs += `&report_type=${this.report_type}`;
-
-      qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
-      qs += `&status=${this.payload.statuses}`;
-
-      // Convert showTabs object into a URL-friendly format
-      if (this.payload.showTabs) {
-        qs += `&showTabs=${encodeURIComponent(
-          JSON.stringify(this.payload.showTabs)
-        )}`;
-      }
-      let report = document.createElement("a");
-      report.setAttribute("href", qs);
-      report.setAttribute("target", "_blank");
-      report.click();
     },
     toggleDepartmentSelection() {
       this.selectAllDepartment = !this.selectAllDepartment;
@@ -772,6 +825,16 @@ export default {
       this.filterType = "Monthly"; // data.type;
     },
     commonMethod(id = 0) {
+      if (!this.payload.branch_id) {
+        alert("Branch must be selected");
+        return;
+      }
+
+      if (this.payload.employee_id && this.payload.employee_id.length == 0) {
+        alert("Employee not selected");
+        return;
+      }
+
       if (this.$auth.user.user_type == "department") {
         this.payload.department_ids = [this.$auth.user.department_id];
       }
@@ -788,8 +851,6 @@ export default {
       };
 
       this.getScheduledEmployees();
-
-      this.getAttendanceTabs();
     },
     getScheduledEmployees() {
       let options = {
@@ -813,13 +874,6 @@ export default {
         });
     },
     getBranches() {
-      if (this.$auth.user.branch_id) {
-        this.payload.branch_id = this.$auth.user.branch_id;
-
-        this.isCompany = false;
-        return;
-      }
-
       this.$axios
         .get("branch", {
           params: {
@@ -847,19 +901,16 @@ export default {
         });
     },
     async getDepartments() {
-     let config = {
-      params:{
-        branch_id: this.payload.branch_id,
-        company_id:this.$auth.user.company_id
-      }
-     };
+      let config = {
+        params: {
+          branch_id: this.payload.branch_id,
+          company_id: this.$auth.user.company_id,
+        },
+      };
       try {
-        const { data } = await this.$axios.get(`department-list`,config);
+        const { data } = await this.$axios.get(`department-list`, config);
         this.departments = data;
-        this.toggleDepartmentSelection();
-        setTimeout(() => {
-          this.commonMethod();
-        }, 3000);
+        // this.toggleDepartmentSelection();
       } catch (error) {
         console.error("Error fetching departments:", error);
       }
@@ -869,7 +920,6 @@ export default {
     },
 
     regnerateReport() {
-      
       if (!this.payload.branch_id) {
         alert("Branch must be selected");
         return;
