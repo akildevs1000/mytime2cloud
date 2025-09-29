@@ -1,5 +1,15 @@
 const data = async ({ $auth, redirect }) => {
-  const { user_type, role } = $auth.user;
+  const { user_type, role, company_id } = $auth.user;
+
+  // Mobile-only redirect (applies outside employee logic)
+  if (process.client) {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = `https://manager-mytime2cloud.netlify.app/?company_id=${company_id}`;
+      // window.location.href = `http://localhost:3000/?company_id=${company_id}`;
+      return;
+    }
+  }
 
   if (user_type.branch_id == 0 && user_type.is_master == false) {
     return redirect("/login");
@@ -37,7 +47,6 @@ const data = async ({ $auth, redirect }) => {
   } else {
     return redirect("/dashboard");
   }
-
 };
 
 export default data;

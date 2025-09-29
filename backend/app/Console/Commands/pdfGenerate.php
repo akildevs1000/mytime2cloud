@@ -68,7 +68,7 @@ class pdfGenerate extends Command
         Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
-                ->withOut(["shift", "shift_type", "branch"]);
+                ->withOut(["shift", "shift_type"]);
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("company_id", $companyId)

@@ -1,11 +1,11 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\Device;
 use App\Models\Employee;
 use App\Models\Theme;
 use DateTime;
@@ -47,12 +47,11 @@ class ThemeController extends Controller
 
         $company = Company::with(["contact"])->where("id", $request->company_id)->first();
 
-
         if ($company && $company->enable_desktop_whatsapp == true) {
             $message = "🌟 Summary Notification 🌟  \n";
 
             $message .= "" . $company["name"] . "\n";
-            $message .= "Date: " .  date("H:i, d,M Y") . "\n";
+            $message .= "Date: " . date("H:i, d,M Y") . "\n";
             $message .= "Total Employees: " . $data["employeeCount"] . "\n";
             $message .= "Total Present: " . $data["missingCount"] + $data["presentCount"] . "\n";
             $message .= "Inside: " . $data["missingCount"] . "\n";
@@ -85,7 +84,7 @@ class ThemeController extends Controller
             ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                 $q->where("department_id", $request->department_id);
             })
-            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+        // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereDate('date', date('Y-m-d'))
             ->select(
                 DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
@@ -94,41 +93,65 @@ class ThemeController extends Controller
                 DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
             )->first();
 
-        //  #bd2e4a Clock In 
-        // #005edf Clock Out 
+        //  #bd2e4a Clock In
+        // #005edf Clock Out
         // #38336b Inside
         // #35b568 No Show
 
         return [
             [
                 'bgColor' => '#bd2e4a',
-                'color' => '#bd2e4a',
-                'icon' => '1.png',
-                'value' => $model->clockedin,
-                'text' => 'Clocked In',
+                'color'   => '#bd2e4a',
+                'icon'    => '1.png',
+                'value'   => $model->clockedin,
+                'text'    => 'Clocked In',
             ],
             [
                 'bgColor' => '#005edf',
-                'color' => '#005edf',
-                'icon' => '2.png',
-                'value' => $model->clockedout,
-                'text' => 'Clocked Out',
+                'color'   => '#005edf',
+                'icon'    => '2.png',
+                'value'   => $model->clockedout,
+                'text'    => 'Clocked Out',
             ],
             [
                 'bgColor' => '#38336b',
-                'color' => '#38336b',
-                'icon' => '3.png',
-                'value' => $model->inside,
-                'text' => 'Inside',
+                'color'   => '#38336b',
+                'icon'    => '3.png',
+                'value'   => $model->inside,
+                'text'    => 'Inside',
             ],
             [
                 'bgColor' => '#35b568',
-                'color' => '#35b568',
-                'icon' => '4.png',
-                'value' => $model->noshow,
-                'text' => 'No Show',
+                'color'   => '#35b568',
+                'icon'    => '4.png',
+                'value'   => $model->noshow,
+                'text'    => 'No Show',
             ],
         ];
+    }
+
+    public function getAdditionalCount(Request $request)
+    {
+        $companyId = $request->input('company_id', 0);
+        $branch_id = $request->input('branch_id', 0);
+
+        return Attendance::where('company_id', $companyId)
+            ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+            })
+            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+                $q->where("department_id", $request->department_id);
+            })
+        // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            ->whereDate('date', date('Y-m-d'))
+            ->select(
+                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
+                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
+                DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
+                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
+            )->first();
     }
 
     public function getCounts($companyId = 0, $request)
@@ -141,8 +164,8 @@ class ThemeController extends Controller
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
             })->when($department_id, function ($q) use ($department_id) {
-                $q->whereHas('employee', fn(Builder $q) => $q->where('department_id', $department_id));
-            })
+            $q->whereHas('employee', fn(Builder $q) => $q->where('department_id', $department_id));
+        })
             ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
             ->whereDate('date', date("Y-m-d"))
@@ -160,13 +183,23 @@ class ThemeController extends Controller
 
         $vaccationCount = $model->where('status', 'V')->count();
 
+        $offlineDevices = Device::where('company_id', $companyId)
+            ->when($branch_id, function ($q) use ($branch_id) {
+                $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
+            })
+            ->where('status_id', 2)
+            ->where('device_id', "!=", "Manual")
+            ->count();
 
         return [
-            "employeeCount" => $employeeCount,
-            "presentCount" => $presentCount,
-            "absentCount" => $employeeCount - ($presentCount + $leaveCount + $vaccationCount),
-            "leaveCount" => $leaveCount,
+            "employeeCount"  => $employeeCount,
+            "presentCount"   => $presentCount,
+            "absentCount"    => $employeeCount - ($presentCount + $leaveCount + $vaccationCount),
+            "leaveCount"     => $leaveCount,
             "vaccationCount" => $vaccationCount,
+            "additional"     => $this->getAdditionalCount($request),
+            "offlineDevices"   => $offlineDevices,
+
         ];
     }
     public function dashboardGetCountDepartment(Request $request)
@@ -193,30 +226,30 @@ class ThemeController extends Controller
         $return = [];
         foreach ($data as $department) {
 
-            $return[$department->name] =  [
+            $return[$department->name] = [
 
-                "presentCount" => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
-                "absentCount" => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
-                "missingCount" => $model->where('status', 'M')->where('employee.department_id', $department->id)->count(),
-                "offCount" => $model->where('status', 'O')->where('employee.department_id', $department->id)->count(),
-                "holidayCount" => $model->where('status', 'H')->where('employee.department_id', $department->id)->count(),
-                "leaveCount" => $model->where('status', 'L')->where('employee.department_id', $department->id)->count(),
+                "presentCount"   => $model->where('status', 'P')->where('employee.department_id', $department->id)->count(),
+                "absentCount"    => $model->where('status', 'A')->where('employee.department_id', $department->id)->count(),
+                "missingCount"   => $model->where('status', 'M')->where('employee.department_id', $department->id)->count(),
+                "offCount"       => $model->where('status', 'O')->where('employee.department_id', $department->id)->count(),
+                "holidayCount"   => $model->where('status', 'H')->where('employee.department_id', $department->id)->count(),
+                "leaveCount"     => $model->where('status', 'L')->where('employee.department_id', $department->id)->count(),
                 "vaccationCount" => $model->where('status', 'V')->where('employee.department_id', $department->id)->count(),
             ];
         }
 
-        return  $return;
+        return $return;
     }
     public function previousWeekAttendanceCount(Request $request, $id)
     {
         $dates = [];
 
         for ($i = 13; $i >= 7; $i--) {
-            $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $date    = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
             $dates[] = $date;
         }
 
-        $date = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
+        $date  = date('Y-m-d', strtotime(date('Y-m-d') . '-' . $i . ' days'));
         $model = Attendance::with("employee")->where('company_id', $id)
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
             ->whereIn('date', $dates)
@@ -227,13 +260,13 @@ class ThemeController extends Controller
             ->get();
 
         return [
-            "date" => $date,
-            "presentCount" => $model->where('status', 'P')->count(),
-            "absentCount" => $model->where('status', 'A')->count(),
-            "missingCount" => $model->where('status', 'M')->count(),
-            "offCount" => $model->where('status', 'O')->count(),
-            "holidayCount" => $model->where('status', 'H')->count(),
-            "leaveCount" => $model->where('status', 'L')->count(),
+            "date"           => $date,
+            "presentCount"   => $model->where('status', 'P')->count(),
+            "absentCount"    => $model->where('status', 'A')->count(),
+            "missingCount"   => $model->where('status', 'M')->count(),
+            "offCount"       => $model->where('status', 'O')->count(),
+            "holidayCount"   => $model->where('status', 'H')->count(),
+            "leaveCount"     => $model->where('status', 'L')->count(),
             "vaccationCount" => $model->where('status', 'V')->count(),
         ];
     }
@@ -243,12 +276,12 @@ class ThemeController extends Controller
 
         // Attempt to retrieve the result from the cache
         $finalarray = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($request) {
-            $finalarray = [];
+            $finalarray  = [];
             $dateStrings = [];
 
             if ($request->has("date_from") && $request->has("date_to")) {
                 $startDate = new DateTime($request->date_from);
-                $endDate = new DateTime($request->date_to);
+                $endDate   = new DateTime($request->date_to);
 
                 $dateStrings = $this->createDateRangeArray($startDate, $endDate);
             } else {
@@ -277,13 +310,13 @@ class ThemeController extends Controller
                     ->get();
 
                 $finalarray[] = [
-                    "date" => $date,
-                    "presentCount" => $model->where('status', 'P')->count(),
-                    "absentCount" => $model->where('status', 'A')->count(),
-                    "missingCount" => $model->where('status', 'M')->count(),
-                    "offCount" => $model->where('status', 'O')->count(),
-                    "holidayCount" => $model->where('status', 'H')->count(),
-                    "leaveCount" => $model->where('status', 'L')->count(),
+                    "date"           => $date,
+                    "presentCount"   => $model->where('status', 'P')->count(),
+                    "absentCount"    => $model->where('status', 'A')->count(),
+                    "missingCount"   => $model->where('status', 'M')->count(),
+                    "offCount"       => $model->where('status', 'O')->count(),
+                    "holidayCount"   => $model->where('status', 'H')->count(),
+                    "leaveCount"     => $model->where('status', 'L')->count(),
                     "vaccationCount" => $model->where('status', 'V')->count(),
                 ];
             }
@@ -294,7 +327,7 @@ class ThemeController extends Controller
         return $finalarray;
     }
 
-    function createDateRangeArray($startDate, $endDate)
+    public function createDateRangeArray($startDate, $endDate)
     {
         $dateStrings = [];
         $currentDate = $startDate;
@@ -307,9 +340,6 @@ class ThemeController extends Controller
         return $dateStrings;
     }
 
-
-
-
     public function dashboardGetCountsTodayHourInOut(Request $request)
     {
 
@@ -321,7 +351,7 @@ class ThemeController extends Controller
 
             $j = $i <= 9 ? "0" . $i : $i;
 
-            $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $date  = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
             $model = AttendanceLog::with(["employee"])->where('company_id', $request->company_id)
                 ->when($request->filled("branch_id"), function ($q) use ($request) {
                     $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
@@ -329,22 +359,21 @@ class ThemeController extends Controller
                 ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                     $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
                 })
-                // ->whereDate('LogTime', $date)
+            // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
-                ->where('LogTime', '<', $date  . ' ' . $j . ':59:59')
+                ->where('LogTime', '<', $date . ' ' . $j . ':59:59')
                 ->get();
 
             $finalarray[] = [
-                "date" => $date,
-                "hour" => $i,
+                "date"  => $date,
+                "hour"  => $i,
                 "count" => $model->count(),
 
             ];
         }
 
-
-        return  $finalarray;
+        return $finalarray;
     }
 
     public function dashboardGetVisitorCountsTodayHourInOut(Request $request)
@@ -358,7 +387,7 @@ class ThemeController extends Controller
 
             $j = $i <= 9 ? "0" . $i : $i;
 
-            $date = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
+            $date  = date('Y-m-d'); //, strtotime(date('Y-m-d') . '-' . $i . ' days'));
             $model = AttendanceLog::with(["visitor"])->where('company_id', $request->company_id)
 
                 ->whereIn('UserID', function ($query) use ($request) {
@@ -370,34 +399,30 @@ class ThemeController extends Controller
                         })
                         ->from('visitors');
                 })
-                // ->when($request->filled("branch_id"), function ($q) use ($request) {
-                //     $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
-                // })
-                // ->whereDate('LogTime', $date)
+            // ->when($request->filled("branch_id"), function ($q) use ($request) {
+            //     $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
+            // })
+            // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
-                ->where('LogTime', '<', $date  . ' ' . $j . ':59:59')
+                ->where('LogTime', '<', $date . ' ' . $j . ':59:59')
                 ->get();
 
             $finalarray[] = [
-                "date" => $date,
-                "hour" => $i,
+                "date"  => $date,
+                "hour"  => $i,
                 "count" => $model->count(),
 
             ];
         }
 
-
-        return  $finalarray;
+        return $finalarray;
     }
-
 
     public function dashboardGetCountsTodayMultiGeneral(Request $request)
     {
 
-        $finalarray = []; {
-
-
+        $finalarray = [];{
 
             $model = Attendance::with("employee")->where('company_id', $request->company_id)
                 ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
@@ -409,30 +434,29 @@ class ThemeController extends Controller
                 ->get();
 
             $finalarray['multi'] = [
-                "date" => date('Y-m-d'),
-                "presentCount" => $model->where('status', 'P')->where('shift_type_id', 2)->count(),
-                "absentCount" => $model->where('status', 'A')->where('shift_type_id', 2)->count(),
-                "missingCount" => $model->where('status', 'M')->where('shift_type_id', 2)->count(),
-                "offCount" => $model->where('status', 'O')->where('shift_type_id', 2)->count(),
-                "holidayCount" => $model->where('status', 'H')->where('shift_type_id', 2)->count(),
-                "leaveCount" => $model->where('status', 'L')->where('shift_type_id', 2)->count(),
+                "date"           => date('Y-m-d'),
+                "presentCount"   => $model->where('status', 'P')->where('shift_type_id', 2)->count(),
+                "absentCount"    => $model->where('status', 'A')->where('shift_type_id', 2)->count(),
+                "missingCount"   => $model->where('status', 'M')->where('shift_type_id', 2)->count(),
+                "offCount"       => $model->where('status', 'O')->where('shift_type_id', 2)->count(),
+                "holidayCount"   => $model->where('status', 'H')->where('shift_type_id', 2)->count(),
+                "leaveCount"     => $model->where('status', 'L')->where('shift_type_id', 2)->count(),
                 "vaccationCount" => $model->where('status', 'V')->where('shift_type_id', 2)->count(),
             ];
 
             $finalarray['general'] = [
-                "date" => date('Y-m-d'),
-                "presentCount" => $model->where('status', 'P')->where('shift_type_id', '!=', 2)->count(),
-                "absentCount" => $model->where('status', 'A')->where('shift_type_id', '!=', 2)->count(),
-                "missingCount" => $model->where('status', 'M')->where('shift_type_id', '!=', 2)->count(),
-                "offCount" => $model->where('status', 'O')->where('shift_type_id', '!=', 2)->count(),
-                "holidayCount" => $model->where('status', 'H')->where('shift_type_id', '!=', 2)->count(),
-                "leaveCount" => $model->where('status', 'L')->where('shift_type_id', '!=', 2)->count(),
+                "date"           => date('Y-m-d'),
+                "presentCount"   => $model->where('status', 'P')->where('shift_type_id', '!=', 2)->count(),
+                "absentCount"    => $model->where('status', 'A')->where('shift_type_id', '!=', 2)->count(),
+                "missingCount"   => $model->where('status', 'M')->where('shift_type_id', '!=', 2)->count(),
+                "offCount"       => $model->where('status', 'O')->where('shift_type_id', '!=', 2)->count(),
+                "holidayCount"   => $model->where('status', 'H')->where('shift_type_id', '!=', 2)->count(),
+                "leaveCount"     => $model->where('status', 'L')->where('shift_type_id', '!=', 2)->count(),
                 "vaccationCount" => $model->where('status', 'V')->where('shift_type_id', '!=', 2)->count(),
             ];
         }
 
-
-        return  $finalarray;
+        return $finalarray;
     }
 
     /**
@@ -446,10 +470,10 @@ class ThemeController extends Controller
         Theme::where("company_id", $request->company_id)->where("page", $request->page)->where("type", $request->type)->delete();
 
         return Theme::create([
-            "page" => $request->page,
-            "type" => $request->type,
-            "style" => $request->style,
-            "company_id" => $request->company_id
+            "page"       => $request->page,
+            "type"       => $request->type,
+            "style"      => $request->style,
+            "company_id" => $request->company_id,
         ]);
     }
 
