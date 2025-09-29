@@ -1,23 +1,6 @@
 <template>
   <div v-if="can('employee_access')">
-    <style scoped>
-      .custom-input {
-        padding: 6px 10px;
-        height: 30px;
-        position: relative;
-        border-radius: 5px;
-        border: 1px solid grey;
-        font-size: 16px;
-        transition: border-color 0.3s ease-in-out;
-        outline: none;
-      }
-
-      .custom-input:focus {
-        border-color: purple;
-      }
-    </style>
-
-    <div class="text-center ma-6">
+    <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" small top="top" :color="color">
         {{ response }}
       </v-snackbar>
@@ -97,7 +80,7 @@
     </v-dialog>
     <v-dialog persistent v-model="employeeDialog" width="900">
       <v-card>
-        <v-card-title dense class="popup_background">
+        <v-toolbar dark dense class="primary" style="font-weight: 400">
           Add {{ Model }}
           <v-spacer></v-spacer>
 
@@ -113,8 +96,7 @@
           <v-icon @click="employeeDialog = false" outlined dark>
             mdi-close-circle
           </v-icon>
-        </v-card-title>
-
+        </v-toolbar>
         <v-card-text>
           <v-row>
             <v-col md="6" sm="12" cols="12" class="mt-5" dense>
@@ -567,8 +549,12 @@
                   </v-container>
                 </div>
                 <div
-                  style="min-width: 5%; max-width: 5%"
-                  class="d-flex justify-center align-center popup_background_noviolet"
+                  style="
+                    min-width: 5%;
+                    max-width: 5%;
+                    background-color: #ecf0f4 !important;
+                  "
+                  class="d-flex justify-center align-center"
                 >
                   <v-tabs
                     vertical
@@ -683,7 +669,7 @@
 
       <v-card>
         <v-row>
-          <v-col>
+          <v-col cols="8">
             <b class="ml-5" style="font-size: 18px; font-weight: 600"
               >Employees</b
             >
@@ -703,150 +689,133 @@
             </span>
           </v-col>
           <v-col class="text-right">
-            <div class="input-group" style="width: 100%">
-              <input
-                class="custom-input"
-                type="text"
-                placeholder="Search"
+            <div class="d-flex align-center" style="gap: 10px; width: 100%">
+              <!-- Branch Dropdown -->
+              <v-autocomplete
+              class="custom-text-field-height"
+                label="Branch"
+                @change="getDataFromApi()"
+                v-model="filters.branch_id"
+                :items="[{ id: null, name: 'Select All' }, ...branchList]"
+                dense
+                placeholder="Select Branch"
+                outlined
+                item-value="id"
+                item-text="name"
+                hide-details
+              ></v-autocomplete>
+
+              <v-text-field
+                class="custom-text-field-height"
+                append-icon="mdi-magnify"
+                label="Search"
                 @input="searchData"
                 v-model="search"
-              />
-              <v-icon style="position: absolute; top: 14px; right: 107px"
-                >mdi-magnify</v-icon
-              >
+                dense
+                outlined
+                hide-details
+              ></v-text-field>
+
+              <!-- New Button -->
               <v-btn
-                style="margin-top: -6px"
-                class="primary"
                 small
+                class="primary"
                 @click="openNewPage()"
                 v-if="can('employee_create')"
                 >+ New</v-btn
               >
 
+              <!-- Options Menu -->
               <v-menu offset-y>
                 <template v-slot:activator="{ on, attrs }">
-                  <v-btn
-                    dark-2
-                    icon
-                    v-bind="attrs"
-                    v-on="on"
-                    style="margin-top: -9px"
-                  >
+                  <v-btn icon v-bind="attrs" v-on="on">
                     <v-icon>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
+
                 <v-list dense>
+                  <!-- Download Sample -->
                   <v-list-item>
                     <v-list-item-title
-                      style="
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                      "
+                      class="d-flex align-center"
+                      style="cursor: pointer"
                     >
-                      <div style="height: 17px; width: 17px">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 512 512"
-                          class="icon align-text-top"
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                        style="height: 17px; width: 17px; fill: #6946dd"
+                      >
+                        <path
+                          d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                        />
+                        <path
+                          d="M244.7 328.4c.4.4.8.7 1.2 1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                        />
+                      </svg>
+                      <span style="margin-left: 5px; font-size: 12px">
+                        <a
+                          href="/employees.csv"
+                          style="text-decoration: none; color: black"
+                          download
+                          >Download Sample File</a
                         >
-                          <path
-                            fill="#6946dd"
-                            d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
-                          ></path>
-                          <path
-                            fill="#6946dd"
-                            d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
-                          ></path>
-                        </svg>
-                      </div>
-
-                      <div style="margin: 4px 0 0 5px">
-                        <span style="font-size: 12px"
-                          ><a
-                            style="text-decoration: none"
-                            href="/employees.csv"
-                            download
-                            class="button text"
-                          >
-                            Download Sample File</a
-                          ></span
-                        >
-                      </div>
+                      </span>
                     </v-list-item-title>
                   </v-list-item>
+
+                  <!-- Upload Employees -->
                   <v-list-item
                     @click="() => ((dialog = true), handleChangeEvent())"
                   >
                     <v-list-item-title
-                      style="
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                      "
+                      class="d-flex align-center"
+                      style="cursor: pointer"
                     >
-                      <div style="height: 17px; width: 17px">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 512 512"
-                          class="icon align-text-top"
-                        >
-                          <path
-                            fill="#6946dd"
-                            d="M356 169.2c-3.1 3.1-7.2 4.7-11.3 4.7-4.1 0-8.2-1.6-11.3-4.7L272 107.8v205c0 8.8-7.2 16-16 16s-16-7.2-16-16v-205l-61.4 61.4c-6.2 6.2-16.4 6.2-22.6 0-6.2-6.2-6.2-16.4 0-22.6l88.7-88.7c6.2-6.2 16.4-6.2 22.6 0l88.7 88.7c6.3 6.2 6.3 16.3 0 22.6z"
-                          ></path>
-                          <path
-                            fill="#6946dd"
-                            d="M423 463.6H89c-44.9 0-81.4-39.8-81.4-88.7v-97.3c0-8.8 7.2-16 16-16s16 7.2 16 16v97.3c0 31.3 22.2 56.7 49.4 56.7h334c27.2 0 49.4-25.4 49.4-56.7v-98.5c0-8.8 7.2-16 16-16s16 7.2 16 16v98.5c0 48.9-36.5 88.7-81.4 88.7z"
-                          ></path>
-                        </svg>
-                      </div>
-
-                      <div style="margin: 4px 0 0 5px">
-                        <span style="font-size: 12px"> Upload Employees</span>
-                      </div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                        style="height: 17px; width: 17px; fill: #6946dd"
+                      >
+                        <path
+                          d="M356 169.2c-3.1 3.1-7.2 4.7-11.3 4.7-4.1 0-8.2-1.6-11.3-4.7L272 107.8v205c0 8.8-7.2 16-16 16s-16-7.2-16-16v-205l-61.4 61.4c-6.2 6.2-16.4 6.2-22.6 0-6.2-6.2-6.2-16.4 0-22.6l88.7-88.7c6.2-6.2 16.4-6.2 22.6 0l88.7 88.7c6.3 6.2 6.3 16.3 0 22.6z"
+                        />
+                        <path
+                          d="M423 463.6H89c-44.9 0-81.4-39.8-81.4-88.7v-97.3c0-8.8 7.2-16 16-16s16 7.2 16 16v97.3c0 31.3 22.2 56.7 49.4 56.7h334c27.2 0 49.4-25.4 49.4-56.7v-98.5c0-8.8 7.2-16 16-16s16 7.2 16 16v98.5c0 48.9-36.5 88.7-81.4 88.7z"
+                        />
+                      </svg>
+                      <span style="margin-left: 5px; font-size: 12px"
+                        >Upload Employees</span
+                      >
                     </v-list-item-title>
                   </v-list-item>
 
+                  <!-- Export Employees -->
                   <v-list-item @click="export_submit">
                     <v-list-item-title
-                      style="
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                      "
+                      class="d-flex align-center"
+                      style="cursor: pointer"
                     >
-                      <div style="height: 17px; width: 17px">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 512 512"
-                          class="icon align-text-top"
-                        >
-                          <path
-                            fill="#6946dd"
-                            d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
-                          ></path>
-                          <path
-                            fill="#6946dd"
-                            d="M244.7 328.4c.4.4.8.7 1.2 1.1.2.1.4.3.5.4.2.2.5.4.7.5.2.1.4.3.7.4.2.1.4.3.7.4.2.1.5.2.7.3.2.1.5.2.7.3.2.1.5.2.7.3.3.1.5.2.8.3.2.1.5.1.7.2.3.1.5.1.8.2.3.1.6.1.8.1.2 0 .5.1.7.1.5.1 1 .1 1.6.1s1 0 1.6-.1c.2 0 .5-.1.7-.1.3 0 .6-.1.8-.1.3-.1.5-.1.8-.2.2-.1.5-.1.7-.2.3-.1.5-.2.8-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.2.7-.3.2-.1.5-.3.7-.4.2-.1.4-.3.7-.4.3-.2.5-.4.7-.5.2-.1.4-.3.5-.4.4-.3.8-.7 1.2-1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
-                          ></path>
-                        </svg>
-                      </div>
-
-                      <div style="margin: 4px 0 0 5px">
-                        <span style="font-size: 12px">Download Employees</span>
-                      </div>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 512 512"
+                        style="height: 17px; width: 17px; fill: #6946dd"
+                      >
+                        <path
+                          d="M447.6 270.8c-8.8 0-15.9 7.1-15.9 15.9v142.7H80.4V286.8c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v158.6c0 8.8 7.1 15.9 15.9 15.9h383.1c8.8 0 15.9-7.1 15.9-15.9V286.8c0-8.8-7.1-16-15.9-16z"
+                        />
+                        <path
+                          d="M244.7 328.4c.4.4.8.7 1.2 1.1l95-95c6.2-6.2 6.2-16.3 0-22.5-6.2-6.2-16.3-6.2-22.5 0L272 278.7v-212c0-8.8-7.1-15.9-15.9-15.9s-15.9 7.1-15.9 15.9v212l-67.8-67.8c-6.2-6.2-16.3-6.2-22.5 0-6.2 6.2-6.2 16.3 0 22.5l94.8 95z"
+                        />
+                      </svg>
+                      <span style="margin-left: 5px; font-size: 12px"
+                        >Download Employees</span
+                      >
                     </v-list-item-title>
                   </v-list-item>
 
+                  <!-- Custom Widget -->
                   <v-list-item>
-                    <v-list-item-title
-                      style="
-                        cursor: pointer;
-                        display: flex;
-                        align-items: center;
-                      "
-                    >
+                    <v-list-item-title>
                       <WidgetsEmployeeDowloadDialog
                         @response="getDataFromApi"
                       />
@@ -856,6 +825,7 @@
               </v-menu>
             </div>
           </v-col>
+
           <v-col cols="12">
             <v-data-table
               elevation="0"
@@ -905,7 +875,7 @@
                       {{ item.first_name ? item.first_name : "" }}
                       {{ item.last_name ? item.last_name : "" }}
                     </div>
-                    <small style="font-size: 12px"
+                    <small style="font-size: 12px; color: #6c7184"
                       >{{ item.designation.name }}
                     </small>
                   </v-col>
@@ -981,18 +951,8 @@
                       @click="viewItem(item)"
                     >
                       <v-list-item-title style="cursor: pointer">
-                        <v-icon small> mdi-eye </v-icon>
+                        <v-icon color="secondary" small> mdi-eye </v-icon>
                         View/Edit
-                      </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item v-if="can('employee_edit')">
-                      <v-list-item-title style="cursor: pointer">
-                        <EmployeeUploadToDevice
-                          :key="item.id"
-                          :id="item.id"
-                          :employee="item"
-                          :system_user_id="item.system_user_id"
-                        />
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item v-if="can('employee_edit')">
@@ -1009,6 +969,7 @@
                     <v-list-item v-if="can('employee_edit')">
                       <v-list-item-title style="cursor: pointer">
                         <DeviceUser
+                          iconColor="secondary"
                           label="Employee"
                           :key="generateRandomId()"
                           :system_user_id="item.system_user_id"
@@ -1042,7 +1003,6 @@
 import "cropperjs/dist/cropper.css";
 import VueCropper from "vue-cropperjs";
 import { getQrCode } from "@/utils/cardqrercode.js"; // Adjust the path as needed
-import EmployeeUploadToDevice from "../../components/widgets/EmployeeUploadToSingleDevice.vue";
 
 export default {
   head() {
@@ -1057,7 +1017,6 @@ export default {
   },
   components: {
     VueCropper,
-    EmployeeUploadToDevice,
   },
 
   data: () => ({
@@ -1766,6 +1725,8 @@ export default {
       this.loadinglinear = true;
 
       this.filters.search = this.search;
+
+      console.log("🚀 ~ this.filters:", this.filters);
 
       const data = await this.$store.dispatch("fetchData", {
         key: "employees",
