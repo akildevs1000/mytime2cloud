@@ -187,9 +187,7 @@ class AttendanceLogMissingController  extends Controller
         } else {
 
 
-
-
-            $indexSerialNumber = 0;
+            $indexSerialNumber = 1;
 
             //find serial number by date wise
             $indexSerialNumberModel = AttendanceLog::where("company_id", $company_id)
@@ -205,6 +203,14 @@ class AttendanceLogMissingController  extends Controller
             // if ($indexSerialNumber > 0) {
 
             $url = env("SDK_URL") . "/"  . $deviceId . "/GetRecordByIndex";
+
+             if (env('APP_ENV') == 'desktop') {
+                $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/" . $deviceId . "/GetRecordByIndex";
+            }
+
+
+            // if ($indexSerialNumber > 0) {
+
             //$url =   "https://sdk.mytime2cloud.com/" . $deviceId . "/GetRecordByIndex";
             $data =  [
                 "TransactionType" => 1,
