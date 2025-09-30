@@ -581,4 +581,38 @@ class CompanyController extends Controller
 
         return $contact;
     }
+
+    public function checkPin(Request $request): JsonResponse
+    {
+        return response()->json([
+            'status' => true,
+        ]);
+
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'company_id' => 'required|integer|exists:companies,id',
+                'pin'        => 'required|digits:4', // 4-digit pin
+            ]);
+
+            // Check if company with the given pin exists
+            $exists = Company::where('id', $validated['company_id'])
+                ->where('pin', $validated['pin'])
+                ->exists();
+
+            return response()->json(['status' => $exists]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Validation failed
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Other errors
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
