@@ -45,6 +45,12 @@
             <v-icon left> mdi-star-outline </v-icon>
             <span>Attendance Rating</span>
           </v-tab>
+
+          <v-tab>
+            <v-icon left>mdi-lock-outline</v-icon>
+            <span>Pin</span>
+          </v-tab>
+
           <v-tab-item>
             <v-card v-if="can('company_profile_access')" outlined class="ma-5">
               <v-card-text>
@@ -715,6 +721,38 @@
               v-if="can('performance_rating_description_access')"
             />
           </v-tab-item>
+
+          <v-tab-item>
+            <v-card flat v-if="can('license_access')">
+              <v-card-text>
+                <div style="display: flex; gap: 5px" class="mt-5">
+                  <div>
+                    <v-text-field
+                      class="custom-text-field-height"
+                      label="Pin"
+                      dense
+                      outlined
+                      v-model="company_payload.pin"
+                      hide-details
+                    ></v-text-field>
+                  </div>
+                  <div>
+                    <v-btn
+                      v-if="can('company_edit')"
+                      small
+                      :loading="loading"
+                      color="primary"
+                      @click="
+                        update_pin(company_payload.id, company_payload.pin)
+                      "
+                    >
+                      Submit
+                    </v-btn>
+                  </div>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-tab-item>
         </v-tabs>
       </v-card>
     </div>
@@ -943,6 +981,16 @@ export default {
         this.contact_payload,
         `Contact`
       );
+    },
+
+    async update_pin(company_id, pin) {
+      let { data } = await this.$axios.post(`/set-pin`, { company_id, pin });
+
+      this.snackbar = true;
+
+      this.response = !data.status
+        ? "Record cannot update"
+        : "Record updated successfully";
     },
 
     update_license() {
