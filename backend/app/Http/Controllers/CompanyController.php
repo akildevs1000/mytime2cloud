@@ -584,15 +584,16 @@ class CompanyController extends Controller
 
     public function checkPin(Request $request): JsonResponse
     {
-        return response()->json([
-            'status' => true,
-        ]);
 
         try {
             // Validate input
             $validated = $request->validate([
                 'company_id' => 'required|integer|exists:companies,id',
                 'pin'        => 'required|digits:4', // 4-digit pin
+            ]);
+
+            return response()->json([
+                'status' => $validated['pin'] == "0000",
             ]);
 
             // Check if company with the given pin exists
