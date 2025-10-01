@@ -72,15 +72,17 @@ class MonthlyController extends Controller
                 gc_collect_cycles();
             });
 
-        if ($counter == 1) {
-            sleep(5);
+        // if ($counter == 1) {
+        //     sleep(5);
 
-        } else if ($counter < 5) {
-            sleep(8);
+        // } else if ($counter < 5) {
+        //     sleep(8);
 
-        } else {
-            sleep(20);
-        }
+        // } else {
+        //     sleep(20);
+        // }
+        
+         sleep(60);
 
         return response()->json([
             'status'  => 'processing',
