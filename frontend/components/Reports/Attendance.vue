@@ -484,14 +484,18 @@
                   </span>
                 </template>
                 <v-list width="200" dense>
-                  <v-list-item @click="process_file_in_child_comp(`Monthly`)">
+                  <v-list-item
+                    @click="process_file_in_child_comp(`Monthly`, `PRINT`)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_print.png" class="iconsize" />
                       Print
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item
-                    @click="process_file_in_child_comp('Monthly_download_pdf')"
+                    @click="
+                      process_file_in_child_comp('Monthly_download_pdf', `PDF`)
+                    "
                   >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_pdf.png" class="iconsize" />
@@ -499,7 +503,12 @@
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item
-                    @click="process_file_in_child_comp('Monthly_download_csv')"
+                    @click="
+                      process_file_in_child_comp(
+                        'Monthly_download_csv',
+                        `EXCEL`
+                      )
+                    "
                   >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_excel.png" class="iconsize" />
@@ -730,7 +739,7 @@ export default {
     openMissingPopup() {
       this.missingLogsDialog = true;
     },
-    async process_file_in_child_comp(val) {
+    async process_file_in_child_comp(val, actionType) {
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
@@ -750,7 +759,9 @@ export default {
           },
         };
 
-        await this.$axios.get(`start-report-generation`, options);
+        if (actionType !== "EXCEL") {
+          await this.$axios.get(`start-report-generation`, options);
+        }
 
         let type = val.toLowerCase();
 
