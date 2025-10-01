@@ -48,7 +48,7 @@ class MonthlyController extends Controller
 
         $counter = 0;
 
-        return Employee::with(["schedule" => function ($q) use ($companyId) {
+        Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
                 ->withOut(["shift", "shift_type", "branch"]);
@@ -58,14 +58,14 @@ class MonthlyController extends Controller
             ->whereIn("employee_id", $employee_ids)
             ->chunk(50, function ($employees) use ($company, $requestPayload, $counter) {
                 foreach ($employees as $employee) {
-                    return GenerateAttendanceReportPDF::dispatchSync(
+                    GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
                         $requestPayload,
                         optional($employee->schedule)->shift_type_id ?? 0,
                         $requestPayload["template"] ?? "Template1"
-                    );
+                    )->onQueue('pdf-reports');
                     $counter++;
                 }
 
