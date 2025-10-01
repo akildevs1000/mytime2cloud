@@ -36,7 +36,7 @@ class MonthlyController extends Controller
             'from_date'    => $request->from_date,
             'to_date'      => $request->to_date,
             'employee_ids' => $request->input('employee_id', []),
-            'templates'    => [$request->input('report_template')],
+            'template'     => $request->input('report_template'),
         ];
 
         $companyId    = $requestPayload["company_id"];
@@ -48,7 +48,7 @@ class MonthlyController extends Controller
 
         $counter = 0;
 
-        Employee::with(["schedule" => function ($q) use ($companyId) {
+        return Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
                 ->withOut(["shift", "shift_type", "branch"]);
@@ -58,16 +58,14 @@ class MonthlyController extends Controller
             ->whereIn("employee_id", $employee_ids)
             ->chunk(50, function ($employees) use ($company, $requestPayload, $counter) {
                 foreach ($employees as $employee) {
-                    GenerateAttendanceReportPDF::dispatch(
+                    return GenerateAttendanceReportPDF::dispatchSync(
                         $employee->system_user_id,
                         $company,
                         $employee,
                         $requestPayload,
                         optional($employee->schedule)->shift_type_id ?? 0,
-                        $request->report_template ?? ["Template1"]
-
-                    )->onQueue('pdf-reports');
-
+                        $requestPayload["template"] ?? "Template1"
+                    );
                     $counter++;
                 }
 
@@ -75,10 +73,10 @@ class MonthlyController extends Controller
             });
 
         if ($counter == 1) {
-            sleep(3);
+            sleep(5);
 
         } else if ($counter < 5) {
-            sleep(5);
+            sleep(8);
 
         } else {
             sleep(20);

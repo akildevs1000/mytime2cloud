@@ -18,7 +18,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         public $employee,
         public $requestPayload,
         public $shift_type_id,
-        public $templates
+        public $template
     ) {}
 
     public function handle()
@@ -57,22 +57,20 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             "to_date"       => $this->requestPayload["to_date"],
         ];
 
-        $templates = $this->templates ?? ['Template1', 'Template2'];
+        $template = $this->template;
 
-        foreach ($templates as $template) {
-            $reportsDirectory = public_path("reports/{$this->requestPayload["company_id"]}/{$template}");
+        $reportsDirectory = public_path("reports/{$this->requestPayload["company_id"]}/{$template}");
 
-            if (! is_dir($reportsDirectory)) {
-                mkdir($reportsDirectory, 0777, true);
-            }
-
-            $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
-            $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
-
-            file_put_contents($filePath, $output);
-
-            echo "\nFile created at {$filePath}\n";
+        if (! is_dir($reportsDirectory)) {
+            mkdir($reportsDirectory, 0777, true);
         }
+
+        $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
+        $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
+
+        file_put_contents($filePath, $output);
+
+        echo "\nFile created at {$filePath}\n";
 
     }
 
@@ -150,6 +148,4 @@ class GenerateAttendanceReportPDF implements ShouldQueue
 
         return $model;
     }
-
-    
 }

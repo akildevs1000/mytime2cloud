@@ -154,11 +154,13 @@
                             @endfor
                         @else
                             <td class="text-center" colspan="4"
-                                style="font-size:6px; color: {{ $date->device_in->name == 'Manual' ? red : '' }}">
-                                {{ $date->in ?? '---' }}</td>
+                                style="{{ ($date->device_in->name ?? '') === 'Manual' ? 'color:red; font-size:6px;' : '' }}">
+                                {{ $date->in ?? '---' }}
+                            </td>
                             <td class="text-center" colspan="4"
-                                style="font-size:6px; color: {{ $date->device_out->name == 'Manual' ? red : '' }}">
-                                {{ $date->out ?? '---' }}</td>
+                                style="{{ ($date->device_out->name ?? '') === 'Manual' ? 'color:red; font-size:6px;' : '' }}">
+                                {{ $date->out ?? '---' }}
+                            </td>
                             <td class="text-center" colspan="3">{{ $date->late_coming ?? '---' }}</td>
                             <td class="text-center" colspan="3">{{ $date->early_going ?? '---' }}</td>
                         @endif

@@ -263,16 +263,16 @@ die();
 
         <?php if (in_array($shift_type_id, [1, 4, 6])) { ?>
         <tr style="background-color: none;">
-            <td class="text-center"> In </td>
+            <td class="text-center">In </td>
 
             @foreach ($data as $date)
-                <td class="text-center"> {{ $date->in ?? '---' }} </td>
+                <td class="text-center" style="{{$date?->device_in?->name  == 'Manual' ? 'color:red !important;' : ''}}"> {{ $date->in ?? '---' }}</td>
             @endforeach
         </tr>
         <tr style="background-color: none;">
             <td class="text-center"> Out </td>
             @foreach ($data as $date)
-                <td class="text-center"> {{ $date->out ?? '---' }} </td>
+                <td class="text-center" style="{{$date?->device_out?->name  == 'Manual' ? 'color:red !important;' : ''}}"> {{ $date->out ?? '---' }} </td>
             @endforeach
         </tr>
         <?php } ?>
