@@ -12,6 +12,8 @@ export default ({ $axios, store }, inject) => {
     appURL = isClient ? `http://${window.location.hostname || "localhost"}:3001` : "http://localhost:3001";
   }
 
+  // backendURL = 'https://backend.mytime2cloud.com/api';
+
   inject("backendUrl", backendURL);
   inject("appUrl", appURL);
 

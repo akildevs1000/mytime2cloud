@@ -1,30 +1,5 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <v-dialog v-model="loadingDialog" persistent max-width="400">
-      <v-card>
-        <v-alert dense flat dark color="primary">Attendance Report</v-alert>
-        <v-card-text
-          class="d-flex flex-column align-center justify-center"
-          style="min-height: 200px"
-        >
-          <!-- Centered spinner -->
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="50"
-            width="5"
-            class="mb-4"
-          ></v-progress-circular>
-
-          <div class="text-h6 font-weight-medium text-center">
-            Report is generating
-          </div>
-          <div class="text-subtitle-2 grey--text text-center">
-            Please wait while we prepare your report...
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -39,6 +14,10 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <ProgressBar
+      ref="ProgressBarRef"
+      :queryStringUrl="queryStringUrl"
+    />
     <v-card
       class="mt-5 pa-2"
       elevation="0"
@@ -580,7 +559,7 @@ export default {
   props: ["title", "render_endpoint"],
 
   data: () => ({
-    loadingDialog: false, // renamed
+    queryStringUrl: null,
     missingLogsDialog: false,
     key: 1,
     shift_type_id: 0,
@@ -750,19 +729,7 @@ export default {
         return;
       }
 
-      this.loadingDialog = true;
-
       try {
-        let options = {
-          params: {
-            ...this.returnedPayload,
-          },
-        };
-
-        if (actionType !== "EXCEL") {
-          await this.$axios.get(`start-report-generation`, options);
-        }
-
         let type = val.toLowerCase();
 
         let process_file_endpoint = "";
@@ -803,6 +770,21 @@ export default {
             JSON.stringify(this.payload.showTabs)
           )}`;
         }
+
+        if (actionType !== "EXCEL") {
+          this.queryStringUrl = qs;
+
+          await this.$axios.get(`start-report-generation`, {
+            params: {
+              ...this.returnedPayload,
+            },
+          });
+
+          this.$refs["ProgressBarRef"].loadingDialog = true;
+
+          return;
+        }
+
         let report = document.createElement("a");
         report.setAttribute("href", qs);
         report.setAttribute("target", "_blank");
@@ -811,7 +793,7 @@ export default {
         console.error(error);
         // handle error UI
       } finally {
-        this.loadingDialog = false; // always close
+        // this.loadingDialog = false; // always close
       }
     },
     toggleDepartmentSelection() {

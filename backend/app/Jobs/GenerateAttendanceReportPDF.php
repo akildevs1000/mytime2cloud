@@ -8,7 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-
+use Illuminate\Support\Facades\Cache;
 class GenerateAttendanceReportPDF implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -66,9 +66,12 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         }
 
         $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
+
         $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
 
         file_put_contents($filePath, $output);
+
+        Cache::increment("batch_done");
 
         echo "\nFile created at {$filePath}\n";
 
@@ -147,5 +150,10 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         $model->orderBy('date', 'asc');
 
         return $model;
+    }
+
+    public function failed()
+    {
+        Cache::increment("batch_failed");
     }
 }
