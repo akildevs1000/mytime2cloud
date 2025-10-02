@@ -81,8 +81,8 @@ class MonthlyController extends Controller
         // } else {
         //     sleep(20);
         // }
-        
-         sleep(60);
+
+         sleep(30);
 
         return response()->json([
             'status'  => 'processing',
