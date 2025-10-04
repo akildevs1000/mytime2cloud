@@ -764,12 +764,13 @@
                         {{-- how to show only in the last --}}
                         @if ($loop->last)
                             @if ($shift_type_id != 2)
-                                <td colspan="4"></td>
-                                <th style="text-align: left;color:#f97316;">{{ $info->late_coming ?? 0 }}</th>
-                                <th style="text-align: left;color:#f97316;">{{ $info->early_going ?? 0 }}</th>
-                                <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
-                                <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
-                                <td></td>
+                                <tr style=" background-color: #f3f4f6;">
+                                    <td colspan="4"></td>
+                                    <th style="text-align: left;color:#f97316;">{{ $info->late_coming ?? 0 }}</th>
+                                    <th style="text-align: left;color:#f97316;">{{ $info->early_going ?? 0 }}</th>
+                                    <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
+                                    <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
+                                    <td></td>
                                 </tr>
                             @else
                                 <tr style=" background-color: #f3f4f6;">
