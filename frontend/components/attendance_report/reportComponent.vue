@@ -61,6 +61,13 @@
         :height="tableHeight"
         no-data-text="No Data available. Click 'Generate' button to see the results"
       >
+        <template v-slot:item.late_coming="{ item }">
+            <span class="orange--text text--darken-2">{{ item.late_coming }}</span>
+        </template>
+        <template v-slot:item.early_going="{ item }">
+           <span class="orange--text text--darken-2">{{ item.early_going }}</span>
+        </template>
+
         <template
           v-slot:item.employee_name="{ item, index }"
           style="width: 300px"
@@ -110,7 +117,9 @@
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
-              {{ setStatusLabel(item.status) }}
+               <span :style="`color:${setStatusColor(item.status)}`">
+                  {{ setStatusLabel(item.status) }}
+                </span>
               <div class="secondary-value" v-if="item.status == 'P'">
                 {{ getShortShiftDetails(item) }}
               </div>
@@ -133,7 +142,8 @@
 
         <template v-slot:item.shift="{ item }">
           <div>
-            {{ item?.shift?.on_duty_time || "---" }} - {{ item?.shift?.off_duty_time || "---" }}
+            {{ item?.shift?.on_duty_time || "---" }} -
+            {{ item?.shift?.off_duty_time || "---" }}
           </div>
           <div class="secondary-value">
             {{ (item.shift && item.shift.name) || "---" }}
@@ -539,7 +549,13 @@
 </template>
 <script>
 export default {
-  props: ["shift_type_id", "headers", "payload1", "system_user_id","report_template"],
+  props: [
+    "shift_type_id",
+    "headers",
+    "payload1",
+    "system_user_id",
+    "report_template",
+  ],
 
   data: () => ({
     key: 1,
@@ -750,7 +766,7 @@ export default {
         company_id: this.$auth.user.company_id,
         report_type: this.report_type,
         shift_type_id: this.shift_type_id,
-        report_template:this.report_template,
+        report_template: this.report_template,
         overtime: this.overtime ? 1 : 0,
         ...this.filters,
         ...this.payload,
@@ -773,7 +789,7 @@ export default {
         this.loading = false;
         this.totalRowsCount = data.total;
 
-        this.$emit("returnedPayload",payload);
+        this.$emit("returnedPayload", payload);
 
         if (this.clearPagenumber) {
           this.options.page = 1;
@@ -851,6 +867,21 @@ export default {
         L: "Leave",
         H: "Holiday",
         V: "Vaccation",
+      };
+      return statuses[status];
+    },
+
+    setStatusColor(status) {
+      const statuses = {
+        A: "#f97316",
+        P: "#16a34a",
+        M: "#4b5563",
+        LC: "#f97316",
+        EG: "#f97316",
+        O: "#4b5563",
+        L: "#ca8a04",
+        H: "#4f46e5",
+        V: "#4f46e5",
       };
       return statuses[status];
     },
