@@ -448,7 +448,7 @@
             {{-- Your special header with logo, details, stats... --}}
             <table class="header-table">
                 <tr>
-                    <td style="border: none;padding:0;width:50%">
+                    <td style="border: none;width:50%">
                         <table style="border-collapse: collapse; width: 100%;">
                             <tr>
                                 <!-- Logo -->
@@ -472,7 +472,7 @@
                             </tr>
                         </table>
                     </td>
-                    <td class="company-info" style="border: none;padding:0;width:50%">
+                    <td class="company-info" style="border: none;width:50%">
                         <p class="company-name">{{ $company->name ?? '' }}</p>
                         <p class="header-subtitle">{{ $company->user->email ?? '' }}</p>
                         <p class="header-subtitle">{{ $company->contact->number ?? '' }}</p>
