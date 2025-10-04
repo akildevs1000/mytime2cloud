@@ -398,9 +398,14 @@
         }
 
         #page-bottom-line {
-            width: 100%;
+            width: 94%;
+            /* your desired width */
             position: fixed;
             bottom: 0;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            /* centers the footer */
             text-align: center;
             font-size: 12px;
             counter-reset: pageTotal;
@@ -411,6 +416,12 @@
 
 <body>
     @php
+        $manualRecordCounter = $data
+            ->filter(function ($item) {
+                return $item->device_out?->short_name === 'Manual' || $item->device_in?->short_name === 'Manual';
+            })
+            ->count();
+
         $statusMap = [
             'P' => [
                 'text' => 'Present',
@@ -562,7 +573,7 @@
                     <td>
                         <div class="stat-card-inner bg-purple-100">
                             <p class="stat-label text-purple-600">Manual Punches</p>
-                            <p class="stat-value text-purple-700">{{ rand(1, 5) }}</p>
+                            <p class="stat-value text-purple-700">{{ $manualRecordCounter }}</p>
                         </div>
                     </td>
                 </tr>
@@ -578,8 +589,8 @@
                                 <th style="text-align: left">Shift</th>
                                 <th style="text-align: left">In Time</th>
                                 <th style="text-align: left">Out Time</th>
-                                <th style="text-align: left">Late In</th>
-                                <th style="text-align: left">Early Out</th>
+                                <th style="text-align: left;">Late In</th>
+                                <th style="text-align: left;">Early Out</th>
                             @else
                                 @for ($i = 1; $i < 8; $i++)
                                     <th style="text-align: left">In{{ $i }}</th>
@@ -592,8 +603,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($data->take(8) as $date)
-
+                        @foreach ($data->take(7) as $date)
                             @php
                                 $status = $statusMap[$date->status] ?? $defaultStatus;
                                 $statusText = $status['text'];
@@ -601,25 +611,32 @@
                                 $statusColor = $status['color'];
                             @endphp
                             <tr>
-                                <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }}</td>
+                                <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }} <br>
+                                    <span
+                                        style="font-size: 9px">{{ date('D', strtotime($date->date)) ?? '---' }}</span>
+                                </td>
                                 @if ($shift_type_id != 2)
                                     <td>
-                                        @if ($date->status == 'O')
-                                            Week-Off
-                                        @else
-                                            @if ($date->schedule)
-                                                {{ $date->schedule->shift->on_duty_time }} -
-                                                {{ $date->schedule->shift->off_duty_time }}
-                                                <div class="secondary-value" style="font-size:9px">
-                                                    {{ $date->schedule->shift->name }}
-                                                </div>
-                                            @endif
+                                        @if ($date->schedule)
+                                            {{ $date->schedule->shift->on_duty_time }} -
+                                            {{ $date->schedule->shift->off_duty_time }}
+                                            <div class="secondary-value" style="font-size:9px">
+                                                {{ $date->schedule->shift->name }}
+                                            </div>
                                         @endif
                                     </td>
-                                    <td>{{ $date->in }}</td>
-                                    <td>{{ $date->out }}</td>
-                                    <td>{{ $date->late_coming }}</td>
-                                    <td>{{ $date->early_going }}</td>
+                                    <td
+                                        style="{{ $date?->device_in?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
+                                        {{ $date->in }} <br> <span
+                                            style="font-size: 9px">{{ $date?->device_in?->short_name ?? '' }}</span>
+                                    </td>
+                                    <td
+                                        style="{{ $date?->device_out?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
+                                        {{ $date->out }} <br> <span
+                                            style="font-size: 9px">{{ $date?->device_out?->short_name ?? '' }}</span>
+                                    </td>
+                                    <td style="text-align: left;color:#f97316;">{{ $date->late_coming }}</td>
+                                    <td style="text-align: left;color:#f97316;">{{ $date->early_going }}</td>
                                 @else
                                     @for ($i = 1; $i < 8; $i++)
                                         <td class="text-center">
@@ -627,6 +644,7 @@
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_in'] ?? '---' }}
+                                                <br> {{ $date->logs[$i]['device_in']['short_name'] ?? '---' }}
                                             </div>
                                         </td>
                                         <td class="text-center">
@@ -634,6 +652,7 @@
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_out'] ?? '---' }}
+                                                <br> {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
                                             </div>
                                         </td>
                                     @endfor
@@ -655,9 +674,7 @@
         {{-- PAGE BREAK --}}
         <div class="force-break"></div>
 
-
-
-        @foreach ($data->skip(8)->chunk(12) as $chunk)
+        @foreach ($data->skip(7)->chunk(11) as $chunk)
             <table class="header-table" style="padding: 0 10px">
                 <tr>
                     <td style="width: 50%">
@@ -713,23 +730,30 @@
                                 $statusColor = $status['color'];
                             @endphp
                             <tr>
-                                <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }}</td>
+                                <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }} <br>
+                                    <span
+                                        style="font-size: 9px">{{ date('D', strtotime($date->date)) ?? '---' }}</span>
+                                </td>
                                 @if ($shift_type_id != 2)
                                     <td>
-                                        @if ($date->status == 'O')
-                                            Week-Off
-                                        @else
-                                            @if ($date->schedule)
-                                                {{ $date->schedule->shift->on_duty_time }} -
-                                                {{ $date->schedule->shift->off_duty_time }}
-                                                <div class="secondary-value" style="font-size:9px">
-                                                    {{ $date->schedule->shift->name }}
-                                                </div>
-                                            @endif
+                                        @if ($date->schedule)
+                                            {{ $date->schedule->shift->on_duty_time }} -
+                                            {{ $date->schedule->shift->off_duty_time }}
+                                            <div class="secondary-value" style="font-size:9px">
+                                                {{ $date->schedule->shift->name }}
+                                            </div>
                                         @endif
                                     </td>
-                                    <td>{{ $date->in }}</td>
-                                    <td>{{ $date->out }}</td>
+                                    <td
+                                        style="{{ $date?->device_in?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
+                                        {{ $date->in }} <br> <span
+                                            style="font-size: 9px">{{ $date?->device_in?->short_name ?? '' }}</span>
+                                    </td>
+                                    <td
+                                        style="{{ $date?->device_out?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
+                                        {{ $date->out }} <br> <span
+                                            style="font-size: 9px">{{ $date?->device_out?->short_name ?? '' }}</span>
+                                    </td>
                                     <td style="color:#f97316;">{{ $date->late_coming }}</td>
                                     <td style="color:#f97316;">{{ $date->early_going }}</td>
                                 @else
@@ -760,26 +784,20 @@
                             </tr>
                         @endforeach
 
-
                         {{-- how to show only in the last --}}
                         @if ($loop->last)
-                            @if ($shift_type_id != 2)
-                                <tr style=" background-color: #f3f4f6;">
+                            <tr style=" background-color: #f3f4f6;">
+                                @if ($shift_type_id != 2)
                                     <td colspan="4"></td>
-                                    <th style="text-align: left;color:#f97316;">{{ $info->late_coming ?? 0 }}</th>
-                                    <th style="text-align: left;color:#f97316;">{{ $info->early_going ?? 0 }}</th>
-                                    <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
-                                    <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
-                                    <td></td>
-                                </tr>
-                            @else
-                                <tr style=" background-color: #f3f4f6;">
+                                    <th style="text-align: left;color:#f97316;">{{ $info->total_late ?? 0 }}</th>
+                                    <th style="text-align: left;color:#f97316;">{{ $info->total_early ?? 0 }}</th>
+                                @else
                                     <td colspan="15"></td>
-                                    <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
-                                    <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
-                                    <td></td>
-                                </tr>
-                            @endif
+                                @endif
+                                <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
+                                <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
+                                <td></td>
+                            </tr>
                         @endif
                     </tbody>
                 </table>
