@@ -643,16 +643,15 @@
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
-                                                {{ $date->logs[$i]['device_in'] ?? '---' }}
-                                                <br> {{ $date->logs[$i]['device_in']['short_name'] ?? '---' }}
+                                                 {{ $date->logs[$i]['device_in'] ?? '---' }}
                                             </div>
                                         </td>
                                         <td class="text-center">
                                             {{ $date->logs[$i]['out'] ?? '---' }}
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
-                                                {{ $date->logs[$i]['device_out'] ?? '---' }}
-                                                <br> {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
+                                                {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
+
                                             </div>
                                         </td>
                                     @endfor
