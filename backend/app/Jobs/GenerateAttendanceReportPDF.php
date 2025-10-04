@@ -9,6 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Cache;
+
 class GenerateAttendanceReportPDF implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -38,14 +39,15 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             'total_missing'  => $model->clone()->where('status', 'M')->count(),
             'total_leave'    => $model->clone()->where('status', 'L')->count(),
             'total_holiday'  => $model->clone()->where('status', 'H')->count(),
-            'total_late'     => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'total_early'    => $model->clone()->where('early_going', '!=', '---')->count(),
+
+            // ✅ Use new helper for these
+            'total_late'     => getTotalHours(array_column($collection->toArray(), 'late_coming')),
+            'total_early'    => getTotalHours(array_column($collection->toArray(), 'early_going')),
+
             'total_hours'    => getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type'    => $this->requestPayload["status_slug"],
         ];
-
-        info(showJson($info));
 
         $arr = [
             'data'          => $data,
@@ -65,7 +67,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             mkdir($reportsDirectory, 0777, true);
         }
 
-        $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
+        $output = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
 
         $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
 
