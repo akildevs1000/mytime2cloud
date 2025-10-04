@@ -62,10 +62,14 @@
         no-data-text="No Data available. Click 'Generate' button to see the results"
       >
         <template v-slot:item.late_coming="{ item }">
-            <span class="orange--text text--darken-2">{{ item.late_coming }}</span>
+          <span class="orange--text text--darken-2">{{
+            item.late_coming
+          }}</span>
         </template>
         <template v-slot:item.early_going="{ item }">
-           <span class="orange--text text--darken-2">{{ item.early_going }}</span>
+          <span class="orange--text text--darken-2">{{
+            item.early_going
+          }}</span>
         </template>
 
         <template
@@ -117,9 +121,18 @@
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
-               <span :style="`color:${setStatusColor(item.status)}`">
-                  {{ setStatusLabel(item.status) }}
-                </span>
+              <span
+                :style="{
+                  color: getTextColor(item.status),
+                  backgroundColor: getBgColor(item.status),
+                  padding: '2px 11px',
+                  borderRadius: '50px',
+                  fontWeight: '500',
+                }"
+              >
+                {{ setStatusLabel(item.status) }}
+              </span>
+
               <div class="secondary-value" v-if="item.status == 'P'">
                 {{ getShortShiftDetails(item) }}
               </div>
@@ -856,34 +869,49 @@ export default {
         }
       }
     },
+    getBgColor(status) {
+      const colors = {
+        A: "#fed7aa", // light orange
+        P: "#bbf7d0", // light green
+        M: "#e5e7eb", // light gray
+        LC: "#fed7aa",
+        EG: "#fed7aa",
+        O: "#e5e7eb",
+        L: "#fef08a", // light yellow
+        H: "#c7d2fe", // light indigo
+        V: "#c7d2fe",
+      };
+      return colors[status] || "#f3f4f6";
+    },
+
+    getTextColor(status) {
+      const colors = {
+        A: "#c2410c", // dark orange
+        P: "#15803d", // dark green
+        M: "#374151", // dark gray
+        LC: "#c2410c",
+        EG: "#c2410c",
+        O: "#374151",
+        L: "#854d0e", // dark yellow-brown
+        H: "#3730a3", // dark indigo
+        V: "#3730a3",
+      };
+      return colors[status] || "#111827";
+    },
+
     setStatusLabel(status) {
-      const statuses = {
+      const labels = {
         A: "Absent",
         P: "Present",
-        M: "Incomplete",
-        LC: "Late In",
-        EG: "Early Out",
+        M: "Missed",
+        LC: "Late Coming",
+        EG: "Early Going",
         O: "Week Off",
         L: "Leave",
         H: "Holiday",
-        V: "Vaccation",
+        V: "Vacation",
       };
-      return statuses[status];
-    },
-
-    setStatusColor(status) {
-      const statuses = {
-        A: "#f97316",
-        P: "#16a34a",
-        M: "#4b5563",
-        LC: "#f97316",
-        EG: "#f97316",
-        O: "#4b5563",
-        L: "#ca8a04",
-        H: "#4f46e5",
-        V: "#4f46e5",
-      };
-      return statuses[status];
+      return labels[status] || status;
     },
   },
 };
