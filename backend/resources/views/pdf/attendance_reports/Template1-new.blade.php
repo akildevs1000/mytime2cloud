@@ -592,9 +592,9 @@
                                 <th style="text-align: left;">Late In</th>
                                 <th style="text-align: left;">Early Out</th>
                             @else
-                                @for ($i = 1; $i < 8; $i++)
-                                    <th style="text-align: left">In{{ $i }}</th>
-                                    <th style="text-align: left">Out{{ $i }}</th>
+                                @for ($i = 0; $i < 7; $i++)
+                                    <th style="text-align: left">In{{ $i + 1 }}</th>
+                                    <th style="text-align: left">Out{{ $i + 1 }}</th>
                                 @endfor
                             @endif
                             <th style="text-align: left">T.Hrs</th>
@@ -638,7 +638,7 @@
                                     <td style="text-align: left;color:#f97316;">{{ $date->late_coming }}</td>
                                     <td style="text-align: left;color:#f97316;">{{ $date->early_going }}</td>
                                 @else
-                                    @for ($i = 1; $i < 8; $i++)
+                                    @for ($i = 0; $i < 7; $i++)
                                         <td class="text-center">
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
@@ -711,9 +711,9 @@
                                 <th style="text-align: left">Late In</th>
                                 <th style="text-align: left">Early Out</th>
                             @else
-                                @for ($i = 1; $i < 8; $i++)
-                                    <th style="text-align: left">In{{ $i }}</th>
-                                    <th style="text-align: left">Out{{ $i }}</th>
+                                @for ($i = 0; $i < 7; $i++)
+                                    <th style="text-align: left">In{{ $i + 1 }}</th>
+                                    <th style="text-align: left">Out{{ $i + 1 }}</th>
                                 @endfor
                             @endif
                             <th style="text-align: left">T.Hrs</th>
