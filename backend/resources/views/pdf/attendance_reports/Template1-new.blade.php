@@ -6,7 +6,7 @@
     <title>Multi-Page Report Example</title>
     <style>
         @page {
-            margin: 20px 5px;
+            margin: 10px 5px 20px 5px;
             /* leave space for header/footer */
         }
 
@@ -24,12 +24,12 @@
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 24px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #949494;
         }
 
         .header-table td {
-            padding-bottom: 16px;
+            padding-bottom: 0;
             vertical-align: top;
         }
 
@@ -511,19 +511,19 @@
             <!-- Employee Details -->
             <table class="details-table">
                 <tr>
-                    <td>
+                    <td style="text-align: center;width;25%;">
                         <p class="detail-label">EMPLOYEE</p>
                         <p class="detail-value">{{ $employee->full_name }} ({{ $employee->employee_id }})</p>
                     </td>
-                    <td>
+                    <td style="text-align: center;width;25%;">
                         <p class="detail-label">DEPARTMENT</p>
                         <p class="detail-value">{{ $employee?->department?->name ?? '---' }}</p>
                     </td>
-                    <td>
+                    <td style="text-align: center;width;25%;">
                         <p class="detail-label">BRANCH NAME</p>
                         <p class="detail-value">{{ $employee?->branch?->branch_name ?? 'Default Branch' }}</p>
                     </td>
-                    <td>
+                    <td style="text-align: center;width;25%;">
                         <p class="detail-label">SHIFT TYPE</p>
                         <p class="detail-value">{{ $data[0]->schedule->shift_type->name }}
                         </p>
@@ -603,7 +603,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($data->take(7) as $date)
+                        @foreach ($data->take(8) as $date)
                             @php
                                 $status = $statusMap[$date->status] ?? $defaultStatus;
                                 $statusText = $status['text'];
@@ -643,7 +643,7 @@
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
-                                                 {{ $date->logs[$i]['device_in'] ?? '---' }}
+                                                {{ $date->logs[$i]['device_in'] ?? '---' }}
                                             </div>
                                         </td>
                                         <td class="text-center">
@@ -673,8 +673,9 @@
         {{-- PAGE BREAK --}}
         <div class="force-break"></div>
 
-        @foreach ($data->skip(7)->chunk(11) as $chunk)
-            <table class="header-table" style="padding: 0 10px">
+        @foreach ($data->skip(8)->chunk(12) as $chunk)
+            <table style=" width: 100%;
+            border-collapse: collapse;">
                 <tr>
                     <td style="width: 50%">
                         <table style="border-collapse: collapse">
