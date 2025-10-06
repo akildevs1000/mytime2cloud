@@ -168,76 +168,97 @@ class MultiShiftController extends Controller
                     "device_out"    => "---",
                     "total_minutes" => 0,
                 ];
+            } else if (count($data) === 2 && in_array(strtolower($data[0]['log_type']), ['in', 'out']) &&
+                strtolower($data[0]['log_type']) === strtolower($data[1]['log_type'])) {
+                $log  = $data[0];
+                $time = $log['time'] ?? '---';
+
+                $validInTime = $this->getLogTime(
+                    $log,
+                    ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
+                    ["Manual", "manual", "MANUAL"]
+                );
+
+                if (strtolower($log['log_type']) == "in") {
+                    $validInTime = $time;
+                }
+
+                $logsJson[] = [
+                    "in"            => $validInTime !== "---" ? $validInTime : "---",
+                    "out"           => "---",
+                    "device_in"     => $this->getDeviceName($log, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                    "device_out"    => "---",
+                    "total_minutes" => 0,
+                ];
             } else {
 
-                // ✅ Normal multiple-log processing
+                $data = $data->values()->toArray(); // 👈 converts Collection to array
+
                 $i             = 0;
                 $validLogCount = 0;
+                $previousOut   = null;
 
                 while ($i < count($data)) {
                     $currentLog  = $data[$i];
                     $currentTime = $currentLog['time'] ?? '---';
 
-                    if (
-                        isset($data[$i + 1]) &&
-                        in_array(strtolower($currentLog['log_type']), ['in', 'out']) &&
-                        strtolower($currentLog['log_type']) === strtolower($data[$i + 1]['log_type'])
-                    ) {
-                        $i++; // Jump to the next iteration, skipping the current log
+                    // Skip invalid logs
+                    if (! isset($currentLog['log_type']) || ! in_array(strtolower($currentLog['log_type']), ['in', 'out'])) {
+                        $i++;
                         continue;
                     }
 
-                    $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
-
-                    $validInTime = $validIn
-                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
-
-                    if (strtolower($currentLog['log_type']) == "in") {
-                        $validInTime = $currentTime;
+                    // Skip duplicate IN or OUT logs
+                    if (
+                        isset($data[$i + 1]) &&
+                        strtolower($currentLog['log_type']) === strtolower($data[$i + 1]['log_type'])
+                    ) {
+                        $i++;
+                        continue;
                     }
 
-                    if (! $validIn || $validInTime === "---") {
+                    // Process only IN logs
+                    if (strtolower($currentLog['log_type']) !== 'in') {
                         $i++;
                         continue;
                     }
 
                     $validLogCount++;
+                    $validInTime = $currentTime;
 
-                    // Try to find a valid OUT log after this IN
+                    // Find the next valid OUT
                     $nextLog      = null;
                     $validOutTime = "---";
 
                     for ($j = $i + 1; $j < count($data); $j++) {
                         $candidateLog  = $data[$j];
+                        $candidateType = strtolower($candidateLog['log_type']);
                         $candidateTime = $candidateLog['time'] ?? '---';
 
-                        $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
-
-                        $validOutTime = $validOut
-                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                            : "---";
-
-                        if (strtolower($candidateLog['log_type']) == "out") {
-                            $validOutTime = $candidateTime;
+                        // Skip duplicate OUT logs (same timestamp or continuous OUTs)
+                        if ($candidateType === 'out') {
+                            if (! isset($nextLog)) {
+                                $nextLog      = $candidateLog;
+                                $validOutTime = $candidateTime;
+                            }
+                            // continue checking for next IN after we got the first OUT
+                            // but break once we find IN (next cycle will handle it)
                         }
 
-                        if ($validOut && $validOutTime !== "---") {
-                            $nextLog = $candidateLog;
-                            $i       = $j; // jump to OUT log
-                            $validLogCount++;
+                        if ($candidateType === 'in') {
+                            // stop when we find the next IN after an OUT
                             break;
                         }
                     }
 
+                    // Calculate total minutes if OUT exists
                     $minutes = 0;
-
                     if ($nextLog) {
-                        $parsedIn  = strtotime($currentTime);
-                        $parsedOut = strtotime($nextLog['time'] ?? '---');
+                        $parsedIn  = strtotime($validInTime);
+                        $parsedOut = strtotime($nextLog['time']);
 
                         if ($parsedIn > $parsedOut) {
-                            $parsedOut += 86400; // handle midnight
+                            $parsedOut += 86400; // handle crossing midnight
                         }
 
                         $minutes = ($parsedOut - $parsedIn) / 60;
@@ -247,16 +268,23 @@ class MultiShiftController extends Controller
                     $logsJson[] = [
                         "in"            => $validInTime,
                         "out"           => $nextLog ? $validOutTime : "---",
-                        "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
+                        "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "Mobile"], ["Manual"]),
                         "device_out"    => $nextLog
-                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
+                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "Mobile"], ["Manual"])
                             : "---",
                         "total_minutes" => $minutes,
                     ];
 
-                    $previousOut = $nextLog['time'] ?? null;
-                    $i++; // move forward
+                    // Move pointer to the next IN after the last OUT
+                    if ($nextLog) {
+                        // find the next index after OUT
+                        $nextIndex = array_search($nextLog, $data, true);
+                        $i         = $nextIndex + 1;
+                    } else {
+                        $i++;
+                    }
                 }
+
                 $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
 
             }
@@ -379,6 +407,8 @@ class MultiShiftController extends Controller
         if ($log['device']['name'] == "---") {
             return "Manual";
         }
+
+        // info(json_encode($log["device"]['model_number'], JSON_PRETTY_PRINT));
 
         return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions) ? $log["device"]["function"] : "---";
     }
