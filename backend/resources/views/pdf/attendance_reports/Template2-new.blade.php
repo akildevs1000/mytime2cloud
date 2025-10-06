@@ -678,6 +678,36 @@
                             <td class="text-center"> {{ $date->logs[4]['out'] ?? '---' }} </td>
                         @endforeach
                     </tr>
+
+                    <tr style="background-color: none;">
+                        <td class="text-center"> In6 </td>
+
+                        @foreach ($data as $date)
+                            <td class="text-center"> {{ $date->logs[5]['in'] ?? '---' }} </td>
+                        @endforeach
+                    </tr>
+                    <tr style="background-color: none;">
+                        <td class="text-center"> Out6 </td>
+
+                        @foreach ($data as $date)
+                            <td class="text-center"> {{ $date->logs[5]['out'] ?? '---' }} </td>
+                        @endforeach
+                    </tr>
+
+                    <tr style="background-color: none;">
+                        <td class="text-center"> In7 </td>
+
+                        @foreach ($data as $date)
+                            <td class="text-center"> {{ $date->logs[6]['in'] ?? '---' }} </td>
+                        @endforeach
+                    </tr>
+                    <tr style="background-color: none;">
+                        <td class="text-center"> Out7 </td>
+
+                        @foreach ($data as $date)
+                            <td class="text-center"> {{ $date->logs[6]['out'] ?? '---' }} </td>
+                        @endforeach
+                    </tr>
                 @endif
 
 
@@ -778,7 +808,7 @@
                             A = Absent,
                         </span>
                         <span style="color:gray !important; font-size:10px; ">
-                            W = Weekoff,
+                            O = Off,
                         </span>
                         <span style="color:blue !important; font-size:10px; ">
                             L = Leaves,
