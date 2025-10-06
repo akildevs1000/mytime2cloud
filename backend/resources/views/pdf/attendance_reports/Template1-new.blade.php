@@ -756,7 +756,7 @@
                                     <td style="color:#f97316;">{{ $date->late_coming }}</td>
                                     <td style="color:#f97316;">{{ $date->early_going }}</td>
                                 @else
-                                    @for ($i = 1; $i < 8; $i++)
+                                    @for ($i = 0; $i < 7; $i++)
                                         <td class="text-center">
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
