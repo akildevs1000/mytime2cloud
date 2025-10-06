@@ -106,10 +106,8 @@
         .stats-table {
             width: 100%;
             border-collapse: collapse;
-            /* ⬅️ Change to collapse for stability */
             border-spacing: 0;
-            /* ⬅️ Change to zero */
-            margin-bottom: 32px;
+            margin-bottom: 20px;
             text-align: center;
             border: none;
         }
@@ -383,6 +381,32 @@
 
 <body>
     @php
+
+        // Function to convert time in "HH:MM" format to total minutes
+        function timeToMinutes($time)
+        {
+            [$hours, $minutes] = explode(':', $time);
+            return $hours * 60 + $minutes;
+        }
+
+        // Function to convert minutes back to "HH:MM" format
+        function minutesToTime($minutes)
+        {
+            $hours = floor($minutes / 60);
+            $minutes = $minutes % 60;
+            return sprintf('%02d:%02d', $hours, $minutes);
+        }
+
+        // Convert times to minutes
+        $minutes1 = timeToMinutes($info->total_late  ?? "00:00");
+        $minutes2 = timeToMinutes($info->total_early ?? "00:00");
+
+        // Add the minutes
+        $totalMinutes = $minutes1 + $minutes2;
+
+        // Convert total minutes back to time format
+        $totalTime = minutesToTime($totalMinutes);
+
         $manualRecordCounter = $data
             ->filter(function ($item) {
                 return $item->device_out?->short_name === 'Manual' || $item->device_in?->short_name === 'Manual';
@@ -554,7 +578,69 @@
                 </tr>
             </table>
 
-            <table style="margin-top: 15px !important; margin-bottom:20px !important;width:100% !important; ">
+            @if ($shift_type_id != 2)
+                <table
+                    style="margin-bottom:20px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
+                    <tbody>
+                        <tr>
+                            <td style="border: none;width:40%;">
+                                <div style="border-radius: 10px; overflow: hidden">
+                                    <table
+                                        style="
+                  width: 100%;
+                  background-color: #ffedd5;
+                  padding: 15px 15px;
+                ">
+                                        <tr>
+                                            <td style="border: none">
+                                                <div>
+                                                    <div style="color: #9a3412; font-weight: bold;">
+                                                        Total Late Hours (Month)
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: right;border: none">
+                                                <h1 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h1>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                            <td style="text-align: center;;font-size: 22px;border: none;width:5%;"> + </td>
+                            <td style="border: none;width:40%;">
+                                <div style="border-radius: 10px; overflow: hidden">
+                                    <table
+                                        style="
+                  width: 100%;
+                  background-color: #cffafe;
+                  padding: 15px 15px;
+                ">
+                                        <tr>
+                                            <td style="border: none;">
+                                                <div>
+                                                    <div style="color: #155e75; font-weight: bold;">
+                                                        Total Early Out Hours (Month)
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style="text-align: right;border: none">
+                                                <h1 style="color: #0891b2; margin: 0">{{ $info->total_early ?? 0 }}
+                                                </h1>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </td>
+                            <td style="text-align: center;font-size: 22px;border: none"> = </td>
+                            <td style="text-align: center;font-size: 22px;border: none"> {{$totalTime}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            @endif
+
+
+
+            <table style="margin-top: 15px !important; margin-bottom:20px !important;width:100% !important;">
                 <tr>
                     <tbody>
                         <tr>
