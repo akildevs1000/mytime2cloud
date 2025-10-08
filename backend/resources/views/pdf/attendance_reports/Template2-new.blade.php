@@ -24,8 +24,6 @@
         .header-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 24px;
-            border-bottom: 1px solid #949494;
         }
 
         .header-table td {
@@ -68,22 +66,13 @@
         .details-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             /* Reduced from 24px */
         }
 
-        /* Target paragraphs inside detail cells and reset their margins */
-        .details-table p {
-            margin-top: 2px;
-            /* A tiny bit of spacing for readability */
-            margin-bottom: 2px;
-        }
-
         .details-table td {
-            padding-top: 5px;
-            padding-bottom: 5px;
             width: 25%;
-            vertical-align: top;
+            padding: 0 4px;
         }
 
         .detail-label {
@@ -91,6 +80,7 @@
             font-weight: bold;
             color: #64748b;
             margin: 0;
+            padding: 0;
         }
 
         .detail-value {
@@ -98,6 +88,7 @@
             font-weight: bold;
             color: #1e293b;
             margin: 0;
+            padding: 0;
         }
 
         /* --- Summary Stats Table (7 Columns) ---
@@ -107,14 +98,14 @@
             width: 100%;
             border-collapse: collapse;
             border-spacing: 0;
-            margin-bottom: 20px;
+            margin-top: 10px;
             text-align: center;
             border: none;
         }
 
         .stats-table td {
             width: 14.28%;
-            padding: 0 4px;
+            padding: 0 2px;
             /* ⬅️ Add horizontal padding for spacing */
             border: none;
             box-shadow: none;
@@ -123,7 +114,7 @@
 
         /* New class for the inner element that acts as the card/block */
         .stat-card-inner {
-            padding: 16px 4px;
+            padding: 10px 4px;
             /* Padding moved inside the div */
             border-radius: 8px;
             /* Subtle shadow for lift effect, making it look like a card */
@@ -138,7 +129,7 @@
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             margin: 0;
         }
@@ -217,22 +208,16 @@
         }
 
         .bg-purple-100 {
-            background-color: #f3e8ff;
+            background-color: #fce7f3;
         }
 
         .text-purple-600 {
-            color: #9333ea;
+            color: #9d174d;
         }
 
         .text-purple-700 {
-            color: #7e22ce;
+            color: #db2777;
         }
-
-
-
-
-
-
 
         .date-col {
             font-weight: bold;
@@ -369,7 +354,7 @@
 
         td {
             font-size: 9px;
-            padding: 3px;
+            padding: 7px 5px;
         }
 
         td,
@@ -382,24 +367,26 @@
 <body>
     @php
 
-        // Function to convert time in "HH:MM" format to total minutes
-        function timeToMinutes($time)
-        {
-            [$hours, $minutes] = explode(':', $time);
-            return $hours * 60 + $minutes;
+        if (!function_exists('timeToMinutes')) {
+            function timeToMinutes($time)
+            {
+                [$hours, $minutes] = explode(':', $time);
+                return $hours * 60 + $minutes;
+            }
         }
 
-        // Function to convert minutes back to "HH:MM" format
-        function minutesToTime($minutes)
-        {
-            $hours = floor($minutes / 60);
-            $minutes = $minutes % 60;
-            return sprintf('%02d:%02d', $hours, $minutes);
+        if (!function_exists('minutesToTime')) {
+            function minutesToTime($minutes)
+            {
+                $hours = floor($minutes / 60);
+                $minutes = $minutes % 60;
+                return sprintf('%02d:%02d', $hours, $minutes);
+            }
         }
 
         // Convert times to minutes
-        $minutes1 = timeToMinutes($info->total_late  ?? "00:00");
-        $minutes2 = timeToMinutes($info->total_early ?? "00:00");
+        $minutes1 = timeToMinutes($info->total_late ?? '00:00');
+        $minutes2 = timeToMinutes($info->total_early ?? '00:00');
 
         // Add the minutes
         $totalMinutes = $minutes1 + $minutes2;
@@ -415,34 +402,45 @@
 
         $statusMap = [
             'P' => [
-                'text' => 'Present',
+                'text' => 'P',
                 'class' => 'bg-green-100',
                 'color' => 'text-green-600',
             ],
-            'A' => ['text' => 'Absent', 'class' => 'bg-red-100', 'color' => 'text-red-600'],
+            'LC' => [
+                'text' => 'P',
+                'class' => 'bg-green-100',
+                'color' => 'text-green-600',
+            ],
+            'EG' => [
+                'text' => 'P',
+                'class' => 'bg-green-100',
+                'color' => 'text-green-600',
+            ],
+            'A' => ['text' => 'A', 'class' => 'bg-red-100', 'color' => 'text-red-600'],
             'M' => [
-                'text' => 'Incomplete',
+                'text' => 'M',
                 'class' => 'bg-gray-100',
                 'color' => 'text-gray-600',
             ],
             'O' => [
-                'text' => 'Week Off',
+                'text' => 'W',
                 'class' => 'bg-yellow-100',
                 'color' => 'text-yellow-600',
             ],
             'L' => [
-                'text' => 'Leave',
+                'text' => 'L',
                 'class' => 'bg-yellow-100',
                 'color' => 'text-yellow-600',
             ],
             'H' => [
-                'text' => 'Holiday',
+                'text' => 'H',
                 'class' => 'bg-indigo-100',
                 'color' => 'text-indigo-600',
             ],
         ];
 
         $defaultStatus = ['text' => '---', 'class' => 'bg-gray-50', 'color' => 'text-gray-400'];
+
     @endphp
     <footer id="page-bottom-line">
         <table style="width: 100%">
@@ -508,35 +506,38 @@
             </table>
 
             <!-- Employee Details -->
-            <table class="details-table">
-                <tr>
-                    <td style="border: none;padding:0;">
-                        <p class="detail-label">EMPLOYEE</p>
-                        <p class="detail-value">{{ $employee->full_name }} ({{ $employee->employee_id }})</p>
-                    </td>
-                    <td style="border: none;padding:0;">
-                        <p class="detail-label">DEPARTMENT</p>
-                        <p class="detail-value">{{ $employee?->department?->name ?? '---' }}</p>
-                    </td>
-                    <td style="border: none;padding:0;">
-                        <p class="detail-label">BRANCH NAME</p>
-                        <p class="detail-value">{{ $employee?->branch?->branch_name ?? 'Default Branch' }}</p>
-                    </td>
-                    <td style="border: none;padding:0;">
-                        <p class="detail-label">SHIFT TYPE</p>
-                        <p class="detail-value">{{ $data[0]->schedule->shift_type->name }}
-                        </p>
-                    </td>
-                </tr>
-            </table>
+            <div
+                style="border: 1px  solid #eeeeee;border-radius: 8px; width:97%;margin:0 auto; padding:10px 10px 0 10px;">
+                <table class="details-table">
+                    <tr>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">EMPLOYEE</p>
+                            <p class="detail-value">{{ $employee->full_name }} ({{ $employee->employee_id }})</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">DEPARTMENT</p>
+                            <p class="detail-value">{{ $employee?->department?->name ?? '---' }}</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">BRANCH NAME</p>
+                            <p class="detail-value">{{ $employee?->branch?->branch_name ?? 'Default Branch' }}</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">SHIFT TYPE</p>
+                            <p class="detail-value">{{ $data[0]->schedule->shift_type->name }}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
             <!-- Summary Stats -->
             <table class="stats-table">
                 <tr>
                     <td>
                         <div class="stat-card-inner bg-green-100">
-                            <p class="stat-label text-green-600">Present</p>
-                            <p class="stat-value text-green-700">{{ $info->total_present }}</p>
+                            <p class="stat-label text-green-700">Present</p>
+                            <p class="stat-value text-green-600">{{ $info->total_present }}</p>
                         </div>
                     </td>
                     <td>
@@ -578,80 +579,84 @@
                 </tr>
             </table>
 
-            @if ($shift_type_id != 2)
-                <table
-                    style="margin-bottom:20px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
-                    <tbody>
-                        <tr>
-                            <td style="border: none;width:40%;">
-                                <div style="border-radius: 10px; overflow: hidden">
-                                    <table
-                                        style="
+            <table
+                style="margin-top:10px;margin-bottom:10px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
+                <tbody>
+                    <tr>
+                        <td style="border: none;width:50%;">
+                            <div style="border-radius: 10px; overflow: hidden">
+                                <table style="width: 100%;background-color: #ffedd5;padding: 1px 0 2px 0;">
+                                    <tr>
+                                        <td colspan="3" style="border: none;text-align:center">
+                                            <div style="color: #9a3412;font-size:13px;">
+                                                Late Hours / Early Go
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Late In</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_early ?? 0 }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Early Go</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Total</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $totalTime }}</h2>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+
+                        <td style="border: none;width:50%;">
+                            <div style="border-radius: 10px; overflow: hidden">
+                                <table
+                                    style="
                   width: 100%;
-                  background-color: #ffedd5;
-                  padding: 15px 15px;
+                  background-color: #e0e7ff;
+                  padding: 1px 0 2px 0;
                 ">
-                                        <tr>
-                                            <td style="border: none">
-                                                <div>
-                                                    <div style="color: #9a3412; font-weight: bold;">
-                                                        Total Late Hours (Month)
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td style="text-align: right;border: none">
-                                                <h1 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h1>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </td>
-                            <td style="text-align: center;;font-size: 22px;border: none;width:5%;"> + </td>
-                            <td style="border: none;width:40%;">
-                                <div style="border-radius: 10px; overflow: hidden">
-                                    <table
-                                        style="
-                  width: 100%;
-                  background-color: #cffafe;
-                  padding: 15px 15px;
-                ">
-                                        <tr>
-                                            <td style="border: none;">
-                                                <div>
-                                                    <div style="color: #155e75; font-weight: bold;">
-                                                        Total Early Out Hours (Month)
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td style="text-align: right;border: none">
-                                                <h1 style="color: #0891b2; margin: 0">{{ $info->total_early ?? 0 }}
-                                                </h1>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                            </td>
-                            <td style="text-align: center;font-size: 22px;border: none"> = </td>
-                            <td style="text-align: center;font-size: 22px;border: none"> {{$totalTime}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            @endif
+                                    <tr>
+                                        <td colspan="3" style="border: none;text-align:center">
+                                            <div style="color: #3730a3;font-size:13px;">
+                                                Overtime Hours
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Before Duty</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">After Duty</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Total</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ $info->total_ot_hours ?? "00:00" }}</h2>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
 
-
-
-            <table style="margin-top: 15px !important; margin-bottom:20px !important;width:100% !important;">
+            <table style="margin-top: 10px !important; width:100% !important;">
                 <tr>
                     <tbody>
                         <tr>
-                            <td style="background-color:#eeeeee !important;color: #005edf !important;"
-                                class="text-center">
-                                Dates
+                            <td style="background-color:#e5e5e5 !important;">
+                                <b>Dates</b>
                             </td>
                             @foreach ($data as $date)
-                                <td style="background-color:#eeeeee !important;color: #005edf !important;"
-                                    class="text-center">
-                                    {{ date('d', strtotime($date->date)) ?? '---' }}
+                                <td style="background-color:#e5e5e5 !important;" class="text-center">
+                                    <b>{{ date('d', strtotime($date->date)) ?? '---' }}</b>
                                 </td>
                             @endforeach
                         </tr>
@@ -659,147 +664,69 @@
                 </tr>
 
                 <tr>
-                    <td class="text-center" style="background-color:#fff !important;color: #005edf !important;"> Days
-                    </td>
+                    <td style="background-color:#e5e5e5 !important;"> <b>Days</b></td>
 
                     @foreach ($data as $date)
-                        <td class="text-center" style="background-color:#fff !important;color: #005edf !important;">
-                            {{ date('D', strtotime($date->date)) ?? '---' }}
+                        <td class="text-center" style="background-color:#e5e5e5 !important;">
+                            <b>{{ date('D', strtotime($date->date)) ?? '---' }}</b>
                         </td>
                     @endforeach
                 </tr>
 
                 <?php if (in_array($shift_type_id, [1, 4, 6])) { ?>
                 <tr style="background-color: none;">
-                    <td class="text-center">In </td>
+                    <td>In</td>
 
                     @foreach ($data as $date)
                         <td class="text-center"
                             style="{{ $date?->device_in?->name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
-                            {{ $date->in ?? '---' }}</td>
+                            {{ $date->in ?? '---' }}<br> <span
+                                style="font-size: 9px">{{ $date?->device_in?->short_name ?? '' }}</span></td>
                     @endforeach
                 </tr>
                 <tr style="background-color: none;">
-                    <td class="text-center"> Out </td>
+                    <td> Out </td>
                     @foreach ($data as $date)
                         <td class="text-center"
                             style="{{ $date?->device_out?->name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
-                            {{ $date->out ?? '---' }} </td>
+                            {{ $date->out ?? '---' }}<br> <span
+                                style="font-size: 9px">{{ $date?->device_out?->short_name ?? '' }}</span> </td>
                     @endforeach
                 </tr>
                 <?php } ?>
 
                 @if ($shift_type_id == 2)
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In1 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[0]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out1 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[0]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In2 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[1]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out2 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[1]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In3 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[2]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out3 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[2]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In4 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[3]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out4 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[3]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In5 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[4]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out5 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[4]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In6 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[5]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out6 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[5]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-
-                    <tr style="background-color: none;">
-                        <td class="text-center"> In7 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[6]['in'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
-                    <tr style="background-color: none;">
-                        <td class="text-center"> Out7 </td>
-
-                        @foreach ($data as $date)
-                            <td class="text-center"> {{ $date->logs[6]['out'] ?? '---' }} </td>
-                        @endforeach
-                    </tr>
+                    @for ($i = 0; $i < 7; $i++)
+                        <tr>
+                            <td>In{{ $i + 1 }}</td>
+                            @foreach ($data as $date)
+                                <td class="text-center">{{ $date->logs[$i]['in'] ?? '---' }} <div
+                                        class="secondary-value"
+                                        style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                        {{ $date->logs[$i]['device_in'] ?? '---' }}
+                                    </div>
+                                </td>
+                            @endforeach
+                        </tr>
+                        <tr>
+                            <td>Out{{ $i + 1 }}</td>
+                            @foreach ($data as $date)
+                                <td class="text-center">{{ $date->logs[$i]['out'] ?? '---' }} <div
+                                        class="secondary-value"
+                                        style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                        {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
+                                    </div>
+                                </td>
+                            @endforeach
+                        </tr>
+                    @endfor
                 @endif
+
 
 
                 @if ($shift_type_id == 4 || $shift_type_id == 6)
                     <tr>
-                        <td class="text-center"> Late In </td>
+                        <td> Late In </td>
                         @foreach ($data as $date)
                             <td class="text-center"> {{ $date->late_coming ?? '---' }}
                             </td>
@@ -807,53 +734,42 @@
                     </tr>
 
                     <tr>
-                        <td class="text-center"> Early Out </td>
+                        <td> Early Out </td>
                         @foreach ($data as $date)
                             <td class="text-center"> {{ $date->early_going ?? '---' }}
                             </td>
                         @endforeach
                     </tr>
                 @endif
-
                 <tr>
-                    <td class="text-center" style="color: #005edf !important;"> Total Hrs </td>
+                    <td> OT </td>
                     @foreach ($data as $date)
-                        <td class="text-center" style="color: #005edf !important;"> {{ $date->total_hrs ?? '---' }}
+                        <td class="text-center"> {{ $date->ot ?? '---' }}
+                        </td>
+                    @endforeach
+                </tr>
+                <tr>
+                    <td
+                        style="border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;">
+                        Total Hrs</td>
+                    @foreach ($data as $date)
+                        <td style="border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;"
+                            class="text-center">
+                            {{ $date->total_hrs ?? '--' }}
                         </td>
                     @endforeach
                 </tr>
 
                 <tr>
-                    <td class="text-center" style="color: #005edf !important;"> OT </td>
-                    @foreach ($data as $date)
-                        <td class="text-center" style="color: #005edf !important;"> {{ $date->ot ?? '---' }}
-                        </td>
-                    @endforeach
-                </tr>
-                <tr style="background-color:#eeeeee !important;">
-                    <td class="text-center"> Status </td>
+                    <td> Status </td>
                     @foreach ($data as $date)
                         @php
-                            $statusColor = null;
-                            if ($date->status == 'P') {
-                                $statusColor = 'green';
-                            } elseif ($date->status == 'A') {
-                                $statusColor = 'red';
-                            } elseif ($date->status == 'M') {
-                                $statusColor = 'orange';
-                            } elseif ($date->status == 'O') {
-                                $statusColor = 'gray';
-                            } elseif ($date->status == 'L') {
-                                $statusColor = 'blue';
-                            } elseif ($date->status == 'H') {
-                                $statusColor = 'pink';
-                            } elseif ($date->status == '---') {
-                                $statusColor = '';
-                            }
-
+                            $status = $statusMap[$date->status] ?? $defaultStatus;
+                            $statusText = $status['text'];
+                            $statusColor = $status['color'];
                         @endphp
                         <td class="text-center" style="color:{{ $statusColor }} !important;">
-                            {{ $date->status ?? '---' }}
+                            <span class="{{ $statusColor }}"> {{ $statusText }}</span>
                             <div style="font-size:6px">
                                 @if ($date['shift'] && $date->status == 'P')
                                     @php
@@ -887,23 +803,23 @@
             <table style="margin-top: 60px">
                 <tr>
                     <td style="border: none">
-                        <span style="color:green !important; font-size:10px; ">
+                        <span style="color:#16a34a !important; font-size:10px; ">
                             P = Present,
                         </span>
-                        <span style="color:red !important; font-size:10px; ">
+                        <span style="color:#dc2626 !important; font-size:10px; ">
                             A = Absent,
                         </span>
-                        <span style="color:gray !important; font-size:10px; ">
-                            O = Off,
+                        <span style="color:#ca8a04 !important; font-size:10px; ">
+                            W = Week Off,
                         </span>
-                        <span style="color:blue !important; font-size:10px; ">
+                        <span style="color:#a16207 !important; font-size:10px; ">
                             L = Leaves,
                         </span>
-                        <span style="color:pink !important; font-size:10px; ">
+                        <span style="color:#4f46e5 !important; font-size:10px; ">
                             H = Holiday,
                         </span>
-                        <span style="color:orange !important; font-size:10px; ">
-                            M = Missing
+                        <span style="color:#4b5563 !important; font-size:10px; ">
+                            M = Missed
                         </span>
                     </td>
                 </tr>
