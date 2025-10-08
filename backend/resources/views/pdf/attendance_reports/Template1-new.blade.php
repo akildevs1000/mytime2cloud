@@ -428,6 +428,16 @@
                 'class' => 'bg-green-100',
                 'color' => 'text-green-600',
             ],
+            'LC' => [
+                'text' => 'Present',
+                'class' => 'bg-green-100',
+                'color' => 'text-green-600',
+            ],
+            'EG' => [
+                'text' => 'Present',
+                'class' => 'bg-green-100',
+                'color' => 'text-green-600',
+            ],
             'A' => ['text' => 'Absent', 'class' => 'bg-red-100', 'color' => 'text-red-600'],
             'M' => [
                 'text' => 'Incomplete',
@@ -566,7 +576,7 @@
                     </td>
                     <td>
                         <div class="stat-card-inner bg-gray-100">
-                            <p class="stat-label text-gray-600">Missing</p>
+                            <p class="stat-label text-gray-600">Incomplete</p>
                             <p class="stat-value text-gray-700">{{ $info->total_missing }}</p>
                         </div>
                     </td>
@@ -724,10 +734,13 @@
                     <tbody>
                         @foreach ($chunk as $date)
                             @php
+                                // $status = $statusMap[$date->status] ?? $defaultStatus;
                                 $status = $statusMap[$date->status] ?? $defaultStatus;
                                 $statusText = $status['text'];
                                 $statusClass = $status['class'];
                                 $statusColor = $status['color'];
+                                // $statusText = $date->status;
+
                             @endphp
                             <tr>
                                 <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }} <br>
