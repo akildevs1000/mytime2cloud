@@ -359,7 +359,7 @@
 
         td,
         th {
-            border: 1px solid #eeeeee;
+            border: 1px solid #d6d6d6;
         }
     </style>
 </head>
