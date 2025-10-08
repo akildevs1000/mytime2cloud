@@ -871,12 +871,12 @@ export default {
     },
     getBgColor(status) {
       const colors = {
-        A: "#fed7aa", // light orange
+        A: "#dc2626", // light orange
         P: "#bbf7d0", // light green
         M: "#e5e7eb", // light gray
-        LC: "#fed7aa",
-        EG: "#fed7aa",
-        O: "#e5e7eb",
+        LC: "#bbf7d0",
+        EG: "#bbf7d0",
+        O: "#fed7aa",
         L: "#fef08a", // light yellow
         H: "#c7d2fe", // light indigo
         V: "#c7d2fe",
@@ -886,12 +886,12 @@ export default {
 
     getTextColor(status) {
       const colors = {
-        A: "#c2410c", // dark orange
+        A: "#fee2e2", // dark orange
         P: "#15803d", // dark green
         M: "#374151", // dark gray
-        LC: "#c2410c",
-        EG: "#c2410c",
-        O: "#374151",
+        LC: "#15803d",
+        EG: "#15803d",
+        O: "#c2410c",
         L: "#854d0e", // dark yellow-brown
         H: "#3730a3", // dark indigo
         V: "#3730a3",
@@ -904,8 +904,8 @@ export default {
         A: "Absent",
         P: "Present",
         M: "Missed",
-        LC: "Late Coming",
-        EG: "Early Going",
+        LC: "Present",
+        EG: "Present",
         O: "Week Off",
         L: "Leave",
         H: "Holiday",
