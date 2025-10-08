@@ -34,13 +34,12 @@ class GenerateAttendanceReportPDF implements ShouldQueue
 
         $info = (object) [
             'total_absent'   => $model->clone()->where('status', 'A')->count(),
-            'total_present'  => $model->clone()->where('status', 'P')->count(),
+            'total_present'  => $model->clone()->where('status', 'P')->count()  + $model->clone()->where('status', 'LC')->count() + $model->clone()->where('status', 'EG')->count(),
             'total_off'      => $model->clone()->where('status', 'O')->count(),
             'total_missing'  => $model->clone()->where('status', 'M')->count(),
             'total_leave'    => $model->clone()->where('status', 'L')->count(),
             'total_holiday'  => $model->clone()->where('status', 'H')->count(),
 
-            // ✅ Use new helper for these
             'total_late'     => getTotalHours(array_column($collection->toArray(), 'late_coming')),
             'total_early'    => getTotalHours(array_column($collection->toArray(), 'early_going')),
 
