@@ -86,14 +86,13 @@
         }
 
         .detail-label {
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 10px;
             color: #64748b;
             margin: 0;
         }
 
         .detail-value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #1e293b;
             margin: 0;
@@ -637,29 +636,30 @@
             </table>
 
             <table
-                style="margin-top:5px;margin-bottom:10px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
+                style="margin-top:10px;margin-bottom:10px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
                 <tbody>
                     <tr>
-                        <td style="border: none;width:50%;">
+                        <td style="border: none;width:50%; padding: 5px 5px;">
                             <div style="border-radius: 10px; overflow: hidden">
                                 <table style="width: 100%;background-color: #ffedd5;padding: 1px 0 2px 0;">
                                     <tr>
-                                        <td colspan="3" style="border: none;text-align:center">
-                                            <div style="color: #9a3412;font-size:13px;">
+                                        <td colspan="3"
+                                            style="border: none;text-align:center;padding:3px !important;">
+                                            <div style="color: #9a3412;font-size:11px;">
                                                 Late Hours / Early Go
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">Late In</div>
                                             <h2 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h2>
                                         </td>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">Early Go</div>
                                             <h2 style="color: #ea580c; margin: 0">{{ $info->total_early ?? 0 }}</h2>
                                         </td>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">Total</div>
                                             <h2 style="color: #ea580c; margin: 0">{{ $totalTime }}</h2>
                                         </td>
@@ -668,7 +668,7 @@
                             </div>
                         </td>
 
-                        <td style="border: none;width:50%;">
+                        <td style="border: none;width:50%; padding: 5px 5px;">
                             <div style="border-radius: 10px; overflow: hidden">
                                 <table
                                     style="
@@ -677,24 +677,26 @@
                   padding: 1px 0 2px 0;
                 ">
                                     <tr>
-                                        <td colspan="3" style="border: none;text-align:center">
-                                            <div style="color: #3730a3;font-size:13px;">
+                                        <td colspan="3"
+                                            style="border: none;text-align:center;padding:3px !important;">
+                                            <div style="color: #3730a3;font-size:11px;">
                                                 Overtime Hours
                                             </div>
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">Before Duty</div>
                                             <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
                                         </td>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">After Duty</div>
                                             <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
                                         </td>
-                                        <td style="width:33%;text-align: center;border: none">
+                                        <td style="width:33%;text-align: center;border: none;">
                                             <div style="margin: 0">Total</div>
-                                            <h2 style="color: #4f46e9; margin: 0">{{ $info->total_ot_hours ?? "00:00" }}</h2>
+                                            <h2 style="color: #4f46e9; margin: 0">
+                                                {{ $info->total_ot_hours ?? '00:00' }}</h2>
                                         </td>
                                     </tr>
                                 </table>
@@ -753,12 +755,12 @@
                                     <td
                                         style="{{ $date?->device_in?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
                                         {{ $date->in }} <br> <span
-                                            style="font-size: 9px">{{ $date?->device_in?->short_name ?? '' }}</span>
+                                            style="font-size: 7px">{{ $date?->device_in?->short_name ?? '' }}</span>
                                     </td>
                                     <td
                                         style="{{ $date?->device_out?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
                                         {{ $date->out }} <br> <span
-                                            style="font-size: 9px">{{ $date?->device_out?->short_name ?? '' }}</span>
+                                            style="font-size: 7px">{{ $date?->device_out?->short_name ?? '' }}</span>
                                     </td>
                                     <td style="text-align: left;color:#f97316;">{{ $date->late_coming }}</td>
                                     <td style="text-align: left;color:#f97316;">{{ $date->early_going }}</td>
@@ -767,14 +769,14 @@
                                         <td class="text-center">
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
-                                                style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                                style="font-size:7px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_in'] ?? '---' }}
                                             </div>
                                         </td>
                                         <td class="text-center">
                                             {{ $date->logs[$i]['out'] ?? '---' }}
                                             <div class="secondary-value"
-                                                style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                                style="font-size:7px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
                                             </div>
                                         </td>
@@ -873,12 +875,12 @@
                                     <td
                                         style="{{ $date?->device_in?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
                                         {{ $date->in }} <br> <span
-                                            style="font-size: 9px">{{ $date?->device_in?->short_name ?? '' }}</span>
+                                            style="font-size: 7px">{{ $date?->device_in?->short_name ?? '' }}</span>
                                     </td>
                                     <td
                                         style="{{ $date?->device_out?->short_name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
                                         {{ $date->out }} <br> <span
-                                            style="font-size: 9px">{{ $date?->device_out?->short_name ?? '' }}</span>
+                                            style="font-size: 7px">{{ $date?->device_out?->short_name ?? '' }}</span>
                                     </td>
                                     <td style="color:#f97316;">{{ $date->late_coming }}</td>
                                     <td style="color:#f97316;">{{ $date->early_going }}</td>
@@ -887,14 +889,14 @@
                                         <td class="text-center">
                                             {{ $date->logs[$i]['in'] ?? '---' }}
                                             <div class="secondary-value"
-                                                style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                                style="font-size:7px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_in'] ?? '---' }}
                                             </div>
                                         </td>
                                         <td class="text-center">
                                             {{ $date->logs[$i]['out'] ?? '---' }}
                                             <div class="secondary-value"
-                                                style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                                style="font-size:7px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_out'] ?? '---' }}
                                             </div>
                                         </td>
