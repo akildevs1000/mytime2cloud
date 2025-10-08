@@ -596,11 +596,11 @@
                                     <tr>
                                         <td style="width:33%;text-align: center;border: none">
                                             <div style="margin: 0">Late In</div>
-                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_early ?? 0 }}</h2>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h2>
                                         </td>
                                         <td style="width:33%;text-align: center;border: none">
                                             <div style="margin: 0">Early Go</div>
-                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h2>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_early ?? 0 }}</h2>
                                         </td>
                                         <td style="width:33%;text-align: center;border: none">
                                             <div style="margin: 0">Total</div>
