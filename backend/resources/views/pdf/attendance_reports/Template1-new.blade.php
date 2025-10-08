@@ -25,7 +25,6 @@
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 10px;
-            border-bottom: 1px solid #949494;
         }
 
         .header-table td {
@@ -103,20 +102,19 @@
         /* --- Summary Stats Table (7 Columns) ---
        Updated for Card look: Removed outer border/rounding, added spacing.
       */
+
         .stats-table {
             width: 100%;
             border-collapse: collapse;
-            /* ⬅️ Change to collapse for stability */
             border-spacing: 0;
-            /* ⬅️ Change to zero */
-            margin-bottom: 32px;
+            margin-top: 10px;
             text-align: center;
             border: none;
         }
 
         .stats-table td {
             width: 14.28%;
-            padding: 0 4px;
+            padding: 0 2px;
             /* ⬅️ Add horizontal padding for spacing */
             border: none;
             box-shadow: none;
@@ -125,7 +123,7 @@
 
         /* New class for the inner element that acts as the card/block */
         .stat-card-inner {
-            padding: 16px 4px;
+            padding: 10px 4px;
             /* Padding moved inside the div */
             border-radius: 8px;
             /* Subtle shadow for lift effect, making it look like a card */
@@ -140,7 +138,7 @@
         }
 
         .stat-value {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             margin: 0;
         }
@@ -219,15 +217,15 @@
         }
 
         .bg-purple-100 {
-            background-color: #f3e8ff;
+            background-color: #fce7f3;
         }
 
         .text-purple-600 {
-            color: #9333ea;
+            color: #9d174d;
         }
 
         .text-purple-700 {
-            color: #7e22ce;
+            color: #db2777;
         }
 
         /* --- Attendance Data Table - Added rounding logic --- */
@@ -401,7 +399,7 @@
             width: 94%;
             /* your desired width */
             position: fixed;
-            bottom: 0;
+            bottom: -15px;
             left: 0;
             right: 0;
             margin: 0 auto;
@@ -411,11 +409,49 @@
             counter-reset: pageTotal;
             border-top: #949494 1px solid;
         }
+
+        th {
+            font-size: 9px;
+
+        }
+
+        td {
+            font-size: 9px;
+            padding: 7px 5px;
+        }
     </style>
 </head>
 
 <body>
     @php
+
+        if (!function_exists('timeToMinutes')) {
+            function timeToMinutes($time)
+            {
+                [$hours, $minutes] = explode(':', $time);
+                return $hours * 60 + $minutes;
+            }
+        }
+
+        if (!function_exists('minutesToTime')) {
+            function minutesToTime($minutes)
+            {
+                $hours = floor($minutes / 60);
+                $minutes = $minutes % 60;
+                return sprintf('%02d:%02d', $hours, $minutes);
+            }
+        }
+
+        // Convert times to minutes
+        $minutes1 = timeToMinutes($info->total_late ?? '00:00');
+        $minutes2 = timeToMinutes($info->total_early ?? '00:00');
+
+        // Add the minutes
+        $totalMinutes = $minutes1 + $minutes2;
+
+        // Convert total minutes back to time format
+        $totalTime = minutesToTime($totalMinutes);
+
         $manualRecordCounter = $data
             ->filter(function ($item) {
                 return $item->device_out?->short_name === 'Manual' || $item->device_in?->short_name === 'Manual';
@@ -464,7 +500,7 @@
         $defaultStatus = ['text' => '---', 'class' => 'bg-gray-50', 'color' => 'text-gray-400'];
     @endphp
     <footer id="page-bottom-line">
-        <table style="width: 100%">
+        <table style="width: 100%;">
             <tr style="border :none">
                 <td style="text-align: left;border :none;width:33%;font-size: 9px">
                     Printed on : {{ date('d-M-Y ') }}
@@ -491,23 +527,31 @@
             {{-- Your special header with logo, details, stats... --}}
             <table class="header-table">
                 <tr>
-                    <td style="width: 50%">
-                        <table style="border-collapse: collapse">
+                    <td style="border: none;width:50%">
+                        <table style="border-collapse: collapse; width: 100%;">
                             <tr>
-                                <td>
-                                    <img alt="Company Logo" class="header-logo"
+                                <!-- Logo -->
+                                <td style="border: none; padding: 0; width: 70px; vertical-align: middle;">
+                                    <img alt="Company Logo"
                                         src="{{ env('BASE_URL', 'https://backend.mytime2cloud.com') . '/' . $company->logo_raw }}"
-                                        onerror="this.onerror=null; this.src='https://placehold.co/64x64/4f46e5/ffffff?text=Logo';" />
+                                        onerror="this.onerror=null; this.src='https://placehold.co/64x64/4f46e5/ffffff?text=Logo';"
+                                        style="width: 60px; height: auto; display: block; margin: 0;" />
                                 </td>
-                                <td>
-                                    <p class="header-title">Monthly Attendance Report</p>
-                                    <p class="header-subtitle"> {{ date('d M Y', strtotime($from_date)) }} -
-                                        {{ date('d M Y', strtotime($to_date)) }}</p>
+
+                                <!-- Text -->
+                                <td style="border: none; padding: 0; vertical-align: middle;">
+                                    <p style="margin: 0; font-size: 16px; font-weight: bold;">
+                                        Monthly Attendance Report
+                                    </p>
+                                    <p style="margin: 0; font-size: 12px; color: #555;">
+                                        {{ date('d M Y', strtotime($from_date)) }} -
+                                        {{ date('d M Y', strtotime($to_date)) }}
+                                    </p>
                                 </td>
                             </tr>
                         </table>
                     </td>
-                    <td class="company-info" style="width: 50%">
+                    <td class="company-info" style="border: none;width:50%">
                         <p class="company-name">{{ $company->name ?? '' }}</p>
                         <p class="header-subtitle">{{ $company->user->email ?? '' }}</p>
                         <p class="header-subtitle">{{ $company->contact->number ?? '' }}</p>
@@ -519,35 +563,38 @@
             </table>
 
             <!-- Employee Details -->
-            <table class="details-table">
-                <tr>
-                    <td style="text-align: center;width;25%;">
-                        <p class="detail-label">EMPLOYEE</p>
-                        <p class="detail-value">{{ $employee->full_name }} ({{ $employee->employee_id }})</p>
-                    </td>
-                    <td style="text-align: center;width;25%;">
-                        <p class="detail-label">DEPARTMENT</p>
-                        <p class="detail-value">{{ $employee?->department?->name ?? '---' }}</p>
-                    </td>
-                    <td style="text-align: center;width;25%;">
-                        <p class="detail-label">BRANCH NAME</p>
-                        <p class="detail-value">{{ $employee?->branch?->branch_name ?? 'Default Branch' }}</p>
-                    </td>
-                    <td style="text-align: center;width;25%;">
-                        <p class="detail-label">SHIFT TYPE</p>
-                        <p class="detail-value">{{ $data[0]->schedule->shift_type->name }}
-                        </p>
-                    </td>
-                </tr>
-            </table>
+            <div
+                style="border: 1px  solid #eeeeee;border-radius: 8px; width:97%;margin:0 auto; padding:10px 10px 0 10px;">
+                <table class="details-table">
+                    <tr>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">EMPLOYEE</p>
+                            <p class="detail-value">{{ $employee->full_name }} ({{ $employee->employee_id }})</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">DEPARTMENT</p>
+                            <p class="detail-value">{{ $employee?->department?->name ?? '---' }}</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">BRANCH NAME</p>
+                            <p class="detail-value">{{ $employee?->branch?->branch_name ?? 'Default Branch' }}</p>
+                        </td>
+                        <td style="border: none;padding:0;">
+                            <p class="detail-label">SHIFT TYPE</p>
+                            <p class="detail-value">{{ $data[0]->schedule->shift_type->name }}
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
 
             <!-- Summary Stats -->
             <table class="stats-table">
                 <tr>
                     <td>
                         <div class="stat-card-inner bg-green-100">
-                            <p class="stat-label text-green-600">Present</p>
-                            <p class="stat-value text-green-700">{{ $info->total_present }}</p>
+                            <p class="stat-label text-green-700">Present</p>
+                            <p class="stat-value text-green-600">{{ $info->total_present }}</p>
                         </div>
                     </td>
                     <td>
@@ -576,7 +623,7 @@
                     </td>
                     <td>
                         <div class="stat-card-inner bg-gray-100">
-                            <p class="stat-label text-gray-600">Incomplete</p>
+                            <p class="stat-label text-gray-600">Missing</p>
                             <p class="stat-value text-gray-700">{{ $info->total_missing }}</p>
                         </div>
                     </td>
@@ -587,6 +634,74 @@
                         </div>
                     </td>
                 </tr>
+            </table>
+
+            <table
+                style="margin-top:5px;margin-bottom:10px;border: none;  border-spacing: 0;border-collapse: collapse;width:100% !important;">
+                <tbody>
+                    <tr>
+                        <td style="border: none;width:50%;">
+                            <div style="border-radius: 10px; overflow: hidden">
+                                <table style="width: 100%;background-color: #ffedd5;padding: 1px 0 2px 0;">
+                                    <tr>
+                                        <td colspan="3" style="border: none;text-align:center">
+                                            <div style="color: #9a3412;font-size:13px;">
+                                                Late Hours / Early Go
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Late In</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_late ?? 0 }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Early Go</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $info->total_early ?? 0 }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Total</div>
+                                            <h2 style="color: #ea580c; margin: 0">{{ $totalTime }}</h2>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+
+                        <td style="border: none;width:50%;">
+                            <div style="border-radius: 10px; overflow: hidden">
+                                <table
+                                    style="
+                  width: 100%;
+                  background-color: #e0e7ff;
+                  padding: 1px 0 2px 0;
+                ">
+                                    <tr>
+                                        <td colspan="3" style="border: none;text-align:center">
+                                            <div style="color: #3730a3;font-size:13px;">
+                                                Overtime Hours
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Before Duty</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">After Duty</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ '00:00' }}</h2>
+                                        </td>
+                                        <td style="width:33%;text-align: center;border: none">
+                                            <div style="margin: 0">Total</div>
+                                            <h2 style="color: #4f46e9; margin: 0">{{ $info->total_ot_hours ?? "00:00" }}</h2>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
             </table>
 
             {{-- Attendance Data Table (only 7 data) --}}
@@ -661,7 +776,6 @@
                                             <div class="secondary-value"
                                                 style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
                                                 {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
-
                                             </div>
                                         </td>
                                     @endfor
@@ -740,7 +854,6 @@
                                 $statusClass = $status['class'];
                                 $statusColor = $status['color'];
                                 // $statusText = $date->status;
-
                             @endphp
                             <tr>
                                 <td> {{ date('d M Y', strtotime($date->date)) ?? '---' }} <br>
