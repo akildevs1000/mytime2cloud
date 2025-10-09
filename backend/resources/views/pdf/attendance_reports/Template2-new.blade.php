@@ -647,11 +647,11 @@
                 <tr>
                     <tbody>
                         <tr>
-                            <td style="font-size:10px;background-color:#f0f3f5 !important;">
-                                <b>Dates</b>
+                            <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;">
+                                <b>DATES</b>
                             </td>
                             @foreach ($data as $date)
-                                <td style="font-size:10px;background-color:#f0f3f5 !important;" class="text-center">
+                                <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;" class="text-center">
                                     <b>{{ date('d', strtotime($date->date)) ?? '---' }}</b>
                                 </td>
                             @endforeach
@@ -660,10 +660,10 @@
                 </tr>
 
                 <tr>
-                    <td style="font-size:10px;background-color:#f0f3f5 !important;"> <b>Days</b></td>
+                    <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;"> <b>DAYS</b></td>
 
                     @foreach ($data as $date)
-                        <td class="text-center" style="font-size:10px;background-color:#f0f3f5 !important;">
+                        <td class="text-center" style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;">
                             <b>{{ strtoupper(date('D', strtotime($date->date))) ?? '---' }}</b>
                         </td>
                     @endforeach
