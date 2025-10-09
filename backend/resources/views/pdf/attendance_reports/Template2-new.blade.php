@@ -319,7 +319,6 @@
 
         td {
             font-size: 9px;
-            padding: 6px 3px;
         }
 
         td,
@@ -330,7 +329,10 @@
 </head>
 
 <body>
+
     @php
+
+        $isSmall = $shift_type_id == 2;
 
         if (!function_exists('timeToMinutes')) {
             function timeToMinutes($time)
@@ -435,7 +437,7 @@
                 </td>
             </tr>
         </table>
-       <div style="border-top: #949494 1px solid;"></div>
+        <div style="border-top: #949494 1px solid;"></div>
         <table style="width: 100%">
             <tr style="border :none">
                 <td style="text-align: left;border :none;width:33%;font-size: 9px">
@@ -647,11 +649,13 @@
                 <tr>
                     <tbody>
                         <tr>
-                            <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;">
+                            <td
+                                style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};background-color:#f0f3f5 !important;color:#374151; !important;">
                                 <b>DATES</b>
                             </td>
                             @foreach ($data as $date)
-                                <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;" class="text-center">
+                                <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};background-color:#f0f3f5 !important;color:#374151; !important;"
+                                    class="text-center">
                                     <b>{{ date('d', strtotime($date->date)) ?? '---' }}</b>
                                 </td>
                             @endforeach
@@ -660,10 +664,14 @@
                 </tr>
 
                 <tr>
-                    <td style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;"> <b>DAYS</b></td>
+                    <td
+                        style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};background-color:#f0f3f5 !important;color:#374151; !important;">
+                        <b>DAYS</b>
+                    </td>
 
                     @foreach ($data as $date)
-                        <td class="text-center" style="font-size:10px;background-color:#f0f3f5 !important;color:#374151; !important;">
+                        <td class="text-center"
+                            style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};background-color:#f0f3f5 !important;color:#374151; !important;">
                             <b>{{ strtoupper(date('D', strtotime($date->date))) ?? '---' }}</b>
                         </td>
                     @endforeach
@@ -671,22 +679,26 @@
 
                 <?php if (in_array($shift_type_id, [1, 4, 6])) { ?>
                 <tr style="background-color: none;">
-                    <td style="font-size:10px;">In</td>
+                    <td
+                        style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                        In</td>
 
                     @foreach ($data as $date)
                         <td class="text-center"
-                            style="{{ $date?->device_in?->name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
-                            <span style="font-size:10px;">{{ $date->in ?? '---' }}</span><br> <span
+                            style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};color: {{ $date?->device_in?->name == 'Manual' ? '#f6607b !important;' : '' }}">
+                            <span>{{ $date->in ?? '---' }}</span><br> <span
                                 style="font-size: 7px">{{ $date?->device_in?->short_name ?? '' }}</span>
                         </td>
                     @endforeach
                 </tr>
                 <tr style="background-color: none;">
-                    <td style="font-size:10px;"> Out </td>
+                    <td
+                        style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                        Out </td>
                     @foreach ($data as $date)
                         <td class="text-center"
-                            style="{{ $date?->device_out?->name == 'Manual' ? 'color:#f6607b !important;' : '' }}">
-                            <span style="font-size:10px;">{{ $date->out ?? '---' }}</span><br> <span
+                            style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};color: {{ $date?->device_out?->name == 'Manual' ? '#f6607b !important;' : '' }}">
+                            <span>{{ $date->out ?? '---' }}</span><br> <span
                                 style="font-size: 7px">{{ $date?->device_out?->short_name ?? '' }}</span>
                         </td>
                     @endforeach
@@ -694,24 +706,31 @@
                 <?php } ?>
 
                 @if ($shift_type_id == 2)
-                    @for ($i = 0; $i < 7; $i++)
+                    @for ($i = 0; $i < 5; $i++)
                         <tr>
-                            <td style="font-size:10px;">In{{ $i + 1 }}</td>
+                            <td
+                                style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                                In{{ $i + 1 }}</td>
                             @foreach ($data as $date)
-                                <td class="text-center" style="font-size:10px;">{{ $date->logs[$i]['in'] ?? '---' }}
+                                <td class="text-center"
+                                    style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                                    {{ $date->logs[$i]['in'] ?? '---' }}
                                     <div class="secondary-value"
-                                        style="font-size:9px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                        style="font-size:7px; color: {{ ($date->logs[$i]['device_in'] ?? '') === 'Manual' ? 'red' : '' }}">
                                         {{ $date->logs[$i]['device_in'] ?? '---' }}
                                     </div>
                                 </td>
                             @endforeach
                         </tr>
                         <tr>
-                            <td style="font-size:10px;">Out{{ $i + 1 }}</td>
+                            <td
+                                style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                                Out{{ $i + 1 }}</td>
                             @foreach ($data as $date)
-                                <td style="font-size:10px;" class="text-center">{{ $date->logs[$i]['out'] ?? '---' }}
+                                <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};"
+                                    class="text-center">{{ $date->logs[$i]['out'] ?? '---' }}
                                     <div class="secondary-value"
-                                        style="font-size:9px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
+                                        style="font-size:7px; color: {{ ($date->logs[$i]['device_out'] ?? '') === 'Manual' ? 'red' : '' }}">
                                         {{ $date->logs[$i]['device_out']['short_name'] ?? '---' }}
                                     </div>
                                 </td>
@@ -722,34 +741,43 @@
 
                 @if ($shift_type_id == 4 || $shift_type_id == 6)
                     <tr>
-                        <td style="font-size:10px;"> Late In </td>
+                        <td
+                            style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                            Late In </td>
                         @foreach ($data as $date)
-                            <td style="font-size:10px;" class="text-center"> {{ $date->late_coming ?? '---' }}
+                            <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};"
+                                class="text-center"> {{ $date->late_coming ?? '---' }}
                             </td>
                         @endforeach
                     </tr>
 
                     <tr>
-                        <td style="font-size:10px;"> Early Out </td>
+                        <td
+                            style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                            Early Out </td>
                         @foreach ($data as $date)
-                            <td style="font-size:10px;" class="text-center"> {{ $date->early_going ?? '---' }}
+                            <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};"
+                                class="text-center"> {{ $date->early_going ?? '---' }}
                             </td>
                         @endforeach
                     </tr>
                 @endif
                 <tr>
-                    <td style="font-size:10px;"> OT </td>
+                    <td
+                        style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
+                        OT </td>
                     @foreach ($data as $date)
-                        <td style="font-size:10px;" class="text-center"> {{ $date->ot ?? '---' }}
+                        <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};"
+                            class="text-center"> {{ $date->ot ?? '---' }}
                         </td>
                     @endforeach
                 </tr>
                 <tr>
                     <td
-                        style="font-size:10px;border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;">
+                        style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;">
                         T. Hrs</td>
                     @foreach ($data as $date)
-                        <td style="font-size:10px;border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;"
+                        <td style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};border-top:2px solid #bdbdbd; border-left:1px solid #ddd; border-right:1px solid #ddd; border-bottom:1px solid #ddd;"
                             class="text-center">
                             {{ $date->total_hrs ?? '--' }}
                         </td>
@@ -757,14 +785,14 @@
                 </tr>
 
                 <tr>
-                    <td style="font-size:10px;"> Status </td>
+                    <td  style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};"> Status </td>
                     @foreach ($data as $date)
                         @php
                             $status = $statusMap[$date->status] ?? $defaultStatus;
                             $statusText = $status['text'];
                             $statusColor = $status['color'];
                         @endphp
-                        <td class="text-center" style="color:{{ $statusColor }} !important;">
+                        <td class="text-center" style="color:{{ $statusColor }} !important;font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
                             <span class="{{ $statusColor }}" style="font-size:12px;"> {{ $statusText }}</span>
                             <div style="font-size:6px">
                                 @if ($date['shift'] && $date->status == 'P')
