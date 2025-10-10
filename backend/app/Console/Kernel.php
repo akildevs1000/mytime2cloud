@@ -162,12 +162,12 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_off $companyId")
-                ->dailyAt('04:00')
+                ->dailyAt('02:20')
                 ->runInBackground();
 
             $schedule
                 ->command("task:sync_flexible_off $companyId")
-                ->dailyAt('02:00')
+                ->dailyAt('04:20')
                 ->runInBackground();
 
             $schedule
