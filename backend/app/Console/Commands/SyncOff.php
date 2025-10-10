@@ -82,7 +82,7 @@ class SyncOff extends Command
                     $updated = Attendance::where('employee_id', $employeeId)
                         ->where('company_id', $company_id)
                         ->whereDate('date', $currentDate)
-                        ->orWhere('status', '!=', 'O')
+                        ->where('status', 'A')
                         ->update(['status' => 'O']);
 
                     if ($updated) {
