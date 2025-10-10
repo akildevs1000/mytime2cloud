@@ -16,7 +16,7 @@ class SyncFlexibleOff extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_off {id} {ask?}';
+    protected $signature = 'task:sync_flexible_off {id} {ask?}';
 
     /**
      * The console command description.
