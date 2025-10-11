@@ -35,6 +35,7 @@ use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Str; // Import Str facade for helper functions
 
 class EmployeeController extends Controller
 {
@@ -1931,5 +1932,102 @@ class EmployeeController extends Controller
 
         // Trim spaces
         return trim($value);
+    }
+
+
+
+
+    public function storeNew(Request $request)
+    {
+        try {
+            // 1. Validate the incoming request data
+            $validatedData = $request->validate([
+              'title' => 'nullable|string|max:10',
+                'joining_date' => 'required|date',
+                'full_name' => 'required|string|max:255',
+                'display_name' => 'nullable|string|max:255',
+                'first_name' => 'required|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'employee_id' => 'required|string|unique:employees|max:50',
+                'system_user_id' => 'required|string',
+                'phone_number' => 'nullable|string|max:20',
+                'whatsapp_number' => 'nullable|string|max:20',
+                'company_id' => 'required|integer', // Assumes a 'branches' table
+                'branch_id' => 'required|integer', // Assumes a 'branches' table
+                'department_id' => 'required|integer|exists:departments,id', // Assumes a 'departments' table
+                'profile_image_base64' => 'nullable|string', // Con
+            ]);
+
+            $dataToStore = $validatedData;
+            $imagePath = null;
+            
+            // Handle Base64 Image Decoding and Storage
+            if (!empty($validatedData['profile_image_base64'])) {
+                
+                $base64Image = $validatedData['profile_image_base64'];
+                
+                // 1. Separate the file data from the MIME type prefix (e.g., 'data:image/png;base64,')
+                if (Str::startsWith($base64Image, 'data:')) {
+                    list($type, $base64Image) = explode(';', $base64Image);
+                    list(, $base64Image)      = explode(',', $base64Image);
+                }
+
+                // 2. Decode the Base64 string into binary data
+                $imageData = base64_decode($base64Image);
+                
+                // 3. Determine the file extension (simple approach, refine if needed)
+                // We'll assume PNG or JPG for simplicity, or try to extract from MIME type.
+                // A safer way is to infer the extension, but using a default works for now.
+                $ext = '.png'; // Default extension
+                if (isset($type) && str_contains($type, 'jpeg')) {
+                    $ext = '.jpg';
+                }
+
+                // 4. Create the unique file name, similar to your old way
+                $fileName = time() . '_' . Str::random(10) . $ext;
+                
+                // 5. Define the target directory path
+                $targetDir = public_path('media/employee/profile_picture/');
+                
+                // Ensure the directory exists
+                if (!is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+
+                // 6. Save the binary data to the file path
+                $imagePath = $targetDir . $fileName;
+                file_put_contents($imagePath, $imageData);
+
+                // 7. Store the file name in the data array for the database
+                $dataToStore['profile_picture'] = $fileName;
+            }
+            
+            // Remove the Base64 string before creating the record
+            unset($dataToStore['profile_image_base64']);
+
+            // 8. Create the Employee record
+            $employee = Employee::create($dataToStore);
+
+            // 9. Return a successful response
+            return response()->json([
+                'message' => 'Employee created successfully!',
+                'employee' => $employee
+            ], 201);
+
+        } catch (ValidationException $e) {
+
+                $indexedErrors = collect($e->errors())->flatten()->all();
+
+
+            return response()->json([
+                'message' => $indexedErrors[0],
+                'errors' => $indexedErrors
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while creating the employee.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
