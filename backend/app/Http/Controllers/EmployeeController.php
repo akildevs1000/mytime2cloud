@@ -1094,7 +1094,7 @@ class EmployeeController extends Controller
 
             $msg = $success ? 'Employee imported successfully.' : 'Employee cannot import.';
 
-            return $this->response($msg, null, true);
+            return $this->response($msg, $success ?? false, true);
         } catch (\Throwable $th) {
             DB::rollback();
             throw $th;
