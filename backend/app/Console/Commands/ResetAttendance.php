@@ -33,8 +33,8 @@ class ResetAttendance extends Command
      */
     public function handle()
     {
-        $company_id = $this->argument('company_id',22);
-        $status = $this->argument('status',"A");
+        $company_id = $this->ask('company_id',22);
+        $status = $this->ask('status',"A");
         
         $defaultStartDate = Carbon::now()->startOfMonth()->toDateString();
         $defaultEndDate   = Carbon::now()->endOfMonth()->toDateString();
