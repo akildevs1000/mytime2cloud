@@ -61,6 +61,17 @@
         :height="tableHeight"
         no-data-text="No Data available. Click 'Generate' button to see the results"
       >
+        <template v-slot:item.late_coming="{ item }">
+          <span class="orange--text text--darken-2">{{
+            item.late_coming
+          }}</span>
+        </template>
+        <template v-slot:item.early_going="{ item }">
+          <span class="orange--text text--darken-2">{{
+            item.early_going
+          }}</span>
+        </template>
+
         <template
           v-slot:item.employee_name="{ item, index }"
           style="width: 300px"
@@ -110,7 +121,18 @@
         <template v-slot:item.status="{ item }">
           <v-tooltip top color="primary">
             <template v-slot:activator="{ on, attrs }">
-              {{ setStatusLabel(item.status) }}
+              <span
+                :style="{
+                  color: getTextColor(item.status),
+                  backgroundColor: getBgColor(item.status),
+                  padding: '2px 11px',
+                  borderRadius: '50px',
+                  fontWeight: '500',
+                }"
+              >
+                {{ setStatusLabel(item.status) }}
+              </span>
+
               <div class="secondary-value" v-if="item.status == 'P'">
                 {{ getShortShiftDetails(item) }}
               </div>
@@ -133,7 +155,8 @@
 
         <template v-slot:item.shift="{ item }">
           <div>
-            {{ item?.shift?.on_duty_time || "---" }} - {{ item?.shift?.off_duty_time || "---" }}
+            {{ item?.shift?.on_duty_time || "---" }} -
+            {{ item?.shift?.off_duty_time || "---" }}
           </div>
           <div class="secondary-value">
             {{ (item.shift && item.shift.name) || "---" }}
@@ -539,7 +562,13 @@
 </template>
 <script>
 export default {
-  props: ["shift_type_id", "headers", "payload1", "system_user_id","report_template"],
+  props: [
+    "shift_type_id",
+    "headers",
+    "payload1",
+    "system_user_id",
+    "report_template",
+  ],
 
   data: () => ({
     key: 1,
@@ -752,7 +781,7 @@ export default {
         company_id: this.$auth.user.company_id,
         report_type: this.report_type,
         shift_type_id: this.shift_type_id,
-        report_template:this.report_template,
+        report_template: this.report_template,
         overtime: this.overtime ? 1 : 0,
         ...this.filters,
         ...this.payload,
@@ -775,7 +804,7 @@ export default {
         this.loading = false;
         this.totalRowsCount = data.total;
 
-        this.$emit("returnedPayload",payload);
+        this.$emit("returnedPayload", payload);
 
         if (this.clearPagenumber) {
           this.options.page = 1;
@@ -842,19 +871,49 @@ export default {
         }
       }
     },
+    getBgColor(status) {
+      const colors = {
+        A: "#dc2626", // light orange
+        P: "#bbf7d0", // light green
+        M: "#e5e7eb", // light gray
+        LC: "#bbf7d0",
+        EG: "#bbf7d0",
+        O: "#fed7aa",
+        L: "#fef08a", // light yellow
+        H: "#c7d2fe", // light indigo
+        V: "#c7d2fe",
+      };
+      return colors[status] || "#f3f4f6";
+    },
+
+    getTextColor(status) {
+      const colors = {
+        A: "#fee2e2", // dark orange
+        P: "#15803d", // dark green
+        M: "#374151", // dark gray
+        LC: "#15803d",
+        EG: "#15803d",
+        O: "#c2410c",
+        L: "#854d0e", // dark yellow-brown
+        H: "#3730a3", // dark indigo
+        V: "#3730a3",
+      };
+      return colors[status] || "#111827";
+    },
+
     setStatusLabel(status) {
-      const statuses = {
+      const labels = {
         A: "Absent",
         P: "Present",
-        M: "Incomplete",
-        LC: "Late In",
-        EG: "Early Out",
+        M: "Missed",
+        LC: "Present",
+        EG: "Present",
         O: "Week Off",
         L: "Leave",
         H: "Holiday",
-        V: "Vaccation",
+        V: "Vacation",
       };
-      return statuses[status];
+      return labels[status] || status;
     },
   },
 };

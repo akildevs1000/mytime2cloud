@@ -1191,13 +1191,7 @@
           />
         </template>
         <template v-slot:item.door_open="{ item }">
-          <img
-            class="iconsize30"
-            style="cursor: pointer"
-            title="Click to Open Door"
-            src="/icons/door_open.png"
-            @click="door_command(`open_door`, item.device_id)"
-          />
+          <DeviceOpenDoor :item="item" />
         </template>
         <template v-slot:item.door_close="{ item }">
           <img

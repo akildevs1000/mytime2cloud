@@ -14,7 +14,9 @@ use App\Models\Roster;
 use App\Models\Shift;
 use App\Models\ShiftType;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
@@ -36,7 +38,7 @@ class MonthlyController extends Controller
             'from_date'    => $request->from_date,
             'to_date'      => $request->to_date,
             'employee_ids' => $request->input('employee_id', []),
-            'templates'    => [$request->input('report_template')],
+            'template'     => $request->input('report_template'),
         ];
 
         $companyId    = $requestPayload["company_id"];
@@ -46,7 +48,16 @@ class MonthlyController extends Controller
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $counter = 0;
+        $totalEmployees = Employee::where("company_id", $companyId)
+            ->whereIn("system_user_id", $employee_ids)
+            ->count();
+
+        info($totalEmployees);
+        info($employee_ids);
+
+        Cache::put("batch_total", $totalEmployees, 1800);
+        Cache::put("batch_done", 0, 1800);
+        Cache::put("batch_failed", 0, 1800);
 
         Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
@@ -55,34 +66,23 @@ class MonthlyController extends Controller
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("company_id", $companyId)
-            ->whereIn("employee_id", $employee_ids)
-            ->chunk(50, function ($employees) use ($company, $requestPayload, $counter) {
+            ->whereIn("system_user_id", $employee_ids)
+            ->chunk(50, function ($employees) use ($company, $requestPayload) {
+
                 foreach ($employees as $employee) {
+
                     GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
                         $requestPayload,
                         optional($employee->schedule)->shift_type_id ?? 0,
-                        $request->report_template ?? ["Template1"]
-
+                        $requestPayload["template"] ?? "Template1"
                     )->onQueue('pdf-reports');
-
-                    $counter++;
                 }
 
                 gc_collect_cycles();
             });
-
-        if ($counter == 1) {
-            sleep(3);
-
-        } else if ($counter < 5) {
-            sleep(5);
-
-        } else {
-            sleep(20);
-        }
 
         return response()->json([
             'status'  => 'processing',
@@ -144,14 +144,6 @@ class MonthlyController extends Controller
         sleep(5);
 
         return $this->PDFMerge();
-
-        $file_name = "Attendance Report";
-        if (isset($from_date) && isset($to_date)) {
-            $file_name = "Attendance Report - " . $from_date . ' to ' . $to_date;
-        }
-        $file_name = $file_name . '.pdf';
-
-        return $this->processPDF($request)->stream($file_name);
     }
 
     public function monthly_download_pdf(Request $request)
@@ -1013,6 +1005,7 @@ class MonthlyController extends Controller
 
     public function PDFMerge($action = "I")
     {
+
         $employeeIds = [];
 
         $company_id = request("company_id", 0);
@@ -1051,14 +1044,23 @@ class MonthlyController extends Controller
         }
         // Get all PDF files in the directory
 
+        $from_date = request("from_date", date("Y-m-d"));
+        $to_date   = request("to_date", date("Y-m-d"));
+
+        $file_name = "Attendance Report - "
+        . Carbon::parse($from_date)->format('d M Y')
+        . " to "
+        . Carbon::parse($to_date)->format('d M Y')
+            . ".pdf";
+
         if (empty($pdfFiles)) {
             return 'No PDF files found';
         }
         if ($action == "I") {
-            return (new Controller)->mergePdfFiles($pdfFiles, $action);
+            return (new Controller)->mergePdfFiles($pdfFiles, $action, $file_name);
         }
 
-        return (new Controller)->mergePdfFiles($pdfFiles, $action);
+        return (new Controller)->mergePdfFiles($pdfFiles, $action, $file_name);
     }
 
     public function processTemplate3($shift_type, $company_id, $branchId, $company, $action = "I")

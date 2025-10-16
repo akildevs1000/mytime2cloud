@@ -41,7 +41,7 @@ class DeviceController extends Controller
         $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
-        return $model->get(["id", "name", "location", "device_id", "device_type"]);
+        return $model->get(["id", "name", "location", "device_id", "device_type","short_name","status_id"]);
     }
 
     public function index(Request $request)
@@ -469,7 +469,7 @@ class DeviceController extends Controller
 
             $model->where('LogTime', '>', date('Y-m-01'));
             $model->where('LogTime', '<=', date('Y-m-d 23:59:59'));
-            $model->orderBy('log_date_time', 'DESC');
+            $model->orderBy('LogTime', 'DESC');
 
             return $model->paginate(request("per_page", 10));
         });

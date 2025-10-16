@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 
 class GenerateAttendanceReportPDF implements ShouldQueue
 {
@@ -18,7 +19,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         public $employee,
         public $requestPayload,
         public $shift_type_id,
-        public $templates
+        public $template
     ) {}
 
     public function handle()
@@ -33,19 +34,19 @@ class GenerateAttendanceReportPDF implements ShouldQueue
 
         $info = (object) [
             'total_absent'   => $model->clone()->where('status', 'A')->count(),
-            'total_present'  => $model->clone()->where('status', 'P')->count(),
+            'total_present'  => $model->clone()->where('status', 'P')->count()  + $model->clone()->where('status', 'LC')->count() + $model->clone()->where('status', 'EG')->count(),
             'total_off'      => $model->clone()->where('status', 'O')->count(),
             'total_missing'  => $model->clone()->where('status', 'M')->count(),
             'total_leave'    => $model->clone()->where('status', 'L')->count(),
             'total_holiday'  => $model->clone()->where('status', 'H')->count(),
-            'total_late'     => $model->clone()->where('late_coming', '!=', '---')->count(),
-            'total_early'    => $model->clone()->where('early_going', '!=', '---')->count(),
+
+            'total_late'     => getTotalHours(array_column($collection->toArray(), 'late_coming')),
+            'total_early'    => getTotalHours(array_column($collection->toArray(), 'early_going')),
+
             'total_hours'    => getTotalHours(array_column($collection->toArray(), 'total_hrs')),
             'total_ot_hours' => getTotalHours(array_column($collection->toArray(), 'ot')),
             'report_type'    => $this->requestPayload["status_slug"],
         ];
-
-        info(showJson($info));
 
         $arr = [
             'data'          => $data,
@@ -57,22 +58,23 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             "to_date"       => $this->requestPayload["to_date"],
         ];
 
-        $templates = $this->templates ?? ['Template1', 'Template2'];
+        $template = $this->template;
 
-        foreach ($templates as $template) {
-            $reportsDirectory = public_path("reports/{$this->requestPayload["company_id"]}/{$template}");
+        $reportsDirectory = public_path("reports/{$this->requestPayload["company_id"]}/{$template}");
 
-            if (! is_dir($reportsDirectory)) {
-                mkdir($reportsDirectory, 0777, true);
-            }
-
-            $output   = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
-            $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
-
-            file_put_contents($filePath, $output);
-
-            echo "\nFile created at {$filePath}\n";
+        if (! is_dir($reportsDirectory)) {
+            mkdir($reportsDirectory, 0777, true);
         }
+
+        $output = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
+
+        $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
+
+        file_put_contents($filePath, $output);
+
+        Cache::increment("batch_done");
+
+        echo "\nFile created at {$filePath}\n";
 
     }
 
@@ -151,5 +153,8 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         return $model;
     }
 
-    
+    public function failed()
+    {
+        Cache::increment("batch_failed");
+    }
 }

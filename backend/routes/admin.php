@@ -21,6 +21,7 @@ use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WhatsappProxyHealthCheckController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResource('admin', AdminController::class);
@@ -36,7 +37,6 @@ Route::post('/check_otp/{key}', [AuthController::class, 'verifyOTP']);
 
 Route::post('/employee/login', [EmployeeController::class, 'login']);
 Route::get('/employee/me', [EmployeeController::class, 'me'])->middleware('auth:sanctum');
-
 
 Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
 Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
@@ -67,7 +67,6 @@ Route::post('company/{id}/update/user', [CompanyController::class, 'updateCompan
 Route::post('company/{id}/update/user_whatsapp', [CompanyController::class, 'updateCompanyUserWhatsapp']);
 Route::post('company/{id}/update/whatsapp_settings', [CompanyController::class, 'updateCompanyWhatsappSettings']);
 Route::post('company/{id}/update/modules_settings', [CompanyController::class, 'updateCompanyModulesSettings']);
-
 
 Route::post('company/{id}/update/geographic', [CompanyController::class, 'updateCompanyGeographic']);
 Route::post('company/validate', [CompanyController::class, 'validateCompany']);
@@ -108,8 +107,6 @@ Route::get('role-list', [RoleController::class, 'dropdownList']);
 // Route::post('branch/update/user/validate', [BranchController::class, 'validateBranchUserUpdate']);
 // Route::get('branch/search/{key}', [BranchController::class, 'search']);
 
-
-
 // Module
 Route::apiResource('module', ModuleController::class);
 Route::get('module/search/{key}', [ModuleController::class, 'search']);
@@ -140,3 +137,37 @@ Route::get('download/{key}', [SdkLogcsvfileController::class, 'download']);
 Route::get('upcoming-holiday', [HolidaysController::class, 'upcomingHoliday']);
 
 Route::get('/whatsapp/health-check', [WhatsappProxyHealthCheckController::class, 'check']);
+
+Route::get('/progress', function () {
+    return response()->json([
+        'total'  => Cache::get('batch_total', 0),
+        'done'   => Cache::get('batch_done', 0),
+        'failed' => Cache::get('batch_failed', 0),
+    ]);
+});
+
+Route::get('/progress-stream', function () {
+    return response()->stream(function () {
+        while (true) {
+            $data = [
+                'total'  => Cache::get('batch_total', 0),
+                'done'   => Cache::get('batch_done', 0),
+                'failed' => Cache::get('batch_failed', 0),
+            ];
+
+            echo "data: " . json_encode($data) . "\n\n";
+            ob_flush();
+            flush();
+
+            if (connection_aborted()) {
+                break;
+            }
+
+            sleep(2); // send update every 2s
+        }
+    }, 200, [
+        'Content-Type'  => 'text/event-stream',
+        'Cache-Control' => 'no-cache',
+        'Connection'    => 'keep-alive',
+    ]);
+});

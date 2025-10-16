@@ -1,30 +1,5 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
-    <v-dialog v-model="loadingDialog" persistent max-width="400">
-      <v-card>
-        <v-alert dense flat dark color="primary">Attendance Report</v-alert>
-        <v-card-text
-          class="d-flex flex-column align-center justify-center"
-          style="min-height: 200px"
-        >
-          <!-- Centered spinner -->
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="50"
-            width="5"
-            class="mb-4"
-          ></v-progress-circular>
-
-          <div class="text-h6 font-weight-medium text-center">
-            Report is generating
-          </div>
-          <div class="text-subtitle-2 grey--text text-center">
-            Please wait while we prepare your report...
-          </div>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -39,6 +14,10 @@
         </v-card-text>
       </v-card>
     </v-dialog>
+    <ProgressBar
+      ref="ProgressBarRef"
+      :queryStringUrl="queryStringUrl"
+    />
     <v-card
       class="mt-5 pa-2"
       elevation="0"
@@ -484,14 +463,18 @@
                   </span>
                 </template>
                 <v-list width="200" dense>
-                  <v-list-item @click="process_file_in_child_comp(`Monthly`)">
+                  <v-list-item
+                    @click="process_file_in_child_comp(`Monthly`, `PRINT`)"
+                  >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_print.png" class="iconsize" />
                       Print
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item
-                    @click="process_file_in_child_comp('Monthly_download_pdf')"
+                    @click="
+                      process_file_in_child_comp('Monthly_download_pdf', `PDF`)
+                    "
                   >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_pdf.png" class="iconsize" />
@@ -499,7 +482,12 @@
                     </v-list-item-title>
                   </v-list-item>
                   <v-list-item
-                    @click="process_file_in_child_comp('Monthly_download_csv')"
+                    @click="
+                      process_file_in_child_comp(
+                        'Monthly_download_csv',
+                        `EXCEL`
+                      )
+                    "
                   >
                     <v-list-item-title style="cursor: pointer">
                       <img src="/icons/icon_excel.png" class="iconsize" />
@@ -571,7 +559,7 @@ export default {
   props: ["title", "render_endpoint"],
 
   data: () => ({
-    loadingDialog: false, // renamed
+    queryStringUrl: null,
     missingLogsDialog: false,
     key: 1,
     shift_type_id: 0,
@@ -730,7 +718,7 @@ export default {
     openMissingPopup() {
       this.missingLogsDialog = true;
     },
-    async process_file_in_child_comp(val) {
+    async process_file_in_child_comp(val, actionType) {
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
@@ -741,17 +729,7 @@ export default {
         return;
       }
 
-      this.loadingDialog = true;
-
       try {
-        let options = {
-          params: {
-            ...this.returnedPayload,
-          },
-        };
-
-        await this.$axios.get(`start-report-generation`, options);
-
         let type = val.toLowerCase();
 
         let process_file_endpoint = "";
@@ -792,6 +770,21 @@ export default {
             JSON.stringify(this.payload.showTabs)
           )}`;
         }
+
+        if (actionType !== "EXCEL") {
+          this.queryStringUrl = qs;
+
+          await this.$axios.get(`start-report-generation`, {
+            params: {
+              ...this.returnedPayload,
+            },
+          });
+
+          this.$refs["ProgressBarRef"].loadingDialog = true;
+
+          return;
+        }
+
         let report = document.createElement("a");
         report.setAttribute("href", qs);
         report.setAttribute("target", "_blank");
@@ -800,7 +793,7 @@ export default {
         console.error(error);
         // handle error UI
       } finally {
-        this.loadingDialog = false; // always close
+        // this.loadingDialog = false; // always close
       }
     },
     toggleDepartmentSelection() {

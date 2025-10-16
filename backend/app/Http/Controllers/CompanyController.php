@@ -581,4 +581,66 @@ class CompanyController extends Controller
 
         return $contact;
     }
+
+    public function checkPin(Request $request): JsonResponse
+    {
+
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'company_id' => 'required|integer|exists:companies,id',
+                'pin'        => 'required|digits:4', // 4-digit pin
+            ]);
+
+            // Check if company with the given pin exists
+            $exists = Company::where('id', $validated['company_id'])
+                ->where('pin', $validated['pin'])
+                ->exists();
+
+            return response()->json(['status' => $exists]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Validation failed
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Other errors
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function setPin(Request $request): JsonResponse
+    {
+        try {
+            // Validate input
+            $validated = $request->validate([
+                'company_id' => 'required|integer|exists:companies,id',
+                'pin'        => 'required|digits:4', // 4-digit pin
+            ]);
+
+            // Update or create the pin
+            $company      = Company::findOrFail($validated['company_id']);
+            $company->pin = $validated['pin']; // If you want hashed: Hash::make($validated['pin'])
+            $company->save();
+
+            return response()->json([
+                'status'  => true,
+                'message' => 'Pin has been set successfully.',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Console\Commands\Shift;
 
 use Carbon\Carbon;
@@ -30,32 +29,32 @@ class SyncMultiShiftDualDayRange extends Command
     public function handle()
     {
         // Ask for ID
-        $id = $this->ask('Enter ID',1);
+        $id = $this->ask('Enter ID', 1);
 
         // Get first and last date of the current month
         $defaultStartDate = Carbon::now()->startOfMonth()->toDateString();
-        $defaultEndDate = Carbon::now()->endOfMonth()->toDateString();
+        $defaultEndDate   = Carbon::now()->endOfMonth()->toDateString();
 
         // Ask for Start and End Date with default values
         $startDate = $this->ask("Enter Start Date (YYYY-MM-DD)", $defaultStartDate);
-        $endDate = $this->ask("Enter End Date (YYYY-MM-DD)", $defaultEndDate);
+        $endDate   = $this->ask("Enter End Date (YYYY-MM-DD)", $defaultEndDate);
 
         // Set flag to static true
         $flag = 'true';
 
         // Validate Inputs
-        if (!is_numeric($id)) {
+        if (! is_numeric($id)) {
             $this->error('ID must be a number.');
             return;
         }
 
-        if (!strtotime($startDate) || !strtotime($endDate)) {
+        if (! strtotime($startDate) || ! strtotime($endDate)) {
             $this->error('Invalid date format. Please use YYYY-MM-DD.');
             return;
         }
 
         $start = Carbon::parse($startDate);
-        $end = Carbon::parse($endDate);
+        $end   = Carbon::parse($endDate);
 
         if ($start->greaterThan($end)) {
             $this->error('Start date must be before end date.');
@@ -68,6 +67,8 @@ class SyncMultiShiftDualDayRange extends Command
 
         $exitCode = $this->call('update_log_date_column', [
             'company_id' => $id,
+            'from_date'  => $startDate,
+            'to_date'    => $endDate,
         ], $outputBuffer);
 
         $this->line($outputBuffer->fetch());
@@ -83,7 +84,7 @@ class SyncMultiShiftDualDayRange extends Command
             // Execute child command and capture output
             $exitCode = $this->call('task:sync_multi_shift_dual_day', [
                 'company_id' => $id,
-                'date' => $dateString,
+                'date'       => $dateString,
             ], $outputBuffer);
 
             // Show response from child command
