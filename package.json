@@ -72,6 +72,10 @@
       {
         "from": "java_sdk",
         "to": "java_sdk"
+      },
+      {
+        "from": "vs_redist.exe",
+        "to": "vs_redist.exe"
       }
     ],
     "productName": "MyTime2Desktop",
