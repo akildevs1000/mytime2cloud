@@ -42,10 +42,6 @@ export default {
       progress: 0,
       intervalId: null,
       loader: false,
-      processing: {
-        text1: "Processing your request",
-        text2: "This may take a few moments...",
-      },
     };
   },
   watch: {
@@ -72,11 +68,6 @@ export default {
       this.done = 0;
       this.failed = 0;
       this.progress = 0;
-
-      this.processing = {
-        text1: "Processing your request",
-        text2: "This may take a few moments...",
-      };
     },
 
     startProgressPolling() {
@@ -96,11 +87,6 @@ export default {
         clearInterval(this.intervalId);
         this.intervalId = null;
         this.loader = false;
-
-        this.processing = {
-          text1: "Request Finished",
-          text2: "Report request has been finish",
-        };
       }
     },
 
