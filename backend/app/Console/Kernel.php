@@ -19,7 +19,7 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
-        $schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
+        // $schedule->command("pdf:access-control-report-generate " . date("Y-m-d", strtotime("yesterday")))->dailyAt('04:35')->runInBackground();
         // ----------------------------------- Background Jobs for pdf generation access ------------------------------- //
 
         // ----------------------------------- Background Jobs for pdf generation ------------------------------- //
