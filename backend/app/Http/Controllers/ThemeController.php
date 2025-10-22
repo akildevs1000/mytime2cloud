@@ -185,7 +185,7 @@ class ThemeController extends Controller
 
         $offlineDevices = Device::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
+                $q->whereHas('branch', fn(Builder $q) => $q->where('branch_id', $branch_id));
             })
             ->where('status_id', 2)
             ->where('device_id', "!=", "Manual")
