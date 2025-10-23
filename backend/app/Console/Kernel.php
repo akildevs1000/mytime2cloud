@@ -138,6 +138,11 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule
+                ->command("attendance:manual-check")
+                ->everyFiveMinutes()
+                ->runInBackground();
+
+            $schedule
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
                 ->runInBackground();
