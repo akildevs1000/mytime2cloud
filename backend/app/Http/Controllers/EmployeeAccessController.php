@@ -70,7 +70,7 @@ class EmployeeAccessController extends Controller
             ? $now->copy()->subYear() // 1 year past date
             : $expiryDateTime;
 
-        $url = "http://192.168.2.56:8080/{$request->device_id}/AddPerson";
+        $url = env('SDK_URL') . "/" . $request->device_id . "/AddPerson";
 
         $data = [
             "userCode" => $employee->system_user_id,
