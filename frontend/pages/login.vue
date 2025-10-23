@@ -350,7 +350,7 @@ export default {
       const userType = this.$auth.user?.user_type;
       if (userType) {
         if (this.$route.name === "login") {
-          window.location.reload();
+          //window.location.reload();
         }
       }
     } catch (error) {}

@@ -1021,7 +1021,7 @@ class EmployeeController extends Controller
         try {
             foreach ($dataCSV as $data1) {
 
-                if (Employee::where(["system_user_id" => $data1['employee_device_id']])->exists()) {
+                if (Employee::where(["system_user_id" => $data1['employee_device_id']])->where("company_id", $this->company_id)->exists()) {
                     continue;
                 }
                 $data = [];
