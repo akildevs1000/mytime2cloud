@@ -49,6 +49,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule
+            ->command('employees:process-special-access')
+            ->dailyAt('03:20')
+            ->runInBackground();
+
+        $schedule
             ->command('task:sync_attendance_logs')
             ->everyFifteenMinutes()->runInBackground();
 
