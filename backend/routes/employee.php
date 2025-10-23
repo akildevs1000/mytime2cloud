@@ -59,4 +59,4 @@ Route::post('employee-update-document-new', [EmployeeControllerNew::class, 'upda
 
 
 
-Route::get('/check-user-code', [EmployeeAccessController::class, 'checkUserCode']);
+Route::post('/check-user-code', [EmployeeAccessController::class, 'checkUserCode']);
