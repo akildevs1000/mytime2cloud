@@ -541,6 +541,9 @@ class Employee extends Model
             $model->whereHas("department", fn($q) => $q->where("id", $request->department_id));
         }
 
+        $model->orderBy('id', 'desc');
+
+
         $model->with([
             "finger_prints",
             "palms",
@@ -592,10 +595,10 @@ class Employee extends Model
                     $q->where('system_user_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
                         ->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
                         ->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
-                        ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
-                        ->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
-                        ->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
-                        ->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                        ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                        // ->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                        // ->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                        // ->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
                 });
 
                 // Add whereHas clauses for related models branch and department
