@@ -104,7 +104,26 @@ class MultiShiftController extends Controller
 
             $data = $logs[$row->system_user_id] ?? [];
 
-            $data = collect($data)->unique('LogTime')->values();
+            $data = collect($data)
+                ->unique('LogTime')
+                ->filter(function ($log, $index) use ($data) {
+                    $prev = $data[$index - 1] ?? null;
+
+                    if (isset($log['device']) && ($log['device']['model_number'] ?? null) != 'OX-900') {
+                        return true;
+                    }
+
+                    if (
+                        in_array($log['log_type'], ['In', 'Out']) &&
+                        $prev &&
+                        $prev['log_type'] === $log['log_type']
+                    ) {
+                        return false; // skip duplicate consecutive type
+                    }
+
+                    return true;
+                })
+                ->values();
 
             if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
@@ -257,13 +276,9 @@ class MultiShiftController extends Controller
                     $previousOut = $nextLog['time'] ?? null;
                     $i++; // move forward
                 }
-                $item["status"] = $validLogCount % 2 === 0 ? Attendance::PRESENT : Attendance::MISSING;
-
             }
 
-            $item["status"] = (isset($validLogCount) && $validLogCount % 2 === 0)
-                ? Attendance::PRESENT
-                : Attendance::MISSING;
+            $item["status"] = (count($logsJson)) ? Attendance::PRESENT : Attendance::MISSING;
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
@@ -277,8 +292,8 @@ class MultiShiftController extends Controller
                 );
             }
 
-            $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
-            $items[]      = $item;
+            $item["logs"]   = json_encode($logsJson, JSON_PRETTY_PRINT);
+            $items[] = $item;
         }
 
         // return json_encode($items, JSON_PRETTY_PRINT);
