@@ -1,10 +1,10 @@
 <?php
-
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\Employee;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Http;
 
 class ProcessManualAttendanceLogs extends Command
 {
@@ -29,10 +29,13 @@ class ProcessManualAttendanceLogs extends Command
         $today = Carbon::today()->toDateString();
 
         // Fetch employees having attendance logs with today's date and mode = 'Manual'
-        $employees = Employee::where('special_access', true)->whereHas('attendance_logs', function ($query) use ($today) {
-            $query->whereDate('created_at', $today)
-                  ->where('mode', 'Manual');
-        })->get();
+        $employees = Employee::where('special_access', true)
+            // ->where("is_multi_entry_allowed", false)
+            ->whereHas('attendance_logs', function ($query){
+                $query->whereDate("LogTime", date('Y-m-d'))
+                    ->where('mode', 'Manual');
+            })
+            ->get(["id", "first_name", "last_name", "system_user_id", "rfid_card_password","device_id"]);
 
         if ($employees->isEmpty()) {
             $this->info("No employees found with manual attendance logs for {$today}.");
@@ -45,12 +48,25 @@ class ProcessManualAttendanceLogs extends Command
         foreach ($employees as $employee) {
             $this->line("Employee ID: {$employee->id}, Name: {$employee->name}");
 
-            foreach ($employee->attendanceLogs()
-                ->whereDate('created_at', $today)
-                ->where('mode', 'Manual')
-                ->get() as $log) {
+            $url = env('SDK_URL') . "/" . $employee->device_id . "/AddPerson";
 
-                $this->line("  ➤ Log ID: {$log->id}, Time: {$log->created_at}");
+            $data = [
+                "userCode" => $employee->system_user_id,
+                "name"     => "{$employee->first_name} {$employee->last_name}",
+                "password" => $employee->rfid_card_password,
+                "expiry" => "2001-01-01 00:00:00",
+            ];
+
+            try {
+                $response = Http::timeout(10)->post($url, $data);
+
+                if ($response->successful()) {
+                    $this->info("✅ Successfully sent access for {$employee->first_name} {$employee->last_name}");
+                } else {
+                    $this->error("❌ Failed for {$employee->first_name} {$employee->last_name}: " . $response->body());
+                }
+            } catch (\Exception $e) {
+                $this->error("⚠️ Error for {$employee->first_name} {$employee->last_name}: " . $e->getMessage());
             }
         }
 
