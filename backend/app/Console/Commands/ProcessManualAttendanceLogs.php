@@ -30,7 +30,7 @@ class ProcessManualAttendanceLogs extends Command
 
         // Fetch employees having attendance logs with today's date and mode = 'Manual'
         $employees = Employee::where('special_access', true)
-            // ->where("is_multi_entry_allowed", false)
+            ->where("is_multi_entry_allowed", false)
             ->whereHas('attendance_logs', function ($query){
                 $query->whereDate("LogTime", date('Y-m-d'))
                     ->where('mode', 'Manual');
