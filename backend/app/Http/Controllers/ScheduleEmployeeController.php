@@ -616,7 +616,7 @@ class ScheduleEmployeeController extends Controller
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->orderBy("first_name", "ASC")
-            ->get(["first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
+            ->get(["id","first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
     }
 
     public function getShiftsByEmployee(Request $request, $id)
