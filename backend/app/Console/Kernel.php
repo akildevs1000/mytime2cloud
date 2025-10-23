@@ -50,7 +50,7 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('employees:process-special-access')
-            ->dailyAt('03:20')
+            ->everyFiveMinutes()
             ->runInBackground();
 
         $schedule
