@@ -159,9 +159,13 @@ class EmployeeAccessController extends Controller
             $response = Http::timeout(10)->post($url, $data);
 
             if ($response->successful()) {
-                $json            = $response->json();
-                $json["message"] = "Pin created successfully";
-                return $json;
+
+                return response()->json([
+                    'success' => false,
+                    'message' =>  isset($json->status) && $json->status == 200 ? 'Pin created successfully' : 'Failed to create pin. Device responded with error.',
+                    'status'  => $json->status ?? 200,
+                    'status'  => $response->json(),
+                ], 500);
             } else {
                 return response()->json([
                     'success' => false,
