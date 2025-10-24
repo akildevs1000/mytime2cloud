@@ -8,6 +8,79 @@ use Illuminate\Support\Facades\Http;
 
 class EmployeeAccessController extends Controller
 {
+    public function index(Request $request)
+    {
+
+        $model = Employee::query();
+
+        $model = $model->where('company_id', $request->company_id);
+        if ($request->user_type == "department") {
+            $model->whereHas("department", fn($q) => $q->where("id", $request->department_id));
+        }
+
+        $model->orderBy('id', 'desc');
+
+        $model->with([
+            "finger_prints",
+            "palms",
+            "user" => function ($q) {
+                return $q->with(["branchLogin", "role"]);
+            },
+        ])
+            ->with([
+                "branch",
+                "department",
+                "designation",
+            ])
+            ->with("schedule")
+            ->where('company_id', $request->company_id)
+
+            ->when($request->filled("branch_id"), function ($q) use ($request) {
+                $q->where('branch_id', '=', $request->branch_id);
+            })
+            ->when($request->filled('search'), function ($q) use ($request) {
+                // Add where clause for company_id
+                $q->where('company_id', $request->company_id);
+
+                // Add where clauses for various fields using ILIKE for case-insensitive matching
+                $q->where(function ($q) use ($request) {
+                    //$searchTerm = "%{$request->search}%";
+                    $searchTerm = "{$request->search}%";
+
+                    $q->where('system_user_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                        ->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                        ->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                        ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                });
+            });
+
+        $model->orderBy('first_name', 'asc');
+
+        $model->select(
+            "id",
+            "first_name",
+            "last_name",
+            "profile_picture",
+            "phone_number",
+            "whatsapp_number",
+            "employee_id",
+            "joining_date",
+            "designation_id",
+            "department_id",
+            "title",
+            "status",
+            "company_id",
+            "branch_id",
+            "system_user_id",
+            "display_name",
+            "face_uuid",
+            "rfid_card_number",
+            "rfid_card_password",
+        );
+
+        return $model->paginate($request->per_page ?? 100);
+    }
+
     public function checkUserCode(Request $request)
     {
         $request->validate([
@@ -86,9 +159,22 @@ class EmployeeAccessController extends Controller
             $response = Http::timeout(10)->post($url, $data);
 
             if ($response->successful()) {
-                $json            = $response->json();
-                $json["message"] = "Pin created successfully";
-                return $json;
+                if ($response->status() == 200) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Pin created successfully",
+                        'status'  => $response->status(),
+                        'body'    => $response->body(),
+                        'json'    => $response->json(),
+                    ], $response->status());
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create pin. Device responded with error.',
+                    'status'  => $response->status(),
+                    'body'    => $response->body(),
+                ], $response->status());
             } else {
                 return response()->json([
                     'success' => false,
