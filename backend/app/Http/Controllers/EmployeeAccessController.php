@@ -160,15 +160,15 @@ class EmployeeAccessController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' =>  isset($json->status) && $json->status == 200 ? 'Pin created successfully' : 'Failed to create pin. Device responded with error.',
-                    'status'  => $json->status ?? 200,
-                    'status'  => $response->json(),
+                    'status'  => isset($json->status) && $json->status == 200 ? 200 : 500,
+                    'json'  => $response->json(),
                 ], 500);
             } else {
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to create pin. Device responded with error.',
                     'status'  => $response->status(),
-                    'body'    => $response->body(),
+                    'json'    => $response->json(),
                 ], 500);
             }
         } catch (\Exception $e) {
