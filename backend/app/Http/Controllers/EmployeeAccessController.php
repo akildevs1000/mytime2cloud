@@ -154,11 +154,14 @@ class EmployeeAccessController extends Controller
         ];
 
         try {
+            // Make the HTTP request with a 10-second timeout
             $response = Http::timeout(10)->post($url, $data);
 
+            // Check if the response was successful (HTTP 200–299)
             if ($response->successful()) {
                 $json = $response->json();
 
+                // Safely get the status from JSON, defaulting to 500 if missing
                 $status = $json['status'] ?? 500;
 
                 return response()->json([
@@ -168,22 +171,35 @@ class EmployeeAccessController extends Controller
                         : 'Failed to create pin. Device responded with error.',
                     'status'  => $status,
                     'json'    => $json,
-                ], $status);
-
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to create pin. Device responded with error.',
-                    'status'  => $response->status(),
-                    'json'    => $response->json(),
-                ], 500);
+                ], 200); // ✅ Always return HTTP 200 to your frontend for predictable handling
             }
-        } catch (\Exception $e) {
+
+            // Handle failed HTTP responses (like 400, 500, etc.)
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create pin. Exception occurred.',
+                'message' => 'Failed to create pin. Device responded with error.',
+                'status'  => $response->status(),
+                'json'    => $response->json(),
+            ], $response->status() ?: 500);
+
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            // ✅ Handle connection timeouts separately
+            return response()->json([
+                'success' => false,
+                'message' => 'Connection timed out or device not reachable.',
                 'error'   => $e->getMessage(),
+                'status'  => 500,
+            ], 500);
+
+        } catch (\Exception $e) {
+            // ✅ Catch any other errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create pin. An unexpected error occurred.',
+                'error'   => $e->getMessage(),
+                'status'  => 500,
             ], 500);
         }
+
     }
 }
