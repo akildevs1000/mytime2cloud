@@ -157,22 +157,23 @@ class EmployeeAccessController extends Controller
             $response = Http::timeout(10)->post($url, $data);
 
             if ($response->successful()) {
-                $json = $response->json();
-                if ($json->status == 200) {
+                $json = $response->json(); // returns an associative array
+
+                if (isset($json['status']) && $json['status'] == 200) {
                     return response()->json([
                         'success' => true,
                         'message' => "Pin created successfully",
-                        'status'  => $json->status,
-                        'json'    => $response->json(),
-                    ], $json->status);
+                        'status'  => $json['status'],
+                        'json'    => $json,
+                    ], $json['status']);
                 }
 
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to create pin. Device responded with error.',
-                    'status'  => $json->status,
-                    'json'    => $response->json(),
-                ], $json->status);
+                    'status'  => $json['status'] ?? 'unknown',
+                    'json'    => $json,
+                ], $json['status'] ?? 500);
             } else {
                 return response()->json([
                     'success' => false,
@@ -188,5 +189,6 @@ class EmployeeAccessController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
+
     }
 }
