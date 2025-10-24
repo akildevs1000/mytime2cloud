@@ -153,28 +153,26 @@ class EmployeeAccessController extends Controller
             "expiry" => $expiryForDevice->format('Y-m-d H:i:s'),                  // 2023-01-01 00:00:00
         ];
 
-        info($data);
-
         try {
             $response = Http::timeout(10)->post($url, $data);
 
             if ($response->successful()) {
-                if ($response->status() == 200) {
+                $json = $response->json();
+                if ($json->status == 200) {
                     return response()->json([
                         'success' => true,
                         'message' => "Pin created successfully",
-                        'status'  => $response->status(),
-                        'body'    => $response->body(),
+                        'status'  => $json->status,
                         'json'    => $response->json(),
-                    ], $response->status());
+                    ], $json->status);
                 }
 
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to create pin. Device responded with error.',
-                    'status'  => $response->status(),
-                    'body'    => $response->body(),
-                ], $response->status());
+                    'status'  => $json->status,
+                    'json'    => $response->json(),
+                ], $json->status);
             } else {
                 return response()->json([
                     'success' => false,
