@@ -75,7 +75,14 @@ class EmployeeAccessController extends Controller
             "display_name",
             "face_uuid",
             "rfid_card_number",
-            "rfid_card_password",
+            'rfid_card_password',
+            'is_multi_entry_allowed',
+            'start_date',
+            'start_time',
+            'expiry_date',
+            'expiry_time',
+            'device_id',
+            'special_access',
         );
 
         return $model->paginate($request->per_page ?? 100);
