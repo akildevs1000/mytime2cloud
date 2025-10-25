@@ -904,7 +904,14 @@
               class="pb-0"
               :hide-details="!payload.model_number"
               v-model="payload.model_number"
-              :items="[`OX-866`, `OX-886`, `OX-966`, `OX-900`]"
+              :items="[
+                `OX-866`,
+                `OX-886`,
+                `OX-966`,
+                `OX-900`,
+                `OX-745`,
+                `OX-945`,
+              ]"
               label="Model Number *"
               placeholder="Model Number"
             ></v-autocomplete>

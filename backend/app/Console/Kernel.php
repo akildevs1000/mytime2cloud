@@ -47,6 +47,11 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule
+            ->command('employees:process-special-access')
+            ->everyFiveMinutes()
+            ->runInBackground();
+
+        $schedule
             ->command('task:sync_attendance_logs')
             ->everyFifteenMinutes()->runInBackground();
 
@@ -123,6 +128,11 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
+                ->everyFiveMinutes()
+                ->runInBackground();
+
+            $schedule
+                ->command("attendance:manual-check")
                 ->everyFiveMinutes()
                 ->runInBackground();
 

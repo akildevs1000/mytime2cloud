@@ -358,7 +358,9 @@ export default {
       const userType = this.$auth.user?.user_type;
 
       if (userType) {
-        this.$router.push("/dashboard");
+        if (this.$route.name === "login") {
+          //window.location.reload();
+        }
       }
     } catch (error) {}
     // try {

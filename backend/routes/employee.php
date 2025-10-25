@@ -3,6 +3,7 @@
 use App\Http\Controllers\Dashboards\EmployeeDashboard;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\EmployeeAccessController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeControllerNew;
 use Illuminate\Support\Facades\Route;
@@ -55,3 +56,8 @@ Route::post('employee-update-access-settings-new', [EmployeeControllerNew::class
 Route::post('employee-update-login-new', [EmployeeControllerNew::class, 'updateLogin']);
 Route::post('employee-update-settings-new', [EmployeeControllerNew::class, 'updateSettings']);
 Route::post('employee-update-document-new', [EmployeeControllerNew::class, 'updateDocument']);
+
+
+
+Route::get('/access-employees', [EmployeeAccessController::class, 'index']);
+Route::post('/check-user-code', [EmployeeAccessController::class, 'checkUserCode']);
