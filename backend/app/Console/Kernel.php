@@ -37,7 +37,7 @@ class Kernel extends ConsoleKernel
         //     ->hourly()
         //     ->withoutOverlapping();
 
-        $schedule->command('monitor:system')->dailyAt('08:00');
+        // $schedule->command('monitor:system')->dailyAt('08:00');
 
         $schedule->command('birthday:wish')->dailyAt('00:00');
 
@@ -46,22 +46,22 @@ class Kernel extends ConsoleKernel
             ->dailyAt('02:45')
             ->runInBackground();
 
-        $schedule
-            ->command('employees:process-special-access')
-            ->everyFiveMinutes()
-            ->runInBackground();
+        // $schedule
+        //     ->command('employees:process-special-access')
+        //     ->everyFiveMinutes()
+        //     ->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_logs')
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyMinute()->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyMinute()->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyMinute()->runInBackground();
 
         // --------------------Daily Report Generation for automation-------------------- //
         $schedule
@@ -180,20 +180,20 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
         }
 
-        $schedule
-            ->command("task:files-delete-old-log-files")
-            ->dailyAt('23:30')
-            ->runInBackground();
+        // $schedule
+        //     ->command("task:files-delete-old-log-files")
+        //     ->dailyAt('23:30')
+        //     ->runInBackground();
 
         // $schedule->call(function () {
         //     $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
         // })->dailyAt('05:00');
         //->withoutOverlapping();
-        $schedule->call(function () {
-            exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
-            // Artisan::call('cache:clear');
-            // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
-        })->hourly();
+        // $schedule->call(function () {
+        //     exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
+        //     // Artisan::call('cache:clear');
+        //     // info("Cache cleared successfully at " . date("d-M-y H:i:s"));
+        // })->hourly();
 
         $schedule
             ->command('task:render_missing')
