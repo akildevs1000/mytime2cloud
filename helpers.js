@@ -79,9 +79,9 @@ function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOpti
     return child;
 }
 
-function spawnPhpCgiWorker_old(mainWindow, phpCGi, port) {
+function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
     const args = ['-b', `127.0.0.1:${port}`];
-    const options = { cwd: appDir };
+    const options = { cwd: appDir,env: { ...process.env, PATH: `${dllsPath};${process.env.PATH}` } };
 
     function start() {
         const child = spawn(phpCGi, args, options);
@@ -109,7 +109,7 @@ function spawnPhpCgiWorker_old(mainWindow, phpCGi, port) {
     return start();
 }
 
-function spawnPhpCgiWorker(mainWindow, phpExe, port) {
+function spawnPhpCgiWorker_new(mainWindow, phpExe, port) {
     const args = ["-S", `127.0.0.1:${port}`]; // PHP built-in server
     const options = { 
         cwd: path.dirname(phpExe),
