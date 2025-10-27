@@ -8,8 +8,7 @@ const WebSocket = require("ws");
 app.setName('MyTime2Desktop');
 app.setAppUserModelId('MyTime2Desktop');
 
-const { log, spawnWrapper,spawnPhpCgiWorker, stopProcess, getFormattedDate, ipUpdaterForDotNetSDK, notify, verification_methods, reasons, ipv4Address } = require('./helpers');
-const { initAutoUpdater } = require('./updater');
+const { log, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, extractZipIfNeeded, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -38,11 +37,7 @@ const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 let mainWindow;
 let nginxWindow;
 
-let NginxProcess;
-let ScheduleProcess;
-let QueueProcess;
 let dotnetSDKProcess;
-let javaSDKProcess;
 
 
 function startWebSocketClient(mainWindow) {
@@ -51,22 +46,22 @@ function startWebSocketClient(mainWindow) {
 
   function connect() {
 
-    log(mainWindow, `[LISTENER] Attempting to connect to ${SOCKET_ENDPOINT}...`);
+    log(mainWindow, `LISTENER`, `Attempting to connect to ${SOCKET_ENDPOINT}...`);
 
     const socket = new WebSocket(SOCKET_ENDPOINT);
 
     socket.onopen = () => {
-      log(mainWindow, `[LISTENER] Connected to ${SOCKET_ENDPOINT}`);
+      log(mainWindow, `LISTENER`, `Connected to ${SOCKET_ENDPOINT}`);
     };
 
     socket.onerror = (error) => {
-      log(mainWindow, "[LISTENER] WebSocket error:", error.message || error);
+      log(mainWindow, `LISTENER`, " WebSocket error:", error.message || error);
       // Retry connection after 3 seconds
       setTimeout(connect, 3000);
     };
 
     socket.onclose = (event) => {
-      log(mainWindow, `[LISTENER] WebSocket connection closed with code ${event.code} at ${getFormattedDate().date} ${getFormattedDate().time}`);
+      log(mainWindow, `LISTENER`, ` WebSocket connection closed with code ${event.code} at ${getFormattedDate().date} ${getFormattedDate().time}`);
       // Retry connection after 3 seconds
       // setTimeout(connect, 3000);
     };
@@ -91,16 +86,16 @@ function startWebSocketClient(mainWindow) {
           let reason = reasons[RecordCode] ?? "---";
           const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
           fs.appendFileSync(logFilePath, logEntry + "\n");
-          log(mainWindow, `[LISTENER] ${logEntry}`);
+          log(mainWindow, `LISTENER`, `${logEntry}`);
         }
 
         if (UserCode == 0 && RecordCode == 19) {
           const alarm_logEntry = `${SN},${RecordDate}`;
           fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
-          log(mainWindow, "[LISTENER] Error processing message: " + alarm_logEntry);
+          log(mainWindow, `LISTENER`, "Error processing message: " + alarm_logEntry);
         }
       } catch (error) {
-        log(mainWindow, "[LISTENER] Error processing message: " + error.message);
+        log(mainWindow, `LISTENER`, "Error processing message: " + error.message);
       }
     };
 
@@ -125,26 +120,74 @@ function createWindow() {
 
   mainWindow.loadFile('index.html');
 
-  mainWindow.webContents.once('did-finish-load', () => {
+  mainWindow.webContents.once('did-finish-load', async () => {
+
+    const address = `http://${ipv4Address}:3001`;
+    log(mainWindow, `APPLICATION`, `started on ${address}`);
+
+    const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+
+    // ✅ Only create a new window if it's not already open
+    if (!nginxWindow || nginxWindow.isDestroyed()) {
+      nginxWindow = new BrowserWindow({
+        width,
+        height,
+        frame: true,
+        fullscreen: false,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
+        }
+      });
+
+      nginxWindow.loadURL(`http://${ipv4Address}:3001`);
+      nginxWindow.maximize();
+
+      nginxWindow.on('closed', () => {
+        nginxWindow = null;
+      });
+    } else {
+      nginxWindow.focus(); // ✅ Bring existing window to front
+    }
+
+    const repositories = [
+      {
+        url: 'https://github.com/akildevs1000/dotnet_sdk',
+        folder: 'dotnet_sdk',
+      },
+      // {
+      //   url: 'https://github.com/akildevs1000/java_sdk',
+      //   folder: 'java_sdk',
+      // }
+    ];
+
+    await cloneMultipleRepos(mainWindow, repositories);
+
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
+
     startServices(mainWindow);
+
+    return;
+
+    const zipFilePath = path.join(appDir, 'java_sdk.zip'); // must exist
+
+    extractZipIfNeeded(zipFilePath, 'java_sdk');
     // initAutoUpdater(mainWindow);
   });
 }
 
 function startServices(mainWindow) {
-  const address = `http://${ipv4Address}:3001`;
+
 
   const phpPorts = [9000, 9001, 9002, 9003, 9004];
+
   phpPorts.forEach(port => {
-    spawnPhpCgiWorker(mainWindow, phpCGi,port);
+    spawnPhpCgiWorker(mainWindow, phpCGi, port);
   });
 
-  NginxProcess = spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });
+  spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });
 
-  log(mainWindow, `[Application] started on ${address}`);
-
-  dotnetSDKProcess = spawnWrapper(mainWindow, "[Device]", dotnetExe, ['FCardProtocolAPI.dll'], {
+  dotnetSDKProcess = spawnWrapper(mainWindow, "DOTNET", dotnetExe, ['FCardProtocolAPI.dll'], {
     cwd: dotnetSDK
   });
 
@@ -154,48 +197,23 @@ function startServices(mainWindow) {
     }
   });
 
-  ScheduleProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'schedule:work'], {
+  ScheduleProcess = spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'schedule:work'], {
     cwd: srcDirectory
   });
 
-  QueueProcess = spawnWrapper(mainWindow, "[Application]", phpPathCli, ['artisan', 'queue:work'], {
+  QueueProcess = spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'queue:work'], {
     cwd: srcDirectory
   });
 
-  javaSDKProcess = spawnWrapper(mainWindow, "[Device]", javaExe, ['-jar', jarPath], {
+  javaSDKProcess = spawnWrapper(mainWindow, "JAVA", javaExe, ['-jar', jarPath], {
     cwd: javaSDK
   });
-
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
-  // ✅ Only create a new window if it's not already open
-  if (!nginxWindow || nginxWindow.isDestroyed()) {
-    nginxWindow = new BrowserWindow({
-      width,
-      height,
-      frame: true,
-      fullscreen: false,
-      webPreferences: {
-        nodeIntegration: false,
-        contextIsolation: true
-      }
-    });
-
-    nginxWindow.loadURL(`http://${ipv4Address}:3001`);
-    nginxWindow.maximize();
-
-    nginxWindow.on('closed', () => {
-      nginxWindow = null;
-    });
-  } else {
-    nginxWindow.focus(); // ✅ Bring existing window to front
-  }
 }
 
 function stopServices(mainWindow) {
   const batFile = path.join(appDir, 'stop-services.bat');
   spawn('cmd.exe', ['/c', batFile], { windowsHide: true });
-  log(mainWindow, '[Application] stop-services.bat executed.');
+  log(mainWindow, `Stop-Services.bat`, ' stop-services.bat executed.');
 }
 
 app.whenReady().then(() => {
@@ -208,7 +226,7 @@ let isQuitting = false;
 app.on('before-quit', (e) => {
   if (!isQuitting) {
     e.preventDefault(); // prevent quit
-    log(mainWindow, "Stopping services before quitting...");
+    log(mainWindow,`Stop-Services`, "Stopping services before quitting...");
     stopServices(mainWindow); // assume this is sync or finishes quickly
     isQuitting = true;
     app.quit(); // trigger quit again

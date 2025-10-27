@@ -4,6 +4,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const os = require("os");
 const { app, Notification } = require('electron');
+const unzipper = require('unzipper');
 
 const isDev = !app.isPackaged;
 
@@ -57,19 +58,19 @@ function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOpti
     const child = spawn(command, args, options);
 
     child.stdout.on('data', (data) => {
-        log(mainWindow, `${processType} ${data.toString()}`);
+        log(mainWindow, processType, `${data.toString()}`);
     });
 
     child.stderr.on('data', (data) => {
-        log(mainWindow, `${processType} ${data.toString()}`);
+        log(mainWindow, processType, `${data.toString()}`);
     });
 
     child.on('close', (code) => {
-        log(mainWindow, `${processType} exited with code ${code} for ${JSON.stringify(argsOrOptions)}`);
+        log(mainWindow, processType, `exited with code ${code} for ${JSON.stringify(argsOrOptions)}`);
     });
 
     child.on('error', (err) => {
-        log(mainWindow, `${processType} ${err.message}`);
+        log(mainWindow, processType, `${err.message}`);
     });
 
     return child;
@@ -83,20 +84,20 @@ function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
         const child = spawn(phpCGi, args, options);
 
         child.stdout.on('data', (data) => {
-            log(mainWindow, `[PHP-CGI:${port}] ${data.toString()}`);
+            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
         });
 
         child.stderr.on('data', (data) => {
-            log(mainWindow, `[PHP-CGI:${port}] ${data.toString()}`);
+            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
         });
 
         child.on('close', (code) => {
-            log(mainWindow, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
+            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
             setTimeout(start, 2000); // auto-restart after 2 seconds
         });
 
         child.on('error', (err) => {
-            log(mainWindow, `[PHP-CGI:${port}] error: ${err.message}`);
+            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] error: ${err.message}`);
         });
 
         return child;
@@ -106,7 +107,7 @@ function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
 }
 
 
-function log(mainWindow, message) {
+function log(mainWindow, processType, message) {
     const now = new Date();
 
     const year = now.getFullYear();
@@ -126,7 +127,7 @@ function log(mainWindow, message) {
 
     // Write to file in logs directory within appDir
     const logDir = path.join(appDir, 'logs');
-    const logFile = path.join(logDir, `${year}-${month}-${day}.log`);
+    const logFile = path.join(logDir, `${processType}-${year}-${month}-${day}.log`);
 
     // Create logs directory if it doesn't exist
     if (!fs.existsSync(logDir)) {
@@ -152,55 +153,23 @@ function ipUpdaterForDotNetSDK(mainWindow, jsonPath) {
     // Write the updated JSON data to the file
     fs.writeFile(jsonPath, updatedJsonData, (err) => {
         if (err) throw err;
-        log(mainWindow, `[Device] JSON file has been updated! `);
+        let result = `JSON file has been updated! `;
+        console.log("🚀 ~ ipUpdaterForDotNetSDK ~ result:", result)
+        log(mainWindow, `DOTNET`, result);
     });
 }
 
 function stopProcess(mainWindow, Process) {
 
     if (!Process) {
-        log(mainWindow, `Something went wrong ${Process}.`);
+        log(mainWindow, `Stop-Services`, `Something went wrong ${Process}.`);
         return;
     }
 
     Process.kill();
     Process = null;
-    log(mainWindow, `${Process} has been stopped.`);
+    log(mainWindow, `Stop-Services`, `${Process} has been stopped.`);
 
-}
-
-function cloneTheRepoIfRequired(mainWindow, appDir, targetDir, backendDir, phpPath, repoUrl) {
-    const composerPhar = path.join(appDir, 'composer.phar');
-
-    if (!fs.existsSync(targetDir) || fs.readdirSync(targetDir).length === 0) {
-        log(mainWindow, `Cloning repository from ${repoUrl}`);
-        const git = simpleGit();
-
-        git.clone(repoUrl, targetDir)
-            .then(() => {
-                log(mainWindow, 'Repository cloned successfully.');
-
-                // Run `composer install`
-                return spawnWrapper(mainWindow, "Repo", phpPath, [composerPhar, 'install'], {
-                    cwd: backendDir
-                });
-            })
-            .then(() => {
-                // Run `php artisan migrate --force`
-                log(mainWindow, 'Running php artisan migrate --force');
-                return spawnWrapper(mainWindow, "Repo", phpPath, ['artisan', 'migrate', '--force'], {
-                    cwd: backendDir
-                });
-            })
-            .then(() => {
-                log(mainWindow, 'Migration completed successfully.');
-            })
-            .catch(err => {
-                log(mainWindow, `Error: ${err.message}`);
-            });
-    } else {
-        // log(mainWindow, 'Repository already cloned.');
-    }
 }
 
 const timezoneOptions = {
@@ -270,12 +239,64 @@ function notify(title = "", body = "", icon = 'favicon-256x256.png', onClick = n
     notification.show();
 }
 
+async function cloneMultipleRepos(mainWindow, repos) {
+
+    const git = simpleGit();
+
+    for (const repo of repos) {
+        const repoDir = path.join(appDir, repo.folder);
+
+        if (!fs.existsSync(repoDir)) {
+            let logMessage = `🌀 Cloning ${repo.url} into ${repoDir}...`;
+            console.log(logMessage);
+            log(mainWindow, `GIT`, logMessage);
+            try {
+                await git.clone(repo.url, repoDir);
+                let logMessage = `✅ ${repo.folder} cloned successfully!`;
+                console.log(logMessage);
+                log(mainWindow, `GIT`, logMessage);
+            } catch (error) {
+                console.error(`❌ Error cloning ${repo.url}:`, error.message);
+                let logMessage = `❌ Error cloning ${repo.url}:`;
+                console.log(logMessage);
+                log(mainWindow, `GIT`, logMessage);
+            }
+        } else {
+            let logMessage = `📁 ${repo.folder} already exists`;
+            console.log(logMessage);
+            log(mainWindow, `GIT`, logMessage);
+        }
+    }
+}
+
+function extractZipIfNeeded(zipFilePath, targetFolderName) {
+    const extractPath = path.join(appDir, targetFolderName);
+
+    // Check if already extracted
+    if (fs.existsSync(extractPath)) {
+        console.log(`📁 ${targetFolderName} already extracted, skipping...`);
+        return extractPath;
+    }
+
+    console.log(`Extracting ${zipFilePath} → ${extractPath}`);
+
+    try {
+        fs.createReadStream(zipFilePath)
+            .pipe(unzipper.Extract({ path: extractPath }))
+            .promise();
+
+        console.log(`✅ ${targetFolderName} extracted successfully!`);
+        return extractPath;
+    } catch (error) {
+        console.error(`❌ Error extracting ${targetFolderName}:`, error.message);
+    }
+}
+
 module.exports = {
     log,
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
     stopProcess,
-    cloneTheRepoIfRequired,
-    getFormattedDate, ipUpdaterForDotNetSDK, notify,
+    getFormattedDate, ipUpdaterForDotNetSDK, notify, cloneMultipleRepos, extractZipIfNeeded,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }

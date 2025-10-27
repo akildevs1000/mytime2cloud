@@ -50,28 +50,12 @@
         "to": "temp"
       },
       {
-        "from": "contrib",
-        "to": "contrib"
-      },
-      {
-        "from": "docs",
-        "to": "docs"
-      },
-      {
         "from": "nginx.exe",
         "to": "nginx.exe"
       },
       {
         "from": "backend",
         "to": "backend"
-      },
-      {
-        "from": "dotnet_sdk",
-        "to": "dotnet_sdk"
-      },
-      {
-        "from": "java_sdk",
-        "to": "java_sdk"
       },
       {
         "from": "vs_redist.exe",
@@ -105,6 +89,7 @@
   "dependencies": {
     "electron-updater": "^6.6.2",
     "simple-git": "^3.28.0",
+    "unzipper": "^0.12.3",
     "ws": "^8.18.3"
   }
 }
