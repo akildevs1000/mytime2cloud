@@ -8,7 +8,7 @@ const WebSocket = require("ws");
 app.setName('MyTime2Desktop');
 app.setAppUserModelId('MyTime2Desktop');
 
-const { log, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, extractZipIfNeeded, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
+const { log, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -122,6 +122,8 @@ function createWindow() {
 
   mainWindow.webContents.once('did-finish-load', async () => {
 
+    spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });
+
     const address = `http://${ipv4Address}:3001`;
     log(mainWindow, `APPLICATION`, `started on ${address}`);
 
@@ -163,15 +165,20 @@ function createWindow() {
 
     await cloneMultipleRepos(mainWindow, repositories);
 
+    // Example usage:
+    const repos = [
+      {
+        folder: 'java_sdk',
+        url: 'https://backend.mytime2cloud.com/java_sdk.zip'
+      }
+    ];
+
+    downloadMultipleRepos(mainWindow, repos);
+
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
 
     startServices(mainWindow);
 
-    return;
-
-    const zipFilePath = path.join(appDir, 'java_sdk.zip'); // must exist
-
-    extractZipIfNeeded(zipFilePath, 'java_sdk');
     // initAutoUpdater(mainWindow);
   });
 }
@@ -184,8 +191,6 @@ function startServices(mainWindow) {
   phpPorts.forEach(port => {
     spawnPhpCgiWorker(mainWindow, phpCGi, port);
   });
-
-  spawnWrapper(mainWindow, "[Nginx]", nginxPath, { cwd: appDir });
 
   dotnetSDKProcess = spawnWrapper(mainWindow, "DOTNET", dotnetExe, ['FCardProtocolAPI.dll'], {
     cwd: dotnetSDK
@@ -226,7 +231,7 @@ let isQuitting = false;
 app.on('before-quit', (e) => {
   if (!isQuitting) {
     e.preventDefault(); // prevent quit
-    log(mainWindow,`Stop-Services`, "Stopping services before quitting...");
+    log(mainWindow, `Stop-Services`, "Stopping services before quitting...");
     stopServices(mainWindow); // assume this is sync or finishes quickly
     isQuitting = true;
     app.quit(); // trigger quit again
