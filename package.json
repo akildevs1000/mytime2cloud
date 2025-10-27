@@ -22,6 +22,10 @@
     ],
     "extraResources": [
       {
+        "from": "java_sdk",
+        "to": "java_sdk"
+      },
+      {
         "from": "kill-processes.bat",
         "to": "kill-processes.bat"
       },
