@@ -16,6 +16,8 @@ if (isDev) {
     appDir = process.resourcesPath; // where extraResources are placed
 }
 
+const dllsPath = path.join(appDir, 'dlls');
+
 const networkInterfaces = os.networkInterfaces();
 
 let ipv4Address = "localhost";
@@ -77,7 +79,7 @@ function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOpti
     return child;
 }
 
-function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
+function spawnPhpCgiWorker_old(mainWindow, phpCGi, port) {
     const args = ['-b', `127.0.0.1:${port}`];
     const options = { cwd: appDir };
 
@@ -99,6 +101,39 @@ function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
 
         child.on('error', (err) => {
             log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] error: ${err.message}`);
+        });
+
+        return child;
+    }
+
+    return start();
+}
+
+function spawnPhpCgiWorker(mainWindow, phpExe, port) {
+    const args = ["-S", `127.0.0.1:${port}`]; // PHP built-in server
+    const options = { 
+        cwd: path.dirname(phpExe),
+        env: { ...process.env, PATH: `${dllsPath};${process.env.PATH}` } // Prepend DLLs folder
+    };
+
+    function start() {
+        const child = spawn(phpExe, args, options);
+
+        child.stdout.on("data", (data) => {
+            log(mainWindow, "APPLICATION", `[PHP:${port}] ${data.toString()}`);
+        });
+
+        child.stderr.on("data", (data) => {
+            log(mainWindow, "APPLICATION", `[PHP ERR:${port}] ${data.toString()}`);
+        });
+
+        child.on("close", (code) => {
+            log(mainWindow, "APPLICATION", `[PHP:${port}] exited with code ${code}. Restarting in 2s...`);
+            setTimeout(start, 2000); // auto-restart
+        });
+
+        child.on("error", (err) => {
+            log(mainWindow, "APPLICATION", `[PHP:${port}] error: ${err.message}`);
         });
 
         return child;
