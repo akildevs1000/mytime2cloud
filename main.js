@@ -9,7 +9,7 @@ app.setAppUserModelId('MyTime2Desktop');
 const phpPorts = [9000, 9001, 9002, 9003, 9004];
 const appPort = 3001;
 
-const { log, startWebSocketClient, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address } = require('./helpers');
+const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -148,8 +148,9 @@ function nginxWorker() {
   }
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
 
+  await runInstaller(path.join(appDir, `vs_redist.exe`));
 
   phpPorts.forEach(port => {
     spawnPhpCgiWorker(phpCGi, port);

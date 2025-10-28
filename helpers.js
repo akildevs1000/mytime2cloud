@@ -1,7 +1,7 @@
 const simpleGit = require('simple-git');
 const fs = require('fs');
 const path = require('path');
-const { spawn } = require('child_process');
+const { spawnSync, spawn } = require('child_process');
 const os = require("os");
 const { app, Notification } = require('electron');
 const axios = require('axios');
@@ -542,8 +542,60 @@ function startWebSocketClient(srcDirectory) {
     connect();
 }
 
+/**
+ * Checks if VS Redistributable is already installed
+ * @param {string} displayName - Part of the name to check in installed programs
+ * @returns {boolean}
+ */
+function isVSRedistInstalled(displayName = 'Microsoft Visual C++') {
+    // Use PowerShell to check registry for installed programs
+    const psScript = `
+    Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*,
+                      HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* |
+    Where-Object { $_.DisplayName -like "*${displayName}*" } |
+    Select-Object -ExpandProperty DisplayName
+  `;
+
+    const result = spawnSync('powershell.exe', ['-Command', psScript], { encoding: 'utf8' });
+
+    return result.stdout && result.stdout.trim().length > 0;
+}
+
+function runInstaller(installerPath) {
+    return new Promise((resolve, reject) => {
+        if (isVSRedistInstalled()) {
+            log(null, `VS_REDIST`, '✅ VS Redistributable already installed.');
+            return resolve('Already installed');
+        }
+
+        const installer = spawn(installerPath, ['/quiet', '/norestart']);
+
+        installer.stdout.on('data', (data) => {
+            console.log(data.toString());
+            log(null, `VS_REDIST`, data.toString());
+        });
+
+        installer.stderr.on('data', (data) => {
+            log(null, `VS_REDIST`, data.toString());
+        });
+
+        installer.on('close', (code) => {
+            if (code === 0) {
+                log(null, `VS_REDIST`, 'Installed successfully');
+                resolve('Installed successfully');
+            } else if (code === 1638) {
+                log(null, `VS_REDIST`, 'Already installed (code 1638)');
+                resolve('Already installed');
+            } else {
+                log(null, `VS_REDIST`, `❌ Installation failed with code ${code}`);
+                reject(new Error(`Installation failed with code ${code}`));
+            }
+        });
+    });
+}
+
 module.exports = {
-    log, startWebSocketClient,
+    log, startWebSocketClient, isVSRedistInstalled, runInstaller,
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
     stopProcess,
