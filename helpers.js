@@ -6,6 +6,7 @@ const os = require("os");
 const { app, Notification } = require('electron');
 const axios = require('axios');
 const unzipper = require('unzipper');
+const WebSocket = require("ws");
 
 const isDev = !app.isPackaged;
 
@@ -47,7 +48,7 @@ function tailLogFile(logFilePath) {
 }
 
 // Flexible spawn wrapper
-function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOptions) {
+function spawnWrapper(mainWindow = null, processType, command, argsOrOptions, maybeOptions) {
     let args = [];
     let options = {};
 
@@ -79,28 +80,28 @@ function spawnWrapper(mainWindow, processType, command, argsOrOptions, maybeOpti
     return child;
 }
 
-function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
+function spawnPhpCgiWorker(phpCGi, port) {
     const args = ['-b', `127.0.0.1:${port}`];
-    const options = { cwd: appDir,env: { ...process.env, PATH: `${dllsPath};${process.env.PATH}` } };
+    const options = { cwd: appDir, env: { ...process.env, PATH: `${dllsPath};${process.env.PATH}` } };
 
     function start() {
         const child = spawn(phpCGi, args, options);
 
         child.stdout.on('data', (data) => {
-            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
+            logger(`APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
         });
 
         child.stderr.on('data', (data) => {
-            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
+            logger(`APPLICATION`, `[PHP-CGI:${port}] ${data.toString()}`);
         });
 
         child.on('close', (code) => {
-            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
+            logger(`APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
             setTimeout(start, 2000); // auto-restart after 2 seconds
         });
 
         child.on('error', (err) => {
-            log(mainWindow, `APPLICATION`, `[PHP-CGI:${port}] error: ${err.message}`);
+            logger(`APPLICATION`, `[PHP-CGI:${port}] error: ${err.message}`);
         });
 
         return child;
@@ -111,7 +112,7 @@ function spawnPhpCgiWorker(mainWindow, phpCGi, port) {
 
 function spawnPhpCgiWorker_new(mainWindow, phpExe, port) {
     const args = ["-S", `127.0.0.1:${port}`]; // PHP built-in server
-    const options = { 
+    const options = {
         cwd: path.dirname(phpExe),
         env: { ...process.env, PATH: `${dllsPath};${process.env.PATH}` } // Prepend DLLs folder
     };
@@ -142,8 +143,37 @@ function spawnPhpCgiWorker_new(mainWindow, phpExe, port) {
     return start();
 }
 
+function logger(processType, message) {
+    const now = new Date();
 
-function log(mainWindow, processType, message) {
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+
+    const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const fullMessage = `[${timestamp}] ${message}\n`;
+
+    // Write to file in logs directory within appDir
+    const logDir = path.join(appDir, 'logs');
+    const logFile = path.join(logDir, `${processType}-${year}-${month}-${day}.log`);
+
+    // Create logs directory if it doesn't exist
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+
+    fs.appendFile(logFile, fullMessage, (err) => {
+        if (err) {
+            console.error("❌ Failed to write log file:", err);
+        }
+    });
+}
+
+
+function log(mainWindow = null, processType, message) {
     const now = new Date();
 
     const year = now.getFullYear();
@@ -448,8 +478,72 @@ async function downloadMultipleRepos(mainWindow, repos) {
     }
 }
 
+function startWebSocketClient(srcDirectory) {
+
+    const SOCKET_ENDPOINT = `ws://${ipv4Address}:8080/WebSocket`;
+
+    function connect() {
+
+        logger(`LISTENER`, `Attempting to connect to ${SOCKET_ENDPOINT}...`);
+
+        const socket = new WebSocket(SOCKET_ENDPOINT);
+
+        socket.onopen = () => {
+            logger(`LISTENER`, `Connected to ${SOCKET_ENDPOINT}`);
+        };
+
+        socket.onerror = (error) => {
+            logger(`LISTENER`, " WebSocket error:", error.message || error);
+            // Retry connection after 3 seconds
+            setTimeout(connect, 3000);
+        };
+
+        socket.onclose = (event) => {
+            logger(`LISTENER`, ` WebSocket connection closed with code ${event.code} at ${getFormattedDate().date} ${getFormattedDate().time}`);
+            // Retry connection after 3 seconds
+            // setTimeout(connect, 3000);
+        };
+
+        socket.onmessage = ({ data }) => {
+            try {
+
+                const storage = path.join(srcDirectory, 'storage', 'app');
+
+                let logFilePath = path.join(storage, `logs-${getFormattedDate().date}.csv`);
+                let logFilePathAlarm = path.join(storage, `alarm-logs-${getFormattedDate().date}.csv`);
+
+                // Ensure directory exists
+                fs.mkdirSync(path.dirname(logFilePath), { recursive: true });
+
+                const jsonData = JSON.parse(data).Data;
+                const { UserCode, SN, RecordDate, RecordNumber, RecordCode } = jsonData;
+
+                if (UserCode > 0) {
+                    let status = RecordCode > 15 ? "Access Denied" : "Allowed";
+                    let mode = verification_methods[RecordCode] ?? "---";
+                    let reason = reasons[RecordCode] ?? "---";
+                    const logEntry = `${UserCode},${SN},${RecordDate},${RecordNumber},${status},${mode},${reason}`;
+                    fs.appendFileSync(logFilePath, logEntry + "\n");
+                    logger(`LISTENER`, `${logEntry}`);
+                }
+
+                if (UserCode == 0 && RecordCode == 19) {
+                    const alarm_logEntry = `${SN},${RecordDate}`;
+                    fs.appendFileSync(logFilePathAlarm, alarm_logEntry + "\n");
+                    logger(`LISTENER`, "Error processing message: " + alarm_logEntry);
+                }
+            } catch (error) {
+                logger(`LISTENER`, "Error processing message: " + error.message);
+            }
+        };
+
+    }
+
+    connect();
+}
+
 module.exports = {
-    log,
+    log, startWebSocketClient,
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
     stopProcess,
