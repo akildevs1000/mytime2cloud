@@ -54,6 +54,10 @@
         "to": "nginx.exe"
       },
       {
+        "from": "vs_redist.exe",
+        "to": "vs_redist.exe"
+      },
+      {
         "from": "dlls",
         "to": "dlls"
       },
@@ -69,7 +73,8 @@
     "win": {
       "target": "nsis",
       "artifactName": "${productName}-Setup-${version}.${ext}",
-      "icon": "frontend/dist/favicon-256x256.png"
+      "icon": "frontend/dist/favicon-256x256.png",
+      "requestedExecutionLevel": "requireAdministrator"
     },
     "nsis": {
       "oneClick": false,
