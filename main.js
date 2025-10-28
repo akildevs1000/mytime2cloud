@@ -6,7 +6,10 @@ const { spawn } = require('child_process');
 app.setName('MyTime2Desktop');
 app.setAppUserModelId('MyTime2Desktop');
 
-const { log, startWebSocketClient, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, getFormattedDate, ipUpdaterForDotNetSDK, verification_methods, reasons, ipv4Address } = require('./helpers');
+const phpPorts = [9000, 9001, 9002, 9003, 9004];
+const appPort = 3001;
+
+const { log, startWebSocketClient, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -60,15 +63,10 @@ function createWindow() {
         url: 'https://github.com/akildevs1000/dotnet_sdk',
         folder: 'dotnet_sdk',
       },
-      // {
-      //   url: 'https://github.com/akildevs1000/java_sdk',
-      //   folder: 'java_sdk',
-      // }
     ];
 
     await cloneMultipleRepos(mainWindow, repositories);
 
-    // Example usage:
     const repos = [
       {
         folder: 'java_sdk',
@@ -81,8 +79,6 @@ function createWindow() {
     ipUpdaterForDotNetSDK(mainWindow, jsonPath);
 
     startServices(mainWindow);
-
-    // initAutoUpdater(mainWindow);
   });
 }
 
@@ -112,16 +108,17 @@ function startServices(mainWindow) {
 }
 
 function stopServices(mainWindow) {
-  const batFile = path.join(appDir, 'stop-services.bat');
+  const batFile = path.join(appDir, 'kill-processes.bat');
   spawn('cmd.exe', ['/c', batFile], { windowsHide: true });
-  log(mainWindow, `Stop-Services.bat`, ' stop-services.bat executed.');
+  log(mainWindow, `kill-processes.bat`, ' kill-processes.bat executed.');
 }
 
 function nginxWorker() {
-  spawnWrapper(null,"[Nginx]", nginxPath, { cwd: appDir });
+  spawnWrapper(null, "[Nginx]", nginxPath, { cwd: appDir });
 
-  const address = `http://${ipv4Address}:3001`;
-  
+  const address = `http://${ipv4Address}:${appPort}`;
+  console.log("🚀 ~ nginxWorker ~ address:", address)
+
   log(null, `APPLICATION`, `started on ${address}`);
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
@@ -139,7 +136,7 @@ function nginxWorker() {
       }
     });
 
-    nginxWindow.loadURL(`http://${ipv4Address}:3001`);
+    nginxWindow.loadURL(address);
 
     nginxWindow.maximize();
 
@@ -152,8 +149,7 @@ function nginxWorker() {
 }
 
 app.whenReady().then(() => {
-  
-  const phpPorts = [9000, 9001, 9002, 9003, 9004];
+
 
   phpPorts.forEach(port => {
     spawnPhpCgiWorker(phpCGi, port);
@@ -169,7 +165,7 @@ let isQuitting = false;
 app.on('before-quit', (e) => {
   if (!isQuitting) {
     e.preventDefault(); // prevent quit
-    log(mainWindow, `Stop-Services`, "Stopping services before quitting...");
+    log(mainWindow, `kill-processes`, "Stopping services before quitting...");
     stopServices(mainWindow); // assume this is sync or finishes quickly
     isQuitting = true;
     app.quit(); // trigger quit again
