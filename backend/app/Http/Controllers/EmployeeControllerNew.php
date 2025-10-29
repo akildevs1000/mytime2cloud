@@ -532,7 +532,7 @@ class EmployeeControllerNew extends Controller
             ]);
 
             // 4. Update the record
-            $employee = Employee::where(['employee_id' => $request->employee_id, 'company_id' => $request->company_id])->update($validatedData);
+            $employee = Employee::where(['id' => $request->employee_id, 'company_id' => $request->company_id])->update($validatedData);
 
             // 5. Return success response
             return response()->json([
@@ -627,11 +627,20 @@ class EmployeeControllerNew extends Controller
             $validatedData = $request->validate([
                 'leave_group_id'       => 'nullable|string|max:10',
                 'reporting_manager_id' => 'nullable|string|max:10',
-                'status'               => 'nullable|string|max:50',
+                'status'               => 'nullable|boolean|max:50',
             ]);
 
             // 4. Update the record
             $employee = Employee::where(['employee_id' => $request->employee_id, 'company_id' => $request->company_id])->update($validatedData);
+
+
+            $users = User::where('id', $request->user_id);
+
+            $users->update([
+                'web_login_access'        => $request->web_login_access ?? 0,
+                'mobile_app_login_access' => $request->mobile_app_login_access ?? 0,
+                'tracking_status'         => $request->tracking_status ?? 0,
+            ]);
 
             // 5. Return success response
             return response()->json([
