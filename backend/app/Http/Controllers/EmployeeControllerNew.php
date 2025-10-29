@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\BankInfo;
@@ -71,9 +72,9 @@ class EmployeeControllerNew extends Controller
                 // 2. Decode the Base64 string into binary data
                 $imageData = base64_decode($base64Image);
 
-                               // 3. Determine the file extension (simple approach, refine if needed)
-                               // We'll assume PNG or JPG for simplicity, or try to extract from MIME type.
-                               // A safer way is to infer the extension, but using a default works for now.
+                // 3. Determine the file extension (simple approach, refine if needed)
+                // We'll assume PNG or JPG for simplicity, or try to extract from MIME type.
+                // A safer way is to infer the extension, but using a default works for now.
                 $ext = '.png'; // Default extension
                 if (isset($type) && str_contains($type, 'jpeg')) {
                     $ext = '.jpg';
@@ -109,7 +110,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee created successfully!',
                 'employee' => $employee,
             ], 201);
-
         } catch (ValidationException $e) {
 
             $indexedErrors = collect($e->errors())->flatten()->all();
@@ -199,7 +199,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee updated successfully!',
                 'employee' => $employee,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -242,7 +241,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee updated successfully!',
                 'employee' => $employee,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -287,7 +285,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee updated successfully!',
                 'employee' => $employee,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -339,7 +336,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Visa Info saved successfully!',
                 'employee' => $record,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -383,7 +379,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Emirate Info saved successfully!',
                 'employee' => $record,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -424,7 +419,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Passport Info saved successfully!',
                 'employee' => $record,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -467,7 +461,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Qualification Info saved successfully!',
                 'employee' => $record,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -510,7 +503,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Bank Info saved successfully!',
                 'employee' => $record,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -547,7 +539,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee updated successfully!',
                 'employee' => $employee,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -610,7 +601,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'User Info saved successfully!',
                 'employee' => $user,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -648,7 +638,6 @@ class EmployeeControllerNew extends Controller
                 'message'  => 'Employee updated successfully!',
                 'employee' => $employee,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -674,14 +663,20 @@ class EmployeeControllerNew extends Controller
             'title' => 'required|string|max:10',
         ]);
 
+        $payload = [
+            "title" => $request->title,
+            "attachment" => (new DocumentInfoController)->saveFile($request->attachment, $request->employee_id),
+            "employee_id" => $request->employee_id,
+            "company_id" => $request->company_id,
+        ];
+
         try {
-            $result = DocumentInfo::create($request->all());
+            $result = DocumentInfo::create($payload);
             // 5. Return success response
             return response()->json([
                 'message'  => 'Document saved updated successfully!',
                 'employee' => $result,
             ], 200);
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
@@ -699,7 +694,5 @@ class EmployeeControllerNew extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
-
     }
-
 }
