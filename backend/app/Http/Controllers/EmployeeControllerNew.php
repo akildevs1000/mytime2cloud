@@ -126,6 +126,85 @@ class EmployeeControllerNew extends Controller
         }
     }
 
+    
+
+    public function updateProfilePicture(Request $request)
+    {
+        try {
+            // 1. Find employee
+            $employee = Employee::findOrFail($request->id);
+
+            // 2. Validate incoming data
+            $validatedData = $request->validate([
+                'profile_image_base64' => 'nullable|string', // Con
+            ]);
+
+            $imagePath    = null;
+
+            // 3. Handle Base64 Image if provided
+            if (! empty($validatedData['profile_image_base64'])) {
+                $base64Image = $validatedData['profile_image_base64'];
+
+                // Separate MIME and data
+                if (Str::startsWith($base64Image, 'data:')) {
+                    list($type, $base64Image) = explode(';', $base64Image);
+                    list(, $base64Image)      = explode(',', $base64Image);
+                }
+
+                $imageData = base64_decode($base64Image);
+
+                $ext = '.png';
+                if (isset($type) && str_contains($type, 'jpeg')) {
+                    $ext = '.jpg';
+                }
+
+                $fileName  = time() . '_' . Str::random(10) . $ext;
+                $targetDir = public_path('media/employee/profile_picture/');
+
+                if (! is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+
+                $imagePath = $targetDir . $fileName;
+                file_put_contents($imagePath, $imageData);
+
+                // Delete old image if exists
+                if ($employee->profile_picture && file_exists($targetDir . $employee->profile_picture)) {
+                    unlink($targetDir . $employee->profile_picture);
+                }
+
+                $dataToUpdate['profile_picture'] = $fileName;
+            }
+
+            unset($dataToUpdate['profile_image_base64']);
+
+            // 4. Update the record
+            $employee->update($dataToUpdate);
+
+            // 5. Return success response
+            return response()->json([
+                'message'  => 'Employee updated successfully!',
+                'employee' => $employee,
+            ], 200);
+        } catch (ValidationException $e) {
+            $indexedErrors = collect($e->errors())->flatten()->all();
+
+            return response()->json([
+                'message' => $indexedErrors[0],
+                'errors'  => $indexedErrors,
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Employee not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the employee.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function updateNew(Request $request, $id)
     {
         try {
