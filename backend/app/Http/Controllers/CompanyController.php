@@ -27,6 +27,7 @@ use App\Models\User;
 use App\Models\VisitorLog;
 use App\Notifications\CompanyCreationNotification;
 use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Storage;
 use TechTailor\RPG\Facade\RPG;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class CompanyController extends Controller
 {
@@ -640,6 +643,113 @@ class CompanyController extends Controller
             return response()->json([
                 'status'  => false,
                 'message' => 'Something went wrong: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
+
+    public function updateLogoOnly(Request $request)
+    {
+        try {
+
+            $company = Company::findOrFail($request->company_id);
+
+            // 2. Validate incoming data
+            $validatedData = $request->validate([
+                'logo_base_64' => 'nullable|string', // Con
+            ]);
+
+            $dataToUpdate = $validatedData;
+            $imagePath    = null;
+
+            // 3. Handle Base64 Image if provided
+            if (! empty($validatedData['logo_base_64'])) {
+                $base64Image = $validatedData['logo_base_64'];
+
+                // Separate MIME and data
+                if (Str::startsWith($base64Image, 'data:')) {
+                    list($type, $base64Image) = explode(';', $base64Image);
+                    list(, $base64Image)      = explode(',', $base64Image);
+                }
+
+                $imageData = base64_decode($base64Image);
+
+                $ext = '.png';
+                if (isset($type) && str_contains($type, 'jpeg')) {
+                    $ext = '.jpg';
+                }
+
+                $fileName  = time() . '_' . Str::random(10) . $ext;
+                $targetDir = public_path('upload/');
+
+                if (! is_dir($targetDir)) {
+                    mkdir($targetDir, 0777, true);
+                }
+
+                $imagePath = $targetDir . $fileName;
+                file_put_contents($imagePath, $imageData);
+
+                // Delete old image if exists
+                if ($company->profile_picture && file_exists($targetDir . $company->profile_picture)) {
+                    unlink($targetDir . $company->profile_picture);
+                }
+
+                $dataToUpdate['logo'] = $fileName;
+            }
+
+            unset($dataToUpdate['logo_base_64']);
+
+            // 4. Update the record
+            $company->update($dataToUpdate);
+
+            // 5. Return success response
+            return response()->json([
+                'message'  => 'Company updated successfully!',
+                'company' => $company,
+            ], 200);
+        } catch (ValidationException $e) {
+            $indexedErrors = collect($e->errors())->flatten()->all();
+
+            return response()->json([
+                'message' => $indexedErrors[0],
+                'errors'  => $indexedErrors,
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Company not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the company.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getLogoOnly($id)
+    {
+        try {
+
+            $company = Company::findOrFail($id);
+
+            return $company->logo ?? null;
+
+        } catch (ValidationException $e) {
+            $indexedErrors = collect($e->errors())->flatten()->all();
+
+            return response()->json([
+                'message' => $indexedErrors[0],
+                'errors'  => $indexedErrors,
+            ], 422);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Company not found.',
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred while updating the company.',
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
