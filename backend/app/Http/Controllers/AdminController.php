@@ -21,7 +21,7 @@ class AdminController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
+            'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
             'order' => 'required|numeric',
@@ -64,13 +64,14 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'nullable|string|min:8|confirmed', // make password nullable
             'order' => 'required|numeric',
             'role_id' => 'required|numeric',
             'branch_id' => 'nullable',
         ]);
 
-        $admin =  [
+        // Build admin array
+        $admin = [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
             "order" => $validatedData['order'],
@@ -78,11 +79,9 @@ class AdminController extends Controller
             "branch_id" => $validatedData['branch_id'],
         ];
 
-
-        if ($validatedData['password'] !== "********" && request("password_confirmation") !== "********") {
-            $admin = [
-                "password" => Hash::make($validatedData['password']),
-            ];
+        // Only set password if it is provided
+        if (!empty($validatedData['password'])) {
+            $admin['password'] = Hash::make($validatedData['password']);
         }
 
         try {
