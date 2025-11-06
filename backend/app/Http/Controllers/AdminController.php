@@ -13,7 +13,7 @@ class AdminController extends Controller
         return User::with("company", "role")
             ->where("company_id", request("company_id", 0))
             ->where("user_type", "admin")
-            ->orderBy("order", "asc")
+            ->orderBy("id", "desc")
             ->paginate(request("per_page", 15));
     }
 
