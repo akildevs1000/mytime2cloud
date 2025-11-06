@@ -135,6 +135,8 @@ class CompanyBranchController extends Controller
     public function index(Request $request)
     {
 
+        $search = strtolower($request->search);
+
 
         $model = CompanyBranch::query();
 
@@ -142,6 +144,10 @@ class CompanyBranchController extends Controller
 
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->branch_id);
+        });
+
+        $model->when($request->filled("search"), function ($q) use ($search) {
+            return $q->whereRaw('LOWER(branch_name) LIKE ?', ["%{$search}%"]);
         });
 
         $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
