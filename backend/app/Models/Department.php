@@ -14,6 +14,12 @@ class Department extends Model
 
     protected $guarded = [];
 
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_departments');
+    }
+
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -21,7 +27,7 @@ class Department extends Model
 
     public function managers()
     {
-        return $this->hasMany(User::class)->orderBy("id","asc")->where("user_type", "department");
+        return $this->hasMany(User::class)->orderBy("id", "asc")->where("user_type", "department");
     }
 
     /**
@@ -72,7 +78,7 @@ class Department extends Model
 
         $model = self::query();
         $model->where('company_id', $request->company_id);
-        $model->with(['children','branch','designations','managers']);
+        $model->with(['children', 'branch', 'designations', 'managers']);
         $model->where('company_id', $request->company_id);
 
         $model->when($request->filled('id'), function ($q) use ($request) {
@@ -82,10 +88,10 @@ class Department extends Model
             $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->name%");
         });
         $model->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-            $q->whereHas('children', fn (Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_sub_department_name%"));
+            $q->whereHas('children', fn(Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_sub_department_name%"));
         });
         $model->when($request->filled('serach_designation_name'), function ($q) use ($request) {
-            $q->whereHas('designations', fn (Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_designation_name%"));
+            $q->whereHas('designations', fn(Builder $query) => $query->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_designation_name%"));
         });
         $model->when(isset($cols) && count($cols) > 0, function ($q) use ($cols) {
             $q->select($cols);

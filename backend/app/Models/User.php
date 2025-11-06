@@ -43,6 +43,11 @@ class User extends Authenticatable
         return $this->hasOne(AssignPermission::class, 'role_id', 'role_id');
     }
 
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'user_departments');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
