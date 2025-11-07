@@ -19,7 +19,7 @@ class PayrollFormulaController extends Controller
     {
         $model = PayrollFormula::query();
         $model->where('company_id', $request->company_id);
-        $model->when($request->branch_id, fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->when($request->branch_id, fn($q) => $q->where("branch_id", $request->branch_id));
         $model->with("branch");
         return $model->paginate($request->per_page ?? 100);
     }
@@ -50,6 +50,23 @@ class PayrollFormulaController extends Controller
      * @param  \App\Models\PayrollFormula  $payrollFormula
      * @return \Illuminate\Http\Response
      */
+
+    public function update(StoreRequest $request, $id)
+    {
+        $data = $request->validated();
+
+        try {
+            $record = PayrollFormula::where("id", $id)->update($data);
+
+            if ($record) {
+                return $this->response('Payroll formula successfully added.', $record, true);
+            } else {
+                return $this->response('Payroll formula cannot add.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function show($id)
     {
