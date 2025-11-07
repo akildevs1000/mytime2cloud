@@ -19,7 +19,7 @@ class PayrollSettingController extends Controller
     {
         $model = PayrollSetting::query();
         $model->where('company_id', $request->company_id);
-        $model->when($request->branch_id, fn ($q) => $q->where("branch_id", $request->branch_id));
+        $model->when($request->branch_id, fn($q) => $q->where("branch_id", $request->branch_id));
         $model->with("branch");
         return $model->paginate($request->per_page ?? 100);
     }
@@ -27,14 +27,7 @@ class PayrollSettingController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-
-        $year = date("Y");
-        $month = date("m");
-
-        $dateObj = \DateTime::createFromFormat('Y-n-j', $year . '-' . $month . '-' . $request->date);
-
-        $data['date'] = $dateObj->format('Y-m-d');
-
+        
         try {
             $record = PayrollSetting::updateOrCreate([
                 "company_id" => $data['company_id'],
@@ -58,6 +51,24 @@ class PayrollSettingController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $record = PayrollSetting::where("id", $id)->update([
+                "branch_id" => $request->branch_id,
+                "date" => $request->date,
+            ]);
+
+            if ($record) {
+                return $this->response('Payroll generation successfully added.', $record, true);
+            } else {
+                return $this->response('Payroll generation cannot add.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
 
     public function show($id)
     {

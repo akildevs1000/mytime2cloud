@@ -41,7 +41,7 @@ class DeviceController extends Controller
         $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
-        return $model->get(["id", "name", "location", "device_id", "device_type","short_name","status_id"]);
+        return $model->get(["id", "name", "location", "device_id", "device_type", "short_name", "status_id"]);
     }
 
     public function index(Request $request)
@@ -116,8 +116,7 @@ class DeviceController extends Controller
 
 
 
-        if (!$request->sortBy)
-            $model->orderBy("name", "ASC");
+        $model->orderBy("id", "desc");
         return $model->paginate($request->per_page ?? 1000);
 
         //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);

@@ -29,7 +29,7 @@ class StoreRequest extends FormRequest
         $deviceId = $this->device_id;
         $companyId = $this->company_id;
         return [
-
+            'branch_id' => 'required',
             'device_id' => [
                 'required',
                 Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
@@ -52,10 +52,10 @@ class StoreRequest extends FormRequest
 
             'mode' => ['nullable'],
 
-            'ip' => 'required|ip',
+            'ip' => 'nullable',
             'function' => 'required',
             'utc_time_zone' => 'required',
-            'branch_id' => 'nullable',
+
             //'camera_save_images' => 'required'
 
         ];
