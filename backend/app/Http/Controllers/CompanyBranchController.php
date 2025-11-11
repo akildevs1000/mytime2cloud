@@ -69,7 +69,7 @@ class CompanyBranchController extends Controller
     {
         $data = $request->validated();
         $data["created_date"] = date("Y-m-d");
-        $data["branch_code"] = strtoupper(substr($data["branch_name"], 0, 3)) . CompanyBranch::where("company_id", $request->company_id)->orderBy("id", "desc")->value("id") ?? 0;
+        // $data["branch_code"] = strtoupper(substr($data["branch_name"], 0, 3)) . CompanyBranch::where("company_id", $request->company_id)->orderBy("id", "desc")->value("id") ?? 0;
 
         $company = Company::withCount('companybranches')->find($request->company_id);
         $totalBranches = $company->companybranches_count ?? 0;
@@ -111,19 +111,19 @@ class CompanyBranchController extends Controller
 
         CompanyBranch::where("user_id", $data['user_id'])->update(["user_id" => 0]);
 
-        if (isset($request->logo)) {
-            $file = $request->file('logo');
-            $ext = $file->getClientOriginalExtension();
-            $fileName = time() . '.' . $ext;
-            $request->file('logo')->move(public_path('/upload'), $fileName);
-            $data['logo'] = $fileName;
-        }
+        // if (isset($request->logo)) {
+        //     $file = $request->file('logo');
+        //     $ext = $file->getClientOriginalExtension();
+        //     $fileName = time() . '.' . $ext;
+        //     $request->file('logo')->move(public_path('/upload'), $fileName);
+        //     $data['logo'] = $fileName;
+        // }
 
         try {
             $record = $model->where("id", $id)->update($data);
 
             if ($record) {
-                return $this->response('Branch successfully added.', null, true);
+                return $this->response('Branch successfully updated.', null, true);
             } else {
                 return $this->response('Branch cannot add.', null, false);
             }
