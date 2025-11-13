@@ -659,7 +659,7 @@ export default {
         return;
       }
 
-      const fullUrl = `ws://192.168.3.44:7788/?type=client`;
+      const fullUrl = `${process.env.NODE_SDK}/?type=client`;
 
       try {
         const ws = new WebSocket(fullUrl);
