@@ -60,6 +60,10 @@ class DeviceController extends Controller
         if ($request->filter_company_id)
             $model->where('company_id', $request->filter_company_id);
 
+        $model->when($request->filled('model_number'), function ($q) use ($request) {
+            $q->where('model_number', $request->model_number);
+        });
+
         $model->when($request->filled('name'), function ($q) use ($request) {
             $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->name%");
         });

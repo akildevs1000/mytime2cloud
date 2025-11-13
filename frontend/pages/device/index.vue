@@ -911,6 +911,7 @@
                 `OX-900`,
                 `OX-745`,
                 `OX-945`,
+                `OX-1000`,
               ]"
               label="Model Number *"
               placeholder="Model Number"

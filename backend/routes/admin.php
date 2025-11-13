@@ -10,6 +10,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidaysController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
@@ -171,3 +172,6 @@ Route::get('/progress-stream', function () {
         'Connection'    => 'keep-alive',
     ]);
 });
+
+
+Route::get('/get-base64', [ImageController::class, 'getBase64Image']);
