@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -736,5 +738,22 @@ class AttendanceLogController extends Controller
             });
 
         return $model->count();
+    }
+
+    public function storeFromNodeSDK(Request $request)
+    {
+        $logs = $request->all();
+
+        if (!is_array($logs)) {
+            return response()->json(['error' => 'Invalid JSON format'], 400);
+        }
+
+        // Insert all records at once
+        DB::table('attendance_logs')->insert($logs);
+
+        return response()->json([
+            'message' => 'Logs inserted successfully',
+            'data' => $logs
+        ]);
     }
 }

@@ -333,6 +333,10 @@ class DeviceController extends Controller
     {
         return $model->where("device_id", $id)->first();
     }
+    public function getDevicesArray(Device $model)
+    {
+        return $model->pluck("company_id", "device_id");
+    }
 
     public function getDeviceCompany(Request $request)
     {
@@ -413,11 +417,8 @@ class DeviceController extends Controller
 
     public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
     {
-        // Generate a unique cache key using company_id and request parameters
-        $cacheKey = "attendance_logs_{$id}_" . md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($id, $request) {
-            $model = AttendanceLog::query();
+        $model = AttendanceLog::query();
 
             $model->where("company_id", $id);
 
@@ -473,6 +474,12 @@ class DeviceController extends Controller
             $model->orderBy('LogTime', 'DESC');
 
             return $model->paginate(request("per_page", 10));
+            
+        // Generate a unique cache key using company_id and request parameters
+        $cacheKey = "attendance_logs_{$id}_" . md5(json_encode($request->all()));
+
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($id, $request) {
+            
         });
     }
 

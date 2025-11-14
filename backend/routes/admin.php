@@ -175,3 +175,5 @@ Route::get('/progress-stream', function () {
 
 
 Route::get('/get-base64', [ImageController::class, 'getBase64Image']);
+Route::post('/store-logs-from-nodesdk', [AttendanceLogController::class, 'storeFromNodeSDK']);
+
