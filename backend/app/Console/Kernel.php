@@ -75,7 +75,7 @@ class Kernel extends ConsoleKernel
 
         // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
-        $schedule->command('logs:process-gps')->everyMinute();
+        // $schedule->command('logs:process-gps')->everyMinute();
 
         $schedule
             ->command('task:update_company_ids')
