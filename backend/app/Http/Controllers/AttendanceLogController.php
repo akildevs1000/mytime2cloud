@@ -742,14 +742,41 @@ class AttendanceLogController extends Controller
 
     public function storeFromNodeSDK(Request $request)
     {
-        
         $logs = $request->all();
 
-        if (!is_array($logs)) {
-            return response()->json(['error' => 'Invalid JSON format'], 400);
+        foreach ($logs as &$log) { // use reference to modify array
+
+            $lat = $log['lat'] ?? null;
+            $lon = $log['lon'] ?? null;
+
+            if (!$lat || !$lon) continue;
+
+            // 1️⃣ CHECK CACHE
+            $cached = DB::table('gps_cache')
+                ->where('lat', $lat)
+                ->where('lon', $lon)
+                ->first();
+
+            if ($cached) {
+                $log['gps_location'] = $cached->gps_location;
+            } else {
+                // 2️⃣ Call reverse geocode
+                $log['gps_location'] = $this->reverseGeocode($lat, $lon);
+
+                // 3️⃣ Insert into cache
+                DB::table('gps_cache')->insert([
+                    'lat' => $lat,
+                    'lon' => $lon,
+                    'gps_location' => $log['gps_location'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                sleep(1); // optional: rate limit
+            }
         }
 
-        // Insert all records at once
+        // 4️⃣ Insert all logs at once
         DB::table('attendance_logs')->insert($logs);
 
         return response()->json([
