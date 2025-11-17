@@ -16,6 +16,7 @@ class TimezoneController extends Controller
         $model = Timezone::query();
         $model->where('company_id', request('company_id'));
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')));
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "timezone_name as name"]);
     }
@@ -33,6 +34,7 @@ class TimezoneController extends Controller
         $model->where('company_id', $request->company_id);
         //$model->where("is_default", false);
         $model->when($request->branch_id, fn($q) => $q->where("branch_id", $request->branch_id));
+        $model->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')));
         $model->with(["employees", "employee_device", "branch"]);
         $model->orderBy("timezone_id", "asc");
         return $model->paginate($request->per_page ?? 100);

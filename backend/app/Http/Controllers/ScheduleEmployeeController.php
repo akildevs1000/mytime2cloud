@@ -15,6 +15,8 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 
+use function Psy\info;
+
 class ScheduleEmployeeController extends Controller
 {
 
@@ -30,7 +32,15 @@ class ScheduleEmployeeController extends Controller
         $model = Employee::with(["branch", "sub_department",  "department.branch", "sub_department", "schedule"])
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), fn($q) => $q->where('department_id', $request->department_id))
-            ->when($request->filled('branch_id'), fn($q) => $q->where('branch_id', $request->branch_id))
+
+            ->when($request->filled('branch_ids'), function ($q) {
+                $q->whereIn('branch_id', request("branch_ids"));
+            })
+
+            ->when($request->filled('department_ids'), function ($q) {
+                $q->whereIn('department_id', request("department_ids"));
+            })
+
             ->with(["schedule.shift:id,name"]);
 
         $model->with([
@@ -611,7 +621,7 @@ class ScheduleEmployeeController extends Controller
 
                 $q->where('branch_id', $request->branch_id);
             })
-             ->when($request->filled('department_id') && $request->department_id > 0, function ($q) use ($request) {
+            ->when($request->filled('department_id') && $request->department_id > 0, function ($q) use ($request) {
                 $q->where('department_id', $request->department_id);
             })
             ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
@@ -619,7 +629,7 @@ class ScheduleEmployeeController extends Controller
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->orderBy("first_name", "ASC")
-            ->get(["id","first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
+            ->get(["id", "first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
     }
 
     public function getShiftsByEmployee(Request $request, $id)

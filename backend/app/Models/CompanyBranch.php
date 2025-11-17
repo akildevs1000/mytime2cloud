@@ -31,6 +31,11 @@ class CompanyBranch extends Model
         return $this->belongsToMany(User::class, 'user_branches', 'branch_id', 'user_id');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function employees()
     {
         return $this->hasMany(Employee::class, "branch_id", "id");

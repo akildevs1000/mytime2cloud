@@ -16,8 +16,13 @@ class CompanyBranchController extends Controller
     {
         $model = CompanyBranch::query();
         $model->where('company_id', request('company_id'));
-        if (request("branch_id"))
+        if (request("branch_id")) {
             $model->where('id', request('branch_id'));
+        }
+
+        $model->when(request()->filled("branch_ids"), function ($q) {
+            $q->whereIn('id', request("branch_ids"));
+        });
 
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "branch_name as name"]);
@@ -52,6 +57,10 @@ class CompanyBranchController extends Controller
 
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->branch_id);
+        });
+
+        $model->when(request()->filled("branch_ids"), function ($q) {
+            $q->whereIn('id', request("branch_ids"));
         });
 
         $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
@@ -144,6 +153,10 @@ class CompanyBranchController extends Controller
 
         $model->when($request->filled("branch_id"), function ($q) use ($request) {
             return $q->where("id", $request->branch_id);
+        });
+
+        $model->when($request->filled("branch_ids"), function ($q) use ($request) {
+            return $q->whereIn("id", $request->branch_ids);
         });
 
         $model->when($request->filled("search"), function ($q) use ($search) {

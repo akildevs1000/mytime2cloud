@@ -579,10 +579,14 @@ class Employee extends Model
                 // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
             })
 
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereIn('branch_id', $request->branch_ids);
+            })
 
-            ->when(!empty($request->department_ids), function ($q) use ($request) {
+            ->when($request->filled("department_ids"), function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
+        
 
             ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
                 $q->where('branch_id', '=', $request->filter_branch_id);

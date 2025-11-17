@@ -151,7 +151,7 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)
-            ->with("company:id,user_id,name,location,logo,company_code,expiry", "departments")
+            ->with("company:id,user_id,name,location,logo,company_code,expiry", "branches", "departments")
             ->first();
 
         $this->throwErrorIfFail($request, $user);
@@ -193,7 +193,7 @@ class AuthController extends Controller
         $user = $request->user();
 
 
-        $user->load(["company", "role:id,name,role_type", "departments"]);
+        $user->load(["company", "role:id,name,role_type", "branches", "departments"]);
         $user->user_type = $this->getUserType($user);
         //$user->branch_array = [1,   5];
         $user->permissions = $user->assigned_permissions ? $user->assigned_permissions->permission_names : [];
