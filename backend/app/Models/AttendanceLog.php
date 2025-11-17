@@ -19,15 +19,16 @@ class AttendanceLog extends Model
         // 'LogTime' => 'datetime:d-M-y h:i:s:a',
     ];
 
-    public function getDeviceIDAttribute($value)
+    public function getDeviceIDAttribute()
     {
+        $value = $this->attributes['DeviceID'] ?? null;
+
         if ($value === 'T8XY4T2L1QXG') {
             return $value . '-Mobile';
         }
 
         return $value;
     }
-
 
     public function getTimeAttribute()
     {
