@@ -6,13 +6,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class GroupLoginController extends Controller
+class DepartmentGroupLoginController extends Controller
 {
     public function index()
     {
         return User::with("company", "role", "departments")
             ->where("company_id", request("company_id", 0))
-            ->where("user_type", "group")
+            ->where("user_type", "department_group")
             ->orderBy("id", "desc")
             ->paginate(request("per_page", 15));
     }
@@ -39,7 +39,7 @@ class GroupLoginController extends Controller
             "branch_id" => $validatedData['branch_id'],
             "is_master" => 1,
             "first_login" => 1,
-            "user_type" => "group",
+            "user_type" => "department_group",
         ];
 
         try {
