@@ -66,11 +66,15 @@ class DepartmentGroupLoginController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed', // make password nullable
             'role_id' => 'required|numeric',
+            'department_ids' => 'nullable|array', // validate as array
+            'department_ids.*' => 'numeric|exists:departments,id', // each ID should exist
         ]);
 
         // Build admin array
@@ -86,7 +90,18 @@ class DepartmentGroupLoginController extends Controller
         }
 
         try {
-            return User::where("id", $id)->update($admin);
+
+            $user->update($admin);
+
+            // Sync branches if provided
+            if (isset($validatedData['department_ids'])) {
+                $user->departments()->sync($validatedData['department_ids']);
+            }
+
+            return response()->json([
+                "message" => "Login updated successfully",
+                "data" => $user->load('branches')
+            ], 200);
         } catch (\Exception $e) {
             return $e->getMessage();
         }
