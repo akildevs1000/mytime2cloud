@@ -59,24 +59,24 @@ class DepartmentController extends Controller
                 "company_id" => $data["company_id"],
             ]);
 
-            // $arr = [];
+            $arr = [];
 
-            // foreach ($data["managers"] as $manager) {
-            //     $arr[] = [
-            //         "name" => $manager["name"],
-            //         "email" => $manager["email"],
-            //         "password" => Hash::make($manager["password"]),
-            //         "user_type" => "department",
-            //         "department_id" => $record->id,
-            //         "company_id" => $data["company_id"],
-            //         "branch_id" => $data["branch_id"],
-            //         "role_id" => $manager["role_id"],
-            //         "created_at" => now(),
-            //         "updated_at" => now(),
-            //     ];
-            // }
+            foreach ($data["managers"] as $manager) {
+                $arr[] = [
+                    "name" => $manager["name"],
+                    "email" => $manager["email"],
+                    "password" => Hash::make($manager["password"]),
+                    "user_type" => "department",
+                    "department_id" => $record->id,
+                    "company_id" => $data["company_id"],
+                    "branch_id" => $data["branch_id"],
+                    "role_id" => $manager["role_id"],
+                    "created_at" => now(),
+                    "updated_at" => now(),
+                ];
+            }
 
-            // User::insert($arr);
+            User::insert($arr);
 
 
             if ($record) {
@@ -106,31 +106,31 @@ class DepartmentController extends Controller
             ]);
 
 
-            // $arr = [];
+            $arr = [];
 
-            // foreach ($data["managers"] as $manager) {
-            //     $payload = [
-            //         "name" => $manager["name"],
-            //         "email" => $manager["email"],
-            //         "user_type" => "department",
-            //         "department_id" => $Department->id,
-            //         "company_id" => $data["company_id"],
-            //         "branch_id" => $data["branch_id"],
-            //         "role_id" => $manager["role_id"],
-            //         "created_at" => now(),
-            //         "updated_at" => now(),
-            //     ];
-            //     if ($manager["password"]) {
-            //         $payload["password"] = Hash::make($manager["password"]);
-            //     }
+            foreach ($data["managers"] as $manager) {
+                $payload = [
+                    "name" => $manager["name"],
+                    "email" => $manager["email"],
+                    "user_type" => "department",
+                    "department_id" => $Department->id,
+                    "company_id" => $data["company_id"],
+                    "branch_id" => $data["branch_id"],
+                    "role_id" => $manager["role_id"],
+                    "created_at" => now(),
+                    "updated_at" => now(),
+                ];
+                if ($manager["password"]) {
+                    $payload["password"] = Hash::make($manager["password"]);
+                }
 
-            //     $arr[] = $payload;
-            // }
+                $arr[] = $payload;
+            }
 
-            // $user = User::query();
-            // $user->where("department_id", $Department->id);
-            // $user->delete();
-            // $user->insert($arr);
+            $user = User::query();
+            $user->where("department_id", $Department->id);
+            $user->delete();
+            $user->insert($arr);
 
             if ($record) {
                 return $this->response('Department successfully updated.', $Department->with('children'), true);
