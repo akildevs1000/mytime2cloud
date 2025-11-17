@@ -25,7 +25,6 @@ class DepartmentGroupLoginController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
             'company_id' => 'required',
-            'branch_id' => 'nullable',
             'department_ids' => 'nullable|array', // validate as array
             'department_ids.*' => 'numeric|exists:departments,id', // each ID should exist
         ]);
@@ -36,7 +35,6 @@ class DepartmentGroupLoginController extends Controller
             "password" => Hash::make($validatedData['password']),
             "role_id" => $validatedData['role_id'],
             "company_id" => $validatedData['company_id'],
-            "branch_id" => $validatedData['branch_id'],
             "is_master" => 1,
             "first_login" => 1,
             "user_type" => "department_group",
@@ -72,18 +70,14 @@ class DepartmentGroupLoginController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed', // make password nullable
-            'order' => 'required|numeric',
             'role_id' => 'required|numeric',
-            'branch_id' => 'nullable',
         ]);
 
         // Build admin array
         $admin = [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
-            "order" => $validatedData['order'],
             "role_id" => $validatedData['role_id'],
-            "branch_id" => $validatedData['branch_id'],
         ];
 
         // Only set password if it is provided
