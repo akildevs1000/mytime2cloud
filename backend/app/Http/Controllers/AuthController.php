@@ -240,6 +240,10 @@ class AuthController extends Controller
             return "branch";
         };
 
+        if ($user->user_type == "branch_group" || $user->user_type == "department_group") {
+            return $user->user_type;
+        }
+
         return "master";
     }
 
