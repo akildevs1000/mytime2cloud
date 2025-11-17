@@ -35,7 +35,10 @@
             <v-icon left> mdi-account-tie </v-icon>
             <span>Admins</span>
           </v-tab>
-
+          <v-tab>
+            <v-icon left>mdi-account-group</v-icon>
+            <span>Group Login</span>
+          </v-tab>
           <v-tab>
             <v-icon left> mdi-whatsapp </v-icon>
             <span>Whatsapp</span>
@@ -710,6 +713,10 @@
                     </a>
                   </span>
                 </v-container> -->
+          </v-tab-item>
+
+          <v-tab-item>
+            <GroupLogin v-if="can('admin_access')" />
           </v-tab-item>
 
           <v-tab-item>
