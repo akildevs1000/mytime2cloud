@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -804,5 +805,41 @@ class AttendanceLogController extends Controller
             'message' => 'Logs inserted successfully',
             'data' => $logs
         ]);
+    }
+
+    private function reverseGeocode($lat, $lon)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        try {
+            $url = "https://us1.locationiq.com/v1/reverse.php";
+
+            $response = Http::withoutVerifying()->get($url, [
+                'key' => $apiKey,
+                'lat' => $lat,
+                'lon' => $lon,
+                'format' => 'json',
+                'normalizeaddress' => 1,
+                'accept-language' => 'en'
+            ]);
+
+            if ($response->successful()) {
+                $address = $response->json('address') ?? [];
+
+                $road          = trim($address['road'] ?? '');
+                $neighbourhood = trim($address['neighbourhood'] ?? '');
+                $suburb        = trim($address['suburb'] ?? '');
+                $city          = trim($address['city'] ?? $address['town'] ?? $address['village'] ?? '');
+                $country       = trim($address['country'] ?? '');
+
+                $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
+
+                return implode(', ', $parts);
+            }
+        } catch (\Exception $e) {
+            $this->error("API error: " . $e->getMessage());
+        }
+
+        return null; // explicit fallback if API fails
     }
 }
