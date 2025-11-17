@@ -19,17 +19,6 @@ class AttendanceLog extends Model
         // 'LogTime' => 'datetime:d-M-y h:i:s:a',
     ];
 
-    public function getDeviceIDAttribute()
-    {
-        $value = $this->attributes['DeviceID'] ?? null;
-
-        if ($value === 'T8XY4T2L1QXG') {
-            return $value . '-Mobile';
-        }
-
-        return $value;
-    }
-
     public function getTimeAttribute()
     {
         return date("H:i", strtotime($this->LogTime));
@@ -553,6 +542,12 @@ class AttendanceLog extends Model
                 "model_type" => "user",
                 "description" => "Created manual log. Payload: " . json_encode($payload, JSON_PRETTY_PRINT),
             ]);
+        });
+
+        static::retrieved(function ($model) {
+            if (($model->DeviceID ?? null) === 'T8XY4T2L1QXG') {
+                $model->DeviceID = $model->DeviceID . '-Mobile';
+            }
         });
     }
 }
