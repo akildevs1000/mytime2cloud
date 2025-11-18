@@ -314,7 +314,6 @@
 
                   <v-select
                     label="Branch"
-                    @change="filterDepartmentsByBranch(employee.branch_id)"
                     v-model="employee.branch_id"
                     :items="branchList"
                     dense
