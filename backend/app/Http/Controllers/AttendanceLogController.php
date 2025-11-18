@@ -779,8 +779,69 @@ class AttendanceLogController extends Controller
         ]);
     }
 
-
     private function reverseGeocode($lat, $lon)
+    {
+        $apiKey = env('GOOGLE_MAPS_KEY');
+
+        info("GOOGLE API KEY: " . $apiKey);
+        info("Lat: $lat, Lon: $lon");
+
+        try {
+            $url = "https://maps.googleapis.com/maps/api/geocode/json";
+
+            $response = Http::get($url, [
+                'latlng' => "$lat,$lon",
+                'key' => $apiKey,
+                'language' => 'en',
+            ]);
+
+            info("STATUS: " . $response->status());
+            info("BODY: " . $response->body());
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            $data = $response->json();
+
+            // No results?
+            if (empty($data['results'][0])) {
+                info("No address returned");
+                return null;
+            }
+
+            $components = $data['results'][0]['address_components'];
+
+            // Extract common fields
+            $road           = $this->getComponent($components, 'route');
+            $neighbourhood  = $this->getComponent($components, 'neighborhood');
+            $suburb         = $this->getComponent($components, 'sublocality');
+            $city           = $this->getComponent($components, 'locality')
+                ?: $this->getComponent($components, 'administrative_area_level_2');
+            $country        = $this->getComponent($components, 'country');
+
+            $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
+
+            info(json_encode($parts));
+
+            return implode(', ', $parts);
+        } catch (\Exception $e) {
+            info("Exception: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function getComponent($components, $type)
+    {
+        foreach ($components as $component) {
+            if (in_array($type, $component['types'])) {
+                return $component['long_name'];
+            }
+        }
+        return null;
+    }
+
+    private function reverseGeocodeOld($lat, $lon)
     {
         $apiKey = env('LOCATIONIQ_KEY');
 
