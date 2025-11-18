@@ -817,8 +817,8 @@ class AttendanceLogController extends Controller
     {
         $apiKey = env('LOCATIONIQ_KEY');
 
-        Logger::info("API KEY: " . $apiKey);
-        Logger::info("Lat: $lat, Lon: $lon");
+        info("API KEY: " . $apiKey);
+        info("Lat: $lat, Lon: $lon");
 
         try {
             $url = "https://us1.locationiq.com/v1/reverse.php";
@@ -832,8 +832,8 @@ class AttendanceLogController extends Controller
                 'accept-language' => 'en'
             ]);
 
-            Logger::info("STATUS: " . $response->status());
-            Logger::info("BODY: " . $response->body());
+            info("STATUS: " . $response->status());
+            info("BODY: " . $response->body());
 
             if (!$response->successful()) {
                 return null;
@@ -842,7 +842,7 @@ class AttendanceLogController extends Controller
             $address = $response->json()['address'] ?? null;
 
             if (!$address) {
-                Logger::info("No address returned");
+                info("No address returned");
                 return null;
             }
 
@@ -854,11 +854,11 @@ class AttendanceLogController extends Controller
 
             $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
 
-            Logger::info(json_encode($parts));
+            info(json_encode($parts));
 
             return implode(', ', $parts);
         } catch (\Exception $e) {
-            Logger::info("Exception: " . $e->getMessage());
+            info("Exception: " . $e->getMessage());
             return null;
         }
     }
