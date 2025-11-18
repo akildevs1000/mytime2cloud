@@ -842,12 +842,12 @@ class AttendanceLogController extends Controller
 
                 $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
 
-                Logger::channel('custom')->info(json_encode($parts));
+                Logger::info(json_encode($parts));
 
                 return implode(', ', $parts);
             }
         } catch (\Exception $e) {
-            Logger::channel('custom')->info($e->getMessage());
+            Logger::info($e->getMessage());
         }
 
         return null; // explicit fallback if API fails
