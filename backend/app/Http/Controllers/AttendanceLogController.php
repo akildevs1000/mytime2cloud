@@ -787,13 +787,10 @@ class AttendanceLogController extends Controller
         info("Lat: $lat, Lon: $lon");
 
         try {
-            $url = "https://maps.googleapis.com/maps/api/geocode/json";
+            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
+            
 
-            $response = Http::get($url, [
-                'latlng' => "$lat,$lon",
-                'key' => $apiKey,
-                'language' => 'en',
-            ]);
+            $response = Http::get($url);
 
             info("STATUS: " . $response->status());
             info("BODY: " . $response->body());
@@ -810,19 +807,23 @@ class AttendanceLogController extends Controller
                 return null;
             }
 
+            $formatted_address = $data['results'][0]['formatted_address'];
+
+            info($formatted_address);
+
+            return $formatted_address;
             $components = $data['results'][0]['address_components'];
+            // // Extract common fields
+            // $road           = $this->getComponent($components, 'route');
+            // $neighbourhood  = $this->getComponent($components, 'neighborhood');
+            // $suburb         = $this->getComponent($components, 'sublocality');
+            // $city           = $this->getComponent($components, 'locality')
+            //     ?: $this->getComponent($components, 'administrative_area_level_2');
+            // $country        = $this->getComponent($components, 'country');
 
-            // Extract common fields
-            $road           = $this->getComponent($components, 'route');
-            $neighbourhood  = $this->getComponent($components, 'neighborhood');
-            $suburb         = $this->getComponent($components, 'sublocality');
-            $city           = $this->getComponent($components, 'locality')
-                ?: $this->getComponent($components, 'administrative_area_level_2');
-            $country        = $this->getComponent($components, 'country');
+            // $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
 
-            $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
-
-            info(json_encode($parts));
+            // info(json_encode($parts));
 
             return implode(', ', $parts);
         } catch (\Exception $e) {
