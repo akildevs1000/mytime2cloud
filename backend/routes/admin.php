@@ -182,6 +182,7 @@ Route::post('/store-logs-from-nodesdk', [AttendanceLogController::class, 'storeF
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Models\Attendance;
+use Illuminate\Support\Facades\Http;
 
 Route::get('attendance-report', function (Request $request) {
 
@@ -314,3 +315,51 @@ Route::post('/logout-api', function (Request $request) {
     $request->user()->currentAccessToken()->delete();
     return response()->json(['message' => 'Logged out']);
 })->middleware('auth:sanctum');
+
+
+
+
+Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
+    $lat = $request->query('lat');
+    $lon = $request->query('lon');
+
+    if (!$lat || !$lon) {
+        return response()->json([
+            'error' => 'lat and lon are required'
+        ], 400);
+    }
+
+    $apiKey = env('GOOGLE_MAPS_KEY'); // Make sure your API key is in .env
+
+    try {
+        $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
+
+        $response = Http::get($url);
+
+        info("STATUS: " . $response->status());
+        info("BODY: " . $response->body());
+
+        if (!$response->successful()) {
+            return response()->json(['error' => 'Google API request failed'], 500);
+        }
+
+        $data = $response->json();
+
+        // No results?
+        if (empty($data['results'][0])) {
+            info("No address returned");
+            return response()->json(['error' => 'No address found'], 404);
+        }
+
+        $formatted_address = $data['results'][0]['formatted_address'];
+
+       return $formatted_address;
+
+        return response()->json([
+            'address' => $formatted_address
+        ]);
+    } catch (\Exception $e) {
+        info("Exception: " . $e->getMessage());
+        return response()->json(['error' => 'Something went wrong'], 500);
+    }
+});
