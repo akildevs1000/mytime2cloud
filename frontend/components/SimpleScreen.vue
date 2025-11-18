@@ -89,76 +89,6 @@
               class="elevation-0"
               :server-items-length="totalRowsCount"
             >
-              <template v-slot:item.manager1="{ item }">
-                {{
-                  (item.managers &&
-                    item.managers[0] &&
-                    item.managers[0].name) ||
-                  "---"
-                }}
-                <div class="secondary-value">
-                  {{
-                    (item.managers &&
-                      item.managers[0] &&
-                      item.managers[0].email) ||
-                    "---"
-                  }}
-                  <br />
-                  {{
-                    (item.managers &&
-                      item.managers[0] &&
-                      item.managers[0].whatsapp_number) ||
-                    "---"
-                  }}
-                </div>
-              </template>
-              <template v-slot:item.manager2="{ item }">
-                {{
-                  (item.managers &&
-                    item.managers[1] &&
-                    item.managers[1].name) ||
-                  "---"
-                }}
-                <div class="secondary-value">
-                  {{
-                    (item.managers &&
-                      item.managers[1] &&
-                      item.managers[1].email) ||
-                    "---"
-                  }}
-                  <br />
-                  {{
-                    (item.managers &&
-                      item.managers[1] &&
-                      item.managers[1].whatsapp_number) ||
-                    "---"
-                  }}
-                </div>
-              </template>
-              <template v-slot:item.manager3="{ item }">
-                {{
-                  (item.managers &&
-                    item.managers[2] &&
-                    item.managers[2].name) ||
-                  "---"
-                }}
-                <div class="secondary-value">
-                  {{
-                    (item.managers &&
-                      item.managers[2] &&
-                      item.managers[2].email) ||
-                    "---"
-                  }}
-                  <br />
-                  {{
-                    (item.managers &&
-                      item.managers[2] &&
-                      item.managers[2].whatsapp_number) ||
-                    "---"
-                  }}
-                </div>
-              </template>
-
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
@@ -198,7 +128,7 @@
 </template>
 <script>
 export default {
-  props:["Model","permission_name","endpoint","headers"],
+  props: ["Model", "permission_name", "endpoint", "headers"],
   data: () => ({
     payload: {
       name: "",
@@ -214,11 +144,6 @@ export default {
     snackColor: "",
     snackText: "",
     dialogForm: false,
-    pagination: {
-      current: 1,
-      total: 0,
-      per_page: 10,
-    },
 
     snackbar: false,
     loading: false,
@@ -264,52 +189,45 @@ export default {
       this.editedIndex = -1;
       this.dialogNew = true;
     },
-    getDataFromApi() {
+    async getDataFromApi() {
       this.loading = true;
-      this.loading = true;
 
-      const { sortBy, sortDesc, page, itemsPerPage } = this.options;
+      try {
+        const { sortBy, sortDesc, page, itemsPerPage } = this.options;
 
-      let sortedBy = sortBy ? sortBy[0] : "";
-      let sortedDesc = sortDesc ? sortDesc[0] : "";
-
-      this.payloadOptions = {
-        params: {
-          page: page,
-          sortBy: sortedBy,
-          sortDesc: sortedDesc,
+        const params = {
+          page,
           per_page: itemsPerPage,
           company_id: this.$auth.user.company_id,
-        },
-      };
-      this.$axios.get(this.endpoint, this.payloadOptions).then(({ data }) => {
-        this.items = data.data;
-        this.pagination.current = data.current_page;
-        this.pagination.total = data.last_page;
-        this.loading = false;
-        this.totalRowsCount = data.total;
-      });
-    },
+          sortBy: sortBy?.[0] ?? "",
+          sortDesc: sortDesc?.[0] ?? "",
+        };
 
+        const { data } = await this.$axios.get(this.endpoint, { params });
+
+        this.items = data.data;
+        this.totalRowsCount = data.total;
+      } catch (err) {
+        console.error("Failed to load data:", err);
+      } finally {
+        this.loading = false;
+      }
+    },
     editItem(item) {
       this.editedIndex = this.data.indexOf(item);
       this.payload = Object.assign({}, item);
       this.dialogNew = true;
     },
 
-    deleteItem(item) {
-      confirm(
-        "Are you sure you wish to delete , to mitigate any inconvenience in future."
-      ) &&
-        this.$axios
-          .delete(this.endpoint + "/" + item.id)
-          .then(({ data }) => {
-            const index = this.data.indexOf(item);
-            this.data.splice(index, 1);
-            this.snackbar = data.status;
-            this.response = data.message;
-          })
-          .catch((err) => console.log(err));
+    async deleteItem(item) {
+      if (!confirm("Are you sure you wish to delete?")) return;
+
+      try {
+        await this.$axios.delete(`${this.endpoint}/${item.id}`);
+        this.getDataFromApi(); // this will always run
+      } catch (err) {
+        console.log(err);
+      }
     },
     submit() {
       this.errors = [];
