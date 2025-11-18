@@ -815,14 +815,15 @@ class AttendanceLogController extends Controller
 
     private function reverseGeocode($lat, $lon)
     {
-        // https://us1.locationiq.com/v1/reverse.php?key=YOUR_API_KEY&lat=25.2048&lon=55.2708&format=json&normalizeaddress=1&accept-language=en
-
         $apiKey = env('LOCATIONIQ_KEY');
+
+        Logger::info("API KEY: " . $apiKey);
+        Logger::info("Lat: $lat, Lon: $lon");
 
         try {
             $url = "https://us1.locationiq.com/v1/reverse.php";
 
-            $response = Http::withoutVerifying()->get($url, [
+            $response = Http::get($url, [
                 'key' => $apiKey,
                 'lat' => $lat,
                 'lon' => $lon,
@@ -831,25 +832,34 @@ class AttendanceLogController extends Controller
                 'accept-language' => 'en'
             ]);
 
-            if ($response->successful()) {
-                $address = $response->json('address') ?? [];
+            Logger::info("STATUS: " . $response->status());
+            Logger::info("BODY: " . $response->body());
 
-                $road          = trim($address['road'] ?? '');
-                $neighbourhood = trim($address['neighbourhood'] ?? '');
-                $suburb        = trim($address['suburb'] ?? '');
-                $city          = trim($address['city'] ?? $address['town'] ?? $address['village'] ?? '');
-                $country       = trim($address['country'] ?? '');
-
-                $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
-
-                Logger::info(json_encode($parts));
-
-                return implode(', ', $parts);
+            if (!$response->successful()) {
+                return null;
             }
-        } catch (\Exception $e) {
-            Logger::info($e->getMessage());
-        }
 
-        return null; // explicit fallback if API fails
+            $address = $response->json()['address'] ?? null;
+
+            if (!$address) {
+                Logger::info("No address returned");
+                return null;
+            }
+
+            $road = $address['road'] ?? '';
+            $neighbourhood = $address['neighbourhood'] ?? '';
+            $suburb = $address['suburb'] ?? '';
+            $city = $address['city'] ?? $address['town'] ?? $address['village'] ?? '';
+            $country = $address['country'] ?? '';
+
+            $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
+
+            Logger::info(json_encode($parts));
+
+            return implode(', ', $parts);
+        } catch (\Exception $e) {
+            Logger::info("Exception: " . $e->getMessage());
+            return null;
+        }
     }
 }
