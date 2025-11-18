@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceLog;
@@ -9,6 +10,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator as Paginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\Storage;
 
@@ -736,5 +739,107 @@ class AttendanceLogController extends Controller
             });
 
         return $model->count();
+    }
+
+    public function storeFromNodeSDK(Request $request)
+    {
+        $logs = $request->all();
+
+        // 1️⃣ Collect unique coordinates
+        $uniqueCoords = [];
+        foreach ($logs as $log) {
+            $lat = $log['lat'] ?? null;
+            $lon = $log['lon'] ?? null;
+            if ($lat && $lon) {
+                $uniqueCoords["$lat,$lon"] = ['lat' => $lat, 'lon' => $lon];
+            }
+        }
+
+        // 2️⃣ Query gps_cache once for all coordinates
+        $cachedRows = DB::table('gps_cache')
+            ->whereIn(DB::raw("CONCAT(lat, ',', lon)"), array_keys($uniqueCoords))
+            ->get()
+            ->keyBy(function ($c) {
+                return "{$c->lat},{$c->lon}";
+            });
+
+        // 3️⃣ Loop through logs and use in-memory cache
+        $cacheToInsert = [];
+        foreach ($logs as &$log) {
+            $lat = $log['lat'] ?? null;
+            $lon = $log['lon'] ?? null;
+            if (!$lat || !$lon) continue;
+
+            $key = "$lat,$lon";
+
+            if (isset($cachedRows[$key])) {
+                // Use cached value
+                $log['gps_location'] = $cachedRows[$key]->gps_location;
+            } else {
+                // Call API once
+                $log['gps_location'] = $this->reverseGeocode($lat, $lon);
+
+                // Prepare batch insert for cache
+                $cacheToInsert[] = [
+                    'lat' => $lat,
+                    'lon' => $lon,
+                    'gps_location' => $log['gps_location'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                // Also add to memory cache to avoid duplicate API calls
+                $cachedRows[$key] = (object)['gps_location' => $log['gps_location']];
+            }
+        }
+
+        // 4️⃣ Insert new cache entries in batch
+        if (!empty($cacheToInsert)) {
+            DB::table('gps_cache')->insert($cacheToInsert);
+        }
+
+        // 5️⃣ Insert all logs at once
+        DB::table('attendance_logs')->insert($logs);
+
+        return response()->json([
+            'message' => 'Logs inserted successfully',
+            'data' => $logs
+        ]);
+    }
+
+    private function reverseGeocode($lat, $lon)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        try {
+            $url = "https://us1.locationiq.com/v1/reverse.php";
+
+            $response = Http::withoutVerifying()->get($url, [
+                'key' => $apiKey,
+                'lat' => $lat,
+                'lon' => $lon,
+                'format' => 'json',
+                'normalizeaddress' => 1,
+                'accept-language' => 'en'
+            ]);
+
+            if ($response->successful()) {
+                $address = $response->json('address') ?? [];
+
+                $road          = trim($address['road'] ?? '');
+                $neighbourhood = trim($address['neighbourhood'] ?? '');
+                $suburb        = trim($address['suburb'] ?? '');
+                $city          = trim($address['city'] ?? $address['town'] ?? $address['village'] ?? '');
+                $country       = trim($address['country'] ?? '');
+
+                $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
+
+                return implode(', ', $parts);
+            }
+        } catch (\Exception $e) {
+            $this->error("API error: " . $e->getMessage());
+        }
+
+        return null; // explicit fallback if API fails
     }
 }
