@@ -815,6 +815,8 @@ class AttendanceLogController extends Controller
 
     private function reverseGeocode($lat, $lon)
     {
+        // https://us1.locationiq.com/v1/reverse.php?key=YOUR_API_KEY&lat=25.2048&lon=55.2708&format=json&normalizeaddress=1&accept-language=en
+
         $apiKey = env('LOCATIONIQ_KEY');
 
         try {
