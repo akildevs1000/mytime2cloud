@@ -746,24 +746,7 @@ class AttendanceLogController extends Controller
         $logs = $request->all();
 
         foreach ($logs as &$log) {
-
-            $lat = $log['lat'] ?? null;
-            $lon = $log['lon'] ?? null;
-
-            if ($lat && $lon) {
-
-                // 🌍 Get location from API directly
-                $location = $this->reverseGeocode($lat, $lon);
-
-                if (!$location) {
-                    $location = "Unknown";
-                }
-
-                $log['gps_location'] = $location;
-            } else {
-                // no coordinates
-                $log['gps_location'] = "Unknown";
-            }
+            $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']) ?? "----";
         }
 
         // ✅ Safe insert with error log
@@ -788,7 +771,7 @@ class AttendanceLogController extends Controller
 
         try {
             $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
-            
+
 
             $response = Http::get($url);
 
