@@ -746,11 +746,10 @@ class AttendanceLogController extends Controller
         $logs = $request->all();
 
         foreach ($logs as &$log) {
-            info('Processing log', $log);  // Check what lat/lon you get
+            info('Processing log', $log);  // Check lat/lon
             $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']) ?? "----";
         }
 
-        // ✅ Safe insert with error log
         try {
             DB::table('attendance_logs')->insert($logs);
         } catch (\Exception $e) {
@@ -767,145 +766,38 @@ class AttendanceLogController extends Controller
     {
         $apiKey = env('GOOGLE_MAPS_KEY');
 
-        info("GOOGLE API KEY: " . $apiKey);
-        info("Lat: $lat, Lon: $lon");
-
-
-        try {
-            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
-
-            $response = Http::get($url);
-
-            info("STATUS: " . $response->status());
-            info("BODY: " . $response->body());
-
-            if (!$response->successful()) {
-                return response()->json(['error' => 'Google API request failed'], 500);
-            }
-
-            $data = $response->json();
-
-            // No results?
-            if (empty($data['results'][0])) {
-                info("No address returned");
-                return response()->json(['error' => 'No address found'], 404);
-            }
-
-            $formatted_address = $data['results'][0]['formatted_address'];
-
-            return $formatted_address;
-
-            return response()->json([
-                'address' => $formatted_address
-            ]);
-        } catch (\Exception $e) {
-            info("Exception: " . $e->getMessage());
-            return response()->json(['error' => 'Something went wrong'], 500);
-        }
-
-
-        try {
-            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
-
-
-            $response = Http::get($url);
-
-            info("STATUS: " . $response->status());
-            info("BODY: " . $response->body());
-
-            if (!$response->successful()) {
-                return null;
-            }
-
-            $data = $response->json();
-
-            // No results?
-            if (empty($data['results'][0])) {
-                info("No address returned");
-                return null;
-            }
-
-            $formatted_address = $data['results'][0]['formatted_address'];
-
-            info($formatted_address);
-
-            return $formatted_address;
-            $components = $data['results'][0]['address_components'];
-            // // Extract common fields
-            // $road           = $this->getComponent($components, 'route');
-            // $neighbourhood  = $this->getComponent($components, 'neighborhood');
-            // $suburb         = $this->getComponent($components, 'sublocality');
-            // $city           = $this->getComponent($components, 'locality')
-            //     ?: $this->getComponent($components, 'administrative_area_level_2');
-            // $country        = $this->getComponent($components, 'country');
-
-            // $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
-
-            // info(json_encode($parts));
-
-            return implode(', ', $parts);
-        } catch (\Exception $e) {
-            info("Exception: " . $e->getMessage());
+        if (!$lat || !$lon) {
+            info("Lat or Lon missing");
             return null;
         }
-    }
-
-    private function getComponent($components, $type)
-    {
-        foreach ($components as $component) {
-            if (in_array($type, $component['types'])) {
-                return $component['long_name'];
-            }
-        }
-        return null;
-    }
-
-    private function reverseGeocodeOld($lat, $lon)
-    {
-        $apiKey = env('LOCATIONIQ_KEY');
-
-        info("API KEY: " . $apiKey);
-        info("Lat: $lat, Lon: $lon");
 
         try {
-            $url = "https://us1.locationiq.com/v1/reverse.php";
+            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
 
-            $response = Http::get($url, [
-                'key' => $apiKey,
-                'lat' => $lat,
-                'lon' => $lon,
-                'format' => 'json',
-                'normalizeaddress' => 1,
-                'accept-language' => 'en'
-            ]);
+            $response = Http::get($url);
 
             info("STATUS: " . $response->status());
             info("BODY: " . $response->body());
 
             if (!$response->successful()) {
+                info("Google API request failed");
                 return null;
             }
 
-            $address = $response->json()['address'] ?? null;
+            $data = $response->json();
 
-            if (!$address) {
+            if (empty($data['results'][0]['formatted_address'])) {
                 info("No address returned");
                 return null;
             }
 
-            $road = $address['road'] ?? '';
-            $neighbourhood = $address['neighbourhood'] ?? '';
-            $suburb = $address['suburb'] ?? '';
-            $city = $address['city'] ?? $address['town'] ?? $address['village'] ?? '';
-            $country = $address['country'] ?? '';
+            $formatted_address = $data['results'][0]['formatted_address'];
 
-            $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
+            info("Address found: " . $formatted_address);
 
-            info(json_encode($parts));
-
-            return implode(', ', $parts);
+            return $formatted_address;
         } catch (\Exception $e) {
-            info("Exception: " . $e->getMessage());
+            info("Reverse geocode exception: " . $e->getMessage());
             return null;
         }
     }
