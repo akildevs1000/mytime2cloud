@@ -14,10 +14,7 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <ProgressBar
-      ref="ProgressBarRef"
-      :queryStringUrl="queryStringUrl"
-    />
+    <ProgressBar ref="ProgressBarRef" :queryStringUrl="queryStringUrl" />
     <v-card
       class="mt-5 pa-2"
       elevation="0"
@@ -51,15 +48,15 @@
           @change="
             () => {
               getScheduledEmployees();
-              getDepartments();
             }
           "
           placeholder="Branch"
           outlined
           dense
-          v-model="payload.branch_id"
+          v-model="branch_ids"
           x-small
           clearable
+          multiple
           :items="branches"
           item-value="id"
           item-text="branch_name"
@@ -299,7 +296,6 @@
                     @change="
                       () => {
                         getScheduledEmployees();
-                        getDepartments();
                       }
                     "
                     placeholder="Branch"
@@ -596,6 +592,7 @@ export default {
     },
     message: "",
     alertType: "success",
+    branch_ids: [],
     payload: {
       from_date: null,
       to_date: null,
@@ -700,11 +697,12 @@ export default {
       this.payload.branch_id = this.$auth.user.branch_id;
       this.isCompany = false;
       this.getScheduledEmployees();
-      this.getDepartments();
+
       return;
     }
 
     this.getBranches();
+    this.getDepartments();
   },
 
   methods: {
@@ -721,11 +719,6 @@ export default {
     async process_file_in_child_comp(val, actionType) {
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
-        return;
-      }
-
-      if (!this.payload.branch_id) {
-        alert("Branch must be selected");
         return;
       }
 
@@ -818,10 +811,6 @@ export default {
       this.filterType = "Monthly"; // data.type;
     },
     commonMethod(id = 0) {
-      if (!this.payload.branch_id) {
-        alert("Branch must be selected");
-        return;
-      }
 
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
@@ -849,7 +838,7 @@ export default {
       let options = {
         params: {
           per_page: 1000,
-          branch_id: this.payload.branch_id,
+          branch_ids: this.branch_ids,
           company_id: this.$auth.user.company_id,
           department_ids: this.payload.department_ids,
           shift_type_id: this.shift_type_id,
@@ -897,6 +886,7 @@ export default {
       let config = {
         params: {
           branch_id: this.payload.branch_id,
+          branch_ids: this.branch_ids,
           company_id: this.$auth.user.company_id,
         },
       };
