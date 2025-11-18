@@ -177,3 +177,140 @@ Route::get('/progress-stream', function () {
 Route::get('/get-base64', [ImageController::class, 'getBase64Image']);
 Route::post('/store-logs-from-nodesdk', [AttendanceLogController::class, 'storeFromNodeSDK']);
 
+
+
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use App\Models\Attendance;
+
+Route::get('attendance-report', function (Request $request) {
+
+    $request->headers->set('Accept', 'application/json'); // <--- Add this
+
+    Log::channel('custom')->info('Attendance report request', [
+        'ip'      => $request->ip(),
+        'url'     => $request->fullUrl(),
+        'method'  => $request->method(),
+        'payload' => $request->all(),
+    ]);
+
+    try {
+
+        $validator = Validator::make($request->all(), [
+            'company_id' => 'required|integer',
+            'date'       => 'required|date_format:Y-m-d',
+            'page'       => 'nullable|integer|min:1',
+            'per_page'      => 'nullable|integer|min:1',
+        ]);
+
+        if ($validator->fails()) {
+
+            // -----------------------------
+            // 🔹 Log Validation Failure
+            // -----------------------------
+            Log::channel('custom')->warning('Validation failed for attendance report request', [
+                'errors' => $validator->errors()->toArray(),
+                'payload' => $request->all(),
+            ]);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Validation failed',
+                'errors'  => $validator->errors(),
+            ], 422);
+        }
+
+        // -----------------------------
+        // 🔍 PROCESS MODEL
+        // -----------------------------
+        $model = (new Attendance)->processAttendanceModel($request);
+
+        $perPage = $request->per_page ?? 1000; // default 50 per page
+        $page    = $request->page ?? 1;
+
+        // -----------------------------
+        // 📥 PAGINATE
+        // -----------------------------
+        $model->with([
+            'employee:id,first_name,last_name,system_user_id,employee_id,department_id,designation_id',
+            'employee.department:id,name',
+            'employee.designation:id,name'
+        ])
+            ->without('schedule');
+
+
+        $paginated = $model->paginate($perPage, ['id', 'employee_id', 'date', 'ot', 'total_hrs', 'status', 'logs'], 'page', $page);
+
+        // -----------------------------
+        // 🔄 TRANSFORM DATA
+        // -----------------------------
+        $data = collect($paginated->items())->map(function ($record, $index) use ($paginated) {
+
+            $logs = $record->logs ?? [];
+
+            $logArray = [];
+            foreach (range(1, 7) as $i) {
+                $idx = $i - 1;
+                $logArray["In{$i}"]  = $logs[$idx]["in"] ?? "---";
+                $logArray["Out{$i}"] = $logs[$idx]["out"] ?? "---";
+            }
+
+            return [
+                // Global row number across pages
+                "row_no"      => ($paginated->currentPage() - 1) * $paginated->perPage() + ($index + 1),
+                "employee_id" => $record->employee_id,
+                "date"        => $record->date,
+                "ot"          => $record->ot,
+                "total_hrs"   => $record->total_hrs,
+                "status"      => $record->status,
+                "full_name"   => $record->employee?->full_name,
+                "department"  => $record->employee?->department?->name,
+                "designation" => $record->employee?->designation?->name,
+                "logs"        => $logArray,
+            ];
+        });
+
+        // -----------------------------
+        // 🔹 Log Successful Response
+        // -----------------------------
+        Log::channel('custom')->info('Attendance report response', [
+            'current_page' => $paginated->currentPage(),
+            'per_page'     => $paginated->perPage(),
+            'total'        => $paginated->total(),
+            'last_page'    => $paginated->lastPage(),
+            'data_count'   => count($data),
+        ]);
+
+        // -----------------------------
+        // 📤 RETURN PAGINATED RESPONSE
+        // -----------------------------
+        return response()->json([
+            'status'       => true,
+            'current_page' => $paginated->currentPage(),
+            'per_page'     => $paginated->perPage(),
+            'total'        => $paginated->total(),
+            'last_page'    => $paginated->lastPage(),
+            'data'         => $data,
+        ]);
+    } catch (\Exception $e) {
+
+        // -----------------------------
+        // 🔹 Log Exception
+        // -----------------------------
+        Log::channel('custom')->error('Attendance report exception', [
+            'message' => $e->getMessage(),
+            'trace'   => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'status'  => false,
+            'message' => 'Something went wrong, please try again later.',
+            'error'   => $e->getMessage(),
+        ], 500);
+    }
+})->middleware('auth:sanctum');
+
+Route::post('/logout-api', function (Request $request) {
+    $request->user()->currentAccessToken()->delete();
+    return response()->json(['message' => 'Logged out']);
+})->middleware('auth:sanctum');
