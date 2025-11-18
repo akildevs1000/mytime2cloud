@@ -41,7 +41,7 @@ class DeviceController extends Controller
         $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
-        return $model->get(["id", "name", "location", "device_id", "device_type","short_name","status_id"]);
+        return $model->get(["id", "name", "location", "device_id", "device_type", "short_name", "status_id"]);
     }
 
     public function index(Request $request)
@@ -59,6 +59,10 @@ class DeviceController extends Controller
 
         if ($request->filter_company_id)
             $model->where('company_id', $request->filter_company_id);
+
+        $model->when($request->filled('model_number'), function ($q) use ($request) {
+            $q->where('model_number', $request->model_number);
+        });
 
         $model->when($request->filled('name'), function ($q) use ($request) {
             $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->name%");
@@ -116,8 +120,7 @@ class DeviceController extends Controller
 
 
 
-        if (!$request->sortBy)
-            $model->orderBy("name", "ASC");
+        $model->orderBy("id", "desc");
         return $model->paginate($request->per_page ?? 1000);
 
         //return $model->with(['status', 'company'])->where('company_id', $request->company_id)->paginate($request->per_page ?? 1000);
@@ -144,7 +147,10 @@ class DeviceController extends Controller
     }
     public function getDeviceList(Device $model, Request $request)
     {
-        return $model->with(['status'])->where('company_id', $request->company_id)
+        return $model
+            ->with(['status'])
+            ->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')))
+            ->where('company_id', $request->company_id)
             ->where("model_number", "!=", "Manual")
             ->where("model_number",  'not like', "%Mobile%")
             ->where("name",  'not like', "%Manual%")
@@ -332,6 +338,10 @@ class DeviceController extends Controller
     {
         return $model->where("device_id", $id)->first();
     }
+    public function getDevicesArray(Device $model)
+    {
+        return $model->pluck("company_id", "device_id");
+    }
 
     public function getDeviceCompany(Request $request)
     {
@@ -412,67 +422,77 @@ class DeviceController extends Controller
 
     public function getLastRecordsHistory($id = 0, $count = 0, Request $request)
     {
+
+        $model = AttendanceLog::query();
+
+        $model->where("company_id", $id);
+
+        $model->when(request()->filled("branch_ids"), function ($q) {
+            $q->whereHas("employee", fn($q) =>  $q->whereIn('branch_id', request("branch_ids")));
+        });
+
+        $model->when(request()->filled("department_ids"), function ($q) {
+            $q->whereHas("employee", fn($q) =>  $q->whereIn('department_id', request("department_ids")));
+        });
+
+
+        if ($request->filled("branch_id")) {
+            $model->whereIn("UserID", function ($query) use ($request) {
+                $query->select("system_user_id")
+                    ->from("employees")
+                    ->where("branch_id", $request->branch_id);
+            });
+        }
+
+        if ($request->filled("department_id") && $request->department_id > 0) {
+            $model->whereIn("UserID", function ($query) use ($request) {
+                $query->select("system_user_id")
+                    ->from("employees")
+                    ->where("department_id", $request->department_id);
+            });
+        }
+
+        $model->with('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->withOut(["schedule",  "sub_department", "user"]);
+
+            $q->select(
+                "first_name",
+                "last_name",
+                "profile_picture",
+                "employee_id",
+                "branch_id",
+                "system_user_id",
+                "display_name",
+                "timezone_id",
+            );
+        });
+
+        $model->with('device', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->select(
+                "id",
+                "company_id",
+                "branch_id",
+                "status_id",
+                "name",
+                "short_name",
+                "device_id",
+                "location",
+                "model_number",
+            );
+        });
+
+        $model->where('LogTime', '>', date('Y-m-01'));
+        $model->where('LogTime', '<=', date('Y-m-d 23:59:59'));
+        $model->orderBy('LogTime', 'DESC');
+
+        return $model->paginate(request("per_page", 10));
+
         // Generate a unique cache key using company_id and request parameters
         $cacheKey = "attendance_logs_{$id}_" . md5(json_encode($request->all()));
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($id, $request) {
-            $model = AttendanceLog::query();
-
-            $model->where("company_id", $id);
-
-            if ($request->filled("branch_id")) {
-                $model->whereIn("UserID", function ($query) use ($request) {
-                    $query->select("system_user_id")
-                        ->from("employees")
-                        ->where("branch_id", $request->branch_id);
-                });
-            }
-
-            if ($request->filled("department_id") && $request->department_id > 0) {
-                $model->whereIn("UserID", function ($query) use ($request) {
-                    $query->select("system_user_id")
-                        ->from("employees")
-                        ->where("department_id", $request->department_id);
-                });
-            }
-
-            $model->with('employee', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-                $q->withOut(["schedule",  "sub_department", "user"]);
-
-                $q->select(
-                    "first_name",
-                    "last_name",
-                    "profile_picture",
-                    "employee_id",
-                    "branch_id",
-                    "system_user_id",
-                    "display_name",
-                    "timezone_id",
-                );
-            });
-
-            $model->with('device', function ($q) use ($request) {
-                $q->where('company_id', $request->company_id);
-                $q->select(
-                    "id",
-                    "company_id",
-                    "branch_id",
-                    "status_id",
-                    "name",
-                    "short_name",
-                    "device_id",
-                    "location",
-                    "model_number",
-                );
-            });
-
-            $model->where('LogTime', '>', date('Y-m-01'));
-            $model->where('LogTime', '<=', date('Y-m-d 23:59:59'));
-            $model->orderBy('LogTime', 'DESC');
-
-            return $model->paginate(request("per_page", 10));
-        });
+        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($id, $request) {});
     }
 
     public function updateDeviceCamVIISettingsToSDK(Request $request)
@@ -1121,6 +1141,9 @@ class DeviceController extends Controller
         $company_id = (int)$company_id;
         if ($company_id > 0) {
             $statusCounts = Device::where('company_id', $company_id)
+                ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                    $q->whereIn("branch_id", $request->branch_ids);
+                })
                 ->whereIn('status_id', [1, 2])
                 ->where('device_id', "!=", "Manual")
                 ->selectRaw('status_id, COUNT(*) as count')

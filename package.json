@@ -58,10 +58,6 @@
         "to": "vs_redist.exe"
       },
       {
-        "from": "dlls",
-        "to": "dlls"
-      },
-      {
         "from": "backend",
         "to": "backend"
       }

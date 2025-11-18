@@ -5,7 +5,7 @@ namespace App\Http\Requests\Department;
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
 
-class DepartmentUpdateRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     use failedValidationWithName;
    
@@ -13,12 +13,13 @@ class DepartmentUpdateRequest extends FormRequest
     {
         return true;
     }
-
+    
     public function rules()
     {
         return [
             'name' => 'required|min:4|max:50',
-            'company_id' => 'required'
+            'branch_id' => 'required',
+            'company_id' => 'required',
         ];
     }
 }

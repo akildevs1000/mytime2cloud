@@ -578,6 +578,16 @@ class Employee extends Model
                 $q->where('branch_id', '=', $request->branch_id);
                 // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->branch_id));
             })
+
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereIn('branch_id', $request->branch_ids);
+            })
+
+            ->when($request->filled("department_ids"), function ($q) use ($request) {
+                $q->whereIn('department_id', $request->department_ids);
+            })
+        
+
             ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
                 $q->where('branch_id', '=', $request->filter_branch_id);
                 // $q->whereHas('department', fn (Builder $query) => $query->where('branch_id', '=', $request->filter_branch_id));
@@ -596,9 +606,9 @@ class Employee extends Model
                         ->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
                         ->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
                         ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
-                        // ->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
-                        // ->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
-                        // ->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                    // ->orWhere('full_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    // ->orWhere('phone_number', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+                    // ->orWhere('local_email', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
                 });
 
                 // Add whereHas clauses for related models branch and department

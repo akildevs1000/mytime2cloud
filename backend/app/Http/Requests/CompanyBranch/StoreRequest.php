@@ -27,8 +27,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'logo' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
+            // 'logo' => ['image', 'mimes:jpeg,png,jpg,svg', 'max:2048', 'sometimes', 'nullable'],
             'branch_name' => ['required', 'min:3', 'max:20'],
+            'branch_code' => ['nullable', 'min:3', 'max:20'],
             'user_id' => ['required'],
             'licence_number' => ['nullable', 'min:3', 'max:20'],
             'licence_issue_by_department' => ['nullable', 'min:3', 'max:20'],

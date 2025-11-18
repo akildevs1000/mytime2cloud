@@ -6,13 +6,13 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class AdminController extends Controller
+class DepartmentGroupLoginController extends Controller
 {
     public function index()
     {
-        return User::with("company", "role")
+        return User::with("company", "role", "departments")
             ->where("company_id", request("company_id", 0))
-            ->where("user_type", "admin")
+            ->where("user_type", "department_group")
             ->orderBy("id", "desc")
             ->paginate(request("per_page", 15));
     }
@@ -24,9 +24,9 @@ class AdminController extends Controller
             'email' => 'required|string|email|unique:users|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
-            'order' => 'required|numeric',
             'company_id' => 'required',
-            'branch_id' => 'nullable',
+            'department_ids' => 'nullable|array', // validate as array
+            'department_ids.*' => 'numeric|exists:departments,id', // each ID should exist
         ]);
 
         $userData = [
@@ -35,11 +35,9 @@ class AdminController extends Controller
             "password" => Hash::make($validatedData['password']),
             "role_id" => $validatedData['role_id'],
             "company_id" => $validatedData['company_id'],
-            "branch_id" => $validatedData['branch_id'],
             "is_master" => 1,
             "first_login" => 1,
-            "user_type" => "admin",
-            "order" => $validatedData['order'] ?? 0,
+            "user_type" => "department_group",
         ];
 
         try {
@@ -47,6 +45,13 @@ class AdminController extends Controller
                 ['email' => $validatedData['email']], // Condition to find an existing record
                 $userData // Data to update or insert
             );
+
+            // Sync departments if provided
+            if (!empty($validatedData['department_ids'])) {
+                // Assuming User has a many-to-many relation with Department
+                $user->departments()->sync($validatedData['department_ids']);
+            }
+
 
             return $user;
         } catch (\Exception $e) {
@@ -61,22 +66,22 @@ class AdminController extends Controller
 
     public function update(Request $request, $id)
     {
+        $user = User::findOrFail($id);
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:8|confirmed', // make password nullable
-            'order' => 'required|numeric',
             'role_id' => 'required|numeric',
-            'branch_id' => 'nullable',
+            'department_ids' => 'nullable|array', // validate as array
+            'department_ids.*' => 'numeric|exists:departments,id', // each ID should exist
         ]);
 
         // Build admin array
         $admin = [
             "name" => $validatedData['name'],
             "email" => $validatedData['email'],
-            "order" => $validatedData['order'],
             "role_id" => $validatedData['role_id'],
-            "branch_id" => $validatedData['branch_id'],
         ];
 
         // Only set password if it is provided
@@ -85,7 +90,18 @@ class AdminController extends Controller
         }
 
         try {
-            return User::where("id", $id)->update($admin);
+
+            $user->update($admin);
+
+            // Sync branches if provided
+            if (isset($validatedData['department_ids'])) {
+                $user->departments()->sync($validatedData['department_ids']);
+            }
+
+            return response()->json([
+                "message" => "Login updated successfully",
+                "data" => $user->load('branches')
+            ], 200);
         } catch (\Exception $e) {
             return $e->getMessage();
         }

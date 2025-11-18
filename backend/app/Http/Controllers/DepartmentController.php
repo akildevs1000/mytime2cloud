@@ -19,6 +19,7 @@ class DepartmentController extends Controller
         $model->where('company_id', $request->company_id);
         $model->when($request->user_type == "department", fn ($q) => $q->where("id", $request->department_id));
         $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('department_ids'), fn ($q) => $q->whereIn('id', request('department_ids')));
         $model->orderBy(request('order_by') ? "id" : 'name', request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name"]);
     }
@@ -50,33 +51,7 @@ class DepartmentController extends Controller
     public function store(Department $model, DepartmentRequest $request)
     {
         try {
-            $data = $request->validated();
-
-            $record = $model->create([
-                "name" => $data["name"],
-                "branch_id" => $data["branch_id"],
-                "company_id" => $data["company_id"],
-            ]);
-
-            $arr = [];
-
-            foreach ($data["managers"] as $manager) {
-                $arr[] = [
-                    "name" => $manager["name"],
-                    "email" => $manager["email"],
-                    "password" => Hash::make($manager["password"]),
-                    "user_type" => "department",
-                    "department_id" => $record->id,
-                    "company_id" => $data["company_id"],
-                    "branch_id" => $data["branch_id"],
-                    "role_id" => $manager["role_id"],
-                    "created_at" => now(),
-                    "updated_at" => now(),
-                ];
-            }
-
-            User::insert($arr);
-
+            $record = $model->create($request->validated());
 
             if ($record) {
                 return $this->response('Department successfully added.', $record->with('children'), true);
@@ -96,40 +71,8 @@ class DepartmentController extends Controller
     public function update(DepartmentUpdateRequest $request, Department $Department)
     {
         try {
-            $data = $request->validated();
 
-            $record = $Department->update([
-                "name" => $data["name"],
-                "company_id" => $data["company_id"],
-                "branch_id" => $data["branch_id"],
-            ]);
-
-
-            $arr = [];
-
-            foreach ($data["managers"] as $manager) {
-                $payload = [
-                    "name" => $manager["name"],
-                    "email" => $manager["email"],
-                    "user_type" => "department",
-                    "department_id" => $Department->id,
-                    "company_id" => $data["company_id"],
-                    "branch_id" => $data["branch_id"],
-                    "role_id" => $manager["role_id"],
-                    "created_at" => now(),
-                    "updated_at" => now(),
-                ];
-                if ($manager["password"]) {
-                    $payload["password"] = Hash::make($manager["password"]);
-                }
-
-                $arr[] = $payload;
-            }
-
-            $user = User::query();
-            $user->where("department_id", $Department->id);
-            $user->delete();
-            $user->insert($arr);
+            $record = $Department->update($request->validated());
 
             if ($record) {
                 return $this->response('Department successfully updated.', $Department->with('children'), true);

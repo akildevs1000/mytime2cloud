@@ -1,8 +1,5 @@
 <template>
-  <div
-    style="width: 100% !important"
-    v-if="can(`employee_upload_access`)"
-  >
+  <div style="width: 100% !important" v-if="can(`employee_upload_access`)">
     <div class="text-center ma-2">
       <v-snackbar
         :color="snackbar.color"
@@ -15,9 +12,29 @@
       </v-snackbar>
     </div>
 
+    <v-dialog v-model="dialog.show" max-width="400px">
+      <WidgetsClose
+        left="390"
+        @click="
+          () => {
+            dialog.show = false;
+          }
+        "
+      />
+      <v-card>
+        <v-alert dense flat color="grey lighten-3">
+          <span class="gey--text">Response</span>
+        </v-alert>
+        <v-card-text class="pt-4 black--text">
+          <ul v-for="(message, index) in dialog.messages" :key="index">
+            <li>{{ message }}</li>
+          </ul>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
     <v-card class="mb-5">
       <v-row>
-        <v-col cols="8">
+        <v-col cols="6">
           <v-toolbar dense flat>
             <v-toolbar-title>
               <b class="" style="font-size: 18px; font-weight: 600"
@@ -26,41 +43,68 @@
             </v-toolbar-title>
           </v-toolbar>
         </v-col>
-        <v-col
-          v-if="$auth.user.user_type !== 'department'"
-          cols="4"
-          class="text-right"
-        >
-          <v-toolbar dense flat>
-            <v-select
-              v-if="isCompany"
-              @change="filterDepartmentsByBranch($event)"
-              v-model="branch_id"
-              :items="[
-                { branch_name: `All Branches`, id: `` },
-                ...branchesList,
-              ]"
-              dense
-              outlined
-              item-value="id"
-              item-text="branch_name"
-              hide-details
-              label="All Branches"
-            ></v-select>
-            <v-select
-              class="mx-2"
-              @change="loadDepartmentemployees"
-              v-model="departmentselected"
-              :items="departments"
-              dense
-              outlined
-              item-value="id"
-              item-text="name"
-              hide-details
-              label="Department"
-              :search-input.sync="searchInput"
-            ></v-select>
-          </v-toolbar>
+
+        <v-col cols="6">
+          <v-row>
+            <v-col
+              v-if="$auth.user.user_type !== 'department'"
+              class="text-right"
+            >
+              <v-toolbar dense flat class="justify-end">
+                <v-select
+                  v-if="isCompany"
+                  @change="filterDepartmentsByBranch($event)"
+                  v-model="branch_id"
+                  :items="[
+                    { branch_name: `All Branches`, id: `` },
+                    ...branchesList,
+                  ]"
+                  dense
+                  outlined
+                  item-value="id"
+                  item-text="branch_name"
+                  hide-details
+                  label="All Branches"
+                  class="shrink-selector"
+                ></v-select>
+
+                <v-select
+                  class="mx-2 shrink-selector"
+                  @change="loadDepartmentemployees"
+                  v-model="departmentselected"
+                  :items="departments"
+                  dense
+                  outlined
+                  item-value="id"
+                  item-text="name"
+                  hide-details
+                  label="Department"
+                  :search-input.sync="searchInput"
+                ></v-select>
+
+                <v-select
+                  class="mx-2 shrink-selector"
+                  @change="getDevisesDataFromApi(branch_id)"
+                  v-model="model_number"
+                  :items="[
+                    `OX-866`,
+                    `OX-886`,
+                    `OX-966`,
+                    `OX-900`,
+                    `OX-745`,
+                    `OX-945`,
+                    `OX-1000`,
+                  ]"
+                  dense
+                  outlined
+                  item-value="id"
+                  item-text="name"
+                  hide-details
+                  label="Model Number"
+                ></v-select>
+              </v-toolbar>
+            </v-col>
+          </v-row>
         </v-col>
       </v-row>
       <v-row>
@@ -446,7 +490,8 @@
             errors.message
           }}</span>
           <!-- <v-btn class="grey" @click="goback" small dark> Back </v-btn> -->
-          <v-btn v-if="can('employee_upload_create')"
+          <v-btn
+            v-if="can('employee_upload_create')"
             small
             class="primary"
             :disabled="!displaybutton"
@@ -471,11 +516,21 @@
 
 <script>
 // import Back from "../components/Snippets/Back.vue";
-
+const DUMMY_USERS = [];
 export default {
   components: {},
   data() {
     return {
+      model_number: null,
+      usersJson: JSON.stringify(DUMMY_USERS, null, 2),
+      isConnected: false,
+      logEntries: [],
+      ws: null, // WebSocket instance,
+      dialog: {
+        show: false,
+        messages: [],
+        status: "success", // 'success' or 'error'
+      },
       UploadPersonResponseCompKey: 1,
       deviceResponses: [],
       cameraResponses: [],
@@ -524,7 +579,18 @@ export default {
       },
     };
   },
+  computed: {
+    /** Maps log entry className to Vuetify text color classes. */
+    logClass() {
+      return (className) => {
+        if (className === "success") return "success--text";
+        if (className === "error") return "error--text font-weight-medium";
+        return "grey--text text--darken-3";
+      };
+    },
+  },
   mounted: function () {
+    this.connectClient();
     // this.snackbar.show = false;
     // this.snackbar.message = "Data loading...Please wait ";
     // this.response = "Data loading...Please wait ";
@@ -564,6 +630,84 @@ export default {
     await this.filterDepartmentsByBranch(this.branch_id);
   },
   methods: {
+    log(message, className = "default") {
+      const now = new Date().toLocaleTimeString();
+      const newEntry = {
+        message: `[${now}] ${message}`,
+        className,
+        id: Date.now() + Math.random(),
+      };
+
+      this.logEntries.push(newEntry);
+
+      // Auto-scroll logic needs to be deferred to after the DOM updates
+      this.$nextTick(() => {
+        const logDiv = this.$refs.logDivRef;
+        if (logDiv) {
+          logDiv.scrollTop = logDiv.scrollHeight;
+        }
+      });
+    },
+    showDialog(message, status) {
+      this.dialog.message = message;
+      this.dialog.status = status;
+      this.dialog.show = true;
+    },
+    connectClient() {
+      if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+        this.log("WebSocket is already connected.", "success");
+        return;
+      }
+
+      const fullUrl = `${process.env.NODE_SDK}/?type=client`;
+
+      try {
+        const ws = new WebSocket(fullUrl);
+        this.ws = ws; // Store the new instance
+
+        // Define Event Handlers
+        ws.onopen = () => {
+          this.isConnected = true;
+          this.log("✅ WebSocket connected.", "success");
+        };
+
+        ws.onmessage = (event) => {
+          const data = event.data;
+          try {
+            const msg = JSON.parse(data);
+
+            // --- 1. Handle INDIVIDUAL USER Status Updates (has enrollid) ---
+            if (msg.type === "response" && msg.cmd === "upload_users") {
+              console.log(`response message`);
+              console.log(msg);
+              const status = msg.status;
+              const logMessage = msg.msg;
+              this.dialog.messages.push(msg.msg);
+
+              // THIS IS WHERE YOU DISPLAY ALL MESSAGES IN YOUR LOG HISTORY
+              this.log(logMessage, status);
+            }
+          } catch (e) {
+            console.log(`${e}`);
+          }
+        };
+
+        ws.onerror = () => {
+          this.isConnected = false;
+          this.log(
+            `❌ WS error: Could not connect to the server at ${trimmedUrl}.`,
+            "error"
+          );
+        };
+
+        ws.onclose = () => {
+          this.isConnected = false;
+          this.log("🔌 Client disconnected.");
+        };
+      } catch (e) {
+        this.log(`❌ Connection error: ${e.message}`, "error");
+      }
+    },
     can(per) {
       return this.$pagePermission.can(per, this);
     },
@@ -666,6 +810,7 @@ export default {
           company_id: this.$auth.user.company_id,
           sortBy: "status_id",
           branch_id: branch_id,
+          model_number: this.model_number,
           //cols: ["id", "location", "name", "device_id", "status:id"],
         },
       };
@@ -1009,6 +1154,33 @@ export default {
       this.verifySubmitButton();
     },
     async onSubmit() {
+      if (this.model_number == "OX-1000") {
+        this.loading = true;
+        this.dialog.show = true;
+
+        let data = await this.createDPayload(this.rightEmployees);
+        if (
+          !this.isConnected ||
+          !this.ws ||
+          this.ws.readyState !== WebSocket.OPEN
+        ) {
+          this.log(
+            "❌ Not connected. Click 'Connect WebSocket' to establish a connection.",
+            "error"
+          );
+          return;
+        }
+
+        const payloadString = JSON.stringify(data); // No need for formatting in payload
+        this.log(`Sending upload command to `);
+        this.ws.send(payloadString);
+        this.loading = false;
+        return;
+      }
+
+      // console.log(this.leftDevices);
+      // return;
+
       this.$refs["UploadPersonRef"]["uploadPersonResponseDialog"] = true;
 
       this.deviceResponses = [];
@@ -1025,6 +1197,7 @@ export default {
 
       this.loading_dialog = true;
       this.errors = [];
+
       for (const item of this.rightEmployees) {
         let person = {
           name: `${item.first_name} ${item.last_name}`,
@@ -1078,6 +1251,92 @@ export default {
       this.loading = false;
 
       this.displaybutton = true;
+    },
+
+    // --- Asynchronous Transformation Logic ---
+    async createDPayload(rightEmployees) {
+      // 1. Use Promise.all() to wait for all the async map operations to complete.
+      let users = await Promise.all(
+        rightEmployees.map(async (person) => {
+          // Await the API call for the base64 image data
+          let { data } = await this.$axios.get(
+            `/get-base64?url=${person.profile_picture}`
+          );
+
+          const modes = [
+            {
+              backupnum: 50, // Likely for the profile picture (base64 data)
+              record: data,
+            },
+            // Note: The original code had a stray comma here, which creates an empty slot (undefined) in the array.
+            // It has been removed in this correction unless it was intentional.
+            {
+              backupnum: 10, // Likely for password/PIN
+              record: person.rfid_card_password || null,
+            },
+            {
+              backupnum: 11, // Likely for RFID card number
+              record: person.rfid_card_number || null,
+            },
+          ];
+
+          let payload = {
+            cmd: "setuserinfo",
+            admin: 0,
+            enrollid: person.system_user_id,
+            name: `${person.first_name} ${person.last_name}`,
+            modes: modes,
+          };
+
+          console.log(`person.system_user_id`);
+          console.log(payload);
+
+          // This object will be the resolved value for one promise in the users array
+          return payload;
+        })
+      );
+      // 2. The 'users' array now contains the fully resolved user objects.
+
+      return {
+        cmd: "upload_users",
+        targets: this.rightDevices.map((e) => e.device_id),
+        users: users, // This will now contain the array of user objects, not Promises.
+      };
+    },
+    async getImageBase64(url) {
+      try {
+        // 1. Fetch the image data using the browser's native fetch
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(
+            `HTTP error! status: ${response.status} for URL: ${url}`
+          );
+        }
+
+        // 2. Get the response as a Blob
+        const blob = await response.blob();
+
+        // 3. Convert the Blob to a Data URL and extract the Base64 part
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onloadend = function () {
+            const fullDataUrl = reader.result;
+
+            // Extract ONLY the Base64 data part (after the comma)
+            const base64Data = fullDataUrl.split(",")[1];
+
+            resolve(base64Data);
+          };
+
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        console.error("Error converting image to Base64:", e);
+        throw new Error("Failed to convert image to Base64.");
+      }
     },
   },
 };

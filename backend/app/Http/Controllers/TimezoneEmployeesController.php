@@ -31,6 +31,8 @@ class TimezoneEmployeesController extends Controller
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), fn($q) => $q->where('department_id', $request->department_id))
             ->when($request->filled('branch_id'), fn($q) => $q->where('branch_id', $request->branch_id))
+            ->when($request->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', $request->branch_ids))
+            ->when($request->filled('department_ids'), fn($q) => $q->whereIn('department_id', $request->department_ids))
             ->with(["timezones_mapped.device", "timezones_mapped.timezone"]);
 
 

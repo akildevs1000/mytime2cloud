@@ -41,6 +41,7 @@ class DesignationController extends Controller
                     }
                 }
             })
+            ->orderBy("id","desc")
             ->paginate($request->per_page);
     }
 

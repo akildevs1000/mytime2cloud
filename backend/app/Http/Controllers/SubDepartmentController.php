@@ -27,6 +27,8 @@ class SubDepartmentController extends Controller
                 $q->whereIn('department_id', $request->department_ids ?? []);
             })
 
+            ->orderBy("id","desc")
+
             ->paginate($request->per_page);
     }
 

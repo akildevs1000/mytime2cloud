@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console;
 
 use App\Models\Company;
@@ -72,6 +73,8 @@ class Kernel extends ConsoleKernel
 
         // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
+        // $schedule->command('logs:process-gps')->everyMinute();
+
         $schedule
             ->command('task:update_company_ids')
             ->everyMinute()
@@ -113,7 +116,7 @@ class Kernel extends ConsoleKernel
                 ->runInBackground();
 
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
-            // ->everyThirtyMinutes()
+                // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
                 ->runInBackground();
 
@@ -212,7 +215,7 @@ class Kernel extends ConsoleKernel
 
         //whatsapp and email notifications
         $models = ReportNotification::where("type", "attendance")
-        // ->orWhere("type", "automation")
+            // ->orWhere("type", "automation")
             ->get();
 
         foreach ($models as $model) {

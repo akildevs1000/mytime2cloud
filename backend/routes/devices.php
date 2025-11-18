@@ -17,6 +17,7 @@ Route::get('device-mode-list', [DeviceController::class, 'modes']);
 
 Route::get('device/search/{key}', [DeviceController::class, 'search']);
 Route::get('device-by-user/{id}', [DeviceController::class, 'getDeviceByUserId']);
+Route::get('devices-array', [DeviceController::class, 'getDevicesArray']);
 Route::post('device/details', [DeviceController::class, 'getDeviceCompany']);
 Route::get('device/getLastRecordsByCount/{company_id}/{count}', [DeviceController::class, 'getLastRecordsByCount']);
 Route::get('device/getLastRecordsHistory/{company_id}/{count}', [DeviceController::class, 'getLastRecordsHistory']);

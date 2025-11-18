@@ -10,6 +10,7 @@ use App\Http\Controllers\CommonController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidaysController;
+use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ModuleController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
@@ -172,11 +173,19 @@ Route::get('/progress-stream', function () {
     ]);
 });
 
+
+Route::get('/get-base64', [ImageController::class, 'getBase64Image']);
+Route::post('/store-logs-from-nodesdk', [AttendanceLogController::class, 'storeFromNodeSDK']);
+
+
+
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use App\Models\Attendance;
 
 Route::get('attendance-report', function (Request $request) {
+
+    $request->headers->set('Accept', 'application/json'); // <--- Add this
 
     Log::channel('custom')->info('Attendance report request', [
         'ip'      => $request->ip(),
@@ -299,4 +308,9 @@ Route::get('attendance-report', function (Request $request) {
             'error'   => $e->getMessage(),
         ], 500);
     }
-});
+})->middleware('auth:sanctum');
+
+Route::post('/logout-api', function (Request $request) {
+    $request->user()->currentAccessToken()->delete();
+    return response()->json(['message' => 'Logged out']);
+})->middleware('auth:sanctum');

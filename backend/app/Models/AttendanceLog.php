@@ -121,7 +121,7 @@ class AttendanceLog extends Model
 
         $model->with('employee', function ($q) use ($request) {
             $q->where('company_id', $request->company_id);
-            $q->withOut(["schedule", "department", "sub_department", "designation", "user"]);
+            $q->withOut(["schedule", "sub_department", "designation", "user"]);
 
             $q->select(
                 "first_name",
@@ -132,6 +132,7 @@ class AttendanceLog extends Model
                 "system_user_id",
                 "display_name",
                 "timezone_id",
+                "department_id"
             );
         })
             // ->distinct("LogTime", "UserID", "company_id")
@@ -541,6 +542,12 @@ class AttendanceLog extends Model
                 "model_type" => "user",
                 "description" => "Created manual log. Payload: " . json_encode($payload, JSON_PRETTY_PRINT),
             ]);
+        });
+
+        static::retrieved(function ($model) {
+            if (($model->DeviceID ?? null) === 'T8XY4T2L1QXG') {
+                $model->DeviceID = $model->DeviceID . '-Mobile';
+            }
         });
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
@@ -78,13 +79,20 @@ class ThemeController extends Controller
         $model = Attendance::where('company_id', $companyId)
             ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
 
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereHas("employee", fn($q) => $q->whereIn("branch_id", $request->branch_ids));
+            })
+            ->when($request->filled("department_ids"), function ($q) use ($request) {
+                $q->whereHas("employee", fn($q) => $q->whereIn("department_id", $request->department_ids));
+            })
+
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
             })
             ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                 $q->where("department_id", $request->department_id);
             })
-        // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereDate('date', date('Y-m-d'))
             ->select(
                 DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
@@ -144,7 +152,7 @@ class ThemeController extends Controller
             ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                 $q->where("department_id", $request->department_id);
             })
-        // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereDate('date', date('Y-m-d'))
             ->select(
                 DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
@@ -161,11 +169,18 @@ class ThemeController extends Controller
         $department_id = $request->input('department_id', 0);
 
         $model = Attendance::where('company_id', $companyId)
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereHas("employee", fn($q) => $q->whereIn("branch_id", $request->branch_ids));
+            })
+            ->when($request->filled("department_ids"), function ($q) use ($request) {
+                $q->whereHas("employee", fn($q) => $q->whereIn("department_id", $request->department_ids));
+            })
+
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('employee', fn(Builder $q) => $q->where('branch_id', $branch_id));
             })->when($department_id, function ($q) use ($department_id) {
-            $q->whereHas('employee', fn(Builder $q) => $q->where('department_id', $department_id));
-        })
+                $q->whereHas('employee', fn(Builder $q) => $q->where('department_id', $department_id));
+            })
             ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
             ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V', 'LC', 'EG'])
             ->whereDate('date', date("Y-m-d"))
@@ -177,6 +192,12 @@ class ThemeController extends Controller
         $employeeCount = Employee::where("company_id", $companyId)
             ->when($branch_id, fn($q) => $q->where("branch_id", $branch_id))
             ->when($department_id, fn($q) => $q->where("department_id", $department_id))
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereIn("branch_id", $request->branch_ids);
+            })
+            ->when($request->filled("department_ids"), function ($q) use ($request) {
+                $q->whereIn("department_id", $request->department_ids);
+            })
             ->count() ?? 0;
 
         $leaveCount = $model->where('status', 'L')->count();
@@ -186,6 +207,9 @@ class ThemeController extends Controller
         $offlineDevices = Device::where('company_id', $companyId)
             ->when($branch_id, function ($q) use ($branch_id) {
                 $q->whereHas('branch', fn(Builder $q) => $q->where('branch_id', $branch_id));
+            })
+            ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                $q->whereIn("branch_id", $request->branch_ids);
             })
             ->where('status_id', 2)
             ->where('device_id', "!=", "Manual")
@@ -297,6 +321,12 @@ class ThemeController extends Controller
                     ->where('company_id', $request->company_id)
                     ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])
                     ->whereDate('date', $date)
+                    ->when($request->filled("branch_ids"), function ($q) use ($request) {
+                        $q->whereHas("employee", fn($q) => $q->whereIn("branch_id", $request->branch_ids));
+                    })
+                    ->when($request->filled("department_ids"), function ($q) use ($request) {
+                        $q->whereHas("employee", fn($q) => $q->whereIn("department_id", $request->department_ids));
+                    })
                     ->when($request->filled("branch_id"), function ($q) use ($request) {
                         $q->whereHas("employee", fn($q) => $q->where("branch_id", $request->branch_id));
                     })
@@ -359,7 +389,7 @@ class ThemeController extends Controller
                 ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
                     $q->whereHas("employee", fn($q) => $q->where("department_id", $request->department_id));
                 })
-            // ->whereDate('LogTime', $date)
+                // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
                 ->where('LogTime', '<', $date . ' ' . $j . ':59:59')
@@ -399,10 +429,10 @@ class ThemeController extends Controller
                         })
                         ->from('visitors');
                 })
-            // ->when($request->filled("branch_id"), function ($q) use ($request) {
-            //     $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
-            // })
-            // ->whereDate('LogTime', $date)
+                // ->when($request->filled("branch_id"), function ($q) use ($request) {
+                //     $q->whereHas("visitor", fn ($q) => $q->where("branch_id", $request->branch_id));
+                // })
+                // ->whereDate('LogTime', $date)
 
                 ->where('LogTime', '>=', $date . ' ' . $j . ':00:00')
                 ->where('LogTime', '<', $date . ' ' . $j . ':59:59')
@@ -422,7 +452,7 @@ class ThemeController extends Controller
     public function dashboardGetCountsTodayMultiGeneral(Request $request)
     {
 
-        $finalarray = [];{
+        $finalarray = []; {
 
             $model = Attendance::with("employee")->where('company_id', $request->company_id)
                 ->whereIn('status', ['P', 'A', 'M', 'O', 'H', 'L', 'V'])

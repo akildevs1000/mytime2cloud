@@ -44,6 +44,7 @@ Route::get('employee-attendance-summary', [EmployeeController::class, 'attendanc
 Route::get('employee-avg-clock-in', [EmployeeController::class, 'avgClockIn']);
 
 Route::post('employee-store-new', [EmployeeControllerNew::class, 'storeNew']);
+Route::post('employee-update-profile-picture', [EmployeeControllerNew::class, 'updateProfilePicture']);
 Route::post('employee-update-new/{id}', [EmployeeControllerNew::class, 'updateNew']);
 Route::post('employee-update-emergency-contact-new/{id}', [EmployeeControllerNew::class, 'updateEmergencyContactNew']);
 Route::post('employee-update-address-new/{id}', [EmployeeControllerNew::class, 'updateAddress']);
