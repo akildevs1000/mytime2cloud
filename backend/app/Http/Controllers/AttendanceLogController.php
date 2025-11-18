@@ -780,7 +780,7 @@ class AttendanceLogController extends Controller
                 $location = $this->reverseGeocode($lat, $lon);
 
                 if (!$location) {
-                    $location = "Unknown";
+                    $location = "Unknown Location";
                 }
 
                 $log['gps_location'] = $location;
