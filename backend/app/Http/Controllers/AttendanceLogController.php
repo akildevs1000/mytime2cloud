@@ -776,8 +776,14 @@ class AttendanceLogController extends Controller
                 // Use cached value
                 $log['gps_location'] = $cachedRows[$key]->gps_location;
             } else {
-                // Call API once
-                $log['gps_location'] = $this->reverseGeocode($lat, $lon);
+
+                $location = $this->reverseGeocode($lat, $lon);
+
+                if (!$location) {
+                    $location = "Unknown";
+                }
+
+                $log['gps_location'] = $location;
 
                 // Prepare batch insert for cache
                 $cacheToInsert[] = [
