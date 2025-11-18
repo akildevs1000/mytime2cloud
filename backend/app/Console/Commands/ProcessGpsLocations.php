@@ -118,12 +118,10 @@ class ProcessGpsLocations extends Command
 
                 $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
 
-                Logger::channel('custom')->info(json_encode($parts));
 
                 return implode(', ', $parts);
             }
         } catch (\Exception $e) {
-            Logger::channel('custom')->info($e->getMessage());
         }
 
         return null; // explicit fallback if API fails
