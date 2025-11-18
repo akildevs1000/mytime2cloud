@@ -745,38 +745,14 @@ class AttendanceLogController extends Controller
     {
         $logs = $request->all();
 
-        // 1️⃣ Collect unique coordinates
-        $uniqueCoords = [];
-        foreach ($logs as $log) {
-            $lat = $log['lat'] ?? null;
-            $lon = $log['lon'] ?? null;
-            if ($lat && $lon) {
-                $uniqueCoords["$lat,$lon"] = ['lat' => $lat, 'lon' => $lon];
-            }
-        }
-
-        // 2️⃣ Query gps_cache once for all coordinates
-        $cachedRows = DB::table('gps_cache')
-            ->whereIn(DB::raw("CONCAT(lat, ',', lon)"), array_keys($uniqueCoords))
-            ->get()
-            ->keyBy(function ($c) {
-                return "{$c->lat},{$c->lon}";
-            });
-
-        // 3️⃣ Loop through logs and use in-memory cache
-        $cacheToInsert = [];
         foreach ($logs as &$log) {
+
             $lat = $log['lat'] ?? null;
             $lon = $log['lon'] ?? null;
-            if (!$lat || !$lon) continue;
 
-            $key = "$lat,$lon";
+            if ($lat && $lon) {
 
-            if (isset($cachedRows[$key])) {
-                // Use cached value
-                $log['gps_location'] = $cachedRows[$key]->gps_location;
-            } else {
-
+                // 🌍 Get location from API directly
                 $location = $this->reverseGeocode($lat, $lon);
 
                 if (!$location) {
@@ -784,34 +760,25 @@ class AttendanceLogController extends Controller
                 }
 
                 $log['gps_location'] = $location;
-
-                // Prepare batch insert for cache
-                $cacheToInsert[] = [
-                    'lat' => $lat,
-                    'lon' => $lon,
-                    'gps_location' => $log['gps_location'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-
-                // Also add to memory cache to avoid duplicate API calls
-                $cachedRows[$key] = (object)['gps_location' => $log['gps_location']];
+            } else {
+                // no coordinates
+                $log['gps_location'] = "Unknown";
             }
         }
 
-        // 4️⃣ Insert new cache entries in batch
-        if (!empty($cacheToInsert)) {
-            DB::table('gps_cache')->insert($cacheToInsert);
+        // ✅ Safe insert with error log
+        try {
+            DB::table('attendance_logs')->insert($logs);
+        } catch (\Exception $e) {
+            Logger::error("Insert failed: " . $e->getMessage());
         }
-
-        // 5️⃣ Insert all logs at once
-        DB::table('attendance_logs')->insert($logs);
 
         return response()->json([
             'message' => 'Logs inserted successfully',
             'data' => $logs
         ]);
     }
+
 
     private function reverseGeocode($lat, $lon)
     {
