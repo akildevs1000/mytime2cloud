@@ -57,7 +57,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row class="d-xs-flex">
+        <!-- <v-row class="d-xs-flex">
           <v-col
             lg="6"
             md="6"
@@ -75,14 +75,11 @@
             </v-card>
           </v-col>
           <v-col lg="6" md="6" sm="12" xs="12">
-            <!-- <DashboardlastMultiStatistics /> -->
-
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardLoginActivities :branch_id="branch_id" />
             </v-card>
-            <!-- <v-card class="mt-2" style="height: 350px"> </v-card> -->
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
 
       <v-col lg="3" md="3" sm="12" xs="12">
@@ -128,7 +125,7 @@
             </v-card>
           </v-col>
         </v-row>
-        <v-row>
+        <!-- <v-row>
           <v-col lg="12" md="12" sm="12" xs="12">
             <v-card class="py-2 mt-2" style="height: 312px; overflow: hidden">
               <DashboardAttednaceDepartmentWise
@@ -137,7 +134,7 @@
               />
             </v-card>
           </v-col>
-        </v-row>
+        </v-row> -->
       </v-col>
       <v-col cols="12">
         <SetupFAQSearch />
