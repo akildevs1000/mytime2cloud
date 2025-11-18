@@ -746,6 +746,7 @@ class AttendanceLogController extends Controller
         $logs = $request->all();
 
         foreach ($logs as &$log) {
+            info('Processing log', $log);  // Check what lat/lon you get
             $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']) ?? "----";
         }
 
@@ -768,6 +769,40 @@ class AttendanceLogController extends Controller
 
         info("GOOGLE API KEY: " . $apiKey);
         info("Lat: $lat, Lon: $lon");
+
+
+        try {
+            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
+
+            $response = Http::get($url);
+
+            info("STATUS: " . $response->status());
+            info("BODY: " . $response->body());
+
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Google API request failed'], 500);
+            }
+
+            $data = $response->json();
+
+            // No results?
+            if (empty($data['results'][0])) {
+                info("No address returned");
+                return response()->json(['error' => 'No address found'], 404);
+            }
+
+            $formatted_address = $data['results'][0]['formatted_address'];
+
+            return $formatted_address;
+
+            return response()->json([
+                'address' => $formatted_address
+            ]);
+        } catch (\Exception $e) {
+            info("Exception: " . $e->getMessage());
+            return response()->json(['error' => 'Something went wrong'], 500);
+        }
+
 
         try {
             $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
