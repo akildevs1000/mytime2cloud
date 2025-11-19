@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\StoreAttendanceLogsJobWithLocation;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
@@ -745,101 +746,11 @@ class AttendanceLogController extends Controller
     {
         $logs = $request->all();
 
-        foreach ($logs as &$log) {
-            info('Processing log', $log);  // Check lat/lon
-            $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']);
-        }
-
-        try {
-            DB::table('attendance_logs')->insert($logs);
-        } catch (\Exception $e) {
-            Logger::error("Insert failed: " . $e->getMessage());
-        }
+        StoreAttendanceLogsJobWithLocation::dispatch($logs);
 
         return response()->json([
-            'message' => 'Logs inserted successfully',
-            'data' => $logs
+            'message' => 'Logs are being processed asynchronously.',
+            'count'   => count($logs)
         ]);
-    }
-
-    private function reverseGeocode($lat, $lon)
-    {
-        // Validate coordinates
-        if (!is_numeric($lat) || !is_numeric($lon)) {
-            $msg = "❌ Invalid coordinates received: lat=$lat, lon=$lon";
-            info($msg);
-            return $msg;
-        }
-
-        // 1️⃣ CHECK CACHE FIRST (gps_cache table)
-        $cached = DB::table('gps_cache')
-            ->where('lat', $lat)
-            ->where('lon', $lon)
-            ->value('gps_location');
-
-        if ($cached) {
-            info("✅ CACHE HIT for $lat,$lon → $cached");
-            return $cached;
-        }
-
-        info("🟡 CACHE MISS for $lat,$lon → calling Google API...");
-
-        // 2️⃣ No cache → call Google API
-        $apiKey = env('GOOGLE_MAPS_KEY');
-        if (!$apiKey) {
-            $msg = "❌ Missing Google Maps API Key";
-            info($msg);
-            return $msg;
-        }
-
-        $url = "https://maps.googleapis.com/maps/api/geocode/json";
-
-        try {
-            $response = Http::timeout(10)->retry(2, 200)->get($url, [
-                'latlng'   => "$lat,$lon",
-                'key'      => $apiKey,
-                'language' => 'en'
-            ]);
-
-            if (!$response->successful()) {
-                $msg = "❌ Google API HTTP Error (Status: {$response->status()})";
-                info($msg, ['body' => $response->body()]);
-                return $msg;
-            }
-
-            $data = $response->json();
-
-            if (($data['status'] ?? null) !== "OK") {
-                $apiStatus = $data['status'] ?? 'UNKNOWN';
-                $apiError  = $data['error_message'] ?? 'No error message';
-
-                $msg = "⚠ Google API Error: $apiStatus - $apiError";
-                info($msg);
-                return $msg;
-            }
-
-            $address = $data['results'][0]['formatted_address'] ?? null;
-
-            if (!$address) {
-                $msg = "⚠ No formatted address returned for $lat, $lon";
-                info($msg);
-                return $msg;
-            }
-
-            // 3️⃣ SAVE TO CACHE for future use
-            DB::table('gps_cache')->insert([
-                'lat'           => $lat,
-                'lon'           => $lon,
-                'gps_location'  => $address,
-            ]);
-
-            info("💾 Cached new GPS location: $lat,$lon → $address");
-
-            return $address;
-        } catch (\Throwable $e) {
-            $msg = "🔥 ReverseGeocode Exception: " . $e->getMessage();
-            info($msg);
-            return $msg;
-        }
     }
 }
