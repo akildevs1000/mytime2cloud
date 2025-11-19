@@ -747,7 +747,7 @@ class AttendanceLogController extends Controller
 
         foreach ($logs as &$log) {
             info('Processing log', $log);  // Check lat/lon
-            $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']) ?? "----";
+            $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']);
         }
 
         try {
@@ -764,43 +764,59 @@ class AttendanceLogController extends Controller
 
     private function reverseGeocode($lat, $lon)
     {
-        $apiKey = env('GOOGLE_MAPS_KEY');
-
-        if (!$lat || !$lon) {
-            info("Lat or Lon missing");
-            return null;
+        // Validate coordinates
+        if (!is_numeric($lat) || !is_numeric($lon)) {
+            $msg = "❌ Invalid coordinates received: lat=$lat, lon=$lon";
+            info($msg);
+            return $msg;
         }
 
+        $apiKey = env('GOOGLE_MAPS_KEY');
+        if (!$apiKey) {
+            $msg = "❌ Missing Google Maps API Key";
+            info($msg);
+            return $msg;
+        }
+
+        $url = "https://maps.googleapis.com/maps/api/geocode/json";
+
         try {
-            $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
-
-            info($url);
-
-            $response = Http::get($url);
-
-            info("STATUS: " . $response->status());
-            info("BODY: " . $response->body());
+            $response = Http::timeout(10)->retry(2, 200)->get($url, [
+                'latlng'   => "$lat,$lon",
+                'key'      => $apiKey,
+                'language' => 'en'
+            ]);
 
             if (!$response->successful()) {
-                info("Google API request failed");
-                return null;
+                $msg = "❌ Google API HTTP Error (Status: {$response->status()})";
+                info($msg, ['body' => $response->body()]);
+                return $msg;
             }
 
             $data = $response->json();
 
-            if (empty($data['results'][0]['formatted_address'])) {
-                info("No address returned");
-                return null;
+            if (($data['status'] ?? null) !== "OK") {
+                $apiStatus = $data['status'] ?? 'UNKNOWN';
+                $apiError  = $data['error_message'] ?? 'No error message';
+
+                $msg = "⚠ Google API Error: $apiStatus - $apiError";
+                info($msg);
+                return $msg;
             }
 
-            $formatted_address = $data['results'][0]['formatted_address'];
+            $address = $data['results'][0]['formatted_address'] ?? null;
 
-            info("Address found: " . $formatted_address);
+            if (!$address) {
+                $msg = "⚠ No formatted address returned for $lat, $lon";
+                info($msg);
+                return $msg;
+            }
 
-            return $formatted_address;
-        } catch (\Exception $e) {
-            info("Reverse geocode exception: " . $e->getMessage());
-            return null;
+            return $address;
+        } catch (\Throwable $e) {
+            $msg = "🔥 ReverseGeocode Exception: " . $e->getMessage();
+            info($msg);
+            return $msg;
         }
     }
 }
