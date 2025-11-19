@@ -771,6 +771,20 @@ class AttendanceLogController extends Controller
             return $msg;
         }
 
+        // 1️⃣ CHECK CACHE FIRST (gps_cache table)
+        $cached = DB::table('gps_cache')
+            ->where('lat', $lat)
+            ->where('lon', $lon)
+            ->value('gps_location');
+
+        if ($cached) {
+            info("✅ CACHE HIT for $lat,$lon → $cached");
+            return $cached;
+        }
+
+        info("🟡 CACHE MISS for $lat,$lon → calling Google API...");
+
+        // 2️⃣ No cache → call Google API
         $apiKey = env('GOOGLE_MAPS_KEY');
         if (!$apiKey) {
             $msg = "❌ Missing Google Maps API Key";
@@ -811,6 +825,15 @@ class AttendanceLogController extends Controller
                 info($msg);
                 return $msg;
             }
+
+            // 3️⃣ SAVE TO CACHE for future use
+            DB::table('gps_cache')->insert([
+                'lat'           => $lat,
+                'lon'           => $lon,
+                'gps_location'  => $address,
+            ]);
+
+            info("💾 Cached new GPS location: $lat,$lon → $address");
 
             return $address;
         } catch (\Throwable $e) {
