@@ -751,11 +751,14 @@ class AttendanceLogController extends Controller
         }
 
         if (!$request->test) {
+            info("testing false");
             try {
                 DB::table('attendance_logs')->insert($logs);
             } catch (\Exception $e) {
                 Logger::error("Insert failed: " . $e->getMessage());
             }
+        } else {
+            info("testing false");
         }
 
         return response()->json([
