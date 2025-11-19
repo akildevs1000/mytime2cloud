@@ -784,7 +784,7 @@ class AttendanceLogController extends Controller
                 return null;
             }
 
-            $data = $response->json();
+            return $data = $response->json();
 
             if (empty($data['results'][0]['formatted_address'])) {
                 info("No address returned");
