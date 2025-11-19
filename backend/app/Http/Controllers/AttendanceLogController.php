@@ -750,11 +750,13 @@ class AttendanceLogController extends Controller
             $log['gps_location'] = $this->reverseGeocode($log['lat'],  $log['lon']) ?? "----";
         }
 
-        // try {
-        //     DB::table('attendance_logs')->insert($logs);
-        // } catch (\Exception $e) {
-        //     Logger::error("Insert failed: " . $e->getMessage());
-        // }
+        if (!$request->test) {
+            try {
+                DB::table('attendance_logs')->insert($logs);
+            } catch (\Exception $e) {
+                Logger::error("Insert failed: " . $e->getMessage());
+            }
+        }
 
         return response()->json([
             'message' => 'Logs inserted successfully',
