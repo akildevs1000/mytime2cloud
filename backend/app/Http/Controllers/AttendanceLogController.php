@@ -774,6 +774,8 @@ class AttendanceLogController extends Controller
         try {
             $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$lon&key=$apiKey&language=en";
 
+            info($url);
+
             $response = Http::get($url);
 
             info("STATUS: " . $response->status());
