@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Employee\ContactRequest;
@@ -811,7 +812,7 @@ class EmployeeController extends Controller
     {
 
         $employeeProfile = $this->getSingleEmployeeProfile($id);
-                                                                                                                               //return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
+        //return  View('pdf.employee_profile', ["employee" => $employeeProfile]);; //->donwload();
         return Pdf::loadView('pdf.employee_profile', ["employee" => $employeeProfile])->setPaper('A4', 'potrait')->download(); //->donwload();
     }
     public function employeeLoginUpdate(Request $request, $id)
@@ -959,7 +960,6 @@ class EmployeeController extends Controller
             if ($request->rfid_card_number != '') {
                 return $this->response('Error: RFID number is already assigned Employee Name :' . $isRFIdExist[0]["first_name"] . ', EmpId: ' . $isRFIdExist[0]['employee_id'], null, false);
             }
-
         }
 
         return $this->response('Employee successfully updated.', null, true);
@@ -1123,6 +1123,119 @@ class EmployeeController extends Controller
     }
     public function AttendanceForMissingScheduleIds($company_id, $system_user_id, $date)
     {
+        $baseDate    = \Carbon\Carbon::parse($date);
+        $daysInMonth = $baseDate->daysInMonth;
+        $monthStart  = $baseDate->copy()->startOfMonth()->toDateString();
+        $monthEnd    = $baseDate->copy()->endOfMonth()->toDateString();
+
+        // 1) Build employees query with schedule_active
+        $employeesQuery = Employee::with([
+            'schedule_active' => function ($q) use ($company_id, $date) {
+                $q->where('company_id', $company_id)
+                    ->where('to_date', '>=', $date)
+                    ->withOut('shift_type')
+                    ->orderBy('to_date', 'asc');
+            }
+        ])->where('company_id', $company_id);
+
+        // 2) Find employees who have attendances this month with empty shift_id
+        $employeesEmptyShiftIds = Attendance::where('company_id', $company_id)
+            ->whereBetween('date', [$monthStart, $monthEnd])
+            ->where(function ($query) {
+                $query->whereNull('shift_id')
+                    ->orWhere('shift_id', 0);
+            })
+            ->when($system_user_id > 0, function ($q) use ($system_user_id) {
+                $q->where('employee_id', $system_user_id);
+            })
+            ->pluck('employee_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($employeesEmptyShiftIds)) {
+            return 'Successfully Updated 0';
+        }
+
+        $employeesQuery->whereIn('system_user_id', $employeesEmptyShiftIds);
+
+        if ($system_user_id > 0) {
+            $employeesQuery->where('system_user_id', $system_user_id);
+        }
+
+        $employees = $employeesQuery->get();
+
+        if ($employees->isEmpty()) {
+            return 'Successfully Updated 0';
+        }
+
+        // 3) Build simple lookup: employee_id => schedule_active
+        $scheduleByEmployee = $employees
+            ->filter(function ($employee) {
+                return !empty($employee->system_user_id) && !empty($employee->schedule_active);
+            })
+            ->keyBy('system_user_id');
+
+        $employeeIds = $scheduleByEmployee->keys()->all();
+
+        if (empty($employeeIds)) {
+            return 'Successfully Updated 0';
+        }
+
+        // 4) Load ALL attendances for these employees in the month with empty shift_id
+        $attendances = Attendance::where('company_id', $company_id)
+            ->whereBetween('date', [$monthStart, $monthEnd])
+            ->whereIn('employee_id', $employeeIds)
+            ->where(function ($query) {
+                $query->whereNull('shift_id')
+                    ->orWhere('shift_id', 0);
+            })
+            ->get();
+
+        if ($attendances->isEmpty()) {
+            return 'Successfully Updated 0';
+        }
+
+        // 5) Group by employee + date so we can apply your "count == 1" rule
+        $grouped = $attendances->groupBy(function ($row) {
+            return $row->employee_id . '|' . $row->date;
+        });
+
+        $updatedCount = 0;
+        $now = now();
+
+        foreach ($grouped as $key => $rows) {
+            // Keep your original logic: only if exactly one row for that employee/date
+            if ($rows->count() !== 1) {
+                continue;
+            }
+
+            /** @var \App\Models\Attendance $attendanceRow */
+            $attendanceRow = $rows->first();
+            $employeeId    = $attendanceRow->employee_id;
+
+            if (!isset($scheduleByEmployee[$employeeId])) {
+                continue;
+            }
+
+            $schedule = $scheduleByEmployee[$employeeId]->schedule_active;
+
+            $updateData = [
+                'employee_id'   => $employeeId,
+                'shift_id'      => $schedule->shift_id,
+                'shift_type_id' => $schedule->shift_type_id,
+                // usually we only touch updated_at on update
+                'updated_at'    => $now,
+            ];
+
+            $attendanceRow->update($updateData);
+            $updatedCount++;
+        }
+
+        return 'Successfully Updated ' . $updatedCount;
+    }
+    public function AttendanceForMissingScheduleIdsOLD($company_id, $system_user_id, $date)
+    {
 
         //$company_id = $request->company_id;
         //$system_user_id = $request->system_user_id;
@@ -1162,32 +1275,33 @@ class EmployeeController extends Controller
 
         $data = [];
 
-        foreach ($employees as $employee) {{
+        foreach ($employees as $employee) { {
 
-            //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date');
+                //  $attendaceExistDates = array_column(json_decode($employee->attendances, true), 'edit_date');
 
-            foreach (range(1, $daysInMonth) as $day) {
-                $date          = date("Y-m-", strtotime($date)) . sprintf("%02d", $day);
-                $attendance    = Attendance::where("company_id", $company_id);
-                $attendanceRow = $attendance->where("employee_id", $employee->system_user_id)->where("shift_id", null)->where("date", $date)->get();
-                $count         = $attendanceRow->count();
+                foreach (range(1, $daysInMonth) as $day) {
+                    $date          = date("Y-m-", strtotime($date)) . sprintf("%02d", $day);
+                    $attendance    = Attendance::where("company_id", $company_id);
+                    $attendanceRow = $attendance->where("employee_id", $employee->system_user_id)->where("shift_id", null)->where("date", $date)->get();
+                    $count         = $attendanceRow->count();
 
-                if ($count == 1 && $employee->system_user_id != '') {
+                    if ($count == 1 && $employee->system_user_id != '') {
 
-                    $data[] = $updateData = [
+                        $data[] = $updateData = [
 
-                        "employee_id"   => $employee->system_user_id,
-                        "shift_id"      => $employee->schedule_active->shift_id,
-                        "shift_type_id" => $employee->schedule_active->shift_type_id,
+                            "employee_id"   => $employee->system_user_id,
+                            "shift_id"      => $employee->schedule_active->shift_id,
+                            "shift_type_id" => $employee->schedule_active->shift_type_id,
 
-                        "created_at"    => date('Y-m-d H:i:s'),
-                        "updated_at"    => date('Y-m-d H:i:s'),
-                    ];
+                            "created_at"    => date('Y-m-d H:i:s'),
+                            "updated_at"    => date('Y-m-d H:i:s'),
+                        ];
 
-                    Attendance::where("id", $attendanceRow[0]->id)->update($updateData);
+                        Attendance::where("id", $attendanceRow[0]->id)->update($updateData);
+                    }
                 }
             }
-        }}
+        }
 
         return "Successfully Updated " . count($data);
     }
@@ -1932,5 +2046,4 @@ class EmployeeController extends Controller
         // Trim spaces
         return trim($value);
     }
-
 }
