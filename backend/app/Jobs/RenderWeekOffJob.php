@@ -46,69 +46,49 @@ class RenderWeekOffJob implements ShouldQueue
 
     protected function setWeekOffs()
     {
-        // Count total Present records
+        // Count total present records
         $totalPresent = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
             ->where('status', 'P')
             ->count();
 
-        $this->info("Total Present: {$totalPresent}");
+        if ($totalPresent === 0) return;
 
-        if ($totalPresent === 0) {
-            $this->info("No Present records found. Exiting weekoff assignment.");
-            return;
-        }
-
-        // Number of weekoffs: 1 per 6 presents
+        // Number of weekoffs: 1 weekoff per 6 presents
         $numWeekOffs = intdiv($totalPresent, 6);
-        $this->info("Number of Weekoffs to assign: {$numWeekOffs}");
-
-        if ($numWeekOffs === 0) {
-            $this->info("Not enough Present records to assign any weekoff.");
-            return;
-        }
+        if ($numWeekOffs === 0) return;
 
         // Fetch all month rows ordered by date
         $allRows = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
             ->orderBy('date')
-            ->get(['id', 'date', 'status']);
+            ->get(['id', 'status']);
 
         $presentCounter = 0;
         $weekOffsAssigned = 0;
         $weekOffIds = [];
 
         foreach ($allRows as $row) {
-            $this->info("Row {$row->id} | Date: {$row->date} | Status: {$row->status}");
-
             if ($row->status === 'P') {
                 $presentCounter++;
-                $this->info("Present counter incremented: {$presentCounter}");
             }
 
-            // After 6 presents, assign weekoff to the first Absent row after this
+            // After 6 presents, assign a weekoff to the first Absent row
             if ($presentCounter === 6 && $weekOffsAssigned < $numWeekOffs) {
                 $nextRow = $allRows->firstWhere(fn($r) => $r->id > $row->id && $r->status === 'A');
 
                 if ($nextRow) {
                     $weekOffIds[] = $nextRow->id;
                     $weekOffsAssigned++;
-                    $this->info("Weekoff assigned to ID {$nextRow->id} | Date: {$nextRow->date}");
-                    $presentCounter = 0; // reset for next batch
-                } else {
-                    $this->info("No eligible Absent row found for weekoff after row {$row->id}");
-                    $presentCounter = 0; // still reset counter
+                    $presentCounter = 0; // reset counter for next weekoff
                 }
             }
         }
 
         if (!empty($weekOffIds)) {
-            $updated = Attendance::whereIn('id', $weekOffIds)->update(['status' => 'O']);
-            $this->info("Total Weekoffs updated: {$updated}");
-        } else {
-            $this->info("No Weekoffs assigned.");
+            Attendance::whereIn('id', $weekOffIds)->update(['status' => 'O']);
         }
     }
 }
