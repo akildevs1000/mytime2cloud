@@ -78,7 +78,7 @@ class RenderWeekOffJob implements ShouldQueue
             // After 6 presents, assign a weekoff to the first non-P, non-O row
             if ($presentCounter === 6 && $weekOffsAssigned < $numWeekOffs) {
                 // Find the next eligible row
-                $nextRow = $allRows->firstWhere(fn($r) => $r->id > $row->id && !in_array($r->status, ['P', 'O']));
+                $nextRow = $allRows->firstWhere(fn($r) => $r->id > $row->id && !in_array($r->status, ['P']));
                 if ($nextRow) {
                     $weekOffIds[] = $nextRow->id;
                     $weekOffsAssigned++;
