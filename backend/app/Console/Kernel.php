@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        $month = now()->month;
 
         $schedule
             ->command("check:mytime2cloud-health")
@@ -182,6 +183,13 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_flexible_off $companyId")
                 ->dailyAt('04:20')
                 ->runInBackground();
+
+            if ($companyId == 13) {
+                $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
+                    ->when(fn() => now()->isLastOfMonth())
+                    ->withoutOverlapping()
+                    ->onOneServer();
+            }
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
