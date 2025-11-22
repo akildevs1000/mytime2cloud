@@ -53,8 +53,6 @@ class RenderWeekOffJob implements ShouldQueue
             ->where('status', 'P')
             ->count();
 
-        echo "Employee {$this->employeeId} | Total Present: {$totalPresent}\n";
-
         if ($totalPresent === 0) {
             echo "No Present records found. Skipping weekoff assignment.\n";
             return;
