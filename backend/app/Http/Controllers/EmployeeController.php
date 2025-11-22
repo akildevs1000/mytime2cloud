@@ -1141,10 +1141,7 @@ class EmployeeController extends Controller
         // 2) Find employees who have attendances this month with empty shift_id
         $employeesEmptyShiftIds = Attendance::where('company_id', $company_id)
             ->whereBetween('date', [$monthStart, $monthEnd])
-            ->where(function ($query) {
-                $query->whereNull('shift_id')
-                    ->orWhere('shift_id', 0);
-            })
+            ->whereNull('shift_id')
             ->when($system_user_id > 0, function ($q) use ($system_user_id) {
                 $q->where('employee_id', $system_user_id);
             })
@@ -1186,10 +1183,7 @@ class EmployeeController extends Controller
         $attendances = Attendance::where('company_id', $company_id)
             ->whereBetween('date', [$monthStart, $monthEnd])
             ->whereIn('employee_id', $employeeIds)
-            ->where(function ($query) {
-                $query->whereNull('shift_id')
-                    ->orWhere('shift_id', 0);
-            })
+            ->whereNull('shift_id')
             ->get();
 
         if ($attendances->isEmpty()) {
