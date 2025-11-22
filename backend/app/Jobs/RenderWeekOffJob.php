@@ -60,7 +60,7 @@ class RenderWeekOffJob implements ShouldQueue
 
         // Number of weekoffs: 1 per 6 presents
         $numWeekOffs = intdiv($totalPresent, 6);
-        echo "Employee {$this->employeeId} | Weekoffs to assign: {$numWeekOffs}\n";
+        // echo "Employee {$this->employeeId} | Weekoffs to assign: {$numWeekOffs}\n";
 
         if ($numWeekOffs === 0) {
             echo "Not enough Present records to assign any weekoff.\n";
@@ -82,10 +82,10 @@ class RenderWeekOffJob implements ShouldQueue
         if (!empty($weekOffIds)) {
             Attendance::whereIn('id', $weekOffIds)->update(['status' => 'O']);
 
-            // Display assigned weekoffs
-            foreach ($weekOffRows as $row) {
-                echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date}\n";
-            }
+            // // Display assigned weekoffs
+            // foreach ($weekOffRows as $row) {
+            //     echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date}\n";
+            // }
         } else {
             echo "No eligible rows found for weekoff assignment.\n";
         }
