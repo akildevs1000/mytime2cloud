@@ -174,22 +174,20 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('02:00')
                 ->runInBackground();
 
-            $schedule
-                ->command("task:sync_off $companyId")
-                ->dailyAt('02:20')
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_off $companyId")
+            //     ->dailyAt('02:20')
+            //     ->runInBackground();
 
-            $schedule
-                ->command("task:sync_flexible_off $companyId")
-                ->dailyAt('04:20')
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_flexible_off $companyId")
+            //     ->dailyAt('04:20')
+            //     ->runInBackground();
 
-            if ($companyId == 13) {
-                $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
-                    ->when(fn() => now()->isLastOfMonth())
-                    ->withoutOverlapping()
-                    ->onOneServer();
-            }
+            $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
+                ->when(fn() => now()->isLastOfMonth())
+                ->withoutOverlapping()
+                ->onOneServer();
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
