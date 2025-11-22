@@ -53,25 +53,52 @@ class RenderWeekOffJob implements ShouldQueue
             ->where('status', 'P')
             ->count();
 
-        if ($totalPresent === 0) return;
+        echo "Employee {$this->employeeId} | Total Present: {$totalPresent}\n";
 
-        // Number of weekoffs: 1 weekoff per 6 present
+        if ($totalPresent === 0) {
+            echo "No Present records found. Skipping weekoff assignment.\n";
+            return;
+        }
+
+        // Number of weekoffs: 1 per 6 presents
         $numWeekOffs = intdiv($totalPresent, 6);
-        if ($numWeekOffs === 0) return;
+        echo "Employee {$this->employeeId} | Weekoffs to assign: {$numWeekOffs}\n";
 
-        // Get all rows NOT present, ordered by date
+        if ($numWeekOffs === 0) {
+            echo "Not enough Present records to assign any weekoff.\n";
+            return;
+        }
+
+        // Get all non-P rows ordered by date
         $availableRows = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
-            ->where('status', '!=', 'P') // Only non-P records
+            ->where('status', '!=', 'P')
             ->orderBy('date')
-            ->get(['id', 'date']);
+            ->get(['id', 'date', 'status']);
 
-        // Assign weekoffs to the first N non-P rows
-        $weekOffIds = $availableRows->take($numWeekOffs)->pluck('id')->toArray();
+        $weekOffRows = $availableRows->take($numWeekOffs);
+
+        $weekOffIds = $weekOffRows->pluck('id')->toArray();
 
         if (!empty($weekOffIds)) {
             Attendance::whereIn('id', $weekOffIds)->update(['status' => 'O']);
+
+            // Display assigned weekoffs
+            foreach ($weekOffRows as $row) {
+                echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date}\n";
+            }
+        } else {
+            echo "No eligible rows found for weekoff assignment.\n";
         }
+
+        // Display summary
+        $totalAbsent = Attendance::where('company_id', $this->companyId)
+            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->whereMonth('date', $this->month)
+            ->where('status', 'A')
+            ->count();
+
+        echo "Employee {$this->employeeId} | Presents: {$totalPresent} | Weekoffs: {$numWeekOffs} | Absents: {$totalAbsent}\n\n";
     }
 }
