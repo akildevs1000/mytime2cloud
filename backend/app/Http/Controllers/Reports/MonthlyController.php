@@ -316,6 +316,8 @@ class MonthlyController extends Controller
 
         $model = (new Attendance)->processAttendanceModel($request);
 
+        // return $model->get();
+
         $file_name = "Attendance Report";
         if ($request->filled('from_date') && $request->filled('to_date')) {
             $file_name .= ' - ' . $request->from_date . ' to ' . $request->to_date;
@@ -323,11 +325,11 @@ class MonthlyController extends Controller
 
         $file_name = preg_replace('/[^\w\s\-]/', '', $file_name) . '.xlsx';
 
-        if ($multiTab || $dualTab) {
-            return Excel::download(new AttendanceExport($model), $file_name);
+        if ($request->shift_type_id == 0) {
+            return Excel::download(new AttendanceExportGeneral($model), $file_name);
         }
 
-        return Excel::download(new AttendanceExportGeneral($model), $file_name);
+        return Excel::download(new AttendanceExport($model), $file_name);
     }
 
     public function processPDF($request)
