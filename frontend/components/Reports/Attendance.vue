@@ -215,6 +215,7 @@
             ></v-tabs-slider>
 
             <v-tab
+              v-if="showTabs.single == true"
               :key="0"
               style="height: 30px"
               href="#tab-1"
@@ -230,6 +231,7 @@
             </v-tab>
 
             <v-tab
+              v-if="showTabs.double == true"
               :key="5"
               @click="
                 () => {
@@ -877,6 +879,7 @@ export default {
         })
         .then(({ data }) => {
           this.showTabs = data;
+          console.log(this.showTabs)
           this.payload.showTabs = data;
         });
     },
