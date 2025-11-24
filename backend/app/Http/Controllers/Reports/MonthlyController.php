@@ -329,7 +329,9 @@ class MonthlyController extends Controller
             return Excel::download(new AttendanceExportGeneral($model), $file_name);
         }
 
-        return Excel::download(new AttendanceExport($model), $file_name);
+        $colLength = $request->shift_type_id == 2 ? 7 : 2;
+
+        return Excel::download(new AttendanceExport($model, $colLength), $file_name);
     }
 
     public function processPDF($request)
