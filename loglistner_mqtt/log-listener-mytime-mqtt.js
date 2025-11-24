@@ -1,6 +1,8 @@
+require("dotenv").config();
 const mqtt = require("mqtt");
 const { Pool } = require("pg");
 const fs = require("fs");
+
 const path = require("path");
 
 // ========== ERROR LOGGING ==========
@@ -34,30 +36,32 @@ function sanitizeInfo(info) {
 // ========== CONFIG ==========
 
 // MQTT
-const MQTT_HOST = "mqtt://192.168.2.55:1883";
-const MQTT_TOPIC_ATT = "mytimemqttattendance/face/+/+";
-const MQTT_TOPIC_HEARTBEAT = "mytimemqttattendance/face/heartbeat";
+const MQTT_HOST = process.env.MYTIME_MQTT_HOST || "";
+const MQTT_TOPIC_ATT = process.env.MYTIME_MQTT_TOPIC_ATT || "";
+const MQTT_TOPIC_HEARTBEAT = process.env.MYTIME_MQTT_TOPIC_HEARTBEAT || "";
 
 // Use model_number to identify product type
-const HEARTBEAT_MODEL_NUMBER = "MYTIME1"; // must match devices.model_number exactly
+const HEARTBEAT_MODEL_NUMBER =
+  process.env.MYTIME_HEARTBEAT_MODEL_NUMBER || "MYTIME1"; // must match devices.model_number exactly
 
 // PostgreSQL
 const dbPool = new Pool({
-  host: "127.0.0.1",
-  port: 5432,
-  user: "postgres",
-  password: "test123",
-  database: "hrms",
+  host: process.env.PGHOST || "127.0.0.1",
+  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
+  user: process.env.PGUSER || "postgres",
+  password: process.env.PGPASSWORD || "test123",
+  database: process.env.PGDATABASE || "hrms",
   max: 10,
   idleTimeoutMillis: 0,
 });
 
 // CSV logs directory
-const logDir = path.join(__dirname, "../backend/storage/app/mqtt-mytime-logs");
+const logDir =
+  process.env.MYTIME_LOG_DIR ||
+  path.join(__dirname, "../backend/storage/app/mqtt-mytime-logs");
 
-// Track last heartbeat info for that device
-let lastHeartbeatTs = 0; // timestamp in ms
-let lastHeartbeatSerial = null; // facesluiceId (can match serial_number or device_id)
+// Track last heartbeat info for devices (multi-device support now)
+const heartbeatMap = new Map(); // key: serial/device_id, value: { lastHeartbeatTs, lastHeartbeatTimeStr }
 
 // ========== INIT ==========
 
@@ -77,7 +81,9 @@ dbPool
     console.log("✅ PostgreSQL connected");
     client.release();
   })
-  .catch((err) => logError("PostgreSQL connection error: " + err.message));
+  .catch((err) =>
+    logError("PostgreSQL connection error: " + (err?.message || err))
+  );
 
 // ========== MQTT CLIENT ==========
 
@@ -108,53 +114,68 @@ async function verifyDevicesOnlineStatus() {
   const now = Date.now();
   const ONE_HOUR_MS = 60 * 60 * 1000;
 
-  // If we never saw a heartbeat for this device yet:
-  if (!lastHeartbeatSerial) {
-    console.log("⚠️ No heartbeat received yet. Skipping status check.");
+  if (heartbeatMap.size === 0) {
+    console.log(
+      "⚠️ No heartbeat received for any device yet. Skipping status check."
+    );
     return;
   }
 
-  let sql, params;
+  for (const [serial, hbInfo] of heartbeatMap.entries()) {
+    const { lastHeartbeatTs, lastHeartbeatTimeStr } = hbInfo || {};
+    let sql, params;
 
-  if (lastHeartbeatTs && now - lastHeartbeatTs <= ONE_HOUR_MS) {
-    // This device seen within last hour → ONLINE
-    sql = `
-      UPDATE devices 
-      SET status_id = 1 
-      WHERE model_number = $1 
-        AND (serial_number = $2 OR device_id = $2)
-    `;
-    params = [HEARTBEAT_MODEL_NUMBER, lastHeartbeatSerial];
-    console.log(
-      "✅ Heartbeat OK in last hour. Setting device ONLINE:",
-      lastHeartbeatSerial
-    );
-  } else {
-    // No recent heartbeat → OFFLINE
-    sql = `
-      UPDATE devices 
-      SET status_id = 2 
-      WHERE model_number = $1 
-        AND (serial_number = $2 OR device_id = $2)
-    `;
-    params = [HEARTBEAT_MODEL_NUMBER, lastHeartbeatSerial];
-    console.log(
-      "⚠️ No heartbeat in last hour. Setting device OFFLINE:",
-      lastHeartbeatSerial
-    );
-  }
+    if (lastHeartbeatTs && now - lastHeartbeatTs <= ONE_HOUR_MS) {
+      // This device seen within last hour → ONLINE
+      sql = `
+        UPDATE devices 
+        SET status_id = 1 
+        WHERE model_number = $1 
+          AND (serial_number = $2 OR device_id = $2)
+      `;
+      params = [HEARTBEAT_MODEL_NUMBER, serial];
 
-  try {
-    await dbPool.query(sql, params);
-  } catch (err) {
-    logError("Failed to update devices status: " + err.message);
+      console.log(
+        "✅ Heartbeat OK in last hour. Setting device ONLINE:",
+        serial,
+        "| last HB:",
+        new Date(lastHeartbeatTs).toISOString()
+      );
+    } else {
+      // No recent heartbeat → OFFLINE
+      sql = `
+        UPDATE devices 
+        SET status_id = 2 
+        WHERE model_number = $1 
+          AND (serial_number = $2 OR device_id = $2)
+      `;
+      params = [HEARTBEAT_MODEL_NUMBER, serial];
+
+      console.log(
+        "⚠️ No heartbeat in last hour. Setting device OFFLINE:",
+        serial,
+        "| last HB:",
+        lastHeartbeatTs ? new Date(lastHeartbeatTs).toISOString() : "never"
+      );
+    }
+
+    try {
+      await dbPool.query(sql, params);
+    } catch (err) {
+      logError(
+        "Failed to update devices status (" +
+          serial +
+          "): " +
+          (err?.message || err)
+      );
+    }
   }
 }
 
 // Run check every 1 hour
 setInterval(() => {
   verifyDevicesOnlineStatus().catch((err) =>
-    logError("verifyDevicesOnlineStatus error: " + err.message)
+    logError("verifyDevicesOnlineStatus error: " + (err?.message || err))
   );
 }, 60 * 60 * 1000);
 
@@ -198,14 +219,18 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     }
 
     // Use time from JSON to track last heartbeat for this device
+    let lastHeartbeatTs = Date.now();
     const parsedMs = Date.parse(hbTimeStr);
     if (!isNaN(parsedMs)) {
       lastHeartbeatTs = parsedMs;
     } else {
-      lastHeartbeatTs = Date.now();
       logError("HeartBeat time parse failed, using now(). time=" + hbTimeStr);
     }
-    lastHeartbeatSerial = serialNumber;
+
+    heartbeatMap.set(serialNumber, {
+      lastHeartbeatTs,
+      lastHeartbeatTimeStr: hbTimeStr,
+    });
 
     console.log(
       "💓 Heartbeat received. Serial/device_id:",
@@ -219,8 +244,8 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     try {
       await dbPool.query(
         `UPDATE devices 
-         SET status_id = 1,
-             last_live_datetime = $3
+           SET status_id = 1,
+               last_live_datetime = $3
          WHERE model_number = $1 
            AND (serial_number = $2 OR device_id = $2)`,
         [HEARTBEAT_MODEL_NUMBER, serialNumber, hbTimeStr]
@@ -233,7 +258,9 @@ client.on("message", async (receivedTopic, messageBuffer) => {
         serialNumber + ")"
       );
     } catch (err) {
-      logError("Failed to update devices (heartbeat): " + err.message);
+      logError(
+        "Failed to update devices (heartbeat): " + (err?.message || err)
+      );
     }
 
     return; // don't process heartbeat as attendance
@@ -330,6 +357,6 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     fs.appendFileSync(getTodayFile(), csvRow);
     console.log("📝 CSV Logged:", csvRow.trim());
   } catch (err) {
-    logError("DB insert / CSV error: " + err.message);
+    logError("DB insert / CSV error: " + (err?.message || err));
   }
 });

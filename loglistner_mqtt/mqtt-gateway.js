@@ -9,7 +9,7 @@
 // - CorrelationId per HTTP request
 // - Device event logging
 // - JSON log endpoints (no UI)
-
+require("dotenv").config();
 const mqtt = require("mqtt");
 const express = require("express");
 const cors = require("cors");
@@ -21,13 +21,13 @@ const { v4: uuidv4 } = require("uuid");
 const { AsyncLocalStorage } = require("async_hooks");
 
 // ======= CONFIG =======
-const MQTT_HOST = process.env.MQTT_HOST || "mqtt://192.168.2.55";
+const MQTT_HOST = process.env.MQTT_HOST || "";
 const MQTT_PORT = process.env.MQTT_PORT || 1883;
 const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
 const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
 
 // Topic prefix: e.g. "mqtt/face"
-const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || "mqtt/face";
+const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || "";
 
 const HTTP_PORT = process.env.HTTP_PORT || 4000;
 
