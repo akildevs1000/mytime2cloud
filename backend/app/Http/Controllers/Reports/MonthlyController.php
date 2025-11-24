@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Reports;
 
 use App\Exports\AttendanceExport;
@@ -273,8 +274,8 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_download_pdf(Request $request)
     {
-        if (request("shift_type_id", 0) == 2) {
-            return $this->PDFMerge("D");
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            return $this->PDFMerge();
         }
 
         $file_name = "Attendance Report";
@@ -1048,9 +1049,9 @@ class MonthlyController extends Controller
         $to_date   = request("to_date", date("Y-m-d"));
 
         $file_name = "Attendance Report - "
-        . Carbon::parse($from_date)->format('d M Y')
-        . " to "
-        . Carbon::parse($to_date)->format('d M Y')
+            . Carbon::parse($from_date)->format('d M Y')
+            . " to "
+            . Carbon::parse($to_date)->format('d M Y')
             . ".pdf";
 
         if (empty($pdfFiles)) {
