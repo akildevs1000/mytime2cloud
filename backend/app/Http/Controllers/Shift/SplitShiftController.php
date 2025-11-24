@@ -296,6 +296,8 @@ class SplitShiftController extends Controller
 
         // return json_encode($items, JSON_PRETTY_PRINT);
 
+        $logsUpdated = 0;
+
         try {
 
             if (count($items) > 0) {
@@ -329,14 +331,8 @@ class SplitShiftController extends Controller
             $this->logOutPut($this->logFilePath, $e->getMessage());
         }
 
-        $this->logOutPut($this->logFilePath, [
-            "UserIds" => $UserIds,
-            "params"  => $params,
-            "items"   => $items,
-        ]);
-
-        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") . "] " . "$logsUpdated " . " updated logs");
-        $this->logOutPut($this->logFilePath, $message);
+       
+        $message = "[" . $date . " " . date("H:i:s") . "] Dual Shift. "  . "$logsUpdated " . " updated logs";
         return $message;
     }
 
