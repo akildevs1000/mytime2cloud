@@ -98,6 +98,8 @@ class RenderController extends Controller
             (new SingleShiftController)->renderData($request),
             (new MultiShiftController)->renderData($request),
             (new NightShiftController)->renderData($request),
+            (new SplitShiftController)->renderData($request),
+
         );
     }
 
