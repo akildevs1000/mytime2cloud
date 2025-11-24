@@ -706,7 +706,7 @@
                 <?php } ?>
 
                 @if ($shift_type_id == 2)
-                    @for ($i = 0; $i < 5; $i++)
+                    @for ($i = 0; $i < $log_column_length; $i++)
                         <tr>
                             <td
                                 style="font-size: {{ $isSmall ? '9px' : '10px' }}; padding: {{ $isSmall ? '4px 3px' : '6px 4px' }};">
