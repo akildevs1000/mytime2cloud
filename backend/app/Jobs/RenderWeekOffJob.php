@@ -67,13 +67,12 @@ class RenderWeekOffJob implements ShouldQueue
             return;
         }
 
-        // Get all non-P rows ordered by date
         $availableRows = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
-            ->where('status', '!=', 'P')
+            ->whereIn('status', ['A', 'O'])   // A = Absent, O = WeekOff (adjust codes as needed)
             ->orderBy('date')
-            ->get(['id', 'date', 'status']);
+            ->get();
 
         $weekOffRows = $availableRows->take($numWeekOffs);
 

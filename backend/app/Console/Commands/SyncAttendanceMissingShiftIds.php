@@ -40,7 +40,8 @@ class SyncAttendanceMissingShiftIds extends Command
 
 
         try {
-            (new EmployeeController)->AttendanceForMissingScheduleIds($id, '', $date);
+            $result = (new EmployeeController)->AttendanceForMissingScheduleIds($id, '', $date);
+            $this->info($result);
         } catch (\Throwable $th) {
             //throw $th;
             $error_message = 'Cron: ' . env('APP_NAME') . ': Exception in task:sync_attendance_missing_shift_ids  : Company Id :' . $id . ', : Date :' . $date . ', ' . $th;
