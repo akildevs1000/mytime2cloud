@@ -99,7 +99,7 @@ class MonthlyController extends Controller
 
         $showTabs = json_decode($request->showTabs, true);
 
-        $shift_type = $showTabs['multi'] == true || $showTabs['dual'] == true ? "Multi" : "General";
+        $shift_type = $showTabs['multi'] == true || $showTabs['double'] == true ? "Multi" : "General";
 
         $company_id = $request->company_id;
 
@@ -139,7 +139,7 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        // if ($showTabs['multi'] == true || $showTabs['double'] == true) {
         //     return $this->PDFMerge();
         // }
         sleep(5);
@@ -154,7 +154,7 @@ class MonthlyController extends Controller
 
         $showTabs = json_decode($request->showTabs, true);
 
-        $shift_type = $showTabs['multi'] == true || $showTabs['dual'] == true ? "Multi" : "General";
+        $shift_type = $showTabs['multi'] == true || $showTabs['double'] == true ? "Multi" : "General";
 
         $company_id = $request->company_id;
 
@@ -194,7 +194,7 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        // if ($showTabs['multi'] == true || $showTabs['double'] == true) {
         //     return $this->PDFMerge("D");
         // }
 
@@ -309,10 +309,6 @@ class MonthlyController extends Controller
     {
         ini_set('memory_limit', '2048M');
         ini_set('max_execution_time', 600);
-
-        $showTabs = json_decode($request->showTabs, true) ?? [];
-        $multiTab = $showTabs['multi'] ?? false;
-        $dualTab  = $showTabs['dual'] ?? false;
 
         $model = (new Attendance)->processAttendanceModel($request);
 

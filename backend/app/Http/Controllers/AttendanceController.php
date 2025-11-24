@@ -127,7 +127,7 @@ class AttendanceController extends Controller
     {
         return [
             "single" => Shift::where("company_id", $request->company_id)->whereIn("shift_type_id", [1, 4, 6])->exists(),
-            "dual" => Shift::where("company_id", $request->company_id)->whereIn("shift_type_id", [5])->exists(),
+            "double" => Shift::where("company_id", $request->company_id)->whereIn("shift_type_id", [5])->exists(),
             "multi" => Shift::where("company_id", $request->company_id)->whereIn("shift_type_id", [2])->exists()
         ];
 
