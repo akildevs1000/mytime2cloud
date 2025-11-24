@@ -8,12 +8,12 @@ const path = require("path");
 // ========== ERROR LOGGING ==========
 
 function getErrorFile() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayGMT4().toISOString().slice(0, 10);
   return path.join(__dirname, `error-${today}.log`);
 }
 
 function logError(message) {
-  const datetime = new Date().toISOString();
+  const datetime = todayGMT4().toISOString();
   const line = `[${datetime}] ${message}\n`;
   try {
     fs.appendFileSync(getErrorFile(), line);
@@ -70,10 +70,16 @@ if (!fs.existsSync(logDir)) {
 }
 
 function getTodayFile() {
-  const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const today = todayGMT4().toISOString().slice(0, 10); // YYYY-MM-DD
   return path.join(logDir, `logs-${today}.csv`);
 }
-
+function todayGMT4() {
+  const now = new Date();
+  const gmt4 = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" })
+  );
+  return gmt4;
+}
 // Test DB connection
 dbPool
   .connect()
@@ -317,8 +323,8 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     timeStr, // "log_date_time"
     info.RecordID || null, // "index_serial_number"
     logDate, // "log_date"
-    new Date(), // "created_at"
-    new Date(), // "updated_at"
+    todayGMT4(), // "created_at"
+    todayGMT4(), // "updated_at"
   ];
 
   const sql = `

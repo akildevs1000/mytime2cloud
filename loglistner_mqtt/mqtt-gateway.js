@@ -17,7 +17,18 @@ const fs = require("fs");
 const path = require("path");
 const os = require("os");
 const http = require("http");
-const { v4: uuidv4 } = require("uuid");
+
+//const { v4: uuidv4 } = require("uuid");
+const uniqueId =
+  "mytim2cloud-" +
+  Math.random().toString(36).substring(2, 10) +
+  "-" +
+  Date.now();
+// const uuidv4 =
+//   "mytim2cloud-" +
+//   Math.random().toString(36).substring(2, 10) +
+//   "-" +
+//   Date.now();
 const { AsyncLocalStorage } = require("async_hooks");
 
 // ======= CONFIG =======
@@ -29,7 +40,7 @@ const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
 // Topic prefix: e.g. "mqtt/face"
 const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || "";
 
-const HTTP_PORT = process.env.HTTP_PORT || 4000;
+const HTTP_PORT = process.env.HTTP_PORT || 8001;
 
 // Log directory + retention
 const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, "logs");
@@ -46,7 +57,15 @@ const requestContext = new AsyncLocalStorage();
 // ======= LOGGING HELPERS =======
 
 function getTodayDateString() {
-  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  return todayGMT4().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function todayGMT4() {
+  const now = new Date();
+  const gmt4 = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" })
+  );
+  return gmt4;
 }
 
 function getErrorLogFile() {
@@ -96,7 +115,7 @@ function getCorrelationIdFromContext() {
 }
 
 function logError(message, details = {}) {
-  const timestamp = new Date().toISOString();
+  const timestamp = todayGMT4().toISOString();
   const correlationId = getCorrelationIdFromContext();
 
   const blockLines = [];
@@ -128,7 +147,7 @@ function logError(message, details = {}) {
 }
 
 function logActivity(title, details = {}) {
-  const timestamp = new Date().toISOString();
+  const timestamp = todayGMT4().toISOString();
   const correlationId = getCorrelationIdFromContext();
 
   const blockLines = [];
@@ -160,7 +179,7 @@ function logActivity(title, details = {}) {
 }
 
 function logEvent(eventType, payload = {}, extra = {}) {
-  const timestamp = new Date().toISOString();
+  const timestamp = todayGMT4().toISOString();
   const correlationId = getCorrelationIdFromContext();
 
   const jsonRecord = {
@@ -177,7 +196,7 @@ function logEvent(eventType, payload = {}, extra = {}) {
 
 // NEW: dedicated logger for HTTP routes
 function logRoute(eventType, data = {}) {
-  const timestamp = new Date().toISOString();
+  const timestamp = todayGMT4().toISOString();
   const correlationId = getCorrelationIdFromContext();
 
   const record = {
@@ -192,7 +211,7 @@ function logRoute(eventType, data = {}) {
 
 // NEW: dedicated logger for mqtt/face/basic MQTT IN (non-pending)
 function logBasicNonPending(data = {}) {
-  const timestamp = new Date().toISOString();
+  const timestamp = todayGMT4().toISOString();
 
   const record = {
     timestamp,
@@ -218,7 +237,7 @@ function cleanupOldLogs() {
       if (!match) return;
 
       const dateStr = match[0];
-      const fileTime = new Date(dateStr + "T00:00:00Z").getTime();
+      const fileTime = todayGMT4().getTime();
       if (isNaN(fileTime)) return;
 
       if (now - fileTime > retentionMs) {
@@ -244,7 +263,7 @@ setInterval(cleanupOldLogs, 24 * 60 * 60 * 1000);
 const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
   username: MQTT_USERNAME || undefined,
   password: MQTT_PASSWORD || undefined,
-  clientId: `gateway-${uuidv4()}`,
+  clientId: `gateway-${uniqueId}`,
   keepalive: 30,
 });
 
@@ -445,7 +464,7 @@ class DeviceGateway {
 
   // ======= CORE SEND =======
   sendCommand(deviceId, operator, info = {}, extra = {}, options = {}) {
-    const messageId = extra.messageId || `ID:${uuidv4()}`;
+    const messageId = extra.messageId || `ID:${uniqueId}`;
     const timeoutMs = options.timeoutMs || 15000;
     const expectedOperator = options.expectedAckOperator;
 
@@ -738,7 +757,7 @@ const IGNORE_LOG_ROUTES = new Set([
 
 // CorrelationId + ROUTE logging middleware
 app.use((req, res, next) => {
-  const correlationId = req.headers["x-correlation-id"] || uuidv4();
+  const correlationId = req.headers["x-correlation-id"] || uniqueId;
 
   res.setHeader("X-Correlation-Id", correlationId);
 
