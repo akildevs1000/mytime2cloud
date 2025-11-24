@@ -1,26 +1,17 @@
 <template>
   <div style="width: 100% !important" v-if="can(`employee_upload_access`)">
     <div class="text-center ma-2">
-      <v-snackbar
-        :color="snackbar.color"
-        v-model="snackbar.show"
-        small
-        top="top"
-        :timeout="3000"
-      >
+      <v-snackbar :color="snackbar.color" v-model="snackbar.show" small top="top" :timeout="3000">
         {{ response }}
       </v-snackbar>
     </div>
 
     <v-dialog v-model="dialog.show" max-width="400px">
-      <WidgetsClose
-        left="390"
-        @click="
-          () => {
-            dialog.show = false;
-          }
-        "
-      />
+      <WidgetsClose left="390" @click="
+        () => {
+          dialog.show = false;
+        }
+      " />
       <v-card>
         <v-alert dense flat color="grey lighten-3">
           <span class="gey--text">Response</span>
@@ -37,71 +28,28 @@
         <v-col cols="6">
           <v-toolbar dense flat>
             <v-toolbar-title>
-              <b class="" style="font-size: 18px; font-weight: 600"
-                >Employees upload to Devices</b
-              >
+              <b class="" style="font-size: 18px; font-weight: 600">Employees upload to Devices</b>
             </v-toolbar-title>
           </v-toolbar>
         </v-col>
 
         <v-col cols="6">
           <v-row>
-            <v-col
-              v-if="$auth.user.user_type !== 'department'"
-              class="text-right"
-            >
+            <v-col v-if="$auth.user.user_type !== 'department'" class="text-right">
               <v-toolbar dense flat class="justify-end">
-                <v-select
-                  v-if="isCompany"
-                  @change="filterDepartmentsByBranch($event)"
-                  v-model="branch_id"
-                  :items="[
-                    { branch_name: `All Branches`, id: `` },
-                    ...branchesList,
-                  ]"
-                  dense
-                  outlined
-                  item-value="id"
-                  item-text="branch_name"
-                  hide-details
-                  label="All Branches"
-                  class="shrink-selector"
-                ></v-select>
+                <v-select v-if="isCompany" @change="filterDepartmentsByBranch($event)" v-model="branch_id" :items="[
+                  { branch_name: `All Branches`, id: `` },
+                  ...branchesList,
+                ]" dense outlined item-value="id" item-text="branch_name" hide-details label="All Branches"
+                  class="shrink-selector"></v-select>
 
-                <v-select
-                  class="mx-2 shrink-selector"
-                  @change="loadDepartmentemployees"
-                  v-model="departmentselected"
-                  :items="departments"
-                  dense
-                  outlined
-                  item-value="id"
-                  item-text="name"
-                  hide-details
-                  label="Department"
-                  :search-input.sync="searchInput"
-                ></v-select>
+                <v-select class="mx-2 shrink-selector" @change="loadDepartmentemployees" v-model="departmentselected"
+                  :items="departments" dense outlined item-value="id" item-text="name" hide-details label="Department"
+                  :search-input.sync="searchInput"></v-select>
 
-                <v-select
-                  class="mx-2 shrink-selector"
-                  @change="getDevisesDataFromApi(branch_id)"
-                  v-model="model_number"
-                  :items="[
-                    `OX-866`,
-                    `OX-886`,
-                    `OX-966`,
-                    `OX-900`,
-                    `OX-745`,
-                    `OX-945`,
-                    `OX-1000`,
-                  ]"
-                  dense
-                  outlined
-                  item-value="id"
-                  item-text="name"
-                  hide-details
-                  label="Model Number"
-                ></v-select>
+                <v-select class="mx-2 shrink-selector" @change="getDevisesDataFromApi(branch_id)" v-model="model_number"
+                  :items="deviceModelsList" dense outlined item-value="id" item-text="name" hide-details
+                  label="Model Number"></v-select>
               </v-toolbar>
             </v-col>
           </v-row>
@@ -112,34 +60,17 @@
           <v-card class="photo-displaylist mx-1" style="height: 300px" outlined>
             <div class="pa-2">Employees</div>
             <v-divider />
-            <div
-              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in leftEmployees"
-                  :id="user.id"
-                  v-model="leftEmployees"
-                  :key="user.id"
-                  style="border-bottom: 1px solid #ddd"
-                >
+                <v-row class="timezone-displaylistview1" v-for="(user, index) in leftEmployees" :id="user.id"
+                  v-model="leftEmployees" :key="user.id" style="border-bottom: 1px solid #ddd">
                   <v-col md="1" style="padding: 0px; margin-top: -7px">
-                    <v-checkbox
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox dense small hideDetails v-model="leftSelectedEmp" :value="user.id" primary
+                      hide-details></v-checkbox>
                   </v-col>
 
                   <v-col md="1" style="padding: 0px">
-                    <v-img
-                      :title="user.first_name + ' ' + user.last_name"
-                      style="
+                    <v-img :title="user.first_name + ' ' + user.last_name" style="
                         float: left;
                         border-radius: 50%;
                         height: auto;
@@ -151,13 +82,10 @@
                         margin-left: -3px;
                         width: 25px;
                         border: 1px solid #ddd;
-                      "
-                      :src="
-                        user.profile_picture
-                          ? user.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
+                      " :src="user.profile_picture
+                        ? user.profile_picture
+                        : '/no-profile-image.jpg'
+                        ">
                     </v-img>
                   </v-col>
                   <v-col md="3" style="padding: 0px; padding-top: 5px">
@@ -179,50 +107,20 @@
               Transfer Employees
             </v-btn>
 
-            <button
-              @click="moveToRightEmpOption2"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveToRightEmpOption2" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveToRightEmp"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveToRightEmp" type="button" id="undo_redo_rightAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveToLeftempOption2"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveToLeftempOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveToLeftemp"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveToLeftemp" type="button" id="undo_redo_leftAll" class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -231,34 +129,17 @@
           <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
             <div class="pa-2">Selected Employees</div>
             <v-divider />
-            <div
-              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in rightEmployees"
-                  :id="user.id"
-                  v-model="rightSelectedEmp"
-                  :key="user.id"
-                  style="border-bottom: 1px solid #ddd"
-                >
+                <v-row class="timezone-displaylistview1" v-for="(user, index) in rightEmployees" :id="user.id"
+                  v-model="rightSelectedEmp" :key="user.id" style="border-bottom: 1px solid #ddd">
                   <v-col md="1" style="padding: 0px">
-                    <v-checkbox
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedEmp"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox dense small hideDetails v-model="rightSelectedEmp" :value="user.id" primary
+                      hide-details></v-checkbox>
                   </v-col>
 
                   <v-col md="1" style="padding: 0px">
-                    <v-img
-                      :title="user.first_name + ' ' + user.last_name"
-                      style="
+                    <v-img :title="user.first_name + ' ' + user.last_name" style="
                         float: left;
                         border-radius: 50%;
                         height: auto;
@@ -269,13 +150,10 @@
                         margin-left: -3px;
                         width: 25px;
                         border: 1px solid #ddd;
-                      "
-                      :src="
-                        user.profile_picture
-                          ? user.profile_picture
-                          : '/no-profile-image.jpg'
-                      "
-                    >
+                      " :src="user.profile_picture
+                        ? user.profile_picture
+                        : '/no-profile-image.jpg'
+                        ">
                     </v-img>
                   </v-col>
                   <v-col md="3" style="padding: 0px; padding-top: 5px">
@@ -296,43 +174,15 @@
           <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
             <div class="pa-2">Devices</div>
             <v-divider />
-            <div
-              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in leftDevices"
-                  :id="user.id"
-                  v-model="leftSelectedDevices"
-                  :key="user.id"
-                  style="border-bottom: 1px solid #ddd"
-                >
+                <v-row class="timezone-displaylistview1" v-for="(user, index) in leftDevices" :id="user.id"
+                  v-model="leftSelectedDevices" :key="user.id" style="border-bottom: 1px solid #ddd">
                   <v-col md="1" style="padding: 0px;margin-top-3">
-                    <v-checkbox
-                      v-if="user.status.name == 'active'"
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px;margin-top-3"
-                      v-else
-                      indeterminate
-                      value
-                      disabled
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-if="user.status.name == 'active'" dense small hideDetails
+                      v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox style="padding: 0px;margin-top-3" v-else indeterminate value disabled dense small
+                      hideDetails v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
                   <v-col md="3" style="padding: 0px; padding-top: 5px">
                     {{ user.name }}
@@ -341,18 +191,9 @@
                     {{ user.model_number }}
                   </v-col>
                   <v-col md="3" style="padding: 0px">
-                    <img
-                      title="Online"
-                      v-if="user.status.name == 'active'"
-                      src="/icons/device_status_open.png"
-                      style="width: 30px"
-                    />
-                    <img
-                      title="Offline"
-                      v-else
-                      src="/icons/device_status_close.png"
-                      style="width: 30px"
-                    />
+                    <img title="Online" v-if="user.status.name == 'active'" src="/icons/device_status_open.png"
+                      style="width: 30px" />
+                    <img title="Offline" v-else src="/icons/device_status_close.png" style="width: 30px" />
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -365,50 +206,22 @@
             <v-btn type="button" class="primary mt-8 mb-2" block>
               Transfer Devices
             </v-btn>
-            <button
-              @click="moveToRightDevicesOption2"
-              type="button"
-              id="undo_redo_rightSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--red"
-              ></i>
+            <button @click="moveToRightDevicesOption2" type="button" id="undo_redo_rightSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-right theme--red"></i>
             </button>
 
-            <button
-              @click="allmoveToRightDevices"
-              type="button"
-              id="undo_redo_rightAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-right theme--red"
-              ></i>
+            <button @click="allmoveToRightDevices" type="button" id="undo_redo_rightAll"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-right theme--red"></i>
             </button>
-            <button
-              @click="moveToLeftDevicesOption2"
-              type="button"
-              id="undo_redo_leftSelected"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--red"
-              ></i>
+            <button @click="moveToLeftDevicesOption2" type="button" id="undo_redo_leftSelected"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-left theme--red"></i>
             </button>
-            <button
-              @click="allmoveToLeftDevices"
-              type="button"
-              id="undo_redo_leftAll"
-              class="btn btn-default btn-block"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-double-left theme--red"
-              ></i>
+            <button @click="allmoveToLeftDevices" type="button" id="undo_redo_leftAll"
+              class="btn btn-default btn-block">
+              <i aria-hidden="true" class="v-icon notranslate mdi mdi-chevron-double-left theme--red"></i>
             </button>
           </div>
         </v-col>
@@ -417,43 +230,15 @@
           <v-card class="photo-displaylist mx-1" outlined style="height: 300px">
             <div class="pa-2">Selected Devices</div>
             <v-divider />
-            <div
-              style="max-height: 250px; overflow-y: auto; overflow-x: hidden"
-            >
+            <div style="max-height: 250px; overflow-y: auto; overflow-x: hidden">
               <v-card-text>
-                <v-row
-                  class="timezone-displaylistview1"
-                  v-for="(user, index) in rightDevices"
-                  :id="user.id"
-                  v-model="rightSelectedDevices"
-                  :key="user.id"
-                  style="border-bottom: 1px solid #ddd"
-                >
+                <v-row class="timezone-displaylistview1" v-for="(user, index) in rightDevices" :id="user.id"
+                  v-model="rightSelectedDevices" :key="user.id" style="border-bottom: 1px solid #ddd">
                   <v-col md="1" style="padding: 0px;margin-top-3">
-                    <v-checkbox
-                      v-if="user.status.name == 'active'"
-                      dense
-                      small
-                      hideDetails
-                      v-model="rightSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
-                    <v-checkbox
-                      style="padding: 0px;margin-top-3"
-                      v-else
-                      indeterminate
-                      value
-                      disabled
-                      dense
-                      small
-                      hideDetails
-                      v-model="leftSelectedDevices"
-                      :value="user.id"
-                      primary
-                      hide-details
-                    ></v-checkbox>
+                    <v-checkbox v-if="user.status.name == 'active'" dense small hideDetails
+                      v-model="rightSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
+                    <v-checkbox style="padding: 0px;margin-top-3" v-else indeterminate value disabled dense small
+                      hideDetails v-model="leftSelectedDevices" :value="user.id" primary hide-details></v-checkbox>
                   </v-col>
                   <v-col md="3" style="padding: 0px; padding-top: 5px">
                     {{ user.name }}
@@ -462,11 +247,8 @@
                     {{ user.model_number }}
                   </v-col>
                   <v-col md="3" style="padding: 0px">
-                    <span
-                      v-if="user.sdkDeviceResponse == 'Success'"
-                      style="color: green"
-                      >{{ user.sdkDeviceResponse }}</span
-                    >
+                    <span v-if="user.sdkDeviceResponse == 'Success'" style="color: green">{{ user.sdkDeviceResponse
+                      }}</span>
                     <span v-else style="color: red">{{
                       user.sdkDeviceResponse
                     }}</span>
@@ -478,35 +260,20 @@
         </v-col>
       </v-row>
       <v-row class="mx-1">
-        <v-progress-linear
-          v-if="progressloading"
-          :active="loading"
-          :indeterminate="loading"
-          absolute
-          color="primary"
-        ></v-progress-linear>
+        <v-progress-linear v-if="progressloading" :active="loading" :indeterminate="loading" absolute
+          color="primary"></v-progress-linear>
         <v-col cols="12" class="text-center">
           <span v-if="errors && errors.message" class="text-danger mt-2">{{
             errors.message
           }}</span>
           <!-- <v-btn class="grey" @click="goback" small dark> Back </v-btn> -->
-          <v-btn
-            v-if="can('employee_upload_create')"
-            small
-            class="primary"
-            :disabled="!displaybutton"
-            :loading="loading"
-            @click="onSubmit"
-          >
+          <v-btn v-if="can('employee_upload_create')" small class="primary" :disabled="!displaybutton"
+            :loading="loading" @click="onSubmit">
             Submit
           </v-btn>
 
-          <UploadPersonResponse
-            ref="UploadPersonRef"
-            :deviceResponses="deviceResponses"
-            :cameraResponses="cameraResponses"
-            :cameraResponses2="cameraResponses2"
-          />
+          <UploadPersonResponse ref="UploadPersonRef" :deviceResponses="deviceResponses"
+            :cameraResponses="cameraResponses" :cameraResponses2="cameraResponses2" />
         </v-col>
       </v-row>
     </v-card>
@@ -577,6 +344,7 @@ export default {
           cols: ["id", "name"],
         },
       },
+      deviceModelsList: [],
     };
   },
   computed: {
@@ -628,8 +396,18 @@ export default {
     }
     this.progressloading = true;
     await this.filterDepartmentsByBranch(this.branch_id);
+    await this.getDeviceModelsList();
   },
   methods: {
+    async getDeviceModelsList() {
+      try {
+        const { data } = await this.$axios.get(`device-models-list`);
+        this.deviceModelsList = ["All Models", ...data];
+      } catch (error) {
+        console.error("Error fetching device models list", error);
+        return [];
+      }
+    },
     log(message, className = "default") {
       const now = new Date().toLocaleTimeString();
       const newEntry = {
@@ -717,7 +495,7 @@ export default {
       await this.getEmployeesDataFromApi(branch_id);
       await this.getTimezonesFromApi(branch_id);
     },
-    fetch_logs() {},
+    fetch_logs() { },
     loadDepartmentemployees() {
       //this.loading = true;
       // let page = this.pagination.current;
@@ -810,7 +588,7 @@ export default {
           company_id: this.$auth.user.company_id,
           sortBy: "status_id",
           branch_id: branch_id,
-          model_number: this.model_number,
+          model_number: this.model_number == "All Models" ? null : this.model_number,
           //cols: ["id", "location", "name", "device_id", "status:id"],
         },
       };
@@ -977,7 +755,7 @@ export default {
       this.rightSelectedEmp.pop(id);
       this.verifySubmitButton();
     },
-    check: function (id, e) {},
+    check: function (id, e) { },
     selectLeftEmployee(id) {
       this.leftSelectedEmp.push(id);
     },

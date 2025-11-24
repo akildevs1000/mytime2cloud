@@ -9,19 +9,22 @@ use App\Models\Device; // assume you have devices table with `device_id` and `ti
 
 class FaceDeviceController extends Controller
 {
-    protected string $gatewayBase;
+    protected string $gatewayBase1;
 
-    public function __construct()
+    // public function gatewayBase()
+    // {
+    //     return  rtrim(
+    //         config('services.mqtt_gateway.url', env('MQTT_GATEWAY_URL', 'http://127.0.0.1:4000')),
+    //         '/'
+    //     );
+    // }
+
+    public function gatewayRequest(string $method, string $path, array $body = [], array $query = [])
     {
-        $this->gatewayBase = rtrim(
+        $url =  rtrim(
             config('services.mqtt_gateway.url', env('MQTT_GATEWAY_URL', 'http://127.0.0.1:4000')),
             '/'
-        );
-    }
-
-    protected function gatewayRequest(string $method, string $path, array $body = [], array $query = [])
-    {
-        $url = $this->gatewayBase . '/' . ltrim($path, '/');
+        ) . '/' . ltrim($path, '/');
         $client = Http::acceptJson();
 
         if (!empty($query)) {
@@ -70,35 +73,54 @@ class FaceDeviceController extends Controller
     }
 
     /* 4. Device get timezone (App-level, not MQTT) */
-    public function getTimezone(string $deviceId)
-    {
-        $device = Device::where('device_id', $deviceId)->first();
+    // public function getTimezone(string $deviceId)
+    // {
+    //     $device = Device::where('device_id', $deviceId)->first();
 
-        return response()->json([
-            'device_id' => $deviceId,
-            'timezone'  => $device->timezone ?? 'Asia/Dubai',
-        ]);
-    }
+    //     return response()->json([
+    //         'device_id' => $deviceId,
+    //         'timezone'  => $device->timezone ?? 'Asia/Dubai',
+    //     ]);
+    // }
 
     /* 5. Device set timezone (App-level, not MQTT) */
-    public function setTimezone(Request $request, string $deviceId)
-    {
-        $request->validate([
-            'timezone' => 'required|timezone',
-        ]);
+    // public function setTimezone(Request $request, string $deviceId)
+    // {
+    //     $request->validate([
+    //         'timezone' => 'required|timezone',
+    //     ]);
 
-        $device = Device::firstOrCreate(['device_id' => $deviceId]);
-        $device->timezone = $request->input('timezone');
-        $device->save();
+    //     $device = Device::firstOrCreate(['device_id' => $deviceId]);
+    //     $device->timezone = $request->input('timezone');
+    //     $device->save();
 
-        return response()->json([
-            'message'  => 'Timezone updated',
-            'device_id' => $deviceId,
-            'timezone' => $device->timezone,
-        ]);
-    }
+    //     return response()->json([
+    //         'message'  => 'Timezone updated',
+    //         'device_id' => $deviceId,
+    //         'timezone' => $device->timezone,
+    //     ]);
+    // }
 
-    /* 6. Device get time (GetSysTime) */
+    // /* 6. Device get time (GetSysTime) */
+    // public function getTimezone(string $deviceId)
+    // {
+    //     return $this->gatewayRequest('GET', "api/device/{$deviceId}/time");
+    // }
+
+    // /* 6. Device set time (SetSysTime) */
+    // public function setTimezone(Request $request, string $deviceId)
+    // {
+
+
+    //     $request->validate([
+    //         'sysTime' => 'required|string',
+    //     ]);
+
+    //     return $this->gatewayRequest('POST', "api/device/{$deviceId}/time", [
+    //         'sysTime' => $request->input('sysTime'),
+    //     ]);
+    // }
+
     public function getTime(string $deviceId)
     {
         return $this->gatewayRequest('GET', "api/device/{$deviceId}/time");
@@ -107,6 +129,8 @@ class FaceDeviceController extends Controller
     /* 6. Device set time (SetSysTime) */
     public function setTime(Request $request, string $deviceId)
     {
+
+
         $request->validate([
             'sysTime' => 'required|string',
         ]);

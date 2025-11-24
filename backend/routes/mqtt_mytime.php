@@ -3,7 +3,7 @@
 use App\Http\Controllers\Mqtt\FaceDeviceController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('face-device/{deviceId}')->group(function () {
+Route::prefix('mytimemqtt-device/{deviceId}')->group(function () {
 
     // 1. Status
     Route::get('/status', [FaceDeviceController::class, 'getStatus']);

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Mqtt\FaceDeviceController;
+
 use App\Http\Requests\Device\StoreRequest;
 use App\Http\Requests\Device\UpdateRequest;
 use App\Mail\EmailNotificationForOfflineDevices;
@@ -11,6 +13,7 @@ use App\Models\AttendanceLog;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceActivesettings;
+use App\Models\DeviceModels;
 use App\Models\DeviceNotification;
 use App\Models\DeviceNotificationsLog;
 use App\Models\DevicesActiveWeeklySettings;
@@ -42,6 +45,13 @@ class DeviceController extends Controller
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name", "location", "device_id", "device_type", "short_name", "status_id"]);
+    }
+    public function deviceModelsdropdownList()
+    {
+        $model = DeviceModels::query();
+
+        $model->orderBy("model_name", "asc");
+        return $model->pluck("model_name");
     }
 
     public function index(Request $request)
@@ -839,6 +849,23 @@ class DeviceController extends Controller
             } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->openDoor($device);
                 return $this->response('Open Door Command Successfull',  null, true);
+            } else  if ($device->model_number == 'MYTIME1') {
+
+
+                try {
+                    (new FaceDeviceController())
+                        ->gatewayRequest('POST', "api/device/{$device->device_id}/open-door");
+
+                    return $this->response('Open Door Command Successfull',  null, true);
+                } catch (\Exception $e) {
+                    return $this->response(
+                        $e->getMessage() . " - Unknown error occurred. Please try again after 1 minute or contact the technical team.",
+                        null,
+                        false
+                    );
+                }
+
+                return $this->response('Open Door Command Successfull',  null, true);
             } else {
 
                 $url = env('SDK_URL') . "/$request->device_id/OpenDoor";
@@ -976,6 +1003,23 @@ class DeviceController extends Controller
             } else  if ($device->model_number == 'OX-900') {
                 (new DeviceCameraModel2Controller($device->camera_sdk_url))->closeDoor($device);
                 return $this->response('Close Door Command Successfull',  null, true);
+            } else  if ($device->model_number == 'MYTIME1') {
+
+
+                try {
+                    (new FaceDeviceController())
+                        ->gatewayRequest('POST', "api/device/{$device->device_id}/close-door");
+
+                    return $this->response('Close Door Command Successfull',  null, true);
+                } catch (\Exception $e) {
+                    return $this->response(
+                        "   Unknown error occurred. Please try again after 1 minute or contact the technical team.",
+                        null,
+                        false
+                    );
+                }
+
+                return $this->response('Close Door Command Successfull',  null, true);
             } else {
 
 
@@ -1078,6 +1122,26 @@ class DeviceController extends Controller
 
             if ($device->model_number == 'OX-900') {
                 return (new DeviceCameraModel2Controller($device->camera_sdk_url))->updateTimeZone($device);
+            } else  if ($device->model_number == 'MYTIME1') {
+
+
+                try {
+                    $currentDateTime = (new DateTime("now", new DateTimeZone($device->utc_time_zone)))->format('Y-m-d H:i:s');
+
+                    $currentDateTime = str_replace(' ', 'T', $currentDateTime);
+
+                    (new FaceDeviceController())
+                        ->gatewayRequest('POST', "api/device/{$device->device_id}/timezone", [
+                            'sysTime' => $currentDateTime,
+                        ]);
+                    return $this->response('Time   synced to the Device.', null, false);
+                } catch (\Exception $e) {
+                    return $this->response(
+                        "   Unknown error occurred. Please try again after 1 minute or contact the technical team.",
+                        null,
+                        false
+                    );
+                }
             } else {
                 $sdkResponse = (new SDKController)->processSDKRequestSettingsUpdateTime($device_id, $currentDateTime);
             }
@@ -1139,7 +1203,7 @@ class DeviceController extends Controller
         $company_id = (int)$company_id;
         if ($company_id > 0) {
             $statusCounts = Device::where('company_id', $company_id)
-                ->when(request()->filled("branch_ids"), function ($q){
+                ->when(request()->filled("branch_ids"), function ($q) {
                     $q->whereIn("branch_id", request("branch_ids"));
                 })
                 ->whereIn('status_id', [1, 2])
