@@ -290,7 +290,7 @@ class MonthlyController extends Controller
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
-        if (request("shift_type_id", 0) == 2) {
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
             return $this->PDFMerge();
         }
 
