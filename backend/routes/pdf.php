@@ -84,7 +84,7 @@ Route::get('/daily_download_csv', [ReportController::class, 'general_download_cs
 //multi in out
 // -> csv
 Route::get('/multi_in_out_daily_download_csv', [ReportController::class, 'multi_in_out_daily_download_csv']);
-Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'multi_in_out_monthly_download_csv']);
+Route::get('/multi_in_out_monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
 Route::get('/multi_in_out_weekly_download_csv', [WeeklyController::class, 'multi_in_out_weekly_download_csv']);
 
 // -> pdf view

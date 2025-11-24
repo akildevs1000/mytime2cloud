@@ -13,10 +13,12 @@ use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAutoSize
 {
     protected $query;
+    protected $colLength;
 
-    public function __construct(Builder|\Illuminate\Database\Eloquent\Builder $query)
+    public function __construct(Builder|\Illuminate\Database\Eloquent\Builder $query, $colLength)
     {
         $this->query = $query;
+        $this->colLength = $colLength;
     }
 
     public function query()
@@ -27,40 +29,44 @@ class AttendanceExport implements FromQuery, WithMapping, WithHeadings, ShouldAu
 
     public function headings(): array
     {
-        return [
+        $logArray = [
             "Date",
             "E.ID",
             "Full Name",
             "Department",
             "Position",
-            "In1", "Out1",
-            "In2", "Out2",
-            "In3", "Out3",
-            "In4", "Out4",
-            "In5", "Out5",
-            "In6", "Out6",
-            "In7", "Out7",
+
+        ];
+
+        foreach (range(0, $this->colLength - 1) as $index) {
+            $itemNumber = $index + 1;
+            $logArray[] = "in$itemNumber" ?? "---";
+            $logArray[] = "out$itemNumber" ?? "---";
+        }
+
+        return array_merge($logArray, [
             "Total Hrs",
             "OT",
-            "Status",
-        ];
+            "Status"
+        ]);
     }
 
     public function map($row): array
     {
+
         // Append default log values if logs are missing
         $logArray = [];
 
         $logs = $row->logs ?? [];
         $count = count($logs);
 
-        if ($count < 7) {
-            for ($i = $count; $i < 7; $i++) {
+        if ($count < $this->colLength) {
+            for ($i = $count; $i < $this->colLength; $i++) {
                 $logs[] = null;
             }
         }
 
-        foreach (range(0, 6) as $index) {
+        foreach (range(0, $this->colLength - 1) as $index) {
             $logArray[] = $logs[$index]["in"] ?? "---";
             $logArray[] = $logs[$index]["out"] ?? "---";
         }
