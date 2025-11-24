@@ -1,0 +1,18 @@
+---- ACTIVITY ------------------------------------
+Time         : 2025-11-24T11:10:50.171Z
+Title        : Device Online
+Details      : {"topic":"mqtt/face/basic","deviceId":"1601116"}
+--------------------------------------------------
+
+---- ACTIVITY ------------------------------------
+Time         : 2025-11-24T11:10:50.182Z
+Title        : MQTT IN (non-pending)
+Details      : {"topic":"mqtt/face/1601116","operator":"Online-Ack","messageId":null,"deviceId":"1601116"}
+--------------------------------------------------
+
+---- ACTIVITY ------------------------------------
+Time         : 2025-11-24T11:10:50.434Z
+Title        : MQTT IN (non-pending)
+Details      : {"topic":"mqtt/face/heartbeat","operator":"HeartBeat","messageId":null,"deviceId":"1601116"}
+--------------------------------------------------
+

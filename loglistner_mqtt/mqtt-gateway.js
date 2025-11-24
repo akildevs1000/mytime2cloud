@@ -1,31 +1,267 @@
-// device-gateway.js
-// Class-based MQTT gateway for face terminals
-// Express HTTP API for Laravel to call
+// mqtt-gateway.js
+// HTTP -> MQTT gateway for FRT/face devices
+// Features:
+// - 12 device operations (status, open door, time, person CRUD/list/search)
+// - Env-based topic prefix (MQTT_TOPIC_PREFIX)
+// - Error & activity logs (daily rotated files)
+// - JSON logs (error/activity/events/route/basic-nonpending)
+// - Log retention (LOG_RETENTION_DAYS)
+// - CorrelationId per HTTP request
+// - Device event logging
+// - JSON log endpoints (no UI)
 
 const mqtt = require("mqtt");
 const express = require("express");
 const cors = require("cors");
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+const http = require("http");
 const { v4: uuidv4 } = require("uuid");
+const { AsyncLocalStorage } = require("async_hooks");
 
-// ========== CONFIG ==========
-const MQTT_HOST = process.env.MQTT_HOST || "mqtt://127.0.0.1";
+// ======= CONFIG =======
+const MQTT_HOST = process.env.MQTT_HOST || "mqtt://192.168.2.55";
 const MQTT_PORT = process.env.MQTT_PORT || 1883;
-const MQTT_USERNAME = process.env.MQTT_USERNAME || "admin";
-const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "123456";
+const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
+const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
+
+// Topic prefix: e.g. "mqtt/face"
+const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || "mqtt/face";
 
 const HTTP_PORT = process.env.HTTP_PORT || 4000;
 
-// ========== DEVICE GATEWAY CLASS ==========
+// Log directory + retention
+const LOG_DIR = process.env.LOG_DIR || path.join(__dirname, "logs");
+const LOG_RETENTION_DAYS = parseInt(process.env.LOG_RETENTION_DAYS || "30", 10);
 
+// Ensure log dir exists
+if (!fs.existsSync(LOG_DIR)) {
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+}
+
+// ======= ASYNC CONTEXT (for correlationId) =======
+const requestContext = new AsyncLocalStorage();
+
+// ======= LOGGING HELPERS =======
+
+function getTodayDateString() {
+  return new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+}
+
+function getErrorLogFile() {
+  return path.join(LOG_DIR, `mqtt-error-${getTodayDateString()}.log`);
+}
+
+function getActivityLogFile() {
+  return path.join(LOG_DIR, `mqtt-activity-${getTodayDateString()}.log`);
+}
+
+function getErrorJsonLogFile() {
+  return path.join(LOG_DIR, `mqtt-error-json-${getTodayDateString()}.log`);
+}
+
+function getActivityJsonLogFile() {
+  return path.join(LOG_DIR, `mqtt-activity-json-${getTodayDateString()}.log`);
+}
+
+function getEventsJsonLogFile() {
+  return path.join(LOG_DIR, `mqtt-events-json-${getTodayDateString()}.log`);
+}
+
+// NEW: dedicated log for HTTP routes (requests/responses)
+function getRouteJsonLogFile() {
+  return path.join(LOG_DIR, `mqtt-route-json-${getTodayDateString()}.log`);
+}
+
+// NEW: dedicated log for mqtt/face/basic MQTT IN (non-pending)
+function getBasicNonPendingJsonLogFile() {
+  return path.join(
+    LOG_DIR,
+    `mqtt-basic-nonpending-json-${getTodayDateString()}.log`
+  );
+}
+
+function safeAppend(filePath, content) {
+  try {
+    fs.appendFileSync(filePath, content);
+  } catch (e) {
+    console.error("❌ FAILED to write log:", e.message);
+  }
+}
+
+function getCorrelationIdFromContext() {
+  const store = requestContext.getStore();
+  return store && store.correlationId ? store.correlationId : null;
+}
+
+function logError(message, details = {}) {
+  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationIdFromContext();
+
+  const blockLines = [];
+  blockLines.push("==== ERROR =======================================");
+  blockLines.push(`Time         : ${timestamp}`);
+  if (correlationId) {
+    blockLines.push(`CorrelationId: ${correlationId}`);
+  }
+  blockLines.push(`Message      : ${message}`);
+  if (details && Object.keys(details).length > 0) {
+    blockLines.push("Details      : " + JSON.stringify(details));
+  }
+  blockLines.push("=================================================");
+  blockLines.push("");
+
+  safeAppend(getErrorLogFile(), blockLines.join(os.EOL) + os.EOL);
+
+  const jsonRecord = {
+    level: "ERROR",
+    timestamp,
+    message,
+    correlationId: correlationId || undefined,
+    ...details,
+  };
+
+  safeAppend(getErrorJsonLogFile(), JSON.stringify(jsonRecord) + os.EOL);
+
+  console.error("❌ ERROR:", message, details || "");
+}
+
+function logActivity(title, details = {}) {
+  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationIdFromContext();
+
+  const blockLines = [];
+  blockLines.push("---- ACTIVITY ------------------------------------");
+  blockLines.push(`Time         : ${timestamp}`);
+  if (correlationId) {
+    blockLines.push(`CorrelationId: ${correlationId}`);
+  }
+  blockLines.push(`Title        : ${title}`);
+  if (details && Object.keys(details).length > 0) {
+    blockLines.push("Details      : " + JSON.stringify(details));
+  }
+  blockLines.push("--------------------------------------------------");
+  blockLines.push("");
+
+  safeAppend(getActivityLogFile(), blockLines.join(os.EOL) + os.EOL);
+
+  const jsonRecord = {
+    level: "INFO",
+    timestamp,
+    title,
+    correlationId: correlationId || undefined,
+    ...details,
+  };
+
+  safeAppend(getActivityJsonLogFile(), JSON.stringify(jsonRecord) + os.EOL);
+
+  console.log("📘 ACTIVITY:", title);
+}
+
+function logEvent(eventType, payload = {}, extra = {}) {
+  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationIdFromContext();
+
+  const jsonRecord = {
+    level: "EVENT",
+    timestamp,
+    eventType,
+    correlationId: correlationId || undefined,
+    payload,
+    ...extra,
+  };
+
+  safeAppend(getEventsJsonLogFile(), JSON.stringify(jsonRecord) + os.EOL);
+}
+
+// NEW: dedicated logger for HTTP routes
+function logRoute(eventType, data = {}) {
+  const timestamp = new Date().toISOString();
+  const correlationId = getCorrelationIdFromContext();
+
+  const record = {
+    timestamp,
+    eventType,
+    correlationId,
+    ...data,
+  };
+
+  safeAppend(getRouteJsonLogFile(), JSON.stringify(record) + os.EOL);
+}
+
+// NEW: dedicated logger for mqtt/face/basic MQTT IN (non-pending)
+function logBasicNonPending(data = {}) {
+  const timestamp = new Date().toISOString();
+
+  const record = {
+    timestamp,
+    source: `${MQTT_TOPIC_PREFIX}/basic`,
+    ...data,
+  };
+
+  safeAppend(getBasicNonPendingJsonLogFile(), JSON.stringify(record) + os.EOL);
+}
+
+// Cleanup old log files
+function cleanupOldLogs() {
+  try {
+    const now = Date.now();
+    const retentionMs = LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
+    const files = fs.readdirSync(LOG_DIR);
+    files.forEach((file) => {
+      if (!file.startsWith("mqtt-") || !file.endsWith(".log")) return;
+
+      // Try to find YYYY-MM-DD in file name
+      const match = file.match(/\d{4}-\d{2}-\d{2}/);
+      if (!match) return;
+
+      const dateStr = match[0];
+      const fileTime = new Date(dateStr + "T00:00:00Z").getTime();
+      if (isNaN(fileTime)) return;
+
+      if (now - fileTime > retentionMs) {
+        const fullPath = path.join(LOG_DIR, file);
+        try {
+          fs.unlinkSync(fullPath);
+          console.log("🧹 Deleted old log:", fullPath);
+        } catch (e) {
+          console.error("❌ Failed to delete log", fullPath, e.message);
+        }
+      }
+    });
+  } catch (e) {
+    console.error("❌ Error during log cleanup:", e.message);
+  }
+}
+
+// Run cleanup at startup and once per day
+cleanupOldLogs();
+setInterval(cleanupOldLogs, 24 * 60 * 60 * 1000);
+
+// ======= MQTT CLIENT =======
+const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
+  username: MQTT_USERNAME || undefined,
+  password: MQTT_PASSWORD || undefined,
+  clientId: `gateway-${uuidv4()}`,
+  keepalive: 30,
+});
+
+// ======= DEVICE GATEWAY CLASS =======
 class DeviceGateway {
-  /**
-   * @param {mqtt.MqttClient} client
-   */
   constructor(client) {
     this.client = client;
 
-    /** @type {Map<string, {resolve, reject, timeout, expectedOperator?: string}>} */
+    // messageId -> {resolve, reject, timeout, expectedOperator}
     this.pendingRequests = new Map();
+
+    // facesluiceId -> {online,lastOnline,lastOffline,lastHeartbeat}
+    this.deviceStatus = {};
+
+    // For EditPerson queue (must wait for Ack)
+    this.personQueue = [];
+    this.isProcessingPerson = false;
 
     this._setupListeners();
   }
@@ -33,65 +269,181 @@ class DeviceGateway {
   _setupListeners() {
     this.client.on("connect", () => {
       console.log("✅ MQTT connected");
-
-      // subscribe to device upstream topics
-      // Adjust patterns according to protocol
-      this.client.subscribe("mytimemqttattendance/face/heartbeat");
-      this.client.subscribe("mytimemqttattendance/face/basic");
-
-      // Ack + logs per device
-      this.client.subscribe("mytimemqttattendance/face/+/Ack");
-      this.client.subscribe("mytimemqttattendance/face/+/Rec");
-      this.client.subscribe("mytimemqttattendance/face/+/Snap");
-      this.client.subscribe("mytimemqttattendance/face/+/Alarm");
+      const subTopic = `${MQTT_TOPIC_PREFIX}/#`;
+      this.client.subscribe(subTopic, (err) => {
+        if (err) {
+          logError("Failed to subscribe to MQTT topic", {
+            topic: subTopic,
+            error: err.message,
+          });
+        } else {
+          console.log("🔎 Subscribed", subTopic);
+        }
+      });
     });
 
     this.client.on("error", (err) => {
-      console.error("❌ MQTT error:", err.message);
+      logError("MQTT error", { error: err.message });
     });
 
     this.client.on("message", (topic, messageBuf) => {
       let payload;
       try {
         payload = JSON.parse(messageBuf.toString());
-      } catch (err) {
-        console.error("❌ Invalid JSON from MQTT:", topic, err.message);
+      } catch (e) {
+        logError("Invalid JSON from MQTT", {
+          topic,
+          raw: messageBuf.toString().slice(0, 200),
+          error: e.message,
+        });
         return;
       }
 
-      const { operator, messageId } = payload || {};
-      // console.log("MQTT IN:", topic, operator, messageId);
+      const { operator, messageId, info = {} } = payload;
+      const facesluiceId = info.facesluiceId;
+      const now = Date.now();
 
-      if (messageId && this.pendingRequests.has(messageId)) {
-        const entry = this.pendingRequests.get(messageId);
-        this.pendingRequests.delete(messageId);
-        clearTimeout(entry.timeout);
-
-        if (entry.expectedOperator && entry.expectedOperator !== operator) {
-          return entry.reject(
-            new Error(
-              `Unexpected operator for messageId ${messageId}. Expected ${entry.expectedOperator}, got ${operator}`
-            )
-          );
-        }
-
-        entry.resolve(payload);
+      // Determine deviceId & subTopicSuffix from topic based on prefix
+      let deviceId = null;
+      let subTopicSuffix = null;
+      if (topic.startsWith(MQTT_TOPIC_PREFIX + "/")) {
+        const rest = topic.slice(MQTT_TOPIC_PREFIX.length + 1); // after "mqtt/face/"
+        const parts = rest.split("/");
+        deviceId = parts[0] || null;
+        subTopicSuffix = parts.slice(1).join("/") || "";
       }
 
-      // Here you can also forward Rec/Snap/Alarm to a websocket or DB if you want.
+      // ---- STATUS HANDLING (Online / Offline / Heartbeat) ----
+      // Heartbeat over MQTT (if used)
+      if (topic === `${MQTT_TOPIC_PREFIX}/heartbeat` && facesluiceId) {
+        this.deviceStatus[facesluiceId] = {
+          ...(this.deviceStatus[facesluiceId] || {}),
+          lastHeartbeat: now,
+        };
+      }
+
+      // Online/Offline on basic topic
+      if (topic === `${MQTT_TOPIC_PREFIX}/basic` && facesluiceId) {
+        if (operator === "Online") {
+          this.deviceStatus[facesluiceId] = {
+            ...(this.deviceStatus[facesluiceId] || {}),
+            online: true,
+            lastOnline: now,
+          };
+
+          // Send Online-Ack to device
+          const ackPayload = {
+            operator: "Online-Ack",
+            info: { facesluiceId },
+          };
+          const downTopic = `${MQTT_TOPIC_PREFIX}/${facesluiceId}`;
+          this.client.publish(downTopic, JSON.stringify(ackPayload));
+
+          logActivity("Device Online", {
+            topic,
+            deviceId: facesluiceId,
+          });
+        }
+
+        if (operator === "Offline") {
+          this.deviceStatus[facesluiceId] = {
+            ...(this.deviceStatus[facesluiceId] || {}),
+            online: false,
+            lastOffline: now,
+          };
+          logActivity("Device Offline", {
+            topic,
+            deviceId: facesluiceId,
+          });
+        }
+      }
+
+      // ---- DEVICE EVENT LISTENER (QRCode / Card / Alarm etc.) ----
+      const eventOperators = new Set([
+        "QRCodePush",
+        "CardPush",
+        "AlarmInfoPush",
+      ]);
+      const isEvent =
+        eventOperators.has(operator) ||
+        subTopicSuffix === "QRCode" ||
+        subTopicSuffix === "Card" ||
+        subTopicSuffix === "Alarm";
+
+      if (isEvent) {
+        logEvent(operator || "DeviceEvent", payload, {
+          topic,
+          deviceId: facesluiceId || deviceId || null,
+        });
+      }
+
+      // ---- ACK HANDLING (with echo-fix) ----
+      if (messageId && this.pendingRequests.has(messageId)) {
+        const entry = this.pendingRequests.get(messageId);
+        const { expectedOperator, timeout } = entry;
+
+        // Log inbound ack candidate (small summary only)
+        logActivity("MQTT IN (Ack candidate)", {
+          topic,
+          operator,
+          messageId,
+          deviceId: facesluiceId || deviceId || null,
+        });
+
+        if (expectedOperator) {
+          if (operator !== expectedOperator) {
+            // Check if this is just an echo: operator === expectedOperator with "-Ack" removed
+            const baseExpected = expectedOperator.endsWith("-Ack")
+              ? expectedOperator.slice(0, -4)
+              : expectedOperator;
+
+            const isEcho = operator === baseExpected;
+
+            if (isEcho) {
+              // Ignore echo, wait for real Ack
+              return;
+            }
+
+            // Not echo and not expected → error
+            this.pendingRequests.delete(messageId);
+            clearTimeout(timeout);
+            const msg = `Unexpected operator for messageId ${messageId}. Expected ${expectedOperator}, got ${operator}`;
+            logError(msg, { topic, operator, expectedOperator, messageId });
+            entry.reject(new Error(msg));
+            return;
+          }
+        }
+
+        // Correct Ack received
+        this.pendingRequests.delete(messageId);
+        clearTimeout(timeout);
+        entry.resolve(payload);
+        return;
+      }
+
+      // ---- MQTT IN (non-pending) ----
+      // If mqtt/face/basic → separate basic-nonpending log
+      if (topic === `${MQTT_TOPIC_PREFIX}/basic`) {
+        logBasicNonPending({
+          topic,
+          operator,
+          messageId: messageId || null,
+          deviceId: facesluiceId || deviceId || null,
+          summary: "MQTT IN (non-pending) for basic",
+        });
+      } else {
+        // Others go to normal activity log (summary only)
+        logActivity("MQTT IN (non-pending)", {
+          topic,
+          operator,
+          messageId: messageId || null,
+          deviceId: facesluiceId || deviceId || null,
+        });
+      }
     });
   }
 
-  /**
-   * Core method to send a command to the device and wait for Ack.
-   *
-   * @param {string} deviceId
-   * @param {string} operator
-   * @param {object} info
-   * @param {object} extra
-   * @param {object} options { expectedAckOperator?: string, timeoutMs?: number }
-   * @returns {Promise<object>}
-   */
+  // ======= CORE SEND =======
   sendCommand(deviceId, operator, info = {}, extra = {}, options = {}) {
     const messageId = extra.messageId || `ID:${uuidv4()}`;
     const timeoutMs = options.timeoutMs || 15000;
@@ -104,12 +456,20 @@ class DeviceGateway {
       ...extra,
     };
 
-    const topicDown = `mytimemqttattendance/face/${deviceId}`;
+    const topicDown = `${MQTT_TOPIC_PREFIX}/${deviceId}`;
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(messageId);
-        reject(new Error(`Timeout waiting for Ack for messageId ${messageId}`));
+        const err = new Error(
+          `Timeout waiting for Ack for messageId ${messageId}`
+        );
+        logError(err.message, {
+          operator,
+          deviceId,
+          messageId,
+        });
+        reject(err);
       }, timeoutMs);
 
       this.pendingRequests.set(messageId, {
@@ -118,7 +478,16 @@ class DeviceGateway {
         timeout,
         expectedOperator,
       });
-      console.log("MQTT OUT:", topicDown, operator, messageId, payload);
+
+      logActivity("MQTT OUT (command)", {
+        topic: topicDown,
+        operator,
+        deviceId,
+        messageId,
+        info,
+        extra,
+      });
+
       this.client.publish(
         topicDown,
         JSON.stringify(payload),
@@ -127,6 +496,13 @@ class DeviceGateway {
           if (err) {
             clearTimeout(timeout);
             this.pendingRequests.delete(messageId);
+            logError("MQTT publish failed", {
+              topic: topicDown,
+              operator,
+              deviceId,
+              messageId,
+              error: err.message,
+            });
             return reject(err);
           }
         }
@@ -134,80 +510,94 @@ class DeviceGateway {
     });
   }
 
-  // ========== High-Level Methods (match Laravel & Postman) ==========
+  // =========================================================
+  // 1. Device Online Status
+  // =========================================================
+  getStatus(deviceId) {
+    const s = this.deviceStatus[deviceId] || {};
+    const now = Date.now();
+    const ONLINE_TIMEOUT = 120000; // 2 minutes
 
-  // ---- Door Control ----
+    let online = !!s.online;
+    if (s.lastHeartbeat && now - s.lastHeartbeat < ONLINE_TIMEOUT) {
+      online = true;
+    }
 
+    return {
+      deviceId,
+      online,
+      lastOnline: s.lastOnline || null,
+      lastOffline: s.lastOffline || null,
+      lastHeartbeat: s.lastHeartbeat || null,
+    };
+  }
+
+  // =========================================================
+  // 2. Door Open (Unlock / Unlock-Ack)
+  // =========================================================
   async openDoor(deviceId) {
     return this.sendCommand(
       deviceId,
-      "OpenDoor",
-      { facesluiceId: deviceId },
+      "Unlock",
+      {
+        facesluiceId: deviceId,
+        openDoor: 1,
+        showInfo: "Welcome",
+      },
       {},
-      { expectedAckOperator: "OpenDoor-Ack" }
+      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 }
     );
   }
 
-  // Optional: if you implement any custom "close door" behaviour on device
+  // =========================================================
+  // 3. Door Close (NOT SUPPORTED by protocol)
+  // =========================================================
   async closeDoor(deviceId) {
-    // Many protocols don't have an explicit CloseDoor operator.
-    // You can either not implement this or map it to a custom function.
-    return this.sendCommand(
+    // No real CloseDoor command; inform caller.
+    return {
+      code: 501,
+      message:
+        "Door close command not supported by device. Door will auto-close based on IOStayTime.",
       deviceId,
-      "CloseDoor",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "CloseDoor-Ack" }
-    );
+    };
   }
 
-  async getDoorConfig(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "GetDoorconfig",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "GetDoorconfig-Ack" }
-    );
-  }
-
-  async setDoorConfig(deviceId, config) {
-    return this.sendCommand(
-      deviceId,
-      "UpDoorconfig",
-      { facesluiceId: deviceId, ...config },
-      {},
-      { expectedAckOperator: "UpDoorconfig-Ack" }
-    );
-  }
-
-  // ---- Time / Timezone ----
-
+  // =========================================================
+  // 6. Get / Set Time (GetSysTime / SetSysTime)
+  // =========================================================
   async getTime(deviceId) {
     return this.sendCommand(
       deviceId,
       "GetSysTime",
       { facesluiceId: deviceId },
       {},
-      { expectedAckOperator: "GetSysTime-Ack" }
+      { expectedAckOperator: "GetSysTime-Ack", timeoutMs: 15000 }
     );
   }
 
   async setTime(deviceId, sysTime) {
-    // sysTime like "2025-11-22T18:30:00"
+    // sysTime example: "2025-11-22T18:30:00"
     return this.sendCommand(
       deviceId,
       "SetSysTime",
-      { facesluiceId: deviceId, sysTime },
+      { facesluiceId: deviceId, SysTime: sysTime },
       {},
-      { expectedAckOperator: "SetSysTime-Ack" }
+      { expectedAckOperator: "SetSysTime-Ack", timeoutMs: 15000 }
     );
   }
 
-  // ---- Personnel ----
-
+  // =========================================================
+  // 7 & 8. Add / Edit Person (EditPerson / EditPerson-Ack) with QUEUE
+  // =========================================================
   async savePerson(deviceId, personInfo) {
-    // EditPerson: single add/update
+    // Add request to queue to respect "wait for last Ack" rule
+    return new Promise((resolve, reject) => {
+      this.personQueue.push({ deviceId, personInfo, resolve, reject });
+      this._processPersonQueue();
+    });
+  }
+
+  async _sendEditPerson(deviceId, personInfo) {
     return this.sendCommand(
       deviceId,
       "EditPerson",
@@ -217,22 +607,36 @@ class DeviceGateway {
     );
   }
 
-  async deletePerson(deviceId, customId) {
-    return this.sendCommand(
-      deviceId,
-      "DelPerson",
-      { customId },
-      {},
-      { expectedAckOperator: "DelPerson-Ack", timeoutMs: 15000 }
-    );
+  async _processPersonQueue() {
+    if (this.isProcessingPerson) return;
+    if (this.personQueue.length === 0) return;
+
+    this.isProcessingPerson = true;
+    const { deviceId, personInfo, resolve, reject } = this.personQueue.shift();
+
+    try {
+      const result = await this._sendEditPerson(deviceId, personInfo);
+      resolve(result);
+    } catch (err) {
+      logError("EditPerson queue error", {
+        deviceId,
+        error: err.message,
+      });
+      reject(err);
+    } finally {
+      this.isProcessingPerson = false;
+      this._processPersonQueue();
+    }
   }
 
+  // =========================================================
+  // 9. Batch Add / Edit Persons (EditPersonsNew / EditPersonsNew-Ack)
+  // =========================================================
   async batchSavePersons(deviceId, personsArray) {
-    // EditPersonsNew with Begin/End flags and PersonNum
     return this.sendCommand(
       deviceId,
       "EditPersonsNew",
-      {}, // info is actually personsArray but we send through extra to match doc style
+      {},
       {
         messageId: `EditPersonsNew-${Date.now()}`,
         DataBegin: "BeginFlag",
@@ -241,6 +645,21 @@ class DeviceGateway {
         DataEnd: "EndFlag",
       },
       { expectedAckOperator: "EditPersonsNew-Ack", timeoutMs: 60000 }
+    );
+  }
+
+  // =========================================================
+  // 10. Delete Person single / batch
+  //    - DelPerson / DelPerson-Ack
+  //    - DeletePersons / DeletePersons-Ack
+  // =========================================================
+  async deletePerson(deviceId, customId) {
+    return this.sendCommand(
+      deviceId,
+      "DelPerson",
+      { customId },
+      {},
+      { expectedAckOperator: "DelPerson-Ack", timeoutMs: 15000 }
     );
   }
 
@@ -259,16 +678,9 @@ class DeviceGateway {
     );
   }
 
-  async deleteAllPersons(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "DeleteAllPerson",
-      { deleteall: 1 },
-      {},
-      { expectedAckOperator: "DeleteAllPerson-Ack", timeoutMs: 30000 }
-    );
-  }
-
+  // =========================================================
+  // 11. Search Person (SearchPerson / SearchPerson-Ack)
+  // =========================================================
   async getPerson(deviceId, customId, includePicture = false) {
     return this.sendCommand(
       deviceId,
@@ -279,8 +691,26 @@ class DeviceGateway {
     );
   }
 
+  // =========================================================
+  // 12. Get All Persons List (SearchPersonList / SearchPersonList-Ack)
+  // =========================================================
+  async getAllPersons(deviceId) {
+    return this.sendCommand(
+      deviceId,
+      "SearchPersonList",
+      {
+        facesluiceId: deviceId,
+        personType: 2, // ALL persons
+        BeginNO: 0,
+        RequestCount: 2000,
+      },
+      {},
+      { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 }
+    );
+  }
+
+  // Optional generic search with filters
   async searchPersonList(deviceId, params) {
-    // params: personType, BeginTime, EndTime, name, BeginNO, RequestCount, etc.
     return this.sendCommand(
       deviceId,
       "SearchPersonList",
@@ -289,276 +719,98 @@ class DeviceGateway {
       { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 }
     );
   }
-
-  // ---- Snapshot & QR ----
-
-  async snapshot(deviceId, { imgType = 2, imgQuality = 55 } = {}) {
-    return this.sendCommand(
-      deviceId,
-      "GetSceneSnap",
-      {
-        facesluiceId: deviceId,
-        ImgType: imgType,
-        ImgQuality: imgQuality,
-      },
-      {},
-      { expectedAckOperator: "GetSceneSnap-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  async showQRCode(deviceId, payload) {
-    // payload: { ImageType, AbsX, AbsY, ImageW, ImageH, QRCodeData, ShowStatus }
-    return this.sendCommand(
-      deviceId,
-      "ShowQRCode",
-      { facesluiceId: deviceId, ...payload },
-      {},
-      { expectedAckOperator: "ShowQRCode-Ack", timeoutMs: 15000 }
-    );
-  }
-
-  // ---- Advertisements ----
-
-  async saveAd(deviceId, { adslot, path, polltime = 10, adid = "" }) {
-    return this.sendCommand(
-      deviceId,
-      "EditAD",
-      {
-        facesluiceId: deviceId,
-        adslot,
-        path,
-        polltime,
-        adid,
-      },
-      {},
-      { expectedAckOperator: "EditAD-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  async deleteAd(deviceId, { adslot, adid = "" }) {
-    return this.sendCommand(
-      deviceId,
-      "DelAD",
-      {
-        facesluiceId: deviceId,
-        adslot,
-        adid,
-      },
-      {},
-      { expectedAckOperator: "DelAD-Ack", timeoutMs: 15000 }
-    );
-  }
-
-  // ---- Access Strategy ----
-
-  async saveStrategy(deviceId, strategy) {
-    // strategy: {strategyID, strategyName, accessNumLimit, allowCnt, startDate, endDate, monday[], ...}
-    return this.sendCommand(
-      deviceId,
-      "AddAccessStrategy",
-      strategy,
-      { bIsInt: 0 },
-      { expectedAckOperator: "AddAccessStrategy-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  async deleteStrategies(deviceId, strategyIds) {
-    return this.sendCommand(
-      deviceId,
-      "DelAccessStrategy",
-      { strategyID: strategyIds },
-      {},
-      { expectedAckOperator: "DelAccessStrategy-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  async bindStrategies(deviceId, personsInfo) {
-    // personsInfo: [{ customId, strategyID: [1,2,...] }, ...]
-    return this.sendCommand(
-      deviceId,
-      "PersonsBindStrategyID",
-      { personsInfo },
-      {},
-      { expectedAckOperator: "PersonsBindStrategyID-Ack", timeoutMs: 60000 }
-    );
-  }
-
-  async unbindStrategies(deviceId, personsInfo) {
-    return this.sendCommand(
-      deviceId,
-      "PersonsUnbindStrategyID",
-      { personsInfo },
-      {},
-      { expectedAckOperator: "PersonsUnbindStrategyID-Ack", timeoutMs: 60000 }
-    );
-  }
-
-  // ---- Temperature Config (TPT) ----
-
-  async getTemperatureConfig(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "GetTPTconfig",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "GetTPTconfig-Ack", timeoutMs: 15000 }
-    );
-  }
-
-  async setTemperatureConfig(deviceId, config) {
-    return this.sendCommand(
-      deviceId,
-      "UpTPTconfig",
-      { facesluiceId: deviceId, ...config },
-      {},
-      { expectedAckOperator: "UpTPTconfig-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  // ---- GPS ----
-
-  async getGps(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "GetGpsInfo",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "GetGpsInfo-Ack", timeoutMs: 15000 }
-    );
-  }
-
-  async setGps(deviceId, config) {
-    // config: { GpsType, Longitude, Latitude, UTCOffset, ... }
-    return this.sendCommand(
-      deviceId,
-      "UpGpsConfig",
-      { facesluiceId: deviceId, ...config },
-      {},
-      { expectedAckOperator: "UpGpsConfig-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  // ---- Sound & UI ----
-
-  async getSoundConfig(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "GetSoundconfig",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "GetSoundconfig-Ack", timeoutMs: 15000 }
-    );
-  }
-
-  async setSoundConfig(deviceId, config) {
-    return this.sendCommand(
-      deviceId,
-      "UpSoundconfig",
-      { facesluiceId: deviceId, ...config },
-      {},
-      { expectedAckOperator: "UpSoundconfig-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  // ---- System ----
-
-  async reboot(deviceId) {
-    return this.sendCommand(
-      deviceId,
-      "Reboot",
-      { facesluiceId: deviceId },
-      {},
-      { expectedAckOperator: "Reboot-Ack", timeoutMs: 30000 }
-    );
-  }
-
-  async factoryReset(deviceId, payload = {}) {
-    // payload like { keepNetwork: 1 }
-    return this.sendCommand(
-      deviceId,
-      "RestoreFactory",
-      { facesluiceId: deviceId, ...payload },
-      {},
-      { expectedAckOperator: "RestoreFactory-Ack", timeoutMs: 60000 }
-    );
-  }
 }
 
-// ========== CREATE MQTT CLIENT & GATEWAY SINGLETON ==========
+// ======= SINGLETON GATEWAY =======
+const gateway = new DeviceGateway(client);
 
-const mqttClient = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
-  username: MQTT_USERNAME,
-  password: MQTT_PASSWORD,
-  clientId: `gateway-${uuidv4()}`,
-  keepalive: 30,
-});
-
-const gateway = new DeviceGateway(mqttClient);
-
-// ========== EXPRESS HTTP API (MATCH LARAVEL CONTROLLER) ==========
-
+// ======= EXPRESS API =======
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
-// health
+// Do NOT log route for log endpoints
+const IGNORE_LOG_ROUTES = new Set([
+  "/api/logs/error/today",
+  "/api/logs/activity/today",
+  "/api/logs/events/today",
+]);
+
+// CorrelationId + ROUTE logging middleware
+app.use((req, res, next) => {
+  const correlationId = req.headers["x-correlation-id"] || uuidv4();
+
+  res.setHeader("X-Correlation-Id", correlationId);
+
+  requestContext.run({ correlationId }, () => {
+    if (!IGNORE_LOG_ROUTES.has(req.path)) {
+      logRoute("HTTP_REQUEST", {
+        method: req.method,
+        path: req.path,
+        query: req.query,
+        body: req.method === "GET" ? undefined : req.body,
+      });
+    }
+    next();
+  });
+});
+
+const asyncHandler = (fn) => (req, res) =>
+  Promise.resolve(fn(req, res)).catch((err) => {
+    logError("Route error", {
+      route: req.path,
+      method: req.method,
+      error: err.message,
+      stack: err.stack,
+    });
+    res.status(500).json({ error: err.message || "Internal error" });
+  });
+
+// Health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Helper to wrap async route handlers
-function asyncHandler(fn) {
-  return (req, res) => {
-    Promise.resolve(fn(req, res)).catch((err) => {
-      console.error("❌ Route error:", err);
-      res.status(500).json({ error: err.message || "Internal error" });
-    });
-  };
-}
+// 1. Status
+app.get(
+  "/api/device/:deviceId/status",
+  asyncHandler(async (req, res) => {
+    const { deviceId } = req.params;
+    const result = gateway.getStatus(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "status", deviceId, result });
+    res.json(result);
+  })
+);
 
-// ---- Door ----
+// 2. Open door
 app.post(
   "/api/device/:deviceId/open-door",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
     const result = await gateway.openDoor(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "open-door", deviceId, result });
     res.json(result);
   })
 );
 
+// 3. Close door (info only)
 app.post(
   "/api/device/:deviceId/close-door",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
     const result = await gateway.closeDoor(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "close-door", deviceId, result });
     res.json(result);
   })
 );
 
-app.get(
-  "/api/device/:deviceId/door-config",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.getDoorConfig(deviceId);
-    res.json(result);
-  })
-);
-
-app.post(
-  "/api/device/:deviceId/door-config",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.setDoorConfig(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-// ---- Time ----
+// 6. Time get/set
 app.get(
   "/api/device/:deviceId/time",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
     const result = await gateway.getTime(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "get-time", deviceId, result });
     res.json(result);
   })
 );
@@ -569,238 +821,209 @@ app.post(
     const { deviceId } = req.params;
     const { sysTime } = req.body;
     const result = await gateway.setTime(deviceId, sysTime);
+    logRoute("HTTP_RESPONSE", {
+      route: "set-time",
+      deviceId,
+      sysTime,
+      result,
+    });
     res.json(result);
   })
 );
 
-// ---- Personnel ----
+// 7 & 8. Add/Edit person
 app.post(
   "/api/device/:deviceId/person",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
-    const result = await gateway.savePerson(deviceId, req.body);
+    const body = req.body;
+    const result = await gateway.savePerson(deviceId, body);
+    logRoute("HTTP_RESPONSE", {
+      route: "save-person",
+      deviceId,
+      body,
+      result,
+    });
     res.json(result);
   })
 );
 
-app.delete(
-  "/api/device/:deviceId/person/:customId",
-  asyncHandler(async (req, res) => {
-    const { deviceId, customId } = req.params;
-    const result = await gateway.deletePerson(deviceId, customId);
-    res.json(result);
-  })
-);
-
+// 9. Batch add persons
 app.post(
   "/api/device/:deviceId/persons/batch",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
     const persons = req.body.persons || [];
     const result = await gateway.batchSavePersons(deviceId, persons);
+    logRoute("HTTP_RESPONSE", {
+      route: "batch-save-persons",
+      deviceId,
+      count: persons.length,
+      result,
+    });
     res.json(result);
   })
 );
 
+// 10. Delete single person
+app.delete(
+  "/api/device/:deviceId/person/:customId",
+  asyncHandler(async (req, res) => {
+    const { deviceId, customId } = req.params;
+    const result = await gateway.deletePerson(deviceId, customId);
+    logRoute("HTTP_RESPONSE", {
+      route: "delete-person",
+      deviceId,
+      customId,
+      result,
+    });
+    res.json(result);
+  })
+);
+
+// 10. Batch delete persons
 app.post(
   "/api/device/:deviceId/persons/batch-delete",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
     const { customIds } = req.body;
     const result = await gateway.batchDeletePersons(deviceId, customIds || []);
+    logRoute("HTTP_RESPONSE", {
+      route: "batch-delete-persons",
+      deviceId,
+      count: (customIds || []).length,
+      result,
+    });
     res.json(result);
   })
 );
 
-app.post(
-  "/api/device/:deviceId/persons/delete-all",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.deleteAllPersons(deviceId);
-    res.json(result);
-  })
-);
-
+// 11. Search person (by customId)
 app.get(
   "/api/device/:deviceId/person/:customId",
   asyncHandler(async (req, res) => {
     const { deviceId, customId } = req.params;
     const includePicture = req.query.picture === "1";
     const result = await gateway.getPerson(deviceId, customId, includePicture);
+    logRoute("HTTP_RESPONSE", {
+      route: "get-person",
+      deviceId,
+      customId,
+      includePicture,
+      result,
+    });
     res.json(result);
   })
 );
 
+// 12. Get all persons list
+app.get(
+  "/api/device/:deviceId/persons/list",
+  asyncHandler(async (req, res) => {
+    const { deviceId } = req.params;
+    const result = await gateway.getAllPersons(deviceId);
+    logRoute("HTTP_RESPONSE", {
+      route: "list-persons",
+      deviceId,
+      resultSummary: {
+        code: result.code,
+        operator: result.operator,
+      },
+    });
+    res.json(result);
+  })
+);
+
+// Optional: search list with filters
 app.post(
   "/api/device/:deviceId/persons/search",
   asyncHandler(async (req, res) => {
     const { deviceId } = req.params;
-    const result = await gateway.searchPersonList(deviceId, req.body);
+    const payload = req.body || {};
+    const result = await gateway.searchPersonList(deviceId, payload);
+    logRoute("HTTP_RESPONSE", {
+      route: "search-persons",
+      deviceId,
+      payload,
+      resultSummary: {
+        code: result.code,
+        operator: result.operator,
+      },
+    });
     res.json(result);
   })
 );
 
-// ---- Snapshot & QR ----
-app.post(
-  "/api/device/:deviceId/snapshot",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const { imgType, imgQuality } = req.body;
-    const result = await gateway.snapshot(deviceId, { imgType, imgQuality });
-    res.json(result);
-  })
-);
+// ===== LOG VIEW ENDPOINTS (JSON only) =====
 
-app.post(
-  "/api/device/:deviceId/qrcode",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.showQRCode(deviceId, req.body);
-    res.json(result);
-  })
-);
+function readTodayLogFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    return { exists: false, content: "" };
+  }
+  try {
+    const content = fs.readFileSync(filePath, "utf8");
+    return { exists: true, content };
+  } catch (e) {
+    logError("Failed to read log file", {
+      filePath,
+      error: e.message,
+    });
+    return { exists: true, content: "" };
+  }
+}
 
-// ---- Ads ----
-app.post(
-  "/api/device/:deviceId/ad",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.saveAd(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-app.delete(
-  "/api/device/:deviceId/ad",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.deleteAd(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-// ---- Strategy ----
-app.post(
-  "/api/device/:deviceId/strategy",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.saveStrategy(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-app.delete(
-  "/api/device/:deviceId/strategy",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const { strategyIds } = req.body;
-    const result = await gateway.deleteStrategies(deviceId, strategyIds || []);
-    res.json(result);
-  })
-);
-
-app.post(
-  "/api/device/:deviceId/strategy/bind",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const { personsInfo } = req.body;
-    const result = await gateway.bindStrategies(deviceId, personsInfo || []);
-    res.json(result);
-  })
-);
-
-app.post(
-  "/api/device/:deviceId/strategy/unbind",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const { personsInfo } = req.body;
-    const result = await gateway.unbindStrategies(deviceId, personsInfo || []);
-    res.json(result);
-  })
-);
-
-// ---- Temperature ----
+// View today's error log (text)
 app.get(
-  "/api/device/:deviceId/temperature-config",
+  "/api/logs/error/today",
   asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.getTemperatureConfig(deviceId);
-    res.json(result);
+    const filePath = getErrorLogFile();
+    const { exists, content } = readTodayLogFile(filePath);
+    res.json({
+      date: getTodayDateString(),
+      file: path.basename(filePath),
+      exists,
+      content,
+    });
   })
 );
 
-app.post(
-  "/api/device/:deviceId/temperature-config",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.setTemperatureConfig(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-// ---- GPS ----
+// View today's activity log (text)
 app.get(
-  "/api/device/:deviceId/gps",
+  "/api/logs/activity/today",
   asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.getGps(deviceId);
-    res.json(result);
+    const filePath = getActivityLogFile();
+    const { exists, content } = readTodayLogFile(filePath);
+    res.json({
+      date: getTodayDateString(),
+      file: path.basename(filePath),
+      exists,
+      content,
+    });
   })
 );
 
-app.post(
-  "/api/device/:deviceId/gps",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.setGps(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-// ---- Sound ----
+// View today's events log (JSON lines)
 app.get(
-  "/api/device/:deviceId/sound-config",
+  "/api/logs/events/today",
   asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.getSoundConfig(deviceId);
-    res.json(result);
+    const filePath = getEventsJsonLogFile();
+    const { exists, content } = readTodayLogFile(filePath);
+    res.json({
+      date: getTodayDateString(),
+      file: path.basename(filePath),
+      exists,
+      content,
+    });
   })
 );
 
-app.post(
-  "/api/device/:deviceId/sound-config",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.setSoundConfig(deviceId, req.body);
-    res.json(result);
-  })
-);
+// Start server
+const httpServer = http.createServer(app);
 
-// ---- System ----
-app.post(
-  "/api/device/:deviceId/reboot",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.reboot(deviceId);
-    res.json(result);
-  })
-);
-
-app.post(
-  "/api/device/:deviceId/factory-reset",
-  asyncHandler(async (req, res) => {
-    const { deviceId } = req.params;
-    const result = await gateway.factoryReset(deviceId, req.body);
-    res.json(result);
-  })
-);
-
-// ========== START SERVER ==========
-
-app.listen(HTTP_PORT, () => {
+httpServer.listen(HTTP_PORT, () => {
   console.log(
     `🚀 MQTT HTTP gateway listening on http://localhost:${HTTP_PORT}`
   );
 });
 
-module.exports = { DeviceGateway, gateway };
+module.exports = { gateway, DeviceGateway };

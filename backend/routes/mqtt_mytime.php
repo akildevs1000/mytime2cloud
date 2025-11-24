@@ -1,56 +1,41 @@
 <?php
-// routes/api.php
-use App\Http\Controllers\Mqtt\MytimeFaceDeviceController;
+
+use App\Http\Controllers\Mqtt\FaceDeviceController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::prefix('face-device/{deviceId}')->group(function () {
-    // Door
-    Route::post('/open-door', [MytimeFaceDeviceController::class, 'openDoor']);
-    Route::post('/close-door', [MytimeFaceDeviceController::class, 'closeDoor']);
-    Route::get('/door-config', [MytimeFaceDeviceController::class, 'getDoorConfig']);
-    Route::post('/door-config', [MytimeFaceDeviceController::class, 'setDoorConfig']);
 
-    // Time
-    Route::get('/time', [MytimeFaceDeviceController::class, 'getTime']);
-    Route::post('/time', [MytimeFaceDeviceController::class, 'setTime']);
+    // 1. Status
+    Route::get('/status', [FaceDeviceController::class, 'getStatus']);
 
-    // Personnel
-    Route::post('/person', [MytimeFaceDeviceController::class, 'savePerson']);
-    Route::delete('/person/{customId}', [MytimeFaceDeviceController::class, 'deletePerson']);
-    Route::post('/persons/batch', [MytimeFaceDeviceController::class, 'batchSavePersons']);
-    Route::post('/persons/batch-delete', [MytimeFaceDeviceController::class, 'batchDeletePersons']);
-    Route::post('/persons/delete-all', [MytimeFaceDeviceController::class, 'deleteAllPersons']);
-    Route::get('/person/{customId}', [MytimeFaceDeviceController::class, 'getPerson']);
-    Route::post('/persons/search', [MytimeFaceDeviceController::class, 'searchPersonList']);
+    // 2–3. Door
+    Route::post('/open-door', [FaceDeviceController::class, 'openDoor']);
+    Route::post('/close-door', [FaceDeviceController::class, 'closeDoor']);
 
-    // Snapshot & QR
-    Route::post('/snapshot', [MytimeFaceDeviceController::class, 'snapshot']);
-    Route::post('/qrcode', [MytimeFaceDeviceController::class, 'showQRCode']);
+    // 4–5. Timezone (app level)
+    Route::get('/timezone', [FaceDeviceController::class, 'getTimezone']);
+    Route::post('/timezone', [FaceDeviceController::class, 'setTimezone']);
 
-    // Ads
-    Route::post('/ad', [MytimeFaceDeviceController::class, 'saveAd']);
-    Route::delete('/ad', [MytimeFaceDeviceController::class, 'deleteAd']);
+    // 6. Time
+    Route::get('/time', [FaceDeviceController::class, 'getTime']);
+    Route::post('/time', [FaceDeviceController::class, 'setTime']);
 
-    // Strategy
-    Route::post('/strategy', [MytimeFaceDeviceController::class, 'saveStrategy']);
-    Route::delete('/strategy', [MytimeFaceDeviceController::class, 'deleteStrategies']);
-    Route::post('/strategy/bind', [MytimeFaceDeviceController::class, 'bindStrategies']);
-    Route::post('/strategy/unbind', [MytimeFaceDeviceController::class, 'unbindStrategies']);
+    // 7–8. Person add/edit
+    Route::post('/person', [FaceDeviceController::class, 'savePerson']);
 
-    // Temperature
-    Route::get('/temperature-config', [MytimeFaceDeviceController::class, 'getTemperatureConfig']);
-    Route::post('/temperature-config', [MytimeFaceDeviceController::class, 'setTemperatureConfig']);
+    // 9. Batch add
+    Route::post('/persons/batch', [FaceDeviceController::class, 'batchSavePersons']);
 
-    // GPS
-    Route::get('/gps', [MytimeFaceDeviceController::class, 'getGps']);
-    Route::post('/gps', [MytimeFaceDeviceController::class, 'setGps']);
+    // 10. Delete single/batch
+    Route::delete('/person/{customId}', [FaceDeviceController::class, 'deletePerson']);
+    Route::post('/persons/batch-delete', [FaceDeviceController::class, 'batchDeletePersons']);
 
-    // Sound
-    Route::get('/sound-config', [MytimeFaceDeviceController::class, 'getSoundConfig']);
-    Route::post('/sound-config', [MytimeFaceDeviceController::class, 'setSoundConfig']);
+    // 11. Search person
+    Route::get('/person/{customId}', [FaceDeviceController::class, 'getPerson']);
 
-    // System
-    Route::post('/reboot', [MytimeFaceDeviceController::class, 'reboot']);
-    Route::post('/factory-reset', [MytimeFaceDeviceController::class, 'factoryReset']);
+    // 12. Get all persons
+    Route::get('/persons/list', [FaceDeviceController::class, 'getAllPersons']);
+
+    // Optional: search list
+    Route::post('/persons/search', [FaceDeviceController::class, 'searchPersonList']);
 });
