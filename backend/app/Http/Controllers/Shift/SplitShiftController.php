@@ -99,7 +99,24 @@ class SplitShiftController extends Controller
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+
+            //->whereBetween("LogTime", [$params["start"], $params["end"]])
+
+            $logs = AttendanceLog::where("company_id", $params["company_id"])
+                ->where('LogTime', ">=", Carbon::parse($params["date"])->toDateString() . " 00:00:00")
+                ->where('LogTime', "<=", Carbon::parse($params["date"])->toDateString() . " 23:59:59")
+                ->distinct("LogTime", "UserID", "company_id")
+                ->whereHas("schedule", function ($q) use ($params) {
+                    $q->where("shift_type_id", $params["shift_type_id"]);
+                })
+                ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
+                    return $query->whereIn('UserID', $params["UserIds"]);
+                })
+                ->orderBy("LogTime", 'asc')
+                ->get()
+                ->load("device")
+                ->groupBy(['UserID']);
+
 
             $data = $logs[$row->system_user_id] ?? [];
 
