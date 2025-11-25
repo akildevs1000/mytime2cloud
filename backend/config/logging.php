@@ -51,6 +51,12 @@ return [
      */
 
     'channels'     => [
+        'split' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/split.log'),
+            'level' => 'info',
+            'days'   => 30,
+        ],
         'stack'              => [
             'driver'            => 'stack',
             'channels'          => ['single'],
