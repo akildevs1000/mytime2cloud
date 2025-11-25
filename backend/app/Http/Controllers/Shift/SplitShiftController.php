@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use Carbon\Carbon;
 
 class SplitShiftController extends Controller
 {
@@ -98,12 +99,23 @@ class SplitShiftController extends Controller
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+
+            $logs = AttendanceLog::where("company_id", $params["company_id"])
+                ->where('LogTime', ">=", Carbon::parse($params["date"])->toDateString() . " 00:00:00")
+                ->where('LogTime', "<=", Carbon::parse($params["date"])->toDateString() . " 23:59:59")
+                ->orderBy("LogTime", 'asc')
+                ->get()
+                ->load("device")
+                ->groupBy(['UserID']);
+
 
             $data = $logs[$row->system_user_id] ?? [];
 
             $data = collect($data)
-                ->unique('LogTime')
+                ->unique(function ($item) {
+                    // unique by year-month-day hour:minute
+                    return Carbon::parse($item->LogTime)->format('Y-m-d H:i');
+                })
                 ->filter(function ($log, $index) use ($data) {
                     $prev = $data[$index - 1] ?? null;
 
@@ -116,12 +128,18 @@ class SplitShiftController extends Controller
                         $prev &&
                         $prev['log_type'] === $log['log_type']
                     ) {
-                        return false; // skip duplicate consecutive type
+                        return false;
                     }
 
                     return true;
                 })
                 ->values();
+
+
+
+            // iwant to igonre same hour same minutes value 08:37
+            // its giving like this 2025-11-24 08:37:42 2025-11-24 08:37:47 2025-11-24 08:37:57 2025-11-24 20:32:32
+            // i want 2025-11-24 08:37:42 2025-11-24 20:32:32
 
             if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
@@ -331,7 +349,7 @@ class SplitShiftController extends Controller
             $this->logOutPut($this->logFilePath, $e->getMessage());
         }
 
-       
+
         $message = "[" . $date . " " . date("H:i:s") . "] Dual Shift. "  . "$logsUpdated " . " updated logs";
         return $message;
     }
