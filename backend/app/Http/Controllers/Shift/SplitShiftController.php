@@ -99,15 +99,7 @@ class SplitShiftController extends Controller
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-
-            $logs = AttendanceLog::where("company_id", $params["company_id"])
-                ->where('LogTime', ">=", Carbon::parse($params["date"])->toDateString() . " 00:00:00")
-                ->where('LogTime', "<=", Carbon::parse($params["date"])->toDateString() . " 23:59:59")
-                ->orderBy("LogTime", 'asc')
-                ->get()
-                ->load("device")
-                ->groupBy(['UserID']);
-
+            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
             $data = $logs[$row->system_user_id] ?? [];
 
@@ -135,11 +127,6 @@ class SplitShiftController extends Controller
                 })
                 ->values();
 
-
-
-            // iwant to igonre same hour same minutes value 08:37
-            // its giving like this 2025-11-24 08:37:42 2025-11-24 08:37:47 2025-11-24 08:37:57 2025-11-24 20:32:32
-            // i want 2025-11-24 08:37:42 2025-11-24 20:32:32
 
             if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
