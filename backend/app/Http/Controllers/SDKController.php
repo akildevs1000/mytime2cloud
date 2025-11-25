@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Mqtt\FaceDeviceController;
 use App\Jobs\AddPerson;
 use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SDKController extends Controller
 {
@@ -33,7 +35,7 @@ class SDKController extends Controller
         $this->storagePath = storage_path('app/oxsaicamera_log_session_values.json');
 
 
-        $this->expirationTime =  60 * 4; //5 minutes 
+        $this->expirationTime =  60 * 4; //5 minutes
     }
     public function WriteResetDefaultTimeGroup(Request $request, $id)
     {
@@ -77,7 +79,7 @@ class SDKController extends Controller
 
         $timezoneIDArray = $timezones->pluck('timezone_id')->toArray();;
 
-        //delete timezone 1 - defailt 1 is for 24 access 
+        //delete timezone 1 - defailt 1 is for 24 access
         $key = array_search(1,  $timezoneIDArray); // Search for the value 1
         if ($key !== false) {
             unset($timezoneIDArray[$key]); // Remove the value
@@ -181,8 +183,11 @@ class SDKController extends Controller
 
     public function AddPerson(Request $request)
     {
+
+
         $cameraResponse1 = "";
         $cameraResponse2 = "";
+        $mqtt_mytime_devices_response = "";
 
         $deviceResponse = [];
         try {
@@ -193,6 +198,15 @@ class SDKController extends Controller
             $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
+        try {
+            $mqtt_mytime_devices_response = $this->filterMQTTMytimeModelDevices($request);
+            $deviceResponse = [...$deviceResponse, ...$mqtt_mytime_devices_response];
+        } catch (\Exception $e) {
+            $deviceResponse[] = [
+                "error" => "Error in MQTT Mytime Device Processing: "
+            ];
+        }
+
 
         $payload = $request->all();
         $personList = $payload['personList'];
@@ -257,7 +271,86 @@ class SDKController extends Controller
 
     //     return $this->processSDKRequestBulk($url, $request->all());
     // }
+    public function filterMQTTMytimeModelDevices($request)
+    {
+        $snList = $request->snList;
+        //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "MYTIME1")
+            ->whereIn('serial_number',  $request['snList'])->get()->all();
 
+
+
+        $filteredCameraArray = array_filter($Devices, function ($item) use ($snList) {
+            return in_array($item['device_id'], $snList);
+        });
+        $message = [];
+        foreach ($filteredCameraArray as  $value) {
+
+            foreach ($request->personList as  $persons) {
+                if (isset($persons['faceImage'])) {
+
+                    $personProfilePic = $persons['faceImage'];
+                    if ($personProfilePic != '') {
+
+
+                        $path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+
+                        if (file_exists($path)) {
+                            $imageData = file_get_contents($path);
+                            $md5string = base64_encode($imageData);
+
+
+
+                            $responseSDK = (new FaceDeviceController())
+                                ->gatewayRequest('POST', "api/device/{$value['device_id']}/person", [
+
+                                    "customId" => $persons['userCode'],
+                                    "RFIDCard" => $persons['userCode'],
+                                    "name" => $persons['name'],
+                                    "personType" => 0,
+                                    "RFCardMode" => 0,
+                                    "tempCardType" => 0,
+
+                                    "pic" => $md5string
+                                ]);
+                            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                                ? $responseSDK->getData(true)
+                                : $responseSDK;
+                            if (isset($responseSDK['code']) && $responseSDK['code'] == 200)
+                                $message[] = [
+                                    "name" => $persons['name'],
+                                    "userCode" => $persons['userCode'],
+                                    "device_id" => $value['device_id'],
+                                    "sdk" => "mqtt_mytime",
+                                    'status' => 200,
+                                    'sdk_response' => 200,
+                                ];
+                            else {
+                                $message[] = [
+                                    "name" => $persons['name'],
+                                    "userCode" => $persons['userCode'],
+                                    "device_id" => $value['device_id'],
+                                    "sdk" => "mqtt_mytime",
+                                    'status' => 500,
+                                    'sdk_response' => "Error: " . ($responseSDK['error'] ?? 'Unknown Error'),
+                                ];
+                            }
+                        } else
+                            $message[] = [
+                                "name" => $persons['name'],
+                                "userCode" => $persons['userCode'],
+                                "device_id" => $value['device_id'],
+                                "sdk" => "mqtt_mytime",
+                                'status' => 500,
+                                'sdk_response' => "Image not found in path: " . $path,
+                            ];
+                    }
+                }
+            }
+        }
+
+        return  $message;
+    }
     public function filterCameraModel1Devices($request)
     {
 
@@ -336,7 +429,7 @@ class SDKController extends Controller
 
         // Session has expired
         unset($data[$id]);
-        File::put($this->storagePath, json_encode($data)); // Update the file without the expired  
+        File::put($this->storagePath, json_encode($data)); // Update the file without the expired
 
 
 
@@ -565,7 +658,6 @@ class SDKController extends Controller
             }
 
             return "Time <b>{$time}</b> has been synced to the device.";
-
         } catch (\Exception $e) {
             return 'Failed to communicate with SDK device.';
         }
@@ -886,7 +978,7 @@ class SDKController extends Controller
     }
     public function getDevicesCountForTimezone(Request $request)
     {
-        if ($request->source) //master 
+        if ($request->source) //master
         {
 
 

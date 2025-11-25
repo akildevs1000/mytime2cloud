@@ -21,37 +21,49 @@ class FaceDeviceController extends Controller
 
     public function gatewayRequest(string $method, string $path, array $body = [], array $query = [])
     {
-        $url =  rtrim(
-            config('services.mqtt_gateway.url', env('MQTT_GATEWAY_URL', 'http://127.0.0.1:4000')),
-            '/'
-        ) . '/' . ltrim($path, '/');
-        $client = Http::acceptJson();
+        try {
 
-        if (!empty($query)) {
-            $client = $client->query($query);
+
+            $url = rtrim(
+                config('services.mqtt_gateway.url', env('MQTT_GATEWAY_URL', 'http://127.0.0.1:4000')),
+                '/'
+            ) . '/' . ltrim($path, '/');
+
+            $client = Http::acceptJson();
+
+            if (!empty($query)) {
+                $client = $client->withOptions([
+                    'query' => $query
+                ]);
+            }
+
+
+
+
+            switch (strtoupper($method)) {
+                case 'GET':
+                    $response = $client->get($url);
+                    break;
+                case 'POST':
+                    $response = $client->post($url, $body);
+                    break;
+                case 'DELETE':
+                    if (!empty($body)) {
+                        $response = $client
+                            ->withBody(json_encode($body), 'application/json')
+                            ->delete($url);
+                    } else {
+                        $response = $client->delete($url);
+                    }
+                    break;
+                default:
+                    return response()->json(['error' => "Unsupported method $method"], 500);
+            }
+
+            return response()->json($response->json(), $response->status());
+        } catch (\Exception $e) {
+            return    ['error' => "MQTT Gateway Error" . $e->getMessage()];
         }
-
-        switch (strtoupper($method)) {
-            case 'GET':
-                $response = $client->get($url);
-                break;
-            case 'POST':
-                $response = $client->post($url, $body);
-                break;
-            case 'DELETE':
-                if (!empty($body)) {
-                    $response = $client
-                        ->withBody(json_encode($body), 'application/json')
-                        ->delete($url);
-                } else {
-                    $response = $client->delete($url);
-                }
-                break;
-            default:
-                return response()->json(['error' => "Unsupported method $method"], 500);
-        }
-
-        return response()->json($response->json(), $response->status());
     }
 
     /* 1. Device online status */
@@ -171,7 +183,7 @@ class FaceDeviceController extends Controller
     public function getPerson(Request $request, string $deviceId, string $customId)
     {
         $query = [];
-        if ($request->boolean('picture')) {
+        if ($request->filled('picture')) {
             $query['picture'] = 1;
         }
 

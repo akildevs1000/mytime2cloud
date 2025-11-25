@@ -191,6 +191,52 @@ class DeviceController extends Controller
 
                 if ($device["model_number"] == 'OX-900') {
                     $responseData['data'] = (new DeviceCameraModel2Controller($device["camera_sdk_url"], $device["serial_number"]))->getPersonDetails($request->system_user_id);
+                } else if ($device["model_number"] == 'MYTIME1') {
+
+
+                    try {
+                        $query = [];
+
+                        $query['picture'] = 1;
+
+                        $responseSDK =  (new FaceDeviceController())
+                            ->gatewayRequest('GET', "api/device/{$device["serial_number"]}/person/{$request->system_user_id}", [], $query);;
+
+
+
+                        $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                            ? $responseSDK->getData(true)
+                            : $responseSDK;
+
+
+
+                        if (($responseSDK["info"])) {
+
+                            $picture_data = str_replace("data:image/jpeg;base64,", "", $responseSDK["pic"]);
+
+                            $responseData['data']   = [
+                                "name" => $responseSDK["info"]["name"],
+                                "userCode" => $responseSDK["info"]["customId"],
+                                "expiry" =>  $responseSDK["info"]["cardValidEnd"] == "0000-00-00 00:00:00" ? '---' : $responseSDK["info"]["cardValidEnd"],
+                                "faceImage" => $picture_data,
+                                "timeGroup" => "--"
+                            ];
+                        } else {
+                            $responseData['data'] = [
+                                "SDKresponseData" => "",
+                                "message" => "User ID is not available on  Device  ",
+                                "deviceName" => $deviceName,
+                                "device_id" => $request->device_id
+                            ];
+                        }
+                    } catch (\Exception $e) {
+                        $responseData['data'] = [
+                            "SDKresponseData" => "",
+                            "message" => "User ID is not available on  Device  ",
+                            "deviceName" => $deviceName,
+                            "device_id" => $request->device_id
+                        ];
+                    }
                 } else {
                     $responseData = (new SDKController())->getPersonDetails($request->device_id, $request->system_user_id);
                 }

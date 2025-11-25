@@ -897,34 +897,35 @@
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-if="can(`device_edit`) && item.model_number == 'CAMERA1'"
+              <v-list-item v-if="can(`device_edit`) && item.model_number == 'CAMERA1' && item.model_number != 'MYTIME1'"
                 @click="showDeviceCameraSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-else-if="can(`device_edit`) && item.model_number == 'OX-900'"
+              <v-list-item
+                v-else-if="can(`device_edit`) && item.model_number == 'OX-900' && item.model_number != 'MYTIME1'"
                 @click="showDeviceMegviiSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-else @click="showDeviceSettings(item)">
+              <v-list-item v-else-if="item.model_number != 'MYTIME1'" @click="showDeviceSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
 
-              <v-list-item @click="syncTimezonesToDevice(item)">
+              <v-list-item @click="syncTimezonesToDevice(item)" v-if="item.model_number != 'MYTIME1'">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-autorenew </v-icon>
                   Sync Timezones
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="updateDefault24HoursTimezone(item)">
+              <v-list-item @click="updateDefault24HoursTimezone(item)" v-if="item.model_number != 'MYTIME1'">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-close-circle </v-icon>
                   Reset Timezones
@@ -1297,33 +1298,41 @@ export default {
       }
     },
     async sync_date_time(device_id) {
-      const dt = new Date();
-      // const year = dt.getFullYear();
-      // const month = String(dt.getMonth() + 1).padStart(2, "0");
-      // const day = String(dt.getDate()).padStart(2, "0");
-      // const hours = String(dt.getHours()).padStart(2, "0");
-      // const minutes = String(dt.getMinutes()).padStart(2, "0");
-      // const seconds = String(dt.getSeconds()).padStart(2, "0");
-      // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-      const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
+      if (
+        confirm(
+          "Are you want to change the Device Time  ?"
+        )
+      ) {
+        const dt = new Date();
+        // const year = dt.getFullYear();
+        // const month = String(dt.getMonth() + 1).padStart(2, "0");
+        // const day = String(dt.getDate()).padStart(2, "0");
+        // const hours = String(dt.getHours()).padStart(2, "0");
+        // const minutes = String(dt.getMinutes()).padStart(2, "0");
+        // const seconds = String(dt.getSeconds()).padStart(2, "0");
+        // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-      const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+        const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
 
-      this.$axios
-        .get(apiUrl, {
-          params: { sync_able_date_time },
-        })
-        .then(({ data }) => {
-          this.selectedDoor.text = data.message;
-          this.selectedDoor.responseStatus = data.status;
-          this.responseBox = true;
-        })
-        .catch((data) => {
-          this.selectedDoor.text = data.message;
-          this.selectedDoor.responseStatus = data.status;
-          this.responseBox = true;
-        });
+        const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+
+        this.$axios
+          .get(apiUrl, {
+            params: { sync_able_date_time },
+          })
+          .then(({ data }) => {
+            this.selectedDoor.text = data.message;
+            this.selectedDoor.responseStatus = data.status;
+            this.responseBox = true;
+          })
+          .catch((data) => {
+            this.selectedDoor.text = data.message;
+            this.selectedDoor.responseStatus = data.status;
+            this.responseBox = true;
+          });
+
+      }
     },
     closeResponseBox() {
       this.responseBox = false;
