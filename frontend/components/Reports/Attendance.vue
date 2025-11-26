@@ -280,17 +280,15 @@
             <v-alert dark dense flat class="primary">Regenerate Report</v-alert>
             <v-card-text>
               <v-container>
-                <div class="mx-1">
+                <div>
                   <CustomFilter
                     @filter-attr="filterAttrForRegenerate"
                     :defaultFilterType="1"
-                    height="40px"
-                    width="90%"
+                    height="80px"
                   />
                 </div>
-                <div class="px-1 mt-3" style="width: 100%">
+                <div class="mt-3">
                   <v-autocomplete
-                    class="mx-1"
                     v-if="isCompany"
                     label="Branch"
                     @change="
@@ -301,19 +299,17 @@
                     placeholder="Branch"
                     outlined
                     dense
-                    v-model="payload.branch_id"
+                    v-model="branch_ids"
                     x-small
                     clearable
-                    :items="[
-                      { id: null, branch_name: 'All Branches' },
-                      ...branches,
-                    ]"
+                    multiple
+                    :items="branches"
                     item-value="id"
                     item-text="branch_name"
                     :hide-details="true"
                   ></v-autocomplete>
                 </div>
-                <div class="px-1 mt-3" style="width: 100%">
+                <div class="mt-3">
                   <v-autocomplete
                     style="width: 100%"
                     label="Employee ID"
@@ -811,7 +807,6 @@ export default {
       this.filterType = "Monthly"; // data.type;
     },
     commonMethod(id = 0) {
-
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
@@ -879,7 +874,6 @@ export default {
         })
         .then(({ data }) => {
           this.showTabs = data;
-          console.log(this.showTabs)
           this.payload.showTabs = data;
         });
     },
@@ -904,7 +898,7 @@ export default {
     },
 
     regnerateReport() {
-      if (!this.payload.branch_id) {
+      if (!this.branch_ids.length) {
         alert("Branch must be selected");
         return;
       }
