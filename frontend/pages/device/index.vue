@@ -60,7 +60,7 @@
                 v-model="inputFindDeviceUserId">
               </v-text-field></v-col>
             <v-col cols="6">
-              <v-btn dense small class="primary mt-2" @click="getUserInfoFromDevice()">
+              <v-btn :loading="loadingDeviceData" dense small class="primary mt-2" @click="getUserInfoFromDevice()">
                 Get Details</v-btn>
             </v-col>
           </v-row>

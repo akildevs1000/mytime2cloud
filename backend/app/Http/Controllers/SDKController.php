@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
 
 class SDKController extends Controller
 {
@@ -180,6 +181,74 @@ class SDKController extends Controller
 
         return ["cameraResponse" => $cameraResponse1, "cameraResponse2" => $cameraResponse2, "deviceResponse" => $deviceResponse];
     }
+    public function deviceRequestLogs(Request $request): JsonResponse
+    {
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        // company_id can come from query or from logged-in user
+        $companyId = $request->query('company_id');
+
+        if (!$companyId && auth()->check()) {
+            $companyId = auth()->user()->company_id;
+        }
+
+        $path = storage_path("logs/device-employee-upload-{$date}.log");
+
+        if (!file_exists($path)) {
+            return response()->json([
+                'message' => "Log file not found for {$date}",
+                'lines'   => [],
+            ], 404);
+        }
+
+        // Read all lines (oldest → newest), then reverse (newest first)
+        $allLines = array_reverse(
+            file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
+        );
+
+        $filteredLines = [];
+
+        foreach ($allLines as $line) {
+            if (!trim($line)) {
+                continue;
+            }
+
+            // Find start of JSON: after the log prefix
+            $pos = strpos($line, '{');
+            if ($pos === false) {
+                // line has no JSON (maybe plain warning) → skip
+                continue;
+            }
+
+            $jsonStr = substr($line, $pos);
+
+            $data = json_decode($jsonStr, true);
+            if (!is_array($data)) {
+                // bad JSON → skip
+                continue;
+            }
+
+            // If we have a companyId filter, apply it
+            if ($companyId !== null) {
+                if (!isset($data['company_id'])) {
+                    continue;
+                }
+
+                if ((string) $data['company_id'] !== (string) $companyId) {
+                    continue;
+                }
+            }
+
+            // if passed all checks, keep the original line
+            $filteredLines[] = $line;
+        }
+
+        return response()->json([
+            'date'       => $date,
+            'company_id' => $companyId,
+            'lines'      => $filteredLines,
+        ]);
+    }
 
     public function AddPerson(Request $request)
     {
@@ -200,7 +269,13 @@ class SDKController extends Controller
         }
         try {
             $mqtt_mytime_devices_response = $this->filterMQTTMytimeModelDevices($request);
-            $deviceResponse = [...$deviceResponse, ...$mqtt_mytime_devices_response];
+
+
+
+
+
+
+            $deviceResponse = array_merge($deviceResponse, $mqtt_mytime_devices_response);
         } catch (\Exception $e) {
             $deviceResponse[] = [
                 "error" => "Error in MQTT Mytime Device Processing: "
@@ -212,7 +287,12 @@ class SDKController extends Controller
         $personList = $payload['personList'];
         $snList = $payload['snList'];
 
-        $Devices = Device::whereIn('device_id',  $snList)->pluck("device_id");
+        $Devices = Device::whereIn('device_id',  $snList)
+            ->where("model_number", "!=", "MYTIME1")
+            ->where("model_number", "!=", "CAMERA1")
+            ->where("model_number", "!=", "OX-900")
+
+            ->pluck("device_id");
 
         foreach ($Devices as $device_id) {
             $url = env('SDK_URL') . "/$device_id/AddPerson";
@@ -226,6 +306,76 @@ class SDKController extends Controller
                 $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
             }
         }
+
+        //logging
+
+        $devicesList = Device::where('company_id', $request->company_id)
+            ->whereIn('device_id', $snList)
+            ->get()
+            ->keyBy('device_id');   // device_id → Device model
+
+        foreach ($deviceResponse as $value) {
+            $deviceId = $value['device_id'] ?? null;
+
+            $persons = [
+                'name'     => $value['name'] ?? null,
+                'userCode' => $value['userCode'] ?? null,
+            ];
+
+            $gatewayResponse = [
+                'status'       => $value['status'] ?? null,
+                'sdk_response' => $value['sdk_response'] ?? null,
+            ];
+
+            $deviceResponseSDK = [
+                'status'       => is_array($value['sdk_response'] ?? null)
+                    ? ($value['sdk_response']['status'] ?? null)
+                    : null,
+                'sdk_response' => $value['sdk_response'] ?? null,
+            ];
+
+            // Get device model for this device_id (if exists)
+            $device = $deviceId && isset($devicesList[$deviceId])
+                ? $devicesList[$deviceId]
+                : null;
+
+            $logRow = [
+                'company_id'  => $request->company_id ?? null,
+
+                'name'        => $persons['name'] ?? null,
+                'userCode'    => $persons['userCode'] ?? null,
+                'device_id'   => $deviceId,
+
+                'action'      => 'upload',
+
+                // prefer device_name; fallback to name; if none, null
+                'device_name' => $device
+                    ? ($device->device_name ?? $device->name ?? null)
+                    : null,
+
+                // gateway / SDK side
+                'gateway_status'  => $gatewayResponse['status'] ?? null,
+                'gateway_success' => ($gatewayResponse['status'] ?? null) == 200 ? 1 : 0,
+
+                'gateway_raw'     => is_array($gatewayResponse['sdk_response'] ?? null)
+                    ? json_encode($gatewayResponse['sdk_response'])
+                    : ($gatewayResponse['sdk_response'] ?? null),
+
+                // device side (detailed sdk_response)
+                'device_status'   => is_array($deviceResponseSDK['sdk_response'] ?? null)
+                    ? ($deviceResponseSDK['sdk_response']['status'] ?? null)
+                    : null,
+
+                'device_message'  => is_array($deviceResponseSDK['sdk_response'] ?? null)
+                    ? ($deviceResponseSDK['sdk_response']['message'] ?? null)
+                    : null,
+            ];
+
+            // This will produce:
+            // [time] local.INFO: DEVICE_EMPLOYEE_UPLOAD {"name":"..","userCode":..,"device_id":"..", ...}
+            Log::channel('device_employee_upload')->info('DEVICE_EMPLOYEE_UPLOAD', $logRow);
+        }
+
 
         return ["cameraResponse" => $cameraResponse1, "cameraResponse2" => $cameraResponse2, "deviceResponse" => $deviceResponse];
 

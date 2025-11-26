@@ -168,6 +168,12 @@ return [
             'level'  => 'info',
             'days'   => 30, // Keep logs for 30 days
         ],
+        'device_employee_upload' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/device-employee-upload.log'),
+            'level' => 'info',
+            'days' => 10, // keep 30 days, adjust as you like
+        ],
     ],
 
 ];
