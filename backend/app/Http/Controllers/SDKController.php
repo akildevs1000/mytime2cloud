@@ -973,6 +973,51 @@ class SDKController extends Controller
                 return  ["data" => $response];
             else
                 return ["data" => null];
+        } else    if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
+            $query = [];
+
+            $query['picture'] = 1;
+
+            $responseSDK =  (new FaceDeviceController())
+                ->gatewayRequest('GET', "api/device/{$device["serial_number"]}/person/{$user_code}", [], $query);;
+
+
+
+            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                ? $responseSDK->getData(true)
+                : $responseSDK;
+
+
+
+            if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+
+
+
+                return  [
+                    "data" => [
+                        "company_id" => $device["company_id"],
+                        "name" => $responseSDK["info"]["name"],
+                        "userCode" => $responseSDK["info"]["customId"],
+                        "system_user_id" => $responseSDK["info"]["customId"],
+                        "faceImage" => null,
+                        "cardData" => "",
+                        "password" => "",
+                        "fp" => null,
+                        "palm" => null,
+                        "pin" => null,
+                        "face" => null,
+                        "fpCount" => 0,
+                        "face" => $responseSDK["pic"] != ''   ? true : false,
+
+
+                    ]
+                ];
+            } else {
+                return [
+                    "data" => null
+                ];
+            }
         } else {
 
 
@@ -1206,6 +1251,11 @@ class SDKController extends Controller
 
     public function getPersonAllV1($device_id)
     {
+
+
+
+
+
         $url = $this->buildUrl($device_id, 'GetPersonAll');
 
         return $this->sendRequest($url);
@@ -1213,9 +1263,60 @@ class SDKController extends Controller
 
     public function getPersonDetailsV1($device_id, $user_code)
     {
-        $url = $this->buildUrl($device_id, 'GetPersonDetail');
+        $device = Device::where("serial_number", $device_id)->first();
+        if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
 
-        return $this->sendRequest($url, ['usercode' => $user_code]);
+
+
+            $query = [];
+
+            $query['picture'] = 1;
+
+            $responseSDK =  (new FaceDeviceController())
+                ->gatewayRequest('GET', "api/device/{$device["serial_number"]}/person/{$user_code}", [], $query);;
+
+
+
+            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                ? $responseSDK->getData(true)
+                : $responseSDK;
+
+
+
+            if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+
+
+
+                return  [
+                    "data" => [
+                        "company_id" => $device["company_id"],
+                        "name" => $responseSDK["info"]["name"],
+                        "userCode" => $responseSDK["info"]["customId"],
+                        "system_user_id" => $responseSDK["info"]["customId"],
+                        "faceImage" => null,
+                        "cardData" => "",
+                        "password" => "",
+                        "fp" => null,
+                        "palm" => null,
+                        "pin" => null,
+                        "face" => null,
+                        "fpCount" => 0,
+                        "face" => $responseSDK["pic"] != ''   ? true : false,
+
+
+                    ]
+                ];
+            } else {
+                return [
+                    "data" => null
+                ];
+            }
+        } else {
+            $url = $this->buildUrl($device_id, 'GetPersonDetail');
+
+            return $this->sendRequest($url, ['usercode' => $user_code]);
+        }
     }
 
     private function buildUrl($device_id, $endpoint)
