@@ -91,6 +91,15 @@ class RenderController extends Controller
             }
         }
 
+        // $result = Attendance::where("employee_id", $request->employee_ids)->where("company_id", $request->company_id)
+        //     ->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+        //         $q->whereBetween("date", $request->dates);
+        //     })
+
+        //     ->update(["status" => "A"]);
+
+        // info($result);
+
         return array_merge(
             (new SplitShiftController)->renderData($request),
             (new AutoShiftController)->renderData($request),
