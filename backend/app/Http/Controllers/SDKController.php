@@ -1063,6 +1063,32 @@ class SDKController extends Controller
                 $response = (new DeviceCameraModel2Controller($device->camera_sdk_url, $device["serial_number"]))->deletePersonFromDevice($request->userCodeArray[0]);
 
                 return  ["data" => $response];
+            } else    if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
+
+
+                $user_code = $request->userCodeArray[0];
+                $query = [];
+
+                $query['picture'] = 1;
+
+                $responseSDK =  (new FaceDeviceController())
+                    ->gatewayRequest('DELETE', "api/device/{$device_id}/person/{$user_code}");;
+
+                $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                    ? $responseSDK->getData(true)
+                    : $responseSDK;
+                if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+                    return  [
+                        "data" => [
+                            "Deleted Successfully"
+                        ]
+                    ];
+                } else {
+                    return [
+                        "data" => "Cannot Delete User"
+                    ];
+                }
             } else {
                 $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
