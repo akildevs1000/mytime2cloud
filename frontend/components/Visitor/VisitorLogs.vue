@@ -126,44 +126,20 @@
       <v-col>
         <v-card class="mb-5" elevation="0">
           <v-toolbar class="rounded-md" dense flat>
-            <v-toolbar-title
-              ><span style="font-size: 16; font-weight: bold; font-size: 16px">
-                Visitor Device Logs</span
-              ></v-toolbar-title
-            >
-            <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              dense
-              class="ma-0 px-0"
-              x-small
-              :ripple="false"
-              @click="getRecords"
-              text
-              title="Reload"
-            >
-              <v-icon class="ml-2" dark>mdi mdi-reload</v-icon>
-            </v-btn>
-            <!-- </template>
-                <span>Reload</span>
-              </v-tooltip> -->
+            <v-toolbar-title class="text-subtitle-1 font-weight-bold">
+              Visitor Device Logs
+            </v-toolbar-title>
 
-            <!-- <v-tooltip top color="primary">
-                <template v-slot:activator="{ on, attrs }"> -->
-            <v-btn
-              x-small
-              :ripple="false"
-              text
-              title="Filter"
-              @click="toggleFilter"
-            >
-              <v-icon dark>mdi-filter</v-icon>
+            <v-btn icon small class="ml-2" @click="getRecords" title="Reload">
+              <v-icon>mdi-reload</v-icon>
             </v-btn>
-            <!-- </template>
-                <span>Filter</span>
-              </v-tooltip> -->
+
+            <v-btn icon small @click="toggleFilter" title="Filter">
+              <v-icon>mdi-filter</v-icon>
+            </v-btn>
 
             <v-spacer></v-spacer>
+            <VisitorCreate />
           </v-toolbar>
 
           <v-data-table
