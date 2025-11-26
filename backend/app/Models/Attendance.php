@@ -164,6 +164,11 @@ class Attendance extends Model
         $model = self::query();
 
         $model->where('company_id', $request->company_id);
+        if ($request->shift_type_id == 0) {
+            $model->whereNotIn('shift_type_id', [2, 5]);
+        } else {
+            $model->where('shift_type_id', $request->shift_type_id);
+        }
         $model->with(['shift_type', 'last_reason', 'branch']);
 
         if (!empty($request->employee_id)) {
@@ -249,8 +254,8 @@ class Attendance extends Model
             'employee' => function ($q) use ($company_id) {
                 $q->where('company_id', $company_id);
                 $q->where('status', 1);
-                $q->select('system_user_id', 'full_name', 'display_name', "department_id","designation_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
-                $q->with(['department', 'branch',"designation"]);
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "designation_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
+                $q->with(['department', 'branch', "designation"]);
                 $q->with([
                     "schedule"       => function ($q) use ($company_id) {
                         $q->where('company_id', $company_id);
