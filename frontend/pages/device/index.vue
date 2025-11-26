@@ -342,7 +342,7 @@
     <v-dialog v-model="DialogDeviceMegviiSettings" max-width="800px">
       <v-card>
         <v-card-title class="popup_background">
-          <span>Device - OXSAI Settings </span>
+          <span>Device - {{ deviceCAMVIISettings.model_spec == 'MYTIME1' ? 'MYTIME1' : 'OXSAI' }} Settings </span>
           <v-spacer></v-spacer>
 
           <v-icon outlined @click="DialogDeviceMegviiSettings = false">mdi-close-circle</v-icon>
@@ -354,6 +354,7 @@
               <table style="width: 100%">
                 <tr>
                   <td colspan="2">
+
                     <v-btn style="float: right" dense small class="primary mt-2 align-right" @click="
                       getDeviceCAMVIISettginsFromSDK(
                         deviceCAMVIISettings.device_id
@@ -384,7 +385,7 @@
                   </td>
                 </tr> -->
 
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
                     <v-autocomplete :disable="loadingDeviceData" :readOnly="loadingDeviceData" class="pb-0"
@@ -398,7 +399,7 @@
                       ]" item-value="value" item-text="name" outlined dense label="Persons Entry"></v-autocomplete>
                   </td>
                 </tr>
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td>Door Open</td>
                   <td>
                     <v-row>
@@ -443,7 +444,7 @@
                     ></v-text-field>
                   </td>
                 </tr> -->
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td>Volume</td>
                   <td>
                     <v-progress-linear style="cursor: pointer" v-model="deviceCAMVIISettings.voice_volume" height="25">
@@ -505,7 +506,7 @@
                   </td>
                 </tr> -->
 
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td></td>
                   <td>
                     <v-btn dense small class="primary mt-2" @click="updateDeviceCAMMIISettings()">
@@ -905,7 +906,7 @@
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-else-if="can(`device_edit`) && item.model_number == 'OX-900' && item.model_number != 'MYTIME1'"
+                v-else-if="can(`device_edit`) && item.model_number == 'OX-900' || item.model_number == 'MYTIME1'"
                 @click="showDeviceMegviiSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>

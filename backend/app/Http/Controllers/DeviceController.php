@@ -565,16 +565,84 @@ class DeviceController extends Controller
     public function getDevicecamviiSettingsFromSDK(Request $request)
     {
 
-        if ($request->device_id > 0) {
 
-            $device = Device::where("device_id", $request->device_id)->first();
-            $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
+        $device = Device::where("device_id", $request->device_id)->first();
+        if ($device->model_number == "MYTIME1") {
 
 
-            return ["SDKresponseData" =>  $responseData,  "device_id" => $request->device_id, "status" => true];
+
+            //getTime
+            $deviceTime = "";
+            $devicePersonsCount = 0;
+
+            try {
+                $responseSDK = (new FaceDeviceController())
+                    ->gatewayRequest('GET', "api/device/{$request->device_id}/timezone");
+
+                $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                    ? $responseSDK->getData(true)
+                    : $responseSDK;
+
+                if (isset($responseSDK['code']) && $responseSDK['code'] == 200) {
+
+
+                    if (($responseSDK["info"]["SysTime"])) {
+                        $deviceTime = $responseSDK["info"]["SysTime"];
+                    }
+                }
+            } catch (\Exception $e) {
+            }
+            try {
+                $responseSDK = (new FaceDeviceController())
+                    ->gatewayRequest('GET', "api/device/{$request->device_id}/persons/list");
+
+                $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                    ? $responseSDK->getData(true)
+                    : $responseSDK;
+
+                if (isset($responseSDK['code']) && $responseSDK['code'] == 200) {
+
+
+                    if (($responseSDK["info"]["TotalPersonNum"])) {
+                        $devicePersonsCount = $responseSDK["info"]["TotalPersonNum"];
+                    }
+                }
+            } catch (\Exception $e) {
+            }
+
+            return [
+                "SDKresponseData" => [
+                    "data" => [
+                        "model_spec" => "MYTIME1",
+                        "voice_volume" => "",
+                        "local_time" => str_replace("T", " ", $deviceTime),
+                        "door_open_stat" => "",
+                        "wifi_ip" => "",
+                        "lan_ip" => "",
+                        "ipaddr" => "",
+                        "open_duration" => "",
+                        "verification_mode" => "",
+                        "recognition_mode" => "",
+                        "persons_count" => $devicePersonsCount,
+                    ]
+                ],
+                "device_id" => $request->device_id,
+                "status" => true
+            ];
         } else {
-            return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
+
+            if ($request->device_id > 0) {
+
+                $device = Device::where("device_id", $request->device_id)->first();
+                $responseData['data'] = (new DeviceCameraModel2Controller($device->camera_sdk_url))->getSettings($device);
+
+
+                return ["SDKresponseData" =>  $responseData,  "device_id" => $request->device_id, "status" => true];
+            } else {
+                return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
+            }
         }
+        return ["SDKresponseData" => "", "message" => "  Device id is not avaialble ", "deviceName" => false, "status" => false, "device_id" => $request->device_id];
     }
     public function AlarmOffToDeviceSDK(Request $request)
     {
@@ -1437,8 +1505,59 @@ class DeviceController extends Controller
                     $online_devices_count = $online_devices_count +  $count;
             } catch (\Exception $e) {
             }
-        }
 
+
+            try {
+                //MYTIME1-MQTT
+
+
+
+
+                //139.59.69.241:8888
+                $online_devices_count_mytime = 0;
+                $devices = Device::where('company_id', $company_id)->where('model_number', "MYTIME1");
+
+                $devices->clone()->update(["status_id" => 2]);
+
+
+
+                foreach ($devices->get() as $device) {
+
+
+
+                    $responseSDK = (new FaceDeviceController())
+                        ->gatewayRequest('GET', "api/device/{$device->device_id}/status");
+
+                    $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                        ? $responseSDK->getData(true)
+                        : $responseSDK;
+
+                    if (isset($responseSDK['online'])) {
+
+                        Device::where("device_id", $device->device_id)->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
+                        $online_devices_count_mytime++;
+                    }
+                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                if ($online_devices_count_mytime)
+                    $online_devices_count = $online_devices_count +  $online_devices_count_mytime;
+            } catch (\Exception $e) {
+            }
+        }
 
         //get offline devices list
         $offlineDevices = Device::with(["company"])->where("device_type", "!=", "Mobile")
