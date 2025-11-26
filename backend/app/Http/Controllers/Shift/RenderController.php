@@ -91,6 +91,10 @@ class RenderController extends Controller
             }
         }
 
+        $result = Attendance::where("employee_id", $request->employee_ids)->where("company_id", $request->company_id)->update(["status" => "A"]);
+
+        info($result);
+
         return array_merge(
             (new SplitShiftController)->renderData($request),
             (new AutoShiftController)->renderData($request),
