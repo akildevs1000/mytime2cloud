@@ -75,28 +75,6 @@ class SingleShiftController extends Controller
             $logsEmployees =  (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
         }
 
-
-
-        //update atendance table with shift ID if shift with employee not found
-        // if (count($logsEmployees) == 0) {
-        //     $employees = (new Employee())->GetEmployeeWithShiftDetails($params);
-        //     foreach ($employees as $key => $value) {
-        //         if ($value->schedule->shift && $value->schedule->shift["id"] > 0) {
-        //             $data1 = [
-        //                 "shift_id" => $value->schedule->shift["id"],
-        //                 "shift_type_id" => $value->schedule->shift["shift_type_id"]
-        //             ];
-        //             $model1 = Attendance::query();
-        //             $model1->whereIn("employee_id", $UserIds);
-        //             $model1->where("date", $params["date"]);
-        //             $model1->where("shift_id", 0);
-        //             $model1->where("shift_type_id", 0);
-        //             $model1->where("company_id", $params["company_id"]);
-        //             $model1->update($data1);
-        //         }
-        //     }
-        // }
-
         $items = [];
 
 
@@ -169,7 +147,7 @@ class SingleShiftController extends Controller
                 "company_id" => $params["company_id"],
                 "employee_id" => $key,
                 "shift_id" => $shift["id"] ?? 0,
-                "shift_type_id" => $schedule["shift_type_id"] ?? 0,
+                "shift_type_id" => $shift["shift_type_id"] ?? 0,
                 "status" => "M",
                 "late_coming" => "---",
                 "early_going" => "---",
