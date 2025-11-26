@@ -96,7 +96,7 @@ class RenderController extends Controller
                 $q->whereBetween("date", $request->dates);
             })
 
-            ->update(["status" => "O"]);
+            ->update(["status" => "A"]);
 
         info($result);
 
