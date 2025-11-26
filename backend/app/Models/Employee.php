@@ -911,9 +911,9 @@ class Employee extends Model
             // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
             $q->orderBy("to_date", "asc");
 
-            $q->whereHas("shift", function ($shiftQuery) use ($params) {
-                $shiftQuery->whereJsonContains("days", Carbon::parse($params["date"])->format("D"));
-            });
+            // $q->whereHas("shift", function ($shiftQuery) use ($params) {
+            //     $shiftQuery->whereJsonContains("days", Carbon::parse($params["date"])->format("D"));
+            // });
         }]);
 
         return $employees->get(["system_user_id"]);
