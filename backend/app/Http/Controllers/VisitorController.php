@@ -695,10 +695,8 @@ class VisitorController extends Controller
 
     public function prepareJsonForSDK($data, $device_id, $utc_time_zone)
     {
-
-
-        $date  = new DateTime("now", new DateTimeZone($utc_time_zone != '' ? $utc_time_zone : 'Asia/Dubai'));
-        $currentDateTime = $date->format('Y-m-d H:i:00');
+        // $date  = new DateTime("now", new DateTimeZone($utc_time_zone != '' ? $utc_time_zone : 'Asia/Dubai'));
+        // $currentDateTime = $date->format('Y-m-d H:i:00');
 
         $personList = [];
 
@@ -707,7 +705,7 @@ class VisitorController extends Controller
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
-        $personList["expiry"] =  '2023-01-01 00:00:00';
+        $personList["expiry"] =  $data["visit_to"] . " " . $data["time_out_display"];
 
         if ($data["card_rfid_number"] != '') {
             $personList["cardData"] = $data["card_rfid_number"];
@@ -724,25 +722,19 @@ class VisitorController extends Controller
         }
 
 
+        // $currentDate  = $date->format('Y-m-d');
 
-
-
-        $currentDate  = $date->format('Y-m-d');
-
-        if (
-            strtotime($currentDate) >= strtotime($data["visit_from"])
-            && strtotime($currentDate) <= strtotime($data["visit_to"])
-        ) {
-            if (
-                strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $data["time_in"])
-                && strtotime($currentDateTime) <= strtotime($currentDate . ' ' . $data["time_out"])
-            ) {
-                $personList["expiry"] = $currentDate . ' ' . $data["time_out"];
-            }
-        }
-
-
-
+        // if (
+        //     strtotime($currentDate) >= strtotime($data["visit_from"])
+        //     && strtotime($currentDate) <= strtotime($data["visit_to"])
+        // ) {
+        //     if (
+        //         strtotime($currentDateTime) >= strtotime($currentDate . ' ' . $data["time_in"])
+        //         && strtotime($currentDateTime) <= strtotime($currentDate . ' ' . $data["time_out"])
+        //     ) {
+        //         $personList["expiry"] = $currentDate . ' ' . $data["time_out"];
+        //     }
+        // }
 
 
         Visitor::where("id", $data["id"])->update(["sdk_expiry_datetime" => $personList["expiry"]]);
