@@ -717,7 +717,7 @@ class VisitorController extends Controller
             if (env("APP_ENV") == "local") {
                 $personList["faceImage"] = "https://backend.mytime2cloud.com/media/employee/profile_picture/1697544063.jpg";
             } else {
-                $personList["faceImage"] =  $data["logo"];
+                // $personList["faceImage"] =  $data["logo"];
             }
         }
 
