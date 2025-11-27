@@ -702,7 +702,7 @@ class VisitorController extends Controller
 
         $personList = [];
 
-        info($data[0]);
+        info($data);
 
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
