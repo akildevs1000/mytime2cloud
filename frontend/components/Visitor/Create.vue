@@ -13,10 +13,6 @@
             <v-dialog v-model="responseDialog" max-width="500px">
               <v-card>
                 <v-toolbar flat class="primary" dense dark>
-                  <v-icon>{{ statusIcon }}</v-icon>
-                  <v-toolbar-title class="">
-                    {{ responseStatus }}
-                  </v-toolbar-title>
                   <v-spacer></v-spacer>
                   <v-btn icon dark @click="responseDialog = false">
                     <v-icon>mdi-close</v-icon>
@@ -24,10 +20,6 @@
                 </v-toolbar>
 
                 <v-card-text class="pa-6 text-center">
-                  <v-icon size="64" :color="statusColor" class="mb-4">
-                    {{ statusIcon }}
-                  </v-icon>
-
                   <div class="text-h6 text--primary">
                     {{ response }}
                   </div>

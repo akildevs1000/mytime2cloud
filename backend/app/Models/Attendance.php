@@ -164,11 +164,19 @@ class Attendance extends Model
         $model = self::query();
 
         $model->where('company_id', $request->company_id);
-        if ($request->shift_type_id == 0) {
-            $model->whereNotIn('shift_type_id', [2, 5]);
-        } else {
-            $model->where('shift_type_id', $request->shift_type_id);
+
+        $showTabs = json_decode(request("showTabs") ?? '[]', true);
+
+        $filteredTabs = array_filter($showTabs, fn($value) => $value === true);
+
+        if (count($filteredTabs) > 1) {
+            if (($showTabs['multi'] == true || $showTabs['double'] == true) && request("shift_type_id", 0) > 0) {
+                $model->where('shift_type_id',  request("shift_type_id"));
+            } else {
+                $model->whereNotIn('shift_type_id', [2, 5]);
+            }
         }
+
         $model->with(['shift_type', 'last_reason', 'branch']);
 
         if (!empty($request->employee_id)) {

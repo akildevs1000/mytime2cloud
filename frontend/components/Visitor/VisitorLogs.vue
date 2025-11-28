@@ -368,13 +368,13 @@
               }}
             </template>
             <template v-slot:item.company="{ item }">
-              {{ item.visitor?.host.company_name || "---" }}
+              {{ item.visitor?.host?.company_name || "---" }}
               <div class="secondary-value">
-                {{ item.visitor?.host.number || "---" }}
+                {{ item.visitor?.host?.number || "---" }}
               </div>
             </template>
             <template v-slot:item.purpose_id="{ item }">
-              {{ item.visitor?.purpose.name || "---" }}
+              {{ item.visitor?.purpose?.name || "---" }}
             </template>
 
             <template v-slot:item.LogTime="{ item }">
