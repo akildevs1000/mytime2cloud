@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands\Shift;
 
+use App\Jobs\Shift\SyncExceptAutoShiftJob;
 use App\Models\AttendanceLog;
 use App\Models\Employee;
 use Carbon\Carbon;
@@ -24,8 +25,19 @@ class SyncExceptAutoShift extends Command
      * @var string
      */
     protected $description = 'Sync Other Shifts like (Filo,Single,Night,Multi) except Auto Shift';
+    
     public function handle()
     {
+
+        $companyId = $this->argument('company_id');
+        $date = $this->argument('date');
+
+        SyncExceptAutoShiftJob::dispatch($companyId, $date);
+
+        $this->info("SyncExceptAutoShiftJob dispatched for Company: $companyId Date: $date");
+
+        return;
+
         $url = 'https://backend.mytime2cloud.com/api/render_logs';
 
         if (env("APP_ENV") == "desktop") {
@@ -33,9 +45,7 @@ class SyncExceptAutoShift extends Command
             $port = 8000;
             $url = "http://$localIp:$port/api/render_logs";
             // $url = 'https://mytime2cloud-backend.test/api/render_logs';
-        }
-
-        else if (env("APP_ENV") == "local") {
+        } else if (env("APP_ENV") == "local") {
             $url = 'https://mytime2cloud-backend.test/api/render_logs';
         }
 
