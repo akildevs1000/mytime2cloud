@@ -100,12 +100,19 @@ class RenderController extends Controller
 
         // info($result);
 
+
+        if ($request->shift_type_id == 2) {
+            return (new MultiShiftController)->renderData($request);
+        }
+
+        if ($request->shift_type_id == 5) {
+            return (new SplitShiftController)->renderData($request);
+        }
+
         return array_merge(
-            (new SplitShiftController)->renderData($request),
             (new AutoShiftController)->renderData($request),
             (new FiloShiftController)->renderData($request),
             (new SingleShiftController)->renderData($request),
-            (new MultiShiftController)->renderData($request),
             (new NightShiftController)->renderData($request),
         );
     }
