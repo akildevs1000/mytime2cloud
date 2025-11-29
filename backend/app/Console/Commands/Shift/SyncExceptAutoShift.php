@@ -4,6 +4,7 @@ namespace App\Console\Commands\Shift;
 
 use App\Models\AttendanceLog;
 use App\Models\Employee;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log as Logger;
@@ -34,14 +35,22 @@ class SyncExceptAutoShift extends Command
             // $url = 'https://mytime2cloud-backend.test/api/render_logs';
         }
 
+        else if (env("APP_ENV") == "local") {
+            $url = 'https://mytime2cloud-backend.test/api/render_logs';
+        }
+
+
         $id = $this->argument("company_id");
         $date = $this->argument("date");
 
         $employeeIds = Employee::where("company_id", $id)
-            ->whereHas("schedule", function ($q) use ($id) {
+            ->whereHas("schedule", function ($q) use ($id, $date) {
                 $q->where("company_id", $id);
                 $q->where("isAutoShift", false);
                 $q->whereIn("shift_type_id", [1, 4, 6]);
+                $q->whereHas("shift", function ($shiftQuery) use ($date) {
+                    $shiftQuery->whereJsonContains("days", Carbon::parse($date)->format("D"));
+                });
             })
             ->pluck("system_user_id");
 
