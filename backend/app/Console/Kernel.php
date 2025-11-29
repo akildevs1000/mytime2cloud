@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule)
     {
+        $month = now()->month;
 
         // $schedule
         //     ->command("check:mytime2cloud-health")
@@ -115,6 +116,13 @@ class Kernel extends ConsoleKernel
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
+            $schedule->command("task:sync_double_shift {$companyId} " . date("Y-m-d"))
+                ->everyThirtyMinutes()
+                ->between('5:00', '23:59')
+                ->withoutOverlapping()
+                ->runInBackground();
+
+
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
                 // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
@@ -167,15 +175,20 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('02:00')
                 ->runInBackground();
 
-            $schedule
-                ->command("task:sync_off $companyId")
-                ->dailyAt('02:20')
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_off $companyId")
+            //     ->dailyAt('02:20')
+            //     ->runInBackground();
 
-            $schedule
-                ->command("task:sync_flexible_off $companyId")
-                ->dailyAt('04:20')
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_flexible_off $companyId")
+            //     ->dailyAt('04:20')
+            //     ->runInBackground();
+
+            $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
+                ->when(fn() => now()->isLastOfMonth())
+                ->withoutOverlapping()
+                ->onOneServer();
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")

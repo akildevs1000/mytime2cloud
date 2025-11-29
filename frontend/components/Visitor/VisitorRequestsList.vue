@@ -6,6 +6,23 @@
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+    <v-row justify="center">
+      <v-dialog v-model="responseDialog" max-width="500px">
+        <v-card>
+          <v-toolbar flat class="primary" dense dark>
+            <v-btn icon dark @click="responseDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-toolbar>
+
+          <v-card-text class="pa-6 text-center">
+            <div class="text-h6 text--primary">
+              <v-img v-if="qrCodeDataURL" :src="qrCodeDataURL" />
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
     <v-dialog v-model="DialogQrCode" width="300">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -680,6 +697,8 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    responseDialog: false,
+    qrCodeDataURL: null,
     commonSearch: "",
     key: 1,
     DialogQrCode: false,
@@ -901,6 +920,32 @@ export default {
     this.getZonesList();
   },
   methods: {
+    async generateAccessCode(userId, timeString = "1764162582984637") {
+      try {
+        const rawString = `user_id=${userId}_time=${timeString}`;
+        console.log("Raw Data:", rawString);
+
+        const encodedToken = window.btoa(rawString);
+        console.log("Encoded:", encodedToken);
+
+        // 5. Generate QR
+        const options = {
+          errorCorrectionLevel: "M",
+          type: "image/png",
+          margin: 4,
+          scale: 10,
+          color: { dark: "#000000", light: "#FFFFFF" },
+        };
+
+        this.qrCodeDataURL = await this.$qrcode.generate(encodedToken, options);
+
+        console.log(qrCodeDataURL);
+
+      } catch (error) {
+        console.error("Error generating QR code:", error);
+      }
+    },
+
     getZonesList() {
       this.payloadOptions = {
         params: {
@@ -1128,7 +1173,6 @@ export default {
       this.overlay = false;
     },
     async save() {
-      console.log(this.selectedVisitor);
 
       if (this.$refs.form.validate()) {
         const today = new Date();
@@ -1173,6 +1217,11 @@ export default {
 
         this.response =
           "Visitor Profile picture is uploading to Device. Please wait for 5 to 10 seconds";
+
+
+        this.responseDialog = true;
+
+        this.generateAccessCode(this.payload.system_user_id);
         this.snackbar = true;
         this.valid = false;
 

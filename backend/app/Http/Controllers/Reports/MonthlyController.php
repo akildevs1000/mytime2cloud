@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Reports;
 
 use App\Exports\AttendanceExport;
@@ -98,7 +99,7 @@ class MonthlyController extends Controller
 
         $showTabs = json_decode($request->showTabs, true);
 
-        $shift_type = $showTabs['multi'] == true || $showTabs['dual'] == true ? "Multi" : "General";
+        $shift_type = $showTabs['multi'] == true || $showTabs['double'] == true ? "Multi" : "General";
 
         $company_id = $request->company_id;
 
@@ -138,7 +139,7 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        // if ($showTabs['multi'] == true || $showTabs['double'] == true) {
         //     return $this->PDFMerge();
         // }
         sleep(5);
@@ -153,7 +154,7 @@ class MonthlyController extends Controller
 
         $showTabs = json_decode($request->showTabs, true);
 
-        $shift_type = $showTabs['multi'] == true || $showTabs['dual'] == true ? "Multi" : "General";
+        $shift_type = $showTabs['multi'] == true || $showTabs['double'] == true ? "Multi" : "General";
 
         $company_id = $request->company_id;
 
@@ -193,7 +194,7 @@ class MonthlyController extends Controller
         }
 
         // only for multi in/out
-        // if ($showTabs['multi'] == true || $showTabs['dual'] == true) {
+        // if ($showTabs['multi'] == true || $showTabs['double'] == true) {
         //     return $this->PDFMerge("D");
         // }
 
@@ -273,8 +274,8 @@ class MonthlyController extends Controller
 
     public function multi_in_out_monthly_download_pdf(Request $request)
     {
-        if (request("shift_type_id", 0) == 2) {
-            return $this->PDFMerge("D");
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            return $this->PDFMerge();
         }
 
         $file_name = "Attendance Report";
@@ -290,7 +291,7 @@ class MonthlyController extends Controller
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
-        if (request("shift_type_id", 0) == 2) {
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
             return $this->PDFMerge();
         }
 
@@ -309,11 +310,9 @@ class MonthlyController extends Controller
         ini_set('memory_limit', '2048M');
         ini_set('max_execution_time', 600);
 
-        $showTabs = json_decode($request->showTabs, true) ?? [];
-        $multiTab = $showTabs['multi'] ?? false;
-        $dualTab  = $showTabs['dual'] ?? false;
-
         $model = (new Attendance)->processAttendanceModel($request);
+
+        // return $model->get();
 
         $file_name = "Attendance Report";
         if ($request->filled('from_date') && $request->filled('to_date')) {
@@ -322,11 +321,13 @@ class MonthlyController extends Controller
 
         $file_name = preg_replace('/[^\w\s\-]/', '', $file_name) . '.xlsx';
 
-        if ($multiTab || $dualTab) {
-            return Excel::download(new AttendanceExport($model), $file_name);
+        if ($request->shift_type_id == 0) {
+            return Excel::download(new AttendanceExportGeneral($model), $file_name);
         }
 
-        return Excel::download(new AttendanceExportGeneral($model), $file_name);
+        $colLength = $request->shift_type_id == 2 ? 7 : 2;
+
+        return Excel::download(new AttendanceExport($model, $colLength), $file_name);
     }
 
     public function processPDF($request)
@@ -1048,9 +1049,9 @@ class MonthlyController extends Controller
         $to_date   = request("to_date", date("Y-m-d"));
 
         $file_name = "Attendance Report - "
-        . Carbon::parse($from_date)->format('d M Y')
-        . " to "
-        . Carbon::parse($to_date)->format('d M Y')
+            . Carbon::parse($from_date)->format('d M Y')
+            . " to "
+            . Carbon::parse($to_date)->format('d M Y')
             . ".pdf";
 
         if (empty($pdfFiles)) {

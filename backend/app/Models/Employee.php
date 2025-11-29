@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Leave;
 use App\Models\Timezone;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -586,7 +587,7 @@ class Employee extends Model
             ->when($request->filled("department_ids"), function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
-        
+
 
             ->when($request->filled("filter_branch_id"), function ($q) use ($request) {
                 $q->where('branch_id', '=', $request->filter_branch_id);
@@ -890,8 +891,6 @@ class Employee extends Model
 
     public function attendanceEmployeeForMultiRender($params)
     {
-
-
         $employees = Employee::query();
         $employees->where("company_id", $params["company_id"]);
         $employees->whereIn("system_user_id", $params["UserIds"] ?? []);
@@ -911,6 +910,10 @@ class Employee extends Model
             $q->withOut("shift_type");
             // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
             $q->orderBy("to_date", "asc");
+
+            $q->whereHas("shift", function ($shiftQuery) use ($params) {
+                $shiftQuery->whereJsonContains("days", Carbon::parse($params["date"])->format("D"));
+            });
         }]);
 
         return $employees->get(["system_user_id"]);

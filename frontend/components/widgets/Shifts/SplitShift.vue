@@ -311,26 +311,6 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col cols="12" md="6">
-            <DatePickerCommon
-              label="From Date"
-              :default_value="currentDate"
-              @selectedDate="(value) => (payload.from_date = value)"
-            />
-            <span v-if="errors && errors.from_date" class="text-danger">{{
-              errors.from_date[0]
-            }}</span>
-          </v-col>
-          <v-col cols="12" md="6">
-            <DatePickerCommon
-              label="To Date"
-              :default_value="nextYearDate"
-              @selectedDate="(value) => (payload.to_date = value)"
-            />
-            <span v-if="errors && errors.to_date" class="text-danger">{{
-              errors.to_date[0]
-            }}</span>
-          </v-col>
           <v-col cols="12">
             <v-btn
               v-if="payload && payload.id > 0"

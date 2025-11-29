@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Jobs;
 
 use App\Models\Attendance;
@@ -53,9 +54,10 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             'company'       => $this->company,
             'info'          => $info,
             "employee"      => $this->employee,
-            "shift_type_id" => $this->shift_type_id ?? 0,
+            "shift_type_id" => $this->shift_type_id == 5 ? 2 : ($this->shift_type_id ?? 0),
             "from_date"     => $this->requestPayload["from_date"],
             "to_date"       => $this->requestPayload["to_date"],
+            "log_column_length" => $this->shift_type_id == 2 ? 7 : 2
         ];
 
         $template = $this->template;
@@ -75,7 +77,6 @@ class GenerateAttendanceReportPDF implements ShouldQueue
         Cache::increment("batch_done");
 
         echo "\nFile created at {$filePath}\n";
-
     }
 
     public function getModel($requestPayload)

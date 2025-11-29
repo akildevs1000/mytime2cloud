@@ -16,6 +16,14 @@ class ProcessGpsLocations extends Command
     {
         $this->info('Processing GPS logs...');
 
+        $address = $this->reverseGeocode("25.2632555", "55.2914216");
+
+        $this->info($address);
+
+        return;
+
+        $this->info('Processing GPS logs...');
+
         // Fetch limited rows to avoid API overflow
         $logs = AttendanceLog::whereNotNull('lat')
             ->whereNotNull('lon')
@@ -110,24 +118,12 @@ class ProcessGpsLocations extends Command
 
                 $parts = array_filter([$road, $neighbourhood, $suburb, $city, $country]);
 
+
                 return implode(', ', $parts);
             }
         } catch (\Exception $e) {
-            $this->error("API error: " . $e->getMessage());
         }
 
         return null; // explicit fallback if API fails
-    }
-
-    public function updateGPSLocation($log, $lat, $lon, $foundLocation)
-    {
-        $log->gps_location = $foundLocation;
-        $log->save();
-        // $updated = DB::table('attendance_logs')
-        //     ->where('lat', $lat)
-        //     ->where('lon', $lon)
-        //     ->update(["gps_location" => $foundLocation]);
-
-        // $this->info("$updated logs processed $lat,$lon");
     }
 }

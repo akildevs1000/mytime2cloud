@@ -1141,8 +1141,8 @@ class DeviceController extends Controller
         $company_id = (int)$company_id;
         if ($company_id > 0) {
             $statusCounts = Device::where('company_id', $company_id)
-                ->when($request->filled("branch_ids"), function ($q) use ($request) {
-                    $q->whereIn("branch_id", $request->branch_ids);
+                ->when(request()->filled("branch_ids"), function ($q){
+                    $q->whereIn("branch_id", request("branch_ids"));
                 })
                 ->whereIn('status_id', [1, 2])
                 ->where('device_id', "!=", "Manual")
