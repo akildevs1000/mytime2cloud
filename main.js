@@ -58,20 +58,24 @@ function createWindow() {
   mainWindow.loadFile('index.html');
 
   mainWindow.webContents.once('did-finish-load', async () => {
-    const repositories = [
-      {
-        url: 'https://github.com/akildevs1000/dotnet_sdk',
-        folder: 'dotnet_sdk',
-      },
-    ];
+    // const repositories = [
+    //   {
+    //     url: 'https://github.com/akildevs1000/dotnet_sdk',
+    //     folder: 'dotnet_sdk',
+    //   },
+    // ];
 
-    await cloneMultipleRepos(mainWindow, repositories);
+    // await cloneMultipleRepos(mainWindow, repositories);
 
     const repos = [
       {
+        folder: 'dotnet_sdk',
+        url: 'https://backend.mytime2cloud.com/dotnet_sdk.zip'
+      },
+      {
         folder: 'java_sdk',
         url: 'https://backend.mytime2cloud.com/java_sdk.zip'
-      }
+      },
     ];
 
     downloadMultipleRepos(mainWindow, repos);
