@@ -64,42 +64,6 @@ class RenderController extends Controller
             return ["Limit  20 Employees  only "];
         }
 
-        if ($request->channel == "kernel") {
-            if ($request->shift_type_id == 0) {
-                return array_merge(
-                    // 1,6
-                    (new FiloShiftController)->renderData($request),
-
-                    (new SingleShiftController)->renderData($request),
-                );
-            }
-
-            if ($request->shift_type_id == 2) {
-                return (new MultiShiftController)->renderData($request);
-            } else if ($request->shift_type_id == 3) {
-                return array_merge(
-                    (new AutoShiftController)->renderData($request),
-
-
-                    (new SingleShiftController)->renderData($request),
-                    (new NightShiftController)->renderData($request),
-                );
-            } else if ($request->shift_type_id == 4) {
-                return (new NightShiftController)->renderData($request);
-            } else if ($request->shift_type_id == 5) {
-                return (new SplitShiftController)->renderData($request);
-            }
-        }
-
-        // $result = Attendance::where("employee_id", $request->employee_ids)->where("company_id", $request->company_id)
-        //     ->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
-        //         $q->whereBetween("date", $request->dates);
-        //     })
-
-        //     ->update(["status" => "A"]);
-
-        // info($result);
-
 
         if ($request->shift_type_id == 2) {
             return (new MultiShiftController)->renderData($request);
@@ -107,6 +71,26 @@ class RenderController extends Controller
 
         if ($request->shift_type_id == 5) {
             return (new SplitShiftController)->renderData($request);
+        }
+
+        if ($request->channel == "kernel") {
+            if ($request->shift_type_id == 0) {
+                return array_merge(
+                    // 1,6
+                    (new FiloShiftController)->renderData($request),
+                    (new SingleShiftController)->renderData($request),
+                );
+            }
+
+           if ($request->shift_type_id == 3) {
+                return array_merge(
+                    (new AutoShiftController)->renderData($request),
+                    (new SingleShiftController)->renderData($request),
+                    (new NightShiftController)->renderData($request),
+                );
+            } else if ($request->shift_type_id == 4) {
+                return (new NightShiftController)->renderData($request);
+            }
         }
 
         return array_merge(
