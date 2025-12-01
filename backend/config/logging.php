@@ -51,6 +51,11 @@ return [
      */
 
     'channels'     => [
+        'weekoff' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/weekoff.log'),
+            'level' => 'debug',
+        ],
         'split' => [
             'driver' => 'daily',
             'path' => storage_path('logs/split.log'),
