@@ -36,6 +36,8 @@ class RenderWeekOffJob implements ShouldQueue
         // Define the dedicated channel for weekoff process logs
         $weekoffLog = Log::channel('weekoff');
 
+        echo $this->employeeId;
+
         $logContext = [
             'company_id' => $this->companyId,
             'employee_id' => $this->employeeId,
