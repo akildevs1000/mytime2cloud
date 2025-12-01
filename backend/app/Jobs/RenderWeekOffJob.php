@@ -125,13 +125,13 @@ class RenderWeekOffJob implements ShouldQueue
             echo "No eligible rows found for weekoff assignment among the candidates.\n";
         }
 
-        // --- 6. DISPLAY SUMMARY ---
         $finalAttendanceData = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
-            ->selectRaw('SUM(CASE WHEN status = "A" THEN 1 ELSE 0 END) as final_absent_count')
-            ->selectRaw('SUM(CASE WHEN status = "O" THEN 1 ELSE 0 END) as final_weekoff_count')
-            ->selectRaw('SUM(CASE WHEN status NOT IN ("A", "O") THEN 1 ELSE 0 END) as final_present_count')
+            // Use single quotes ('') for the string literals 'A' and 'O'
+            ->selectRaw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as final_absent_count")
+            ->selectRaw("SUM(CASE WHEN status = 'O' THEN 1 ELSE 0 END) as final_weekoff_count")
+            ->selectRaw("SUM(CASE WHEN status NOT IN ('A', 'O') THEN 1 ELSE 0 END) as final_present_count")
             ->first();
 
         $summaryLog = [
