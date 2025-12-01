@@ -46,7 +46,7 @@ class RenderWeekOffJob implements ShouldQueue
         $weekoffLog->info('Starting weekoff assignment process.', $logContext);
 
         $totalEligiblePresents = Attendance::where('company_id', $this->companyId)
-            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->where('employee_id', $this->employeeId)
             ->whereMonth('date', $this->month)
             ->whereNotIn('status', ['A', 'O'])
             ->count();
@@ -54,7 +54,7 @@ class RenderWeekOffJob implements ShouldQueue
         if ($totalEligiblePresents === 0) {
             $weekoffLog->warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
             Attendance::where('company_id', $this->companyId)
-                ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+                ->where('employee_id', $this->employeeId)
                 ->whereMonth('date', $this->month)
                 ->update(['status' => 'A']);
             return;
@@ -68,7 +68,7 @@ class RenderWeekOffJob implements ShouldQueue
             $weekoffLog->info('Not enough eligible presents to assign any weekoff.', $logContext);
 
             $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
-                ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+                ->where('employee_id', $this->employeeId)
                 ->whereMonth('date', $this->month)
                 ->whereIn('status', ['A', 'O'])
                 ->update(['status' => 'A']);
@@ -79,7 +79,7 @@ class RenderWeekOffJob implements ShouldQueue
         }
 
         $availableSlots = Attendance::where('company_id', $this->companyId)
-            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->where('employee_id', $this->employeeId)
             ->whereMonth('date', $this->month)
             ->whereIn('status', ['A', 'O'])
             ->orderBy('date')
@@ -117,7 +117,7 @@ class RenderWeekOffJob implements ShouldQueue
         }
 
         $finalAttendanceData = Attendance::where('company_id', $this->companyId)
-            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->where('employee_id', $this->employeeId)
             ->whereMonth('date', $this->month)
             ->selectRaw("SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as final_absent_count")
             ->selectRaw("SUM(CASE WHEN status = 'O' THEN 1 ELSE 0 END) as final_weekoff_count")
