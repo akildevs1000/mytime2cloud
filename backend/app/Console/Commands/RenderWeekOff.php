@@ -32,7 +32,7 @@ class RenderWeekOff extends Command
             }
 
             // Dispatch job per employee
-            RenderWeekOffJob::dispatch($companyId, $month, $empId);
+            RenderWeekOffJob::dispatchSync($companyId, $month, $empId);
 
             $this->info("RenderWeekOff job dispatched for employee {$empId} of company {$companyId}, month {$month}.");
         }
