@@ -53,7 +53,6 @@ class RenderWeekOffJob implements ShouldQueue
 
         if ($totalEligiblePresents === 0) {
             $weekoffLog->warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
-
             Attendance::where('company_id', $this->companyId)
                 ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
                 ->whereMonth('date', $this->month)
@@ -67,6 +66,15 @@ class RenderWeekOffJob implements ShouldQueue
 
         if ($numWeekOffsToAssign === 0) {
             $weekoffLog->info('Not enough eligible presents to assign any weekoff.', $logContext);
+
+            $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
+                ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+                ->whereMonth('date', $this->month)
+                ->whereIn('status', ['A', 'O'])
+                ->update(['status' => 'A']);
+
+            $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
+
             return;
         }
 
