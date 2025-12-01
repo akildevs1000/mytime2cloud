@@ -48,7 +48,8 @@ class RenderWeekOffJob implements ShouldQueue
 
         // --- 1. COUNT ELIGIBLE PRESENTS ---
         $totalEligiblePresents = Attendance::where('company_id', $this->companyId)
-            // ... query logic
+            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->whereMonth('date', $this->month)
             ->whereNotIn('status', ['A', 'O'])
             ->count();
 
@@ -58,7 +59,8 @@ class RenderWeekOffJob implements ShouldQueue
             Log::warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
 
             Attendance::where('company_id', $this->companyId)
-                // ... update logic
+                ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+                ->whereMonth('date', $this->month)
                 ->update(['status' => 'A']);
 
             echo "No eligible Present records found. Skipping weekoff assignment.\n";
@@ -78,7 +80,9 @@ class RenderWeekOffJob implements ShouldQueue
 
         // --- 3. IDENTIFY AVAILABLE WEEKOFF SLOTS (Optimized) ---
         $availableSlots = Attendance::where('company_id', $this->companyId)
-            // ... query logic
+            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->whereMonth('date', $this->month)
+            ->whereIn('status', ['A', 'O'])
             ->orderBy('date')
             ->limit($numWeekOffsToAssign)
             ->select('id', 'employee_id', 'date')
@@ -92,7 +96,8 @@ class RenderWeekOffJob implements ShouldQueue
 
         foreach ($availableSlots as $candidateRow) {
             $logsExist = AttendanceLog::where('company_id', $this->companyId)
-                // ... log check logic
+                ->where('UserID', $candidateRow->employee_id)
+                ->whereDate('LogTime', $candidateRow->date)
                 ->exists();
 
             if (!$logsExist) {
@@ -122,7 +127,11 @@ class RenderWeekOffJob implements ShouldQueue
 
         // --- 6. DISPLAY SUMMARY ---
         $finalAttendanceData = Attendance::where('company_id', $this->companyId)
-            // ... selectRaw logic for final counts
+            ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+            ->whereMonth('date', $this->month)
+            ->selectRaw('SUM(CASE WHEN status = "A" THEN 1 ELSE 0 END) as final_absent_count')
+            ->selectRaw('SUM(CASE WHEN status = "O" THEN 1 ELSE 0 END) as final_weekoff_count')
+            ->selectRaw('SUM(CASE WHEN status NOT IN ("A", "O") THEN 1 ELSE 0 END) as final_present_count')
             ->first();
 
         $summaryLog = [
