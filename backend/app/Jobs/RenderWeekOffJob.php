@@ -33,6 +33,19 @@ class RenderWeekOffJob implements ShouldQueue
 
     protected function setWeekOffs(): void
     {
+        // Define the dedicated channel for weekoff process logs
+        $weekoffLog = Log::channel('weekoff');
+
+        $logContext = [
+            'company_id' => $this->companyId,
+            'employee_id' => $this->employeeId,
+            'month' => $this->month,
+            'function' => __FUNCTION__,
+        ];
+
+        // Log start on the dedicated channel
+        $weekoffLog->info('Starting weekoff assignment process.', $logContext);
+
         // --- 1. COUNT ELIGIBLE PRESENTS ---
         $totalEligiblePresents = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
@@ -41,6 +54,7 @@ class RenderWeekOffJob implements ShouldQueue
             ->count();
 
         if ($totalEligiblePresents === 0) {
+            $weekoffLog->warning('No eligible Present records found. Setting all records to Absent.', $logContext);
             // High-level failure log on default channel
             Log::warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
 
@@ -56,8 +70,10 @@ class RenderWeekOffJob implements ShouldQueue
         // --- 2. CALCULATE WEEKOFFS TO ASSIGN ---
         $numWeekOffsToAssign = intdiv($totalEligiblePresents, 6);
 
+        $weekoffLog->info("Eligible Presents: {$totalEligiblePresents}. Calculated Weekoffs to assign: {$numWeekOffsToAssign}.", $logContext);
 
         if ($numWeekOffsToAssign === 0) {
+            $weekoffLog->info('Not enough eligible presents to assign any weekoff.', $logContext);
             echo "Not enough Eligible Present records ({$totalEligiblePresents}) to assign any weekoff.\n";
             return;
         }
@@ -72,6 +88,7 @@ class RenderWeekOffJob implements ShouldQueue
             ->select('id', 'employee_id', 'date')
             ->get();
 
+        $weekoffLog->debug("Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.", $logContext);
 
         // --- 4. DETERMINE FINAL WEEKOFFS ---
         $idsToSetWeekOff = [];
@@ -87,7 +104,8 @@ class RenderWeekOffJob implements ShouldQueue
                 $idsToSetWeekOff[] = $candidateRow->id;
                 $weekoffLog->debug("Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}) is eligible for WeekOff ('O').", $logContext);
             } else {
-                $skippedSlots[] = $candidateRow->date->toDateString();
+                $skippedSlots[] = $candidateRow->date;
+                $weekoffLog->info("Skipping Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}). Logs already exist.", $logContext);
             }
         }
 
@@ -98,10 +116,12 @@ class RenderWeekOffJob implements ShouldQueue
 
             // Critical log on both channels
             $logMessage = "Successfully assigned {$updatedCount} Weekoffs ('O').";
+            $weekoffLog->notice($logMessage, array_merge($logContext, ['updated_ids' => $idsToSetWeekOff]));
             Log::notice("WEEKOFF: Employee {$this->employeeId} assigned {$updatedCount} Weekoffs.", $logContext);
 
             echo "Successfully assigned {$updatedCount} weekoffs.\n";
         } else {
+            $weekoffLog->info('No eligible slots remained after checking for existing logs. No update performed.', $logContext);
             echo "No eligible rows found for weekoff assignment among the candidates.\n";
         }
 
@@ -124,6 +144,8 @@ class RenderWeekOffJob implements ShouldQueue
             'Final_Absents' => $finalAttendanceData->final_absent_count,
             'Skipped_Dates' => $skippedSlots,
         ];
+
+        $weekoffLog->info('Weekoff assignment process completed with summary.', array_merge($logContext, $summaryLog));
 
         echo "Employee {$this->employeeId} | Month {$this->month} | Presents: {$summaryLog['Final_Presents']} | Assigned Weekoffs: {$summaryLog['Assigned_Weekoffs']} | Final Absents: {$summaryLog['Final_Absents']}\n\n";
     }
