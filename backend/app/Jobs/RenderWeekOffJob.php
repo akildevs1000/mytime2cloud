@@ -56,7 +56,7 @@ class RenderWeekOffJob implements ShouldQueue
         if ($totalEligiblePresents === 0) {
             $weekoffLog->warning('No eligible Present records found. Setting all records to Absent.', $logContext);
             // High-level failure log on default channel
-            Log::warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
+            $weekoffLog->warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
 
             Attendance::where('company_id', $this->companyId)
                 ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
@@ -117,7 +117,7 @@ class RenderWeekOffJob implements ShouldQueue
             // Critical log on both channels
             $logMessage = "Successfully assigned {$updatedCount} Weekoffs ('O').";
             $weekoffLog->notice($logMessage, array_merge($logContext, ['updated_ids' => $idsToSetWeekOff]));
-            Log::notice("WEEKOFF: Employee {$this->employeeId} assigned {$updatedCount} Weekoffs.", $logContext);
+            $weekoffLog->notice("WEEKOFF: Employee {$this->employeeId} assigned {$updatedCount} Weekoffs.", $logContext);
 
             echo "Successfully assigned {$updatedCount} weekoffs.\n";
         } else {
