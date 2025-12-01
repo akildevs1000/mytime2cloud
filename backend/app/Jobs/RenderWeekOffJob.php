@@ -26,22 +26,7 @@ class RenderWeekOffJob implements ShouldQueue
 
     public function handle()
     {
-        $this->setInitialStatusToAbsent();
         $this->setWeekOffs();
-    }
-
-    protected function setInitialStatusToAbsent()
-    {
-        $rows = Attendance::where('company_id', $this->companyId)
-            ->where('employee_id', $this->employeeId)
-            ->whereMonth('date', $this->month)
-            ->get(['id', 'status']);
-
-        if ($rows->count() > 0) {
-            Attendance::whereIn('id', $rows->pluck('id'))
-                ->where('status', '!=', 'P') // Keep present untouched
-                ->update(['status' => 'A']);
-        }
     }
 
     protected function setWeekOffs()
@@ -50,11 +35,17 @@ class RenderWeekOffJob implements ShouldQueue
         $totalPresent = Attendance::where('company_id', $this->companyId)
             ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
             ->whereMonth('date', $this->month)
-            ->where('status', 'P')
+            //->where('status', 'P')
+            ->whereNotIn('status', ['A', 'O'])   // A = Absent, O = WeekOff (adjust codes as needed)
             ->count();
 
         if ($totalPresent === 0) {
             echo "No Present records found. Skipping weekoff assignment.\n";
+
+            Attendance::where('company_id', $this->companyId)
+                ->when($this->employeeId, fn($q) => $q->where('employee_id', $this->employeeId))
+                ->whereMonth('date', $this->month)
+                ->update(['status' => 'A']); // Set all to Absent if no presents found
             return;
         }
 
@@ -74,17 +65,32 @@ class RenderWeekOffJob implements ShouldQueue
             ->orderBy('date')
             ->get();
 
+        Attendance::whereIn('id', $availableRows->pluck('id')->toArray())->update(['status' => 'A']);
+
         $weekOffRows = $availableRows->take($numWeekOffs);
 
-        $weekOffIds = $weekOffRows->pluck('id')->toArray();
+        $idsToUpdate = [];
 
-        if (!empty($weekOffIds)) {
-            Attendance::whereIn('id', $weekOffIds)->update(['status' => 'O']);
+        foreach ($weekOffRows as $row) {
 
-            // // Display assigned weekoffs
-            // foreach ($weekOffRows as $row) {
-            //     echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date}\n";
-            // }
+            // Check if logs exist for this employee on this date
+            $logsExist = \App\Models\AttendanceLog::where('company_id', $this->companyId)
+                ->where('UserID', $row->employee_id)          // use $this->employeeId
+                ->whereDate('LogTime', $row->date)           // use LogTime or edit_date column
+                ->exists();                                  // check existence
+
+            if ($logsExist) {
+                echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date} | Logs exist\n";
+            } else {
+                echo "Employee {$this->employeeId} | Weekoff assigned | ID: {$row->id} | Date: {$row->date} | No logs found\n";
+
+                // Collect IDs to update
+                $idsToUpdate[] = $row->id;
+            }
+        }
+
+        if (!empty($idsToUpdate)) {
+            Attendance::whereIn('id', $idsToUpdate)->update(['status' => 'O']);
         } else {
             echo "No eligible rows found for weekoff assignment.\n";
         }
@@ -96,6 +102,6 @@ class RenderWeekOffJob implements ShouldQueue
             ->where('status', 'A')
             ->count();
 
-        echo "Employee {$this->employeeId} | Presents: {$totalPresent} | Weekoffs: {$numWeekOffs} | Absents: {$totalAbsent}\n\n";
+        echo "Employee {$this->employeeId} | Month {$this->month} | Presents: {$totalPresent} | Assignable Weekoffs: {$numWeekOffs} | Absents: {$totalAbsent}\n\n";
     }
 }
