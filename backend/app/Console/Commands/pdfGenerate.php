@@ -80,7 +80,7 @@ class pdfGenerate extends Command
                         $employee,
                         $requestPayload,
                         $employee->schedule->shift_type_id
-                    )->onQueue('pdf-reports');
+                    );
 
                     // $this->info("[$processed] Employee processed: {$employee->full_name}");
                 }
