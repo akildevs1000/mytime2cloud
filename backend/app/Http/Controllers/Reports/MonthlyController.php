@@ -79,7 +79,7 @@ class MonthlyController extends Controller
                         $requestPayload,
                         optional($employee->schedule)->shift_type_id ?? 0,
                         $requestPayload["template"] ?? "Template1"
-                    )->onQueue('pdf-reports');
+                    );
                 }
 
                 gc_collect_cycles();

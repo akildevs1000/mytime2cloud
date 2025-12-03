@@ -81,6 +81,11 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->runInBackground();
 
+        $schedule->command("render:weekoff --month={$month}")
+            ->when(fn() => now()->isLastOfMonth())
+            ->withoutOverlapping()
+            ->onOneServer();
+
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
@@ -185,10 +190,7 @@ class Kernel extends ConsoleKernel
             //     ->dailyAt('04:20')
             //     ->runInBackground();
 
-            $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
-                ->when(fn() => now()->isLastOfMonth())
-                ->withoutOverlapping()
-                ->onOneServer();
+
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")
