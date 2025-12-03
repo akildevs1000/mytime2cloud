@@ -912,17 +912,19 @@
                             </tr>
                         @endforeach
 
+                        {{-- how to show only in the last --}}
                         @if ($loop->last)
                             <tr style=" background-color: #f3f4f6;">
-                                @if ($shift_type_id != 2 && $shift_type_id != 5)
+                                @if ($shift_type_id != 2)
                                     <td colspan="4"></td>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_late ?? 0 }}</th>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_early ?? 0 }}</th>
                                 @else
-                                    <td colspan="5"></td>
+                                    <td colspan="{{ $shift_type_id != 2 ? 5 : 15 }}"></td>
                                 @endif
                                 <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
                                 <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
+                                <td></td>
                             </tr>
                         @endif
                     </tbody>
