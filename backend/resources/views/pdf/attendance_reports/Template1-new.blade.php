@@ -931,7 +931,7 @@
                                 @endif
                                 <th style="text-align: left">{{ $info->total_hours ?? 0 }}</th>
                                 <th style="text-align: left">{{ $info->total_ot_hours ?? 0 }}</th>
-                                <td></td>
+                                <td>{{$shift_type}}</td>
                             </tr>
                         @endif
                     </tbody>
