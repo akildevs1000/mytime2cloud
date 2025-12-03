@@ -49,12 +49,18 @@ class GenerateAttendanceReportPDF implements ShouldQueue
             'report_type'    => $this->requestPayload["status_slug"],
         ];
 
+        $shift_types = [
+            2 => 'Multi',
+            5 => 'Double',
+        ];
+
         $arr = [
             'data'          => $data,
             'company'       => $this->company,
             'info'          => $info,
             "employee"      => $this->employee,
             "shift_type_id" => $this->shift_type_id == 5 ? 2 : ($this->shift_type_id ?? 0),
+            "shift_type"    => $shift_types[$this->shift_type_id] ?? 'General',
             "from_date"     => $this->requestPayload["from_date"],
             "to_date"       => $this->requestPayload["to_date"],
             "log_column_length" => $this->shift_type_id == 2 ? 7 : 2
