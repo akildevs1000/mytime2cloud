@@ -712,7 +712,8 @@
                     <thead>
                         <tr>
                             <th style="text-align: left">Date</th>
-                            @if ($shift_type_id != 2)
+                             <!--  // Multi, Double, General -->
+                            @if ($shift_type == 'General')
                                 <th style="text-align: left">Shift</th>
                                 <th style="text-align: left">In Time</th>
                                 <th style="text-align: left">Out Time</th>
@@ -742,7 +743,8 @@
                                     <span
                                         style="font-size: 9px">{{ date('D', strtotime($date->date)) ?? '---' }}</span>
                                 </td>
-                                @if ($shift_type_id != 2)
+                                <!--  // Multi, Double, General -->
+                                @if ($shift_type == 'General')
                                     <td>
                                         @if ($date->schedule)
                                             {{ $date->schedule->shift->on_duty_time }} -
@@ -830,7 +832,8 @@
                     <thead>
                         <tr>
                             <th style="text-align: left">Date</th>
-                            @if ($shift_type_id != 2)
+                            <!--  // Multi, Double, General -->
+                            @if ($shift_type == 'General')
                                 <th style="text-align: left">Shift</th>
                                 <th style="text-align: left">In Time</th>
                                 <th style="text-align: left">Out Time</th>
@@ -862,7 +865,8 @@
                                     <span
                                         style="font-size: 9px">{{ date('D', strtotime($date->date)) ?? '---' }}</span>
                                 </td>
-                                @if ($shift_type_id != 2)
+                                <!--  // Multi, Double, General -->
+                                @if ($shift_type == 'General')
                                     <td>
                                         @if ($date->schedule)
                                             {{ $date->schedule->shift->on_duty_time }} -
@@ -915,11 +919,12 @@
                         {{-- how to show only in the last --}}
                         @if ($loop->last)
                             <tr style=" background-color: #f3f4f6;">
-                                @if ($shift_type_id != 2)
+                                <!--  // Multi, Double, General -->
+                                @if ($shift_type == 'General')
                                     <td colspan="4"></td>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_late ?? 0 }}</th>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_early ?? 0 }}</th>
-                                @elseif ($shift_type_id != 2)
+                               @if ($shift_type == 'Double')
                                     <td colspan="5"></td>
                                 @else
                                     <td colspan="15"></td>
