@@ -332,7 +332,7 @@
 
     @php
 
-        $isSmall = $shift_type_id == 2;
+        $isSmall = $shift_type == 'Multi' || $shift_type == 'Double';
 
         if (!function_exists('timeToMinutes')) {
             function timeToMinutes($time)
@@ -705,7 +705,7 @@
                 </tr>
                 <?php } ?>
 
-                @if ($shift_type_id == 2)
+                @if ($isSmall)
                     @for ($i = 0; $i < $log_column_length; $i++)
                         <tr>
                             <td
