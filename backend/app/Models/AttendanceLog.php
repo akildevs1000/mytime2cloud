@@ -166,7 +166,11 @@ class AttendanceLog extends Model
                 $q->where('LogTime', 'LIKE', "$request->LogTime%");
             })
             ->when($request->filled('device'), function ($q) use ($request) {
-                $q->where('DeviceID', $request->device);
+                if ($request->filled('device') == 'Mobile') {
+                    $q->where('DeviceID', env('WILD_CARD') ?? 'ILIKE', "$request->device%");
+                } else {
+                    $q->where('DeviceID', $request->device);
+                }
             })
             ->when($request->filled('system_user_id'), function ($q) use ($request) {
                 $q->where('UserID', $request->system_user_id);
