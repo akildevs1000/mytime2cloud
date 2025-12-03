@@ -918,6 +918,8 @@
                                     <td colspan="4"></td>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_late ?? 0 }}</th>
                                     <th style="text-align: left;color:#f97316;">{{ $info->total_early ?? 0 }}</th>
+                                @elseif ($shift_type_id == 5)
+                                    <td colspan="14"></td>
                                 @else
                                     <td colspan="15"></td>
                                 @endif
