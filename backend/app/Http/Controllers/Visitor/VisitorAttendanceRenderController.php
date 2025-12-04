@@ -336,8 +336,6 @@ class VisitorAttendanceRenderController extends Controller
 
                         $msg .= $visitor["visit_from"] . ' ' . $visitor["time_in"] . '---' . $currentDateTime . '----' . $visitor["visit_to"] . ' ' . $visitor["time_out"];
 
-
-
                         $msg .= " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}" . "\n";
                     }
                 } else {
