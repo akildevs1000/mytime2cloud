@@ -714,7 +714,7 @@ class VisitorController extends Controller
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
-        $personList["expiry"] =  '2023-01-01 00:00:00';
+        $personList["expiry"] =  '2026-01-01 00:00:00';
 
         if ($data["card_rfid_number"] != '') {
             $personList["cardData"] = $data["card_rfid_number"];
