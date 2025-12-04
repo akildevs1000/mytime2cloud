@@ -68,19 +68,18 @@ class RenderWeekOffJob implements ShouldQueue
 
         echo "Eligible Presents: {$totalEligiblePresents}. Calculated Weekoffs to assign: {$numWeekOffsToAssign}.\n";
 
+        $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
+            ->where('employee_id', $this->employeeId)
+            ->whereMonth('date', $this->month)
+            ->whereIn('status', ['A', 'O'])
+            ->update(['status' => 'A']);
+
+        $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
+        echo "Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.\n";
+
         if ($numWeekOffsToAssign === 0) {
             $weekoffLog->info('Not enough eligible presents to assign any weekoff.', $logContext);
             echo "Not enough eligible presents to assign any weekoff.\n";
-
-            $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
-                ->where('employee_id', $this->employeeId)
-                ->whereMonth('date', $this->month)
-                ->whereIn('status', ['A', 'O'])
-                ->update(['status' => 'A']);
-
-            $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
-            echo "Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.\n";
-
             return;
         }
 
@@ -92,16 +91,6 @@ class RenderWeekOffJob implements ShouldQueue
             ->limit($numWeekOffsToAssign)
             ->select('id', 'employee_id', 'date')
             ->get();
-
-        $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
-            ->where('employee_id', $this->employeeId)
-            ->whereMonth('date', $this->month)
-            ->whereIn('status', ['A', 'O'])
-            ->update(['status' => 'A']);
-
-        $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
-        echo "Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.\n";
-
 
         $weekoffLog->info("Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.", $logContext);
         echo "Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.\n";
