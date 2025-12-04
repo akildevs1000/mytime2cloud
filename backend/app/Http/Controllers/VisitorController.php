@@ -492,7 +492,7 @@ class VisitorController extends Controller
                 ->first();
 
             if ($ifVisitorExist) {
-                return $this->response('Visitor  Id already exist in Visitors List.', $ifVisitorExist, false);
+                // return $this->response('Visitor  Id already exist in Visitors List.', $ifVisitorExist, false);
             } else if ($ifEmployeeExist) {
                 return $this->response('Visitor  Id already exist in Employee List.', $ifEmployeeExist, false);
             }
