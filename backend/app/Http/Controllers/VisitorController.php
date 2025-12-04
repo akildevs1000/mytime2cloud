@@ -643,7 +643,7 @@ class VisitorController extends Controller
                                     $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
                                 }
 
-                                PushUserToDevice::dispatch($preparedJson, $url);
+                                PushUserToDevice::dispatchSync($url,$preparedJson);
 
                                 // (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
                             } catch (\Throwable $th) {
