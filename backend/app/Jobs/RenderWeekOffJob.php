@@ -51,6 +51,8 @@ class RenderWeekOffJob implements ShouldQueue
             ->whereNotIn('status', ['A', 'O'])
             ->count();
 
+        echo "Total Eligible Presents for Employee {$this->employeeId} in Company {$this->companyId} for Month {$this->month}: {$totalEligiblePresents}\n";
+
         if ($totalEligiblePresents === 0) {
             $weekoffLog->warning("WEEKOFF: Employee {$this->employeeId} had no presents in month {$this->month}. Status reset to A.", $logContext);
             Attendance::where('company_id', $this->companyId)
@@ -64,17 +66,20 @@ class RenderWeekOffJob implements ShouldQueue
 
         $weekoffLog->info("Eligible Presents: {$totalEligiblePresents}. Calculated Weekoffs to assign: {$numWeekOffsToAssign}.", $logContext);
 
+        echo "Eligible Presents: {$totalEligiblePresents}. Calculated Weekoffs to assign: {$numWeekOffsToAssign}.\n";
+
+        $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
+            ->where('employee_id', $this->employeeId)
+            ->whereMonth('date', $this->month)
+            ->whereIn('status', ['A', 'O'])
+            ->update(['status' => 'A']);
+
+        $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
+        echo "Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.\n";
+
         if ($numWeekOffsToAssign === 0) {
             $weekoffLog->info('Not enough eligible presents to assign any weekoff.', $logContext);
-
-            $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
-                ->where('employee_id', $this->employeeId)
-                ->whereMonth('date', $this->month)
-                ->whereIn('status', ['A', 'O'])
-                ->update(['status' => 'A']);
-
-            $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
-
+            echo "Not enough eligible presents to assign any weekoff.\n";
             return;
         }
 
@@ -88,6 +93,7 @@ class RenderWeekOffJob implements ShouldQueue
             ->get();
 
         $weekoffLog->info("Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.", $logContext);
+        echo "Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.\n";
 
         $idsToSetWeekOff = [];
         $skippedSlots = [];
@@ -101,9 +107,11 @@ class RenderWeekOffJob implements ShouldQueue
             if (!$logsExist) {
                 $idsToSetWeekOff[] = $candidateRow->id;
                 $weekoffLog->info("Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}) is eligible for WeekOff ('O').", $logContext);
+                echo "Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}) is eligible for WeekOff ('O').\n";
             } else {
                 $skippedSlots[] = $candidateRow->date;
                 $weekoffLog->info("Skipping Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}). Logs already exist.", $logContext);
+                echo "Skipping Candidate ID {$candidateRow->id} (Date: {$candidateRow->date}). Logs already exist.\n";
             }
         }
 
@@ -112,8 +120,10 @@ class RenderWeekOffJob implements ShouldQueue
             $updatedCount = Attendance::whereIn('id', $idsToSetWeekOff)->update(['status' => 'O']);
             $logMessage = "Successfully assigned {$updatedCount} Weekoffs ('O').";
             $weekoffLog->info($logMessage, array_merge($logContext, ['updated_ids' => $idsToSetWeekOff]));
+            echo $logMessage . "\n";
         } else {
             $weekoffLog->info('No eligible slots remained after checking for existing logs. No update performed.', $logContext);
+            echo "No eligible slots remained after checking for existing logs. No update performed.\n";
         }
 
         $finalAttendanceData = Attendance::where('company_id', $this->companyId)
@@ -135,5 +145,6 @@ class RenderWeekOffJob implements ShouldQueue
             'Skipped_Dates' => $skippedSlots,
         ];
         $weekoffLog->info('Weekoff assignment process completed with summary.', array_merge($logContext, $summaryLog));
+        echo "Weekoff assignment process completed with summary: " . json_encode($summaryLog) . "\n";
     }
 }
