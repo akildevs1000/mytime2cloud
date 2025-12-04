@@ -319,7 +319,7 @@
           <span class="secondary-value"> {{ item.email }}</span>
         </template> -->
         <template v-slot:item.visitor_company_name="{ item }"
-          >{{ item.visitor_company_name }}
+          >{{ item?.visitor_company_name }}
         </template>
         <template v-slot:item.id="{ item }">
           <span v-if="item.id_type == 1">Emirates ID</span>
@@ -456,7 +456,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_number"
-                label="RFID Card Number (Optional)"
+                label="RFID Card Number"
                 required
                 outlined
                 dense
@@ -687,6 +687,8 @@
 
 <script>
 import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
+import { getQrCode } from "~/utils/qrcode_945";
+
 export default {
   props: [
     "title",
@@ -920,32 +922,14 @@ export default {
     this.getZonesList();
   },
   methods: {
-    async generateAccessCode(userId, timeString = "1764162582984637") {
+    async getQrcodeNum(d, rfid) {
       try {
-        const rawString = `user_id=${userId}_time=${timeString}`;
-        console.log("Raw Data:", rawString);
-
-        const encodedToken = window.btoa(rawString);
-        console.log("Encoded:", encodedToken);
-
-        // 5. Generate QR
-        const options = {
-          errorCorrectionLevel: "M",
-          type: "image/png",
-          margin: 4,
-          scale: 10,
-          color: { dark: "#000000", light: "#FFFFFF" },
-        };
-
-        this.qrCodeDataURL = await this.$qrcode.generate(encodedToken, options);
-
-        console.log(qrCodeDataURL);
-
-      } catch (error) {
-        console.error("Error generating QR code:", error);
+        const result = await getQrCode(new Date(d), rfid);
+        this.qrCodeDataURL = await this.$qrcode.generate(result);
+      } catch (err) {
+        console.log(err);
       }
     },
-
     getZonesList() {
       this.payloadOptions = {
         params: {
@@ -1020,13 +1004,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    // async getQRCode(item) {
-    //   try {
-    //     item.qr_code = await this.$qrcode.generate("test");
-    //   } catch (error) {
-    //     console.error("Error generating QR code:", error);
-    //   }
-    // },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
@@ -1218,10 +1195,10 @@ export default {
         this.response =
           "Visitor Profile picture is uploading to Device. Please wait for 5 to 10 seconds";
 
+        await this.getQrcodeNum(`${this.selectedVisitor.visit_to}T${this.selectedVisitor.time_out_display}`, this.payload.card_rfid_number);
 
         this.responseDialog = true;
 
-        this.generateAccessCode(this.payload.system_user_id);
         this.snackbar = true;
         this.valid = false;
 
