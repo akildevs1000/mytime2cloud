@@ -93,6 +93,11 @@ class RenderWeekOffJob implements ShouldQueue
             ->select('id', 'employee_id', 'date')
             ->get();
 
+
+        $slotIds = $availableSlots->pluck('id');
+
+        echo "Candidate Slot IDs for Weekoff Assignment: " . $slotIds->implode(', ') . "\n";
+
         $weekoffLog->info("Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.", $logContext);
         echo "Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.\n";
 
