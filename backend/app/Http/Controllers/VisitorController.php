@@ -7,6 +7,7 @@ use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
+use App\Jobs\PushUserToDevice;
 use App\Mail\VisitorQRNotificationMail;
 use App\Models\Company;
 use App\Models\Device;
@@ -636,7 +637,15 @@ class VisitorController extends Controller
 
                             try {
 
-                                (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
+                                $url = env('SDK_URL') . "/Person/AddRange";
+
+                                if (env('APP_ENV') == 'desktop') {
+                                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+                                }
+
+                                PushUserToDevice::dispatch($preparedJson, $url);
+
+                                // (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
                             } catch (\Throwable $th) {
                             }
                         }
