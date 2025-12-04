@@ -93,10 +93,15 @@ class RenderWeekOffJob implements ShouldQueue
             ->select('id', 'employee_id', 'date')
             ->get();
 
+        $totalResetToAbsentToMakeSureCorrectCount = Attendance::where('company_id', $this->companyId)
+            ->where('employee_id', $this->employeeId)
+            ->whereMonth('date', $this->month)
+            ->whereIn('status', ['A', 'O'])
+            ->update(['status' => 'A']);
 
-        $slotIds = $availableSlots->pluck('id');
+        $weekoffLog->info("Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.");
+        echo "Reset Status to absent for remaining rows : $totalResetToAbsentToMakeSureCorrectCount.\n";
 
-        echo "Candidate Slot IDs for Weekoff Assignment: " . $slotIds->implode(', ') . "\n";
 
         $weekoffLog->info("Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.", $logContext);
         echo "Fetched {$availableSlots->count()} candidate slots for potential weekoff assignment.\n";
