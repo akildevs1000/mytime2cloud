@@ -270,7 +270,7 @@ class VisitorAttendanceRenderController extends Controller
             ->where('visit_to', ">=", $currentDate)
             ->where('sdk_deleted_visitor_date_time',  null)
             ->where(
-                fn ($query) => $query
+                fn($query) => $query
                     ->where('sdk_expiry_datetime', '2023-01-01 00:00:00')
                     ->orwhereColumn("visit_from", "!=", "visit_to")
                     //->orwhereColumn("visit_from",  null)
@@ -283,6 +283,8 @@ class VisitorAttendanceRenderController extends Controller
             return "Visitor count is 0";
         }
         //echo  "Visitor Count is  " . count($visitorsList);
+
+        $msg = "";
 
 
         foreach ($visitorsList as $key => $visitor) {
@@ -325,17 +327,24 @@ class VisitorAttendanceRenderController extends Controller
 
                         $this->updateVisitorExpiryDateToDevice($personList, $device['device_id']);
 
-                        $msg = "{Updated Exptime - " . $visitor["system_user_id"] . " - SDK Exp Time " . $personList["expiry"] . '}';
+                        $m = "{Updated Exptime - " . $visitor["system_user_id"] . " - SDK Exp Time " . $personList["expiry"] . "}" . "\n";
                         // echo $msg . ' ';
-                        $this->devLog("cron-visitor-setVisitorExpireDates-log", $msg);
+                        $this->devLog("cron-visitor-setVisitorExpireDates-log", $m);
+
+                        $msg .= $m;
                     } else {
-                        //echo " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}";
+
+                        $msg .= $visitor["visit_from"] . ' ' . $visitor["time_in"] . '---' . $currentDateTime . '----' . $visitor["visit_to"] . ' ' . $visitor["time_out"];
+
+                        $msg .= " {Current Time is not matching with Visitor Intime " . $currentDate . ' ' . $visitor["time_in"] . "-" . $visitor["system_user_id"] . "}" . "\n";
                     }
                 } else {
-                    // echo "Expiry time is already Updated to " . $visitor["system_user_id"];
+                    $msg .= "Expiry time is already Updated to " . $visitor["system_user_id"] . "\n";
                 }
             }
         }
+
+        return $msg;
     }
     public function deleteVisitorFromDevice(Request $request)
     {

@@ -7,6 +7,7 @@ use App\Http\Requests\Visitor\Store;
 use App\Http\Requests\Visitor\Update;
 use App\Http\Requests\Visitor\UploadVisitor;
 use App\Jobs\ProcessSDKCommand;
+use App\Jobs\PushUserToDevice;
 use App\Mail\VisitorQRNotificationMail;
 use App\Models\Company;
 use App\Models\Device;
@@ -492,7 +493,7 @@ class VisitorController extends Controller
                 ->first();
 
             if ($ifVisitorExist) {
-                return $this->response('Visitor  Id already exist in Visitors List.', $ifVisitorExist, false);
+                // return $this->response('Visitor  Id already exist in Visitors List.', $ifVisitorExist, false);
             } else if ($ifEmployeeExist) {
                 return $this->response('Visitor  Id already exist in Employee List.', $ifEmployeeExist, false);
             }
@@ -636,7 +637,15 @@ class VisitorController extends Controller
 
                             try {
 
-                                (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
+                                $url = env('SDK_URL') . "/Person/AddRange";
+
+                                if (env('APP_ENV') == 'desktop') {
+                                    $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
+                                }
+
+                                PushUserToDevice::dispatchSync($url,$preparedJson);
+
+                                // (new SDKController)->processSDKRequestPersonAddJobJson('', $preparedJson);
                             } catch (\Throwable $th) {
                             }
                         }
@@ -705,7 +714,7 @@ class VisitorController extends Controller
         $personList["name"] = $data["first_name"] . " " . $data["last_name"];
         $personList["userCode"] = $data["system_user_id"];
         $personList["timeGroup"] = 1;
-        $personList["expiry"] =  '2023-01-01 00:00:00';
+        $personList["expiry"] =  '2026-01-01 00:00:00';
 
         if ($data["card_rfid_number"] != '') {
             $personList["cardData"] = $data["card_rfid_number"];
