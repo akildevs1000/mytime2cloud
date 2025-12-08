@@ -1048,7 +1048,7 @@ const httpServer = http.createServer(app);
 
 httpServer.listen(HTTP_PORT, () => {
   console.log(
-    `🚀 MQTT HTTP gateway listening on http://localhost:${HTTP_PORT}`
+    `🚀 MQTT data WebSocket Data gateway listening on http://localhost:${HTTP_PORT}`
   );
 });
 

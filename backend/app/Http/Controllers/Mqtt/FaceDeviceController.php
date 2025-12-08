@@ -29,7 +29,7 @@ class FaceDeviceController extends Controller
                 '/'
             ) . '/' . ltrim($path, '/');
 
-            $client = Http::acceptJson();
+            $client = Http::acceptJson()->timeout(10);
 
             if (!empty($query)) {
                 $client = $client->withOptions([
