@@ -63,9 +63,9 @@ class AlertOfflineDeviceAll extends Command
                         if (!$manager) continue;
 
 
-                        $this->info("Queueing Offline Alert → Company: {$company->name}, Device: {$device->name}, Manager: {$manager->email}");
+                        $this->info("Queueing Offline Alert → Company: {$company->id} {$company->name}, Device: {$device->name}, Manager: {$manager->email}");
                         
-                        $logger->logOutPut($logFilePath, "Queueing Offline Alert → Company: {$company->name}, Device: {$device->name}, Manager: {$manager->email}");
+                        $logger->logOutPut($logFilePath, "Queueing Offline Alert → Company: {$company->id} {$company->name}, Device: {$device->name}, Manager: {$manager->email}");
 
                         // SendOfflineDeviceAlertJob::dispatch(
                         //     $device,
