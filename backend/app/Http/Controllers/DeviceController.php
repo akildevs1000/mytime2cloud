@@ -1540,7 +1540,7 @@ class DeviceController extends Controller
                         ? $responseSDK->getData(true)
                         : $responseSDK;
 
-                    if (isset($responseSDK['online'])) {
+                    if (isset($responseSDK['online']) && $responseSDK['online'] == true) {
 
                         Device::where("device_id", $device->device_id)->update(["status_id" => 1, "last_live_datetime" => date("Y-m-d H:i:s")]);
                         $online_devices_count_mytime++;
