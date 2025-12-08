@@ -108,7 +108,7 @@ class AlertOfflineDevice extends Command
                                 $name = $company->name;
                             }
 
-                            $this->info("Queueing Offline Alert → Company: {$company->id} {$company->name}, Device: {$deviceName}, Manager: {$manager->email}");
+                            $this->info("Queueing Offline Alert → Company: {$company_id} {$company->name}, Device: {$deviceName}, Manager: {$manager->email}");
 
 
                             // if (in_array("Email", $reportNotification->mediums ?? [])) {
