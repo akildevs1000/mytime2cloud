@@ -92,6 +92,11 @@ class Kernel extends ConsoleKernel
             ->hourly()
             ->runInBackground();
 
+        $schedule
+            ->command("attendance:manual-check")
+            ->everyFiveMinutes()
+            ->runInBackground();
+
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
@@ -147,11 +152,6 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
-                ->everyFiveMinutes()
-                ->runInBackground();
-
-            $schedule
-                ->command("attendance:manual-check")
                 ->everyFiveMinutes()
                 ->runInBackground();
 
