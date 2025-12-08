@@ -67,14 +67,14 @@ class AlertOfflineDeviceAll extends Command
                         
                         $logger->logOutPut($logFilePath, "Queueing Offline Alert → Company: {$company->id} {$company->name}, Device: {$device->name}, Manager: {$manager->email}");
 
-                        // SendOfflineDeviceAlertJob::dispatch(
-                        //     $device,
-                        //     $manager,
-                        //     $reportNotification,
-                        //     $company,
-                        //     $logFilePath,
-                        //     $dateTime
-                        // );
+                        SendOfflineDeviceAlertJob::dispatch(
+                            $device,
+                            $manager,
+                            $reportNotification,
+                            $company,
+                            $logFilePath,
+                            $dateTime
+                        );
                     }
                 }
             }

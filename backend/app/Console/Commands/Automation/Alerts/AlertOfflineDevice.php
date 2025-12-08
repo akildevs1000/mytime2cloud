@@ -108,43 +108,40 @@ class AlertOfflineDevice extends Command
                                 $name = $company->name;
                             }
 
-                            $this->info("Queueing Offline Alert → Company: {$company_id} {$company->name}, Device: {$deviceName}, Manager: {$manager->email}");
+                            if (in_array("Email", $reportNotification->mediums ?? [])) {
+                                $message = "Dear Admin,<br><br>" .
+                                    "$deviceName is offline at $name since $dateTime.<br><br>" .
+                                    "Thank you!";
 
+                                Mail::to($manager->email)->queue(new DeviceOfflineAlertMail($message));
+                                $this->info("Queued email to admin.");
+                            }
+                            if (in_array("Whatsapp", $reportNotification->mediums ?? [])) {
 
-                            // if (in_array("Email", $reportNotification->mediums ?? [])) {
-                            //     $message = "Dear Admin,<br><br>" .
-                            //         "$deviceName is offline at $name since $dateTime.<br><br>" .
-                            //         "Thank you!";
+                                if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
+                                    $this->info("No Whatsapp Client found.");
+                                    $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
+                                    $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
+                                    $clientId = 0;
+                                } else {
+                                    $clientId = $accounts[0]['clientId'] ?? 1;
+                                }
 
-                            //     Mail::to($manager->email)->queue(new DeviceOfflineAlertMail($message));
-                            //     $this->info("Queued email to admin.");
-                            // }
-                            // if (in_array("Whatsapp", $reportNotification->mediums ?? [])) {
-
-                            //     if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
-                            //         $this->info("No Whatsapp Client found.");
-                            //         $logger->logOutPut($logFilePath, "No Whatsapp Client found.");
-                            //         $logger->logOutPut($logFilePath, "*****Cron ended for alert:access_control $company_id *****");
-                            //         $clientId = 0;
-                            //     } else {
-                            //         $clientId = $accounts[0]['clientId'] ?? 1;
-                            //     }
-
-                            //     if ($clientId) {
-                            //         $message = "Device Offline Alert !\n" .
-                            //             "\n" .
-                            //             "Dear Admin,\n\n" .
-                            //             "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
-                            //             "Thank you!\n";
-                            //         SendWhatsappMessageJob::dispatch(
-                            //             $manager->whatsapp_number,
-                            //             $message,
-                            //             0,
-                            //             $clientId,
-                            //             $logFilePath
-                            //         );
-                            //     }
-                            // }
+                                if ($clientId) {
+                                    $message = "Device Offline Alert !\n" .
+                                        "\n" .
+                                        "Dear Admin,\n\n" .
+                                        "*$deviceName* is offline at  *$name* since *$dateTime*.\n" .
+                                        "Thank you!\n";
+                                    SendWhatsappMessageJob::dispatch(
+                                        $manager->whatsapp_number,
+                                        $message,
+                                        0,
+                                        $clientId,
+                                        $logFilePath
+                                    );
+                                }
+                            }
                         }
                     }
 
