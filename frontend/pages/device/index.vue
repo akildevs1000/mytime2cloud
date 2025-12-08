@@ -8,6 +8,7 @@
         margin-bottom: 0px !important;
         padding: 0px !important;
       }
+
       .v-messages {
         min-height: 0px !important;
       }
@@ -19,21 +20,14 @@
         <v-alert dense flat dark class="primary">Command Response</v-alert>
         <v-card class="pa-3" elevation="0">
           <v-card-text>
-            <div
-              class="text-center"
-              :class="selectedDoor.responseStatus == false ? 'red--text' : ''"
-              v-html="selectedDoor.text"
-            ></div>
+            <div class="text-center" :class="selectedDoor.responseStatus == false ? 'red--text' : ''"
+              v-html="selectedDoor.text"></div>
           </v-card-text>
         </v-card>
       </v-card>
     </v-dialog>
 
-    <v-dialog
-      v-model="dialogAccessSettings"
-      width="90%"
-      style="background-color: #fff !important"
-    >
+    <v-dialog v-model="dialogAccessSettings" width="90%" style="background-color: #fff !important">
       <v-card>
         <v-card-title dense class="popup_background">
           <span>Time Selection</span>
@@ -44,11 +38,7 @@
         </v-card-title>
         <v-card-text>
           <v-container>
-            <DeviceAccessSettings
-              :key="popup_device_id"
-              :device_id="popup_device_id"
-              @closepopup="closepopup"
-            />
+            <DeviceAccessSettings :key="popup_device_id" :device_id="popup_device_id" @closepopup="closepopup" />
           </v-container>
         </v-card-text>
       </v-card>
@@ -60,66 +50,39 @@
           <span>Find User ID on Device - {{ popupDeviceName }}</span>
           <v-spacer></v-spacer>
 
-          <v-icon outlined @click="uploadedUserInfoDialog = false"
-            >mdi-close-circle</v-icon
-          >
+          <v-icon outlined @click="uploadedUserInfoDialog = false">mdi-close-circle</v-icon>
         </v-card-title>
 
         <v-card-text class="mt-2">
           <v-row>
             <v-col cols="6">
-              <v-text-field
-                append-icon="mdi-magnify"
-                label="Employee Device ID"
-                type="number"
-                dense
-                outlined
-                v-model="inputFindDeviceUserId"
-              >
-              </v-text-field
-            ></v-col>
+              <v-text-field append-icon="mdi-magnify" label="Employee Device ID" type="number" dense outlined
+                v-model="inputFindDeviceUserId">
+              </v-text-field></v-col>
             <v-col cols="6">
-              <v-btn
-                dense
-                small
-                class="primary mt-2"
-                @click="getUserInfoFromDevice()"
-              >
-                Get Details</v-btn
-              >
+              <v-btn :loading="loadingDeviceData" dense small class="primary mt-2" @click="getUserInfoFromDevice()">
+                Get Details</v-btn>
             </v-col>
           </v-row>
 
-          <v-card
-            v-for="(visitor, index) in visitorUploadedDevicesInfo"
-            :key="'vs' + index"
-          >
-            <v-card-title style="font-size: 13px"
-              >{{ ++index }}: Device: {{ visitor.deviceName }}
+          <v-card v-for="(visitor, index) in visitorUploadedDevicesInfo" :key="'vs' + index">
+            <v-card-title style="font-size: 13px">{{ ++index }}: Device: {{ visitor.deviceName }}
             </v-card-title>
             <v-card-text class="mt-2">
-              <v-row
-                class="100%"
-                style="margin: auto; line-height: 36px"
-                v-if="visitor.SDKresponseData.data"
-              >
+              <v-row class="100%" style="margin: auto; line-height: 36px" v-if="visitor.SDKresponseData.data">
                 <v-col cols="4" style="padding: 0px">
-                  <v-img
-                    style="
+                  <v-img style="
                       border-radius: 10%;
                       width: 100px;
                       max-width: 95%;
 
                       height: auto;
                       border: 1px solid #ddd;
-                    "
-                    :src="
+                    " :src="visitor.SDKresponseData.data.faceImage
+                      ? 'data:image/jpeg;base64, ' +
                       visitor.SDKresponseData.data.faceImage
-                        ? 'data:image/jpeg;base64, ' +
-                          visitor.SDKresponseData.data.faceImage
-                        : '/no-profile-image.jpg'
-                    "
-                  >
+                      : '/no-profile-image.jpg'
+                      ">
                   </v-img>
                 </v-col>
 
@@ -146,36 +109,24 @@
                     </tr>
                     <tr>
                       <td>
-                        <v-btn
-                          v-if="visitor.SDKresponseData.data"
-                          dense
-                          small
-                          class="primary mt-2"
-                          @click="
-                            downloadImage(
-                              visitor.SDKresponseData.data.faceImage,
-                              visitor.SDKresponseData.data.userCode
-                            )
-                          "
-                        >
+                        <v-btn v-if="visitor.SDKresponseData.data" dense small class="primary mt-2" @click="
+                          downloadImage(
+                            visitor.SDKresponseData.data.faceImage,
+                            visitor.SDKresponseData.data.userCode
+                          )
+                          ">
                           Download Image
                         </v-btn>
                       </td>
                       <td>
-                        <v-btn
-                          v-if="
-                            visitor.SDKresponseData.data && visitor.employee
-                          "
-                          dense
-                          small
-                          class="primary mt-2"
-                          @click="
-                            copyToProfileimage(
-                              visitor.SDKresponseData.data.faceImage,
-                              visitor.SDKresponseData.data.userCode
-                            )
-                          "
-                        >
+                        <v-btn v-if="
+                          visitor.SDKresponseData.data && visitor.employee
+                        " dense small class="primary mt-2" @click="
+                          copyToProfileimage(
+                            visitor.SDKresponseData.data.faceImage,
+                            visitor.SDKresponseData.data.userCode
+                          )
+                          ">
                           Copy to Profile Image
                         </v-btn>
                       </td>
@@ -222,9 +173,7 @@
           <span> Device Settings </span>
           <v-spacer></v-spacer>
 
-          <v-icon outlined @click="DialogDeviceSettings = false"
-            >mdi-close-circle</v-icon
-          >
+          <v-icon outlined @click="DialogDeviceSettings = false">mdi-close-circle</v-icon>
         </v-card-title>
 
         <v-card-text class="mt-2">
@@ -235,15 +184,9 @@
                   <v-simple-table>
                     <tr>
                       <td colspan="2">
-                        <v-btn
-                          style="float: right"
-                          dense
-                          small
-                          class="primary mt-2 align-right"
-                          @click="
-                            getDeviceSettginsFromSDK(deviceSettings.device_id)
-                          "
-                        >
+                        <v-btn style="float: right" dense small class="primary mt-2 align-right" @click="
+                          getDeviceSettginsFromSDK(deviceSettings.device_id)
+                          ">
                           Reload
                         </v-btn>
                         <br />
@@ -258,15 +201,8 @@
                     <tr>
                       <td>Device ID</td>
                       <td>
-                        <v-text-field
-                          :disabled="true"
-                          class="pb-0"
-                          v-model="deviceSettings.device_id"
-                          placeholder="Device ID"
-                          outlined
-                          dense
-                          label="Device ID  "
-                        ></v-text-field>
+                        <v-text-field :disabled="true" class="pb-0" v-model="deviceSettings.device_id"
+                          placeholder="Device ID" outlined dense label="Device ID  "></v-text-field>
                       </td>
                     </tr>
                     <!-- <tr>
@@ -308,155 +244,81 @@
                     <tr>
                       <td>Language</td>
                       <td>
-                        <v-autocomplete
-                          class="pb-0"
-                          v-model="deviceSettings.language"
-                          placeholder="language"
-                          :items="[
-                            { name: 'English', value: 2 },
-                            { name: 'Arabic', value: 12 },
-                            { name: 'Russian', value: 5 },
-                            { name: 'Italian', value: 8 },
-                            { name: 'Thai', value: 11 },
+                        <v-autocomplete class="pb-0" v-model="deviceSettings.language" placeholder="language" :items="[
+                          { name: 'English', value: 2 },
+                          { name: 'Arabic', value: 12 },
+                          { name: 'Russian', value: 5 },
+                          { name: 'Italian', value: 8 },
+                          { name: 'Thai', value: 11 },
 
-                            { name: 'Korean', value: 10 },
-                            { name: 'Japanese', value: 9 },
+                          { name: 'Korean', value: 10 },
+                          { name: 'Japanese', value: 9 },
 
-                            { name: 'Spanish', value: 7 },
-                            { name: 'Portuguese', value: 6 },
+                          { name: 'Spanish', value: 7 },
+                          { name: 'Portuguese', value: 6 },
 
-                            { name: 'French', value: 4 },
-                            { name: 'Traditional Chinese', value: 3 },
-                          ]"
-                          item-value="value"
-                          item-text="name"
-                          outlined
-                          dense
-                          label="language"
-                        ></v-autocomplete>
+                          { name: 'French', value: 4 },
+                          { name: 'Traditional Chinese', value: 3 },
+                        ]" item-value="value" item-text="name" outlined dense label="language"></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
                       <td>Volume</td>
                       <td>
-                        <v-autocomplete
-                          class="pb-0"
-                          v-model="deviceSettings.volume"
-                          placeholder="volume"
-                          :items="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]"
-                          outlined
-                          dense
-                          label="volume"
-                        ></v-autocomplete>
+                        <v-autocomplete class="pb-0" v-model="deviceSettings.volume" placeholder="volume"
+                          :items="[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]" outlined dense label="volume"></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
                       <td>Device Menu password</td>
                       <td>
-                        <v-text-field
-                          type="number"
-                          class="pb-0"
-                          v-model="deviceSettings.menuPassword"
-                          placeholder="min 4 to  max 8 numbers"
-                          outlined
-                          dense
-                          label="Menu Password"
-                        ></v-text-field>
+                        <v-text-field type="number" class="pb-0" v-model="deviceSettings.menuPassword"
+                          placeholder="min 4 to  max 8 numbers" outlined dense label="Menu Password"></v-text-field>
                       </td>
                     </tr>
 
                     <tr>
                       <td>Alarm Events Push(msgPush)</td>
                       <td>
-                        <v-autocomplete
-                          class="pb-0"
-                          v-model="deviceSettings.msgPush"
-                          placeholder="Push to Live"
-                          :items="[
-                            { name: 'Enabled', value: 1 },
-                            { name: 'Disabled', value: 0 },
-                          ]"
-                          item-value="value"
-                          item-text="name"
-                          outlined
-                          dense
-                          label="Push to Live"
-                        ></v-autocomplete>
+                        <v-autocomplete class="pb-0" v-model="deviceSettings.msgPush" placeholder="Push to Live" :items="[
+                          { name: 'Enabled', value: 1 },
+                          { name: 'Disabled', value: 0 },
+                        ]" item-value="value" item-text="name" outlined dense label="Push to Live"></v-autocomplete>
                       </td>
                     </tr>
                     <tr>
                       <td>Time</td>
                       <td>
-                        <v-text-field
-                          :disabled="true"
-                          class="pb-0"
-                          v-model="deviceSettings.time"
-                          placeholder="Date Time"
-                          outlined
-                          dense
-                          label="Date Time"
-                        ></v-text-field>
+                        <v-text-field :disabled="true" class="pb-0" v-model="deviceSettings.time"
+                          placeholder="Date Time" outlined dense label="Date Time"></v-text-field>
                       </td>
                     </tr>
                     <tr>
                       <td>Maker - Manufacturer</td>
                       <td>
-                        <v-text-field
-                          :disabled="true"
-                          class="pb-0"
-                          v-model="deviceSettings.maker_manufacturer"
-                          placeholder="Manufacturer Name"
-                          outlined
-                          dense
-                          label="Manufacturer Name"
-                        ></v-text-field>
+                        <v-text-field :disabled="true" class="pb-0" v-model="deviceSettings.maker_manufacturer"
+                          placeholder="Manufacturer Name" outlined dense label="Manufacturer Name"></v-text-field>
                       </td>
                     </tr>
                     <tr>
                       <td>Maker - Website Link</td>
                       <td>
-                        <v-text-field
-                          :disabled="true"
-                          class="pb-0"
-                          v-model="deviceSettings.maker_webAddr"
-                          placeholder="website link"
-                          outlined
-                          dense
-                          label="website link"
-                        ></v-text-field>
+                        <v-text-field :disabled="true" class="pb-0" v-model="deviceSettings.maker_webAddr"
+                          placeholder="website link" outlined dense label="website link"></v-text-field>
                       </td>
                     </tr>
                     <tr>
                       <td>Maker - Delivery/Release Date</td>
                       <td>
-                        <v-menu
-                          ref="to_menu_filter"
-                          v-model="to_menu_filter"
-                          :close-on-content-click="false"
-                          transition="scale-transition"
-                          offset-y
-                          min-width="auto"
-                        >
+                        <v-menu ref="to_menu_filter" v-model="to_menu_filter" :close-on-content-click="false"
+                          transition="scale-transition" offset-y min-width="auto">
                           <template v-slot:activator="{ on, attrs }">
-                            <v-text-field
-                              :disabled="true"
-                              outlined
-                              dense
-                              v-model="deviceSettings.maker_deliveryDate"
-                              readonly
-                              v-bind="attrs"
-                              v-on="on"
-                              placeholder="Schedule To Date"
-                            ></v-text-field>
+                            <v-text-field :disabled="true" outlined dense v-model="deviceSettings.maker_deliveryDate"
+                              readonly v-bind="attrs" v-on="on" placeholder="Schedule To Date"></v-text-field>
                           </template>
 
-                          <v-date-picker
-                            style="height: 350px"
-                            v-model="deviceSettings.maker_deliveryDate"
-                            no-title
-                            scrollable
-                            @input="to_menu_filter = false"
-                          >
+                          <v-date-picker style="height: 350px" v-model="deviceSettings.maker_deliveryDate" no-title
+                            scrollable @input="to_menu_filter = false">
                           </v-date-picker>
                         </v-menu>
                       </td>
@@ -464,14 +326,8 @@
                     <tr>
                       <td></td>
                       <td>
-                        <v-btn
-                          dense
-                          small
-                          class="primary mt-2"
-                          @click="updateDeviceSettings()"
-                        >
-                          Update settings</v-btn
-                        >
+                        <v-btn dense small class="primary mt-2" @click="updateDeviceSettings()">
+                          Update settings</v-btn>
                       </td>
                     </tr>
                   </v-simple-table>
@@ -486,12 +342,10 @@
     <v-dialog v-model="DialogDeviceMegviiSettings" max-width="800px">
       <v-card>
         <v-card-title class="popup_background">
-          <span>Device - OXSAI Settings </span>
+          <span>Device - {{ deviceCAMVIISettings.model_spec == 'MYTIME1' ? 'MYTIME1' : 'OXSAI' }} Settings </span>
           <v-spacer></v-spacer>
 
-          <v-icon outlined @click="DialogDeviceMegviiSettings = false"
-            >mdi-close-circle</v-icon
-          >
+          <v-icon outlined @click="DialogDeviceMegviiSettings = false">mdi-close-circle</v-icon>
         </v-card-title>
 
         <v-card-text class="mt-2">
@@ -500,17 +354,12 @@
               <table style="width: 100%">
                 <tr>
                   <td colspan="2">
-                    <v-btn
-                      style="float: right"
-                      dense
-                      small
-                      class="primary mt-2 align-right"
-                      @click="
-                        getDeviceCAMVIISettginsFromSDK(
-                          deviceCAMVIISettings.device_id
-                        )
-                      "
-                    >
+
+                    <v-btn style="float: right" dense small class="primary mt-2 align-right" @click="
+                      getDeviceCAMVIISettginsFromSDK(
+                        deviceCAMVIISettings.device_id
+                      )
+                      ">
                       Reload <br />
                     </v-btn>
                     <br />
@@ -536,60 +385,34 @@
                   </td>
                 </tr> -->
 
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td style="width: 300px">Single or Multiple Persons</td>
                   <td>
-                    <v-autocomplete
-                      :disable="loadingDeviceData"
-                      :readOnly="loadingDeviceData"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.recognition_mode"
-                      placeholder="Mode"
-                      @change="UpdateverificationModeItems()"
-                      :items="[
+                    <v-autocomplete :disable="loadingDeviceData" :readOnly="loadingDeviceData" class="pb-0"
+                      v-model="deviceCAMVIISettings.recognition_mode" placeholder="Mode"
+                      @change="UpdateverificationModeItems()" :items="[
                         { name: 'Single Person', value: 'single' },
                         {
                           name: 'Multi Person Attendance',
                           value: 'double',
                         },
-                      ]"
-                      item-value="value"
-                      item-text="name"
-                      outlined
-                      dense
-                      label="Persons Entry"
-                    ></v-autocomplete>
+                      ]" item-value="value" item-text="name" outlined dense label="Persons Entry"></v-autocomplete>
                   </td>
                 </tr>
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td>Door Open</td>
                   <td>
                     <v-row>
                       <v-col cols="6">
-                        <v-autocomplete
-                          :disable="loadingDeviceData"
-                          class="pb-0"
-                          v-model="deviceCAMVIISettings.verification_mode"
-                          placeholder="Mode"
-                          :items="verificationModeItems"
-                          item-value="value"
-                          item-text="name"
-                          outlined
-                          dense
-                          label="Open Mode"
-                        ></v-autocomplete>
+                        <v-autocomplete :disable="loadingDeviceData" class="pb-0"
+                          v-model="deviceCAMVIISettings.verification_mode" placeholder="Mode"
+                          :items="verificationModeItems" item-value="value" item-text="name" outlined dense
+                          label="Open Mode"></v-autocomplete>
                       </v-col>
                       <v-col cols="6">
-                        <v-autocomplete
-                          :disable="loadingDeviceData"
-                          class="pb-0"
-                          v-model="deviceCAMVIISettings.open_duration"
-                          placeholder="Mode"
-                          :items="oneTOsixty"
-                          outlined
-                          dense
-                          label="Duration - Seconds"
-                        ></v-autocomplete>
+                        <v-autocomplete :disable="loadingDeviceData" class="pb-0"
+                          v-model="deviceCAMVIISettings.open_duration" placeholder="Mode" :items="oneTOsixty" outlined
+                          dense label="Duration - Seconds"></v-autocomplete>
                       </v-col>
                     </v-row>
                   </td>
@@ -618,19 +441,14 @@
                       outlined
                       dense
                       label="Device Always Open Status  "
-                    ></v-text-field> 
+                    ></v-text-field>
                   </td>
                 </tr> -->
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td>Volume</td>
                   <td>
-                    <v-progress-linear
-                      style="cursor: pointer"
-                      v-model="deviceCAMVIISettings.voice_volume"
-                      height="25"
-                    >
-                      <strong
-                        >{{ Math.ceil(deviceCAMVIISettings.voice_volume) }}%
+                    <v-progress-linear style="cursor: pointer" v-model="deviceCAMVIISettings.voice_volume" height="25">
+                      <strong>{{ Math.ceil(deviceCAMVIISettings.voice_volume) }}%
                       </strong>
                     </v-progress-linear>
 
@@ -649,53 +467,29 @@
                 <tr>
                   <td>Time</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.local_time"
-                      placeholder="Device Time"
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field :disabled="true" class="pb-0" v-model="deviceCAMVIISettings.local_time"
+                      placeholder="Device Time" outlined dense></v-text-field>
                   </td>
                 </tr>
                 <tr>
                   <td>Wifi IP</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.wifi_ip"
-                      placeholder="Device Wifi IP"
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field :disabled="true" class="pb-0" v-model="deviceCAMVIISettings.wifi_ip"
+                      placeholder="Device Wifi IP" outlined dense></v-text-field>
                   </td>
                 </tr>
                 <tr>
                   <td>LAN IP</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.lan_ip"
-                      placeholder="Device LAN IP "
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field :disabled="true" class="pb-0" v-model="deviceCAMVIISettings.lan_ip"
+                      placeholder="Device LAN IP " outlined dense></v-text-field>
                   </td>
                 </tr>
                 <tr>
                   <td>Persons Count</td>
                   <td>
-                    <v-text-field
-                      :disabled="true"
-                      class="pb-0"
-                      v-model="deviceCAMVIISettings.persons_count"
-                      placeholder="Persons count on Device"
-                      outlined
-                      dense
-                    ></v-text-field>
+                    <v-text-field :disabled="true" class="pb-0" v-model="deviceCAMVIISettings.persons_count"
+                      placeholder="Persons count on Device" outlined dense></v-text-field>
                   </td>
                 </tr>
                 <!-- <tr>
@@ -712,17 +506,11 @@
                   </td>
                 </tr> -->
 
-                <tr>
+                <tr v-if="deviceCAMVIISettings.model_spec != 'MYTIME1'">
                   <td></td>
                   <td>
-                    <v-btn
-                      dense
-                      small
-                      class="primary mt-2"
-                      @click="updateDeviceCAMMIISettings()"
-                    >
-                      Update settings</v-btn
-                    >
+                    <v-btn dense small class="primary mt-2" @click="updateDeviceCAMMIISettings()">
+                      Update settings</v-btn>
                   </td>
                 </tr>
               </table>
@@ -734,27 +522,17 @@
     <v-dialog persistent v-model="DialogsyncTimezoneDevice" max-width="1100">
       <v-card>
         <v-card-title dense class="popup_background_noviolet">
-          <span class="popup_title" style="color: black"
-            >Updating Timezones Devices
+          <span class="popup_title" style="color: black">Updating Timezones Devices
           </span>
 
           <v-spacer></v-spacer>
-          <v-icon
-            style="color: black"
-            @click="DialogsyncTimezoneDevice = false"
-            outlined
-          >
+          <v-icon style="color: black" @click="DialogsyncTimezoneDevice = false" outlined>
             mdi mdi-close-circle
           </v-icon>
         </v-card-title>
         <v-card-text :key="key">
-          <v-progress-linear
-            v-if="loading_devicesync"
-            :active="loading_devicesync"
-            :indeterminate="loading_devicesync"
-            absolute
-            color="primary"
-          ></v-progress-linear>
+          <v-progress-linear v-if="loading_devicesync" :active="loading_devicesync" :indeterminate="loading_devicesync"
+            absolute color="primary"></v-progress-linear>
           <table style="width: 100%" class="mt-2">
             <thead>
               <tr class=" " dark>
@@ -819,180 +597,77 @@
       <v-form ref="form" v-model="valid" lazy-validation>
         <v-row class="ma-1">
           <v-col md="12">
-            <v-text-field
-              :hide-details="!payload.name"
-              v-model="payload.name"
-              placeholder="Device Name"
-              outlined
-              dense
-              label="Device Name *"
-            ></v-text-field>
-            <span v-if="errors && errors.name" class="error--text pa-0 ma-0"
-              >{{ errors.name[0] }}
+            <v-text-field :hide-details="!payload.name" v-model="payload.name" placeholder="Device Name" outlined dense
+              label="Device Name *"></v-text-field>
+            <span v-if="errors && errors.name" class="error--text pa-0 ma-0">{{ errors.name[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-text-field
-              class="pb-0"
-              :hide-details="!payload.short_name"
-              v-model="payload.short_name"
-              placeholder="Short Name"
-              outlined
-              dense
-              label="Short Name *"
-            ></v-text-field>
-            <span
-              v-if="errors && errors.short_name"
-              class="error--text pa-0 ma-0"
-              >{{ errors.short_name[0] }}
+            <v-text-field class="pb-0" :hide-details="!payload.short_name" v-model="payload.short_name"
+              placeholder="Short Name" outlined dense label="Short Name *"></v-text-field>
+            <span v-if="errors && errors.short_name" class="error--text pa-0 ma-0">{{ errors.short_name[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              class="pb-0"
-              :hide-details="!payload.branch_id"
-              v-model="payload.branch_id"
-              placeholder="Branch Name"
-              outlined
-              dense
-              label="Branch Name *"
-              :items="branches"
-              item-value="id"
-              item-text="branch_name"
-            ></v-autocomplete>
-            <span
-              v-if="errors && errors.branch_id"
-              class="error--text pa-0 ma-0"
-              >{{ errors.branch_id[0] }}
+            <v-autocomplete class="pb-0" :hide-details="!payload.branch_id" v-model="payload.branch_id"
+              placeholder="Branch Name" outlined dense label="Branch Name *" :items="branches" item-value="id"
+              item-text="branch_name"></v-autocomplete>
+            <span v-if="errors && errors.branch_id" class="error--text pa-0 ma-0">{{ errors.branch_id[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-text-field
-              class="pb-0"
-              :hide-details="!payload.location"
-              v-model="payload.location"
-              placeholder="Device location"
-              outlined
-              dense
-              label="Device location *"
-            ></v-text-field>
-            <span v-if="errors && errors.location" class="error--text"
-              >{{ errors.location[0] }}
+            <v-text-field class="pb-0" :hide-details="!payload.location" v-model="payload.location"
+              placeholder="Device location" outlined dense label="Device location *"></v-text-field>
+            <span v-if="errors && errors.location" class="error--text">{{ errors.location[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              class="pb-0"
-              :hide-details="!payload.utc_time_zone"
-              v-model="payload.utc_time_zone"
-              placeholder="Time Zone"
-              outlined
-              dense
-              label="Time Zone(Ex:UTC+) *"
-              :items="getTimezones()"
-              item-value="key"
-              item-text="text"
-            ></v-autocomplete>
-            <span v-if="errors && errors.utc_time_zone" class="error--text"
-              >{{ errors.utc_time_zone[0] }}
+            <v-autocomplete class="pb-0" :hide-details="!payload.utc_time_zone" v-model="payload.utc_time_zone"
+              placeholder="Time Zone" outlined dense label="Time Zone(Ex:UTC+) *" :items="getTimezones()"
+              item-value="key" item-text="text"></v-autocomplete>
+            <span v-if="errors && errors.utc_time_zone" class="error--text">{{ errors.utc_time_zone[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              outlined
-              dense
-              class="pb-0"
-              :hide-details="!payload.model_number"
-              v-model="payload.model_number"
-              :items="[
-                `OX-866`,
-                `OX-886`,
-                `OX-966`,
-                `OX-900`,
-                `OX-745`,
-                `OX-945`,
-                `OX-1000`,
-              ]"
-              label="Model Number *"
-              placeholder="Model Number"
-            ></v-autocomplete>
+            <v-autocomplete outlined dense class="pb-0" :hide-details="!payload.model_number"
+              v-model="payload.model_number" :items="deviceModelsList" label="Model Number *"
+              placeholder="Model Number"></v-autocomplete>
             <!-- <v-text-field></v-text-field> -->
-            <span v-if="errors && errors.model_number" class="error--text"
-              >{{ errors.model_number[0] }}
+            <span v-if="errors && errors.model_number" class="error--text">{{ errors.model_number[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-text-field
-              class="pb-0"
-              :hide-details="!payload.device_id"
-              v-model="payload.device_id"
-              placeholder="Serial Number"
-              outlined
-              dense
-              label="Serial Number *"
-            ></v-text-field>
-            <span v-if="errors && errors.device_id" class="error--text"
-              >{{ errors.device_id[0] }}
+            <v-text-field class="pb-0" :hide-details="!payload.device_id" v-model="payload.device_id"
+              placeholder="Serial Number" outlined dense label="Serial Number *"></v-text-field>
+            <span v-if="errors && errors.device_id" class="error--text">{{ errors.device_id[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              class="pb-0"
-              :hide-details="!payload.function"
-              v-model="payload.function"
-              placeholder="Function"
-              outlined
-              dense
-              label="Function *"
-              :items="[
+            <v-autocomplete class="pb-0" :hide-details="!payload.function" v-model="payload.function"
+              placeholder="Function" outlined dense label="Function *" :items="[
                 { id: 'auto', name: 'Auto' },
                 { id: 'In', name: 'In' },
                 { id: 'Out', name: 'Out' },
                 { id: 'option', name: 'Option' },
-              ]"
-              item-value="id"
-              item-text="name"
-            ></v-autocomplete>
-            <span v-if="errors && errors.function" class="error--text"
-              >{{ errors.function[0] }}
+              ]" item-value="id" item-text="name"></v-autocomplete>
+            <span v-if="errors && errors.function" class="error--text">{{ errors.function[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              class="pb-0"
-              :hide-details="!payload.device_type"
-              v-model="payload.device_type"
-              placeholder="Device Type"
-              outlined
-              dense
-              label="Device Type *"
-              :items="[
+            <v-autocomplete class="pb-0" :hide-details="!payload.device_type" v-model="payload.device_type"
+              placeholder="Device Type" outlined dense label="Device Type *" :items="[
                 { id: 'all', name: 'All(Attendance and Access)' },
                 { id: 'Attendance', name: 'Attendance' },
                 { id: 'Access Control', name: 'Access Control' },
-              ]"
-              item-value="id"
-              item-text="name"
-            ></v-autocomplete>
-            <span v-if="errors && errors.device_type" class="error--text"
-              >{{ errors.device_type[0] }}
+              ]" item-value="id" item-text="name"></v-autocomplete>
+            <span v-if="errors && errors.device_type" class="error--text">{{ errors.device_type[0] }}
             </span>
           </v-col>
           <v-col md="12">
-            <v-autocomplete
-              class="pb-0"
-              :hide-details="!payload.status_id"
-              v-model="payload.status_id"
-              placeholder="Time Zone"
-              outlined
-              dense
-              label="Device Status *"
-              :items="device_statusses"
-              item-value="id"
-              item-text="name"
-            ></v-autocomplete>
-            <span v-if="errors && errors.status_id" class="error--text"
-              >{{ errors.status_id[0] }}
+            <v-autocomplete class="pb-0" :hide-details="!payload.status_id" v-model="payload.status_id"
+              placeholder="Time Zone" outlined dense label="Device Status *" :items="device_statusses" item-value="id"
+              item-text="name"></v-autocomplete>
+            <span v-if="errors && errors.status_id" class="error--text">{{ errors.status_id[0] }}
             </span>
           </v-col>
           <!-- <v-col md="12">
@@ -1027,12 +702,7 @@
       <v-row>
         <v-col cols="12">
           <div class="text-right">
-            <v-btn
-              small
-              :loading="loading"
-              color="primary"
-              @click="store_device"
-            >
+            <v-btn small :loading="loading" color="primary" @click="store_device">
               Submit
             </v-btn>
           </div>
@@ -1045,32 +715,15 @@
         <v-toolbar-title><span> Devices List</span></v-toolbar-title>
 
         <span>
-          <v-btn
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            title="Reload"
-          >
-            <v-icon class="ml-2" @click="getDataFromApi()" dark
-              >mdi mdi-reload</v-icon
-            >
+          <v-btn dense class="ma-0 px-0" x-small :ripple="false" text title="Reload">
+            <v-icon class="ml-2" @click="getDataFromApi()" dark>mdi mdi-reload</v-icon>
           </v-btn>
         </span>
 
         <span v-if="isCompany" style="width: 250px">
-          <v-autocomplete
-            @change="getDataFromApi()"
-            class="pt-10 px-2"
-            v-model="filters[`branch_id`]"
-            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]"
-            dense
-            placeholder="Select Branch"
-            outlined
-            item-value="id"
-            item-text="branch_name"
-          >
+          <v-autocomplete @change="getDataFromApi()" class="pt-10 px-2" v-model="filters[`branch_id`]"
+            :items="[{ id: ``, branch_name: `Select All` }, ...branchesList]" dense placeholder="Select Branch" outlined
+            item-value="id" item-text="branch_name">
           </v-autocomplete>
         </span>
         <!-- </template>
@@ -1095,25 +748,12 @@
         <v-spacer></v-spacer>
 
         <span>
-          <v-btn
-            x-small
-            :ripple="false"
-            text
-            title="Sync Devices"
-            @click="updateDevicesHealth"
-          >
+          <v-btn x-small :ripple="false" text title="Sync Devices" @click="updateDevicesHealth">
             <v-icon dark white>mdi-cached</v-icon>
           </v-btn>
         </span>
         <span>
-          <v-btn
-            v-if="can(`device_create`)"
-            x-small
-            :ripple="false"
-            text
-            title="Add Device"
-            @click="addItem()"
-          >
+          <v-btn v-if="can(`device_create`)" x-small :ripple="false" text title="Add Device" @click="addItem()">
             <v-icon dark white>mdi-plus-circle</v-icon>
           </v-btn>
         </span>
@@ -1126,19 +766,9 @@
           <v-btn v-bind="attrs" text @click="snack = false"> Close </v-btn>
         </template>
       </v-snackbar>
-      <v-data-table
-        dense
-        :headers="headers"
-        :items="data"
-        model-value="data.id"
-        :loading="loading"
-        :footer-props="{
-          itemsPerPageOptions: [50, 100, 500, 1000],
-        }"
-        class="elevation-1 pt-5"
-        :options.sync="options"
-        :server-items-length="totalRowsCount"
-      >
+      <v-data-table dense :headers="headers" :items="data" model-value="data.id" :loading="loading" :footer-props="{
+        itemsPerPageOptions: [50, 100, 500, 1000],
+      }" class="elevation-1 pt-5" :options.sync="options" :server-items-length="totalRowsCount">
         <!-- <template v-slot:header="{ props: { headers } }">
           <tr v-if="isFilter">
             <td
@@ -1196,108 +826,55 @@
           <div class="secondary-value">{{ item.model_number }}</div>
         </template>
         <template v-slot:item.function="{ item }">
-          <img
-            title="Auto (In and Out)"
-            v-if="item.function == 'auto'"
-            src="/icons/function_in_out.png"
-            style="width: 30px"
-          />
-          <img
-            title="Only In"
-            v-else-if="item.function == 'In'"
-            src="/icons/function_in.png"
-            style="width: 30px"
-          />
-          <img
-            title="Only Out"
-            v-else-if="item.function == 'Out'"
-            src="/icons/function_out.png"
-            style="width: 30px"
-          />
+          <img title="Auto (In and Out)" v-if="item.function == 'auto'" src="/icons/function_in_out.png"
+            style="width: 30px" />
+          <img title="Only In" v-else-if="item.function == 'In'" src="/icons/function_in.png" style="width: 30px" />
+          <img title="Only Out" v-else-if="item.function == 'Out'" src="/icons/function_out.png" style="width: 30px" />
           <div v-else>{{ caps(item.function) }}</div>
         </template>
 
         <template v-slot:item.device_type="{ item }">
-          <img
-            title="All (Attendance and Access Control )"
-            v-if="item.device_type == 'all'"
-            src="/icons/device_type_all.png"
-            style="width: 30px"
-          />
-          <img
-            title="Only Access Control"
-            v-else-if="item.device_type == 'Access Control'"
-            src="/icons/device_type_access_control.png"
-            style="width: 30px"
-          />
-          <img
-            title="Only Attendance"
-            v-else-if="item.device_type == 'Attendance'"
-            src="/icons/device_type_attendance.png"
-            style="width: 30px"
-          />
+          <img title="All (Attendance and Access Control )" v-if="item.device_type == 'all'"
+            src="/icons/device_type_all.png" style="width: 30px" />
+          <img title="Only Access Control" v-else-if="item.device_type == 'Access Control'"
+            src="/icons/device_type_access_control.png" style="width: 30px" />
+          <img title="Only Attendance" v-else-if="item.device_type == 'Attendance'"
+            src="/icons/device_type_attendance.png" style="width: 30px" />
         </template>
         <template v-slot:item.door_open="{ item }">
           <DeviceOpenDoor :item="item" />
         </template>
         <template v-slot:item.door_close="{ item }">
-          <img
-            class="iconsize30"
-            style="cursor: pointer"
-            title="Click to Close Door"
-            src="/icons/door_close.png"
-            @click="door_command(`close_door`, item.device_id)"
-          />
+          <img class="iconsize30" style="cursor: pointer" title="Click to Close Door" src="/icons/door_close.png"
+            @click="door_command(`close_door`, item.device_id)" />
         </template>
 
         <template v-slot:item.always_open="{ item }">
-          <img
-            style="cursor: pointer"
-            title="Click to Always Open"
-            @click="open_door_always(item.id)"
-            src="/icons/always_open.png"
-            class="iconsize30"
-          />
+          <img style="opacity: 0.5;" v-if="item.model_number == 'MYTIME1'" title=" Not Supported"
+            src="/icons/always_open.png" class="iconsize30" />
+
+          <img v-else style="cursor: pointer" title="Click to Always Open" @click="open_door_always(item.id)"
+            src="/icons/always_open.png" class="iconsize30" />
         </template>
         <template v-slot:item.alarm="{ item }">
           <div v-if="item.alarm_status == 1">
-            <v-icon
-              class="alarm"
-              @click="UpdateAlarmStatus(item, 0)"
-              title="Click to Turn OFF Alarm "
-              >mdi mdi-alarm-light</v-icon
-            >
+            <v-icon class="alarm" @click="UpdateAlarmStatus(item, 0)" title="Click to Turn OFF Alarm ">mdi
+              mdi-alarm-light</v-icon>
             <div class="secondary-value">{{ item.alarm_start_datetime }}</div>
           </div>
 
-          <v-icon v-else-if="item.alarm_status == 0" title="Now Alaram is OFF"
-            >mdi mdi-alarm-light-outline</v-icon
-          >
+          <v-icon v-else-if="item.alarm_status == 0" title="Now Alaram is OFF">mdi mdi-alarm-light-outline</v-icon>
         </template>
 
         <template v-slot:item.sync_date_time="{ item }">
-          <img
-            class="iconsize30"
-            style="cursor: pointer"
-            title="Click Sync UTC Time"
-            src="/icons/sync_date_time.png"
-            @click="sync_date_time(item.device_id)"
-          />
+          <img class="iconsize30" style="cursor: pointer" title="Click Sync UTC Time" src="/icons/sync_date_time.png"
+            @click="sync_date_time(item.device_id)" />
         </template>
 
         <template v-slot:item.status_id="{ item }">
-          <img
-            title="Online"
-            v-if="item.status.name == 'active'"
-            src="/icons/device_status_open.png"
-            style="width: 30px"
-          />
-          <img
-            title="Offline"
-            v-else
-            src="/icons/device_status_close.png"
-            style="width: 30px"
-          />
+          <img title="Online" v-if="item.status.name == 'active'" src="/icons/device_status_open.png"
+            style="width: 30px" />
+          <img title="Offline" v-else src="/icons/device_status_close.png" style="width: 30px" />
         </template>
         <template v-slot:item.options="{ item }">
           <v-menu bottom left>
@@ -1321,47 +898,41 @@
                   Edit
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item
-                v-if="can(`device_edit`) && item.model_number == 'CAMERA1'"
-                @click="showDeviceCameraSettings(item)"
-              >
+              <v-list-item v-if="can(`device_edit`) && item.model_number == 'CAMERA1' && item.model_number != 'MYTIME1'"
+                @click="showDeviceCameraSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
               <v-list-item
-                v-else-if="can(`device_edit`) && item.model_number == 'OX-900'"
-                @click="showDeviceMegviiSettings(item)"
-              >
+                v-else-if="can(`device_edit`) && item.model_number == 'OX-900' || item.model_number == 'MYTIME1'"
+                @click="showDeviceMegviiSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item v-else @click="showDeviceSettings(item)">
+              <v-list-item v-else-if="item.model_number != 'MYTIME1'" @click="showDeviceSettings(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-cog </v-icon>
                   Settings
                 </v-list-item-title>
               </v-list-item>
 
-              <v-list-item @click="syncTimezonesToDevice(item)">
+              <v-list-item @click="syncTimezonesToDevice(item)" v-if="item.model_number != 'MYTIME1'">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="secondary" small> mdi-autorenew </v-icon>
                   Sync Timezones
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item @click="updateDefault24HoursTimezone(item)">
+              <v-list-item @click="updateDefault24HoursTimezone(item)" v-if="item.model_number != 'MYTIME1'">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="red" small> mdi-close-circle </v-icon>
                   Reset Timezones
                 </v-list-item-title>
               </v-list-item>
-              <v-list-item
-                v-if="can(`device_delete`)"
-                @click="deleteItem(item)"
-              >
+              <v-list-item v-if="can(`device_delete`)" @click="deleteItem(item)">
                 <v-list-item-title style="cursor: pointer">
                   <v-icon color="error" small> mdi-delete </v-icon>
                   Delete
@@ -1464,6 +1035,7 @@ export default {
       branch_id: null,
       camera_save_images: false,
     },
+    deviceModelsList: [],
     Model: "Device",
     pagination: {
       current: 1,
@@ -1686,9 +1258,10 @@ export default {
       console.error("Error fetching branch list", error);
     }
 
-    this.getDataFromApi();
-    this.getBranches();
-    this.getDeviceStatus();
+    await this.getDataFromApi();
+    await this.getBranches();
+    await this.getDeviceStatus();
+    await this.getDeviceModelsList();
   },
 
   methods: {
@@ -1715,34 +1288,52 @@ export default {
           this.responseBox = true;
         });
     },
+
+    async getDeviceModelsList() {
+      try {
+        const { data } = await this.$axios.get(`device-models-list`);
+        this.deviceModelsList = data;
+      } catch (error) {
+        console.error("Error fetching device models list", error);
+        return [];
+      }
+    },
     async sync_date_time(device_id) {
-      const dt = new Date();
-      // const year = dt.getFullYear();
-      // const month = String(dt.getMonth() + 1).padStart(2, "0");
-      // const day = String(dt.getDate()).padStart(2, "0");
-      // const hours = String(dt.getHours()).padStart(2, "0");
-      // const minutes = String(dt.getMinutes()).padStart(2, "0");
-      // const seconds = String(dt.getSeconds()).padStart(2, "0");
-      // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-      const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
+      if (
+        confirm(
+          "Are you want to change the Device Time  ?"
+        )
+      ) {
+        const dt = new Date();
+        // const year = dt.getFullYear();
+        // const month = String(dt.getMonth() + 1).padStart(2, "0");
+        // const day = String(dt.getDate()).padStart(2, "0");
+        // const hours = String(dt.getHours()).padStart(2, "0");
+        // const minutes = String(dt.getMinutes()).padStart(2, "0");
+        // const seconds = String(dt.getSeconds()).padStart(2, "0");
+        // const sync_able_date_time = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-      const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+        const sync_able_date_time = dt.toLocaleString("sv-SE").replace(" ", " ");
 
-      this.$axios
-        .get(apiUrl, {
-          params: { sync_able_date_time },
-        })
-        .then(({ data }) => {
-          this.selectedDoor.text = data.message;
-          this.selectedDoor.responseStatus = data.status;
-          this.responseBox = true;
-        })
-        .catch((data) => {
-          this.selectedDoor.text = data.message;
-          this.selectedDoor.responseStatus = data.status;
-          this.responseBox = true;
-        });
+        const apiUrl = `sync_device_date_time/${device_id}/${this.$auth.user.company_id}`;
+
+        this.$axios
+          .get(apiUrl, {
+            params: { sync_able_date_time },
+          })
+          .then(({ data }) => {
+            this.selectedDoor.text = data.message;
+            this.selectedDoor.responseStatus = data.status;
+            this.responseBox = true;
+          })
+          .catch((data) => {
+            this.selectedDoor.text = data.message;
+            this.selectedDoor.responseStatus = data.status;
+            this.responseBox = true;
+          });
+
+      }
     },
     closeResponseBox() {
       this.responseBox = false;
@@ -1827,7 +1418,7 @@ export default {
 
         try {
           this.processDefault24HoursTimeZone([device]);
-        } catch (error) {}
+        } catch (error) { }
       }
     },
     async syncTimezonesToDevice(device) {
@@ -1842,7 +1433,7 @@ export default {
 
         try {
           this.syncTimeZones([device]);
-        } catch (error) {}
+        } catch (error) { }
       }
     },
     processDefault24HoursTimeZone(devices) {
@@ -2210,7 +1801,7 @@ export default {
         this.device_statusses = data.data;
       });
     },
-    datatable_save() {},
+    datatable_save() { },
     datatable_cancel() {
       this.datatable_search_textbox = "";
     },
@@ -2367,8 +1958,8 @@ export default {
             filter_value.toLowerCase() == "online"
               ? "active"
               : filter_value.toLowerCase() == "offline"
-              ? "inactive"
-              : "";
+                ? "inactive"
+                : "";
         } else options.params[filter_column] = filter_value;
       }
       await this.$axios.get(`${url}?page=${page}`, options).then(({ data }) => {

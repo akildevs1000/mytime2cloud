@@ -1745,6 +1745,16 @@ class EmployeeController extends Controller
             } catch (\Exception $e) {
                 return $this->response("Failed to save profile picture: " . $e->getMessage(), false, false);
             }
+        } else {
+            unset($employeeData["profile_picture"]);
+        }
+
+        if (empty($employeeData["rfid_card_number"]) || $employeeData["rfid_card_number"] == "0") {
+            unset($employeeData["rfid_card_number"]);
+        }
+
+        if (empty($employeeData["rfid_card_password"]) || $employeeData["rfid_card_password"] == "FFFFFFFF") {
+            unset($employeeData["rfid_card_password"]);
         }
 
         $fpArray   = [];
@@ -1774,11 +1784,23 @@ class EmployeeController extends Controller
         unset($employeeData["fp"], $employeeData["palm"]);
 
         try {
-            DB::transaction(function () use ($employeeData, $palmArray, $fpArray, $id) {
+            return  $result =  DB::transaction(function () use ($employeeData, $palmArray, $fpArray, $id) {
                 // Update employee data
+
+
+                $employeePayload = isset($employeeData["profile_picture"]) ? [
+
+                    "profile_picture" => $employeeData["profile_picture"],
+                ] :  [];
+
                 $employeePayload = [
                     "full_name"       => $employeeData["full_name"],
-                    "profile_picture" => $employeeData["profile_picture"],
+                    "first_name"       => $employeeData["first_name"],
+                    "last_name"       => $employeeData["last_name"],
+
+
+
+
                 ];
 
                 // Add RFID card data if valid
@@ -1804,9 +1826,13 @@ class EmployeeController extends Controller
                 if (! empty($palmArray)) {
                     Palm::insert($palmArray);
                 }
-            });
 
-            return $this->response("Employee successfully updated.", true, true);
+                return true;
+            });
+            if ($result)
+                return $this->response("Employee successfully updated.", true, true);
+            else
+                return $this->response("No changes made to the employee.", false, false);
         } catch (\Exception $e) {
             // Log the error
             return $this->response("An error occurred: " . $e->getMessage(), false, false);
