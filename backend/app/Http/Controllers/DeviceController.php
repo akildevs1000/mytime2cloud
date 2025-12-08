@@ -1578,7 +1578,7 @@ class DeviceController extends Controller
         foreach ($offlineDevices as $key => $device) {
             try {
                 $test[] = $message = "Company:" . $device->company->name . "\nDevice " . $device->name . " OFFLINE detected at  " . date("H:i:s d-m-Y ");
-                (new WhatsappNotificationsLogController())->addMessage($device->company_id, "", $message);
+                //(new WhatsappNotificationsLogController())->addMessage($device->company_id, "", $message);
             } catch (\Throwable $e) {
                 $test[] = $e;
             }
