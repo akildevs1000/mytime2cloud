@@ -386,9 +386,9 @@
               </div>
             </template>
             <template v-slot:item.inout="{ item }">
-              <span v-if="item.log_type == 'Out'" style="color: red">
+              <span v-if="item.log_type == 'Out' || item.log_type == 'out'" style="color: red">
                 {{ item.log_type || "---" }} </span
-              ><span v-else-if="item.log_type == 'In'" style="color: green">
+              ><span v-else-if="item.log_type == 'In' || item.log_type == 'in'" style="color: green">
                 {{ item.log_type || "---" }} </span
               ><span v-else> --- </span>
             </template>

@@ -157,7 +157,7 @@ class DeviceController extends Controller
     }
     public function getDeviceList(Device $model, Request $request)
     {
-        return $model
+        $devices = $model
             ->with(['status'])
             ->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')))
             ->where('company_id', $request->company_id)
@@ -167,6 +167,14 @@ class DeviceController extends Controller
             ->where("name",  'not like', "%manual%")
 
             ->orderBy("name", "asc")->get();
+
+
+        $devices->prepend([
+            'device_id' => "Mobile",                  // or remove this line completely
+            'name' => 'Mobile Devices',
+        ]);
+
+        return $devices;
     }
     public function getDeviceListNotManul(Device $model, Request $request)
     {

@@ -6,6 +6,23 @@
     <v-overlay :value="overlay">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
+    <v-row justify="center">
+      <v-dialog v-model="responseDialog" max-width="500px">
+        <v-card>
+          <v-toolbar flat class="primary" dense dark>
+            <v-btn icon dark @click="responseDialog = false">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </v-toolbar>
+
+          <v-card-text class="pa-6 text-center">
+            <div class="text-h6 text--primary">
+              <v-img v-if="qrCodeDataURL" :src="qrCodeDataURL" />
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
     <v-dialog v-model="DialogQrCode" width="300">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -302,7 +319,7 @@
           <span class="secondary-value"> {{ item.email }}</span>
         </template> -->
         <template v-slot:item.visitor_company_name="{ item }"
-          >{{ item.visitor_company_name }}
+          >{{ item?.visitor_company_name }}
         </template>
         <template v-slot:item.id="{ item }">
           <span v-if="item.id_type == 1">Emirates ID</span>
@@ -439,7 +456,7 @@
               ></v-text-field>
               <v-text-field
                 v-model="payload.card_rfid_number"
-                label="RFID Card Number (Optional)"
+                label="RFID Card Number"
                 required
                 outlined
                 dense
@@ -670,6 +687,8 @@
 
 <script>
 import Visitorinfo from "../../components/Visitor/VisitorInfo.vue";
+import { getQrCode } from "~/utils/qrcode_945";
+
 export default {
   props: [
     "title",
@@ -680,6 +699,8 @@ export default {
   ],
   components: { Visitorinfo },
   data: () => ({
+    responseDialog: false,
+    qrCodeDataURL: null,
     commonSearch: "",
     key: 1,
     DialogQrCode: false,
@@ -901,6 +922,14 @@ export default {
     this.getZonesList();
   },
   methods: {
+    async getQrcodeNum(d, rfid) {
+      try {
+        const result = await getQrCode(new Date(d), rfid);
+        this.qrCodeDataURL = await this.$qrcode.generate(result);
+      } catch (err) {
+        console.log(err);
+      }
+    },
     getZonesList() {
       this.payloadOptions = {
         params: {
@@ -975,13 +1004,6 @@ export default {
     can(per) {
       return this.$pagePermission.can(per, this);
     },
-    // async getQRCode(item) {
-    //   try {
-    //     item.qr_code = await this.$qrcode.generate("test");
-    //   } catch (error) {
-    //     console.error("Error generating QR code:", error);
-    //   }
-    // },
     deleteFromDevice(item) {
       if (confirm("Are you sure want to Delete From This Device?")) {
         let options = {
@@ -1128,7 +1150,6 @@ export default {
       this.overlay = false;
     },
     async save() {
-      console.log(this.selectedVisitor);
 
       if (this.$refs.form.validate()) {
         const today = new Date();
@@ -1173,6 +1194,11 @@ export default {
 
         this.response =
           "Visitor Profile picture is uploading to Device. Please wait for 5 to 10 seconds";
+
+        await this.getQrcodeNum(`${this.selectedVisitor.visit_to}T${this.selectedVisitor.time_out_display}`, this.payload.card_rfid_number);
+
+        this.responseDialog = true;
+
         this.snackbar = true;
         this.valid = false;
 

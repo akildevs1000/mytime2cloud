@@ -83,18 +83,20 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->runInBackground();
 
-        // $schedule
-        //     ->command('pm2:stopped-ae-processes')
-        //     ->everyFourHours();
+        $schedule->command("render:weekoff --month={$month}")
+            ->when(fn() => now()->isLastOfMonth())
+            ->withoutOverlapping();
+
+        $schedule
+            ->command("alert:offline_device_all")
+            ->hourly()
+            ->runInBackground();
 
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
 
-            $schedule
-                ->command("alert:offline_device $companyId")
-                ->hourly()
-                ->runInBackground();
+
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
@@ -191,10 +193,7 @@ class Kernel extends ConsoleKernel
             //     ->dailyAt('04:20')
             //     ->runInBackground();
 
-            $schedule->command("render:weekoff --company_id={$companyId} --month={$month}")
-                ->when(fn() => now()->isLastOfMonth())
-                ->withoutOverlapping()
-                ->onOneServer();
+
 
             $schedule
                 ->command("task:sync_visitor_set_expire_dates $companyId")

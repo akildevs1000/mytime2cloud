@@ -770,6 +770,8 @@ class SDKController extends Controller
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
 
+        info("Visitor Upload:" , [$json, $url]);
+
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }
     public function processSDKRequestJobDeletePersonJson($device_id, $json)

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-avatar style="border: 1px solid purple" size="300">
+    <v-avatar style="border: 1px solid purple" size="250">
       <img v-show="!isClicked" src="/no-profile-image.jpg" ref="img" alt="" />
 
       <video
