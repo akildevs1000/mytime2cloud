@@ -3,7 +3,7 @@
 namespace App\Console\Commands\Automation\Alerts;
 
 use App\Http\Controllers\Controller;
-use App\Jobs\Automation\Alerts\SendOfflineDeviceAlertJob;
+use App\Jobs\SendOfflineDeviceAlertJob;
 use App\Models\Company;
 use App\Models\Device;
 use App\Models\DeviceNotification;

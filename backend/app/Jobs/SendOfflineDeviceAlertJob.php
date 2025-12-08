@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs\Automation\Alerts;
+namespace App\Jobs;
 
 use App\Jobs\SendWhatsappMessageJob;
 use App\Mail\DeviceOfflineAlertMail;
