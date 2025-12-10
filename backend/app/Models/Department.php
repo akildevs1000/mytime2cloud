@@ -108,17 +108,17 @@ class Department extends Model
             }
         });
 
-        $model->when($request->filled("branch_id"), function ($q) use ($request) {
-            return $q->where("branch_id", $request->branch_id);
-        });
+        // $model->when($request->filled("branch_id"), function ($q) use ($request) {
+        //     return $q->where("branch_id", $request->branch_id);
+        // });
 
-        $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
-            return $q->where("branch_id", $request->filter_branch_id);
-        });
+        // $model->when($request->filled("filter_branch_id"), function ($q) use ($request) {
+        //     return $q->where("branch_id", $request->filter_branch_id);
+        // });
 
 
         $model->when(request()->filled('department_ids'), fn($q) => $q->whereIn('id', request('department_ids')));
-        $model->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')));
+        // $model->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')));
 
         return $model;
     }
