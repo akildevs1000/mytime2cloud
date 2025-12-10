@@ -18,7 +18,7 @@ class DepartmentController extends Controller
         $model = Department::query();
         $model->where('company_id', $request->company_id);
         $model->when($request->user_type == "department", fn ($q) => $q->where("id", $request->department_id));
-        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        // $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
         $model->when(request()->filled('department_ids'), fn ($q) => $q->whereIn('id', request('department_ids')));
         $model->orderBy(request('order_by') ? "id" : 'name', request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name"]);
