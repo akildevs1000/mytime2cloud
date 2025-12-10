@@ -83,17 +83,23 @@ class Kernel extends ConsoleKernel
 
         $schedule->command("render:weekoff --month={$month}")
             ->when(fn() => now()->isLastOfMonth())
-            ->withoutOverlapping()
-            ->onOneServer();
+            ->withoutOverlapping();
+
+        $schedule
+            ->command("alert:offline_device_all")
+            ->hourly()
+            ->runInBackground();
+
+        $schedule
+            ->command("attendance:manual-check")
+            ->everyFiveMinutes()
+            ->runInBackground();
 
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
 
-            $schedule
-                ->command("alert:offline_device $companyId")
-                ->hourly()
-                ->runInBackground();
+
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
@@ -144,11 +150,6 @@ class Kernel extends ConsoleKernel
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
-                ->everyFiveMinutes()
-                ->runInBackground();
-
-            $schedule
-                ->command("attendance:manual-check")
                 ->everyFiveMinutes()
                 ->runInBackground();
 

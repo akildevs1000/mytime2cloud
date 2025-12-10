@@ -8,7 +8,7 @@
     </template>
     <v-card>
       <v-toolbar dense flat color="primary" dark>
-        <v-card-title>{{ label }}</v-card-title>
+        <v-card-title>{{ label }} </v-card-title>
         <v-spacer></v-spacer>
         <v-icon :loading="loading" @click="getDataFromApi">mdi-sync</v-icon>
         <v-icon @click="dialog = false">mdi-close</v-icon>
@@ -34,10 +34,7 @@
                 <tr v-if="loading" class="pt-5">
                   <td colspan="100" class="text-center pa-5">
                     <div class="text-center">
-                      <v-progress-circular
-                        color="primary"
-                        indeterminate
-                      ></v-progress-circular>
+                      <v-progress-circular color="primary" indeterminate></v-progress-circular>
                     </div>
                   </td>
                 </tr>
@@ -51,9 +48,7 @@
                     {{ d.name }}
                   </td>
                   <td class="text-center">
-                    <span class="red--text" v-if="d.noResponse"
-                      >No Response From Device</span
-                    >
+                    <span class="red--text" v-if="d.noResponse">No Response From Device</span>
                     <span class="green--text" v-else>Avaialbe on Device</span>
                   </td>
                   <td class="text-center">{{ d.location }}</td>
@@ -62,25 +57,17 @@
                     <v-icon color="" v-else>mdi-minus</v-icon>
                   </td>
                   <td class="text-center">
-                    <v-icon v-if="d.IsRFID == '' || d.IsRFID == '0'"
-                      >mdi-minus</v-icon
-                    >
+                    <v-icon v-if="d.IsRFID == '' || d.IsRFID == '0'">mdi-minus</v-icon>
                     <v-icon color="green" v-else>mdi-check</v-icon>
                   </td>
                   <td class="text-center">
-                    <v-icon v-if="d.IsPIN == '' || d.IsPIN == 'FFFFFFFF'"
-                      >mdi-minus</v-icon
-                    >
+                    <v-icon v-if="d.IsPIN == '' || d.IsPIN == 'FFFFFFFF'">mdi-minus</v-icon>
                     <v-icon color="green" v-else>mdi-check</v-icon>
                   </td>
                   <td class="text-center">
-                    <v-icon
-                      color="red"
-                      @click="
-                        deleteUserFromDevice(d.device_id, d.system_user_id)
-                      "
-                      >mdi-close</v-icon
-                    >
+                    <v-icon v-if="!d.noResponse" color="red" @click="
+                      deleteUserFromDevice(d.device_id, d.system_user_id)
+                      ">mdi-close</v-icon>
                   </td>
                 </tr>
 
@@ -179,6 +166,13 @@ export default {
   }),
 
   watch: {
+    dialog: {
+      handler(val) {
+        if (val == true) {
+          this.getDataFromApi();
+        }
+      },
+    },
     options: {
       handler() {
         if (this.dialog == true) {
@@ -188,7 +182,12 @@ export default {
       deep: true,
     },
   },
-  async created() {
+  mounted() {
+    if (this.dialog == true) {
+      this.getDataFromApi();
+    }
+  },
+  created() {
     this.loading = true;
     if (this.dialog == true) {
       this.getDataFromApi();

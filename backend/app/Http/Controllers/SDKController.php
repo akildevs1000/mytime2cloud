@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Mqtt\FaceDeviceController;
 use App\Jobs\AddPerson;
 use App\Jobs\TimezonePhotoUploadJob;
 use App\Models\Device;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
 
 class SDKController extends Controller
 {
@@ -180,17 +183,87 @@ class SDKController extends Controller
     }
     public function GetPersonsIdsFromOX900Device(Request $request)
     {
-
-
-
         $return = (new DeviceCameraModel2Controller($request->camera_sdk_url, $request->device_id))->getPersonsIdsListFromDevice();
 
         return $return;
     }
+
+    public function deviceRequestLogs(Request $request): JsonResponse
+    {
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        // company_id can come from query or from logged-in user
+        $companyId = $request->query('company_id');
+
+        if (!$companyId && auth()->check()) {
+            $companyId = auth()->user()->company_id;
+        }
+
+        $path = storage_path("logs/device-employee-upload-{$date}.log");
+
+        if (!file_exists($path)) {
+            return response()->json([
+                'message' => "Log file not found for {$date}",
+                'lines'   => [],
+            ], 404);
+        }
+
+        // Read all lines (oldest → newest), then reverse (newest first)
+        $allLines = array_reverse(
+            file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
+        );
+
+        $filteredLines = [];
+
+        foreach ($allLines as $line) {
+            if (!trim($line)) {
+                continue;
+            }
+
+            // Find start of JSON: after the log prefix
+            $pos = strpos($line, '{');
+            if ($pos === false) {
+                // line has no JSON (maybe plain warning) → skip
+                continue;
+            }
+
+            $jsonStr = substr($line, $pos);
+
+            $data = json_decode($jsonStr, true);
+            if (!is_array($data)) {
+                // bad JSON → skip
+                continue;
+            }
+
+            // If we have a companyId filter, apply it
+            if ($companyId !== null) {
+                if (!isset($data['company_id'])) {
+                    continue;
+                }
+
+                if ((string) $data['company_id'] !== (string) $companyId) {
+                    continue;
+                }
+            }
+
+            // if passed all checks, keep the original line
+            $filteredLines[] = $line;
+        }
+
+        return response()->json([
+            'date'       => $date,
+            'company_id' => $companyId,
+            'lines'      => $filteredLines,
+        ]);
+    }
+
     public function AddPerson(Request $request)
     {
+
+
         $cameraResponse1 = "";
         $cameraResponse2 = "";
+        $mqtt_mytime_devices_response = "";
 
         $deviceResponse = [];
         try {
@@ -201,12 +274,32 @@ class SDKController extends Controller
             $deviceResponse = $cameraResponse2;
         } catch (\Exception $e) {
         }
+        try {
+            $mqtt_mytime_devices_response = $this->filterMQTTMytimeModelDevices($request);
+
+
+
+
+
+
+            $deviceResponse = array_merge($deviceResponse, $mqtt_mytime_devices_response);
+        } catch (\Exception $e) {
+            $deviceResponse[] = [
+                "error" => "Error in MQTT Mytime Device Processing: "
+            ];
+        }
+
 
         $payload = $request->all();
         $personList = $payload['personList'];
         $snList = $payload['snList'];
 
-        $Devices = Device::whereIn('device_id',  $snList)->pluck("device_id");
+        $Devices = Device::whereIn('device_id',  $snList)
+            ->where("model_number", "!=", "MYTIME1")
+            ->where("model_number", "!=", "CAMERA1")
+            ->where("model_number", "!=", "OX-900")
+
+            ->pluck("device_id");
 
         foreach ($Devices as $device_id) {
             $url = env('SDK_URL') . "/$device_id/AddPerson";
@@ -220,6 +313,76 @@ class SDKController extends Controller
                 $deviceResponse[] = $this->processUploadPersons($url, $device_id, $person);
             }
         }
+
+        //logging
+
+        $devicesList = Device::where('company_id', $request->company_id)
+            ->whereIn('device_id', $snList)
+            ->get()
+            ->keyBy('device_id');   // device_id → Device model
+
+        foreach ($deviceResponse as $value) {
+            $deviceId = $value['device_id'] ?? null;
+
+            $persons = [
+                'name'     => $value['name'] ?? null,
+                'userCode' => $value['userCode'] ?? null,
+            ];
+
+            $gatewayResponse = [
+                'status'       => $value['status'] ?? null,
+                'sdk_response' => $value['sdk_response'] ?? null,
+            ];
+
+            $deviceResponseSDK = [
+                'status'       => is_array($value['sdk_response'] ?? null)
+                    ? ($value['sdk_response']['status'] ?? null)
+                    : null,
+                'sdk_response' => $value['sdk_response'] ?? null,
+            ];
+
+            // Get device model for this device_id (if exists)
+            $device = $deviceId && isset($devicesList[$deviceId])
+                ? $devicesList[$deviceId]
+                : null;
+
+            $logRow = [
+                'company_id'  => $request->company_id ?? null,
+
+                'name'        => $persons['name'] ?? null,
+                'userCode'    => $persons['userCode'] ?? null,
+                'device_id'   => $deviceId,
+
+                'action'      => 'upload',
+
+                // prefer device_name; fallback to name; if none, null
+                'device_name' => $device
+                    ? ($device->device_name ?? $device->name ?? null)
+                    : null,
+
+                // gateway / SDK side
+                'gateway_status'  => $gatewayResponse['status'] ?? null,
+                'gateway_success' => ($gatewayResponse['status'] ?? null) == 200 ? 1 : 0,
+
+                'gateway_raw'     => is_array($gatewayResponse['sdk_response'] ?? null)
+                    ? json_encode($gatewayResponse['sdk_response'])
+                    : ($gatewayResponse['sdk_response'] ?? null),
+
+                // device side (detailed sdk_response)
+                'device_status'   => is_array($deviceResponseSDK['sdk_response'] ?? null)
+                    ? ($deviceResponseSDK['sdk_response']['status'] ?? null)
+                    : null,
+
+                'device_message'  => is_array($deviceResponseSDK['sdk_response'] ?? null)
+                    ? ($deviceResponseSDK['sdk_response']['message'] ?? null)
+                    : null,
+            ];
+
+            // This will produce:
+            // [time] local.INFO: DEVICE_EMPLOYEE_UPLOAD {"name":"..","userCode":..,"device_id":"..", ...}
+            Log::channel('device_employee_upload')->info('DEVICE_EMPLOYEE_UPLOAD', $logRow);
+        }
+
 
         return ["cameraResponse" => $cameraResponse1, "cameraResponse2" => $cameraResponse2, "deviceResponse" => $deviceResponse];
 
@@ -267,7 +430,86 @@ class SDKController extends Controller
 
     //     return $this->processSDKRequestBulk($url, $request->all());
     // }
+    public function filterMQTTMytimeModelDevices($request)
+    {
+        $snList = $request->snList;
+        //$Devices = Device::where('device_category_name', "CAMERA")->get()->all();
+        $Devices = Device::where('company_id', $request->company_id)->where('model_number', "MYTIME1")
+            ->whereIn('serial_number',  $request['snList'])->get()->all();
 
+
+
+        $filteredCameraArray = array_filter($Devices, function ($item) use ($snList) {
+            return in_array($item['device_id'], $snList);
+        });
+        $message = [];
+        foreach ($filteredCameraArray as  $value) {
+
+            foreach ($request->personList as  $persons) {
+                if (isset($persons['faceImage'])) {
+
+                    $personProfilePic = $persons['faceImage'];
+                    if ($personProfilePic != '') {
+
+
+                        $path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+
+                        if (file_exists($path)) {
+                            $imageData = file_get_contents($path);
+                            $md5string = base64_encode($imageData);
+
+
+
+                            $responseSDK = (new FaceDeviceController())
+                                ->gatewayRequest('POST', "api/device/{$value['device_id']}/person", [
+
+                                    "customId" => $persons['userCode'],
+                                    "RFIDCard" => $persons['userCode'],
+                                    "name" => $persons['name'],
+                                    "personType" => 0,
+                                    "RFCardMode" => 0,
+                                    "tempCardType" => 0,
+
+                                    "pic" => $md5string
+                                ]);
+                            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                                ? $responseSDK->getData(true)
+                                : $responseSDK;
+                            if (isset($responseSDK['code']) && $responseSDK['code'] == 200)
+                                $message[] = [
+                                    "name" => $persons['name'],
+                                    "userCode" => $persons['userCode'],
+                                    "device_id" => $value['device_id'],
+                                    "sdk" => "mqtt_mytime",
+                                    'status' => 200,
+                                    'sdk_response' => 200,
+                                ];
+                            else {
+                                $message[] = [
+                                    "name" => $persons['name'],
+                                    "userCode" => $persons['userCode'],
+                                    "device_id" => $value['device_id'],
+                                    "sdk" => "mqtt_mytime",
+                                    'status' => 500,
+                                    'sdk_response' => "Error: " . ($responseSDK['error'] ?? 'Unknown Error'),
+                                ];
+                            }
+                        } else
+                            $message[] = [
+                                "name" => $persons['name'],
+                                "userCode" => $persons['userCode'],
+                                "device_id" => $value['device_id'],
+                                "sdk" => "mqtt_mytime",
+                                'status' => 500,
+                                'sdk_response' => "Image not found in path: " . $path,
+                            ];
+                    }
+                }
+            }
+        }
+
+        return  $message;
+    }
     public function filterCameraModel1Devices($request)
     {
 
@@ -746,6 +988,51 @@ class SDKController extends Controller
                 return  ["data" => $response];
             else
                 return ["data" => null];
+        } else    if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
+            $query = [];
+
+            $query['picture'] = 1;
+
+            $responseSDK =  (new FaceDeviceController())
+                ->gatewayRequest('GET', "api/device/{$device["serial_number"]}/person/{$user_code}", [], $query);;
+
+
+
+            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                ? $responseSDK->getData(true)
+                : $responseSDK;
+
+
+
+            if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+
+
+
+                return  [
+                    "data" => [
+                        "company_id" => $device["company_id"],
+                        "name" => $responseSDK["info"]["name"],
+                        "userCode" => $responseSDK["info"]["customId"],
+                        "system_user_id" => $responseSDK["info"]["customId"],
+                        "faceImage" => null,
+                        "cardData" => "",
+                        "password" => "",
+                        "fp" => null,
+                        "palm" => null,
+                        "pin" => null,
+                        "face" => null,
+                        "fpCount" => 0,
+                        "face" => $responseSDK["pic"] != ''   ? true : false,
+
+
+                    ]
+                ];
+            } else {
+                return [
+                    "data" => null
+                ];
+            }
         } else {
 
 
@@ -791,6 +1078,32 @@ class SDKController extends Controller
                 $response = (new DeviceCameraModel2Controller($device->camera_sdk_url, $device["serial_number"]))->deletePersonFromDevice($request->userCodeArray[0]);
 
                 return  ["data" => $response];
+            } else    if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
+
+
+                $user_code = $request->userCodeArray[0];
+                $query = [];
+
+                $query['picture'] = 1;
+
+                $responseSDK =  (new FaceDeviceController())
+                    ->gatewayRequest('DELETE', "api/device/{$device_id}/person/{$user_code}");;
+
+                $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                    ? $responseSDK->getData(true)
+                    : $responseSDK;
+                if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+                    return  [
+                        "data" => [
+                            "Deleted Successfully"
+                        ]
+                    ];
+                } else {
+                    return [
+                        "data" => "Cannot Delete User"
+                    ];
+                }
             } else {
                 $response = Http::timeout(3600)->withoutVerifying()->withHeaders([
                     'Content-Type' => 'application/json',
@@ -979,6 +1292,11 @@ class SDKController extends Controller
 
     public function getPersonAllV1($device_id)
     {
+
+
+
+
+
         $url = $this->buildUrl($device_id, 'GetPersonAll');
 
         return $this->sendRequest($url);
@@ -986,9 +1304,60 @@ class SDKController extends Controller
 
     public function getPersonDetailsV1($device_id, $user_code)
     {
-        $url = $this->buildUrl($device_id, 'GetPersonDetail');
+        $device = Device::where("serial_number", $device_id)->first();
+        if ($device && $device->model_number  && $device->model_number == 'MYTIME1') {
 
-        return $this->sendRequest($url, ['usercode' => $user_code]);
+
+
+            $query = [];
+
+            $query['picture'] = 1;
+
+            $responseSDK =  (new FaceDeviceController())
+                ->gatewayRequest('GET', "api/device/{$device["serial_number"]}/person/{$user_code}", [], $query);;
+
+
+
+            $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                ? $responseSDK->getData(true)
+                : $responseSDK;
+
+
+
+            if (($responseSDK["info"]) && $responseSDK["code"] == 200) {
+
+
+
+
+                return  [
+                    "data" => [
+                        "company_id" => $device["company_id"],
+                        "name" => $responseSDK["info"]["name"],
+                        "userCode" => $responseSDK["info"]["customId"],
+                        "system_user_id" => $responseSDK["info"]["customId"],
+                        "faceImage" => null,
+                        "cardData" => "",
+                        "password" => "",
+                        "fp" => null,
+                        "palm" => null,
+                        "pin" => null,
+                        "face" => null,
+                        "fpCount" => 0,
+                        "face" => $responseSDK["pic"] != ''   ? true : false,
+
+
+                    ]
+                ];
+            } else {
+                return [
+                    "data" => null
+                ];
+            }
+        } else {
+            $url = $this->buildUrl($device_id, 'GetPersonDetail');
+
+            return $this->sendRequest($url, ['usercode' => $user_code]);
+        }
     }
 
     private function buildUrl($device_id, $endpoint)

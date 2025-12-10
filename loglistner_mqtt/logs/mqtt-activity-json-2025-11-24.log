@@ -1,0 +1,3 @@
+{"level":"INFO","timestamp":"2025-11-24T11:10:50.171Z","title":"Device Online","topic":"mqtt/face/basic","deviceId":"1601116"}
+{"level":"INFO","timestamp":"2025-11-24T11:10:50.182Z","title":"MQTT IN (non-pending)","topic":"mqtt/face/1601116","operator":"Online-Ack","messageId":null,"deviceId":"1601116"}
+{"level":"INFO","timestamp":"2025-11-24T11:10:50.434Z","title":"MQTT IN (non-pending)","topic":"mqtt/face/heartbeat","operator":"HeartBeat","messageId":null,"deviceId":"1601116"}

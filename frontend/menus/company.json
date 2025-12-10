@@ -190,18 +190,11 @@
     "module": "employees"
   },
   {
-    "icon": "mdi mdi-camera-account",
-    "title": "OXSAI Devices",
-    "to": "/employee_photo_upload_ox900",
-    "menu": "employee_photo_upload_ox900",
+    "icon": "mdi mdi-math-log",
+    "title": "Upload Logs",
+    "to": "/employee_photo_upload_logs",
+    "menu": "employee_photo_upload_logs",
     "module": "employees"
-  },
-  {
-    "icon": "mdi-clipboard-text-clock",
-    "title": "Device Logs",
-    "to": "/devicelogs",
-    "menu": "logs_access",
-    "module": "attendance"
   },
   {
     "icon": "mdi-clock-outline",

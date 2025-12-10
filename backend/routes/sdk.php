@@ -26,6 +26,8 @@ Route::get('/SDK/personids-from-ox900device', [SDKController::class, 'GetPersons
 Route::post('/SDK/{id}/{command}', [SDKController::class, 'handleCommand']);
 Route::get('/SDK/get-device-person-details/{device_id}/{user_code}', [SDKController::class, 'getPersonDetails']);
 Route::delete('/SDK/delete-device-person-details/{device_id}', [SDKController::class, 'deletePersonDetails']);
+Route::get('/SDK/device-employee-logs', [SDKController::class, 'deviceRequestLogs']);
+
 
 
 Route::get('/SDK/get-person-all-v1/{device_id}', [SDKController::class, 'getPersonAllV1']);

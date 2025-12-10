@@ -6,6 +6,7 @@ use App\Http\Controllers\Reports\VisitorMonthlyController;
 use App\Http\Controllers\Visitor\VisitorAttendanceRenderController;
 use App\Http\Controllers\VisitorController;
 use App\Http\Controllers\VisitorMappingController;
+use App\Http\Controllers\VerificationController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -29,9 +30,6 @@ Route::get('/visitor_status_list', [VisitorController::class, "getVisitorStatusL
 Route::post('upload-visitor', [VisitorController::class, 'uploadVisitorToDevice']);
 Route::post('visitor-update-zone', [VisitorController::class, 'updateVisitorToZone']);
 
-
-
-
 Route::get('setVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'setVisitorExpireDates']);
 Route::get('deleteVisitorExpireDates/{id}', [VisitorAttendanceRenderController::class, 'deleteVisitorExpireDates']);
 Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::class, 'deleteVisitorFromDevice']);
@@ -39,3 +37,7 @@ Route::post('delete-visitor-from-devices', [VisitorAttendanceRenderController::c
 
 Route::get('get-notifications-count', [EmployeeDashboard::class, 'getNotificationCount']);
 Route::get('get-unknown-visitors-list', [VisitorController::class, 'getUnknownVisitorsList']);
+
+Route::post('update-pic-and-sign', [VerificationController::class, 'verifyCustomer']); // for tablet app
+Route::get('get-verify-info/{code}', [VerificationController::class, 'getVerifyInfo']);
+Route::post('verify-customer', [VerificationController::class, 'verifyBooking']);
