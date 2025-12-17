@@ -315,6 +315,7 @@ class EmployeeTimezoneMappingController extends Controller
             ->when($request->filled('branch_id'), function ($q) use ($request) {
                 $q->where('branch_id', $request->branch_id);
             })
+            ->where("status", true)
             ->get(
                 [
                     "id",
