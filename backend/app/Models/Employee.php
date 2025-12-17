@@ -912,7 +912,13 @@ class Employee extends Model
             $q->orderBy("to_date", "asc");
 
             $q->whereHas("shift", function ($shiftQuery) use ($params) {
-                $shiftQuery->whereJsonContains("days", Carbon::parse($params["date"])->format("D"));
+                $day = Carbon::parse($params["date"])->format("D");
+                if (DB::getDriverName() === 'pgsql') {
+                    $shiftQuery->whereJsonContains("days", $day);
+                } else {
+                    // SQLite fallback
+                    $shiftQuery->where("days", "LIKE", '%"' . $day . '"%');
+                }
             });
         }]);
 
