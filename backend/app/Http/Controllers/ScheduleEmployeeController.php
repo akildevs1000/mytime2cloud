@@ -55,27 +55,23 @@ class ScheduleEmployeeController extends Controller
 
             $q->where(function ($q) use ($search, $request) {
 
-                $q->orWhereRaw('LOWER(system_user_id) LIKE ?', ["%{$search}%"])
+                $q->orWhereRaw('LOWER(first_name) LIKE ?', ["{$search}%"])
                     ->orWhereRaw('LOWER(employee_id) LIKE ?', ["%{$search}%"])
-                    ->orWhereRaw('LOWER(first_name) LIKE ?', ["{$search}%"])
+                    ->orWhereRaw('LOWER(system_user_id) LIKE ?', ["%{$search}%"])
                     ->orWhereRaw('LOWER(phone_number) LIKE ?', ["%{$search}%"]);
 
-                $q->orWhereHas('branch', function (Builder $query) use ($search, $request) {
+                $q->orWhereHas('branch', function ($query) use ($search, $request) {
                     $query->whereRaw('LOWER(branch_name) LIKE ?', ["{$search}%"])
                         ->where('company_id', $request->company_id);
                 });
 
-                $q->orWhereHas('department', function (Builder $query) use ($search, $request) {
-                    $query->whereRaw('LOWER(name) LIKE ?', ["{$search}%"])
-                        ->where('company_id', $request->company_id);
-                });
-
-                $q->orWhereHas('schedule_active.shift', function (Builder $query) use ($search, $request) {
+                $q->orWhereHas('department', function ($query) use ($search, $request) {
                     $query->whereRaw('LOWER(name) LIKE ?', ["{$search}%"])
                         ->where('company_id', $request->company_id);
                 });
             });
         });
+
 
         if ($request->department_ids) {
             if (!in_array("---", $request->department_ids)) {
