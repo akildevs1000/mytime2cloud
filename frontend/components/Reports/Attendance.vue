@@ -862,6 +862,12 @@ export default {
           this.branches = data.data;
         });
     },
+    getValue(data) {
+      if (data.multi) return 2;
+      if (data.double) return 5;
+      if (data.single) return 0;
+      return 0; // default if none are true
+    },
     getAttendanceTabs() {
       this.$axios
         .get("get_attendance_tabs", {
@@ -873,6 +879,7 @@ export default {
           },
         })
         .then(({ data }) => {
+          this.shift_type_id = this.getValue(data); // Output: 2
           this.showTabs = data;
           this.payload.showTabs = data;
         });

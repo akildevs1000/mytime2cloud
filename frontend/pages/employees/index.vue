@@ -691,7 +691,7 @@
             <div class="d-flex align-center" style="gap: 10px; width: 100%">
               <!-- Branch Dropdown -->
               <v-autocomplete
-              class="custom-text-field-height"
+                class="custom-text-field-height"
                 label="Branch"
                 @change="getDataFromApi()"
                 v-model="filters.branch_id"
@@ -708,7 +708,6 @@
                 class="custom-text-field-height"
                 append-icon="mdi-magnify"
                 label="Search"
-                @input="searchData"
                 v-model="search"
                 dense
                 outlined
@@ -1235,6 +1234,7 @@ export default {
 
     refresh: false,
     search: null,
+    debounceTimeout:null
   }),
 
   async created() {
@@ -1293,8 +1293,17 @@ export default {
       },
       deep: true,
     },
+    search() {
+      this.debounceGetData();
+    },
   },
   methods: {
+     debounceGetData() {
+      clearTimeout(this.debounceTimeout); // clear previous timer
+      this.debounceTimeout = setTimeout(() => {
+        this.getDataFromApi();
+      }, 500); // 500ms delay
+    },
     getRelatedIcons({
       profile_picture,
       rfid_card_number,
@@ -1465,11 +1474,6 @@ export default {
       const length = 8; // Adjust the length of the ID as needed
       const randomNumber = Math.floor(Math.random() * Math.pow(10, length)); // Generate a random number
       return randomNumber.toString().padStart(length, "0"); // Convert to string and pad with leading zeros if necessary
-    },
-    searchData() {
-      //if (this.search.length == 0 || this.search.length >= 1) {
-      this.getDataFromApi();
-      //}
     },
     closePopup2() {
       this.editDialog = false;

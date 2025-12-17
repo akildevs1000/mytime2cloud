@@ -632,7 +632,6 @@
             style="width: 200px"
             height="20"
             class="employee-schedule-search-box"
-            @input="getDataFromApi()"
             v-model="commonSearch"
             label="Search (min 3)"
             dense
@@ -660,7 +659,12 @@
             ]"
           ></v-select>
         </span>
-        <span v-if="can(`employee_schedule_create`)" cols="2" class="mt-1" style="max-width: 140px">
+        <span
+          v-if="can(`employee_schedule_create`)"
+          cols="2"
+          class="mt-1"
+          style="max-width: 140px"
+        >
           <v-btn
             dense
             class="ma-2 px-1 primary"
@@ -672,83 +676,16 @@
             + Add Schedule
           </v-btn>
         </span>
-        <span v-if="can(`employee_schedule_delete`)" cols="2" class="mt-1" style="max-width: 140px">
+        <span
+          v-if="can(`employee_schedule_delete`)"
+          cols="2"
+          class="mt-1"
+          style="max-width: 140px"
+        >
           <ScheduleEmployeeDelete
             @response="handleScheduleEmployeeDeleteResponse"
           />
         </span>
-        <!-- <input
-          class="custom-input"
-          type="text"
-          placeholder="Search"
-          @input="getDataFromApi()"
-          v-model="commonSearch"
-        /> -->
-        <!-- <v-col cols="12" class="text-right">
-          <v-row>
-            <v-col cols="7"></v-col>
-            <v-col cols="2" class="text-left" style="max-width: 200px">
-              <v-text-field
-                height="20"
-                @input="getDataFromApi()"
-                v-model="commonSearch"
-                label="Display Name"
-                dense
-                outlined
-                type="text"
-                append-icon="mdi-magnify"
-              ></v-text-field>
-             
-            </v-col>
-            <v-col cols="2" style="max-width: 200px">
-              <v-select
-                class="custom-text-field-height employee-schedule-cropdown"
-                height="40px"
-                cols="1"
-                :hide-details="true"
-                @change="filterEmployees()"
-                item-value="id"
-                item-text="name"
-                v-model="filterScheduledEmp"
-                outlined
-                dense
-                :items="[
-                  { name: `All Employees  `, id: `` },
-                  { name: `Scheduled Only`, id: `1` },
-                  { name: `Un-Scheduled`, id: `0` },
-                ]"
-              ></v-select>
-            </v-col>
-            <v-col cols="1" class="text-left" style="max-width: 100px">
-              <v-btn
-                dense
-                class="ma-2 px-1 primary"
-                fill
-                dark
-                small
-                @click="openScheduleDialog"
-              >
-                + New
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-col> -->
-        <!-- <v-tooltip top color="primary" v-if="can(`employee_schedule_create`)">
-            <template v-slot:activator="{ on, attrs }"> -->
-        <!-- <v-btn
-            title="Add Schedule"
-            dense
-            class="ma-0 px-0"
-            x-small
-            :ripple="false"
-            text
-            @click="gotoCreateSchedule"
-          >
-            <v-icon class="ml-2" dark>mdi mdi-plus-circle</v-icon>
-          </v-btn> -->
-        <!-- </template>  
-         <span>Add Schedule</span>  
-          </v-tooltip> -->
       </v-toolbar>
       <v-snackbar v-model="snack" :timeout="3000" :color="snackColor">
         {{ snackText }}
@@ -1137,6 +1074,7 @@ export default {
   data: () => ({
     schedulePopupWidth: "60%",
     commonSearch: "",
+    debounceTimeout: null, // <-- store timeout
     key: 1,
     CustomFilterDatekey: 1,
     date_from: "",
@@ -1396,6 +1334,9 @@ export default {
   },
 
   watch: {
+    commonSearch() {
+      this.debounceGetData();
+    },
     filterDepartmentIds(value) {
       this.filterEmployeeIds = [];
       /////this.employeesByDepartment();
@@ -1489,8 +1430,13 @@ export default {
   },
 
   methods: {
+    debounceGetData() {
+      clearTimeout(this.debounceTimeout); // clear previous timer
+      this.debounceTimeout = setTimeout(() => {
+        this.getDataFromApi();
+      }, 500); // 500ms delay
+    },
     handleScheduleEmployeeDeleteResponse(message) {
-
       this.response = message;
 
       this.snackbar = true;
@@ -2093,6 +2039,9 @@ export default {
       if (this.commonSearch != "" && this.commonSearch.length < 3) {
         return false;
       }
+
+      console.log(this.commonSearch);
+      
       this.loading = true;
 
       let { sortBy, sortDesc, page, itemsPerPage } = this.options;
