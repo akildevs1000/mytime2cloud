@@ -164,17 +164,6 @@ export default {
       this.errorResponse = null;
     },
 
-    validate() {
-      if (!this.payload.name) return "Company Name is required";
-      if (!this.payload.contact_person_name) return "Contact Person Name is required";
-      if (!this.payload.number) return "Phone Number is required";
-      if (!this.payload.email) return "Email is required";
-      if (!this.payload.location) return "Location is required";
-      if (!this.payload.expiry_date) return "Expiry Date is required";
-      if (!this.payload.license_key) return "License Key is required (click Generate)";
-      return null;
-    },
-
     // Simple client-side license key generator (not tamper-proof).
     // For real licensing, generate on backend + sign it.
     generateKey() {
@@ -198,12 +187,6 @@ export default {
     },
 
     async submit() {
-      const err = this.validate();
-      if (err) {
-        this.errorResponse = err;
-        return;
-      }
-
       this.loading = true;
       try {
         await this.$axios.put(`${this.endpoint}/${this.payload.id}`, this.payload);

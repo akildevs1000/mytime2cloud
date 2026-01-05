@@ -11,7 +11,7 @@
       async submit() {
         try {
           await this.$axios.delete(this.endpoint + "/" + this.id);
-          this.$emit("response", "Record has been delete");
+          this.$emit("response");
         } catch ({ response }) {
           console.log(response);
           // console.error("Error adding income:", response.data.message);
