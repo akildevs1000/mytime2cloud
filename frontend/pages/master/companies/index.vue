@@ -1,13 +1,43 @@
 <template>
   <div v-if="can('master')">
     <div v-if="!preloader">
-      <v-row class="mt-5">
-        <v-col cols="6">
-          <h3>Company</h3>
-          <div>Dashboard / Company</div>
-        </v-col>
-        <v-col cols="6">
-          <div class="text-right">
+      <v-data-table
+        dense
+        :headers="[
+          { text: `name`, value: `name` },
+          { text: `email`, value: `user.email` },
+          { text: `location`, value: `location` },
+          { text: `Employee Count`, value: `employees_count` },
+          {
+            text: `Action`,
+            align: `center`,
+            sortable: false,
+            value: `options`,
+          },
+        ]"
+        :items="data"
+        :loading="loading"
+        :options.sync="options"
+        :footer-props="{
+          itemsPerPageOptions: [100, 500, 1000],
+        }"
+        class="elevation-1 pa-3"
+      >
+        <template v-slot:top>
+          <v-toolbar flat dense class="mb-5">
+            Companies
+            <v-icon color="primary" right class="mt-1" @click="getDataFromApi()"
+              >mdi-reload</v-icon
+            >
+            <v-spacer></v-spacer>
+
+            <v-text-field
+              outlined
+              @input="searchIt"
+              v-model="search"
+              dense
+              placeholder="Search..."
+            ></v-text-field>
             <v-btn
               v-if="can('master')"
               small
@@ -16,122 +46,61 @@
               to="/master/companies/create"
               >Company +</v-btn
             >
-          </div>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col md="3"> </v-col>
-
-        <v-col offset-md="6">
-          <v-text-field
-            outlined
-            @input="searchIt"
-            v-model="search"
-            dense
-            placeholder="Search..."
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row v-if="can('master')">
-        <v-col md="2" v-for="(item, index) in data" :key="index">
-          <v-card style="min-height: 209px">
-            <v-card-title>
-              <v-spacer></v-spacer>
-              <v-icon
-                v-if="can(`master`)"
-                @click="editItem(item)"
-                color="secondary"
-                small
-                >mdi-pencil</v-icon
-              >
-
-              <v-icon
-                title="Delete Company and Employyes data?"
-                v-if="can(`master`)"
-                :disabled="item.employees_count > 0"
-                @click="deleteItem(item)"
-                color="red"
-                small
-                >mdi-delete</v-icon
-              >
-            </v-card-title>
-
-            <v-card-text class="text-center" @click="goDetails(item.id)">
-              <div style="height: 200px">
-                <v-img
-                  style="
-                    height: auto;
-                    max-height: 150px;
-                    width: 200px;
-                    margin: 0 auto;
-                  "
-                  :src="item.logo ? item.logo : '/no-image.PNG'"
-                >
-                </v-img>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.options="{ item }">
+          <v-menu bottom left>
+            <template v-slot:activator="{ on, attrs }">
+              <div class="text-center">
+                <v-btn dark-2 icon v-bind="attrs" v-on="on">
+                  <v-icon>mdi-dots-vertical</v-icon>
+                </v-btn>
               </div>
+            </template>
+            <v-list width="120" dense>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-icon
+                    v-if="can(`master`)"
+                    @click="editItem(item)"
+                    color="secondary"
+                    small
+                    >mdi-pencil</v-icon
+                  > Edit
+                </v-list-item-title>
+              </v-list-item>
 
-              <div>
-                <b>{{ item.name }}</b>
-              </div>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-icon
+                    v-if="can(`master`)"
+                    @click="goDetails(item.id)"
+                    color="secondary"
+                    small
+                    >mdi-eye</v-icon
+                  > View
+                </v-list-item-title>
+              </v-list-item>
 
-              <div>
-                {{ item.location }}
-              </div>
-              <div class="bold">Employees: {{ item.employees_count }}</div>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col md="3">
-          <v-select
-            @change="getDataFromApi(endpoint)"
-            outlined
-            v-model="per_page"
-            :items="[50, 100, 500, 1000]"
-            dense
-            placeholder="Per Page Records"
-          ></v-select>
-        </v-col>
-        <v-col>
-          <div color="pt-2" class="text-center">
-            <v-btn
-              @click="getDataFromApi(prev_page_url)"
-              :disabled="prev_page_url ? false : true"
-              color="primary"
-              small
-              elevation="11"
-            >
-              <v-icon dark>mdi-chevron-double-left </v-icon>
-            </v-btn>
-            <v-btn
-              @click="getDataFromApi(next_page_url)"
-              :disabled="next_page_url ? false : true"
-              color="primary"
-              small
-              elevation="11"
-            >
-              <v-icon dark>mdi-chevron-double-right </v-icon>
-            </v-btn>
-          </div>
-        </v-col>
-        <v-col offset-md="6">
-          <v-text-field
-            outlined
-            @input="searchIt"
-            v-model="search"
-            dense
-            placeholder="Search..."
-          ></v-text-field>
-        </v-col>
-      </v-row>
-
-      <v-row> </v-row>
+              <v-list-item>
+                <v-list-item-title>
+                  <v-icon
+                    title="Delete Company and Employyes data?"
+                    v-if="can(`master`)"
+                    @click="deleteItem(item)"
+                    color="red"
+                    small
+                    >mdi-delete</v-icon
+                  > Delete
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </template>
+      </v-data-table>
     </div>
     <Preloader v-else />
   </div>
-
   <NoAccess v-else />
 </template>
 

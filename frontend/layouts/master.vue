@@ -9,7 +9,7 @@
       app
       class="no_print"
       color="background"
-      style="width: 180px"
+      style="width: 220px"
     >
       <v-list v-for="(i, idx) in items" :key="idx" style="padding: 5px 0 0 0px">
         <v-list-item
@@ -140,8 +140,8 @@
         </v-list>
       </v-menu>
     </v-app-bar>
-    <v-main style="padding-left: 160px">
-      <v-container style="padding: 0px">
+    <v-main app>
+      <v-container fluid>
         <nuxt />
       </v-container>
     </v-main>
