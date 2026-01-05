@@ -250,6 +250,13 @@ export default {
           permission: this.can("/"),
         },
 
+        {
+          icon: "mdi-domain",
+          title: "Companies",
+          to: "/master/desktop",
+          permission: this.can("company_access"),
+        },
+
         // {
         //   icon: "mdi-account",
         //   title: "User Management",
