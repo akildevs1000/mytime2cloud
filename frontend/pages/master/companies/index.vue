@@ -25,27 +25,31 @@
       >
         <template v-slot:top>
           <v-toolbar flat dense class="mb-5">
-            Companies
-            <v-icon color="primary" right class="mt-1" @click="getDataFromApi()"
-              >mdi-reload</v-icon
-            >
+            <v-toolbar-title>Companies</v-toolbar-title>
+
             <v-spacer></v-spacer>
 
             <v-text-field
-              outlined
-              @input="searchIt"
               v-model="search"
+              @input="searchIt(search)"
+              style="max-width: 250px"
+              height="30px"
+              class="custom-text-field-height pt-7"
+              color="black"
+              outlined
               dense
-              placeholder="Search..."
+              prepend-inner-icon="mdi-magnify"
+              placeholder="Search"
             ></v-text-field>
             <v-btn
-              v-if="can('master')"
               small
+              v-if="can('master')"
               dark
-              class="mb-2 primary"
+              class="ml-3 primary"
               to="/master/companies/create"
-              >Company +</v-btn
             >
+              Add Company
+            </v-btn>
           </v-toolbar>
         </template>
         <template v-slot:item.options="{ item }">
@@ -66,7 +70,8 @@
                     color="secondary"
                     small
                     >mdi-pencil</v-icon
-                  > Edit
+                  >
+                  Edit
                 </v-list-item-title>
               </v-list-item>
 
@@ -78,7 +83,8 @@
                     color="secondary"
                     small
                     >mdi-eye</v-icon
-                  > View
+                  >
+                  View
                 </v-list-item-title>
               </v-list-item>
 
@@ -91,7 +97,8 @@
                     color="red"
                     small
                     >mdi-delete</v-icon
-                  > Delete
+                  >
+                  Delete
                 </v-list-item-title>
               </v-list-item>
             </v-list>
@@ -143,11 +150,17 @@ export default {
     },
 
     searchIt(e) {
-      if (e.length == 0) {
-        this.getDataFromApi();
-      } else if (e.length > 1) {
-        this.getDataFromApi(`${this.endpoint}/search/${e}`);
-      }
+      // Clear the previous timer
+      clearTimeout(this.debounceTimer);
+
+      // Set a new timer
+      this.debounceTimer = setTimeout(() => {
+        if (e.length === 0) {
+          this.getDataFromApi();
+        } else if (e.length > 1) {
+          this.getDataFromApi(`${this.endpoint}/search/${e}`);
+        }
+      }, 500); // 500ms delay
     },
     getDataFromApi(url = this.endpoint) {
       let options = {
