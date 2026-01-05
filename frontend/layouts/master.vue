@@ -249,10 +249,9 @@ export default {
           to: "/faq",
           permission: this.can("/"),
         },
-
         {
           icon: "mdi-domain",
-          title: "Companies",
+          title: "Desktop",
           to: "/master/desktop",
           permission: this.can("company_access"),
         },
