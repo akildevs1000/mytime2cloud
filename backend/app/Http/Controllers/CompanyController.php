@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Company\CompanyRequest;
@@ -229,21 +230,31 @@ class CompanyController extends Controller
 
     public function destroy($id)
     {
-        $record       = Company::find($id);
-        $user         = User::find($record->user_id);
-        $users        = User::where('company_id', $id);
-        $employees    = Employee::where('company_id', $id);
-        $contact      = CompanyContact::where('company_id', $id);
-        $assignModule = AssignModule::where('company_id', $id);
-        if ($contact->delete()) {
-            $record->delete();
-            $user->delete();
-            $users->delete();
-            $employees->delete();
-            $assignModule->delete();
-            return Response::noContent(204);
-        } else {
-            return Response::json(['message' => 'No such record found.'], 404);
+        try {
+            // Find the company (may not exist)
+            $company = Company::find($id);
+
+            // Delete related records safely
+            Employee::where('company_id', $id)->delete();
+            CompanyContact::where('company_id', $id)->delete();
+            AssignModule::where('company_id', $id)->delete();
+            User::where('company_id', $id)->delete();
+
+            // Delete company owner if exists
+            if ($company) {
+                $owner = User::find($company->user_id);
+                $owner?->delete();
+
+                $company->delete();
+            }
+
+            return response()->noContent(204);
+        } catch (\Exception $e) {
+            // Return a 500 response
+            return response()->json([
+                'message' => 'Failed to delete the company. Please try again.',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -734,7 +745,6 @@ class CompanyController extends Controller
             $company = Company::findOrFail($id);
 
             return $company->logo ?? null;
-
         } catch (ValidationException $e) {
             $indexedErrors = collect($e->errors())->flatten()->all();
 
