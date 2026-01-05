@@ -4,9 +4,7 @@
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           small
-          color="blue"
-          class="white--text"
-          dark
+          class="primary"
           v-bind="attrs"
           v-on="on"
         >
@@ -15,7 +13,7 @@
       </template>
 
       <v-card>
-        <v-toolbar flat class="blue white--text" dense>
+        <v-toolbar flat class="primary white--text" dense>
           Create Company <v-spacer></v-spacer
           ><v-icon @click="close" color="white">mdi-close</v-icon></v-toolbar
         >
@@ -79,7 +77,7 @@
               <v-btn
                 :loading="loading"
                 small
-                color="blue"
+                color="primary"
                 class="white--text"
                 dark
                 @click="submit"

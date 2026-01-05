@@ -8,7 +8,7 @@
     </template>
 
     <v-card>
-      <v-toolbar flat class="blue white--text" dense>
+      <v-toolbar flat class="primary white--text" dense>
         Edit Company <v-spacer></v-spacer
         ><v-icon @click="close" color="white">mdi-close</v-icon></v-toolbar
       >
@@ -72,9 +72,7 @@
             <v-btn
               :loading="loading"
               small
-              color="blue"
-              class="white--text"
-              dark
+              color="primary"
               @click="submit"
             >
               Submit
