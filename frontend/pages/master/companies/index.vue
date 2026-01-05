@@ -125,6 +125,7 @@ export default {
   },
 
   data: () => ({
+    options: {},
     endpoint: "company",
     search: "",
     preloader: true,
