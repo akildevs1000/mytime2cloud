@@ -271,8 +271,8 @@ class CompanyController extends Controller
 
         $model = $this->process_search($model, $key, $fields);
 
-        $model->with('contact');
-
+        $model->with(['user', 'contact', 'modules', 'trade_license']);
+        
         $model->orderByDesc('id');
 
         return $model->paginate($request->per_page);
