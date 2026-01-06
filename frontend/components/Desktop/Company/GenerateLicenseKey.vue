@@ -19,7 +19,9 @@
           <v-col cols="12">
             <v-text-field
               v-model="payload.name"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="Company Name *"
             />
           </v-col>
@@ -27,7 +29,9 @@
           <v-col cols="12">
             <v-text-field
               v-model="payload.contact_person_name"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="Contact Person Name *"
             />
           </v-col>
@@ -35,7 +39,9 @@
           <v-col cols="12">
             <v-text-field
               v-model="payload.number"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="Phone Number *"
             />
           </v-col>
@@ -43,7 +49,9 @@
           <v-col cols="12">
             <v-text-field
               v-model="payload.email"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="Email *"
             />
           </v-col>
@@ -51,7 +59,9 @@
           <v-col cols="12">
             <v-text-field
               v-model="payload.location"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="Location *"
             />
           </v-col>
@@ -70,7 +80,9 @@
                 <v-text-field
                   v-model="payload.expiry_date"
                   label="Expiry Date *"
-                  dense outlined hide-details
+                  dense
+                  outlined
+                  hide-details
                   readonly
                   v-bind="attrs"
                   v-on="on"
@@ -78,23 +90,37 @@
                 />
               </template>
 
-              <v-date-picker no-title
+              <v-date-picker
+                no-title
                 v-model="payload.expiry_date"
                 @input="expiryMenu = false"
               />
             </v-menu>
           </v-col>
 
+          <v-col cols="12">
+            <v-text-field
+              v-model="payload.machine_id"
+              dense
+              outlined
+              hide-details
+              label="Machine Code *"
+            >
+            </v-text-field>
+          </v-col>
+
           <!-- License key -->
           <v-col cols="12">
             <v-text-field
               v-model="payload.license_key"
-              dense outlined hide-details
+              dense
+              outlined
+              hide-details
               label="License Key *"
               readonly
             >
               <template v-slot:append>
-                <v-btn small  color="primary" @click="generateKey">
+                <v-btn small color="primary" @click="generateKey">
                   Generate
                 </v-btn>
               </template>
@@ -135,8 +161,9 @@ export default {
         number: "",
         email: "",
         location: "",
-        expiry_date: "",     // YYYY-MM-DD (from v-date-picker)
-        license_key: "",     // generated
+        expiry_date: "", // YYYY-MM-DD (from v-date-picker)
+        license_key: "", // generated
+        machine_id: "", // generated
       },
       dialog: false,
       loading: false,
@@ -156,6 +183,7 @@ export default {
     // if editing existing record and fields are missing
     if (!this.payload.expiry_date) this.payload.expiry_date = "";
     if (!this.payload.license_key) this.payload.license_key = "";
+    if (!this.payload.machine_id) this.payload.machine_id = "";
   },
   methods: {
     close() {
@@ -164,32 +192,64 @@ export default {
       this.errorResponse = null;
     },
 
-    // Simple client-side license key generator (not tamper-proof).
-    // For real licensing, generate on backend + sign it.
-    generateKey() {
-      // require expiry date to be set (optional but recommended)
+    async generateKey() {
+      if (!this.payload.machine_id) {
+        this.errorResponse = "Machine ID is required.";
+        return;
+      }
+
       if (!this.payload.expiry_date) {
-        this.errorResponse = "Please select Expiry Date before generating the key.";
+        this.errorResponse = "Expiry date is required.";
         return;
       }
 
       this.errorResponse = null;
 
-      const rand = () => Math.random().toString(36).slice(2, 6).toUpperCase();
-      const companyPart = (this.payload.name || "COMP")
-        .replace(/[^a-z0-9]/gi, "")
-        .slice(0, 4)
-        .toUpperCase()
-        .padEnd(4, "X");
+      const nonce = crypto.getRandomValues(new Uint32Array(1))[0].toString(36);
 
-      // Example format: COMP-3452-AB12-CD34-EF56
-      this.payload.license_key = `${companyPart}-${rand()}-${rand()}-${rand()}-${rand()}`;
+      const hash = await this.hashLicense(
+        this.payload.machine_id,
+        this.payload.expiry_date,
+        nonce
+      );
+
+      this.payload.license_key = `LIC-${hash}`;
+    },
+
+    async hashLicense(machineId, expiryDate, nonce) {
+      const secret = "XTREME";
+      const raw = `${machineId}|${expiryDate}|${nonce}|${secret}`;
+
+      const enc = new TextEncoder().encode(raw);
+      const hash = await crypto.subtle.digest("SHA-256", enc);
+
+      const bytes = Array.from(new Uint8Array(hash));
+      const base32 = this.toBase32(bytes).slice(0, 16);
+
+      return base32.match(/.{1,4}/g).join("-");
+    },
+
+    toBase32(bytes) {
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+      let bits = "";
+      let output = "";
+
+      for (const b of bytes) bits += b.toString(2).padStart(8, "0");
+
+      for (let i = 0; i + 5 <= bits.length; i += 5) {
+        output += alphabet[parseInt(bits.slice(i, i + 5), 2)];
+      }
+
+      return output;
     },
 
     async submit() {
       this.loading = true;
       try {
-        await this.$axios.put(`${this.endpoint}/${this.payload.id}`, this.payload);
+        await this.$axios.put(
+          `${this.endpoint}/${this.payload.id}`,
+          this.payload
+        );
         this.close();
         this.$emit("response");
       } catch (error) {

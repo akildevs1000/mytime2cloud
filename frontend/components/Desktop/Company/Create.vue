@@ -2,12 +2,7 @@
   <div class="text-center">
     <v-dialog v-model="dialog" width="500">
       <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          small
-          class="primary"
-          v-bind="attrs"
-          v-on="on"
-        >
+        <v-btn small class="primary" v-bind="attrs" v-on="on">
           <v-icon color="white" small> mdi-plus </v-icon> Company
         </v-btn>
       </template>
@@ -114,6 +109,14 @@ export default {
       this.dialog = false;
       this.loading = false;
       this.errorResponse = null;
+
+      this.item = {
+        name: "",
+        contact_person_name: "",
+        number: "",
+        email: "",
+        location: "",
+      };
     },
     async submit() {
       this.loading = true;
