@@ -217,7 +217,7 @@ export default {
     },
 
     async hashLicense(machineId, expiryDate, nonce) {
-      const secret = "XTREME";
+      const secret = process.env.SECRET_PASS_PHRASE || "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
       const raw = `${machineId}|${expiryDate}|${nonce}|${secret}`;
 
       const enc = new TextEncoder().encode(raw);
