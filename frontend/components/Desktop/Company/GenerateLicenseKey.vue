@@ -120,9 +120,7 @@
               readonly
             >
               <template v-slot:append>
-                <v-btn small color="primary" @click="generateKey">
-                  Generate
-                </v-btn>
+                <v-btn small color="primary" @click="Encrypt"> Generate </v-btn>
               </template>
             </v-text-field>
 
@@ -150,6 +148,8 @@
 </template>
 
 <script>
+import { encryptData } from "../../../utils/license-crypto";
+
 export default {
   props: ["item", "endpoint"],
   data() {
@@ -192,74 +192,36 @@ export default {
       this.errorResponse = null;
     },
 
-    async generateKey() {
-      if (!this.payload.machine_id) {
-        this.errorResponse = "Machine ID is required.";
-        return;
-      }
+    async Encrypt() {
+      let {
+        id,
+        license_key,
+        created_at,
+        devices,
+        devices_count,
+        is_used,
+        updated_at,
+        ...restOfPayload
+      } = this.payload;
 
-      if (!this.payload.expiry_date) {
-        this.errorResponse = "Expiry date is required.";
-        return;
-      }
+      let encryptedData = encryptData(restOfPayload, this.payload.machine_id);
+      this.payload.license_key = encryptedData;
+      // Prepare filename based on the first word of the name
+      const name = restOfPayload.name;
+      const firstWord = name ? name.split(" ")[0] : null;
+      const filename = firstWord
+        ? `${firstWord}_license_key.txt`
+        : "license_key.txt";
 
-      const expiryDate = String(this.payload.expiry_date).trim();
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(expiryDate)) {
-        this.errorResponse = "Expiry date must be in YYYY-MM-DD format.";
-        return;
-      }
-
-      this.errorResponse = null;
-
-      const hash = await this.hashLicense(this.payload.machine_id, expiryDate);
-      this.payload.license_key = `LIC-${hash}`;
+      const blob = new Blob([encryptedData], { type: "text/plain" });
+      const downloadLink = document.createElement("a");
+      downloadLink.href = URL.createObjectURL(blob);
+      downloadLink.download = filename;
+      downloadLink.style.display = "none"; // Hide the download link
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
     },
-
-    async hashLicense(machineId, expiryDate) {
-      const enc = new TextEncoder().encode(machineId);
-      const digest = await crypto.subtle.digest("SHA-256", enc);
-
-      const bytes = Array.from(new Uint8Array(digest));
-      const base32 = this.toBase32(bytes);
-      const first16 = base32.slice(0, 16).padEnd(16, "A");
-
-      const blocks = first16.match(/.{1,4}/g) || [
-        "AAAA",
-        "AAAA",
-        "AAAA",
-        "AAAA",
-      ];
-
-      // insert into last block
-      blocks[3] = this.encodeDateSegment(expiryDate);
-
-      return blocks.join("-");
-    },
-
-    encodeDateSegment(dateStr) {
-      const base = new Date("2020-01-01T00:00:00Z");
-      const date = new Date(`${dateStr}T00:00:00Z`);
-
-      const days = Math.floor((date - base) / 86400000);
-      if (!Number.isFinite(days) || days < 0 || days > 65535) return "0000";
-
-      return days.toString(36).toUpperCase().padStart(4, "0");
-    },
-
-    toBase32(bytes) {
-      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-      let bits = "";
-      let output = "";
-
-      for (const b of bytes) bits += b.toString(2).padStart(8, "0");
-
-      for (let i = 0; i + 5 <= bits.length; i += 5) {
-        output += alphabet[parseInt(bits.slice(i, i + 5), 2)];
-      }
-
-      return output;
-    },
-
     async submit() {
       this.loading = true;
       try {
