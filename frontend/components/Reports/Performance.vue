@@ -478,7 +478,8 @@ export default {
       const url = `${
         this.$appUrl
       }/performance_report/index.html?${queryParams.toString()}`;
-      window.open(url, "_blank");
+      
+      window.open(`http://localhost:5717/?employee_id=${employee?.employee_id}&company_id=${this.$auth.user.company_id}&from_date=${this.from_date}&to_date=${this.to_date}`, "_blank");
     },
     getPresentCount(item) {
       return [item?.p_count, item?.lc_count, item?.eg_count].reduce(
