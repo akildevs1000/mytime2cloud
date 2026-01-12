@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Reports;
 
 use App\Http\Controllers\Controller;
@@ -632,7 +633,7 @@ class ReportController extends Controller
 
         $startMonth = Carbon::now()->subMonths(5)->startOfMonth()->toDateString(); // Removes time
         $endMonth   = Carbon::now()->endOfMonth()->toDateString();                 // Removes time
-                                                                                   // $endMonth = Carbon::now()->toDateString();  // Removes time
+        // $endMonth = Carbon::now()->toDateString();  // Removes time
 
         $startMonthOnly = Carbon::now()->subMonths(5)->startOfMonth();
         $endMonthOnly   = Carbon::now()->endOfMonth();
@@ -645,7 +646,7 @@ class ReportController extends Controller
             ];
         }
 
-                                                     // Now, use these dates in your query
+        // Now, use these dates in your query
         $driver = DB::connection()->getDriverName(); // Get the database driver
 
         if ($driver === 'sqlite') {
@@ -1187,39 +1188,151 @@ class ReportController extends Controller
         ];
     }
 
-    public function performanceReportShow(Request $request)
+    public function performanceReportSingle(Request $request)
     {
-        $companyId = $request->input('company_id', 0);
+        $companyId = $request->input('company_id', 2);
+        $employeeId = $request->input('employee_id', 7);
+        $fromDate = $request->input('from_date', date("Y-m-d"));
+        $toDate   = $request->input('to_date', date("Y-m-d"));
 
-        $model = Attendance::where('company_id', $companyId)
-            ->where('employee_id', request("system_user_id"))
-            ->whereMonth('date', date("m"));
+        $model = Employee::where('company_id', $companyId)
+            ->when($employeeId, fn($q) => $q->where('employee_id', $employeeId))
+            ->with([
+                'attendances' => function ($q) use ($fromDate, $toDate, $companyId) {
+                    $q->whereBetween('date', [$fromDate, $toDate])
+                        ->where('company_id', $companyId);
+                },
+                'reporting_manager:id,reporting_manager_id,first_name',
+                'schedule' => function ($q) use ($companyId) {
+                    $q->where('company_id', $companyId)->with(['shift:id,working_hours,days']);
+                },
+            ])
+            ->first();
 
-        // Get today's date
-        $today = new DateTime();
-        // Get the last day of the current month
-        $endOfMonth = new DateTime('last day of this month');
+        if (!$model) return response()->json(['message' => 'Not found'], 404);
 
-        // Calculate remaining days (excluding today)
-        $remainingDays = (int) $today->diff($endOfMonth)->format('%a');
+        $start = \Carbon\Carbon::parse($fromDate);
+        $end = \Carbon\Carbon::parse($toDate);
 
-        $model->select(
-            DB::raw("COUNT(CASE WHEN status = 'P' THEN 1 END) AS p_count"),
-            DB::raw("COUNT(CASE WHEN status = 'LC' THEN 1 END) AS lc_count"),
-            DB::raw("COUNT(CASE WHEN status = 'EG' THEN 1 END) AS eg_count"),
-            DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS a_count"),
-            DB::raw("COUNT(CASE WHEN status = 'M' THEN 1 END) AS m_count"),
-            DB::raw("COUNT(CASE WHEN status = 'O' THEN 1 END) AS o_count"),
-            DB::raw("COUNT(CASE WHEN status = 'L' THEN 1 END) AS l_count"),
-            DB::raw("COUNT(CASE WHEN status = 'V' THEN 1 END) AS v_count"),
-            DB::raw("COUNT(CASE WHEN status = 'H' THEN 1 END) AS h_count"),
-        );
+        // Logic Variables
+        $monthCount = $start->diffInMonths($end) + 1;
+        $shiftDaysArray = $model->schedule->shift->days ?? [];
+        $workingDaysInWeek = count($shiftDaysArray) > 0 ? count($shiftDaysArray) : 5;
+        $requiredMinutes = $this->timeToMinutes($model->schedule->shift->working_hours ?? "08:00");
 
-        $first = $model->first();
+        // Summary Variables
+        $totalOnTimeCount = 0;
+        $totalGlobalLostMinutes = 0;
+        $monthlyData = [];
 
-        $first->a_count     = ($first->a_count + $first->m_count) - $remainingDays;
-        $first->other_count = $first->l_count + $first->v_count + $first->h_count + $first->lc_count + $first->eg_count;
+        // --- MONTHLY BREAKDOWN ---
+        $tempStart = $start->copy()->startOfMonth();
+        $tempEnd = $end->copy()->startOfMonth();
 
-        return $first;
+        while ($tempStart <= $tempEnd) {
+            $currentMonth = $tempStart->month;
+            $currentYear = $tempStart->year;
+
+            $monthAttendances = $model->attendances->filter(function ($item) use ($currentMonth, $currentYear) {
+                $date = \Carbon\Carbon::parse($item->date);
+                return $date->month == $currentMonth && $date->year == $currentYear;
+            });
+
+            $monthOnTimeCount = 0;
+            $totalMonthLostMinutes = 0;
+
+            foreach ($monthAttendances as $att) {
+                // Count On-Time (Present & No Late)
+                if ($att->status === 'P' && ($att->late_coming === "---" || $att->late_coming === "00:00")) {
+                    $monthOnTimeCount++;
+                    $totalOnTimeCount++; // For Global Summary
+                }
+
+                // Calculate Lost Minutes
+                if ($att->status === 'P') {
+                    $actualMinutes = $this->timeToMinutes($att->total_hrs);
+                    if ($actualMinutes < $requiredMinutes) {
+                        $lost = ($requiredMinutes - $actualMinutes);
+                        $totalMonthLostMinutes += $lost;
+                        $totalGlobalLostMinutes += $lost; // For Global Summary
+                    }
+                }
+            }
+
+            $expectedInMonth = $workingDaysInWeek * 4;
+            $monthPunctuality = ($expectedInMonth > 0) ? round(($monthOnTimeCount / $expectedInMonth) * 100) . "%" : "0%";
+
+            $monthlyData[] = [
+                'month' => $tempStart->format('F Y'),
+                'present' => $monthAttendances->where('status', 'P')->count(),
+                'absent' => $monthAttendances->where('status', 'A')->count(),
+                'punctuality' => $monthPunctuality,
+                'total_hrs' => $this->getTotalHrs($monthAttendances->pluck('total_hrs')),
+                'ot_hrs' => $this->getTotalHrs($monthAttendances->pluck('ot')),
+                'lost_hrs' => $this->minutesToTime($totalMonthLostMinutes),
+            ];
+
+            $tempStart->addMonth();
+        }
+
+        // --- FINAL SUMMARY CALCULATIONS ---
+        $daysPresent = $model->attendances->where("status", "P")->count();
+        $totalExpectedInPeriod = $workingDaysInWeek * 4 * $monthCount;
+
+        // Overall Attendance Rate
+        $overallAttendanceRate = ($totalExpectedInPeriod > 0)
+            ? number_format(min(($daysPresent / $totalExpectedInPeriod) * 100, 100), 1) . "%"
+            : "0.0%";
+
+        // Overall Punctuality
+        $overallPunctuality = ($totalExpectedInPeriod > 0)
+            ? round(($totalOnTimeCount / $totalExpectedInPeriod) * 100) . "%"
+            : "0%";
+
+        // Attach data to model
+        $model->monthly_breakdown = $monthlyData;
+        $model->summary = [
+            'total_attendance_rate' => $overallAttendanceRate,
+            'total_punctuality' => $overallPunctuality,
+            'total_hrs' => $this->getTotalHrs($model->attendances->pluck('total_hrs')),
+            'total_ot_hrs' => $this->getTotalHrs($model->attendances->pluck('ot')),
+            'total_lost_hrs' => $this->minutesToTime($totalGlobalLostMinutes),
+            'total_present' => $daysPresent,
+            'total_expected_working_days' => $totalExpectedInPeriod,
+        ];
+
+        return $model;
+    }
+
+    /**
+     * Helpers
+     */
+    private function timeToMinutes($timeStr)
+    {
+        if (!$timeStr || $timeStr === "---" || $timeStr === "0 h") return 0;
+        $timeStr = str_replace(' h', ':00', $timeStr);
+        $parts = explode(':', $timeStr);
+        return ((int)$parts[0] * 60) + (int)($parts[1] ?? 0);
+    }
+
+    private function minutesToTime($totalMinutes)
+    {
+        $hours = floor($totalMinutes / 60);
+        $minutes = $totalMinutes % 60;
+        return sprintf('%02d:%02d', $hours, $minutes);
+    }
+
+    function getTotalHrs($times)
+    {
+
+        $totalMinutes = 0;
+
+        foreach ($times as $time) {
+            if ($time === "---") continue; // skip invalid entries
+            list($hours, $minutes) = explode(":", $time);
+            $totalMinutes += ($hours * 60) + $minutes;
+        }
+
+        return round($totalMinutes / 60) . " h";
     }
 }

@@ -214,3 +214,6 @@ Route::post('current-month-hours-report', [ReportController::class, 'currentMont
 Route::post('last-six-month-hours-report', [ReportController::class, 'lastSixMonthsHoursReport']);
 Route::post('previous-month-performance-report', [ReportController::class, 'previousMonthPerformanceReport']);
 Route::post('current-month-performance-report', [ReportController::class, 'currentMonthPerformanceReport']);
+
+
+Route::get('performance-report-single', [ReportController::class, 'performanceReportSingle']);
