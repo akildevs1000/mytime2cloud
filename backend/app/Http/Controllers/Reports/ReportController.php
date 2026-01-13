@@ -1264,8 +1264,9 @@ class ReportController extends Controller
 
             $monthlyData[] = [
                 'month' => $tempStart->format('F Y'),
-                'present' => $monthAttendances->where('status', 'P')->count(),
-                'absent' => $monthAttendances->where('status', 'A')->count(),
+                'present' => $monthAttendances->where('status', 'P')->count() ?? 0,
+                'absent' => $monthAttendances->where('status', 'A')->count() ?? 0,
+                'leave' => $monthAttendances->where('status', 'L')->count() ?? 0,
                 'punctuality' => $monthPunctuality,
                 'total_hrs' => $this->getTotalHrs($monthAttendances->pluck('total_hrs')),
                 'ot_hrs' => $this->getTotalHrs($monthAttendances->pluck('ot')),
