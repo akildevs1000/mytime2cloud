@@ -448,12 +448,7 @@ export default {
         to_date: this.to_date,
       });
 
-      window.open(
-        `${
-          this.$appUrl
-        }/performance-report/index.html?${params.toString()}`,
-        "_blank"
-      );
+      window.open(`/performance-report?${params.toString()}`, "_blank");
     },
     getPresentCount(item) {
       return [item?.p_count, item?.lc_count, item?.eg_count].reduce(
