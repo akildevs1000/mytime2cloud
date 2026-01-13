@@ -449,7 +449,9 @@ export default {
       });
 
       window.open(
-        `/performance-report/index.html?${params.toString()}`,
+        `${
+          this.$appUrl
+        }/performance-report/index.html?${params.toString()}`,
         "_blank"
       );
     },
