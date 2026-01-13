@@ -434,10 +434,22 @@ export default {
 
   methods: {
     download(item) {
-      const { employee } = item || {};
+      const employee = item?.employee;
+
+      if (!employee?.employee_id || !employee?.company_id) {
+        console.warn("Invalid employee data", item);
+        return;
+      }
+
+      const params = new URLSearchParams({
+        employee_id: employee.employee_id,
+        company_id: employee.company_id,
+        from_date: this.from_date,
+        to_date: this.to_date,
+      });
 
       window.open(
-        `https://mytime2cloud-performance-report.netlify.app/?employee_id=${employee?.employee_id}&company_id=${this.$auth.user.company_id}&from_date=${this.from_date}&to_date=${this.to_date}`,
+        `/performance-report/index.html?${params.toString()}`,
         "_blank"
       );
     },

@@ -1301,6 +1301,19 @@ class ReportController extends Controller
             'total_expected_working_days' => $totalExpectedInPeriod,
         ];
 
+
+        $model->chart_data = collect($monthlyData)->map(function ($item) {
+            return [
+                "name"       => \Carbon\Carbon::parse($item['month'])->format('M'),
+                "attendance" => $item['present'],
+                // Using your existing timeToMinutes helper to make it a number
+                "overtime"   => round($this->timeToMinutes($item['ot_hrs'] ?: "00:00") / 60, 2),
+                "lost"       => round($this->timeToMinutes($item['lost_hrs'] ?: "00:00") / 60, 2),
+            ];
+        })->values();
+
+        // return $model->chart_data;
+
         return $model;
     }
 
