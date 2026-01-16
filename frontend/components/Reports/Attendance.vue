@@ -175,6 +175,7 @@
           :items="[
             { id: 'Template1', name: 'Monthly Report Format A' },
             { id: 'Template2', name: 'Monthly Report Format B' },
+            { id: 'Template4', name: 'Monthly Report Format C' },
             { id: 'Template3', name: 'Daily' },
           ]"
           item-text="name"
@@ -748,6 +749,7 @@ export default {
           qs += `&department_ids=${this.payload.department_ids.join(",")}`;
         }
         qs += `&employee_id=${this.payload.employee_id}`;
+        qs += `&employee_ids=${this.payload.employee_id.join(",")}`;
         qs += `&report_type=${this.report_type}`;
 
         qs += `&from_date=${this.from_date}&to_date=${this.to_date}`;
@@ -758,6 +760,21 @@ export default {
           qs += `&showTabs=${encodeURIComponent(
             JSON.stringify(this.payload.showTabs)
           )}`;
+        }
+
+        if (this.report_template == "Template4" && actionType !== "EXCEL") {
+          qs = `/attendance-report/?employee_ids=${this.payload.employee_id.join(
+            ","
+          )}&company_id=${this.$auth.user.company_id}&from_date=${
+            this.from_date
+          }&to_date=${this.to_date}&shift_type_id=${
+            this.shift_type_id
+          }&company_name=${this.$auth?.user?.company?.name}`;
+          let report = document.createElement("a");
+          report.setAttribute("href", qs);
+          report.setAttribute("target", "_blank");
+          report.click();
+          return;
         }
 
         if (actionType !== "EXCEL") {
