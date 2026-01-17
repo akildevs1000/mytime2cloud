@@ -272,7 +272,7 @@ class Attendance extends Model
                     },
                     "schedule.shift" => function ($q) use ($company_id) {
                         $q->where('company_id', $company_id);
-                        $q->select("id", "name", "on_duty_time", "off_duty_time");
+                        $q->select("id", "name", "on_duty_time", "off_duty_time","working_hours");
                     },
                 ]);
             },
