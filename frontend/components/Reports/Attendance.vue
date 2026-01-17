@@ -1,5 +1,15 @@
 <template>
   <div v-if="can(`attendance_report_access`)">
+    <v-dialog v-model="iframeDialog" persistent content-class="elevation-0">
+      <iframe
+        v-if="iframeDialog"
+        :src="iframeSrc"
+        height="500px"
+        width="100%"
+        scrolling="no"
+        style="border: none; display: block"
+      ></iframe>
+    </v-dialog>
     <v-dialog v-model="missingLogsDialog" width="auto">
       <v-card>
         <v-card-title dark class="popup_background">
@@ -609,6 +619,10 @@ export default {
     isCompany: true,
     showTabs: { single: true, double: true, multi: true },
     returnedPayload: null,
+
+    iframeDialog: false,
+    iframeSrc:
+      "/attendance-report/?employee_ids=225&company_id=22&from_date=2025-12-01&to_date=2025-12-31&shift_type_id=2&company_name=V%20PERFUMES",
   }),
 
   computed: {
@@ -701,8 +715,26 @@ export default {
     this.getBranches();
     this.getDepartments();
   },
-
+  mounted() {
+    window.addEventListener("message", this.handleMessage);
+  },
+  beforeDestroy() {
+    window.removeEventListener("message", this.handleMessage);
+  },
   methods: {
+    closeReport() {
+      this.iframeDialog = false;
+    },
+    handleMessage(event) {
+      const data = event.data;
+
+      if (data && data.type === "EXPORT_STATUS") {
+        // Auto-hide/reset when finished
+        if (data.status) {
+          this.closeReport();
+        }
+      }
+    },
     handleReturnedPayload(e) {
       this.returnedPayload = e;
     },
@@ -714,6 +746,8 @@ export default {
       this.missingLogsDialog = true;
     },
     async process_file_in_child_comp(val, actionType) {
+      this.iframeDialog = true;
+      return;
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
