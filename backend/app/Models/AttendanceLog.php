@@ -377,12 +377,17 @@ class AttendanceLog extends Model
     public function getLogsForRender($params)
     {
         $days = 1;
+
         if ($params['shift_type_id'] == 4) {
             $days = 2;
         }
 
+            $endDate = date("Y-m-d 23:59:59", strtotime($params["date"] . " +" . $days . " day"));
+
+
         return self::with("visitor")->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
-            ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +" . $days . " day")))
+            // ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +" . $days . " day")))
+            ->where("LogTime", "<=", $endDate) // Now includes the full next day
             ->when($params["UserIds"] != null, function ($q) use ($params) {
 
                 return $q->whereIn("UserID", $params["UserIds"]);
