@@ -13,6 +13,7 @@ class CoordindateController extends Controller
             ->when(request("user_id"), function ($query, $userId) {
                 $query->where("user_id", $userId);
             })
+            ->orderBy("id", "desc")
             ->paginate(request("per_page", 15));
     }
 
