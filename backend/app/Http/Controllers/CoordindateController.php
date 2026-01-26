@@ -24,23 +24,28 @@ class CoordindateController extends Controller
 
             // 1. Find the most recent coordinate for this user
             $lastCoord = Coordindate::where('user_id', $data['user_id'])
-                ->latest() // Shortcut for orderBy('created_at', 'desc')
+                ->latest()
                 ->first();
 
-            // 2. Check if the values match the last record
-            // We cast to string to ensure the comparison is consistent
+            // 2. Check for duplicate coordinates
             if (
                 $lastCoord &&
                 (string)$lastCoord->lat === (string)$data['lat'] &&
                 (string)$lastCoord->lon === (string)$data['lon']
             ) {
 
+                // 📝 Log the duplicate event
+                Log::info("Duplicate location skipped for User ID: {$data['user_id']}", [
+                    'lat' => $data['lat'],
+                    'lon' => $data['lon']
+                ]);
+
                 return response()->json([
                     'message' => 'Duplicate coordinate. No save required.'
                 ], 200);
             }
 
-            // 3. Create new record if it's different
+            // 3. Create new record if unique
             $coordinate = Coordindate::create($data);
 
             return response()->json([
@@ -48,6 +53,11 @@ class CoordindateController extends Controller
                 'data' => $coordinate
             ], 201);
         } catch (\Exception $e) {
+            // 📝 Log the error if something fails
+            Log::error("Failed to save coordinate for User ID: {$request->user_id}", [
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
                 'message' => 'Failed to save coordinate.',
                 'error' => config('app.debug') ? $e->getMessage() : 'Server Error'
