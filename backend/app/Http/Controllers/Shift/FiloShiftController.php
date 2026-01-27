@@ -171,6 +171,8 @@ class FiloShiftController extends Controller
                         $minutes = $totalMinutes % 60;
 
                         $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+                        $item["total_hrs"] = "00:00";
+
                     } else {
 
                         $start = strtotime($firstLog["LogTime"]);
@@ -184,7 +186,10 @@ class FiloShiftController extends Controller
                         $hours = floor($totalMinutes / 60);
                         $minutes = $totalMinutes % 60;
 
-                        $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+                        // $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+
+                        $item["total_hrs"] = "11:11";
+
 
 
 
