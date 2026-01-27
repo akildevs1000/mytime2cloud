@@ -172,8 +172,25 @@ class FiloShiftController extends Controller
 
                         $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
                     } else {
+
+                        $start = strtotime($firstLog["LogTime"]);
+                        $end = strtotime($lastLog["LogTime"]);
+
+                        $diffInSeconds = $end - $start;
+
+                        // Force rounding to the nearest minute to avoid "missing" minutes due to seconds
+                        $totalMinutes = round($diffInSeconds / 60);
+
+                        $hours = floor($totalMinutes / 60);
+                        $minutes = $totalMinutes % 60;
+
+                        $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+
+
+
+                        // IMPORTANT
                         // Standard same-day calculation
-                        $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
+                        // $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                     }
                 }
 
