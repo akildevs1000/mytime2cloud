@@ -158,7 +158,14 @@ class FiloShiftController extends Controller
                 $item["out"] = $lastLog["time"] ?? "---";
 
                 if ($item["out"] !== "---") {
-                    $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
+                    if (strtotime($shift["on_duty_time"]) > strtotime($shift["off_duty_time"])) {
+                        // Use the full LogTime strings which already have the +1 day logic applied to $offDutyStr
+                        // We use the raw LogTime from the records to ensure date crossing is captured
+                        $item["total_hrs"] = $this->getTotalHrsMins($firstLog["LogTime"], $lastLog["LogTime"]);
+                    } else {
+                        // Standard same-day calculation
+                        $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
+                    }
                 }
 
                 // OT Calculation
