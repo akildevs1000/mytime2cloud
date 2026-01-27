@@ -207,4 +207,20 @@ class FiloShiftController extends Controller
         $this->devLog("render-manual-log", $message);
         return $message;
     }
+
+    public function getTotalHrsMins($first, $last)
+    {
+        // If these strings include the date (e.g. "2026-01-27 15:01:00"), 
+        // it will calculate overnight shifts perfectly.
+        $start = new \DateTime($first);
+        $end = new \DateTime($last);
+
+        // If the end time is actually before the start time (same day error),
+        // and you KNOW it's an overnight shift, you could manually add a day,
+        // but it's better to pass the full date-time string from the start.
+        $diff = $start->diff($end);
+
+        // %H ensures 0-padding for hours, %I for minutes
+        return $diff->format('%H:%I');
+    }
 }
