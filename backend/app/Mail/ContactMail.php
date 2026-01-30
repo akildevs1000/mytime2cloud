@@ -4,11 +4,11 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-// use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class ContactMail extends Mailable
+class ContactMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
@@ -21,13 +21,15 @@ class ContactMail extends Mailable
 
     public function build()
     {
-        // MUST be an email from your server's domain (e.g., info@mytime2cloud.com)
-        return $this->subject('New Lead: ' . ($this->data['company'] ?? 'Contact'))
-            ->html("
-            <h3>New Contact Form Submission</h3>
-            <p><strong>Name:</strong> {$this->data['name']}</p>
-            <p><strong>Email:</strong> {$this->data['email']}</p>
-            <p><strong>Message:</strong> {$this->data['message']}</p>
-        ");
+        return $this->subject('New Lead: ' . $this->data['company'])
+                    ->html("
+                        <h3>New Contact Form Submission</h3>
+                        <p><strong>Name:</strong> {$this->data['name']}</p>
+                        <p><strong>Company:</strong> {$this->data['company']}</p>
+                        <p><strong>Email:</strong> {$this->data['email']}</p>
+                        <p><strong>Phone:</strong> {$this->data['phone']}</p>
+                        <p><strong>Message:</strong></p>
+                        <p>{$this->data['message']}</p>
+                    ");
     }
 }
