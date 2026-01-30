@@ -8,6 +8,7 @@ use App\Http\Controllers\AttendanceLogController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CommonController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ContactForm\SendMailController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\ImageController;
@@ -353,7 +354,7 @@ Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
 
         $formatted_address = $data['results'][0]['formatted_address'];
 
-       return $formatted_address;
+        return $formatted_address;
 
         return response()->json([
             'address' => $formatted_address
@@ -363,3 +364,5 @@ Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
         return response()->json(['error' => 'Something went wrong'], 500);
     }
 });
+
+Route::post('/contact-form', [SendMailController::class, 'send']);
