@@ -33,7 +33,7 @@ class SendMailController extends Controller
         $userInputEmail = $request->input('email'); // "customer@gmail.com"
 
         Mail::send([], [], function ($message) use ($userInputEmail) {
-            $message->to('your-admin-email@domain.com')
+            $message->to($userInputEmail)
                 ->from('verified-system-email@domain.com', 'Website Contact Form')
                 ->replyTo($userInputEmail) // This is the magic line
                 ->subject('New Inquiry from ' . $userInputEmail)
