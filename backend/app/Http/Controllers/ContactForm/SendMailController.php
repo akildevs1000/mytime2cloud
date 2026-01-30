@@ -12,25 +12,30 @@ class SendMailController extends Controller
     public function send(Request $request)
     {
 
-        // 1. Get your payload
-        $data = $request->only(['name', 'company', 'email', 'phone', 'message']);
+        $data = $request->all();
 
-        // 2. Format the plain text message body
-        $body = "New Contact Form Submission:\n\n" .
-            "Name: {$data['name']}\n" .
-            "Company: {$data['company']}\n" .
-            "Email: {$data['email']}\n" .
-            "Phone: {$data['phone']}\n\n" .
-            "Message:\n{$data['message']}";
+        // 1. Destination Email
+        $to = "francisgill1000@gmail.com";
+        $subject = "New Lead: " . ($data['company'] ?? 'Contact Form');
 
-        // 3. Send using 'sendmail' driver explicitly (bypasses default SMTP)
-        Mail::mailer('sendmail')->raw($body, function ($message) use ($data) {
-            $message->to('francisgill1000@gmail.com') // Your fixed receiver
-                ->subject('New Lead from ' . $data['company'])
-                ->replyTo($data['email'], $data['name']); // So you can reply to the user
-        });
+        // 2. Build Plain Text Body
+        $message = "Name: " . ($data['name'] ?? 'N/A') . "\r\n";
+        $message .= "Email: " . ($data['email'] ?? 'N/A') . "\r\n";
+        $message .= "Message: " . ($data['message'] ?? 'N/A');
 
-        return response()->json(['status' => 'Email sent via local mailer!']);
+        // 3. Set Headers (This is how you "spoof" the sender info)
+        $headers = "From: system@yourdomain.com\r\n";
+        $headers .= "Reply-To: " . ($data['email'] ?? 'system@yourdomain.com') . "\r\n";
+        $headers .= "X-Mailer: PHP/" . phpversion();
+
+        // 4. Use NATIVE PHP mail()
+        // This bypasses Symfony Mailer and Laravel SMTP configs
+        if (mail($to, $subject, $message, $headers)) {
+            return response()->json(['status' => 'success']);
+        } else {
+            return response()->json(['status' => 'error', 'msg' => 'Server failed to send']);
+        }
+     
 
         // Validate payload
         $data = $request->validate([
