@@ -78,6 +78,10 @@ return [
                 'log',
             ],
         ],
+        'dynamic_from' => [
+            'transport' => 'sendmail',
+            'path' => '/usr/sbin/sendmail -bs -i',
+        ],
     ],
 
     /*

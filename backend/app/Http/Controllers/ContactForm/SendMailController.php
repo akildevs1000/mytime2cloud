@@ -11,6 +11,8 @@ class SendMailController extends Controller
 {
     public function send(Request $request)
     {
+
+
         // Validate payload
         $data = $request->validate([
             'name' => 'required|string',
@@ -19,6 +21,13 @@ class SendMailController extends Controller
             'phone' => 'required|string',
             'message' => 'required|string',
         ]);
+
+        Mail::mailer('dynamic_from')
+            ->to("francisgill1000@gmail.com")
+            ->send(new ContactMail($data));
+
+        return response()->json(['message' => 'Mail sent successfully!'], 200);
+
 
         // Send to a fixed address (e.g., your inbox)
         Mail::to("francisgill1000@gmail.com")->send(new ContactMail($data));
