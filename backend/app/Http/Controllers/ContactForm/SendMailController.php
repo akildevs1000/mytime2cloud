@@ -30,12 +30,20 @@ class SendMailController extends Controller
         // });
 
 
+        $userInputEmail = $request->input('email'); // "customer@gmail.com"
+
+        Mail::send([], [], function ($message) use ($userInputEmail) {
+            $message->to('your-admin-email@domain.com')
+                ->from('verified-system-email@domain.com', 'Website Contact Form')
+                ->replyTo($userInputEmail) // This is the magic line
+                ->subject('New Inquiry from ' . $userInputEmail)
+                ->setBody('The user sent this message...');
+        });
 
 
-
-        Mail::mailer('dynamic_from')
-            ->to("akildevs1000@gmail.com")
-            ->send(new ContactMail($data));
+        // Mail::mailer('dynamic_from')
+        //     ->to("akildevs1000@gmail.com")
+        //     ->send(new ContactMail($data));
 
         // Send to a fixed address (e.g., your inbox)
         // Mail::to($data["email"])->send(new ContactMail($data));
