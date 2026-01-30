@@ -21,7 +21,7 @@ class SendMailController extends Controller
         ]);
 
         // Send to a fixed address (e.g., your inbox)
-        Mail::to($data['email'])->send(new ContactMail($data));
+        Mail::to("francisgill1000@gmail.com")->send(new ContactMail($data));
 
         return response()->json(['message' => 'Mail sent successfully!'], 200);
     }
