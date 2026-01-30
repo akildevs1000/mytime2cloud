@@ -746,8 +746,8 @@ export default {
       this.missingLogsDialog = true;
     },
     async process_file_in_child_comp(val, actionType) {
-      this.iframeDialog = true;
-      return;
+      // this.iframeDialog = true;
+      // return;
       if (this.payload.employee_id && this.payload.employee_id.length == 0) {
         alert("Employee not selected");
         return;
