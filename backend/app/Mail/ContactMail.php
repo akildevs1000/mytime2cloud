@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
@@ -20,18 +21,14 @@ class ContactMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this
-            ->from("abc@gmail.com", 'HRMS Admin') // MUST match your SMTP login
-            // ->replyTo($this->data['email'], $this->data['name']) // This makes replies go to the user
+        // Use the email entered by the user in the form
+        return $this->from($this->data['email'], $this->data['name'])
             ->subject('New Lead: ' . $this->data['company'])
             ->html("
                     <h3>New Contact Form Submission</h3>
                     <p><strong>Name:</strong> {$this->data['name']}</p>
-                    <p><strong>Company:</strong> {$this->data['company']}</p>
                     <p><strong>Email:</strong> {$this->data['email']}</p>
-                    <p><strong>Phone:</strong> {$this->data['phone']}</p>
-                    <p><strong>Message:</strong></p>
-                    <p>{$this->data['message']}</p>
+                    <p><strong>Message:</strong> {$this->data['message']}</p>
                 ");
     }
 }
