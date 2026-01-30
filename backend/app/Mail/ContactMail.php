@@ -20,8 +20,8 @@ class ContactMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->from("akildevs1000@gmail.com", "admin") // Fixed Email, Dynamic NAME
-            ->replyTo($this->data['email'], $this->data['name'])    // User's email for replies
+        return $this->from("test@mytime2cloud.com", 'HRMS Admin') // MUST match your SMTP login
+            ->replyTo($this->data['email'], $this->data['name']) // This makes replies go to the user
             ->subject('New Lead: ' . $this->data['company'])
             ->html("
                     <h3>New Contact Form Submission</h3>
