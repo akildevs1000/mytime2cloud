@@ -80,7 +80,7 @@ return [
         ],
         'dynamic_from' => [
             'transport' => 'sendmail',
-            'path' => '/usr/sbin/sendmail -bs -i',
+            'path' => '/usr/sbin/sendmail -t -i', // Changed -bs to -t
         ],
     ],
 

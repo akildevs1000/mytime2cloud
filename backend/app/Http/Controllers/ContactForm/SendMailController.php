@@ -20,8 +20,12 @@ class SendMailController extends Controller
             'message' => 'required|string',
         ]);
 
+        Mail::mailer('dynamic_from')
+            ->to("akildevs1000@gmail.com")
+            ->send(new ContactMail($data));
+
         // Send to a fixed address (e.g., your inbox)
-        Mail::to($data["email"])->send(new ContactMail($data));
+        // Mail::to($data["email"])->send(new ContactMail($data));
 
         return response()->json(['message' => 'Mail sent successfully!'], 200);
     }
