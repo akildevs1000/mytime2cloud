@@ -20,7 +20,7 @@ class ContactMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->from("test@mytime2cloud.com", 'HRMS Admin') // MUST match your SMTP login
+        return $this->from("mytime22cloud@gmail.com", 'HRMS Admin') // MUST match your SMTP login
             ->replyTo($this->data['email'], $this->data['name']) // This makes replies go to the user
             ->subject('New Lead: ' . $this->data['company'])
             ->html("
