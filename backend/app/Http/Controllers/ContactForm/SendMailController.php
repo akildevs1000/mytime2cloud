@@ -20,7 +20,7 @@ class SendMailController extends Controller
             'message' => 'required|string',
         ]);
 
-        Mail::mailer('dynamic_from')
+        return Mail::mailer('dynamic_from')
             ->to("akildevs1000@gmail.com")
             ->send(new ContactMail($data));
 
