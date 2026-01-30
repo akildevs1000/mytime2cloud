@@ -20,6 +20,19 @@ class SendMailController extends Controller
             'message' => 'required|string',
         ]);
 
+        $userEmail = $request->input('email'); // The address the user input
+        $userName = $request->input('name');
+
+        Mail::raw($data["message"], function ($message) use ($userEmail, $userName) {
+            $message->to('akildevs1000@gmail.com')
+                ->from($userEmail, $userName) // Dynamic From Address
+                ->subject('New User Inquiry');
+        });
+
+
+
+
+
         // Mail::mailer('dynamic_from')
         //     ->to("akildevs1000@gmail.com")
         //     ->send(new ContactMail($data));
