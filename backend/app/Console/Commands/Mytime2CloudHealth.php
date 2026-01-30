@@ -12,6 +12,7 @@ class Mytime2CloudHealth extends Command
 
     public function handle()
     {
+        return;
         $to = 'francisgill1000@gmail.com.com';
 
         $url = 'https://mytime2cloud.com/health';
