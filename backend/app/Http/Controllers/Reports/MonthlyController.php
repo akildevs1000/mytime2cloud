@@ -125,17 +125,11 @@ class MonthlyController extends Controller
 
         if ($request->report_template == 'Template3') {
 
-            $branchId = $request->branch_id;
-
-            if (! $branchId) {
-                return "Branch must be selected";
-            }
-
             if ($from_date !== $to_date) {
                 return "From Date and To Date must be same for (Daily) report";
             }
 
-            return $this->processTemplate3($shift_type, $company_id, $branchId, $company);
+            return $this->processTemplate3($shift_type, $company_id, $company);
         }
 
         // only for multi in/out
@@ -180,17 +174,11 @@ class MonthlyController extends Controller
 
         if ($request->report_template == 'Template3') {
 
-            $branchId = $request->branch_id;
-
-            if (! $branchId) {
-                return "Branch must be selected";
-            }
-
             if ($from_date !== $to_date) {
                 return "From Date and To Date must be same for (Daily) report";
             }
 
-            return $this->processTemplate3($shift_type, $company_id, $branchId, $company, "D");
+            return $this->processTemplate3($shift_type, $company_id, $company, "D");
         }
 
         // only for multi in/out
@@ -1064,7 +1052,7 @@ class MonthlyController extends Controller
         return (new Controller)->mergePdfFiles($pdfFiles, $action, $file_name);
     }
 
-    public function processTemplate3($shift_type, $company_id, $branchId, $company, $action = "I")
+    public function processTemplate3($shift_type, $company_id, $company, $action = "I")
     {
 
         $from_date = $company["from_date"] ?? date("Y-m-d");
@@ -1075,9 +1063,8 @@ class MonthlyController extends Controller
         $model->whereBetween("date", [$from_date . " 00:00:00", $to_date . " 23:59:59"]);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-        $model->whereHas('employee', function ($q) use ($company_id, $branchId) {
+        $model->whereHas('employee', function ($q) use ($company_id) {
             $q->where('company_id', $company_id);
-            $q->where('branch_id', $branchId);
             $q->where('status', 1);
             $q->whereHas("schedule", function ($q) use ($company_id) {
                 $q->where('company_id', $company_id);
@@ -1132,14 +1119,14 @@ class MonthlyController extends Controller
             ];
 
             $data      = Pdf::loadView('pdf.attendance_reports.summary', $arr)->output();
-            $file_path = "pdf/$yesterday/{$company_id}/{$branchId}/summary_report_$counter.pdf";
+            $file_path = "pdf/$yesterday/{$company_id}/summary_report_$counter.pdf";
             Storage::disk('local')->put($file_path, $data);
 
             $counter++;
         }
 
         // After generating chunked PDFs for each branch:
-        $filesDirectory = storage_path("app/pdf/$yesterday/{$company_id}/{$branchId}");
+        $filesDirectory = storage_path("app/pdf/$yesterday/{$company_id}");
 
         if (! is_dir($filesDirectory)) {
             echo 'Directory not found';
