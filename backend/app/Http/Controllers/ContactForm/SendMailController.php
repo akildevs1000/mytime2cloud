@@ -23,22 +23,22 @@ class SendMailController extends Controller
         $userEmail = $request->input('email'); // The address the user input
         $userName = $request->input('name');
 
-        Mail::raw($data["message"], function ($message) use ($userEmail, $userName) {
-            $message->to('akildevs1000@gmail.com')
-                ->from($userEmail, $userName) // Dynamic From Address
-                ->subject('New User Inquiry');
-        });
+        // Mail::raw($data["message"], function ($message) use ($userEmail, $userName) {
+        //     $message->to('akildevs1000@gmail.com')
+        //         ->from($userEmail, $userName) // Dynamic From Address
+        //         ->subject('New User Inquiry');
+        // });
 
 
 
 
 
-        // Mail::mailer('dynamic_from')
-        //     ->to("akildevs1000@gmail.com")
-        //     ->send(new ContactMail($data));
+        Mail::mailer('dynamic_from')
+            ->to("akildevs1000@gmail.com")
+            ->send(new ContactMail($data));
 
         // Send to a fixed address (e.g., your inbox)
-        Mail::to($data["email"])->send(new ContactMail($data));
+        // Mail::to($data["email"])->send(new ContactMail($data));
 
         return response()->json(['message' => 'Mail sent successfully!'], 200);
     }
