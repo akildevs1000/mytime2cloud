@@ -21,7 +21,9 @@ class ContactMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        // Use the email entered by the user in the form
+
+
+        // If you want it to come FROM the user's email:
         return $this->from($this->data['email'], $this->data['name'])
             ->subject('New Lead: ' . $this->data['company'])
             ->html("
