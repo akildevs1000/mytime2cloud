@@ -20,15 +20,17 @@ class ContactMail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        return $this->subject('New Lead: ' . $this->data['company'])
-                ->html("
-                        <h3>New Contact Form Submission</h3>
-                        <p><strong>Name:</strong> {$this->data['name']}</p>
-                        <p><strong>Company:</strong> {$this->data['company']}</p>
-                        <p><strong>Email:</strong> {$this->data['email']}</p>
-                        <p><strong>Phone:</strong> {$this->data['phone']}</p>
-                        <p><strong>Message:</strong></p>
-                        <p>{$this->data['message']}</p>
-                    ");
+        return $this->from("akildevs1000@gmail.com", "admin") // Fixed Email, Dynamic NAME
+            ->replyTo($this->data['email'], $this->data['name'])    // User's email for replies
+            ->subject('New Lead: ' . $this->data['company'])
+            ->html("
+                    <h3>New Contact Form Submission</h3>
+                    <p><strong>Name:</strong> {$this->data['name']}</p>
+                    <p><strong>Company:</strong> {$this->data['company']}</p>
+                    <p><strong>Email:</strong> {$this->data['email']}</p>
+                    <p><strong>Phone:</strong> {$this->data['phone']}</p>
+                    <p><strong>Message:</strong></p>
+                    <p>{$this->data['message']}</p>
+                ");
     }
 }
