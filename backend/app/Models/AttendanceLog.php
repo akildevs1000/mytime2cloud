@@ -52,6 +52,10 @@ class AttendanceLog extends Model
             return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "---", "device_id" => "---"]);
         }
 
+        if (env("VERSION") == "V1") {
+            return $this->belongsTo(Device::class, "DeviceID", "device_id");
+        }
+
         return $this->belongsTo(Device::class, "DeviceID", "device_id")->withDefault(["name" => "Mobile", "device_id" => "Mobile"]);
 
         // if ($this->log_type == 'Mobile') {
@@ -382,7 +386,7 @@ class AttendanceLog extends Model
             $days = 2;
         }
 
-            $endDate = date("Y-m-d 23:59:59", strtotime($params["date"] . " +" . $days . " day"));
+        $endDate = date("Y-m-d 23:59:59", strtotime($params["date"] . " +" . $days . " day"));
 
 
         return self::with("visitor")->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date

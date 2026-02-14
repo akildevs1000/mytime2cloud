@@ -15,5 +15,7 @@ class Role extends Model
     protected $casts = [
         'created_at' => 'datetime:d-m-y',
         'updated_at' => 'datetime:d-m-y',
+        'modules' => 'array',
+        'permissions' => 'array',
     ];
 }

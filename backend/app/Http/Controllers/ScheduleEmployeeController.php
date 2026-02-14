@@ -10,6 +10,7 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\Roster;
 use App\Models\ScheduleEmployee;
+use App\Models\Shift;
 use App\Models\ShiftType;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -600,10 +601,10 @@ class ScheduleEmployeeController extends Controller
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
-            ->withOut(["user", "department", "sub_department", "designation", "role", "schedule"])
+            ->withOut(["user"])
 
             ->orderBy("first_name", "ASC")
-            ->get(["id", "first_name", "last_name", "system_user_id", "employee_id", "display_name"]);
+            ->get(["email", "first_name as name", "last_name", "system_user_id as id", "employee_id", "display_name", "profile_picture", "department_id", "designation_id", "branch_id"]);
     }
 
     public function getShiftsByEmployee(Request $request, $id)
@@ -635,5 +636,84 @@ class ScheduleEmployeeController extends Controller
         } catch (\Throwable $th) {
             throw $th;
         }
+    }
+
+
+    public function scheduleStats()
+    {
+        $companyId = request("company_id", 2);
+        $employeeIds = request("employeeIds", []);
+
+        // 1. Total Workforce
+        $totalWorkforceQuery = Employee::where('company_id', $companyId)->where("status", 1);
+
+        // Apply filter only if IDs are provided
+        if (!empty($employeeIds)) {
+            $totalWorkforceQuery->whereIn('system_user_id', $employeeIds);
+        }
+        $totalWorkforce = $totalWorkforceQuery->count();
+
+        // 2. Shift Assigned (Unique Shifts)
+        $assignedQuery = ScheduleEmployee::whereHas('employee', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId)->where('status', 1);
+        });
+
+        if (!empty($employeeIds)) {
+            $assignedQuery->whereIn('employee_id', $employeeIds);
+        }
+        $assignedCount = $assignedQuery->distinct('shift_id')->count('shift_id');
+
+        // 3. Unscheduled
+        $unscheduledQuery = Employee::where('company_id', $companyId)->where("status", 1);
+
+        if (!empty($employeeIds)) {
+            $unscheduledQuery->whereIn('system_user_id', $employeeIds);
+        }
+        $unscheduledCount = $unscheduledQuery->doesntHave('schedule_all')->count();
+
+        // 4. Upcoming Expiry
+        $expiryQuery = ScheduleEmployee::whereHas('employee', function ($query) use ($companyId) {
+            $query->where('company_id', $companyId)->where('status', 1);
+        })
+            ->where('to_date', '>=', now())
+            ->where('to_date', '<=', now()->addDays(30));
+
+        if (!empty($employeeIds)) {
+            $expiryQuery->whereIn('employee_id', $employeeIds);
+        }
+        $expiryCount = $expiryQuery->distinct('shift_id')->count('shift_id');
+
+        return [
+            [
+                "label" => "Total Workforce",
+                "value" => $totalWorkforce,
+                "icon"  => "groups",
+                "color" => "emerald",
+                'class' => "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 shadow-emerald-500/10",
+            ],
+            [
+                "label" => "Shift Assigned",
+                "value" => $assignedCount,
+                "icon"  => "domain_verification",
+                "color" => "indigo",
+                'class' => "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+
+            ],
+            [
+                "label" => "Unscheduled",
+                "value" => $unscheduledCount,
+                "icon"  => "schedule",
+                "color" => "purple",
+                'class' => "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+            ],
+            [
+                "label" => "Upcoming Expiry",
+                "value" => $expiryCount,
+                "icon"  => "pending_actions",
+                "color" => "amber",
+                'class' => "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+
+            ]
+        ];
     }
 }

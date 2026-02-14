@@ -12,6 +12,17 @@ class SubDepartment extends Model
 
     protected $guarded = [];
 
+    // app/Models/Department.php
+
+    protected $appends = ['formatted_updated_at'];
+
+    public function getFormattedUpdatedAtAttribute()
+    {
+        if ($this->updated_at) {
+            return $this->updated_at->format('d-M-y');
+        }
+    }
+
     protected $casts = [
         'created_at' => 'datetime:d-M-y',
     ];
@@ -26,4 +37,9 @@ class SubDepartment extends Model
         return $this->belongsTo(Department::class);
     }
 
+    // In SubDepartment.php
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
 }

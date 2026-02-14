@@ -75,6 +75,22 @@ class UpdateRequest extends FormRequest
             'isAutoShift' => "nullable",
 
             'overtime_type' => "nullable",
+
+            // New Columns from Migration
+            'is_auto_deduct'           => 'boolean',
+            'break_duration'           => 'nullable|string',
+            'unlimited_for_multi'      => 'boolean',
+            'minimum_session_duration' => 'nullable|string',
+            'first_session_name'       => 'nullable|string',
+            'second_session_name'      => 'nullable|string',
+            'weekoff_rules'            => 'nullable|array',
+            'halfday_rules'            => 'nullable|array',
+            'weekend_allowed_ot'       => 'boolean',
+            'holiday_allowed_ot'       => 'boolean',
+            'daily_ot_allowed_mins'    => 'nullable|string',
+
+            'attendanc_rule_late_coming'    => 'nullable|string',
+            'attendanc_rule_early_going'    => 'nullable|string',
         ];
     }
 }

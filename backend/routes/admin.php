@@ -97,6 +97,7 @@ Route::get('role/{id}/permissions', [RoleController::class, 'getPermission']);
 Route::post('role/{id}/permissions', [RoleController::class, 'assignPermission']);
 Route::post('role/delete/selected', [RoleController::class, 'deleteSelected']);
 Route::get('role-list', [RoleController::class, 'dropdownList']);
+Route::delete('delete-role/{id}', [RoleController::class, 'deleteRole']);
 
 // Branch
 // Route::apiResource('branch', BranchController::class)->except('update');

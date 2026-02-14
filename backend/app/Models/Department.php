@@ -14,6 +14,15 @@ class Department extends Model
 
     protected $guarded = [];
 
+    protected $appends = ['formatted_updated_at'];
+
+    public function getFormattedUpdatedAtAttribute()
+    {
+        if ($this->updated_at) {
+            return $this->updated_at->format('d-M-y');
+        }
+    }
+
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_departments');
@@ -30,22 +39,20 @@ class Department extends Model
         return $this->hasMany(User::class)->orderBy("id", "asc")->where("user_type", "department");
     }
 
-    /**
-     * Get all of the sub_departments for the Department
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function branch()
     {
         return $this->belongsTo(CompanyBranch::class, 'branch_id');
     }
     public function children()
     {
-
-
-
         return $this->hasMany(SubDepartment::class);
     }
+
+    public function sub_departments()
+    {
+        return $this->hasMany(SubDepartment::class);
+    }
+
     public function designations()
     {
         return $this->hasMany(Designation::class);

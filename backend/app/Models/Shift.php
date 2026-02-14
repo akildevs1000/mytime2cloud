@@ -18,6 +18,12 @@ class Shift extends Model
 
     protected $casts = [
         'days' => 'array',
+        'is_auto_deduct'      => 'boolean',
+        'unlimited_for_multi' => 'boolean',
+        'weekend_allowed_ot'  => 'boolean',
+        'holiday_allowed_ot'  => 'boolean',
+        'weekoff_rules'       => 'array',
+        'halfday_rules'       => 'array',
     ];
 
     public function getShowFromDateAttribute(): string

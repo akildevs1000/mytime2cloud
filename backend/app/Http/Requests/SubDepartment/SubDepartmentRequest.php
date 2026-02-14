@@ -27,6 +27,8 @@ class SubDepartmentRequest extends FormRequest
     {
         return [
             'name' => 'required|min:2|max:20|unique:sub_departments',
+            'description' => 'nullable|max:200',
+            'department_id' => 'required',
             'company_id' => 'required',
         ];
     }

@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class DepartmentController extends Controller
@@ -17,9 +18,10 @@ class DepartmentController extends Controller
     {
         $model = Department::query();
         $model->where('company_id', $request->company_id);
-        $model->when($request->user_type == "department", fn ($q) => $q->where("id", $request->department_id));
-        // $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
-        $model->when(request()->filled('department_ids'), fn ($q) => $q->whereIn('id', request('department_ids')));
+        $model->when($request->user_type == "department", fn($q) => $q->where("id", $request->department_id));
+        $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('department_ids'), fn($q) => $q->whereIn('id', request('department_ids')));
+        $model->when(request()->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', request('branch_ids')));
         $model->orderBy(request('order_by') ? "id" : 'name', request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name"]);
     }
@@ -84,21 +86,29 @@ class DepartmentController extends Controller
         }
     }
 
-    public function destroy(Department $Department)
+    public function destroy(Department $department)
     {
-        try {
-            $record = $Department->delete();
+        // Start a transaction to ensure data integrity
+        return DB::transaction(function () use ($department) {
+            try {
+                // 1. Delete associated Users
+                \App\Models\User::where("department_id", $department->id)->delete();
 
-            User::where("department_id", $Department->id)->delete();
+                // 2. Delete associated SubDepartments
+                // This assumes your relationship is named 'sub_departments'
+                $department->sub_departments()->delete();
 
-            if ($record) {
-                return $this->response('Department successfully deleted.', null, true);
-            } else {
-                return $this->response('Department cannot delete.', null, false);
+                // 3. Finally, delete the Department
+                if ($department->delete()) {
+                    return $this->response('Department and all related data successfully deleted.', null, true);
+                }
+
+                return $this->response('Department could not be deleted.', null, false);
+            } catch (\Throwable $th) {
+                // If anything fails, the transaction rolls back automatically
+                return $this->response('Error: ' . $th->getMessage(), null, false);
             }
-        } catch (\Throwable $th) {
-            throw $th;
-        }
+        });
     }
 
     public function deleteSelected(Department $model, Request $request)

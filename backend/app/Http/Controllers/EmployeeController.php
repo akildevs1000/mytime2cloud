@@ -222,6 +222,19 @@ class EmployeeController extends Controller
         return $employee->filterV1($request)->paginate($request->per_page ?? 100);
     }
 
+    public function getEmployeesByDepartmentIds(Request $request)
+    {
+        $departmentIds = $request->input('department_ids', []);
+
+        return Employee::query()
+            ->select('id', 'first_name as name', 'employee_id', 'system_user_id', 'department_id','user_id')
+            ->with("login_user")
+            ->without(['schedule', 'sub_department', 'designation', 'branch','user'])
+            ->whereIn('department_id', (array) $departmentIds)
+            ->where('company_id', request("company_id"))
+            ->get();
+    }
+
     public function document_expiry(Request $request)
     {
 

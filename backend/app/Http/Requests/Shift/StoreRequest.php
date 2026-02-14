@@ -35,7 +35,7 @@ class StoreRequest extends FormRequest
             //'name' => ['required', Rule::unique('shifts')],
             // 'name' => ['required|unique:shifts,name,' . $this->name . '|unique:shifts,branch_id,' . $this->branch_id],
             'name' => ['required', Rule::unique('shifts')->where(function ($query) {
-                return $query->where('branch_id', $this->input('branch_id'));
+                return $query->where('company_id', $this->input('company_id'));
             })],
             'overtime_interval' => ["required"],
             'shift_type_id' => ["required"],
@@ -79,6 +79,27 @@ class StoreRequest extends FormRequest
             'isAutoShift' => "nullable",
 
             'overtime_type' => "nullable",
+
+            // New Columns from Migration
+            'is_auto_deduct'           => 'boolean',
+            'break_duration'           => 'nullable|string',
+            'unlimited_for_multi'      => 'boolean',
+            'minimum_session_duration' => 'nullable|string',
+            'first_session_name'       => 'nullable|string',
+            'second_session_name'      => 'nullable|string',
+            'weekoff_rules'            => 'nullable|array',
+            'halfday_rules'            => 'nullable|array',
+            'weekend_allowed_ot'       => 'boolean',
+            'holiday_allowed_ot'       => 'boolean',
+            'daily_ot_allowed_mins'    => 'nullable|string',
+
+            'significant_attendanc_rule_late_coming'    => 'nullable|string',
+            'significant_attendanc_rule_early_going'    => 'nullable|string',
+
+
+            'attendanc_rule_late_coming'    => 'nullable|string',
+            'attendanc_rule_early_going'    => 'nullable|string',
+
         ];
     }
 }

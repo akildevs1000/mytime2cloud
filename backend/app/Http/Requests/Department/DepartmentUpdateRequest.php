@@ -8,7 +8,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class DepartmentUpdateRequest extends FormRequest
 {
     use failedValidationWithName;
-   
+    
     public function authorize()
     {
         return true;
@@ -17,8 +17,14 @@ class DepartmentUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:4|max:50',
-            'company_id' => 'required'
+            'name'        => 'required|string|min:4|max:50',
+            'description' => 'required|string|min:4|max:200',
+            
+            // Validate that branch_id is a number and exists in the branches table
+            'branch_id'   => 'required|integer',
+            
+            // Validate that company_id is a number and exists in the companies table
+            'company_id'  => 'required|integer|exists:companies,id',
         ];
     }
 }

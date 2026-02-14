@@ -12,22 +12,20 @@ class SubDepartmentController extends Controller
 {
     public function index(Request $request, SubDepartment $model)
     {
-        return $model->with('department')
+        return $model
+            ->with(['department' => function ($query) {
+                $query->withCount('employees');
+            }])
+            ->withCount('employees')
             ->where('company_id', $request->company_id)
             ->when($request->filled('department_id'), function ($q) use ($request) {
-                $q->whereHas('department', fn (Builder $query) => $query->where('department_id', $request->department_id));
-            })
-            ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-                $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_sub_department_name%");
-            })
-            ->when($request->filled('serach_sub_department_name'), function ($q) use ($request) {
-                $q->where('name', env('WILD_CARD') ?? 'ILIKE', "$request->serach_sub_department_name%");
+                $q->whereHas('department', fn(Builder $query) => $query->where('department_id', $request->department_id));
             })
             ->when($request->filled('department_ids'), function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids ?? []);
             })
 
-            ->orderBy("id","desc")
+            ->orderBy("id", "desc")
 
             ->paginate($request->per_page);
     }
@@ -43,11 +41,8 @@ class SubDepartmentController extends Controller
 
     public function store(SubDepartment $model, SubDepartmentRequest $request)
     {
-        $data = $request->validated();
-        $data["department_id"] = 0;
-
         try {
-            $record = $model->create($data);
+            $record = $model->create($request->validated());
 
             if ($record) {
                 return $this->response('Sub Department successfully added.', $record->with('department'), true);

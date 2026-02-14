@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateEmployeeContactsRequest;
 use App\Models\BankInfo;
 use App\Models\DocumentInfo;
 use App\Models\EmiratesInfo;
@@ -12,6 +13,7 @@ use App\Models\User;
 use App\Models\Visa;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -46,14 +48,33 @@ class EmployeeControllerNew extends Controller
                 'system_user_id'       => ['required', 'digits_between:1,6', 'numeric', $controller->uniqueRecord('employees', $employeeDevice)],
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
                 'department_id'        => 'required|integer|exists:departments,id', // Assumes a 'departments' table
+                'designation_id'        => 'required|integer|exists:designations,id', // Assumes a 'departments' table
                 'joining_date'         => 'required|date',
                 'phone_number'         => 'nullable|string|max:20',
                 'whatsapp_number'      => 'nullable|string|max:20',
                 'company_id'           => 'required|integer', // Assumes a 'branches' table
                 'profile_image_base64' => 'nullable|string',  // Con
+
+                'email' => 'nullable|string',
+                'password' => 'nullable|string',
+
+                'marital_status' => 'nullable|string',
+
+                'gender' => 'nullable|string',
+                'date_of_birth' => 'required|string',
+                'nationality' => 'nullable|string',
+                'religion' => 'nullable|string',
+                'blood_group' => 'nullable|string',
+
+                'employee_type' => 'nullable|string',
+                'rfid_card_number' => 'nullable|string',
+
             ]);
 
             $validatedData["joining_date"] = date("Y-m-d", strtotime($validatedData["joining_date"]));
+            $validatedData["date_of_birth"] = date("Y-m-d", strtotime($validatedData["date_of_birth"]));
+            $validatedData["password"] = Hash::make($validatedData["password"]);
+
 
             $dataToStore = $validatedData;
             $imagePath   = null;
@@ -126,7 +147,7 @@ class EmployeeControllerNew extends Controller
         }
     }
 
-    
+
 
     public function updateProfilePicture(Request $request)
     {
@@ -211,24 +232,52 @@ class EmployeeControllerNew extends Controller
             // 1. Find employee
             $employee = Employee::findOrFail($id);
 
-            // 2. Validate incoming data
             $validatedData = $request->validate([
                 'title'                => 'nullable|string|max:10',
                 'first_name'           => 'required|string|max:100',
                 'last_name'            => 'required|string|max:100',
                 'full_name'            => 'required|string|max:255',
                 'display_name'         => 'nullable|string|max:255',
-                'employee_id'          => 'required|string|max:6|unique:employees,employee_id,' . $employee->id,
-                'system_user_id'       => 'required|string|max:6|unique:employees,system_user_id,' . $employee->id,
+
+                'employee_id'          => 'required|string|max:6',
+                'system_user_id'       => 'required|string|max:6',
+
+
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
                 'department_id'        => 'required|integer|exists:departments,id', // Assumes a 'departments' table
+                'designation_id'        => 'required|integer|exists:designations,id', // Assumes a 'departments' table
                 'joining_date'         => 'required|date',
                 'phone_number'         => 'nullable|string|max:20',
                 'whatsapp_number'      => 'nullable|string|max:20',
-                'profile_image_base64' => 'nullable|string', // Con
+                'company_id'           => 'required|integer', // Assumes a 'branches' table
+                'profile_image_base64' => 'nullable|string',  // Con
+
+                'email' => 'nullable|string',
+                'password' => 'nullable|string',
+
+                'marital_status' => 'nullable|string',
+
+                'gender' => 'nullable|string',
+                'date_of_birth' => 'required|string',
+                'nationality' => 'nullable|string',
+                'religion' => 'nullable|string',
+                'blood_group' => 'nullable|string',
+
+                'employee_type' => 'nullable|string',
+                'rfid_card_number' => 'nullable|string',
+
             ]);
 
-            $validatedData["joining_date"] = date("Y-m-d", strtotime($validatedData["joining_date"]));
+            if (! empty($validatedData['joining_date'])) {
+                $validatedData["joining_date"] = date("Y-m-d", strtotime($validatedData["joining_date"]));
+            }
+            if (! empty($validatedData['date_of_birth'])) {
+                $validatedData["date_of_birth"] = date("Y-m-d", strtotime($validatedData["date_of_birth"]));
+            }
+
+            if (! empty($validatedData['password'])) {
+                $validatedData["password"] = Hash::make($validatedData["password"]);
+            }
 
             $dataToUpdate = $validatedData;
             $imagePath    = null;
@@ -297,46 +346,28 @@ class EmployeeControllerNew extends Controller
         }
     }
 
-    public function updateEmergencyContactNew(Request $request, $id)
+    public function updateContactDetails(UpdateEmployeeContactsRequest $request, $id)
     {
-        try {
-            // 1. Find employee
-            $employee = Employee::findOrFail($id);
+        $employee = Employee::findOrFail($id);
 
-            // 2. Validate incoming data
-            $validatedData = $request->validate([
-                'phone_relative_number' => 'nullable|string|max:10',
-                'relation'              => 'nullable|string|max:50',
-                'local_address'         => 'nullable|string|max:255',
-                'local_city'            => 'nullable|string|max:100',
-                'local_country'         => 'nullable|string|max:100',
-            ]);
+        $data = $request->only([
+            'contact',
+            'present_address',
+            'permanent_address',
+            'primary_contact',
+            'secondary_contact',
+        ]);
 
-            // 4. Update the record
-            $employee->update($validatedData);
+        // Remove null values so existing JSON is not overwritten
+        $data = array_filter($data, fn($value) => !is_null($value));
 
-            // 5. Return success response
-            return response()->json([
-                'message'  => 'Employee updated successfully!',
-                'employee' => $employee,
-            ], 200);
-        } catch (ValidationException $e) {
-            $indexedErrors = collect($e->errors())->flatten()->all();
+        $employee->update($data);
 
-            return response()->json([
-                'message' => $indexedErrors[0],
-                'errors'  => $indexedErrors,
-            ], 422);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Employee not found.',
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'An error occurred while updating the employee.',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
+        return response()->json([
+            'status' => true,
+            'message' => 'Employee contact details updated successfully',
+            'data' => $employee
+        ]);
     }
 
     public function updateAddress(Request $request, $id)
@@ -601,7 +632,7 @@ class EmployeeControllerNew extends Controller
         }
     }
 
-    public function updateAccessSettings(Request $request)
+    public function updateAccessSettings(Request $request, $id)
     {
         try {
             // 2. Validate incoming data
@@ -611,7 +642,7 @@ class EmployeeControllerNew extends Controller
             ]);
 
             // 4. Update the record
-            $employee = Employee::where(['id' => $request->employee_id, 'company_id' => $request->company_id])->update($validatedData);
+            $employee = Employee::where('id', $id)->update($validatedData);
 
             // 5. Return success response
             return response()->json([
@@ -637,89 +668,109 @@ class EmployeeControllerNew extends Controller
         }
     }
 
-    public function updateLogin(Request $request)
+    public function updateLogin(Request $request, $id)
     {
-
-        $arr                     = [];
-        $arr["name"]             = "null";
-        $arr["email"]            = $request->email;
-        $arr["company_id"]       = $request->company_id;
-        $arr["employee_role_id"] = 0;
-
-        if ($request->password != '' || $request->password != "********") {
-            $arr['password'] = Hash::make($request->password ?? "secret");
-        }
-
         try {
+            $request->validate([
+                'email' => 'required|email|unique:users,email,' . $id . ',employee_id',
+                'password' => 'nullable|min:8',
+            ]);
 
-            // Try to find existing user
-            $user = User::where('email', $request->email)
-                ->where('company_id', $request->company_id)
-                ->first();
+            // 1. Check if the user exists first
+            $user = User::where('employee_id', $id)->first();
 
-            if ($user) {
-                // If found → update existing
-                $user->update($arr);
-            } else {
-                // If not found → create new
-                $user = User::create(array_merge([
-                    'email'      => $request->email,
-                    'company_id' => $request->company_id,
-                ], $arr));
+            // 2. Prepare the base data
+            $data = [
+                'name'  => "---",
+                'email' => $request->email,
+            ];
+
+            // 3. Handle Password
+            if ($request->filled('password') && $request->password !== "********") {
+                // User provided a new password
+                $data['password'] = Hash::make($request->password);
+            } elseif (!$user) {
+                // CRITICAL: User is being CREATED, but no password was sent.
+                // We must set a random/temporary password because the DB column is NOT NULL.
+                $data['password'] = "secret";
             }
 
-            $userId = $user->id;
+            // 4. Perform the Update or Create
+            if ($user) {
+                $user->update($data);
+            } else {
+                $user = User::create(array_merge($data, [
+                    'employee_id' => $id,
+                ]));
+            }
 
-            Employee::where('id', $request->employee_id)
-                ->update(['user_id' => $userId]);
-
-            info("User ID assigned: " . $userId);
-
-            // 5. Return success response
             return response()->json([
-                'message'  => 'User Info saved successfully!',
-                'employee' => $user,
+                'status'  => 'success',
+                'message' => 'Credentials saved successfully!',
+                'user'    => $user,
             ], 200);
-        } catch (ValidationException $e) {
-            $indexedErrors = collect($e->errors())->flatten()->all();
-
-            return response()->json([
-                'message' => $indexedErrors[0],
-                'errors'  => $indexedErrors,
-            ], 422);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'message' => 'Employee not found.',
-            ], 404);
         } catch (\Exception $e) {
             return response()->json([
-                'message' => 'An error occurred while updating the employee.',
+                'status'  => 'error',
+                'message' => 'Failed to save user.',
                 'error'   => $e->getMessage(),
             ], 500);
         }
     }
 
-    public function updateSettings(Request $request)
+    public function updateGeneralSettings(Request $request, $id)
+    {
+        try {
+            $employee = Employee::findOrFail($id);
+
+            // Check if the request contains ANY of the user-specific keys
+            $hasUserFields = $request->hasAny([
+                'web_login_access',
+                'mobile_app_login_access',
+                'tracking_status'
+            ]);
+
+            $user = User::where('employee_id', $id)->first();
+
+            // If they are trying to update user settings but no user exists
+            if ($hasUserFields && !$user) {
+                return response()->json([
+                    'message' => 'User login not created yet',
+                ], 404);
+            }
+
+            DB::transaction(function () use ($request, $employee, $user) {
+                // Update employee status ONLY if it was sent
+                if ($request->has('status')) {
+                    $employee->update(['status' => $request->status]);
+                }
+
+                // Update user fields ONLY if user exists and fields were sent
+                if ($user) {
+                    $user->update($request->only([
+                        'web_login_access',
+                        'mobile_app_login_access',
+                        'tracking_status'
+                    ]));
+                }
+            });
+
+            return response()->json(['message' => 'Updated successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function leaveGroupAndReportManagerUpdate(Request $request, $id)
     {
         try {
             // 2. Validate incoming data
             $validatedData = $request->validate([
-                'leave_group_id'       => 'nullable|string|max:10',
-                'reporting_manager_id' => 'nullable|string|max:10',
-                'status'               => 'nullable|boolean|max:50',
+                'leave_group_id'       => 'nullable',
+                'reporting_manager_id' => 'nullable',
             ]);
 
-            // 4. Update the record
-            $employee = Employee::where(['employee_id' => $request->employee_id, 'company_id' => $request->company_id])->update($validatedData);
-
-
-            $users = User::where('id', $request->user_id);
-
-            $users->update([
-                'web_login_access'        => $request->web_login_access ?? 0,
-                'mobile_app_login_access' => $request->mobile_app_login_access ?? 0,
-                'tracking_status'         => $request->tracking_status ?? 0,
-            ]);
+            $employee = Employee::where('id', $id)->update($validatedData);
 
             // 5. Return success response
             return response()->json([
@@ -748,15 +799,26 @@ class EmployeeControllerNew extends Controller
     public function updateDocument(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:10',
+            'type' => 'required|string',
+            'title' => 'required|string',
+            'issue_date' => 'required|string',
+            'expiry_date' => 'nullable|string',
         ]);
 
         $payload = [
+
+            "type" => $request->type,
             "title" => $request->title,
+
+            "issue_date" => $request->issue_date,
+            "expiry_date" => $request->expiry_date,
+
             "attachment" => (new DocumentInfoController)->saveFile($request->attachment, $request->employee_id),
+
             "employee_id" => $request->employee_id,
             "company_id" => $request->company_id,
         ];
+
 
         try {
             $result = DocumentInfo::create($payload);

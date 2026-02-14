@@ -12,20 +12,33 @@ class DocumentInfo extends Model
 
     protected $guarded = [];
 
-    // public function getAttachmentAttribute($value)
-    // {
-    //     if (!$value) {
-    //         return null;
-    //     }
-    //     return asset('documents/' . $this->employee_id . "/" . $value);
-    // }
-
-
-
+    protected $appends = ['issue_date_display', 'expiry_date_display', 'access_url'];
 
     protected $casts = [
         'created_at' => 'datetime:d-M-y',
     ];
+
+    public function getAccessUrlAttribute()
+    {
+        if (!$this->attachment) {
+            return null;
+        }
+
+        return asset("documents/{$this->employee_id}/{$this->attachment}");
+    }
+
+    public function getIssueDateDisplayAttribute()
+    {
+        return date("d M y", strtotime($this->issue_date));
+    }
+
+    public function getExpiryDateDisplayAttribute()
+    {
+        if (!$this->expiry_date) {
+            return null;
+        }
+        return date("d M y", strtotime($this->expiry_date));
+    }
 
     protected static function boot()
     {

@@ -16,7 +16,7 @@ class RoleController extends Controller
     {
         $model = Role::query();
         $model->where('company_id', request('company_id'));
-        $model->when(request()->filled('branch_id'), fn ($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name"]);
     }
@@ -28,7 +28,7 @@ class RoleController extends Controller
             $model->Where("role_type", $request->role_type);
         }
 
-        return $model->where("name", "!=", "company")->where('company_id', $request->company_id)->paginate($request->per_page);
+        return $model->where("name", "!=", "company")->where('company_id', $request->company_id)->orderBy("id", "desc")->paginate($request->per_page);
     }
 
     public function store(StoreRequest $request)
@@ -144,6 +144,19 @@ class RoleController extends Controller
             return $this->response('Role Successfully Deleted.', $record, true);
         } else {
             return $this->response('Role cannot Deleted.', null, false);
+        }
+    }
+
+
+    public function deleteRole($id)
+    {
+
+        $record = Role::find($id)->delete();
+
+        if ($record) {
+            return $this->response('Role and Permissions successfully deleted.', $record, true);
+        } else {
+            return $this->response('Role cannot delete.', null, false);
         }
     }
 }
