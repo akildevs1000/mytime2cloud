@@ -189,11 +189,11 @@ if (! function_exists('defaultBranch')) {
     {
         return
             [
-            "branch_code" => "BRN1",
-            "branch_name" => "Branch1",
-            "user_id"     => 0,
-            "company_id"  => $id,
-        ];
+                "branch_code" => "BRN1",
+                "branch_name" => "Branch1",
+                "user_id"     => 0,
+                "company_id"  => $id,
+            ];
     }
 }
 if (! function_exists('defaultRoles')) {
@@ -406,5 +406,15 @@ if (! function_exists('getTotalHours')) {
         $work_hours = floor($sum_minutes / 60);
         $sum_minutes -= $work_hours * 60;
         return $work_hours . ':' . $sum_minutes;
+    }
+}
+
+
+// usage: $minutes = time_to_minutes($shift->break_duration);
+if (!function_exists('time_to_minutes')) {
+    function time_to_minutes(string $time): int
+    {
+        [$hours, $minutes] = explode(':', $time);
+        return ((int)$hours * 60) + (int)$minutes;
     }
 }
