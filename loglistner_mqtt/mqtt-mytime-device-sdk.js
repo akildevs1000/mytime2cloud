@@ -348,6 +348,8 @@ class DeviceGateway {
           this.deviceStatus[facesluiceId] = {
             ...(this.deviceStatus[facesluiceId] || {}),
             online: true,
+            wifiIp: payload.wifiIp || null,
+
             lastOnline: now,
           };
 
@@ -565,6 +567,27 @@ class DeviceGateway {
       },
       {},
       { expectedAckOperator: "ManualPushRecords-Ack", timeoutMs: 15000 },
+    );
+  }
+  GetDeviceInfo(deviceId, date, serial_number) {
+    return this.sendCommand(
+      deviceId,
+      "GetNetConfig",
+      {},
+      {},
+      { expectedAckOperator: "GetNetConfig-Ack", timeoutMs: 15000 },
+    );
+  }
+
+  getBasic(deviceId, date, serial_number) {
+    return this.sendCommand(
+      deviceId,
+      "Basic",
+      {
+        facesluiceId: deviceId,
+      },
+      {},
+      { expectedAckOperator: "Basic-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -829,6 +852,26 @@ app.post(
       serial_number,
       result,
     });
+    res.json(result);
+  }),
+);
+
+// 1. basic
+app.get(
+  "/api/device/:deviceId/basic",
+  asyncHandler(async (req, res) => {
+    const { deviceId } = req.params;
+    const result = gateway.getBasic(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "basic", deviceId, result });
+    res.json(result);
+  }),
+);
+app.get(
+  "/api/device/:deviceId/GetDeviceInfo",
+  asyncHandler(async (req, res) => {
+    const { deviceId } = req.params;
+    const result = gateway.GetDeviceInfo(deviceId);
+    logRoute("HTTP_RESPONSE", { route: "GetDeviceInfo", deviceId, result });
     res.json(result);
   }),
 );

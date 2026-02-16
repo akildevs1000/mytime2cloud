@@ -221,6 +221,8 @@ client.on("message", async (receivedTopic, messageBuffer) => {
 
     try {
       hbJson = JSON.parse(messageBuffer.toString());
+
+      console.log("hbJson", hbJson);
     } catch {
       logError("Invalid HeartBeat JSON payload: " + messageBuffer.toString());
       return;
@@ -464,7 +466,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
       is_live: String(info.PushType) === "0",
       message: message,
     };
-    if (is_live === "true") {
+    if (payload.is_live === "true") {
       // publish
       client.publish(
         `mqtt/face/${info.facesluiceId}/recods/livelogs`,
