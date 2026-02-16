@@ -557,14 +557,14 @@ class DeviceGateway {
   getMissingLogs(deviceId, date, serial_number) {
     return this.sendCommand(
       deviceId,
-      "PushAck",
+      "ManualPushRecords",
       {
         facesluiceId: deviceId,
-        TimeS: "2026-02-01 00:00:00",
-        TimeE: "2026-02-11 23:59:59",
+        TimeS: `${date}T00:00:00`,
+        TimeE: `${date}T23:59:59`,
       },
       {},
-      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 },
+      { expectedAckOperator: "ManualPushRecords-Ack", timeoutMs: 15000 },
     );
   }
 
