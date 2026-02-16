@@ -27,6 +27,7 @@ class DesignationRequest extends FormRequest
     {
         return [
             'name' => 'required|min:4|max:100',
+            'description' => 'nullable|string|max:500',
             'company_id' => 'required'
         ];
     }

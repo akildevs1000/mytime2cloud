@@ -28,6 +28,7 @@ Route::get('scheduled_employees_with_type', [ScheduleEmployeeController::class, 
 Route::get('/get_shifts_by_employee/{id}', [ScheduleEmployeeController::class, 'getShiftsByEmployee']);
 
 Route::get('/employees_with_schedule_count', [ScheduleEmployeeController::class, 'employeesWithScheduleCount']);
+Route::get('/schedule_stats', [ScheduleEmployeeController::class, 'scheduleStats']);
 
 
 // Route::get('scheduled_employees/search/{key}', [EmployeeController::class, 'scheduled_employees_search']);

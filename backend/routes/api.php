@@ -60,3 +60,4 @@ include('group.php');
 
 include('mqtt_mytime.php');
 include('coordinates.php');
+include('manager-login.php');

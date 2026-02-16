@@ -46,19 +46,20 @@ Route::get('employee-avg-clock-in', [EmployeeController::class, 'avgClockIn']);
 Route::post('employee-store-new', [EmployeeControllerNew::class, 'storeNew']);
 Route::post('employee-update-profile-picture', [EmployeeControllerNew::class, 'updateProfilePicture']);
 Route::post('employee-update-new/{id}', [EmployeeControllerNew::class, 'updateNew']);
-Route::post('employee-update-emergency-contact-new/{id}', [EmployeeControllerNew::class, 'updateEmergencyContactNew']);
 Route::post('employee-update-address-new/{id}', [EmployeeControllerNew::class, 'updateAddress']);
-Route::post('employee-update-visa-new', [EmployeeControllerNew::class, 'updateVisa']);
-Route::post('employee-update-emirate-new', [EmployeeControllerNew::class, 'updateEmirate']);
-Route::post('employee-update-passport-new', [EmployeeControllerNew::class, 'updatePassport']);
-Route::post('employee-update-qualification-new', [EmployeeControllerNew::class, 'updateQualification']);
+Route::post('employee-update-qualification-new/{id}', [EmployeeControllerNew::class, 'updateQualification']);
 Route::post('employee-update-bank-new', [EmployeeControllerNew::class, 'updateBank']);
-Route::post('employee-update-access-settings-new', [EmployeeControllerNew::class, 'updateAccessSettings']);
-Route::post('employee-update-login-new', [EmployeeControllerNew::class, 'updateLogin']);
-Route::post('employee-update-settings-new', [EmployeeControllerNew::class, 'updateSettings']);
+
 Route::post('employee-update-document-new', [EmployeeControllerNew::class, 'updateDocument']);
-
-
 
 Route::get('/access-employees', [EmployeeAccessController::class, 'index']);
 Route::post('/check-user-code', [EmployeeAccessController::class, 'checkUserCode']);
+Route::get('/get-employees-by-department-ids', [EmployeeController::class, 'getEmployeesByDepartmentIds']);
+
+
+Route::put('/employees/{id}/contact-update', [EmployeeControllerNew::class, 'updateContactDetails']);
+
+Route::post('leave-group-and-report-manager-update/{id}', [EmployeeControllerNew::class, 'leaveGroupAndReportManagerUpdate']);
+Route::post('employee-update-general-settings/{id}', [EmployeeControllerNew::class, 'updateGeneralSettings']);
+Route::post('employee-update-access-settings-new/{id}', [EmployeeControllerNew::class, 'updateAccessSettings']);
+Route::post('employee-update-login-new/{id}', [EmployeeControllerNew::class, 'updateLogin']);

@@ -26,7 +26,8 @@ class DesignationUpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'=>'required|min:4|max:100'
+            'name'=>'required|min:4|max:100',
+            'description' => 'nullable|string|max:500'
         ];
     }
 }

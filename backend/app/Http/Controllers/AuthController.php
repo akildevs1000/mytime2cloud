@@ -151,7 +151,8 @@ class AuthController extends Controller
         }
 
         $user = User::where('email', $request->email)
-            ->with("company:id,user_id,name,location,logo,company_code,expiry", "branches", "departments")
+            ->with("role", "company:id,user_id,name,location,logo,company_code,expiry", "branches", "departments")
+            ->where("user_type", $request->user_type ?? "company")
             ->first();
 
         $this->throwErrorIfFail($request, $user);

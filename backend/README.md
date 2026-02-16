@@ -1,6 +1,6 @@
 Commands to genrate pdf in background
 php artisan pdf:generate 22
-php artisan task:generate_daily_report 22
+php artisan task:generate_daily_report 60
 php artisan pdf:access-control-report-generate 22 2025-07-16 (shoulde be yesterday date)
 
 

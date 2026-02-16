@@ -43,6 +43,7 @@ class DeviceController extends Controller
         //$model->where("status_id", self::ONLINE_STATUS_ID);
         $model->excludeMobile();
         $model->when(request()->filled('branch_id'), fn($q) => $q->where('branch_id', request('branch_id')));
+        $model->when(request()->filled('branch_ids'), fn($q) => $q->where('branch_id', request('branch_ids')));
         $model->orderBy(request('order_by') ?? "name", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "name", "location", "device_id", "device_type", "short_name", "status_id"]);
     }
@@ -61,7 +62,8 @@ class DeviceController extends Controller
         $model->excludeMobile();
 
         $cols = $request->cols;
-        $model->with(['status', 'company', 'companyBranch']);
+
+        $model->with(['status', 'company', 'branch']);
 
         if (!$request->source)
             $model->where('company_id', $request->company_id);
@@ -101,12 +103,14 @@ class DeviceController extends Controller
             $q->where('branch_id', $request->branch_id);
         });
 
+        $model->when($request->filled('branch_ids'), function ($q) use ($request) {
+            $q->where('branch_id', $request->branch_ids);
+        });
+
         // $model->when($request->filled('model_number'), function ($q) use ($request) {
         //     $q->where('model_number', env('WILD_CARD') ?? 'ILIKE', "$request->model_number%");
         //     $q->Orwhere('name', env('WILD_CARD') ?? 'ILIKE', "$request->model_number%");
         // });
-
-
 
         // array_push($cols, 'status.id');
 

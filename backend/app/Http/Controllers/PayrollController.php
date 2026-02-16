@@ -27,10 +27,9 @@ class PayrollController extends Controller
         }
     }
 
-    public function show(Payroll $model, Request $request, $id)
+    public function show(Payroll $model, $id)
     {
-        $where = ["company_id" => $request->company_id, "employee_id" => $id];
-        return $model->where($where)->first();
+        return $model->where("employee_id", $id)->first();
         //return $model->with(["leave_group"])->where($where)->first();
     }
 }

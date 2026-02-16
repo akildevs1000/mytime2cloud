@@ -20,9 +20,19 @@ class Employee extends Model
 
     protected $guarded = [];
 
+    protected $hidden = [
+        'password',
+    ];
+
     protected $casts = [
         // 'joining_date' => 'date:Y/m/d',
         'created_at' => 'datetime:d-M-y',
+
+        'contact'            => 'array',
+        'present_address'    => 'array',
+        'permanent_address'  => 'array',
+        'primary_contact'    => 'array',
+        'secondary_contact'  => 'array',
     ];
 
     protected $appends = ['show_joining_date', 'profile_picture_raw', 'edit_joining_date', 'name_with_user_id', 'full_name', 'profile_picture_base64'];
@@ -86,8 +96,13 @@ class Employee extends Model
     public function user()
     {
         return $this->belongsTo(User::class)->withDefault([
-            "email" => "---",
+            "email" => null,
         ]);
+    }
+
+    public function login_user()
+    {
+        return $this->hasOne(User::class);
     }
 
     public function timezone()
@@ -667,64 +682,7 @@ class Employee extends Model
             $model->orderBy('first_name', 'asc');
         }
 
-        $model->select(
-            "id",
-            "first_name",
-            "last_name",
-            "profile_picture",
-            "phone_number",
-            "whatsapp_number",
-            "phone_relative_number",
-            "whatsapp_relative_number",
-            "employee_id",
-            "joining_date",
-            "designation_id",
-            "department_id",
-            "user_id",
-            "role_id",
-            "sub_department_id",
-            "overtime",
-            "mobile_application",
-            "relation",
-            "file_no",
-            "type",
-            "title",
-            "grade",
-            "work_site",
-            "status",
-            "employee_role_id",
-            "local_address",
-            "local_tel",
-            "local_mobile",
-            "local_fax",
-            "local_city",
-            "local_country",
-            "local_email",
-            "local_residence_no",
-            "home_address",
-            "home_tel",
-            "home_mobile",
-            "home_fax",
-            "home_city",
-            "home_state",
-            "home_country",
-            "home_email",
-            "company_id",
-            "branch_id",
-            "created_at",
-            "updated_at",
-            "isAutoShift",
-            "system_user_id",
-            "display_name",
-            "timezone_id",
-            "leave_group_id",
-            "reporting_manager_id",
-            "face_uuid",
-            "rfid_card_number",
-            "rfid_card_password",
-            "lockDevice",
-            // "full_name"
-        );
+
 
         return $model;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -34,9 +35,43 @@ class User extends Authenticatable
         'email_verified_at',
         'enable_whatsapp_otp',
         'order',
+
+        'notify',
+        'start_date',
+        'end_date',
+
+        "employee_id",
     ];
 
     protected $with = ['assigned_permissions'];
+
+    protected $appends = ['start_date_display', 'end_date_display', 'start_date_edit', 'end_date_edit'];
+
+    public function getStartDateDisplayAttribute()
+    {
+        return $this->start_date ? Carbon::parse($this->start_date)->format('d M Y') : null;
+    }
+
+    /**
+     * Accessor for end_date_display
+     */
+    public function getEndDateDisplayAttribute()
+    {
+        return $this->end_date ? Carbon::parse($this->end_date)->format('d M Y') : null;
+    }
+
+    public function getStartDateEditAttribute()
+    {
+        return $this->start_date ? Carbon::parse($this->start_date)->format('Y-m-d') : null;
+    }
+
+    /**
+     * Accessor for end_date_display
+     */
+    public function getEndDateEditAttribute()
+    {
+        return $this->end_date ? Carbon::parse($this->end_date)->format('Y-m-d') : null;
+    }
 
     public function assigned_permissions()
     {
@@ -70,6 +105,9 @@ class User extends Authenticatable
      */
 
     protected $casts = [
+        'notify' => 'boolean',
+        'start_date' => 'date',
+        'end_date' => 'date',
         'email_verified_at' => 'datetime',
         'created_at' => 'datetime:d-M-y',
     ];
@@ -95,6 +133,11 @@ class User extends Authenticatable
     public function employee()
     {
         return $this->hasOne(Employee::class)->with(["schedule_active"]);
+    }
+
+    public function login_employee()
+    {
+        return $this->belongsTo(Employee::class, 'employee_id', 'id')->with("department.branch:id,branch_name as name")->withOut("schedule", "sub_department", "branch", "user");
     }
 
     public function role()
