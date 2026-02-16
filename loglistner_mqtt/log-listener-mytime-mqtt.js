@@ -32,11 +32,22 @@ function sanitizeInfo(info) {
   }
   return clone;
 }
-
+const uniqueId =
+  "mqtt-loglistner-mytim2cloud-" +
+  Math.random().toString(36).substring(2, 10) +
+  "-" +
+  Date.now();
 // ========== CONFIG ==========
 
 // MQTT
-const MQTT_HOST = process.env.MYTIME_MQTT_HOST || "";
+// const MQTT_HOST = process.env.MYTIME_MQTT_HOST || "";
+
+// ======= CONFIG =======
+const MQTT_HOST = process.env.MQTT_HOST || "";
+const MQTT_PORT = process.env.MQTT_PORT || 1883;
+const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
+const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
+
 const MQTT_TOPIC_ATT = process.env.MYTIME_MQTT_TOPIC_ATT || "";
 const MQTT_TOPIC_HEARTBEAT = process.env.MYTIME_MQTT_TOPIC_HEARTBEAT || "";
 
@@ -76,7 +87,7 @@ function getTodayFile() {
 function todayGMT4() {
   const now = new Date();
   const gmt4 = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" })
+    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" }),
   );
   return gmt4;
 }
@@ -88,12 +99,20 @@ dbPool
     client.release();
   })
   .catch((err) =>
-    logError("PostgreSQL connection error: " + (err?.message || err))
+    logError("PostgreSQL connection error: " + (err?.message || err)),
   );
 
 // ========== MQTT CLIENT ==========
 
-const client = mqtt.connect(MQTT_HOST);
+// const client = mqtt.connect(MQTT_HOST);
+
+// ======= MQTT CLIENT =======
+const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
+  username: MQTT_USERNAME || undefined,
+  password: MQTT_PASSWORD || undefined,
+  clientId: `gateway-${uniqueId}`,
+  keepalive: 30,
+});
 
 client.on("connect", () => {
   console.log("📡 MQTT connected to", MQTT_HOST);
@@ -106,7 +125,7 @@ client.on("connect", () => {
         "✅ Subscribed to:",
         MQTT_TOPIC_ATT,
         "and",
-        MQTT_TOPIC_HEARTBEAT
+        MQTT_TOPIC_HEARTBEAT,
       );
     }
   });
@@ -122,7 +141,7 @@ async function verifyDevicesOnlineStatus() {
 
   if (heartbeatMap.size === 0) {
     console.log(
-      "⚠️ No heartbeat received for any device yet. Skipping status check."
+      "⚠️ No heartbeat received for any device yet. Skipping status check.",
     );
     return;
   }
@@ -145,7 +164,7 @@ async function verifyDevicesOnlineStatus() {
         "✅ Heartbeat OK in last hour. Setting device ONLINE:",
         serial,
         "| last HB:",
-        new Date(lastHeartbeatTs).toISOString()
+        new Date(lastHeartbeatTs).toISOString(),
       );
     } else {
       // No recent heartbeat → OFFLINE
@@ -161,7 +180,7 @@ async function verifyDevicesOnlineStatus() {
         "⚠️ No heartbeat in last hour. Setting device OFFLINE:",
         serial,
         "| last HB:",
-        lastHeartbeatTs ? new Date(lastHeartbeatTs).toISOString() : "never"
+        lastHeartbeatTs ? new Date(lastHeartbeatTs).toISOString() : "never",
       );
     }
 
@@ -172,22 +191,30 @@ async function verifyDevicesOnlineStatus() {
         "Failed to update devices status (" +
           serial +
           "): " +
-          (err?.message || err)
+          (err?.message || err),
       );
     }
   }
 }
 
 // Run check every 1 hour
-setInterval(() => {
-  verifyDevicesOnlineStatus().catch((err) =>
-    logError("verifyDevicesOnlineStatus error: " + (err?.message || err))
-  );
-}, 60 * 60 * 1000);
+setInterval(
+  () => {
+    verifyDevicesOnlineStatus().catch((err) =>
+      logError("verifyDevicesOnlineStatus error: " + (err?.message || err)),
+    );
+  },
+  60 * 60 * 1000,
+);
 
 // ========== MQTT MESSAGE HANDLER ==========
 
 client.on("message", async (receivedTopic, messageBuffer) => {
+  console.log(
+    "-----------------------------------------------------------LOG Listner - receivedTopic",
+    receivedTopic,
+  );
+
   // 1) HEARTBEAT MESSAGE
   if (receivedTopic === MQTT_TOPIC_HEARTBEAT) {
     let hbJson;
@@ -211,7 +238,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     if (!serialNumber) {
       logError(
         "HeartBeat missing facesluiceId/serial_number. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo))
+          JSON.stringify(sanitizeInfo(hbInfo)),
       );
       return;
     }
@@ -219,7 +246,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     if (!hbTimeStr || hbTimeStr.trim() === "") {
       logError(
         "HeartBeat missing time field. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo))
+          JSON.stringify(sanitizeInfo(hbInfo)),
       );
       return;
     }
@@ -239,12 +266,12 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     });
 
     console.log(
-      "💓 Heartbeat received. Serial/device_id:",
+      "  Heartbeat received. Serial/device_id:",
       serialNumber,
       "| JSON time:",
       hbTimeStr,
       "| stored lastHeartbeatTs:",
-      new Date(lastHeartbeatTs).toISOString()
+      new Date(lastHeartbeatTs).toISOString(),
     );
 
     try {
@@ -254,18 +281,18 @@ client.on("message", async (receivedTopic, messageBuffer) => {
                last_live_datetime = $3
          WHERE model_number = $1 
            AND (serial_number = $2 OR device_id = $2)`,
-        [HEARTBEAT_MODEL_NUMBER, serialNumber, hbTimeStr]
+        [HEARTBEAT_MODEL_NUMBER, serialNumber, hbTimeStr],
       );
 
       console.log(
         "✅ Device ONLINE & last_live_datetime updated (model:",
         HEARTBEAT_MODEL_NUMBER,
         "key:",
-        serialNumber + ")"
+        serialNumber + ")",
       );
     } catch (err) {
       logError(
-        "Failed to update devices (heartbeat): " + (err?.message || err)
+        "Failed to update devices (heartbeat): " + (err?.message || err),
       );
     }
 
@@ -293,10 +320,10 @@ client.on("message", async (receivedTopic, messageBuffer) => {
   // Require RFIDCard or personId
   const userId = info.RFIDCard || info.personId || null;
 
-  if (!userId) {
+  if (!userId || userId == 0 || userId < 0) {
     logError(
       "Skipping insert: No RFIDCard + No personId. Payload: " +
-        JSON.stringify(safeInfo)
+        JSON.stringify(safeInfo),
     );
     return;
   }
@@ -305,7 +332,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
 
   if (!timeStr || timeStr.trim() === "") {
     logError(
-      "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo)
+      "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo),
     );
     return;
   }
@@ -327,16 +354,41 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     todayGMT4(), // "updated_at"
   ];
 
+  // const sql = `
+  //   INSERT INTO attendance_logs (
+  //     "UserID","DeviceID","LogTime","SerialNumber",
+  //     "status","mode","reason","log_date_time",
+  //     "index_serial_number","log_date",
+  //     "created_at","updated_at"
+  //   )
+  //   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+  //   RETURNING id
+  // `;
+
   const sql = `
-    INSERT INTO attendance_logs (
-      "UserID","DeviceID","LogTime","SerialNumber",
-      "status","mode","reason","log_date_time",
-      "index_serial_number","log_date",
-      "created_at","updated_at"
-    )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-    RETURNING id
-  `;
+  INSERT INTO attendance_logs (
+    "UserID",
+    "DeviceID",
+    "company_id",
+    "LogTime",
+    "SerialNumber",
+    "status",
+    "mode",
+    "reason",
+    "log_date_time",
+    "index_serial_number",
+    "log_date",
+    "created_at",
+    "updated_at"
+  )
+  VALUES (
+    $1,
+    $2::text,
+    (SELECT d.company_id FROM devices d WHERE d.serial_number = $2::text LIMIT 1),
+    $3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+  )
+  RETURNING id
+`;
 
   try {
     const result = await dbPool.query(sql, values);
@@ -363,6 +415,8 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     fs.appendFileSync(getTodayFile(), csvRow);
     console.log("📝 CSV Logged:", csvRow.trim());
   } catch (err) {
+    console.log("📝 Import Logs Error:", err?.message);
+
     logError("DB insert / CSV error: " + (err?.message || err));
   }
 });

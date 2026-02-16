@@ -63,7 +63,7 @@ function getTodayDateString() {
 function todayGMT4() {
   const now = new Date();
   const gmt4 = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" })
+    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" }),
   );
   return gmt4;
 }
@@ -97,7 +97,7 @@ function getRouteJsonLogFile() {
 function getBasicNonPendingJsonLogFile() {
   return path.join(
     LOG_DIR,
-    `mqtt-basic-nonpending-json-${getTodayDateString()}.log`
+    `mqtt-basic-nonpending-json-${getTodayDateString()}.log`,
   );
 }
 
@@ -309,6 +309,7 @@ class DeviceGateway {
       let payload;
       try {
         payload = JSON.parse(messageBuf.toString());
+        console.log("messageBuf", payload);
       } catch (e) {
         logError("Invalid JSON from MQTT", {
           topic,
@@ -481,7 +482,7 @@ class DeviceGateway {
       const timeout = setTimeout(() => {
         this.pendingRequests.delete(messageId);
         const err = new Error(
-          `Timeout waiting for Ack for messageId ${messageId}`
+          `Timeout waiting for Ack for messageId ${messageId}`,
         );
         logError(err.message, {
           operator,
@@ -526,7 +527,7 @@ class DeviceGateway {
             });
             return reject(err);
           }
-        }
+        },
       );
     });
   }
@@ -553,6 +554,20 @@ class DeviceGateway {
     };
   }
 
+  getMissingLogs(deviceId, date, serial_number) {
+    return this.sendCommand(
+      deviceId,
+      "PushAck",
+      {
+        facesluiceId: deviceId,
+        TimeS: "2026-02-01 00:00:00",
+        TimeE: "2026-02-11 23:59:59",
+      },
+      {},
+      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 },
+    );
+  }
+
   // =========================================================
   // 2. Door Open (Unlock / Unlock-Ack)
   // =========================================================
@@ -566,7 +581,7 @@ class DeviceGateway {
         showInfo: "Door Open",
       },
       {},
-      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -583,7 +598,7 @@ class DeviceGateway {
         showInfo: "Door Closed",
       },
       {},
-      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "Unlock-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -596,7 +611,7 @@ class DeviceGateway {
       "GetSysTime",
       { facesluiceId: deviceId },
       {},
-      { expectedAckOperator: "GetSysTime-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "GetSysTime-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -608,7 +623,7 @@ class DeviceGateway {
       "SetSysTime",
       { facesluiceId: deviceId, SysTime: sysTime },
       {},
-      { expectedAckOperator: "SetSysTime-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "SetSysTime-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -629,7 +644,7 @@ class DeviceGateway {
       "EditPerson",
       personInfo,
       {},
-      { expectedAckOperator: "EditPerson-Ack", timeoutMs: 30000 }
+      { expectedAckOperator: "EditPerson-Ack", timeoutMs: 30000 },
     );
   }
 
@@ -670,7 +685,7 @@ class DeviceGateway {
         info: personsArray,
         DataEnd: "EndFlag",
       },
-      { expectedAckOperator: "EditPersonsNew-Ack", timeoutMs: 60000 }
+      { expectedAckOperator: "EditPersonsNew-Ack", timeoutMs: 60000 },
     );
   }
 
@@ -685,7 +700,7 @@ class DeviceGateway {
       "DelPerson",
       { customId },
       {},
-      { expectedAckOperator: "DelPerson-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "DelPerson-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -700,7 +715,7 @@ class DeviceGateway {
         PersonNum: customIds.length,
         DataEnd: "EndFlag",
       },
-      { expectedAckOperator: "DeletePersons-Ack", timeoutMs: 30000 }
+      { expectedAckOperator: "DeletePersons-Ack", timeoutMs: 30000 },
     );
   }
 
@@ -713,7 +728,7 @@ class DeviceGateway {
       "SearchPerson",
       { customId, Picture: includePicture ? 1 : 0 },
       {},
-      { expectedAckOperator: "SearchPerson-Ack", timeoutMs: 15000 }
+      { expectedAckOperator: "SearchPerson-Ack", timeoutMs: 15000 },
     );
   }
 
@@ -731,7 +746,7 @@ class DeviceGateway {
         RequestCount: 2000,
       },
       {},
-      { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 }
+      { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 },
     );
   }
 
@@ -742,7 +757,7 @@ class DeviceGateway {
       "SearchPersonList",
       params,
       {},
-      { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 }
+      { expectedAckOperator: "SearchPersonList-Ack", timeoutMs: 30000 },
     );
   }
 }
@@ -797,6 +812,27 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+// 1. Missing Logs (simulate device retrying to send logs when it comes back online)
+
+app.post(
+  "/api/device/:deviceId/missinglogs",
+  asyncHandler(async (req, res) => {
+    console.log("missinglogs Request Received");
+
+    const { deviceId } = req.params;
+    const { date, serial_number } = req.body;
+    const result = await gateway.getMissingLogs(deviceId, date, serial_number);
+    logRoute("HTTP_RESPONSE", {
+      route: "missinglogs",
+      deviceId,
+      date,
+      serial_number,
+      result,
+    });
+    res.json(result);
+  }),
+);
+
 // 1. Status
 app.get(
   "/api/device/:deviceId/status",
@@ -805,7 +841,7 @@ app.get(
     const result = gateway.getStatus(deviceId);
     logRoute("HTTP_RESPONSE", { route: "status", deviceId, result });
     res.json(result);
-  })
+  }),
 );
 
 // 2. Open door
@@ -816,7 +852,7 @@ app.post(
     const result = await gateway.openDoor(deviceId);
     logRoute("HTTP_RESPONSE", { route: "open-door", deviceId, result });
     res.json(result);
-  })
+  }),
 );
 
 // 3. Close door (info only)
@@ -827,7 +863,7 @@ app.post(
     const result = await gateway.closeDoor(deviceId);
     logRoute("HTTP_RESPONSE", { route: "close-door", deviceId, result });
     res.json(result);
-  })
+  }),
 );
 
 // 6. Time get/set
@@ -838,7 +874,7 @@ app.get(
     const result = await gateway.getTime(deviceId);
     logRoute("HTTP_RESPONSE", { route: "get-time", deviceId, result });
     res.json(result);
-  })
+  }),
 );
 
 app.post(
@@ -854,7 +890,7 @@ app.post(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 7 & 8. Add/Edit person
@@ -871,7 +907,7 @@ app.post(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 9. Batch add persons
@@ -888,7 +924,7 @@ app.post(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 10. Delete single person
@@ -904,7 +940,7 @@ app.delete(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 10. Batch delete persons
@@ -921,7 +957,7 @@ app.post(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 11. Search person (by customId)
@@ -939,7 +975,7 @@ app.get(
       result,
     });
     res.json(result);
-  })
+  }),
 );
 
 // 12. Get all persons list
@@ -957,7 +993,7 @@ app.get(
       },
     });
     res.json(result);
-  })
+  }),
 );
 
 // Optional: search list with filters
@@ -977,7 +1013,7 @@ app.post(
       },
     });
     res.json(result);
-  })
+  }),
 );
 
 // ===== LOG VIEW ENDPOINTS (JSON only) =====
@@ -1010,7 +1046,7 @@ app.get(
       exists,
       content,
     });
-  })
+  }),
 );
 
 // View today's activity log (text)
@@ -1025,7 +1061,7 @@ app.get(
       exists,
       content,
     });
-  })
+  }),
 );
 
 // View today's events log (JSON lines)
@@ -1040,7 +1076,7 @@ app.get(
       exists,
       content,
     });
-  })
+  }),
 );
 
 // Start server
@@ -1048,7 +1084,7 @@ const httpServer = http.createServer(app);
 
 httpServer.listen(HTTP_PORT, () => {
   console.log(
-    `🚀 MQTT data WebSocket Data gateway listening on http://localhost:${HTTP_PORT}`
+    `🚀 MQTT data WebSocket Data gateway listening on http://localhost:${HTTP_PORT}`,
   );
 });
 
