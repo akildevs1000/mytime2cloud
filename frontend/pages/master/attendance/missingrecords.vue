@@ -1,8 +1,5 @@
 <template>
-  <div
-    style="width: 100%"
-    v-if="can('attendance_report_access') && can('attendance_report_view')"
-  >
+  <div style="width: 100%" v-if="can('attendance_report_access') && can('attendance_report_view')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ snackbarMessage }}
@@ -15,131 +12,72 @@
       <v-card-text>
         <v-row>
           <v-col cols="4">
-            <v-autocomplete
-              v-model="payload.device_id"
-              label="Select Device"
-              :hide-details="true"
-              outlined
-              dense
-              small
-              item-text="name"
-              item-value="device_id"
-              :items="devices"
-              placeholder="Device Name"
-              solo
-              flat
-            >
+            <v-autocomplete v-model="payload.device_id" label="Select Device" :hide-details="true" outlined dense small
+              item-text="name" item-value="device_id" :items="devices" placeholder="Device Name" solo flat>
               <template #selection="{ item }">
-                <span
-                  >{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
-                  {{ item.name }}</span
-                >
+                <span>{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
+                  {{ item.name }}</span>
               </template>
               <!-- Custom template to display both name and id in dropdown options -->
               <template #item="{ item }">
                 <v-list-item-content>
-                  <v-list-item-title
-                    >{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
+                  <v-list-item-title>{{ devices.indexOf(item) + 1 }} - {{ item.company.name }} -
                     {{ item.name }}
                   </v-list-item-title>
                 </v-list-item-content>
-              </template></v-autocomplete
-            >
+              </template></v-autocomplete>
             <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
               errors.device_id[0]
             }}</span>
           </v-col>
           <v-col cols="3">
-            <v-menu
-              v-model="from_menu"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="auto"
-            >
+            <v-menu v-model="from_menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+              offset-y min-width="auto">
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  outlined
-                  label="Select Date"
-                  v-model="payload.date"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                  dense
-                  :hide-details="true"
-                  class="custom-text-box shadow-none"
-                  solo
-                ></v-text-field>
+                <v-text-field outlined label="Select Date" v-model="payload.date" readonly v-bind="attrs" v-on="on"
+                  dense :hide-details="true" class="custom-text-box shadow-none" solo></v-text-field>
               </template>
-              <v-date-picker
-                no-title
-                scrollable
-                v-model="payload.date"
-                @input="from_menu = false"
-              ></v-date-picker>
+              <v-date-picker no-title scrollable v-model="payload.date" @input="from_menu = false"></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.date" class="text-danger mt-2">{{
               errors.date[0]
             }}</span>
           </v-col>
           <v-col md="2" sm="2">
-            <v-btn @click="getMissingLogs()" color="primary" primary fill
-              >Submit
+            <v-btn @click="getMissingLogs()" color="primary" primary fill>Submit
             </v-btn>
           </v-col>
           <v-col md="2" sm="2">
-            <v-btn @click="automate()" color="green" primary fill
-              ><v-icon class="">mdi mdi-head-cog-outline</v-icon> Fetch from All
+            <v-btn @click="automate()" color="green" primary fill><v-icon class="">mdi mdi-head-cog-outline</v-icon>
+              Fetch from
+              All
               Devices
             </v-btn>
           </v-col>
-        </v-row></v-card-text
-      >
+        </v-row></v-card-text>
     </v-card>
 
     <v-card class="mt-5">
       <v-toolbar dense flat>
-        <span
-          class="bold text--green"
-          style="color: green"
-          v-if="snackbarMessage"
-        >
+        <span class="bold text--green" style="color: green" v-if="snackbarMessage">
           Message: {{ snackbarMessage }}
         </span>
       </v-toolbar>
       <v-card-text>
-        <v-data-table
-          dense
-          :headers="headers"
-          :items="data"
-          :loading="loading"
-          class="elevation-0"
-          model-value="data.id"
-          height="800"
-          no-data-text="No Data available.  "
-          :footer-props="{
+        <v-data-table dense :headers="headers" :items="data" :loading="loading" class="elevation-0"
+          model-value="data.id" height="800" no-data-text="No Data available.  " :footer-props="{
             itemsPerPageOptions: [100, 500, 1000],
-          }"
-          :options.sync="options"
-          :server-items-length="totalRowsCount"
-        >
+          }" :options.sync="options" :server-items-length="totalRowsCount">
           <template v-slot:item.sno="{ item, index }" style="padding: 0px">
             {{ ++index }}
           </template>
-          <template
-            v-slot:item.employee_id="{ item, index }"
-            style="padding: 0px"
-          >
+          <template v-slot:item.employee_id="{ item, index }" style="padding: 0px">
             {{ item.UserID }}
           </template>
           <template v-slot:item.date="{ item, index }" style="padding: 0px">
             {{ item.LogTime }}
           </template>
-          <template
-            v-slot:item.serial_number="{ item, index }"
-            style="padding: 0px"
-          >
+          <template v-slot:item.serial_number="{ item, index }" style="padding: 0px">
             {{ item.SerialNumber }}
           </template>
 
@@ -222,7 +160,7 @@ export default {
     };
   },
   watch: {},
-  mounted() {},
+  mounted() { },
   created() {
     const today = new Date();
 
@@ -307,7 +245,7 @@ export default {
       this.loading = true;
       this.snackbar = true;
       this.data = [];
-      this.snackbarMessage = "Finding missing logs. Please wait ..... ";
+      this.snackbarMessage = "Reading missing logs. Please wait ..... ";
       this.$axios
         .get(`/attendance-logs-missing`, payload)
         .then(async ({ data }) => {

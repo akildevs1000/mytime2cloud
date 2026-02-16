@@ -94,6 +94,8 @@ export default {
       loading: false,
       payload: {},
       data: [],
+      processedLogs: new Set(),  // 🔥 prevent duplicates
+
       headers: [
         {
           text: "#",
@@ -239,6 +241,7 @@ export default {
 
             if (payload.message == "success") {
 
+
               this.snackbar = true;
               this.snackbarMessage = "Finding missing logs. Please wait ..... ";
 
@@ -254,26 +257,37 @@ export default {
               };
               // console.log("data", this.data);
 
+              // Create unique key
+              const uniqueKey = `${row.SerialNumber}-${row.UserID}-${row.LogTime}`;
 
-              if (!Array.isArray(this.data)) this.data = [];
-              this.data.unshift(row);
+              if (!this.processedLogs.has(uniqueKey)) {
 
-              // if you use server-items-length, update count
-              this.totalRowsCount = (this.totalRowsCount || 0) + 1;
+                this.processedLogs.add(uniqueKey);
 
-              setTimeout(() => {
-                this.snackbar = true;
-                this.snackbarMessage = "Finding missing logs. Completed";
-              }, 1000 * 10);
+                if (!Array.isArray(this.data)) this.data = [];
+                this.data.unshift(row);
+                // if you use server-items-length, update count
+                this.totalRowsCount = (this.totalRowsCount || 0) + 1;
 
+                setTimeout(() => {
+                  this.snackbar = true;
+                  this.snackbarMessage = "Reading missing logs. Completed";
+                }, 1000 * 10);
+              }
+            } else {
+              console.log("⚠ Duplicate UI log skipped");
             }
+
+
+
+
           });
 
           setTimeout(() => {
             this.snackbar = true;
-            this.snackbarMessage = "Finding missing logs. Completed";
+            this.snackbarMessage = "Reading missing logs. Completed";
           }, 1000 * 10);
-          // disconnectMQTT();
+
 
 
         }
