@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Mqtt\FaceDeviceController;
 use App\Models\AttendanceLog;
 use App\Models\Device;
 use App\Models\Employee;
@@ -184,6 +185,23 @@ class AttendanceLogMissingController  extends Controller
                 "total_device_records" => count($finalResult),
 
             ];
+        } else if ($device && $model_number == 'MYTIME1') {
+
+            try {
+                (new FaceDeviceController())
+                    ->gatewayRequest('POST', "api/device/{$device->device_id}/missinglogs", [
+                        "date" => $request->date,
+                        "serial_number" => $device["serial_number"],
+                    ]);
+
+                return $this->response('Missing Log Request sent Successfull',  null, true);
+            } catch (\Exception $e) {
+                return $this->response(
+                    $e->getMessage() . " - Unknown error occurred. Please try again after 1 minute or contact the technical team.",
+                    null,
+                    false
+                );
+            }
         } else {
 
 

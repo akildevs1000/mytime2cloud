@@ -355,78 +355,6 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     todayGMT4(), // "updated_at"
   ];
 
-  // const sql = `
-  //   INSERT INTO attendance_logs (
-  //     "UserID","DeviceID","LogTime","SerialNumber",
-  //     "status","mode","reason","log_date_time",
-  //     "index_serial_number","log_date",
-  //     "created_at","updated_at"
-  //   )
-  //   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-  //   RETURNING id
-  // `;
-  /*
-  const sql = `
-  INSERT INTO attendance_logs (
-  "UserID",
-  "DeviceID",
-  "company_id",
-  "LogTime",
-  "SerialNumber",
-  "status",
-  "mode",
-  "reason",
-  "log_date_time",
-  "index_serial_number",
-  "log_date",
-  "created_at",
-  "updated_at"
-)
-VALUES (
-  $1,
-  $2::text,
-  (SELECT d.company_id FROM devices d WHERE d.serial_number = $2::text LIMIT 1),
-  $3,$4,$5,$6,$7,$8,$9,$10,$11,$12
-)
- 
-RETURNING id;
-`;
-
-  let message = "success";
-  try {
-    const result = await dbPool.query(sql, values);
-    const insertedId = result.rows[0].id;
-    console.log("✅ Inserted attendance_logs ID:", insertedId);
-    //fetch missing logs aknoledgemetn to device
-
-    // Normalize device name: if contains "face" → "Face"
-    const devName = (info.facesluiceName || "").toLowerCase().includes("face")
-      ? "Face"
-      : info.facesluiceName || "";
-
-    // CSV row: RFIDCard,facesluiceId,time,RecordID,VerifyStatus,facesluiceName,DB_ID
-    const csvRow =
-      [
-        info.RFIDCard || "",
-        info.facesluiceId || "",
-        timeStr,
-        info.RecordID || "",
-        info.VerifyStatus || "",
-        devName,
-        insertedId,
-      ].join(",") + "\n";
-
-    fs.appendFileSync(getTodayFile(), csvRow);
-    console.log("📝 CSV Logged:", csvRow.trim());
-  } catch (err) {
-    console.log("📝 Import Logs Error:", err?.message);
-
-    logError("DB insert / CSV error: " + (err?.message || err));
-    message = "DB insert / CSV error: " + (err?.message || err);
-  }
-
-  */
-
   const deviceId = String(info.facesluiceId || "");
   // const userId = String(info.customId || info.RFIDCard || info.personId || "");
   const logTime = info.time; // must match the exact value you insert into "LogTime"
@@ -536,15 +464,25 @@ RETURNING id;
       is_live: String(info.PushType) === "0",
       message: message,
     };
-
-    // publish
-    client.publish(
-      `mqtt/face/${info.facesluiceId}/recods/livelogs`,
-      JSON.stringify(payload),
-      {
-        qos: 1,
-      },
-    );
+    if (is_live === "true") {
+      // publish
+      client.publish(
+        `mqtt/face/${info.facesluiceId}/recods/livelogs`,
+        JSON.stringify(payload),
+        {
+          qos: 1,
+        },
+      );
+    } else {
+      // publish
+      client.publish(
+        `mqtt/face/${info.facesluiceId}/recods/missinglogs`,
+        JSON.stringify(payload),
+        {
+          qos: 1,
+        },
+      );
+    }
 
     console.log("MQTT client published message", payload);
   } else {
