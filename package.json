@@ -1,0 +1,27 @@
+{
+  "name": "cloud-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "concurrently \"cd backend && php artisan serve --host=0.0.0.0 --port=8001\" \"cd frontend-new && npm run dev\"",
+    "install-all": "concurrently \"cd backend && composer install\" \"cd frontend-new && npm install\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akildevs1000/ideahrms.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akildevs1000/ideahrms/issues"
+  },
+  "homepage": "https://github.com/akildevs1000/ideahrms#readme",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
