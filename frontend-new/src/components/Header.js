@@ -96,7 +96,7 @@ export default function Header() {
   const filteredLinks = navLinks;
 
   return (
-    <header className="flex items-center justify-between bg-white dark:bg-slate-900 p-4 dark:border-b dark:border-gray-200 dark:border-gray-700 shadow-sm z-20">
+    <header className="flex items-center justify-between bg-white dark:bg-slate-900 p-3 border-b border-gray-100 dark:border-slate-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
       <div className="flex items-center space-x-4">
         <div className="flex items-center">
           <img alt="MyTime Cloud logo" className="h-10" src="/logo22.png" />

@@ -136,7 +136,7 @@ const Create = ({ onSuccess = () => { } }) => {
                   <Input
                     placeholder="e.g. Sales"
                     type="text"
-                    value={form.title}
+                    value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                   />
                 </div>

@@ -7,6 +7,7 @@ import Create from "@/components/Designation/Create";
 import Input from "../Theme/Input";
 import { Loader } from "../Loader";
 import { Pencil, Trash } from "lucide-react";
+import EditDesignation from "./Edit";
 
 export default function Designation() {
   const [records, setRecords] = useState([]);
@@ -107,9 +108,7 @@ export default function Designation() {
                 </span>
               </div>
               <div className="flex items-center gap-1 opacity-100">
-                <button className="p-1.5 rounded-md hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
-                  <Pencil size={15} />
-                </button>
+                <EditDesignation defaultPayload={e} onSuccess={fetchRecords} />
 
                 <button onClick={() => handleDelete(e.id)} className="p-1.5 rounded-md hover:bg-red-500/10 text-slate-400 hover:text-red-400 transition-colors">
                   <Trash size={15} />

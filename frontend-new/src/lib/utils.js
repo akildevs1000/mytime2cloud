@@ -111,18 +111,30 @@ export const setStatusLabel = (status) => {
 };
 
 export const getBgColor = (status) => {
-  const colors = {
-    A: "#dc2626", // light orange
-    P: "#bbf7d0", // light green
-    M: "#e5e7eb", // light gray
-    LC: "#bbf7d0",
-    EG: "#bbf7d0",
-    O: "#fed7aa",
-    L: "#fef08a", // light yellow
-    H: "#c7d2fe", // light indigo
-    V: "#c7d2fe",
+  const styles = {
+    // A: Absent (Red/Rose)
+    A: "border bg-rose-100 border-rose-300 text-rose-700 dark:bg-rose-500/5 dark:border-rose-500/20 dark:text-rose-400",
+
+    // P: Present, LC: Late Coming, EG: Early Going (Green)
+    P: "border bg-emerald-100 border-emerald-300 text-emerald-700 dark:bg-emerald-500/5 dark:border-emerald-500/20 dark:text-emerald-400",
+    LC: "border bg-emerald-100 border-emerald-300 text-emerald-700 dark:bg-emerald-500/5 dark:border-emerald-500/20 dark:text-emerald-400",
+    EG: "border bg-emerald-100 border-emerald-300 text-emerald-700 dark:bg-emerald-500/5 dark:border-emerald-500/20 dark:text-emerald-400",
+
+    // L: Leave (Yellow)
+    L: "border bg-yellow-100 border-yellow-300 text-yellow-800 dark:bg-yellow-500/5 dark:border-yellow-500/20 dark:text-yellow-400",
+
+    // O: Off-day (Orange)
+    O: "border bg-orange-100 border-orange-300 text-orange-700 dark:bg-orange-500/5 dark:border-orange-500/20 dark:text-orange-400",
+
+    // H: Holiday, V: Vacation (Indigo)
+    H: "border bg-indigo-100 border-indigo-300 text-indigo-700 dark:bg-indigo-500/5 dark:border-indigo-500/20 dark:text-indigo-400",
+    V: "border bg-indigo-100 border-indigo-300 text-indigo-700 dark:bg-indigo-500/5 dark:border-indigo-500/20 dark:text-indigo-400",
+
+    // M: Misc / Neutral (Gray)
+    M: "border bg-slate-100 border-slate-300 text-slate-700 dark:bg-slate-500/5 dark:border-slate-500/20 dark:text-slate-400",
   };
-  return colors[status] || "#f3f4f6";
+
+  return styles[status] || "border bg-gray-100 border-gray-300 text-gray-600 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400";
 };
 
 export const getTextColor = (status) => {

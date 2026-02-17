@@ -10,6 +10,8 @@ import Columns from "./columns";
 import Create from "./Create";
 import SubDepartmentCreate from "../SubDepartment/Create";
 import { notify, parseApiError } from "@/lib/utils";
+import EditDepartment from "./Edit";
+import EditSubDepartment from "../SubDepartment/Edit";
 
 export default function Department() {
   const [records, setRecords] = useState([]);
@@ -137,6 +139,7 @@ export default function Department() {
               <th className="font-semibold py-3 px-6 w-1/3">Name</th>
               <th className="font-semibold py-3 px-4">Code</th>
               <th className="font-semibold py-3 px-4">Parent Dept</th>
+              <th className="font-semibold py-3 px-4">Branch</th>
               <th className="font-semibold py-3 px-4 text-center">
                 Employees
               </th>
@@ -145,81 +148,68 @@ export default function Department() {
             </tr>
           </thead>
           <tbody className="text-sm">
-            {records.map((record, index) => {
-              // Check if the previous record belongs to the same parent department
-              const isSameParentAsPrevious =
-                index > 0 && records[index - 1].department_id === record.department_id;
+            {records.map((record) => {
+              const isParent = record.type === 'Department';
 
               return (
-                <React.Fragment key={record.id}>
-                  {/* Only render this Parent row if it's the first time we see this parent in the list */}
-                  {!isSameParentAsPrevious && (
-                    <tr className="group border-b border-gray-200 dark:border-white/10 transition-colors">
-                      <td className="py-3 px-6">
-                        <div className="flex items-center gap-3 relative">
-                          <div className="w-8 h-8 rounded flex items-center justify-center bg-indigo-500/10 text-indigo-400">
-                            <span className="material-symbols-outlined text-[18px]">
-                              apartment
-                            </span>
-                          </div>
-                          <div>
-                            <span className="text-slate-400 font-medium">
-                              {record.department?.name}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 font-mono text-xs text-slate-500 group-hover:text-slate-400">
-                        DEP-{record.department_id}
-                      </td>
-                      <td className="py-3 px-4 text-blue-400 text-xs font-medium">-</td>
-                      <td className="py-3 px-4 text-center text-slate-300">{record?.department?.employees_count}</td>
-                      <td className="py-3 px-4 text-slate-500 text-xs">
-                        {record.department?.formatted_updated_at}
-                      </td>
-                      <td className="py-3 px-4 text-center">
-                        <button className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
-                          <Pencil size={15} />
-                        </button>
-                        <button onClick={() => handleParentDelete(record.department.id)} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
-                          <Trash size={15} />
-                        </button>
-                      </td>
-                    </tr>
-                  )}
-
-                  {/* This sub-department row will always render */}
-                  <tr className="group border-b border-gray-200 dark:border-white/10 transition-colors">
-                    <td className="py-3 px-6">
-                      <div className="flex items-center gap-3 relative">
-                        <div className="w-8 h-8 rounded flex items-center justify-center bg-gray-500/10 text-indigo-400">
-                          {/* Empty icon box as per your HTML */}
-                        </div>
-                        <div>
-                          <span className="text-slate-400 font-medium">{record.name}</span>
-                        </div>
+                <tr key={`${record.type}-${record.id}`} className="group border-b border-gray-200 dark:border-white/10 transition-colors">
+                  <td className="py-3 px-6">
+                    <div className="flex items-center gap-3 relative">
+                      {/* Icon logic: Indigo for Parents, Gray/Empty for Children */}
+                      <div className={`w-8 h-8 rounded flex items-center justify-center ${isParent ? 'bg-indigo-500/10 text-indigo-400' : 'bg-gray-500/10 text-indigo-400'}`}>
+                        {isParent && (
+                          <span className="material-symbols-outlined text-[18px]">apartment</span>
+                        )}
                       </div>
-                    </td>
-                    <td className="py-3 px-4 font-mono text-xs text-slate-500 group-hover:text-slate-400">
-                      SUB-{record.id}
-                    </td>
-                    <td className="py-3 px-4 text-blue-400 text-xs font-medium">
-                      {record.department?.name}
-                    </td>
-                    <td className="py-3 px-4 text-center text-slate-300">{record?.employees_count}</td>
-                    <td className="py-3 px-4 text-slate-500 text-xs">
-                      {record.formatted_updated_at}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      <button className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
-                        <Pencil size={15} />
-                      </button>
-                      <button onClick={() => handleDelete(record.id)} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+                      <div>
+                        <span className={`${isParent ? 'text-white font-bold' : 'text-slate-400 font-medium'}`}>
+                          {record.name}
+                        </span>
+                      </div>
+                    </div>
+                  </td>
+
+                  {/* Code logic: DEP or SUB */}
+                  <td className="py-3 px-4 font-mono text-xs text-slate-500 group-hover:text-slate-400">
+                    {isParent ? `DEP-${record.id}` : `SUB-${record.id}`}
+                  </td>
+
+                  {/* Parent Dept Name: Only show for Sub-Departments */}
+                  <td className="py-3 px-4 text-blue-400 text-xs font-medium">
+                    {isParent ? '-' : (record.parent_name || '-')}
+                  </td>
+
+                  <td className="py-3 px-4 text-blue-400 text-xs font-medium">
+                    {(record.branch_name || '-')}
+                  </td>
+
+
+                  <td className="py-3 px-4 text-center text-slate-300">
+                    {record.employees_count}
+                  </td>
+
+                  <td className="py-3 px-4 text-slate-500 text-xs">
+                    {record.formatted_updated_at || record.created_at}
+                  </td>
+
+                  <td className="py-3 px-4 ">
+                    <div className="flex justify-center gap-1">
+
+                      {
+                        isParent
+                          ? <EditDepartment defaultPayload={record} onSuccess={fetchRecords} />
+                          : <EditSubDepartment defaultPayload={record} onSuccess={fetchRecords} />
+                      }
+
+                      <button
+                        onClick={() => isParent ? handleParentDelete(record.id) : handleDelete(record.id)}
+                        className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
+                      >
                         <Trash size={15} />
                       </button>
-                    </td>
-                  </tr>
-                </React.Fragment>
+                    </div>
+                  </td>
+                </tr>
               );
             })}
           </tbody>

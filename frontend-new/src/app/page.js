@@ -12,7 +12,7 @@ const App = () => {
 
 
   return (
-    <div className="p-5">
+    <div className="p-5 bg-gray-200">
       {!hasModuleAccess('dashboard') ? <AdminDashboard /> : <AccessDenied />}
     </div>
   );

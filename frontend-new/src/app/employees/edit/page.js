@@ -54,7 +54,7 @@ export default function EmployeeShortList() {
     try {
       const params = {
         page: page,
-        per_page: perPage,
+        per_page: 1000,
         sortDesc: 'false',
         branch_id: selectedBranch,
         search: searchTerm || null, // Only include search if it's not empty
@@ -188,7 +188,7 @@ export default function EmployeeShortList() {
               </div>
             </div> */}
           </div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto max-h-[calc(100vh-100px)]">
             <ul className="">
               {employees.map(renderEmployeeRow)}
             </ul>

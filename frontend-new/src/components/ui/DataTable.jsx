@@ -1,8 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
-
 export default function DataTable({
   columns = [],
   data = [],
@@ -14,15 +11,15 @@ export default function DataTable({
   className = "",
 }) {
   return (
-    <div className="glass-panel rounded-xl shadow-soft overflow-hidden">
+    <div className="glass-panel rounded-xl shadow-soft overflow-hidden min-w-0">
       <div className="overflow-x-auto h-full max-h-[700px]">
-        <table className="w-full text-left border-collapse">
+        <table className="w-full text-left border-collapse table-auto">
           <thead>
             <tr className="bg-slate-50/80 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700">
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className="py-4 px-6 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider"
+                  className="py-4 px-3 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider whitespace-nowrap"
                 >
                   {col.header}
                 </th>
@@ -38,7 +35,7 @@ export default function DataTable({
                   onClick={() => onRowClick(item)}
                 >
                   {columns.map((col) => (
-                    <td key={col.key} className="py-4 px-6">
+                    <td key={col.key} className="py-4 px-3 whitespace-nowrap">
                       {col.render ? col.render(item) : item[col.key] || "—"}
                     </td>
                   ))}
