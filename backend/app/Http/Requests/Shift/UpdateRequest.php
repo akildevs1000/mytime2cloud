@@ -29,17 +29,16 @@ class UpdateRequest extends FormRequest
         if ($this->shift_type_id == 3) {
             return [];
         }
-        return [
-            // 'name' => ['required', Rule::unique('shifts')->ignore($this->input('id'))->where(function ($query) {
-            //     return $query->where('branch_id', $this->input('branch_id'));
-            // })],
+            return [
             'name' => ["required"],
             'overtime_interval' => ["required"],
             'shift_type_id' => ["required"],
             'company_id' => ["required"],
-            'working_hours' => ['nullable'],
+            'working_hours' => ['required'],
             'days' => ['nullable'],
             'break' => ["nullable"],
+            'on_duty_time' => ["required"],
+            'off_duty_time' => ["required"],
             'on_duty_time' => ["required"],
             'off_duty_time' => ["required"],
             'from_date' => ["required"],
@@ -89,8 +88,13 @@ class UpdateRequest extends FormRequest
             'holiday_allowed_ot'       => 'boolean',
             'daily_ot_allowed_mins'    => 'nullable|string',
 
+            'significant_attendanc_rule_late_coming'    => 'nullable|string',
+            'significant_attendanc_rule_early_going'    => 'nullable|string',
+
+
             'attendanc_rule_late_coming'    => 'nullable|string',
             'attendanc_rule_early_going'    => 'nullable|string',
+
         ];
     }
 }
