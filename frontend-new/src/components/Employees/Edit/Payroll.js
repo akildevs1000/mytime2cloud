@@ -19,9 +19,9 @@ const Payroll = ({ employee_id }) => {
     console.log(`data`);
     console.log(data);
     console.log(data.earnings);
-    setBasicPay(data.basic_salary);
-    setNetPay(data.net_salary);
-    setAllowances(data.earnings);
+    setBasicPay(data.basic_salary || 0);
+    setNetPay(data.net_salary || 0);
+    setAllowances(data.earnings ?? []);
   }
 
   useEffect(() => {
@@ -81,7 +81,7 @@ const Payroll = ({ employee_id }) => {
                   <span className="text-gray-500 sm:text-sm">$</span>
                 </div>
                 <Input
-                  value={basicPay}
+                  value={basicPay || 0}
                   onChange={(e) => setBasicPay(Number(e.target.value || 0))}
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">

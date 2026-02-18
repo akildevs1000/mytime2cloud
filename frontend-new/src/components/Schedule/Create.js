@@ -16,6 +16,7 @@ import { Checkbox } from "../ui/checkbox";
 import { useDebounce } from "@/hooks/useDebounce";
 import { id } from "date-fns/locale";
 import ShiftPreview from "../Shift/ShiftPreview";
+import ProfilePicture from "../ProfilePicture";
 
 // Reusable Toggle Component
 const ToggleItem = ({ title, desc, checked, onChange }) => (
@@ -122,8 +123,11 @@ const Create = ({ onSuccess = () => { } }) => {
             try {
                 console.log(`await getScheduledEmployeeList()`);
                 let emp = await getScheduledEmployeeList(selectedDepartmentIds);
-                console.log(emp);
-                setEmployees(emp);
+                setEmployees((emp || []).map(e => ({
+                    ...e,
+                    name: e.full_name || e.name
+                })));
+
                 setFilteredEmployees(emp);
                 console.log(`await getScheduledEmployeeList()`);
             } catch (error) {
@@ -233,7 +237,7 @@ const Create = ({ onSuccess = () => { } }) => {
 
         const filtered = employees.filter(e =>
             // 3. Normalize employee name to lowercase for the comparison
-            e.name.toLowerCase().includes(searchTerm)
+            e.name.toLowerCase().includes(searchTerm) || e.employee_id.toLowerCase().includes(searchTerm)
         );
 
         setFilteredEmployees(filtered);
@@ -368,19 +372,9 @@ const Create = ({ onSuccess = () => { } }) => {
                                                             </td>
                                                             <td className="pr-6 py-4">
                                                                 <div className="flex items-center gap-3">
-                                                                    <img
-                                                                        src={
-                                                                            emp.profile_picture ||
-                                                                            `https://placehold.co/40x40/6946dd/ffffff?text=${emp.name.charAt(0)}`
-                                                                        }
-                                                                        onError={(e) => {
-                                                                            e.target.onerror = null;
-                                                                            e.target.src = `https://placehold.co/40x40/6946dd/ffffff?text=${emp.name.charAt(0)}`;
-                                                                        }}
-                                                                        className="w-8 h-8 rounded-full object-cover ring-2 ring-white dark:ring-white/10 shadow-sm"
-                                                                    />
+                                                                    <ProfilePicture src={emp.profile_picture} />
                                                                     <div>
-                                                                        <div className="font-bold text-slate-800 dark:text-white">{emp.name}</div>
+                                                                        <div className="font-bold text-slate-800 dark:text-white">{emp.full_name}</div>
                                                                         <div className="text-xs text-slate-500">{emp.email}</div>
                                                                     </div>
                                                                 </div>

@@ -302,9 +302,6 @@ const Profile = ({ action = "Add", payload }) => {
                                 <DropDown width="w-full"
                                     value={form.designation_id}
                                     onChange={(e) => setForm({ ...form, designation_id: e })}
-
-
-                                    designations
                                     items={designations} />
                             </div>
                             <div className="col-span-4">

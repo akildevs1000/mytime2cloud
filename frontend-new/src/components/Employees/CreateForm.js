@@ -64,10 +64,6 @@ const CreateForm = ({ action = "Add", payload }) => {
     const fetchDesignations = async () => {
         try {
             let data = (await getDesignations());
-
-            console.log(`designations:`, data.data);
-
-
             setDesignations(data.data);
         } catch (error) {
             await notify("Oops!", parseApiError(error), "error")
@@ -302,9 +298,6 @@ const CreateForm = ({ action = "Add", payload }) => {
                                 <DropDown width="w-full"
                                     value={form.designation_id}
                                     onChange={(e) => setForm({ ...form, designation_id: e })}
-
-
-                                    designations
                                     items={designations} />
                             </div>
                             <div className="col-span-4">

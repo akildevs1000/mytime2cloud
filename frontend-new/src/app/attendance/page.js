@@ -2,11 +2,10 @@
 
 import React, { useState } from 'react';
 import ExecutiveAttendanceDashboardPage from '@/components/Report/Summary';
-import PDFReport from '@/components/Report/PDFReport';
 import AttendanceTable from '@/components/Report/Report';
 
 // Define the available tabs
-const TABS = ['Attendance', 'PDF Report', 'Summary'];
+const TABS = ['Attendance', 'Summary'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');
@@ -14,7 +13,6 @@ export default function AttendancePage() {
     const renderContent = () => {
         switch (activeTab) {
             case 'Attendance': return <AttendanceTable />;
-            case 'PDF Report': return <PDFReport />;
             case 'Summary': return <ExecutiveAttendanceDashboardPage />;
             default: return null;
         }
@@ -45,7 +43,7 @@ export default function AttendancePage() {
             </div>
 
             {/* Render Component Content */}
-            <div className="animate-in fade-in duration-500">
+            <div className="animate-in fade-in duration-500 overflow-y-auto max-h-[calc(100vh-100px)]">
                 {renderContent()}
             </div>
         </div>

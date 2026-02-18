@@ -7,6 +7,18 @@ import TimePicker from "../ui/TimePicker";
 import ToggleCard from "../ui/ToggleCard";
 import { minutesToHHMM, hhmmToMinutes } from "../../lib/utils";
 
+const DEFAULT_HALFDAY = {
+  enabled: false,
+  day: "S",
+  onDuty: "09:00",
+  offDuty: "01:00",
+  minHours: 4,
+  beginStart: "08:30",
+  beginEnd: "09:30",
+  endStart: "12:30",
+  endEnd: "02:00",
+};
+
 const DAYS = [
   { key: "M", label: "M" },
   { key: "T", label: "T" },
@@ -55,6 +67,7 @@ function DayButtons({ valueArray, onChange }) {
 
 export default function AttendanceRules({ shift, handleChange }) {
   const [selectedOverTimeType, setSelectedOverTimeType] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
   const [beforeDuty, setBeforeDuty] = useState(
     shift?.overtime_type == "Both" || shift?.overtime_type == "BeforeDuty"
@@ -77,20 +90,20 @@ export default function AttendanceRules({ shift, handleChange }) {
     { label: "Holiday OT", state: holidayOt, setter: setHolidayOt },
   ];
 
-  // Fixed weekends
-  const [fixedDays, setFixedDays] = useState(shift?.weekoff_rules?.days);
+  const [fixedDays, setFixedDays] = useState(
+    shift?.weekoff_rules?.days || ["S", "Su"],
+  );
 
-  const [halfDay, setHalfDay] = useState({
-    enabled: false,
-    day: "S",
-    onDuty: "09:00",
-    offDuty: "01:00",
-    minHours: 4.0,
-    beginStart: "08:30",
-    beginEnd: "09:30",
-    endStart: "12:30",
-    endEnd: "02:00",
-  });
+  console.log(`edit halfday_rules`);
+  console.log(shift?.halfday_rules);
+
+  const [halfDay, setHalfDay] = useState(DEFAULT_HALFDAY);
+
+  useEffect(() => {
+    if (!shift) return;
+    setHalfDay({ ...DEFAULT_HALFDAY, ...(shift.halfday_rules || {}) });
+    setHydrated(true);
+  }, [shift?.id]); // <-- IMPORTANT: stable dependency
 
   const [weekOffRules, setWeekOffRules] = useState({
     type: "Fixed",
@@ -234,7 +247,10 @@ export default function AttendanceRules({ shift, handleChange }) {
                           placeholder="e.g. 2"
                           value={weekOffRules.count}
                           onChange={(e) =>
-                            setWeekOffRules((p) => ({ ...p, count: e }))
+                            setWeekOffRules((p) => ({
+                              ...p,
+                              count: e.target.value,
+                            }))
                           }
                         />
                         <span className="text-xs text-gray-400 absolute right-3 top-2.5">
@@ -296,13 +312,14 @@ export default function AttendanceRules({ shift, handleChange }) {
                 <label className="flex items-center cursor-pointer mt-2">
                   <div className="relative">
                     <input
-                      className="sr-only peer"
                       type="checkbox"
-                      value={halfDay.enabled}
+                      className="sr-only peer"
+                      checked={!!halfDay.enabled}
                       onChange={(e) =>
                         setHalfDay((p) => ({ ...p, enabled: e.target.checked }))
                       }
                     />
+
                     <div className="block bg-gray-200 dark:bg-gray-700 w-9 h-5 rounded-full transition-colors peer-checked:bg-primary" />
                     <div className="absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform transform peer-checked:translate-x-full" />
                   </div>

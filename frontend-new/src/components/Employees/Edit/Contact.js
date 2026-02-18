@@ -11,61 +11,69 @@ import { useRouter } from 'next/navigation';
 import { Checkbox } from '@/components/ui/checkbox';
 import { updateEmployeeContact } from '@/lib/endpoint/employees';
 
+const CONTACT_DEFAULT_PAYLOAD = {
+    work_email: "---",
+    person_email: "---",
+    work_phone: "---",
+    mobile_phone: "---"
+};
+
+const PRESENT_ADDRESS_DEFAULT_PAYLOAD = {
+    room_no: "---",
+    building: "---",
+    street_address: "---",
+    landmark: "---",
+    city: "---",
+    state: "---",
+    country: "---",
+    zip_code: "---",
+};
+
+const PRIMARY_CONTACT_DEFAULT_PAYLOAD = {
+    full_name: "---",
+    relation: "---",
+    primary_phone: "---",
+    alternative_phone: "---",
+    email: "tet"
+};
+
+const PERMANENT_ADDRESS_DEFAULT_PAYLOAD = PRESENT_ADDRESS_DEFAULT_PAYLOAD;
+const SECONDARY_CONTACT_DEFAULT_PAYLOAD = PRIMARY_CONTACT_DEFAULT_PAYLOAD;
+
 const EmployeeContact = ({ action = "Add", payload }) => {
 
     const { contact, present_address, permanent_address, primary_contact, secondary_contact } = payload;
-
-    console.log({ contact, present_address, permanent_address, primary_contact, secondary_contact });
-
-
     const router = useRouter();
 
     const [loading, setLoading] = useState(false);
+    const [contactInfo, setContactInfo] = useState(CONTACT_DEFAULT_PAYLOAD);
+    const [presentAddress, setPresentAddress] = useState(PRESENT_ADDRESS_DEFAULT_PAYLOAD);
+    const [permanentAddress, setPermanentAddress] = useState(PERMANENT_ADDRESS_DEFAULT_PAYLOAD);
+    const [primaryContact, setPrimaryContact] = useState(PRIMARY_CONTACT_DEFAULT_PAYLOAD);
+    const [secondaryContact, setSecondaryContact] = useState(SECONDARY_CONTACT_DEFAULT_PAYLOAD);
 
-    const [contactInfo, setContactInfo] = useState(contact || {
-        work_email: "---",
-        person_email: "---",
-        work_phone: "---",
-        mobile_phone: "---"
-    });
 
-    const [presentAddress, setPresentAddress] = useState(present_address || {
-        room_no: "---",
-        building: "---",
-        street_address: "---",
-        landmark: "---",
-        city: "---",
-        state: "---",
-        country: "---",
-        zip_code: "---",
-    });
+    useEffect(() => {
+        setContactInfo(contact || CONTACT_DEFAULT_PAYLOAD)
+    }, [contact]);
 
-    const [permanentAddress, setPermanentAddress] = useState(permanent_address || {
-        room_no: "---",
-        building: "---",
-        street_address: "---",
-        landmark: "---",
-        city: "---",
-        state: "---",
-        country: "---",
-        zip_code: "---",
-    });
+    useEffect(() => {
+        setPresentAddress(present_address || PRESENT_ADDRESS_DEFAULT_PAYLOAD)
+    }, [present_address]);
 
-    const [primaryContact, setPrimaryContact] = useState(primary_contact || {
-        full_name: "---",
-        relation: "---",
-        primary_phone: "---",
-        alternative_phone: "---",
-        email: "tet"
-    });
+    useEffect(() => {
+        setPermanentAddress(permanent_address || PERMANENT_ADDRESS_DEFAULT_PAYLOAD)
+    }, [permanent_address]);
 
-    const [secondaryContact, setSecondaryContact] = useState(secondary_contact || {
-        full_name: "---",
-        relation: "---",
-        primary_phone: "---",
-        alternative_phone: "---",
-        email: "---"
-    });
+    useEffect(() => {
+        setPrimaryContact(primary_contact || PRIMARY_CONTACT_DEFAULT_PAYLOAD)
+    }, [primary_contact]);
+
+    useEffect(() => {
+        setSecondaryContact(secondary_contact || SECONDARY_CONTACT_DEFAULT_PAYLOAD)
+    }, [secondary_contact]);
+
+
 
     const [isPermanetButtonButtonClicked, setIsPermanetButtonButtonClicked] = useState(false);
 
@@ -89,7 +97,7 @@ const EmployeeContact = ({ action = "Add", payload }) => {
         }
     };
 
-   
+
 
     const onSubmit = async () => {
 

@@ -4,6 +4,7 @@ import { getBgColor, getTextColor, setStatusLabel } from "@/lib/utils";
 export default (shiftTypeId) => {
     // Base columns
     const columns = [
+       
         {
             key: "name",
             header: "Name",
@@ -22,7 +23,10 @@ export default (shiftTypeId) => {
             ),
         },
 
-
+ {
+            key: "date", header: "Date",
+            render: (log) => (<p className="text-sm text-gray-500">{log.day.toString().substring(0,3)}, {log.date}</p>)
+        },
         {
             key: "department", header: "Dept",
             render: ({ employee }) => (
@@ -36,10 +40,7 @@ export default (shiftTypeId) => {
                 <p className="text-sm text-gray-500">{log.shift?.name}</p>
             ),
         },
-        {
-            key: "date", header: "Date",
-            render: (log) => (<p className="text-sm text-gray-500">{log.date}</p>)
-        },
+
 
     ];
 

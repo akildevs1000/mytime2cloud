@@ -51,7 +51,7 @@ let defaultPayload = {
     description: "",
 };
 
-const RegenerateReport = ({ onSuccess = () => { } }) => {
+const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
     const [open, setOpen] = useState(false);
     const [successOpen, setSuccessOpen] = useState(false);
@@ -115,9 +115,12 @@ const RegenerateReport = ({ onSuccess = () => { } }) => {
             try {
                 console.log(`await getScheduledEmployeeList()`);
                 let emp = await getScheduledEmployeeList(selectedDepartmentIds);
-                console.log(emp);
-                setEmployees(emp);
-                setFilteredEmployees(emp);
+                let data = emp.map(e => ({
+                    ...e,
+                    name: e.full_name || e.name
+                }));
+                setEmployees(data || []);
+                setFilteredEmployees(data || []);
                 console.log(`await getScheduledEmployeeList()`);
             } catch (error) {
                 setError(parseApiError(error));
@@ -134,32 +137,61 @@ const RegenerateReport = ({ onSuccess = () => { } }) => {
 
     const onSubmit = async () => {
 
+        setResponse(["Regenerating..."]);
+
         if (!selectedIds.length) {
             notify("Error", "Employee must be selected", "error");
-            setLoading(false);
             return;
         }
-
 
         if (!from || !to) {
             notify("Error", "Date range must be selected", "error");
-            setLoading(false);
             return;
-        }
-
-
-        let json = {
-            "dates": [from, to],
-            "reason": "",
-            "employee_ids": selectedIds,
-            "shift_type_id": 1,
         }
 
         setLoading(true);
 
         try {
-            setResponse(await regenerateReport(json));
+            // 1. Generate the list of individual dates
+            const dateArray = [];
+            let currentDate = new Date(from);
+            const stopDate = new Date(to);
+
+            while (currentDate <= stopDate) {
+                // Format as YYYY-MM-DD
+                dateArray.push(currentDate.toISOString().split('T')[0]);
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+
+            const allResponses = [];
+
+            // 2. Loop through each date and call the API
+            for (const targetDate of dateArray) {
+                let json = {
+                    "dates": [targetDate, targetDate], // Start and end are the same day
+                    "reason": "",
+                    "employee_ids": selectedIds,
+                    "shift_type_id": shift_type_id,
+                    "company_id": 60, // Added based on your URL example
+                    "company_ids": [60]
+                };
+
+                const dayResult = await regenerateReport(json);
+
+                if (Array.isArray(dayResult)) {
+                    setResponse((prev) => [
+                        ...prev,
+                        ...dayResult // This spreads the 4-5 logs into the main list
+                    ]);
+                } else {
+                    // Fallback if the API returns a single object or error message
+                    setResponse((prev) => [...prev, `[${targetDate}] No data returned.`]);
+                }
+
+            }
         } catch (error) {
+            console.log(error);
+
             await notify("Error", parseApiError(error), "error");
         } finally {
             setLoading(false);
@@ -197,7 +229,7 @@ const RegenerateReport = ({ onSuccess = () => { } }) => {
 
         const filtered = employees.filter(e =>
             // 3. Normalize employee name to lowercase for the comparison
-            e.name.toLowerCase().includes(searchTerm)
+            e.name.toLowerCase().includes(searchTerm) || e.employee_id.toLowerCase().includes(searchTerm)
         );
 
         setFilteredEmployees(filtered);
@@ -365,7 +397,7 @@ const RegenerateReport = ({ onSuccess = () => { } }) => {
 
                                         <div className="flex flex-col gap-3">
                                             {response.map((row, index) => {
-                                                const hasNoData = row.toLowerCase().includes("no data");
+                                                const hasNoData = row.toLowerCase().includes("no data") || row.toLowerCase().includes("No valid");
                                                 const isShift = row.toLowerCase().includes("shift");
                                                 const isSync = row.toLowerCase().includes("sync");
 
@@ -377,12 +409,12 @@ const RegenerateReport = ({ onSuccess = () => { } }) => {
                                                         {/* Status Indicator */}
                                                         <div
                                                             className={`mt-1 w-2.5 h-2.5 rounded-full ${hasNoData
-                                                                    ? "bg-amber-400"
-                                                                    : isSync
-                                                                        ? "bg-blue-400"
-                                                                        : isShift
-                                                                            ? "bg-green-400"
-                                                                            : "bg-gray-400"
+                                                                ? "bg-amber-400"
+                                                                : isSync
+                                                                    ? "bg-blue-400"
+                                                                    : isShift
+                                                                        ? "bg-green-400"
+                                                                        : "bg-gray-400"
                                                                 }`}
                                                         />
 

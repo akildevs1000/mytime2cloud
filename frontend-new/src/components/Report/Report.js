@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Printer, RefreshCw } from 'lucide-react';
+import { Eye, File, Printer, RefreshCw } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { getAttendanceReports, getBranches, getDepartments, getDepartmentsByBranchIds, getDeviceLogs, getScheduledEmployeeList, getStatuses } from '@/lib/api';
+import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
 import DropDown from '@/components/ui/DropDown';
 import DateRangeSelect from "@/components/ui/DateRange";
@@ -11,20 +11,30 @@ import Pagination from '@/lib/Pagination';
 import DataTable from '@/components/ui/DataTable';
 import Columns from "./columns";
 import MultiDropDown from '@/components/ui/MultiDropDown';
-import { formatDate, formatDateDubai, parseApiError } from '@/lib/utils';
+import { formatDateDubai, notify, parseApiError } from '@/lib/utils';
 import RegenerateReport from '@/components/Report/Regenerate';
 import { getAttendanceTabs, startReportGeneration } from '@/lib/endpoint/attendance';
-import CSVDownload from './CSVDownload';
 import LoadingProgressDialog from './LoadingProgressDialog';
 import { API_BASE_URL } from '@/config';
+import { getUser } from "@/config/index";
+
+const shiftTabMapping = {
+  '0': { single: true, double: false, multi: false },
+  '2': { single: false, double: false, multi: true },
+  '5': { single: false, double: true, multi: false },
+}
 
 const reportTemplates = [
   { id: `Template1`, name: `Monthly Report Format A` },
   { id: `Template2`, name: `Monthly Report Format B` },
+  { id: 'Template4', name: 'Monthly Report Format C' },
   { id: `Template3`, name: `Daily` },
 ];
 
 export default function AttendanceTable() {
+
+  const [isOpen, setIsOpen] = useState(false);
+
 
   // filters
   const [shiftTypeId, setShiftTypeId] = useState(`0`);
@@ -32,7 +42,7 @@ export default function AttendanceTable() {
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [selectedDepartmentIds, setSelectedDepartment] = useState([]);
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
-  const [selectedReportTemplate, setSelectedReportTemplate] = useState(null);
+  const [selectedReportTemplate, setSelectedReportTemplate] = useState("Template1");
 
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
@@ -82,14 +92,12 @@ export default function AttendanceTable() {
         .filter(item => response[item.key] === true)
         .map(({ id, name }) => ({ id, name }));
 
-      console.log(activeTabs);
-
       setTabs(activeTabs);
 
       setOriginalTabSet(response)
 
       // Optional: Auto-select the first available tab if current selection is empty
-      if (activeTabs.length > 0 && !shiftTypeId) {
+      if (activeTabs.length > 0) {
         setShiftTypeId(activeTabs[0].id);
       }
     } catch (error) {
@@ -115,11 +123,14 @@ export default function AttendanceTable() {
 
   const fetchScheduledEmployees = async () => {
     try {
+
       let result = await getScheduledEmployeeList(selectedDepartmentIds);
 
-      console.log(result);
+      let data = result.map(e => ({ ...e, name: e.full_name }))
 
-      setScheduledEmployees(result);
+      console.log(data);
+
+      setScheduledEmployees(data);
     } catch (error) {
       setError(parseApiError(error));
     }
@@ -151,23 +162,12 @@ export default function AttendanceTable() {
 
     if (!shiftTypeId || !isButtonclicked) return;
 
-    console.log(shiftTypeId);
-
-
     if (
       !selectedEmployeeIds?.length
     ) {
-      alert("Please select employee(s)");
+      notify("Warning", "Employee not selected", "warning");
       return;
     }
-
-    if (
-      !selectedReportTemplate
-    ) {
-      alert("Please select template.");
-      return;
-    }
-
 
     setIsLoading(true);
     setError(null);
@@ -182,12 +182,11 @@ export default function AttendanceTable() {
         to_date: formatDateDubai(to),
         employee_id: selectedEmployeeIds,
         statuses: selectedStatusIds,
-        branch_id: null,
         department_ids: selectedDepartmentIds,
-        showTabs: JSON.stringify({ single: true, double: false, multi: false }),
-        "report_type": "Monthly",
-        "filterType": "Monthly",
+        showTabs: JSON.stringify({ single: true, double: true, multi: true }),
       };
+
+
       setParams(params);
       console.log(params);
 
@@ -212,65 +211,100 @@ export default function AttendanceTable() {
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [queryStringUrl, setQueryStringUrl] = useState("");
 
+  const process_file_in_child_comp = async (type, actionType) => {
+    if (selectedEmployeeIds.length === 0) {
+      notify("Warning", "Employee not selected", "warning");
+      return;
+    }
 
-  // --- UPDATED PDF LOGIC ---
-  const handlePDFClick = async () => {
-    if (!selectedEmployeeIds?.length) return alert("Please select employee(s)");
+    if (
+      !selectedReportTemplate
+    ) {
+      notify("Warning", "Template not selected", "warning");
+      return;
+    }
 
     try {
+      
+      const isMultiShift = [2, 5].includes(Number(shiftTypeId));
+      const endpointPrefix = isMultiShift ? "multi_in_out_" : "";
+      const baseUrl = `${API_BASE_URL}/${endpointPrefix}${type}`;
 
-      const payload = {
-        report_type: 'Monthly',
-        shift_type_id: shiftTypeId,
+      const user = await getUser();
+
+      console.log(user);
+
+
+      let company_id = user?.company_id ?? 0;
+
+      // Common parameters used in most logic branches
+      const commonParams = {
         report_template: selectedReportTemplate,
-        overtime: 0,
+        main_shift_type: shiftTypeId,
+        shift_type_id: shiftTypeId,
+        company_id: company_id,
+        report_type: 'Monthly',
         from_date: formatDateDubai(from),
         to_date: formatDateDubai(to),
-        employee_id: selectedEmployeeIds,
-        'employee_id[]': selectedEmployeeIds, // Note the array notation
-        showTabs: JSON.stringify({ single: true, double: true, multi: true }),
-        filterType: 'Monthly'
+        showTabs: JSON.stringify(shiftTabMapping[shiftTypeId]),
       };
 
-      // 2. Start Backend Generation
-      await startReportGeneration(payload);
-
-      const params = new URLSearchParams({
-        shift_type_id: shiftTypeId,
-        report_template: selectedReportTemplate,
-        from_date: formatDateDubai(from),
-        to_date: formatDateDubai(to),
-        employee_id: selectedEmployeeIds,
-        employee_ids: selectedEmployeeIds.join(","),
-        department_ids: selectedDepartmentIds.join(","),
-        showTabs: JSON.stringify({ single: true, double: true, multi: true }),
-        report_type: 'Monthly',
-        filterType: 'Monthly',
-        main_shift_type: shiftTypeId,
-        main_shift_type: shiftTypeId,
-        company_id: 60, // Replace with your actual auth company ID
-      });
-
-      let prefix = "";
-
-      if (shiftTypeId == 2 || shiftTypeId == 5) {
-        prefix = "multi_in_out_";
+      if (selectedReportTemplate == 'Template3' && actionType == 'PDF') {
+        setIsOpen(true);
+        return;
       }
 
+      // 1. Handle Template4 Redirect (Special Case)
+      if (selectedReportTemplate === "Template4" && actionType !== "EXCEL") {
+        const t4Params = new URLSearchParams({
+          employee_ids: selectedEmployeeIds.join(","),
+          company_id: company_id,
+          from_date: commonParams.from_date,
+          to_date: commonParams.to_date,
+          shift_type_id: shiftTypeId,
+          company_name: "Hilal & Co",
+        });
 
-      // Adjust the base URL to your PDF endpoint
-      const finalPdfUrl = `${API_BASE_URL}/${prefix}monthly_download_pdf?${params.toString()}`;
-      // alert(finalPdfUrl)
-      // return;
+        window.open(`http://localhost:4173/attendance-report/?${t4Params.toString()}`, "_blank");
+        return;
+      }
+
+      // 2. Prepare the Query String for other actions
+      const queryObj = new URLSearchParams(commonParams);
+
+      if (selectedDepartmentIds?.length > 0) {
+        queryObj.append("department_ids", selectedDepartmentIds.join(","));
+      }
+
+      queryObj.append("employee_id", selectedEmployeeIds); // Note: passes as string/comma-sep
+      queryObj.append("employee_ids", selectedEmployeeIds.join(","));
+
+      const fullQsUrl = `${baseUrl}?${queryObj.toString()}`;
 
 
+      // 3. Handle PDF/Async Generation
+      if (actionType !== "EXCEL") {
+        const payload = {
+          ...commonParams,
+          overtime: 0,
+          employee_id: selectedEmployeeIds,
+          'employee_id[]': selectedEmployeeIds,
+          filterType: 'Monthly'
+        };
+        await startReportGeneration(payload);
+        setQueryStringUrl(fullQsUrl);
+        setIsProgressOpen(true);
+        return;
+      }
 
-      setQueryStringUrl(finalPdfUrl);
-      setIsProgressOpen(true); // Open the Loading Dialog
+      // 4. Handle Excel Download
+      const downloadAnchor = document.createElement("a");
+      downloadAnchor.href = fullQsUrl;
+      downloadAnchor.target = "_blank";
+      downloadAnchor.click();
 
-    } catch (e) {
-      console.error(e);
-      alert("Error starting report generation");
+    } catch (error) {
+      console.error("Report Generation Error:", error);
     }
   };
 
@@ -386,15 +420,20 @@ export default function AttendanceTable() {
                 </TabsList>
 
                 <div className='flex gap-2'>
-                  <RegenerateReport />
 
-                  <button onClick={handlePDFClick}
+                  <RegenerateReport shift_type_id={shiftTypeId} />
+
+                  <button onClick={() => process_file_in_child_comp('monthly_download_pdf', `PDF`)}
                     className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
                   >
                     <Printer size={15} />
                   </button>
 
-                  {/* <CSVDownload /> */}
+                  <button onClick={() => process_file_in_child_comp('monthly_download_csv', `EXCEL`)}
+                    className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+                  >
+                    <File size={15} />
+                  </button>
                 </div>
 
               </div>
@@ -436,6 +475,8 @@ export default function AttendanceTable() {
         queryStringUrl={queryStringUrl}
         onClose={() => setIsProgressOpen(false)}
       />
+
+      
     </div>
   );
 }

@@ -63,7 +63,17 @@ const PAYLOAD = {
         "odd": [],
     },
 
-    "halfday_rules": {},
+    "halfday_rules": {
+        enabled: false,
+        day: "S",
+        onDuty: "09:00",
+        offDuty: "01:00",
+        minHours: 4.0,
+        beginStart: "08:30",
+        beginEnd: "09:30",
+        endStart: "12:30",
+        endEnd: "02:00",
+    },
 
     "overtime_type": "Both",
     "weekend_allowed_ot": false, //new

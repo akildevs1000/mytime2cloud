@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { getRandomItem } from "@/lib/utils";
+import ProfilePicture from "@/components/ProfilePicture";
 
 export default (deleteEmployee) => [
   {
@@ -24,18 +25,8 @@ export default (deleteEmployee) => [
     render: (employee) => (
       <div className="flex items-center gap-4">
         <div className="relative">
-          <img
-            alt={employee.full_name}
-            className="h-10 w-10 rounded-full object-cover ring-2 ring-white dark:ring-slate-700 shadow-sm"
-            src={
-              employee.profile_picture ||
-              `https://placehold.co/40x40/6946dd/ffffff?text=${employee.full_name.charAt(0)}`
-            }
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = `https://placehold.co/40x40/6946dd/ffffff?text=${employee.full_name.charAt(0)}`;
-            }} />
-          <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div>
+          <ProfilePicture src={employee.profile_picture} />
+          {/* <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-slate-800 rounded-full"></div> */}
         </div>
         <div>
           <div className="font-medium text-slate-800 dark:text-slate-100">

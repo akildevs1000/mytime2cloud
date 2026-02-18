@@ -1,386 +1,230 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import html2pdf from 'html2pdf.js';
 
-const PDFReport = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+// --- DATA & SUB-COMPONENTS (Keep these outside for clean code) ---
+const attendanceData = [
+  { name: "John Doe", dept: "Logistics", shift: "Morning (06:00-14:00)", checkIn: "06:12", checkOut: "14:05", late: 12, status: "Late" },
+  { name: "Alice Smith", dept: "Marketing", shift: "Afternoon (14:00-22:00)", checkIn: "13:55", checkOut: "22:10", late: "-", status: "Present" },
+  { name: "Robert Johnson", dept: "Sales", shift: "Night (22:00-06:00)", checkIn: "21:58", checkOut: "06:02", late: "-", status: "Present" },
+  { name: "Emily Davis", dept: "HR", shift: "Rotating A (08:00-16:00)", checkIn: "-", checkOut: "-", late: "-", status: "Absent" },
+  { name: "Michael Brown", dept: "Logistics", shift: "Rotating B (16:00-00:00)", checkIn: "15:50", checkOut: "00:15", late: "-", status: "Present" },
+  { name: "Jessica Wilson", dept: "Marketing", shift: "Split (09:00-13:00 / 17:00-21:00)", checkIn: "09:02", checkOut: "21:01", late: 2, status: "Present" },
+  { name: "David Martinez", dept: "Sales", shift: "Weekend (10:00-19:00)", checkIn: "10:45", checkOut: "19:30", late: 45, status: "Late (Severe)" },
+];
 
-  const handlePrint = () => {
-    window.print();
+const StatusBadge = ({ status }) => {
+  const baseStyles = "px-2.5 py-1 text-[10px] font-bold uppercase rounded inline-block text-center leading-tight";
+  switch (status) {
+    case 'Present': return <span className={`${baseStyles} bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400`}>Present</span>;
+    case 'Late': return <span className={`${baseStyles} bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400`}>Late</span>;
+    case 'Absent': return <span className={`${baseStyles} bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400`}>Absent</span>;
+    case 'Late (Severe)': return <div className={`${baseStyles} bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400`}>Late<br />(Severe)</div>;
+    default: return null;
+  }
+};
+
+const StatCard = ({ label, value, color }) => {
+  const colors = {
+    gray: "bg-gray-50 dark:bg-gray-800/50 border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white",
+    emerald: "bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100 dark:border-emerald-800/50 text-emerald-700 dark:text-emerald-500",
+    amber: "bg-amber-50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-800/50 text-amber-700 dark:text-amber-500",
+    rose: "bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-800/50 text-rose-700 dark:text-rose-500"
   };
+  return (
+    <div className={`${colors[color]} p-4 rounded-xl border`}>
+      <p className="text-[10px] font-bold opacity-70 uppercase tracking-wider mb-1">{label}</p>
+      <p className="text-2xl font-bold">{value}</p>
+    </div>
+  );
+};
 
-  const handleDownloadPDF = () => {
-    // PDF download functionality can be added here
-    console.log('Downloading PDF...');
-    // You can use libraries like html2pdf or jsPDF for this
-  };
+// --- MAIN COMPONENT ---
+export default function AttendanceDailyDialog({isOpen, setIsOpen}) {
+  const contentRef = useRef(null);
 
-  const handleEmail = () => {
-    console.log('Sending email...');
-  };
-
-  const handleClose = () => {
-    console.log('Closing preview...');
-  };
-
-  const attendanceData = [
-    {
-      id: 1,
-      name: 'John Doe',
-      department: 'Logistics',
-      shift: '09:00 - 18:00',
-      checkIn: '09:12',
-      checkOut: '18:05',
-      late: 12,
-      status: 'Late',
-      statusColor: 'yellow',
-    },
-    {
-      id: 2,
-      name: 'Alice Smith',
-      department: 'Marketing',
-      shift: '09:00 - 18:00',
-      checkIn: '08:55',
-      checkOut: '18:10',
-      late: null,
-      status: 'Present',
-      statusColor: 'green',
-    },
-    {
-      id: 3,
-      name: 'Robert Johnson',
-      department: 'Sales',
-      shift: '10:00 - 19:00',
-      checkIn: '09:58',
-      checkOut: '19:02',
-      late: null,
-      status: 'Present',
-      statusColor: 'green',
-    },
-    {
-      id: 4,
-      name: 'Emily Davis',
-      department: 'HR',
-      shift: '09:00 - 18:00',
-      checkIn: '-',
-      checkOut: '-',
-      late: null,
-      status: 'Absent',
-      statusColor: 'red',
-    },
-    {
-      id: 5,
-      name: 'Michael Brown',
-      department: 'Logistics',
-      shift: '07:00 - 16:00',
-      checkIn: '06:50',
-      checkOut: '16:15',
-      late: null,
-      status: 'Present',
-      statusColor: 'green',
-    },
-    {
-      id: 6,
-      name: 'Jessica Wilson',
-      department: 'Marketing',
-      shift: '09:00 - 18:00',
-      checkIn: '09:02',
-      checkOut: '18:01',
-      late: 2,
-      status: 'Present',
-      statusColor: 'green',
-    },
-    {
-      id: 7,
-      name: 'David Martinez',
-      department: 'Sales',
-      shift: '10:00 - 19:00',
-      checkIn: '10:45',
-      checkOut: '19:30',
-      late: 45,
-      status: 'Late (Severe)',
-      statusColor: 'red',
-    },
-    {
-      id: 8,
-      name: 'Sarah Connor',
-      department: 'Sales',
-      shift: '09:00 - 18:00',
-      checkIn: '09:45',
-      checkOut: '18:15',
-      late: 45,
-      status: 'Late',
-      statusColor: 'yellow',
-    },
-  ];
-
-  const getStatusColor = (color) => {
-    switch (color) {
-      case 'green':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300';
-      case 'yellow':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
-      case 'red':
-        return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
-      default:
-        return 'bg-gray-100 text-gray-800';
+  const handleSaveAsPdf = async () => {
+    try {
+      if (!contentRef.current) {
+        console.error('Modal content not found');
+        return;
+      }
+      
+      // Clone the element to avoid modifying the DOM
+      const clonedElement = contentRef.current.cloneNode(true);
+      
+      // Remove all inline styles that might contain LAB colors
+      const stripProblematicStyles = (node) => {
+        if (node instanceof HTMLElement) {
+          // Remove style attribute
+          node.removeAttribute('style');
+          
+          // Remove dark mode and problematic classes
+          const classList = Array.from(node.classList);
+          classList.forEach(cls => {
+            if (cls.includes('dark:') || cls.includes('darks:') || cls.includes('animate-')) {
+              node.classList.remove(cls);
+            }
+          });
+        }
+        
+        if (node.childNodes) {
+          node.childNodes.forEach(child => stripProblematicStyles(child));
+        }
+      };
+      
+      stripProblematicStyles(clonedElement);
+      
+      // Create a temporary container with white background
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.top = '-9999px';
+      tempContainer.style.backgroundColor = 'white';
+      clonedElement.style.backgroundColor = 'white';
+      tempContainer.appendChild(clonedElement);
+      document.body.appendChild(tempContainer);
+      
+      // Dynamic import to avoid SSR issues
+      const html2pdfLib = (await import('html2pdf.js')).default;
+      const opt = {
+        margin: 10,
+        filename: `Attendance_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          logging: false, 
+          backgroundColor: '#ffffff',
+          allowTaint: true,
+          useCORS: true
+        },
+        jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
+      };
+      
+      await html2pdfLib().set(opt).from(clonedElement).save();
+      console.log('PDF saved successfully');
+      
+      // Clean up temporary container
+      document.body.removeChild(tempContainer);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Check console for details.');
     }
   };
 
   return (
-    <div className={`${isDarkMode ? 'dark' : 'light'}`}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+    <div className="p-10">
+      {/* Trigger Button */}
+    
 
-        .a4-screen {
-          width: 210mm;
-          min-height: 297mm;
-          margin: auto;
-        }
-      `}</style>
+      {/* Dialog Overlay */}
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsOpen(false)}
+          />
 
-      <div className="bg-background-light dark:bg-background-dark  text-text-main flex flex-col items-center min-h-screen p-10 overflow-y-atuo  max-h-[calc(100vh-100px)]" >
-        {/* Sticky Toolbar */}
-        {/* <div className="no-print sticky top-0 z-50 w-full bg-white/90 dark:bg-[#1a202c]/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm mb-8">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-primary text-3xl">
-                description
-              </span>
-              <div className="flex flex-col">
-                <h2 className="font-bold text-lg leading-tight dark:text-white">
-                  Daily Attendance Report
-                </h2>
-                <span className="text-xs text-text-sub dark:text-gray-400">
-                  Ready to export
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrint}
-                className="p-2 text-text-sub hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title="Print"
+          {/* Modal Content */}
+          <div className="relative bg-white dark:bg-gray-900 w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-800 flex flex-col animate-in fade-in zoom-in duration-200" ref={contentRef}>
+            
+            {/* Modal Header */}
+            <div className="flex justify-between items-center px-8 py-4 border-b border-gray-100 dark:border-gray-800">
+              <h2 className="text-sm font-bold text-gray-400 uppercase tracking-widest">System Report / Attendance</h2>
+              <button 
+                onClick={() => setIsOpen(false)}
+                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <span className="material-symbols-outlined">print</span>
-              </button>
-              <button
-                onClick={handleEmail}
-                className="p-2 text-text-sub hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                title="Email"
-              >
-                <span className="material-symbols-outlined">mail</span>
-              </button>
-              <div className="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-1"></div>
-              <button
-                onClick={handleDownloadPDF}
-                className="group flex items-center justify-center rounded-lg h-10 bg-primary hover:bg-primary-dark text-white gap-2 text-sm font-bold px-4 transition-colors shadow-sm"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  download
-                </span>
-                <span>Download PDF</span>
-              </button>
-              <button
-                onClick={handleClose}
-                className="p-2 text-text-sub hover:text-red-500 hover:bg-red-50 dark:text-gray-300 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-colors ml-2"
-                title="Close Preview"
-              >
-                <span className="material-symbols-outlined">close</span>
+                ✕
               </button>
             </div>
-          </div>
-        </div> */}
 
-        {/* Main Content / A4 Preview */}
-        <div className="print-container a4-screen bg-paper dark:bg-[#1e2532] shadow-paper rounded-none sm:rounded-sm flex flex-col relative ">
-          {/* Header Section */}
-      
-
-          {/* Body Content */}
-          <main className="flex-1 px-10 py-6 flex flex-col gap-6">
-            {/* KPI Stats */}
-            <section className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col gap-1 p-4 rounded-lg bg-gray-50 dark:bg-[#2a303c] border border-gray-100 dark:border-gray-700">
-                <span className="text-text-sub dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">
-                  Headcount
-                </span>
-                <span className="text-text-main dark:text-white text-3xl font-bold">
-                  142
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 p-4 rounded-lg bg-green-50/50 dark:bg-green-900/10 border border-green-100 dark:border-green-800/30">
-                <span className="text-green-700 dark:text-green-400 text-xs font-semibold uppercase tracking-wider">
-                  Present
-                </span>
-                <span className="text-green-800 dark:text-green-300 text-3xl font-bold">
-                  130
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 p-4 rounded-lg bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-800/30">
-                <span className="text-yellow-700 dark:text-yellow-400 text-xs font-semibold uppercase tracking-wider">
-                  Late
-                </span>
-                <span className="text-yellow-800 dark:text-yellow-300 text-3xl font-bold">
-                  8
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 p-4 rounded-lg bg-red-50/50 dark:bg-red-900/10 border border-red-100 dark:border-red-800/30">
-                <span className="text-red-700 dark:text-red-400 text-xs font-semibold uppercase tracking-wider">
-                  Absent
-                </span>
-                <span className="text-red-800 dark:text-red-300 text-3xl font-bold">
-                  4
-                </span>
-              </div>
-            </section>
-
-            {/* Critical Exceptions */}
-            <section className="rounded-lg border-l-4 border-red-500 bg-red-50 dark:bg-red-900/20 p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="material-symbols-outlined text-red-600 dark:text-red-400 text-xl">
-                  warning
-                </span>
-                <h3 className="text-red-900 dark:text-red-200 font-bold text-sm uppercase tracking-wide">
-                  Critical Exceptions
-                </h3>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm bg-white dark:bg-[#1a202c] p-2 rounded border border-red-100 dark:border-red-800/30 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                      JM
-                    </div>
-                    <span className="font-semibold text-text-main dark:text-gray-200">
-                      James Miller
-                    </span>
-                    <span className="text-gray-500 text-xs">• Logistics</span>
-                  </div>
-                  <span className="text-red-600 dark:text-red-400 font-medium text-xs px-2 py-1 bg-red-50 dark:bg-red-900/30 rounded">
-                    Absent No Leave
-                  </span>
+            {/* Modal Body (Scrollable Area) */}
+            <div className="overflow-y-auto p-8 pt-4">
+              <div className="flex flex-col md:flex-row justify-between items-start mb-8 gap-4">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-blue-600 tracking-tight uppercase">V PERFUMES</h2>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium">Human Resources Department</p>
                 </div>
-                <div className="flex items-center justify-between text-sm bg-white dark:bg-[#1a202c] p-2 rounded border border-red-100 dark:border-red-800/30 shadow-sm">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600">
-                      SC
-                    </div>
-                    <span className="font-semibold text-text-main dark:text-gray-200">
-                      Sarah Connor
-                    </span>
-                    <span className="text-gray-500 text-xs">• Sales</span>
-                  </div>
-                  <span className="text-red-600 dark:text-red-400 font-medium text-xs px-2 py-1 bg-red-50 dark:bg-red-900/30 rounded">
-                    Late &gt; 30 mins (45m)
-                  </span>
+                <div className="md:text-right">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white">Daily Attendance Report</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Date: <span className="font-bold text-gray-900 dark:text-white">Oct 25, 2023</span></p>
                 </div>
               </div>
-            </section>
 
-            {/* Main Data Table */}
-            <section className="mt-2">
-              <h3 className="text-text-main dark:text-gray-200 font-bold text-lg mb-4">
-                Detailed Attendance
-              </h3>
-              <div className="border rounded-lg overflow-hidden border-gray-200 dark:border-gray-700">
-                <table className="w-full text-left text-sm">
-                  <thead className="bg-gray-50 dark:bg-[#2a303c] border-b border-gray-200 dark:border-gray-700">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <StatCard label="Total Headcount" value="324" color="gray" />
+                <StatCard label="Present" value="298" color="emerald" />
+                <StatCard label="Late" value="18" color="amber" />
+                <StatCard label="Absent" value="8" color="rose" />
+              </div>
+
+              {/* Critical Alert Section */}
+              <div className="mb-8 bg-rose-50 dark:bg-rose-950/20 border-l-4 border-rose-500 rounded-r-xl p-4">
+                 <h4 className="text-xs font-bold text-rose-700 dark:text-rose-400 uppercase mb-3 flex items-center gap-2">
+                   ⚠️ Critical Exceptions
+                 </h4>
+                 <div className="space-y-2">
+                   <div className="bg-white dark:bg-gray-800 p-3 rounded-lg border border-rose-100 dark:border-rose-900/30 flex justify-between items-center text-xs">
+                     <span><strong>James Miller</strong> • Night Shift</span>
+                     <span className="text-rose-600 font-bold uppercase">Absent No Leave</span>
+                   </div>
+                 </div>
+              </div>
+
+              {/* Table Container */}
+              <div className="overflow-x-auto border border-gray-100 dark:border-gray-800 rounded-xl">
+                <table className="w-full text-left text-sm border-collapse">
+                  <thead className="bg-gray-50 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 uppercase text-[10px] font-bold tracking-widest sticky top-0">
                     <tr>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300">
-                        Employee Name
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300">
-                        Department
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300">
-                        Shift
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300">
-                        Check-In
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300">
-                        Check-Out
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300 text-center">
-                        Late (m)
-                      </th>
-                      <th className="px-4 py-3 font-bold text-text-sub dark:text-gray-300 text-right">
-                        Status
-                      </th>
+                      <th className="px-6 py-4">Employee Name</th>
+                      <th className="px-6 py-4">Department</th>
+                      <th className="px-6 py-4">Check-In</th>
+                      <th className="px-6 py-4">Late (m)</th>
+                      <th className="px-6 py-4">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-[#1e2532]">
-                    {attendanceData.map((row) => (
-                      <tr
-                        key={row.id}
-                        className="hover:bg-gray-50 dark:hover:bg-[#252b36]"
-                      >
-                        <td className="px-4 py-3 font-semibold text-text-main dark:text-gray-200">
-                          {row.name}
-                        </td>
-                        <td className="px-4 py-3 text-text-sub dark:text-gray-400">
-                          {row.department}
-                        </td>
-                        <td className="px-4 py-3 text-text-sub dark:text-gray-400">
-                          {row.shift}
-                        </td>
-                        <td className="px-4 py-3 text-text-main dark:text-gray-300 font-medium">
-                          {row.checkIn}
-                        </td>
-                        <td className="px-4 py-3 text-text-main dark:text-gray-300 font-medium">
-                          {row.checkOut}
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          {row.late !== null ? (
-                            <span
-                              className={
-                                row.late > 30
-                                  ? 'text-red-600 dark:text-red-400 font-bold'
-                                  : 'text-yellow-600 dark:text-yellow-400 font-bold'
-                              }
-                            >
-                              {row.late}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-right">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
-                              row.statusColor
-                            )}`}
-                          >
-                            {row.status}
-                          </span>
-                        </td>
+                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {attendanceData.map((row, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-800/40">
+                        <td className="px-6 py-4 font-semibold text-gray-900 dark:text-white">{row.name}</td>
+                        <td className="px-6 py-4 text-gray-500 dark:text-gray-400 text-xs">{row.dept}</td>
+                        <td className="px-6 py-4 text-gray-900 dark:text-white">{row.checkIn}</td>
+                        <td className={`px-6 py-4 font-bold ${row.status.includes('Late') ? 'text-amber-600' : 'text-gray-300'}`}>{row.late}</td>
+                        <td className="px-6 py-4"><StatusBadge status={row.status} /></td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </section>
-            <div className="flex-grow"></div>
-          </main>
-
-          {/* Footer */}
-          <footer className="px-10 py-6 mt-auto border-t border-gray-100 dark:border-gray-700">
-            <div className="flex justify-between items-center text-xs text-text-sub dark:text-gray-500 font-medium">
-              <div className="flex gap-4">
-                <span className="uppercase tracking-widest font-bold text-gray-400">
-                  Confidential
-                </span>
-                <span>|</span>
-                <span>Generated on Oct 26, 2023 08:00 AM</span>
-              </div>
-              <div>Page 1 of 1</div>
             </div>
-          </footer>
+
+            {/* Modal Footer */}
+            <div className="px-8 py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+              <p className="text-[10px] text-gray-400 uppercase font-bold tracking-widest">
+                Confidential Report • {new Date().toLocaleDateString()}
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={handleSaveAsPdf}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-colors"
+                >
+                  💾 Save as PDF
+                </button>
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="px-4 py-2 bg-gray-900 dark:bg-white dark:text-gray-900 text-white text-xs font-bold rounded-lg"
+                >
+                  Close Report
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
-};
-
-export default PDFReport;
+}

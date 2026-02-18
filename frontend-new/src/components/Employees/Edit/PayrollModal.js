@@ -89,7 +89,7 @@ const PayrollModel = ({ onSuccess = () => { }, employee_id, basic_salary = 0, al
                   <Input
                     type="text"
                     placeholder="e.g. Description"
-                    value={form.description}
+                    value={form.description || ""}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
                   />
                 </div>
@@ -100,7 +100,7 @@ const PayrollModel = ({ onSuccess = () => { }, employee_id, basic_salary = 0, al
                   <Input
                     type="text"
                     placeholder="e.g. Amount"
-                    value={form.amount}
+                    value={form.amount || ""}
                     onChange={(e) => setForm({ ...form, amount: e.target.value })}
                   />
                 </div>
