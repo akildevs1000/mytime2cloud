@@ -37,8 +37,9 @@ class UpdateRequest extends FormRequest
             //     }),
             // ],
             'name' => 'required',
-            'company_id' => 'required',
-            'description' => 'required',
+            'description' => 'nullable',
+            'modules' => 'nullable',
+            'permissions' => 'nullable',
         ];
     }
 }
