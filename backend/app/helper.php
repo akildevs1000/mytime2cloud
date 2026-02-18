@@ -418,3 +418,19 @@ if (!function_exists('time_to_minutes')) {
         return ((int)$hours * 60) + (int)$minutes;
     }
 }
+
+// usage: $minutes = time_to_minutes($shift->break_duration);
+if (!function_exists('addtendanceRulesDaysMap')) {
+    function addtendanceRulesDaysMap()
+    {
+        return [
+            'Mon' => 'M',
+            'Tue' => 'T',
+            'Wed' => 'W',
+            'Thu' => 'Th',
+            'Fri' => 'F',
+            'Sat' => 'S',
+            'Sun' => 'Su'
+        ];
+    }
+}

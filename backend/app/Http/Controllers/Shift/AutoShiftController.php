@@ -438,7 +438,7 @@ class AutoShiftController extends Controller
 
         if (!count($data)) {
 
-            return "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto No data found.";
+            return "[" . $date . "] Cron:SyncAuto No data found.";
         }
 
         $items = [];
@@ -446,7 +446,7 @@ class AutoShiftController extends Controller
         foreach ($data as $UserID => $row) {
 
             if (!$row) {
-                $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID has no Log(s).\n";
+                $message .= "[" . $date . "] Cron:SyncAuto Employee with $UserID SYSTEM USER ID has no Log(s).\n";
                 continue;
             }
 
@@ -512,7 +512,7 @@ class AutoShiftController extends Controller
 
                 $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params, $channel);
 
-                $message .= "[" . date("Y-m-d H:i:s") . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
+                $message .= "[" . $date . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
 
                 $message .= " Nearest shift ({$nearestShift['name']})";
                 $message .= " Notes: " . json_encode($result);

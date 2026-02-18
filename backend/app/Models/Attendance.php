@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Log;
 
 class Attendance extends Model
 {
@@ -272,7 +273,7 @@ class Attendance extends Model
                     },
                     "schedule.shift" => function ($q) use ($company_id) {
                         $q->where('company_id', $company_id);
-                        $q->select("id", "name","shift_type_id","working_hours", "on_duty_time", "off_duty_time","days","weekend1","weekend2","monthly_flexi_holidays","halfday","halfday_working_hours");
+                        $q->select("id", "name", "shift_type_id", "working_hours", "on_duty_time", "off_duty_time", "days", "weekend1", "weekend2", "monthly_flexi_holidays", "halfday", "halfday_working_hours");
                     },
                 ]);
             },
@@ -492,5 +493,75 @@ class Attendance extends Model
         } catch (\Throwable $e) {
             return $e->getMessage();
         }
+    }
+
+
+
+    public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog)
+    {
+        $type = $weekoff_rules['type'] ?? 'Fixed';
+
+        // 1. FIXED TYPE
+        if ($type === 'Fixed' && in_array($currentDayKey, $weekoff_rules['days'] ?? [])) {
+            return "O";
+        }
+
+        // 2. ALTERNATING TYPE
+        if ($type === 'Alternating') {
+            $weekNumber = (int)date('W', strtotime($date));
+            $isEvenWeek = ($weekNumber % 2 === 0);
+            $targetDays = $isEvenWeek ? ($weekoff_rules['even'] ?? []) : ($weekoff_rules['odd'] ?? []);
+
+            if (in_array($currentDayKey, $targetDays)) {
+                return "O";
+            }
+        }
+
+        // 3. FLEXIBLE TYPE
+        if ($type === 'Flexible') {
+            $cycle = $weekoff_rules['cycle'] ?? 'Weekly';
+            $allowedCount = $weekoff_rules['count'] ?? 0;
+
+            if ($cycle === 'Monthly') {
+                $startDate = date("Y-m-01", strtotime($date));
+            } else {
+                // Monday to Sunday Slot
+                $startDate = date("Y-m-d", strtotime('monday this week', strtotime($date)));
+            }
+
+            $offDaysTaken = Attendance::where('employee_id', $employeeId)
+                ->where('company_id', $company_id)
+                ->whereBetween('date', [$startDate, date("Y-m-d", strtotime($date . " -1 day"))])
+                ->where('status', 'O')
+                ->count();
+
+            // Check if logs exist today - If they worked, it's not a Week Off
+            if ($offDaysTaken < $allowedCount && !$firstLog) {
+                return "O";
+            }
+        }
+
+        return null; // Return null if none of the week-off conditions are met
+    }
+
+    public static function processHalfDay($currentDayKey, $halfday_rules, $shift)
+    {
+        // Check Half Day Rules (If not a week off)
+        if (($halfday_rules['enabled'] ?? false) && $halfday_rules['day'] === $currentDayKey) {
+            $fieldMap = [
+                'on_duty_time'  => 'onDuty',
+                'off_duty_time' => 'offDuty',
+                'working_hours' => 'minHours',
+                'beginning_in'  => 'beginStart',
+                'beginning_out' => 'beginEnd',
+                'ending_in'     => 'endStart',
+                'ending_out'    => 'endEnd',
+            ];
+            foreach ($fieldMap as $shiftKey => $ruleKey) {
+                $shift[$shiftKey] = $halfday_rules[$ruleKey] ?? $shift[$shiftKey];
+            }
+        }
+
+        return $shift;
     }
 }
