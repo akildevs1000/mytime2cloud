@@ -1,8 +1,5 @@
 <template>
-  <div
-    style="width: 100%"
-    v-if="can('attendance_report_access') && can('attendance_report_view')"
-  >
+  <div style="width: 100%" v-if="can('attendance_report_access') && can('attendance_report_view')">
     <div class="text-center ma-2">
       <v-snackbar v-model="snackbar" top="top" color="secondary" elevation="24">
         {{ snackbarMessage }}
@@ -15,65 +12,31 @@
       <v-card-text>
         <v-row>
           <v-col cols="5">
-            <v-autocomplete
-              v-model="payload.device_id"
-              label="Select Device"
-              :hide-details="true"
-              outlined
-              dense
-              small
-              item-text="name"
-              item-value="device_id"
-              :items="devices"
-              placeholder="Device Name"
-              solo
-              flat
-            ></v-autocomplete>
+            <v-autocomplete v-model="payload.device_id" label="Select Device" :hide-details="true" outlined dense small
+              item-text="name" item-value="device_id" :items="devices" placeholder="Device Name" solo
+              flat></v-autocomplete>
             <span v-if="errors && errors.device_id" class="text-danger mt-2">{{
               errors.device_id[0]
-            }}</span>
+              }}</span>
           </v-col>
           <v-col cols="5">
-            <v-menu
-              v-model="from_menu"
-              :close-on-content-click="false"
-              :nudge-right="40"
-              transition="scale-transition"
-              offset-y
-              min-width="auto"
-            >
+            <v-menu v-model="from_menu" :close-on-content-click="false" :nudge-right="40" transition="scale-transition"
+              offset-y min-width="auto">
               <template v-slot:activator="{ on, attrs }">
-                <v-text-field
-                  outlined
-                  label="Select Date"
-                  v-model="payload.date"
-                  readonly
-                  v-bind="attrs"
-                  v-on="on"
-                  dense
-                  :hide-details="true"
-                  class="custom-text-box shadow-none"
-                  solo
-                ></v-text-field>
+                <v-text-field outlined label="Select Date" v-model="payload.date" readonly v-bind="attrs" v-on="on"
+                  dense :hide-details="true" class="custom-text-box shadow-none" solo></v-text-field>
               </template>
-              <v-date-picker
-                no-title
-                scrollable
-                v-model="payload.date"
-                @input="from_menu = false"
-              ></v-date-picker>
+              <v-date-picker no-title scrollable v-model="payload.date" @input="from_menu = false"></v-date-picker>
             </v-menu>
             <span v-if="errors && errors.date" class="text-danger mt-2">{{
               errors.date[0]
-            }}</span>
+              }}</span>
           </v-col>
           <v-col md="2" sm="2">
-            <v-btn @click="getMissingLogs()" color="primary" primary fill
-              >Submit
+            <v-btn @click="getMissingLogs()" color="primary" primary fill>Submit
             </v-btn>
           </v-col>
-        </v-row></v-card-text
-      >
+        </v-row></v-card-text>
     </v-card>
 
     <v-card class="mt-5" v-if="snackbarMessage">
@@ -83,43 +46,26 @@
         </span>
       </v-toolbar>
       <v-card-text>
-        <v-data-table
-          v-if="data.length > 0"
-          dense
-          :headers="headers"
-          :items="data"
-          :loading="loading"
-          class="elevation-0"
-          model-value="data.id"
-          height="auto"
-          no-data-text="No Data available.  "
-          :footer-props="{
+
+        <v-data-table v-if="data.length > 0" dense :headers="headers" :items="data" :loading="loading"
+          class="elevation-0" model-value="data.id" height="auto" no-data-text="No Data available.  " :footer-props="{
             itemsPerPageOptions: [100, 500, 1000],
-          }"
-          :options.sync="options"
-          :server-items-length="totalRowsCount"
-        >
+          }" :options.sync="options" :server-items-length="totalRowsCount">
           <template v-slot:item.sno="{ item, index }" style="padding: 0px">
             {{ ++index }}
           </template>
-          <template
-            v-slot:item.employee_id="{ item, index }"
-            style="padding: 0px"
-          >
+          <template v-slot:item.employee_id="{ item, index }" style="padding: 0px">
             {{ item.UserID }}
           </template>
           <template v-slot:item.date="{ item, index }" style="padding: 0px">
             {{ item.LogTime }}
           </template>
-          <template
-            v-slot:item.serial_number="{ item, index }"
-            style="padding: 0px"
-          >
+          <template v-slot:item.serial_number="{ item, index }" style="padding: 0px">
             {{ item.SerialNumber }}
           </template>
 
           <template v-slot:item.message="{ item, index }" style="padding: 0px">
-            Success
+            {{ item.message || "Success" }}
           </template>
         </v-data-table>
       </v-card-text>
@@ -130,6 +76,8 @@
 </template>
 
 <script>
+import { connectMQTT, subscribeTopic, disconnectMQTT } from "@/services/mqttService";
+
 // import DashboardlastMultiStatistics from "../../components/dashboard2/DashboardlastMultiStatistics.vue";
 export default {
   components: {},
@@ -146,6 +94,8 @@ export default {
       loading: false,
       payload: {},
       data: [],
+      processedLogs: new Set(),  // 🔥 prevent duplicates
+
       headers: [
         {
           text: "#",
@@ -187,7 +137,15 @@ export default {
     };
   },
   watch: {},
-  mounted() {},
+  beforeDestroy() {
+    disconnectMQTT();
+  }, mounted() {
+
+
+
+
+
+  },
   created() {
     this.getDeviceList();
   },
@@ -213,7 +171,7 @@ export default {
         this.devices = data;
       });
     },
-    getMissingLogs() {
+    async getMissingLogs() {
       this.snackbarMessage = "";
 
       if (!this.payload.device_id) {
@@ -238,7 +196,7 @@ export default {
       this.snackbar = true;
       this.data = [];
       this.snackbarMessage = "Finding missing logs. Please wait ..... ";
-      this.$axios.get(`/attendance-logs-missing`, payload).then(({ data }) => {
+      this.$axios.get(`/attendance-logs-missing`, payload).then(async ({ data }) => {
         this.loading = false;
         if (data.status == 120) {
           this.snackbarMessage = "";
@@ -265,6 +223,73 @@ export default {
           this.data = data.updated_records;
           this.totalRowsCount = data.length;
           this.loading = false;
+        }
+        // console.log(this.payload);
+
+        let DeviceModel = this.devices.find((device) => device.device_id === this.payload.device_id);
+
+        //if device MYTIME1 is exist then call MQTT subscribe method to subscribe the topic for real time update of attendance logs
+        if (DeviceModel.model_number == "MYTIME1") {
+          await connectMQTT();
+
+          const topic = "mqtt/face/" + this.payload.device_id + "/recods/missinglogs";
+
+          this.snackbar = true;
+          this.snackbarMessage = "Finding missing logs. Please wait ..... ";
+          subscribeTopic(topic, (payload) => {
+            // console.log("MQTT Message:", payload);
+
+            if (payload.message == "success") {
+
+
+              this.snackbar = true;
+              this.snackbarMessage = "Finding missing logs. Please wait ..... ";
+
+
+              // Map incoming payload to your table schema
+              const row = {
+                UserID: payload.UserID || "",              // ✅ from payload
+
+                employee_id: payload.UserID || "",              // ✅ from payload
+                LogTime: payload.LogTime || "",                    // ✅ from payload
+                SerialNumber: payload?.device?.id || "",       // ✅ device serial
+                message: payload.message || "",                 // ✅ success / error text
+              };
+              // console.log("data", this.data);
+
+              // Create unique key
+              const uniqueKey = `${row.SerialNumber}-${row.UserID}-${row.LogTime}`;
+
+              if (!this.processedLogs.has(uniqueKey)) {
+
+                this.processedLogs.add(uniqueKey);
+
+                if (!Array.isArray(this.data)) this.data = [];
+                this.data.unshift(row);
+                // if you use server-items-length, update count
+                this.totalRowsCount = (this.totalRowsCount || 0) + 1;
+
+                setTimeout(() => {
+                  this.snackbar = true;
+                  this.snackbarMessage = "Reading missing logs. Completed";
+                }, 1000 * 10);
+              }
+            } else {
+              console.log("⚠ Duplicate UI log skipped");
+            }
+
+
+
+
+          });
+
+          setTimeout(() => {
+            this.snackbar = true;
+            this.snackbarMessage = "Reading missing logs. Completed";
+          }, 1000 * 10);
+
+
+
         }
       });
     },

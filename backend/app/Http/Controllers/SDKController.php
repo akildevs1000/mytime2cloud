@@ -443,7 +443,10 @@ class SDKController extends Controller
                     if ($personProfilePic != '') {
 
 
-                        $path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+                        //$path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+
+                        $path = public_path('media/employee/profile_picture/' . $persons['profile_picture_raw']);
+
 
                         if (file_exists($path)) {
                             $imageData = file_get_contents($path);
@@ -770,7 +773,7 @@ class SDKController extends Controller
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
 
-        info("Visitor Upload:" , [$json, $url]);
+        info("Visitor Upload:", [$json, $url]);
 
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }

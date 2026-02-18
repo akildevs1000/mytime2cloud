@@ -1211,13 +1211,13 @@ export default {
     },
   },
   mounted() {
-    setInterval(() => {
-      //console.log(this.$route.name);
+    // setInterval(() => {
+    //   //console.log(this.$route.name);
 
-      if (this.$route.name == "device") {
-        this.getDataFromApi();
-      }
-    }, 1000 * 20);
+    //   if (this.$route.name == "device") {
+    //     this.getDataFromApi();
+    //   }
+    // }, 1000 * 20);
   },
   async created() {
     for (let index = 1; index <= 60; index++) {

@@ -621,6 +621,24 @@ class DeviceController extends Controller
                 }
             } catch (\Exception $e) {
             }
+            $wifiIp = "";
+            try {
+                $responseSDK = (new FaceDeviceController())
+                    ->gatewayRequest('GET', "api/device/{$request->device_id}/GetDeviceInfo");
+
+                $responseSDK = $responseSDK instanceof \Illuminate\Http\JsonResponse
+                    ? $responseSDK->getData(true)
+                    : $responseSDK;
+
+                if (isset($responseSDK['code']) && $responseSDK['code'] == 200) {
+
+
+                    if (($responseSDK["info"]["wifiIp"])) {
+                        $wifiIp = $responseSDK["info"]["wifiIp"];
+                    }
+                }
+            } catch (\Exception $e) {
+            }
 
             return [
                 "SDKresponseData" => [
@@ -629,7 +647,7 @@ class DeviceController extends Controller
                         "voice_volume" => "",
                         "local_time" => str_replace("T", " ", $deviceTime),
                         "door_open_stat" => "",
-                        "wifi_ip" => "",
+                        "wifi_ip" => $wifiIp ?? "",
                         "lan_ip" => "",
                         "ipaddr" => "",
                         "open_duration" => "",

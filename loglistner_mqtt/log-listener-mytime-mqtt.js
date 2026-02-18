@@ -32,11 +32,22 @@ function sanitizeInfo(info) {
   }
   return clone;
 }
-
+const uniqueId =
+  "mqtt-loglistner-mytim2cloud-" +
+  Math.random().toString(36).substring(2, 10) +
+  "-" +
+  Date.now();
 // ========== CONFIG ==========
 
 // MQTT
-const MQTT_HOST = process.env.MYTIME_MQTT_HOST || "";
+// const MQTT_HOST = process.env.MYTIME_MQTT_HOST || "";
+
+// ======= CONFIG =======
+const MQTT_HOST = process.env.MQTT_HOST || "";
+const MQTT_PORT = process.env.MQTT_PORT || 1883;
+const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
+const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
+
 const MQTT_TOPIC_ATT = process.env.MYTIME_MQTT_TOPIC_ATT || "";
 const MQTT_TOPIC_HEARTBEAT = process.env.MYTIME_MQTT_TOPIC_HEARTBEAT || "";
 
@@ -76,7 +87,7 @@ function getTodayFile() {
 function todayGMT4() {
   const now = new Date();
   const gmt4 = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" })
+    now.toLocaleString("en-US", { timeZone: "Asia/Dubai" }),
   );
   return gmt4;
 }
@@ -88,12 +99,20 @@ dbPool
     client.release();
   })
   .catch((err) =>
-    logError("PostgreSQL connection error: " + (err?.message || err))
+    logError("PostgreSQL connection error: " + (err?.message || err)),
   );
 
 // ========== MQTT CLIENT ==========
 
-const client = mqtt.connect(MQTT_HOST);
+// const client = mqtt.connect(MQTT_HOST);
+
+// ======= MQTT CLIENT =======
+const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
+  username: MQTT_USERNAME || undefined,
+  password: MQTT_PASSWORD || undefined,
+  clientId: `gateway-${uniqueId}`,
+  keepalive: 30,
+});
 
 client.on("connect", () => {
   console.log("📡 MQTT connected to", MQTT_HOST);
@@ -106,7 +125,7 @@ client.on("connect", () => {
         "✅ Subscribed to:",
         MQTT_TOPIC_ATT,
         "and",
-        MQTT_TOPIC_HEARTBEAT
+        MQTT_TOPIC_HEARTBEAT,
       );
     }
   });
@@ -122,7 +141,7 @@ async function verifyDevicesOnlineStatus() {
 
   if (heartbeatMap.size === 0) {
     console.log(
-      "⚠️ No heartbeat received for any device yet. Skipping status check."
+      "⚠️ No heartbeat received for any device yet. Skipping status check.",
     );
     return;
   }
@@ -145,7 +164,7 @@ async function verifyDevicesOnlineStatus() {
         "✅ Heartbeat OK in last hour. Setting device ONLINE:",
         serial,
         "| last HB:",
-        new Date(lastHeartbeatTs).toISOString()
+        new Date(lastHeartbeatTs).toISOString(),
       );
     } else {
       // No recent heartbeat → OFFLINE
@@ -161,7 +180,7 @@ async function verifyDevicesOnlineStatus() {
         "⚠️ No heartbeat in last hour. Setting device OFFLINE:",
         serial,
         "| last HB:",
-        lastHeartbeatTs ? new Date(lastHeartbeatTs).toISOString() : "never"
+        lastHeartbeatTs ? new Date(lastHeartbeatTs).toISOString() : "never",
       );
     }
 
@@ -172,28 +191,38 @@ async function verifyDevicesOnlineStatus() {
         "Failed to update devices status (" +
           serial +
           "): " +
-          (err?.message || err)
+          (err?.message || err),
       );
     }
   }
 }
 
 // Run check every 1 hour
-setInterval(() => {
-  verifyDevicesOnlineStatus().catch((err) =>
-    logError("verifyDevicesOnlineStatus error: " + (err?.message || err))
-  );
-}, 60 * 60 * 1000);
+setInterval(
+  () => {
+    verifyDevicesOnlineStatus().catch((err) =>
+      logError("verifyDevicesOnlineStatus error: " + (err?.message || err)),
+    );
+  },
+  60 * 60 * 1000,
+);
 
 // ========== MQTT MESSAGE HANDLER ==========
 
 client.on("message", async (receivedTopic, messageBuffer) => {
+  console.log(
+    "-----------------------------------------------------------LOG Listner - receivedTopic",
+    receivedTopic,
+  );
+
   // 1) HEARTBEAT MESSAGE
   if (receivedTopic === MQTT_TOPIC_HEARTBEAT) {
     let hbJson;
 
     try {
       hbJson = JSON.parse(messageBuffer.toString());
+
+      console.log("hbJson", hbJson);
     } catch {
       logError("Invalid HeartBeat JSON payload: " + messageBuffer.toString());
       return;
@@ -211,7 +240,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     if (!serialNumber) {
       logError(
         "HeartBeat missing facesluiceId/serial_number. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo))
+          JSON.stringify(sanitizeInfo(hbInfo)),
       );
       return;
     }
@@ -219,7 +248,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     if (!hbTimeStr || hbTimeStr.trim() === "") {
       logError(
         "HeartBeat missing time field. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo))
+          JSON.stringify(sanitizeInfo(hbInfo)),
       );
       return;
     }
@@ -239,12 +268,12 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     });
 
     console.log(
-      "💓 Heartbeat received. Serial/device_id:",
+      "  Heartbeat received. Serial/device_id:",
       serialNumber,
       "| JSON time:",
       hbTimeStr,
       "| stored lastHeartbeatTs:",
-      new Date(lastHeartbeatTs).toISOString()
+      new Date(lastHeartbeatTs).toISOString(),
     );
 
     try {
@@ -254,18 +283,18 @@ client.on("message", async (receivedTopic, messageBuffer) => {
                last_live_datetime = $3
          WHERE model_number = $1 
            AND (serial_number = $2 OR device_id = $2)`,
-        [HEARTBEAT_MODEL_NUMBER, serialNumber, hbTimeStr]
+        [HEARTBEAT_MODEL_NUMBER, serialNumber, hbTimeStr],
       );
 
       console.log(
         "✅ Device ONLINE & last_live_datetime updated (model:",
         HEARTBEAT_MODEL_NUMBER,
         "key:",
-        serialNumber + ")"
+        serialNumber + ")",
       );
     } catch (err) {
       logError(
-        "Failed to update devices (heartbeat): " + (err?.message || err)
+        "Failed to update devices (heartbeat): " + (err?.message || err),
       );
     }
 
@@ -273,6 +302,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
   }
 
   // 2) ATTENDANCE / OTHER FACE TOPICS
+
   let json;
 
   try {
@@ -293,10 +323,10 @@ client.on("message", async (receivedTopic, messageBuffer) => {
   // Require RFIDCard or personId
   const userId = info.RFIDCard || info.personId || null;
 
-  if (!userId) {
+  if (!userId || userId == 0 || userId < 0) {
     logError(
       "Skipping insert: No RFIDCard + No personId. Payload: " +
-        JSON.stringify(safeInfo)
+        JSON.stringify(safeInfo),
     );
     return;
   }
@@ -305,7 +335,7 @@ client.on("message", async (receivedTopic, messageBuffer) => {
 
   if (!timeStr || timeStr.trim() === "") {
     logError(
-      "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo)
+      "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo),
     );
     return;
   }
@@ -327,42 +357,142 @@ client.on("message", async (receivedTopic, messageBuffer) => {
     todayGMT4(), // "updated_at"
   ];
 
-  const sql = `
-    INSERT INTO attendance_logs (
-      "UserID","DeviceID","LogTime","SerialNumber",
-      "status","mode","reason","log_date_time",
-      "index_serial_number","log_date",
-      "created_at","updated_at"
-    )
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-    RETURNING id
-  `;
+  const deviceId = String(info.facesluiceId || "");
+  // const userId = String(info.customId || info.RFIDCard || info.personId || "");
+  const logTime = info.time; // must match the exact value you insert into "LogTime"
+
+  const checkSql = `
+  SELECT id
+  FROM attendance_logs
+  WHERE "DeviceID" = $1::text
+    AND "LogTime"  = $2
+    AND "UserID"   = $3
+  LIMIT 1
+`;
+
+  const insertSql = `
+  INSERT INTO attendance_logs (
+  
+    "UserID",
+    "DeviceID",
+    "company_id",
+    "LogTime",
+    "SerialNumber",
+    "status",
+    "mode",
+    "reason",
+    "log_date_time",
+    "index_serial_number",
+    "log_date",
+    "created_at",
+    "updated_at"
+  )
+  VALUES (
+    $1,
+    $2::text,
+    (SELECT d.company_id FROM devices d WHERE d.serial_number = $2::text LIMIT 1),
+    $3,$4,$5,$6,$7,$8,$9,$10,$11,$12
+  )
+  RETURNING id
+`;
+
+  let status = "Allowed";
+  let message = "success";
+  let insertedId = null;
 
   try {
-    const result = await dbPool.query(sql, values);
-    const insertedId = result.rows[0].id;
-    console.log("✅ Inserted attendance_logs ID:", insertedId);
+    // 1) Check duplicate
+    const exists = await dbPool.query(checkSql, [deviceId, logTime, userId]);
 
-    // Normalize device name: if contains "face" → "Face"
-    const devName = (info.facesluiceName || "").toLowerCase().includes("face")
-      ? "Face"
-      : info.facesluiceName || "";
-
-    // CSV row: RFIDCard,facesluiceId,time,RecordID,VerifyStatus,facesluiceName,DB_ID
-    const csvRow =
-      [
-        info.RFIDCard || "",
-        info.facesluiceId || "",
-        timeStr,
-        info.RecordID || "",
-        info.VerifyStatus || "",
-        devName,
-        insertedId,
-      ].join(",") + "\n";
-
-    fs.appendFileSync(getTodayFile(), csvRow);
-    console.log("📝 CSV Logged:", csvRow.trim());
+    if (exists.rows.length > 0) {
+      status = "duplicate";
+      message = "Duplicate log skipped";
+      insertedId = exists.rows[0].id; // optional (existing row id)
+    } else {
+      // 2) Insert
+      /*const values = [
+        userId, // $1 UserID
+        deviceId, // $2 DeviceID
+        logTime, // $3 LogTime
+        info.facesluiceId, // $4 SerialNumber
+        info.VerifyStatus || "", // $5 status (your DB column)
+        info.PersonType || "", // $6 mode
+        info.reason || "", // $7 reason
+        info.time, // $8 log_date_time
+        indexSerialNumberVal, // $9 index_serial_number
+        logDate, // $10 log_date
+        todayGMT4(), // $11 created_at
+        todayGMT4(), // $12 updated_at
+      ];
+*/
+      const result = await dbPool.query(insertSql, values);
+      insertedId = result.rows[0].id;
+    }
   } catch (err) {
-    logError("DB insert / CSV error: " + (err?.message || err));
+    status = "error";
+    message = `DB insert/check error: ${err?.message || err}`;
+  }
+
+  //publish logs
+  // let test = {    //   customId: "4000",    //   personId: "9",    //   RecordID: "30",   //   VerifyStatus: "1",   //   PersonType: "0",   //   similarity1: "94.199997",    //   similarity2: "0.000000",   //   Sendintime: 1,   //   direction: "entr",   //   otype: "1",   //   persionName: "Venu Jakku",   //   personName: "Venu Jakku",    //   facesluiceId: "1635728",    //   facesluiceName: "Face1",    //   idCard: " ",    //   telnum: " ",    //   time: "2026-02-16 13:01:09",    //   PushType: "0",    //   OpendoorWay: "0",    //   cardNum2: "1",    //   RFIDCard: "4000",    //   szQrCodeData: "",    //   wFileIndex: "0",    //   dwFilePos: "3342336",    // };
+  if (client.connected) {
+    console.log("MQTT client is   connected");
+
+    // const userId = (info.RFIDCard && String(info.RFIDCard).trim()) || "";
+
+    const fullName = (info.personName || info.persionName || "").trim();
+    const firstName = fullName ? fullName.split(/\s+/)[0] : "";
+    const lastName = fullName ? fullName.split(/\s+/).slice(1).join(" ") : "";
+
+    const inout = "";
+
+    const payload = {
+      UserID: userId,
+      employee: {
+        first_name: firstName,
+        last_name: lastName,
+        full_name: fullName,
+      },
+      LogTime: info.time || null,
+      device: {
+        id: info.facesluiceId || null,
+        name: info.facesluiceName || null,
+      },
+      inout,
+      gps_location: "",
+
+      // optional extras (useful for UI badge/filter)
+      RecordID: String(info.RecordID || ""),
+      is_live: String(info.PushType) === "0",
+      message: message,
+    };
+    if (payload.is_live === "true") {
+      // publish
+      client.publish(
+        `mqtt/face/${info.facesluiceId}/recods/livelogs`,
+        JSON.stringify(payload),
+        {
+          qos: 1,
+        },
+      );
+    } else {
+      // publish
+      client.publish(
+        `mqtt/face/${info.facesluiceId}/recods/missinglogs`,
+        JSON.stringify(payload),
+        {
+          qos: 1,
+        },
+      );
+    }
+
+    console.log("MQTT client published message", payload);
+  } else {
+    console.log("MQTT client is not connected");
+
+    logError(
+      "MQTT publish failed: client not connected. Payload: " +
+        JSON.stringify(sanitizeInfo(info)),
+    );
   }
 });
