@@ -37,10 +37,10 @@ class StoreRequest extends FormRequest
                 }),
             ],
             'company_id' => 'required',
-            'description' => 'required',
+            'description' => 'nullable',
 
-            'modules' => 'required',
-            'permissions' => 'required',
+            'modules' => 'nullable',
+            'permissions' => 'nullable',
 
         ];
     }

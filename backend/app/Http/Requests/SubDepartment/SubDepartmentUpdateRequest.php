@@ -29,7 +29,7 @@ class SubDepartmentUpdateRequest extends FormRequest
         return [
             'name' => ['required', Rule::unique('sub_departments')->ignore($this->sub_department)],
             'description' => 'nullable|max:200',
-            'department_id' => 'required',
+            'department_id' => 'nullable',
         ];
     }
 }
