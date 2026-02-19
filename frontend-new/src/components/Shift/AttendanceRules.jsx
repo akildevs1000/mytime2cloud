@@ -19,6 +19,15 @@ const DEFAULT_HALFDAY = {
   endEnd: "02:00",
 };
 
+const DEFAULT_WEEKOFF = {
+  type: "Fixed",
+  days: ["S", "Su"],
+  cycle: "Weekly",
+  count: 2,
+  even: [],
+  odd: [],
+};
+
 const DAYS = [
   { key: "M", label: "M" },
   { key: "T", label: "T" },
@@ -90,41 +99,30 @@ export default function AttendanceRules({ shift, handleChange }) {
     { label: "Holiday OT", state: holidayOt, setter: setHolidayOt },
   ];
 
-  const [fixedDays, setFixedDays] = useState(
-    shift?.weekoff_rules?.days || ["S", "Su"],
-  );
+  const [fixedDays, setFixedDays] = useState(shift?.weekoff_rules?.days || ["S", "Su"]);
 
-  console.log(`edit halfday_rules`);
-  console.log(shift?.halfday_rules);
+  console.log(shift?.weekoff_rules);
 
   const [halfDay, setHalfDay] = useState(DEFAULT_HALFDAY);
+  const [weekOffRules, setWeekOffRules] = useState(DEFAULT_WEEKOFF);
 
   useEffect(() => {
     if (!shift) return;
     setHalfDay({ ...DEFAULT_HALFDAY, ...(shift.halfday_rules || {}) });
+    setWeekOffRules({ ...DEFAULT_WEEKOFF, ...(shift.weekoff_rules || {}) });
     setHydrated(true);
   }, [shift?.id]); // <-- IMPORTANT: stable dependency
 
-  const [weekOffRules, setWeekOffRules] = useState({
-    type: "Fixed",
-    days: ["S", "Su"],
-    cycle: "Weekly",
-    count: 2,
-    even: [],
-    odd: [],
-  });
 
   useEffect(() => {
     setWeekOffRules((p) => ({ ...p, days: fixedDays }));
   }, [fixedDays]);
 
   useEffect(() => {
-    console.log(weekOffRules);
     handleChange("weekoff_rules", weekOffRules);
   }, [weekOffRules]);
 
   useEffect(() => {
-    console.log(halfDay);
     handleChange("halfday_rules", halfDay);
   }, [halfDay]);
 

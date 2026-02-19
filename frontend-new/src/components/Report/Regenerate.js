@@ -106,6 +106,8 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
             setPreviewShift(null);
             setFrom(null);
             setTo(null);
+            setResponse([]);
+            setSearchTerm('');
         }
     }, [open]);
 

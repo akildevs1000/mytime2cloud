@@ -430,7 +430,7 @@ export const getEmployeeList = async (branch_id = 0, department_id = 0) => {
         branch_id: branch_id,
         department_id: department_id,
     };
-    const { data } = await axios.get(`${API_BASE}/scheduled_employees_with_type`, {
+    const { data } = await axios.get(`${API_BASE}/scheduled_employees_with_type_new`, {
         params: await buildQueryParams(params),
     });
     return data;
@@ -443,7 +443,7 @@ export const getScheduledEmployeeList = async (department_ids = [], per_page = 1
         department_ids,
     };
 
-    const { data } = await axios.get(`${API_BASE}/scheduled_employees_with_type`, {
+    const { data } = await axios.get(`${API_BASE}/scheduled_employees_with_type_new`, {
         params: await buildQueryParams(params),
     });
     return data;
