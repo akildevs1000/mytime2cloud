@@ -579,17 +579,16 @@ class ScheduleEmployeeController extends Controller
 
         return $model->paginate($request->per_page ?? 20);
     }
+
     public function scheduled_employees_with_type(Employee $employee, Request $request)
     {
         return $employee
             ->where("company_id", $request->company_id)
             ->where("status", 1)
-            // ->whereHas('schedule')
-            // ->whereHas('schedule.shift_type', function ($q) use ($request) {
-            //     $q->where('id', '=', $request->shift_type_id);
-            // })
+            // PostgreSQL requires the column in distinctOn to be the first orderBy column
+            ->orderBy("employee_id")
+            ->distinct("employee_id")
             ->when($request->filled('branch_id'), function ($q) use ($request) {
-
                 $q->where('branch_id', $request->branch_id);
             })
             ->when($request->filled('department_id') && $request->department_id > 0, function ($q) use ($request) {
@@ -602,9 +601,22 @@ class ScheduleEmployeeController extends Controller
                 $q->whereIn('department_id', $request->department_ids);
             })
             ->withOut(["user"])
-
-            ->orderBy("first_name", "ASC")
-            ->get(["email", "first_name as name", "last_name", "system_user_id as id", "employee_id", "display_name", "profile_picture", "department_id", "designation_id", "branch_id"]);
+            ->with(["schedule" => function ($q) use ($request) {
+                $q->where("company_id", $request->company_id);
+            }])
+            ->get([
+                "employee_id",
+                "email",
+                "first_name",
+                "last_name",
+                "system_user_id as id",
+                "display_name",
+                "profile_picture",
+                "department_id",
+                "designation_id",
+                "branch_id",
+                "company_id"
+            ]);
     }
 
     public function getShiftsByEmployee(Request $request, $id)
