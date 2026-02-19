@@ -522,6 +522,8 @@ class Attendance extends Model
             $cycle = $weekoff_rules['cycle'] ?? 'Weekly';
             $allowedCount = $weekoff_rules['count'] ?? 0;
 
+            $startDate =  date("Y-m-d");
+
             if ($cycle === 'Monthly') {
                 $startDate = date("Y-m-01", strtotime($date));
             } else {
