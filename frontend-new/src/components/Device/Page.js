@@ -14,6 +14,7 @@ import DeviceCreate from './Create';
 import DeviceEdit from './Edit';
 import axios from 'axios';
 import PinEntryModal from './UnlockDoor';
+import DeviceSettings from './Settings';
 
 export default function EmployeeDataTable() {
 
@@ -105,7 +106,7 @@ export default function EmployeeDataTable() {
 
 
 
-  const deleteEmployee = async (id) => {
+  const deleteItem = async (id) => {
     if (confirm("Are you sure you want to delete this employee?")) {
       try {
         await deleteDevice(id);
@@ -117,13 +118,45 @@ export default function EmployeeDataTable() {
   }
 
   const [editingRecord, setEditingRecord] = useState(null);
+  const [isDeviceSettings, setisDeviceSettings] = useState(null);
   const [open, setOpen] = useState(false);
+  const [deviceOpen, setDeviceOpen] = useState(false);
   const [pinModal, setPinModal] = useState(false);
   const [device_id, setDeviceId] = useState(false);
 
-  const editEmployee = (record) => {
+
+  const editItem = (record) => {
     setOpen(true); // Save the record to state
     setEditingRecord(record); // Save the record to state
+  };
+
+  // const deviceSettings = (record) => {
+  //   setDeviceOpen(true); // Save the record to state
+  //   setisDeviceSettings(record); // Save the record to state
+  // };
+
+  // Parent component
+
+  const deviceSettings = (device) => {
+    const canEdit = true;
+    const model = device?.model_number;
+
+    if (canEdit && model === "CAMERA1" && model !== "MYTIME1") {
+      return;
+    }
+
+    if (canEdit && (model === "OX-900" || model === "MYTIME1")) {
+      return;
+    }
+
+    if (model !== "MYTIME1") {
+      setDeviceId(device.device_id);
+      setisDeviceSettings(device);
+      setDeviceOpen(true)
+      return;
+    }
+
+    // MYTIME1 and no permission => do nothing (or toast)
   };
 
   const setOpenDoor = async (device_id) => {
@@ -173,7 +206,7 @@ export default function EmployeeDataTable() {
       </div>
 
       <DataTable
-        columns={Columns(deleteEmployee, editEmployee, setOpenDoor, setCloseDoor)}
+        columns={Columns(deleteItem, editItem, deviceSettings, setOpenDoor, setCloseDoor)}
         data={employees}
         isLoading={isLoading}
         error={error}
@@ -201,6 +234,14 @@ export default function EmployeeDataTable() {
           onSuccess={handleRefresh}
         />
       )}
+      {isDeviceSettings && (
+        <DeviceSettings
+          device_id={device_id}
+          open={deviceOpen}
+          setOpen={setDeviceOpen}
+          onSuccess={handleRefresh}
+        />
+      )}
 
       <PinEntryModal
         device_id={device_id}
@@ -208,6 +249,8 @@ export default function EmployeeDataTable() {
         setPinModal={setPinModal}
         onSuccess={handlePin}
       />
+
+
     </div>
   );
 }

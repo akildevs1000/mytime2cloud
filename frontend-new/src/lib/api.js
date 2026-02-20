@@ -715,6 +715,29 @@ export const checkPin = async (params = {}) => {
     return data;
 };
 
+export const getDeviceSettginsFromSDK = async (params = {}) => {
+
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.get(`${baseURL}/get-device-settings-from-sdk`, {
+        params: await buildQueryParams(params),
+    });
+
+    return data;
+};
+
+export const updateDeviceSettings = async (payload) => {
+
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.post(`${baseURL}/update-device-sdk-settings`, payload);
+    return data;
+};
+
+
+
+
+
 // companyId will be passed dynamically
 export const getLastTenLogs = async (UserID = "0") => {
     let params = {

@@ -127,3 +127,41 @@ export const SCHEDULE_STATS = [
         class: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
     }
 ];
+
+
+export const LANGUAGE_FOR_DEVICE = [
+    { name: 'English', id: 2 },
+    { name: 'Arabic', id: 12 },
+    { name: 'Russian', id: 5 },
+    { name: 'Italian', id: 8 },
+    { name: 'Thai', id: 11 },
+
+    { name: 'Korean', id: 10 },
+    { name: 'Japanese', id: 9 },
+
+    { name: 'Spanish', id: 7 },
+    { name: 'Portuguese', id: 6 },
+
+    { name: 'French', id: 4 },
+    { name: 'Traditional Chinese', id: 3 },
+];
+
+export const DEVICE_VOLUME = [
+    { "id": 0, "name": "0" },
+    { "id": 1, "name": "1" },
+    { "id": 2, "name": "2" },
+    { "id": 3, "name": "3" },
+    { "id": 4, "name": "4" },
+    { "id": 5, "name": "5" },
+    { "id": 6, "name": "6" },
+    { "id": 7, "name": "7" },
+    { "id": 8, "name": "8" },
+    { "id": 9, "name": "9" },
+    { "id": 10, "name": "10" }
+];
+
+export const DEVICE_ENABLE_DISABLE = [
+    { name: 'Enabled', id: "1" },
+    { name: 'Disabled', id: "0" },
+];
+

@@ -1,9 +1,8 @@
-import { AlarmClock, MoreVertical, Pencil, Trash, } from "lucide-react";
+import { AlarmClock, MoreVertical, Pencil, Settings, Trash, } from "lucide-react";
 
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { openDoor } from "@/lib/api";
 
-export default function Columns(deleteEmployee, editEmployee, setOpenDoor, setCloseDoor) {
+export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoor, setCloseDoor) {
 
   return [
     {
@@ -132,7 +131,7 @@ export default function Columns(deleteEmployee, editEmployee, setOpenDoor, setCl
     {
       key: "actions",
       header: "Actions",
-      render: (employee) => (
+      render: (device) => (
         <DropdownMenu>
           <DropdownMenuTrigger
             asChild
@@ -152,7 +151,7 @@ export default function Columns(deleteEmployee, editEmployee, setOpenDoor, setCl
           >
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation(); editEmployee(employee)
+                e.stopPropagation(); editItem(device)
               }}
               className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >
@@ -162,8 +161,19 @@ export default function Columns(deleteEmployee, editEmployee, setOpenDoor, setCl
 
             <DropdownMenuItem
               onClick={(e) => {
+                e.stopPropagation(); deviceSettings(device)
+              }}
+              className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            >
+              <Settings className="w-4 h-4 text-primary" />
+              <span className="text-primary font-medium">Settings</span>
+            </DropdownMenuItem>
+
+
+            <DropdownMenuItem
+              onClick={(e) => {
                 e.stopPropagation(); // Stop row redirect
-                deleteEmployee(employee.id);
+                deleteItem(device.id);
               }}
               className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >
