@@ -434,3 +434,77 @@ if (!function_exists('addtendanceRulesDaysMap')) {
         ];
     }
 }
+
+if (!function_exists('calculateTimeWithGrace')) {
+
+    function calculateTimeWithGrace($actualTime, $referenceTime, $gracePeriod, $mode = 'late')
+    {
+        if ($actualTime === "---" || $gracePeriod === "00:00") return false;
+
+        $actual = new DateTime($actualTime);
+        $reference = new DateTime($referenceTime);
+
+        list($graceH, $graceM) = explode(':', $gracePeriod);
+        $graceMinutes = ($graceH * 60) + $graceM;
+
+        // Directional calculation
+        if ($mode === 'late') {
+            $diffMinutes = ($actual->getTimestamp() - $reference->getTimestamp()) / 60;
+        } else { // early
+            $diffMinutes = ($reference->getTimestamp() - $actual->getTimestamp()) / 60;
+        }
+
+        if ($diffMinutes <= $graceMinutes) {
+            return false;
+        }
+
+        $hours = floor($diffMinutes / 60);
+        $minutes = $diffMinutes % 60;
+
+        return sprintf('%02d:%02d', $hours, $minutes);
+    }
+}
+
+if (!function_exists('calculateTimeDiff')) {
+    /**
+     * Calculates time difference based on direction and grace period.
+     * Mode 'late': actual > ref | Mode 'early': ref > actual
+     */
+    function calculateTimeDiff($actualTime, $referenceTime, $mode = 'late', $gracePeriod = "00:00") {
+        if ($actualTime === "---" || !$actualTime || !$referenceTime) return false;
+
+        try {
+            $actual = new \DateTime($actualTime);
+            $reference = new \DateTime($referenceTime);
+
+            // Handle grace period parsing
+            $graceMinutes = 0;
+            if (strpos($gracePeriod, ':') !== false) {
+                list($graceH, $graceM) = explode(':', $gracePeriod);
+                $graceMinutes = ($graceH * 60) + $graceM;
+            } else {
+                $graceMinutes = (int)$gracePeriod;
+            }
+
+            // Calculate difference in minutes
+            $diffMinutes = ($mode === 'late') 
+                ? ($actual->getTimestamp() - $reference->getTimestamp()) / 60 
+                : ($reference->getTimestamp() - $actual->getTimestamp()) / 60;
+
+            return ($diffMinutes > $graceMinutes) ? (int)$diffMinutes : false;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('formatMinutes')) {
+    /**
+     * Formats minutes into HH:MM string
+     */
+    function formatMinutes($totalMinutes) {
+        $h = floor(max(0, (int)$totalMinutes) / 60);
+        $m = max(0, (int)$totalMinutes) % 60;
+        return sprintf('%02d:%02d', $h, $m);
+    }
+}
