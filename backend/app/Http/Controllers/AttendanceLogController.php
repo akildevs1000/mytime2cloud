@@ -204,7 +204,60 @@ class AttendanceLogController extends Controller
         fwrite($fp, serialize($store));
         fclose($fp);
     }
+
     public function store()
+    {
+        $result = $this->handleFile();
+
+        if (array_key_exists("error", $result)) {
+            return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+        }
+
+        $result["data"] = array_values(array_unique($result["data"]));
+
+        $records = [];
+
+        foreach ($result["data"] as $row) {
+            $columns = explode(',', $row);
+
+            $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
+            $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+
+            $records[] = [
+                "UserID"              => $columns[0] ?? null,
+                "DeviceID"            => $columns[1] ?? null,
+                "LogTime"             => $logTime,
+                "SerialNumber"        => $columns[3] ?? null,
+                "status"              => $columns[4] ?? "Allowed",
+                "mode"                => $columns[5] ?? "Face",
+                "reason"              => $columns[6] ?? "---",
+                "log_date_time"       => $logTime,
+                "index_serial_number" => $columns[3] ?? null,
+                "log_date"            => $logDate,
+            ];
+        }
+
+        try {
+            // ✅ skips duplicates based on unique index: (DeviceID, LogTime, UserID)
+            $inserted = DB::table('attendance_logs')->insertOrIgnore($records);
+
+            Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+
+            // $inserted may be int or bool depending on Laravel/driver; keep message safe.
+            $insertedCountText = is_int($inserted) ? $inserted : "some";
+
+            return $this->getMeta(
+                "Sync Attenance Logs",
+                "Processed " . count($records) . " logs. Inserted " . $insertedCountText . " new logs. Duplicates ignored.\n"
+            );
+        } catch (\Throwable $th) {
+            Logger::channel("custom")->error('Error occured while inserting logs.');
+            Logger::channel("custom")->error('Error Details: ' . $th);
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+        }
+    }
+
+    public function storeOLD()
     {
         $result = $this->handleFile();
 
