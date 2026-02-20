@@ -1,4 +1,5 @@
 export const MODEL_NUMBERS = [
+    { id: `MYTIME1`, name: `MYTIME1` },
     { id: `OX-866`, name: `OX-866` },
     { id: `OX-886`, name: `OX-886` },
     { id: `OX-966`, name: `OX-966` },

@@ -1,50 +1,25 @@
+// @ts-nocheck
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { SuccessDialog } from "@/components/SuccessDialog";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, ArrowLeft, LogInIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { getBranches, createDevice, updateDevice } from "@/lib/api";
-import DropDown from "@/components/ui/DropDown";
-import { parseApiError } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
+import { notify, parseApiError } from "@/lib/utils";
+import Input from "../Theme/Input";
+import TextArea from "../Theme/TextArea";
+import DropDown from "../ui/DropDown";
 import timezones from "@/lib/timezones";
-import { MODEL_NUMBERS, FUNCTIONS, DEVICE_TYPES, STATUSSES } from "@/lib/dropdowns";
+import { DEVICE_TYPES, FUNCTIONS, MODEL_NUMBERS, STATUSSES } from "@/lib/dropdowns";
+import { Pencil } from "lucide-react";
 
-const DeviceEdit = ({ selectedItem }) => {
-    const router = useRouter();
-    const handleGoBack = () => router.push(`/device`);
-    const handleCancel = () => router.push(`/device`);
+const DeviceEdit = ({ open, setOpen, defaultPayload, onSuccess = () => { } }) => {
 
-    // ✅ Local state instead of react-hook-form
-    const [form, setForm] = useState(
-        selectedItem || {
-            branch_id: "",
-            device_type: "",
-            name: "",
-            short_name: "",
-            model_number: "",
-            device_id: "",
-            utc_time_zone: "",
-            location: "",
-            function: "",
-            status_id: "",
-        }
-    );
-
-    useEffect(() => {
-        if (selectedItem) {
-            setForm(selectedItem);
-        }
-    }, [selectedItem]);
-
-    const [open, setOpen] = useState(false);
+    const [successOpen, setSuccessOpen] = useState(false);
     const [globalError, setGlobalError] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-
 
     const [branches, setBranches] = useState([]);
+
+    const toggleModal = () => setOpen(!open);
 
     const fetchBranches = async () => {
         try {
@@ -54,204 +29,241 @@ const DeviceEdit = ({ selectedItem }) => {
         }
     };
 
+    const [loading, setLoading] = useState(false);
+
+    const [form, setForm] = useState(defaultPayload);
+
     useEffect(() => {
-        fetchBranches();
-    }, []);
-
-    const onSubmit = async (e) => {
-
-        e.preventDefault();
-        setGlobalError(null);
-        setIsSubmitting(true);
-
-        try {
-            let { data } = await updateDevice(form.id, form);
-            if (data?.status == false) {
-                const firstKey = Object.keys(data.errors)[0]; // get the first key
-                const firstError = data.errors[firstKey][0]; // get its first error message
-                setGlobalError(firstError);
-                return;
-            }
-            setOpen(true);
-
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-
-            setOpen(false);
-            router.push(`/device`);
-        } catch (error) {
-            setGlobalError(parseApiError(error));
-        } finally {
-            setIsSubmitting(false);
+        if (open) {
+            fetchBranches();
+            setForm(defaultPayload);
         }
-    };
+    }, [open]);
 
     const handleChange = (field, value) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
+    const onSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            let { data } = await updateDevice(form.id, form);
 
-    if (!form) {
-        return <div className="p-8 text-gray-600">Loading...</div>;
-    }
+            // FIX: Check if status is explicitly false
+            if (data?.status === false) {
+                // Check if data.errors actually exists and has keys
+                if (data.errors && Object.keys(data.errors).length > 0) {
+                    const firstKey = Object.keys(data.errors)[0];
+                    console.log(data.errors);
+                    notify("Error", data.errors[firstKey][0], "error");
+                } else {
+                    // Fallback if status is false but no specific error object exists
+                    notify("Error", data?.message, "error");
+                }
+                return;
+            }
 
+            // Success Path
+            onSuccess();
+            setSuccessOpen(true);
+            setOpen(false);
+            notify("Success", "Device Saved", "success")
+        } catch (error) {
+            console.log(error);
 
+            notify("Error", parseApiError(error), "error");
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    if (!form.id) null;
 
     return (
-        <div className="">
-            <div className="relative dark:bg-card-dark px-13 rounded-lg">
-                <div className="flex justify-between items-center px-5">
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    </h1>
-                    <Button
-                        onClick={handleGoBack}
-                        variant="default"
-                        className="bg-primary text-white hover:bg-indigo-700 transition-colors"
-                    >
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        BACK
-                    </Button>
-                </div>
+        <>
+            {open && (
+                <div
+                    aria-modal="true"
+                    role="dialog"
+                    className="fixed inset-0 z-50 flex items-center justify-center px-4"
+                >
+                    {/* Backdrop/Overlay */}
+                    <div
+                        className="absolute inset-0 bg-black/70 frosted-glass transition-opacity animate-in fade-in duration-300"
+                        onClick={toggleModal}
+                    ></div>
 
-                <div className="relative dark:bg-card-dark p-8 pt-20 rounded-lg">
-                    <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div className="lg:col-span-2 lg:pl-4">
-                                <form onSubmit={onSubmit} className="space-y-8">
-                                    <section>
-                                        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
-                                            <Briefcase className="mr-3 h-6 w-6 text-primary" />
-                                            Edit Device
-                                        </h2>
+                    {/* Modal Card */}
+                    <div className="min-w-[700px] relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 w-full max-w-lg overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200">
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {/* Branch Select */}
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Branch</label>
-                                                <DropDown
-                                                    placeholder="Select Branch"
-                                                    value={form.branch_id}
-                                                    items={branches}
-                                                    onChange={(val) => handleChange("branch_id", val)}
-                                                />
-                                            </div>
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Device Type</label>
-                                                <DropDown
-                                                    value={form.device_type}
-                                                    items={DEVICE_TYPES}
-                                                    onChange={(val) => handleChange("device_type", val)}
-                                                />
-                                            </div>
-
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Name</label>
-                                                <Input
-                                                    value={form.name}
-                                                    onChange={(e) => handleChange("name", e.target.value)}
-                                                />
-                                            </div>
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Short Name</label>
-                                                <Input
-                                                    value={form.short_name}
-                                                    onChange={(e) => handleChange("short_name", e.target.value)}
-                                                />
-                                            </div>
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Model Number</label>
-                                                <DropDown
-                                                    value={form.model_number}
-                                                    items={MODEL_NUMBERS}
-                                                    onChange={(val) => handleChange("model_number", val)}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Serial Number</label>
-                                                <Input
-                                                    value={form.device_id}
-                                                    onChange={(e) => handleChange("device_id", e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Timezone</label>
-                                                <DropDown
-                                                    value={form.utc_time_zone}
-                                                    items={timezones}
-                                                    onChange={(val) => handleChange("utc_time_zone", val)}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Location</label>
-                                                <Input
-                                                    value={form.location}
-                                                    onChange={(e) => handleChange("location", e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Function</label>
-                                                <DropDown
-                                                    value={form.function}
-                                                    items={FUNCTIONS}
-                                                    onChange={(val) => handleChange("function", val)}
-                                                />
-                                            </div>
-
-                                            <div className="flex flex-col">
-                                                <label className="font-medium mb-1">Status</label>
-                                                <DropDown
-                                                    value={form.status_id}
-                                                    items={STATUSSES}
-                                                    onChange={(val) => handleChange("status_id", val)}
-                                                />
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    {/* Error Display */}
-                                    {globalError && (
-                                        <div
-                                            className="mb-4 p-3 border border-red-500 bg-red-50 text-red-700 rounded-lg"
-                                            role="alert"
-                                        >
-                                            {globalError}
-                                        </div>
-                                    )}
-
-                                    {/* Actions */}
-                                    <div className="flex justify-end space-x-4 pt-4">
-                                        <Button
-                                            type="button"
-                                            variant="secondary"
-                                            onClick={handleCancel}
-                                        >
-                                            CANCEL
-                                        </Button>
-                                        <Button
-                                            type="submit"
-                                            className="bg-primary hover:bg-indigo-700"
-                                        >
-                                            {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
-                                        </Button>
-                                    </div>
-                                </form>
-
-                                <SuccessDialog
-                                    open={open}
-                                    onOpenChange={setOpen}
-                                    title="Device Info Saved"
-                                    description="Device Info Saved successfully."
-                                />
+                        {/* Header */}
+                        <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Device</h3>
+                                <p className="text-xs text-slate-400 mt-0.5">
+                                    Create a new device in the system
+                                </p>
                             </div>
+                            <button
+                                onClick={toggleModal}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors rounded-full p-1"
+                            >
+                                <span className="material-symbols-outlined">close</span>
+                            </button>
                         </div>
+
+                        {/* Form Content */}
+                        <form onSubmit={onSubmit}>
+                            <div className="p-6 space-y-5 bg-white/50 dark:bg-gray-900">
+                                <div className="space-y-1.5">
+                                    <label className="block text-sm font-medium text-slate-400">
+                                        Branch <span className="text-red-400">*</span>
+                                    </label>
+                                    <DropDown
+                                        placeholder="Select Branch"
+                                        width="w-full"
+                                        value={form.branch_id}
+                                        onChange={(value) => handleChange("branch_id", value)}
+                                        items={branches} />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Device Name <span className="text-red-400">*</span>
+                                        </label>
+                                        <Input
+                                            placeholder="e.g. Main Door"
+                                            value={form.name}
+                                            onChange={(e) => handleChange("name", e.target.value)}
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Prefix <span className="text-red-400">*</span>
+                                        </label>
+                                        <Input
+                                            placeholder="e.g. MD"
+                                            value={form.short_name}
+                                            onChange={(e) => handleChange("short_name", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <label className="block text-sm font-medium text-slate-400">
+                                        Location <span className="text-red-400">*</span>
+                                    </label>
+                                    <Input
+                                        placeholder="e.g. Dubai"
+                                        value={form.location}
+                                        onChange={(e) => handleChange("location", e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Model Number <span className="text-red-400">*</span>
+                                        </label>
+                                        <DropDown
+                                            placeholder="Select Model Number"
+                                            width="w-full"
+                                            value={form.model_number}
+                                            onChange={(value) => handleChange("model_number", value)}
+                                            items={MODEL_NUMBERS} />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Serial Number <span className="text-red-400">*</span>
+                                        </label>
+                                        <Input
+                                            placeholder=""
+                                            value={form.device_id}
+                                            onChange={(e) => handleChange("device_id", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Timezone <span className="text-red-400">*</span>
+                                        </label>
+                                        <DropDown
+                                            placeholder="Select Timezone"
+                                            width="w-full"
+                                            value={form.utc_time_zone}
+                                            onChange={(value) => handleChange("utc_time_zone", value)}
+                                            items={timezones} />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Function <span className="text-red-400">*</span>
+                                        </label>
+                                        <DropDown
+                                            placeholder="Select Function"
+                                            width="w-full"
+                                            value={form.function}
+                                            onChange={(value) => handleChange("function", value)}
+                                            items={FUNCTIONS} />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Device Type <span className="text-red-400">*</span>
+                                        </label>
+                                        <DropDown
+                                            placeholder="Select Device Type"
+                                            width="w-full"
+                                            value={form.device_type}
+                                            onChange={(value) => handleChange("device_type", value)}
+                                            items={DEVICE_TYPES} />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Status <span className="text-red-400">*</span>
+                                        </label>
+                                        <DropDown
+                                            placeholder="Select Status"
+                                            width="w-full"
+                                            value={form.status_id}
+                                            onChange={(value) => handleChange("status_id", value)}
+                                            items={STATUSSES} />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="px-6 py-4 border-t border-gray-200 dark:border-white/10  flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={toggleModal}
+                                    className="px-4 py-2 rounded-lg border border-gray-200 dark:border-white/10 text-slate-600 dark:text-gray-300 hover:text-white hover:bg-background-dark transition-all text-sm font-medium"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-primary/20"
+                                >
+                                    {loading ? "Saving..." : "Save Device"}
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     );
 };
 

@@ -3,14 +3,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { deleteDevice, getBranches, getDevices, removeEmployee } from '@/lib/api';
+import { closeDoor, deleteDevice, getBranches, getDevices, openDoor, removeEmployee } from '@/lib/api';
 
 import Columns from "./columns";
 import DataTable from '@/components/ui/DataTable';
 import Pagination from '@/lib/Pagination';
-import { parseApiError } from '@/lib/utils';
+import { notify, parseApiError } from '@/lib/utils';
 import MultiDropDown from '@/components/ui/MultiDropDown';
+import DeviceCreate from './Create';
+import DeviceEdit from './Edit';
+import axios from 'axios';
+import PinEntryModal from './UnlockDoor';
 
 export default function EmployeeDataTable() {
 
@@ -44,7 +47,7 @@ export default function EmployeeDataTable() {
 
 
 
-  const fetchEmployees = useCallback(async (page, perPage) => {
+  const fetchRecords = useCallback(async (page, perPage) => {
     setIsLoading(true);
     setError(null);
 
@@ -77,27 +80,73 @@ export default function EmployeeDataTable() {
 
 
   useEffect(() => {
-    fetchEmployees(currentPage, perPage);
-  }, [currentPage, perPage, fetchEmployees]); // Re-fetch when page or perPage changes
+    fetchRecords(currentPage, perPage);
+  }, [currentPage, perPage, fetchRecords]); // Re-fetch when page or perPage changes
 
   const handleRefresh = () => {
-    fetchEmployees(currentPage, perPage);
+    fetchRecords(currentPage, perPage);
   }
+
+  const handlePin = async (pin) => {
+    try {
+      let result = await openDoor({ device_id, otp: pin })
+      if (result?.status) {
+        notify("Success", result.message, "success");
+        setPinModal(false);
+        return;
+      }
+
+      notify("Success", "Door open command failed", "success");
+
+    } catch (error) {
+      notify("Error", parseApiError(error), "error");
+    }
+  }
+
+
 
   const deleteEmployee = async (id) => {
     if (confirm("Are you sure you want to delete this employee?")) {
       try {
         await deleteDevice(id);
-        fetchEmployees(currentPage, perPage);
+        fetchRecords(currentPage, perPage);
       } catch (error) {
         console.error("Error deleting employee:", error);
       }
     }
   }
 
-  const editEmployee = async (id) => {
-    router.push(`/employees/edit?id=${id}`)
-  }
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [pinModal, setPinModal] = useState(false);
+  const [device_id, setDeviceId] = useState(false);
+
+  const editEmployee = (record) => {
+    setOpen(true); // Save the record to state
+    setEditingRecord(record); // Save the record to state
+  };
+
+  const setOpenDoor = async (device_id) => {
+    setDeviceId(device_id);
+    setPinModal(true);
+  };
+
+  const setCloseDoor = async (device_id) => {
+    try {
+      let result = await closeDoor({ device_id })
+      if (result?.status) {
+        notify("Success", result.message, "success");
+        return;
+      }
+
+      notify("Success", "Door open command failed", "success");
+
+    } catch (error) {
+      notify("Error", parseApiError(error), "error");
+    }
+  };
+
+
 
   return (
     <div className='overflow-y-auto max-h-[calc(100vh-100px)]'>
@@ -117,38 +166,18 @@ export default function EmployeeDataTable() {
               width='w-[220px]'
             />
           </div>
-          {/* <div className="relative">
-                        <Input
-                            placeholder="Search by name or ID"
-                            icon="search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
 
-                    <IconButton
-                        icon={RefreshCw}
-                        onClick={handleRefresh}
-                        isLoading={isLoading}
-                        title="Refresh Data"
-                    /> */}
+          <DeviceCreate onSuccess={handleRefresh} />
 
-          {/* New Employee Button */}
-          <Link href="/device/create">
-            <button className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
-              <Plus className="w-4 h-4" />
-              <span>New</span>
-            </button>
-          </Link>
         </div>
       </div>
 
       <DataTable
-        columns={Columns(deleteEmployee, editEmployee)}
+        columns={Columns(deleteEmployee, editEmployee, setOpenDoor, setCloseDoor)}
         data={employees}
         isLoading={isLoading}
         error={error}
-        onRowClick={(item) => {}}
+        onRowClick={(item) => { }}
         pagination={
           <Pagination
             page={currentPage}
@@ -162,6 +191,22 @@ export default function EmployeeDataTable() {
             pageSizeOptions={[10, 25, 50]}
           />
         }
+      />
+
+      {editingRecord && (
+        <DeviceEdit
+          open={open}
+          setOpen={setOpen}
+          defaultPayload={editingRecord}
+          onSuccess={handleRefresh}
+        />
+      )}
+
+      <PinEntryModal
+        device_id={device_id}
+        pinModal={pinModal}
+        setPinModal={setPinModal}
+        onSuccess={handlePin}
       />
     </div>
   );

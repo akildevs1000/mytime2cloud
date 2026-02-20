@@ -280,7 +280,7 @@ const Create = ({ onSuccess = () => { } }) => {
                             <div>
                                 <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Schedule</h3>
                                 <p className="text-xs text-slate-400 mt-0.5">
-                                    Create a new job role in the system
+                                    Assign schedule in the system
                                 </p>
                             </div>
                             <button

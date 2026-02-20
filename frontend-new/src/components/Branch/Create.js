@@ -73,9 +73,9 @@ export default function Create({ setOpen = () => { }, onSuccess = () => { } }) {
                         {/* Header */}
                         <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
                             <div>
-                                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Department</h3>
+                                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Branch</h3>
                                 <p className="text-xs text-slate-400 mt-0.5">
-                                    Create a new department in the system
+                                    Create a new branch in the system
                                 </p>
                             </div>
                             <button onClick={() => setOpen(false)}
@@ -115,7 +115,7 @@ export default function Create({ setOpen = () => { }, onSuccess = () => { } }) {
                                     </label>
 
                                     <TextArea
-                                        placeholder="Brief description of the department..."
+                                        placeholder="Enter address of the branch..."
                                         rows={3}
                                         value={form.address}
                                         onChange={(e) => handleChange("address", e.target.value)}

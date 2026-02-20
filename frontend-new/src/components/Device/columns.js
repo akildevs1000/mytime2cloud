@@ -1,8 +1,9 @@
 import { AlarmClock, MoreVertical, Pencil, Trash, } from "lucide-react";
 
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { openDoor } from "@/lib/api";
 
-export default function Columns(deleteEmployee, editEmployee) {
+export default function Columns(deleteEmployee, editEmployee, setOpenDoor, setCloseDoor) {
 
   return [
     {
@@ -31,7 +32,7 @@ export default function Columns(deleteEmployee, editEmployee) {
         </span>
       ),
     },
-   
+
     {
       key: "function",
       header: "Function",
@@ -45,14 +46,14 @@ export default function Columns(deleteEmployee, editEmployee) {
         </span>
       ),
     },
-    
+
     {
       key: "door_open",
       header: "Door Open",
       render: (device) => (
         <span
           title={device.door_open || "—"}
-          onClick={() => console.log(device.id)}
+          onClick={(e) => { e.stopPropagation(); setOpenDoor(device.device_id) }}
         >
           <img src="/icons/door_open.png" className="w-7" />
         </span>
@@ -64,7 +65,7 @@ export default function Columns(deleteEmployee, editEmployee) {
       render: (device) => (
         <span
           title={device.door_close || "—"}
-          onClick={() => console.log(device.id)}
+          onClick={(e) => { e.stopPropagation(); setCloseDoor(device.device_id) }}
         >
           <img src="/icons/door_close.png" className="w-7" />
         </span>
@@ -151,8 +152,7 @@ export default function Columns(deleteEmployee, editEmployee) {
           >
             <DropdownMenuItem
               onClick={(e) => {
-                e.stopPropagation(); // Stop row redirect
-                editEmployee(employee.id)
+                e.stopPropagation(); editEmployee(employee)
               }}
               className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >

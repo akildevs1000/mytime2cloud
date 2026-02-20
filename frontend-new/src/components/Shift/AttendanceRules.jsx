@@ -79,12 +79,12 @@ export default function AttendanceRules({ shift, handleChange }) {
   const [hydrated, setHydrated] = useState(false);
 
   const [beforeDuty, setBeforeDuty] = useState(
-    shift?.overtime_type == "Both" || shift?.overtime_type == "BeforeDuty"
+    shift?.overtime_type == "Both" || shift?.overtime_type == "Before"
       ? true
       : false,
   );
   const [afterDuty, setAfterDuty] = useState(
-    shift?.overtime_type == "Both" || shift?.overtime_type == "AfterDuty"
+    shift?.overtime_type == "Both" || shift?.overtime_type == "After"
       ? true
       : false,
   );
@@ -132,9 +132,9 @@ export default function AttendanceRules({ shift, handleChange }) {
     } else if (!beforeDuty && !afterDuty) {
       setSelectedOverTimeType("None");
     } else if (beforeDuty) {
-      setSelectedOverTimeType("BeforeDuty");
+      setSelectedOverTimeType("Before");
     } else if (afterDuty) {
-      setSelectedOverTimeType("AfterDuty");
+      setSelectedOverTimeType("After");
     }
   }, [beforeDuty, afterDuty]);
 
@@ -587,7 +587,7 @@ export default function AttendanceRules({ shift, handleChange }) {
 
                 <div className="flex-1 w-full flex items-center gap-3">
                   <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    Action: {shift.attendanc_rule_late_coming ? "a" : "b"}
+                    Action: {shift.attendanc_rule_late_coming}
                   </span>
                   <div className="relative flex-1 w-full">
                     <DropDown

@@ -637,8 +637,8 @@ export default function Home() {
                               </div>
 
                               <div className="flex items-center space-x-2">
-                                <RadioGroupItem value="Before Duty" id="BeforeDuty" />
-                                <Label htmlFor="BeforeDuty">Before Duty</Label>
+                                <RadioGroupItem value="Before Duty" id="Before" />
+                                <Label htmlFor="Before">Before Duty</Label>
                               </div>
 
                               <div className="flex items-center space-x-2">

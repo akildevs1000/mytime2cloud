@@ -685,38 +685,33 @@ export const deleteBranch = async (id) => {
 
 
 // companyId will be passed dynamically
-export const openDoor = async (device_id = 0) => {
+export const openDoor = async (params = {}) => {
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.get(`${baseURL}/open_door`, {
+        params: await buildQueryParams(params),
+    });
+    return data;
+};
 
-    let params = {
-        device_id: device_id,
-    };
-
-    const { data } = await axios.get(`${API_BASE}/open_door`, {
+export const closeDoor = async (params = {}) => {
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.get(`${baseURL}/close_door`, {
         params: await buildQueryParams(params),
     });
     return data;
 };
 
 // companyId will be passed dynamically
-export const closeDoor = async (device_id = 0) => {
-    let params = {
-        device_id: device_id,
-    };
-    const { data } = await axios.get(`${API_BASE}/close_door`, {
+export const checkPin = async (params = {}) => {
+
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.get(`${baseURL}/check-pin`, {
         params: await buildQueryParams(params),
     });
-    return data;
-};
 
-
-// companyId will be passed dynamically
-export const checkPin = async (pin = "0000") => {
-    let params = {
-        pin: pin,
-    };
-    const { data } = await axios.get(`${API_BASE}/check-pin`, {
-        params: await buildQueryParams(params),
-    });
     return data;
 };
 
