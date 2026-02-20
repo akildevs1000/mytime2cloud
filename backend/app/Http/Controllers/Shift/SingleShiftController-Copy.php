@@ -12,6 +12,7 @@ use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use DateTime;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SingleShiftController extends Controller
 {
@@ -82,8 +83,6 @@ class SingleShiftController extends Controller
 
         $schedule = ScheduleEmployee::where("company_id", $params["company_id"])->get();
 
-
-
         $previousShifts = Attendance::where("company_id", $params["company_id"])
             ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))
             ->where("shift_type_id", 4)
@@ -140,11 +139,6 @@ class SingleShiftController extends Controller
 
             $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $employeeId, $firstLog);
 
-            // If the function didn't return "O", decide if they are Absent or Present
-            if (!$status) {
-                $status = $firstLog ? "M" : "A";
-            }
-
             // 4. Initialize Item
             $item = [
                 "roster_id" => 0,
@@ -159,25 +153,43 @@ class SingleShiftController extends Controller
                 "employee_id" => $employeeId,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => $status,
+                "status" => $status ?? "M",
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
 
-            // 5. Process Logs if they exist
-            if ($firstLog) {
-                $item["status"] = "M"; // Missing out by default
 
-                if ($item["shift_type_id"] == 6) {
-                    $item["late_coming"] = $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
-                    if ($item["late_coming"] != "---") {
-                        $item["status"] = "LC";
-                    }
+            // --- 1. LATE COMING RULES (Check these before processing OUT logs) ---
+
+            // Normal Late Coming
+            if (($shift["attendanc_rule_late_coming"] ?? 'No Action') !== 'No Action') {
+                $lcMins = calculateTimeDiff($item["in"], $shift["on_duty_time"], 'late', $shift["late_time"]);
+                if ($lcMins) {
+                    $item["late_coming"] = formatMinutes($lcMins);
+                    $item["status"] = "LC";
                 }
+            }
 
-                // Check for valid Out log
+            // Significant Late Coming (Overwrites Status to HD or A)
+            $sigLateRule = $shift["significant_attendanc_rule_late_coming"] ?? 'No Action';
+            if ($sigLateRule !== 'No Action') {
+                $sigLcMins = calculateTimeDiff($item["in"], $shift["on_duty_time"], 'late', $shift["absent_min_in"]);
+                if ($sigLcMins) {
+                    $item["late_coming"] = formatMinutes($sigLcMins);
+                    $item["status"] = ($sigLateRule === "Half Day") ? "HD" : "A";
+                }
+            }
+
+            // --- 2. OUT LOG & OVERTIME PROCESSING ---
+
+            if ($firstLog) {
+                // Process Valid Out Log
                 if ($lastLog && count($logs) > 1 && $firstLog["time"] !== $lastLog["time"]) {
-                    $item["status"] = "P";
+                    // Initialize as Present if not already marked HD/A by late coming
+                    if (!in_array($item["status"], ["HD", "A"])) {
+                        $item["status"] = "P";
+                    }
+
                     $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                     $item["out"] = $lastLog["time"] ?? "---";
 
@@ -185,51 +197,117 @@ class SingleShiftController extends Controller
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                     }
 
-                    // OT Calculation
-                    if ($schedule["isOverTime"] ?? false) {
-                        $otTime = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                        if ($otTime == "---") $otTime = "00:00";
+                    // Overtime Logic (Before, After, Both, None)
+                    // Define permissions based on whether today is a weekend or holiday
 
-                        [$otHours, $otMinutes] = explode(':', $otTime);
-                        $totalOtMinutes = ($otHours * 60) + $otMinutes;
+                    // Parent Condition: Only enter if OT is enabled AND the day allows it
+                    if (
+                        ($schedule["isOverTime"] ?? false) &&
+                        ($shift["weekend_allowed_ot"] ?? false) &&
+                        ($shift["holiday_allowed_ot"] ?? false)
+                    ) {
+                        // 1. Calculate raw minutes based on direction
+                        $otBefore = calculateTimeDiff($item["in"], $shift["on_duty_time"], 'early', '00:00') ?: 0;
+                        $otAfter  = calculateTimeDiff($item["out"], $shift["off_duty_time"], 'late', '00:00') ?: 0;
 
-                        $inTime = new \DateTime($item["in"]);
-                        $onDutyTime = new \DateTime($shift["on_duty_time"]);
-                        $outTime = new \DateTime($item["out"]);
-                        $offDutyTime = isset($shift["off_duty_time"]) ? new \DateTime($shift["off_duty_time"]) : null;
-
-                        if ($shift["overtime_type"] === "After") {
-                            $earlyMinutes = 0;
-                            if ($inTime < $onDutyTime) {
-                                $earlyDiff = $onDutyTime->diff($inTime);
-                                $earlyMinutes = ($earlyDiff->h * 60) + $earlyDiff->i;
-                            }
-                            $totalOtMinutes = max(0, $totalOtMinutes - $earlyMinutes);
-                        } else if ($shift["overtime_type"] === "Before") {
-                            $lateMinutes = 0;
-                            if ($offDutyTime && $outTime > $offDutyTime) {
-                                $lateDiff = $outTime->diff($offDutyTime);
-                                $lateMinutes = ($lateDiff->h * 60) + $lateDiff->i;
-                            }
-                            $totalOtMinutes = max(0, $totalOtMinutes - $lateMinutes);
+                        $finalOtMins = 0;
+                        switch ($shift["overtime_type"]) {
+                            case "Before":
+                                $finalOtMins = $otBefore;
+                                break;
+                            case "After":
+                                $finalOtMins = $otAfter;
+                                break;
+                            case "Both":
+                                $finalOtMins = $otBefore + $otAfter;
+                                break;
+                            default:
+                                $finalOtMins = 0;
+                                break;
                         }
 
-                        $otH = floor($totalOtMinutes / 60);
-                        $otM = $totalOtMinutes % 60;
-                        $item["ot"] = str_pad($otH, 2, "0", STR_PAD_LEFT) . ":" . str_pad($otM, 2, "0", STR_PAD_LEFT);
-                    }
+                        // 2. Apply Overtime Interval (Threshold)
+                        $intervalMins = 0;
+                        if (!empty($shift["overtime_interval"]) && $shift["overtime_interval"] !== "00:00") {
+                            list($intH, $intM) = explode(':', $shift["overtime_interval"]);
+                            $intervalMins = ($intH * 60) + (int)$intM;
+                        }
 
-                    // Early Going Check
-                    if ($item["shift_type_id"] == 6) {
-                        $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
-                        if ($item["early_going"] != "---") {
+                        // Reset to 0 if they didn't work at least the interval amount
+                        if ($finalOtMins < $intervalMins) {
+                            $finalOtMins = 0;
+                        }
+
+                        // 3. Apply Daily OT Allowed Mins (The Cap)
+                        if ($finalOtMins > 0 && !empty($shift["daily_ot_allowed_mins"]) && $shift["daily_ot_allowed_mins"] !== "00:00") {
+                            list($capH, $capM) = explode(':', $shift["daily_ot_allowed_mins"]);
+                            $allowedCapMins = ($capH * 60) + (int)$capM;
+
+                            // Cap the minutes (e.g., if worked 90 but max is 60, result is 60)
+                            $finalOtMins = min($finalOtMins, $allowedCapMins);
+                        }
+
+                        $item["ot"] = formatMinutes($finalOtMins);
+                    } else {
+                        $item["ot"] = "00:00";
+                    }
+                }
+
+                // --- 3. EARLY GOING RULES ---
+
+                // Normal Early Going
+                if (($shift["attendanc_rule_early_going"] ?? 'No Action') !== 'No Action') {
+                    $egMins = calculateTimeDiff($item["out"], $shift["off_duty_time"], 'early', $shift["early_time"]);
+                    if ($egMins) {
+                        $item["early_going"] = formatMinutes($egMins);
+                        // Only update status to EG if it hasn't been escalated to HD/A by late coming
+                        if (!in_array($item["status"], ["HD", "A"])) {
                             $item["status"] = "EG";
                         }
+                    }
+                }
+
+                // Significant Early Going (Overwrites Status to HD or A)
+                $sigEarlyRule = $shift["significant_attendanc_rule_early_going"] ?? 'No Action';
+                if ($sigEarlyRule !== 'No Action') {
+                    $sigEgMins = calculateTimeDiff($item["out"], $shift["off_duty_time"], 'early', $shift["absent_min_out"]);
+                    if ($sigEgMins) {
+                        $item["early_going"] = formatMinutes($sigEgMins);
+                        $item["status"] = ($sigEarlyRule === "Half Day") ? "HD" : "A";
                     }
                 }
             }
 
             $items[] = $item;
+
+            Log::info(showJson([
+                'date' => $date,
+                'user_id' => $item['employee_id'] ?? 'N/A',
+                'times' => [
+                    'shift' => $shift["on_duty_time"] . " - " . $shift["off_duty_time"],
+                    'actual' => ["in" => $item["in"], "out" => $item["out"]],
+                ],
+                'ot_config' => [
+                    'type' => $shift["overtime_type"] ?? 'N/A',
+                    'interval' => $shift["overtime_interval"] ?? '00:00',
+                    'daily_cap' => $shift["daily_ot_allowed_mins"] ?? '00:00',
+                    'weekend_allowed' => $shift["weekend_allowed_ot"] ?? false,
+                    'holiday_allowed' => $shift["holiday_allowed_ot"] ?? false,
+                ],
+                'calculations' => [
+                    'late_coming' => $item["late_coming"] ?? '00:00',
+                    'early_going' => $item["early_going"] ?? '00:00',
+                    'overtime'    => $item["ot"] ?? '00:00',
+                    'total_hrs'   => $item["total_hrs"] ?? '00:00',
+                ],
+                'rules' => [
+                    'lc_rule' => $shift["attendanc_rule_late_coming"] ?? 'N/A',
+                    'eg_rule' => $shift["attendanc_rule_early_going"] ?? 'N/A',
+                    'sig_lc'  => $sigLateRule ?? 'N/A',
+                    'sig_eg'  => $sigEarlyRule ?? 'N/A',
+                ],
+                'final_status' => $item["status"]
+            ]));
         }
 
         // Database Operations
