@@ -95,7 +95,7 @@ export default function Index() {
     };
 
     return (
-        <Card className="flex flex-col md:flex-row border-none shadow-none rounded-none h-full">
+        <Card className="flex flex-col md:flex-row border-none shadow-none rounded-none overflow-y-auto max-h-[calc(100vh-100px)]">
             {/* Sidebar Stepper */}
             <CardContent className="w-full md:w-[260px] shrink-0 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4">
                 <nav className="flex md:flex-col gap-1">

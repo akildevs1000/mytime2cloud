@@ -65,17 +65,8 @@ export const getRoles = async () => {
 
 // companyId will be passed dynamically
 export const getDepartments = async (branch_id = null) => {
-
-
-    console.log(`from getDepartments: ${branch_id}`);
-
-
     let params = { branch_id };
-
     const { data } = await axios.get(`${API_BASE}/department-list`, { params: await buildQueryParams(params) });
-
-    console.log(data);
-
     return data;
 };
 
@@ -462,6 +453,13 @@ export const getDeviceList = async (branch_id = null) => {
     return data;
 };
 
+export const getDeviceListNew = async (params = {}) => {
+    const { data } = await axios.get(`${API_BASE}/device-list`, {
+        params: await buildQueryParams(params),
+    });
+    return data;
+};
+
 // Device
 export const getDevices = async (params = {}) => {
     const { data } = await axios.get(`${API_BASE}/device`, {
@@ -725,6 +723,16 @@ export const getDeviceSettginsFromSDK = async (params = {}) => {
 
     return data;
 };
+
+export const addPerson = async (payload) => {
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await axios.post(`${baseURL}/SDK/AddPerson`, payload);
+    return data;
+};
+
+
+
 
 export const updateDeviceSettings = async (payload) => {
 

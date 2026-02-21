@@ -130,33 +130,11 @@ export default function EmployeeDataTable() {
     setEditingRecord(record); // Save the record to state
   };
 
-  // const deviceSettings = (record) => {
-  //   setDeviceOpen(true); // Save the record to state
-  //   setisDeviceSettings(record); // Save the record to state
-  // };
-
-  // Parent component
-
   const deviceSettings = (device) => {
-    const canEdit = true;
-    const model = device?.model_number;
-
-    if (canEdit && model === "CAMERA1" && model !== "MYTIME1") {
-      return;
-    }
-
-    if (canEdit && (model === "OX-900" || model === "MYTIME1")) {
-      return;
-    }
-
-    if (model !== "MYTIME1") {
-      setDeviceId(device.device_id);
-      setisDeviceSettings(device);
-      setDeviceOpen(true)
-      return;
-    }
-
-    // MYTIME1 and no permission => do nothing (or toast)
+    setDeviceId(device.device_id);
+    setisDeviceSettings(device);
+    setDeviceOpen(true)
+    return;
   };
 
   const setOpenDoor = async (device_id) => {
@@ -234,9 +212,11 @@ export default function EmployeeDataTable() {
           onSuccess={handleRefresh}
         />
       )}
+
       {isDeviceSettings && (
         <DeviceSettings
           device_id={device_id}
+          device={isDeviceSettings}
           open={deviceOpen}
           setOpen={setDeviceOpen}
           onSuccess={handleRefresh}
@@ -249,7 +229,6 @@ export default function EmployeeDataTable() {
         setPinModal={setPinModal}
         onSuccess={handlePin}
       />
-
 
     </div>
   );

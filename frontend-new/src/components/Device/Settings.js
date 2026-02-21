@@ -24,11 +24,31 @@ let defaultPayload = {
     maker_deliveryDate: ""
 };
 
-const DeviceSettings = ({ device_id, open, setOpen, onSuccess = () => { } }) => {
+const DeviceSettings = ({ device, device_id, open, setOpen, onSuccess = () => { } }) => {
+    const [deviceInfo, setDeviceInfo] = useState(null);
     const [sdkResponse, setSdkResponse] = useState(null);
     const [branches, setBranches] = useState([]);
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState(defaultPayload);
+
+    const [deviceType, setDeviceType] = useState("Oxsai");
+
+    useEffect(() => {
+        setDeviceInfo(device);
+        console.log(device);
+
+        const model = device?.model_number;
+
+        if (model === "CAMERA1" && model !== "MYTIME1") {
+            console.log(`1`);
+            ;
+        }
+
+        if ((model === "OX-900" || model === "MYTIME1")) {
+            console.log(`2`);
+        }
+     
+    }, [device]);
 
     const toggleModal = () => setOpen(!open);
 
@@ -137,7 +157,7 @@ const DeviceSettings = ({ device_id, open, setOpen, onSuccess = () => { } }) => 
         }
     };
 
-
+    if (deviceInfo) return null;
 
     if (!open) return null;
 

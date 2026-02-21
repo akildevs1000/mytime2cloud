@@ -27,7 +27,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
           title={device.name || "—"}
 
         >
-          {device.name || "—"} - {device.device_id || "—"}
+          {device.name || "—"}
         </span>
       ),
     },

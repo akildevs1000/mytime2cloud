@@ -29,7 +29,6 @@ const DeviceCreate = ({ onSuccess = () => { } }) => {
 
   const [open, setOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const [globalError, setGlobalError] = useState(null);
 
   const [branches, setBranches] = useState([]);
 
@@ -39,7 +38,7 @@ const DeviceCreate = ({ onSuccess = () => { } }) => {
     try {
       setBranches(await getBranches());
     } catch (error) {
-      setGlobalError(parseApiError(error));
+      notify("Error", parseApiError(error), "error");
     }
   };
 
