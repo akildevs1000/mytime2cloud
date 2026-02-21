@@ -845,4 +845,31 @@ class EmployeeControllerNew extends Controller
             ], 500);
         }
     }
+
+    public function show($id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        // Use load() for instances already retrieved from the database
+        $employee->load([
+            "finger_prints",
+            "palms",
+            "reportTo",
+            "branch",
+            "department.branch", // Shorthand for nested relations
+            "sub_department",
+            "designation",
+            "payroll",
+            "passport",
+            "emirate",
+            "qualification",
+            "bank",
+            "leave_group",
+            "Visa",
+            "reporting_manager",
+            "schedule"
+        ]);
+
+        return $employee;
+    }
 }

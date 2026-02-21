@@ -63,3 +63,5 @@ Route::post('leave-group-and-report-manager-update/{id}', [EmployeeControllerNew
 Route::post('employee-update-general-settings/{id}', [EmployeeControllerNew::class, 'updateGeneralSettings']);
 Route::post('employee-update-access-settings-new/{id}', [EmployeeControllerNew::class, 'updateAccessSettings']);
 Route::post('employee-update-login-new/{id}', [EmployeeControllerNew::class, 'updateLogin']);
+
+Route::get('employee-details/{id}', [EmployeeControllerNew::class, 'show']);
