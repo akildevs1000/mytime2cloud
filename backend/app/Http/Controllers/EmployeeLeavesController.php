@@ -314,8 +314,6 @@ class EmployeeLeavesController extends Controller
 
             if ($record) {
 
-                $employee = Employee::where(["company_id" => $model->company_id, "employee_id" => $model->employee_id])->first();
-
                 $user_name = $request->user_name ?? 'Super User';
 
                 $reason = $request->approve_reject_notes ? " Reason: <i>{$model->approve_reject_notes}</i>." : "";
@@ -331,8 +329,8 @@ class EmployeeLeavesController extends Controller
                     "data" => "Leave application has been $status_text",
                     "action" => "Leave Status",
                     "model" => "EmployeeLeaves",
-                    "user_id" => $employee->user_id ?? 0,
-                    "company_id" => $model->company_id,
+                    "user_id" => $request->user_id ?? 0,
+                    "company_id" => $request->company_id,
                     "redirect_url" => "leaves"
                 ]);
 
