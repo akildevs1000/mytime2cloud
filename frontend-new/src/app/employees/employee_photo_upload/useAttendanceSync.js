@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react';
 
 export function useAttendanceSync(initialData = []) {
-  const [availableEmployees, setAvailableEmployees] = useState([]);
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [availableItems, setAvailableItems] = useState([]);
+  const [selectedItems, setSelectedItems] = useState([]);
   const [checkedItems, setCheckedItems] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
   // IMPORTANT: This syncs the hook when the API data arrives
   useEffect(() => {
-    if (initialData && initialData.length > 0 && availableEmployees.length === 0) {
-      setAvailableEmployees(initialData);
+    if (initialData && initialData.length > 0 && availableItems.length === 0) {
+      setAvailableItems(initialData);
       setCheckedItems([]);
-      setSelectedEmployees([]);
+      setSelectedItems([]);
     }
-  }, [initialData, availableEmployees.length]);
+  }, [initialData, availableItems.length]);
 
   const toggleCheck = (id) => {
     setCheckedItems(prev =>
@@ -22,41 +22,41 @@ export function useAttendanceSync(initialData = []) {
   };
 
   const moveSelectedToRight = () => {
-    const toMove = availableEmployees.filter(emp => checkedItems.includes(emp.id));
+    const toMove = availableItems.filter(item => checkedItems.includes(item.id));
     if (toMove.length === 0) return;
-    setSelectedEmployees(prev => [...prev, ...toMove]);
-    setAvailableEmployees(prev => prev.filter(emp => !checkedItems.includes(emp.id)));
+    setSelectedItems(prev => [...prev, ...toMove]);
+    setAvailableItems(prev => prev.filter(item => !checkedItems.includes(item.id)));
     setCheckedItems([]);
   };
 
   const moveSelectedToLeft = () => {
-    const toMove = selectedEmployees.filter(emp => checkedItems.includes(emp.id));
+    const toMove = selectedItems.filter(item => checkedItems.includes(item.id));
     if (toMove.length === 0) return;
-    setAvailableEmployees(prev => [...prev, ...toMove]);
-    setSelectedEmployees(prev => prev.filter(emp => !checkedItems.includes(emp.id)));
+    setAvailableItems(prev => [...prev, ...toMove]);
+    setSelectedItems(prev => prev.filter(item => !checkedItems.includes(item.id)));
     setCheckedItems([]);
   };
 
   const moveAllToRight = () => {
-    setSelectedEmployees(prev => [...prev, ...availableEmployees]);
-    setAvailableEmployees([]);
+    setSelectedItems(prev => [...prev, ...availableItems]);
+    setAvailableItems([]);
     setCheckedItems([]);
   };
 
   const moveAllToLeft = () => {
-    setAvailableEmployees(prev => [...prev, ...selectedEmployees]);
-    setSelectedEmployees([]);
+    setAvailableItems(prev => [...prev, ...selectedItems]);
+    setSelectedItems([]);
     setCheckedItems([]);
   };
 
-  const filteredAvailable = availableEmployees.filter(emp =>
-    emp.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.itemId?.toString().includes(searchTerm)
+  const filteredAvailable = availableItems.filter(item =>
+    item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.itemId?.toString().includes(searchTerm)
   );
 
   return {
     available: filteredAvailable,
-    selected: selectedEmployees,
+    selected: selectedItems,
     checkedItems,
     searchTerm,
     setSearchTerm,
