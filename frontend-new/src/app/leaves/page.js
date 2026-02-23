@@ -17,6 +17,7 @@ import IconButton from '@/components/Theme/IconButton';
 import { getLeavesRequest } from '@/lib/endpoint/leaves';
 import DropDown from '@/components/ui/DropDown';
 import { useDebounce } from '@/hooks/useDebounce';
+import LeaveViewDialog from '@/components/Employees/LeaveRequests';
 
 export default function EmployeeDataTable() {
 
@@ -121,15 +122,13 @@ export default function EmployeeDataTable() {
         fetchEmployees(currentPage, perPage);
     }
 
-    const deleteEmployee = async (id) => {
-        if (confirm("Are you sure you want to delete this employee?")) {
-            try {
-                await removeEmployee(id);
-                fetchEmployees(currentPage, perPage);
-            } catch (error) {
-                console.error("Error deleting employee:", error);
-            }
-        }
+    const [editedItem, setEditedItem] = useState(null);
+    const [isOpen, setIsOpen] = useState(false);
+
+    const editItem = async (item) => {
+        console.log(item);
+        setEditedItem(item);
+        setIsOpen(true)
     }
 
     return (
@@ -199,9 +198,13 @@ export default function EmployeeDataTable() {
                     />
                 </div>
             </div>
+            
+            {
+                editedItem && <LeaveViewDialog editedItem={editedItem} isOpen={isOpen} setIsOpen={setIsOpen} />
+            }
 
             <DataTable
-                columns={Columns(deleteEmployee)}
+                columns={Columns(editItem)}
                 data={employees}
                 isLoading={isLoading}
                 error={error}

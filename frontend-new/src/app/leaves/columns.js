@@ -22,8 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getRandomItem } from "@/lib/utils";
 import ProfilePicture from "@/components/ProfilePicture";
+import LeaveViewDialog from "@/components/Employees/LeaveRequests";
 
-export default (deleteEmployee) => [
+export default (editItem) => [
   {
     key: "employee",
     header: "Name",
@@ -194,17 +195,10 @@ export default (deleteEmployee) => [
 
         <DropdownMenuContent align="end" className="w-30 bg-white shadow-md rounded-md py-1">
           <DropdownMenuItem
-            onClick={() => console.log("Edit", employee.id)}
+            onClick={() => editItem(employee)}
             className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100"
           >
-            <Pencil className="w-4 h-4 text-primary" /> <span className="text-primary">Edit</span>
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            onClick={() => deleteEmployee(employee.id)}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100"
-          >
-            <Trash className="w-4 h-4 text-gray-500" /> <span className="text-gray-500">Delete</span>
+            <Pencil className="w-4 h-4 text-primary" /> <LeaveViewDialog editedItem={employee} />  <span className="text-primary">Edit</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -6,3 +6,10 @@ export const getLeavesRequest = async (params = {}) => {
     const { data } = await api.get(`${baseURL}/employee_leaves`, { params: await buildQueryParams(params) });
     return data;
 };
+
+export const getLeavesGroups = async (leaveGroupId, params = {}) => {
+    let baseURL = API_BASE;
+    baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await api.get(`${baseURL}/leave_groups/${leaveGroupId}`, { params: await buildQueryParams(params) });
+    return data;
+};
