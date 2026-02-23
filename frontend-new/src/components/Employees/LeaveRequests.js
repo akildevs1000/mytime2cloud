@@ -10,10 +10,13 @@ import {
   PieChart,
   ClipboardList
 } from 'lucide-react';
-import { getLeavesGroups } from '@/lib/endpoint/leaves';
+import { approveLeave, getLeavesGroups, rejectLeave } from '@/lib/endpoint/leaves';
 import TeamAvailability from './TeamAvailability';
+import LeavesCalendarView from './LeavesCalendarView';
+import { getUser } from '@/config';
+import { notify } from '@/lib/utils';
 
-export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, onResponse }) {
+export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSuccess }) {
   const [activeTab, setActiveTab] = useState('info');
   const [leaveStats, setLeaveStats] = useState([]);
   const [approveRejectNotes, setApproveRejectNotes] = useState(editedItem?.approve_reject_notes || "");
@@ -62,11 +65,8 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
         console.log(error);
       }
     }
-
-
   }
 
-  // Simulated API calls (Replace with your actual Axios calls)
   useEffect(() => {
     if (isOpen && editedItem?.id) {
       console.log(editedItem);
@@ -75,26 +75,71 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
   }, [isOpen, editedItem]);
 
 
-  const handleAction = async (type) => {
+
+  const approveLeaveAction = async (leaveid) => {
+
     if (!approveRejectNotes) {
       alert("Notes are required");
       return;
     }
-    const actionText = type === 'approve' ? 'Approve' : 'Reject';
-    if (!confirm(`Are you sure to ${actionText} Leave?`)) return;
+
+    const { id, name, company_id } = await getUser();
+
+    let payload = {
+      approve_reject_notes: approveRejectNotes,
+      system_user_id: editedItem?.employee?.system_user_id,
+      shift_type_id: editedItem?.employee?.schedule?.shift?.shift_type_id,
+      order: 0,
+      user_name: name,
+      user_id: id,
+      company_id: company_id,
+    };
 
     setLoading(true);
     try {
-      // Example Axios call logic
-      // await axios.post(`${endpoint}/${type}/${editedItem.id}`, { notes: approveRejectNotes, ... })
-      onResponse?.(true);
+      await approveLeave(leaveid, payload)
+      onSuccess?.(true);
       setIsOpen(false);
+      notify("Success", "Leave has been Approved", "success");
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
-  };
+
+  }
+  const rejectLeaveAction = async (leaveid) => {
+
+    if (!approveRejectNotes) {
+      alert("Notes are required");
+      return;
+    }
+
+    const { id, name, company_id } = await getUser();
+
+    let payload = {
+      approve_reject_notes: approveRejectNotes,
+      system_user_id: editedItem?.employee?.system_user_id,
+      shift_type_id: editedItem?.employee?.schedule?.shift?.shift_type_id,
+      order: 0,
+      user_name: name,
+      user_id: id,
+      company_id: company_id,
+    };
+
+    setLoading(true);
+
+    try {
+      await rejectLeave(leaveid, payload)
+      onSuccess?.(true);
+      setIsOpen(false);
+      notify("Success", "Leave has been Rejected", "success");
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   if (!isOpen) return null;
 
@@ -275,29 +320,30 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
                       <div className="flex gap-3">
                         <button
                           disabled={loading}
-                          onClick={() => handleAction('reject')}
+                          onClick={() => rejectLeaveAction(editedItem.id)}
                           className="flex-1 px-4 py-2.5 rounded-xl border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all text-sm font-bold disabled:opacity-50"
                         >
                           Reject Request
                         </button>
                         <button
                           disabled={loading}
-                          onClick={() => handleAction('approve')}
+                          onClick={() => approveLeaveAction(editedItem.id)}
                           className="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition-all text-sm font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50"
                         >
-                          {loading ? "Processing..." : "Approve Leave"}
+                          Approve Leave
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Column (Widgets) */}
                   <div className="col-span-12 lg:col-span-5 space-y-4">
-                    <div className="p-8 border-2 border-dashed border-gray-100 dark:border-white/5 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                      <Calendar className="mb-2 opacity-20" size={32} />
-                      <span className="text-xs font-medium">Calendar Widget</span>
+                    {/* Calendar Widget Container */}
+                    <div className="p-5 border border-gray-100 dark:border-white/10 rounded-2xl bg-white dark:bg-slate-900/40 shadow-sm transition-all hover:border-indigo-500/30">
+                      <LeavesCalendarView />
                     </div>
-                    <div className="p-2 border-2 border-dashed border-gray-100 dark:border-white/5 rounded-2xl flex flex-col items-center justify-center text-slate-400">
+
+                    {/* Team Availability Container */}
+                    <div className="p-5 border border-gray-100 dark:border-white/10 rounded-2xl bg-white dark:bg-slate-900/40 shadow-sm transition-all hover:border-blue-500/30">
                       <TeamAvailability />
                     </div>
                   </div>

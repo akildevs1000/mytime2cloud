@@ -20,3 +20,21 @@ export const getUpcomingLeaves = async (params = {}) => {
     const { data } = await api.get(`${baseURL}/employee_leaves_for_next_thirty_days_month`, { params: await buildQueryParams(params) });
     return data;
 };
+
+export const getLeavesEvents = async (params = {}) => {
+    let baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await api.get(`${baseURL}/employee_leaves_events`, { params: await buildQueryParams(params) });
+    return data;
+};
+
+export const approveLeave = async (id, payload = {}) => {
+    let baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await api.post(`${baseURL}/employee_leaves/approve/${id}`, payload);
+    return data;
+};
+
+export const rejectLeave = async (id, params = {}) => {
+    let baseURL = `https://backend.mytime2cloud.com/api`;
+    const { data } = await api.get(`${baseURL}/employee_leaves/reject/${id}`, { params: await buildQueryParams(params) });
+    return data;
+};

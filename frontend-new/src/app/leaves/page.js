@@ -198,9 +198,9 @@ export default function EmployeeDataTable() {
                     />
                 </div>
             </div>
-            
+
             {
-                editedItem && <LeaveViewDialog editedItem={editedItem} isOpen={isOpen} setIsOpen={setIsOpen} />
+                editedItem && <LeaveViewDialog editedItem={editedItem} isOpen={isOpen} setIsOpen={setIsOpen} onSuccess={handleRefresh} />
             }
 
             <DataTable
