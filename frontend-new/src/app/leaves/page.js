@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getBranches, getDepartments, getEmployees, removeEmployee } from '@/lib/api';
+import { getBranches, getDepartments, getDepartmentsByBranchIds, getEmployees, removeEmployee } from '@/lib/api';
 import { EmployeeExtras } from '@/components/Employees/Extras';
 
 import Columns from "./columns";
@@ -12,9 +12,11 @@ import DataTable from '@/components/ui/DataTable';
 import Pagination from '@/lib/Pagination';
 import { parseApiError } from '@/lib/utils';
 import MultiDropDown from '@/components/ui/MultiDropDown';
-import Dropdown from '@/components/Theme/DropDown';
 import Input from '@/components/Theme/Input';
 import IconButton from '@/components/Theme/IconButton';
+import { getLeavesRequest } from '@/lib/endpoint/leaves';
+import DropDown from '@/components/ui/DropDown';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export default function EmployeeDataTable() {
 
@@ -27,9 +29,11 @@ export default function EmployeeDataTable() {
     const [perPage, setPerPage] = useState(10);
     const [total, setTotalEmployees] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
+    const [inputValue, setInputValue] = useState('');
 
-    const [selectedBranch, setSelectedBranch] = useState({ name: "Select All", id: "" });
+    const [selectedBranch, setSelectedBranch] = useState([]);
     const [selectedDepartments, setSelectedDepartments] = useState([]);
+    const [selectedStatusses, setSelectedStatusses] = useState([]);
     const [branches, setBranches] = useState([]);
 
     const fetchBranches = async () => {
@@ -54,11 +58,12 @@ export default function EmployeeDataTable() {
                 page: page,
                 per_page: perPage,
                 sortDesc: 'false',
-                branch_id: selectedBranch.id,
+                branch_ids: selectedBranch,
                 department_ids: selectedDepartments,
+                status_ids: selectedStatusses,
                 search: searchTerm || null, // Only include search if it's not empty
             };
-            const result = await getEmployees(params);
+            const result = await getLeavesRequest(params);
 
             // Check if result has expected structure before setting state
             if (result && Array.isArray(result.data)) {
@@ -76,15 +81,25 @@ export default function EmployeeDataTable() {
             setError(parseApiError(error));
             setIsLoading(false);
         }
-    }, [perPage, selectedBranch, selectedDepartments, searchTerm]);
+    }, [perPage, selectedBranch, selectedDepartments, selectedStatusses, searchTerm]);
 
-    const router = useRouter();
+    const debouncedSetSearch = useDebounce((value) => {
+        setSearchTerm(value);
+        setCurrentPage(1); // Reset to page 1 on new search
+    }, 500);
+
+    // 4. Update the handler
+    const handleSearch = (e) => {
+        const value = e.target.value;
+        setInputValue(value);        // Update UI immediately (no lag)
+        debouncedSetSearch(value);   // Request the update to searchTerm (delayed)
+    };
 
     const [departments, setDepartments] = useState([]);
 
     const fetchDepartments = async () => {
         try {
-            setDepartments(await getDepartments(selectedBranch.id));
+            setDepartments(await getDepartmentsByBranchIds(selectedBranch));
         } catch (error) {
             setError(parseApiError(error));
         }
@@ -101,7 +116,7 @@ export default function EmployeeDataTable() {
     }, [currentPage, perPage, fetchEmployees]); // Re-fetch when page or perPage changes
 
     const handleRefresh = () => {
-        setSelectedBranch(null);
+        setSelectedBranch([]);
         setSelectedDepartments([]);
         fetchEmployees(currentPage, perPage);
     }
@@ -126,10 +141,10 @@ export default function EmployeeDataTable() {
                 </h1>
                 <div className="flex flex-wrap items-center space-x-3 space-y-2 sm:space-y-0">
                     <div className="relative">
-                        <Dropdown
+                        <MultiDropDown
                             items={branches}
-                            selectedItem={selectedBranch}
-                            onSelect={(item) => {
+                            value={selectedBranch}
+                            onChange={(item) => {
                                 setSelectedBranch(item);
                                 setCurrentPage(1); // Any extra logic goes here
                             }}
@@ -138,22 +153,43 @@ export default function EmployeeDataTable() {
                         />
                     </div>
                     <div className="relative">
+                        <MultiDropDown
+                            items={departments}
+                            value={selectedDepartments}
+                            onChange={(item) => {
+                                setSelectedDepartments(item);
+                                setCurrentPage(1); // Any extra logic goes here
+                            }}
+                            placeholder="Select a Department"
+                            width="w-[320px]"
+                        />
+                    </div>
+                    <div className="relative">
+                        <MultiDropDown
+                            items={[
+                                { id: "0", name: "Pending" },
+                                { id: "1", name: "Approved" },
+                                { id: "2", name: "Rejected" },
+                            ]}
+                            value={selectedStatusses}
+                            onChange={(item) => {
+                                setSelectedStatusses(item);
+                                setCurrentPage(1); // Any extra logic goes here
+                            }}
+                            placeholder="Select a Status"
+                            width="w-[320px]"
+                        />
+                    </div>
+
+                    <div className="relative">
                         <Input
                             placeholder="Search by name or ID"
                             icon="search"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            value={inputValue}
+                            onChange={handleSearch}
                         />
                     </div>
-                    {/* <div className="relative">
-                        <MultiDropDown
-                            placeholder={'Select Departments'}
-                            items={departments}
-                            value={selectedDepartments}
-                            onChange={setSelectedDepartments}
-                            badgesCount={1}
-                        />
-                    </div> */}
+
 
                     <IconButton
                         icon={RefreshCw}
@@ -161,16 +197,6 @@ export default function EmployeeDataTable() {
                         isLoading={isLoading}
                         title="Refresh Data"
                     />
-
-                    {/* <EmployeeExtras data={employees} onUploadSuccess={fetchEmployees} /> */}
-
-                    {/* New Employee Button */}
-                    {/* <Link href="/employees/create">
-                        <button className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
-                            <Plus className="w-4 h-4" />
-                            <span>New</span>
-                        </button>
-                    </Link> */}
                 </div>
             </div>
 
@@ -179,7 +205,7 @@ export default function EmployeeDataTable() {
                 data={employees}
                 isLoading={isLoading}
                 error={error}
-                onRowClick={(item) => router.push('/employees-short-list')}
+                onRowClick={(item) => { }}
                 pagination={
                     <Pagination
                         page={currentPage}

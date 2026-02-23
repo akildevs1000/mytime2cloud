@@ -42,7 +42,6 @@ const companyMenu = [
   { href: "/automation", icon: Workflow, label: "Automation" },
   { href: "/roles", icon: Shield, label: "Roles" },
   { href: "/holiday", icon: CalendarDays, label: "Holidays" },
-  { href: "/leaves", icon: FileText, label: "Leaves" },
   { href: "/announcements", icon: Megaphone, label: "Announcements" },
   { href: "/activity", icon: ActivitySquare, label: "Activity" },
   { href: "/payslips", icon: DollarSign, label: "Payroll" },
@@ -51,6 +50,7 @@ const companyMenu = [
 const employeesMenu = [
   { href: "/employees", icon: Users, label: "Employee List" },
   { href: "/employees/employee_photo_upload", icon: Upload, label: "Employee Upload" },
+  { href: "/leaves", icon: FileText, label: "Leaves Requests" },
 ];
 
 const visitorMenu = [
@@ -71,6 +71,7 @@ export const leftNavLinks = {
   "/visitor": visitorMenu,
   "/employees": employeesMenu,
   "/employee_photo_upload": employeesMenu,
+  "/leaves": employeesMenu,
 
   "/shift": attendanceMenu,
   "/schedule": attendanceMenu,

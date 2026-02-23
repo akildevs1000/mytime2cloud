@@ -1,14 +1,19 @@
 // columns.js
 import {
-  ScanFace,
-  QrCode,
-  Fingerprint,
-  Hand,
-  Lock,
   MoreVertical,
   Pencil,
-  Trash
+  Trash,
+  History,
 } from "lucide-react";
+
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // Ensure you have this shadcn component
+
+import { Badge } from "@/components/ui/badge"; // Assuming you have shadcn Badge
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -22,7 +27,7 @@ export default (deleteEmployee) => [
   {
     key: "employee",
     header: "Name",
-    render: (employee) => (
+    render: ({ employee }) => (
       <div className="flex items-center gap-4">
         <div className="relative">
           <ProfilePicture src={employee.profile_picture} />
@@ -40,45 +45,143 @@ export default (deleteEmployee) => [
     ),
   },
   {
+    key: "branch",
+    header: "Branch / Dept",
+    render: ({ employee }) => (
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+        {employee.branch?.branch_name || "-"} / {employee.department?.name || "-"}
+      </div>
+    ),
+  },
+  {
+    key: "group",
+    header: "Group",
+    render: ({ employee }) => (
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+        {employee.leave_group?.group_name || "-"}
+      </div>
+    ),
+  },
+  {
     key: "leave_type",
     header: "Leave Type",
     render: (employee) => (
       <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
-        {getRandomItem(["CL", "SL", "AL"])}
+        {employee.leave_type?.short_name || "-"}
+      </div>
+    ),
+  },
+  {
+    key: "duration",
+    header: "Duation",
+    render: ({ start_date, end_date }) => (
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+        {start_date} to {end_date}
       </div>
     ),
   },
 
   {
-    key: "from",
-    header: "From",
-    render: (employee) => (
+    key: "leave_note",
+    header: "Leave Note",
+    render: ({ reason }) => (
       <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
-        {getRandomItem(["12 Feb 2025", "13 Feb 2025", "14 Feb 2025", "15 Feb 2025", "16 Feb 2025"])}
+        {reason}
       </div>
     ),
   },
 
   {
-    key: "to",
-    header: "To",
-    render: (employee) => (
+    key: "created_at",
+    header: "Applied On",
+    render: ({ created_at }) => (
       <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
-        {getRandomItem(["17 Feb 2025", "18 Feb 2025", "19 Feb 2025", "20 Feb 2025", "21 Feb 2025"])}
+        {created_at}
       </div>
     ),
   },
 
   {
-    key: "days",
-    header: "Days",
-    render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
-        {getRandomItem([2, 3, 4, 5, 6, 7, 8, 9])}
-      </div>
-    ),
+    key: "timeline",
+    header: "Timeline",
+    render: ({ employee_leave_timelines }) => {
+      const timelines = employee_leave_timelines || [];
+
+      return (
+        <Popover>
+          <PopoverTrigger asChild>
+            <History size={20} className=" text-blue-500" />
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-4 shadow-xl" align="center">
+            <div className="space-y-4">
+              <h4 className="font-semibold leading-none text-slate-900 dark:text-slate-100">Leave Timeline</h4>
+              <div className="relative border-l-2 border-slate-100 dark:border-slate-800 ml-2">
+                {timelines.length > 0 ? (
+                  timelines.map((item, index) => (
+                    <div key={item.id} className="mb-6 ml-4 last:mb-0">
+                      {/* The Dot */}
+                      <span className="absolute -left-[9px] flex items-center justify-center w-4 h-4 rounded-full bg-white dark:bg-slate-900 border-2 border-blue-500">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+                      </span>
+
+                      {/* Date */}
+                      <time className="block mb-1 text-[10px] font-mono leading-none text-slate-400 uppercase">
+                        {new Date(item.created_at).toLocaleString()}
+                      </time>
+
+                      {/* Description (Parsing HTML) */}
+                      <div
+                        className="text-sm text-slate-600 dark:text-slate-300 [&>b]:font-bold [&>.primary--text]:text-blue-600"
+                        dangerouslySetInnerHTML={{ __html: item.description }}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="ml-4 text-sm text-slate-500">No timeline data available.</div>
+                )}
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
+      );
+    },
   },
 
+  {
+    key: "status",
+    header: "Status",
+    render: ({ status }) => {
+      const statusConfig = {
+        0: {
+          label: "Pending",
+          // Light: Soft Amber | Dark: Muted Gold with subtle glow
+          color: "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20",
+        },
+        1: {
+          label: "Approved",
+          // Light: Soft Emerald | Dark: Neon Mint
+          color: "bg-emerald-50 text-emerald-600 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+        },
+        2: {
+          label: "Rejected",
+          // Light: Soft Rose | Dark: Crimson Tint
+          color: "bg-rose-50 text-rose-600 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
+        },
+      };
+      const current = statusConfig[status] || { label: "Unknown", color: "bg-slate-100", icon: null };
+
+      return (
+        <div className="flex items-center">
+          <Badge
+            variant="outline"
+            className={`flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full ${current.color}`}
+          >
+            {current.label}
+          </Badge>
+        </div>
+      );
+    },
+  },
 
   {
     key: "actions",
