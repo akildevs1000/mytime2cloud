@@ -4,7 +4,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Users,
   Cpu,
-  RefreshCw
+  RefreshCw,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 
 // UI Components
@@ -17,7 +19,93 @@ import { MODEL_NUMBERS } from '@/lib/dropdowns';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { getUser } from '@/config/index';
 
+// Add this helper component at the top of your file (or in a separate file)
+const SyncStatusModal = ({ results, total, currentCount, isOpen, onClose, isLoading }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={!isLoading ? onClose : null}></div>
+      <div className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-white/10 w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
+
+        {/* Header */}
+        <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+          <div>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white">Sync Progress</h3>
+            <p className="text-sm text-slate-500">
+              Processed {currentCount} of {total} operations
+            </p>
+          </div>
+          {!isLoading && (
+            <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-full transition-colors">
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          )}
+        </div>
+
+        {/* Results List */}
+        <div className="p-4 overflow-y-auto flex-1">
+          <table className="w-full text-left text-sm">
+            <thead className="sticky top-0 bg-white dark:bg-slate-900 text-slate-400 border-b border-gray-100 dark:border-white/5">
+              <tr>
+                <th className="p-3 font-medium">Employee</th>
+                <th className="p-3 font-medium">Device ID</th>
+                <th className="p-3 font-medium">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+              {results.map((res, index) => (
+                <tr key={index} className="animate-in fade-in slide-in-from-bottom-1">
+                  <td className="p-3 font-medium text-slate-700 dark:text-slate-200">{res.name}</td>
+                  <td className="p-3 text-slate-500 font-mono text-xs">{res.device_id}</td>
+                  <td className="p-3">
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${res.status == 200
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                      }`}>
+                      {res.status == 200 ? (
+                        <>
+                          <CheckCircle2 size={20} />
+                          SUCCESS
+                        </>
+                      ) : (
+                        <>
+                          <XCircle size={20} />
+                          FAILED
+                        </>
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {results.length === 0 && (
+                <tr><td colSpan="3" className="p-10 text-center text-slate-400 italic">Initializing connection...</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-gray-100 dark:border-white/5 bg-slate-50/50 dark:bg-slate-800/50 flex justify-end">
+          <button
+            disabled={isLoading}
+            onClick={onClose}
+            className="px-6 py-2 rounded-xl bg-slate-800 text-white font-semibold disabled:opacity-50 transition-all hover:bg-slate-700"
+          >
+            {isLoading ? 'Syncing...' : 'Done'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function AttendanceTable() {
+
+  const [syncResults, setSyncResults] = useState([]);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [totalOperations, setTotalOperations] = useState(0);
+
   const [branches, setBranches] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState(null);
@@ -109,15 +197,24 @@ export default function AttendanceTable() {
 
   const [loading, setLoading] = useState(false);
 
-
   const onSubmit = async () => {
+    const selectedEmployees = personSync.selected;
+    const selectedDevices = deviceSync.selected;
+
+    // Validation
+    if (selectedEmployees.length === 0 || selectedDevices.length === 0) {
+      return notify("Selection Required", "Please select at least one employee and one device.", "error");
+    }
+
+    // Initialize UI
     setLoading(true);
+    setSyncResults([]); // Clear previous results
+    setTotalOperations(selectedEmployees.length * selectedDevices.length);
+    setShowStatusModal(true); // Open the status popup
+
     try {
       const user = await getUser();
       const companyId = user?.company_id || 0;
-
-      const selectedEmployees = personSync.selected;
-      const selectedDevices = deviceSync.selected;
 
       // Loop through each device
       for (const device of selectedDevices) {
@@ -125,7 +222,6 @@ export default function AttendanceTable() {
         // Loop through each employee for that specific device
         for (const emp of selectedEmployees) {
 
-          // Prepare payload for ONE employee and ONE device
           const payload = {
             personList: [{
               name: emp.name,
@@ -133,36 +229,65 @@ export default function AttendanceTable() {
               profile_picture_raw: emp.profile_picture_raw,
               faceImage: emp.profile_picture
             }],
-            snList: [device.id], // Single device ID in the list
+            snList: [device.id], // Single device ID in the array
             branch_id: null,
             company_id: companyId
           };
 
           try {
-            console.log(`Sending ${emp.name} to device ${device.id}...`);
+            console.log(`Syncing ${emp.name} to device ${device.id}...`);
 
-            // Wait for the backend response
             const data = await addPerson(payload);
 
-            // Show response one by one
-            console.log("Response received:", data);
+            // Extract the specific result from your JSON structure
+            // { "deviceResponse": [{ "status": 200, ... }] }
+            const apiResult = data?.deviceResponse?.[0];
 
-            // Optional: Update your UI state here to show progress
-            // setSyncResults(prev => [...prev, data.deviceResponse[0]]);
+            if (apiResult) {
+              // Update results list one-by-one
+              setSyncResults((prev) => [...prev, {
+                ...apiResult,
+                // Fallback for name/id if the API doesn't return them in deviceResponse
+                name: apiResult.name || emp.name,
+                device_id: apiResult.device_id || device.id,
+                status: apiResult.status // This is 200 (number)
+              }]);
+            } else {
+              throw new Error("Invalid API Response Structure");
+            }
 
           } catch (err) {
-            console.error(`Failed to sync ${emp.name} to ${device.id}:`, err);
+            console.error(`Error syncing ${emp.name}:`, err);
+            setSyncResults((prev) => [...prev, {
+              name: emp.name,
+              device_id: device.id,
+              status: "Error", // Mark as error for UI
+              sdk_response: parseApiError(err)
+            }]);
           }
         }
       }
+
+      // notify("Sync Complete", "All operations have finished processing.", "success");
+
+    } catch (globalError) {
+      notify("Error", "Could not initialize synchronization.", "error");
     } finally {
       setLoading(false);
-      console.log("All sync operations completed.");
     }
   };
 
   return (
     <div className='p-6 space-y-6 pb-32 overflow-y-auto max-h-[calc(100vh-100px)]'>
+
+      <SyncStatusModal
+        isOpen={showStatusModal}
+        results={syncResults}
+        total={totalOperations}
+        currentCount={syncResults.length}
+        isLoading={loading}
+        onClose={() => setShowStatusModal(false)}
+      />
 
       {/* HEADER SECTION */}
       <header className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-surface p-4 px-6 rounded-2xl shadow-glass border border-glass-border">
