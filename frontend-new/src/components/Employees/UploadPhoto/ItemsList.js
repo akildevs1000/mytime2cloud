@@ -33,7 +33,7 @@ const PersonnelRow = ({ person, isChecked, onToggle, theme = 'slate' }) => {
       </div>
 
       <span className="text-xs text-slate-500 font-mono tracking-tight border border-border px-2 py-0.5 rounded">
-        {person.badgeId}
+        {person.id}
       </span>
     </label>
   );
