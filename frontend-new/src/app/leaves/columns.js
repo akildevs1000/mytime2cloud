@@ -113,7 +113,7 @@ export default (editItem) => [
           <PopoverTrigger asChild>
             <History size={20} className=" text-blue-500" />
           </PopoverTrigger>
-          <PopoverContent className="w-80 p-4 shadow-xl" align="center">
+          <PopoverContent className="w-80 p-4 shadow-xl max-h-[500px] overflow-y-auto" align="center">
             <div className="space-y-4">
               <h4 className="font-semibold leading-none text-slate-900 dark:text-slate-100">Leave Timeline</h4>
               <div className="relative border-l-2 border-slate-100 dark:border-slate-800 ml-2">
