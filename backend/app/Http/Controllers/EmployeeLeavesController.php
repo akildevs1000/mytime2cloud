@@ -44,6 +44,17 @@ class EmployeeLeavesController extends Controller
             });
         });
 
+        $model->when($request->filled('search'), function ($q) use ($request) {
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $searchTerm = "{$request->search}%";
+
+                $qu->where('system_user_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+            });
+        });
+
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where("employee_id", $request->employee_id);
         });
@@ -77,25 +88,11 @@ class EmployeeLeavesController extends Controller
                 $q->where('status', 0);
             }
         });
-        $model->when($request->filled('sortBy'), function ($q) use ($request) {
-            $sortDesc = $request->input('sortDesc');
-            if (strpos($request->sortBy, '.')) {
-                if ($request->sortBy == 'employee.name') {
-                    $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-                } else if ($request->sortBy == 'group.name') {
-                    $q->orderBy(Employee::select("first_name")->whereColumn("employees.id", "employee_leaves.employee_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-                } else if ($request->sortBy == 'leave_type.name') {
-                    $q->orderBy(LeaveType::select("name")->whereColumn("leave_types.id", "employee_leaves.leave_type_id"), $sortDesc == 'true' ? 'desc' : 'asc');
-                }
-            } else {
-                $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
-                }
-            }
+
+        $model->when($request->filled('status_ids'), function ($q) use ($request) {
+            $q->whereIn('status', 1);
         });
 
-        if (!$request->sortBy) {
-            $model->orderBy('id', 'desc');
-        }
         return $model;
     }
 
