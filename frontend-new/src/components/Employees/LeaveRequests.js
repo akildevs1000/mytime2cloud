@@ -11,6 +11,7 @@ import {
   ClipboardList
 } from 'lucide-react';
 import { getLeavesGroups } from '@/lib/endpoint/leaves';
+import TeamAvailability from './TeamAvailability';
 
 export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, onResponse }) {
   const [activeTab, setActiveTab] = useState('info');
@@ -115,7 +116,7 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
           ></div>
 
           {/* Modal Card */}
-          <div className="relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 w-full max-w-4xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
+          <div className="min-w-[1100px] relative bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-white/10 w-full max-w-4xl overflow-hidden transform transition-all animate-in fade-in zoom-in duration-200 flex flex-col max-h-[90vh]">
 
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center bg-white dark:bg-slate-800">
@@ -175,6 +176,48 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
                       <div className="w-28 flex flex-col items-center justify-center rounded-2xl bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20">
                         <span className="text-2xl font-black text-blue-600 dark:text-blue-400">{dayDifference}</span>
                         <span className="text-[10px] font-bold text-blue-600/60 dark:text-blue-400/60 uppercase">Days</span>
+                      </div>
+                    </div>
+
+                    {/* Alternate Employee Section */}
+                    {editedItem?.alternate_employee && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">
+                          Alternate Employee / Handover
+                        </label>
+                        <div className="flex items-center gap-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/5 shadow-sm">
+                          <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-white dark:border-slate-700 shadow-sm">
+                            <img
+                              src={editedItem.alternate_employee.profile_picture || '/api/placeholder/48/48'}
+                              alt="Avatar"
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-slate-700 dark:text-gray-200 truncate">
+                              {editedItem.alternate_employee.full_name}
+                            </h4>
+                            <div className="flex gap-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                              <span className="flex items-center gap-1">
+                                ID: <span className="text-blue-500">{editedItem.alternate_employee.employee_id}</span>
+                              </span>
+                              <span className="flex items-center gap-1 uppercase tracking-tighter">
+                                {editedItem.alternate_employee.department?.name}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="hidden sm:block px-2 py-1 rounded bg-blue-500/10 text-blue-500 text-[10px] font-bold uppercase">
+                            Coverage
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reason Section (Keep this below the alternate employee) */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-medium text-slate-400 uppercase tracking-wider">Reason</label>
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900/50 border border-gray-200 dark:border-white/5 text-sm dark:text-gray-400">
+                        {editedItem?.reason || "No reason provided"}
                       </div>
                     </div>
 
@@ -254,9 +297,8 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, auth, o
                       <Calendar className="mb-2 opacity-20" size={32} />
                       <span className="text-xs font-medium">Calendar Widget</span>
                     </div>
-                    <div className="p-8 border-2 border-dashed border-gray-100 dark:border-white/5 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                      <Users className="mb-2 opacity-20" size={32} />
-                      <span className="text-xs font-medium">Team Availability</span>
+                    <div className="p-2 border-2 border-dashed border-gray-100 dark:border-white/5 rounded-2xl flex flex-col items-center justify-center text-slate-400">
+                      <TeamAvailability />
                     </div>
                   </div>
                 </div>
