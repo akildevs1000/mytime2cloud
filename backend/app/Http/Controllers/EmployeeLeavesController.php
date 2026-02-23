@@ -239,6 +239,7 @@ class EmployeeLeavesController extends Controller
 
         $company_id = $request->company_id;
         $employee_id = $model->employee_id;
+        $user_id = $request->user_id;
 
         if (!$model) {
             return $this->response('Employee Leave data is not available.', null, false);
@@ -266,11 +267,7 @@ class EmployeeLeavesController extends Controller
         if ($record) {
             if ($model->order == 0) {
 
-                $employee = Employee::where(["company_id" => $company_id, "employee_id" => $employee_id])
-                    ->withOut(["branch", "department", "schedule", "designation", "sub_department", "user"])
-                    ->first("system_user_id");
-
-                Attendance::where(["company_id" => $company_id, "employee_id" => $employee->system_user_id])
+                Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
                     ->whereBetWeen("date", [$model->start_date, $model->end_date])
                     ->update(["status" => "L"]);
 
@@ -278,7 +275,7 @@ class EmployeeLeavesController extends Controller
                     "data" => "Leave application has been $status_text",
                     "action" => "Leave Status",
                     "model" => "EmployeeLeaves",
-                    "user_id" => $employee->user_id ?? 0,
+                    "user_id" => $user_id ?? 0,
                     "company_id" => $employee_id,
                     "redirect_url" => "leaves"
                 ]);
