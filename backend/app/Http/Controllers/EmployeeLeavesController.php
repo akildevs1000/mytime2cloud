@@ -38,6 +38,12 @@ class EmployeeLeavesController extends Controller
             });
         });
 
+        $model->when($request->filled('department_ids'), function ($q) use ($request) {
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $qu->whereIn("department_id", $request->department_ids);
+            });
+        });
+
         $model->when($request->filled('employee_id'), function ($q) use ($request) {
             $q->where("employee_id", $request->employee_id);
         });
@@ -53,6 +59,12 @@ class EmployeeLeavesController extends Controller
         $model->when($request->filled('branch_id'), function ($q) use ($request) {
             $q->whereHas('employee',  function ($qu) use ($request) {
                 $qu->where("branch_id", $request->branch_id);
+            });
+        });
+
+        $model->when($request->filled('branch_ids'), function ($q) use ($request) {
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $qu->whereIn("branch_id", $request->branch_ids);
             });
         });
 
