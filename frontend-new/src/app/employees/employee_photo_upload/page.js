@@ -11,7 +11,7 @@ import {
 import DropDown from '@/components/ui/DropDown';
 import SyncGrid from '@/components/Employees/UploadPhoto/SyncGrid';
 import { useAttendanceSync } from './useAttendanceSync';
-import { addPerson, getBranches, getDepartments, getDepartmentsByBranchIds, getDeviceList, getDeviceListNew, getScheduledEmployeeList } from '@/lib/api';
+import { addPerson, getBranches, getDepartments, getDeviceListNew, getScheduledEmployeeList } from '@/lib/api';
 import { notify, parseApiError } from '@/lib/utils';
 import { MODEL_NUMBERS } from '@/lib/dropdowns';
 import MultiDropDown from '@/components/ui/MultiDropDown';
@@ -52,7 +52,9 @@ export default function AttendanceTable() {
 
         id: emp.id, // Use real ID from DB
         name: emp?.full_name || "Unknown",
-        dept: emp?.department_name || "N/A",
+        dept: [emp?.branch?.branch_name, emp?.department?.name]
+          .filter(Boolean)
+          .join(" / ") || "N/A",
         profile_picture_raw: emp.profile_picture_raw,
         profile_picture: emp.profile_picture,
       }));
@@ -73,27 +75,30 @@ export default function AttendanceTable() {
 
   const fetchDevices = async () => {
     try {
-
       let result = await getDeviceListNew({ branch_id: selectedBranch, module_number: selectedModel });
 
-      const formattedData = result.map((emp) => ({
-        itemId: emp.id.toString(),
+      // Use a Map to keep track of unique device_ids
+      const seen = new Map();
+      const uniqueResults = result.filter(emp => {
+        if (!seen.has(emp.device_id)) {
+          seen.set(emp.device_id, true);
+          return true;
+        }
+        return false;
+      });
 
-        id: emp.device_id, // Use real ID from DB
+      const formattedData = uniqueResults.map((emp) => ({
+        itemId: emp.id.toString(), // The DB primary key
+        id: emp.device_id,         // Now guaranteed unique in this array
         name: emp?.name || "Unknown",
         dept: emp?.branch?.branch_name || "N/A",
         profile_picture_raw: null,
         profile_picture: null,
       }));
 
-      console.log(formattedData);
-
       setDevices(formattedData);
-
-      // setScheduledEmployees(data);
     } catch (error) {
-      console.log(error);
-
+      console.error("Failed to fetch devices:", error);
     }
   };
 
@@ -109,63 +114,65 @@ export default function AttendanceTable() {
     setLoading(true);
     try {
       const user = await getUser();
-      let list = personSync.selected.map(emp => ({
-        name: emp.name,
-        userCode: emp.id,
-        profile_picture_raw: emp.profile_picture_raw,
-        faceImage: emp.profile_picture
-      }));
+      const companyId = user?.company_id || 0;
 
-      let payload = {
-        "personList": list,
-        "snList": deviceSync.selected.map(e => e.id),
-        "branch_id": null,
-        company_id: user?.company_id || 0
+      const selectedEmployees = personSync.selected;
+      const selectedDevices = deviceSync.selected;
+
+      // Loop through each device
+      for (const device of selectedDevices) {
+
+        // Loop through each employee for that specific device
+        for (const emp of selectedEmployees) {
+
+          // Prepare payload for ONE employee and ONE device
+          const payload = {
+            personList: [{
+              name: emp.name,
+              userCode: emp.id,
+              profile_picture_raw: emp.profile_picture_raw,
+              faceImage: emp.profile_picture
+            }],
+            snList: [device.id], // Single device ID in the list
+            branch_id: null,
+            company_id: companyId
+          };
+
+          try {
+            console.log(`Sending ${emp.name} to device ${device.id}...`);
+
+            // Wait for the backend response
+            const data = await addPerson(payload);
+
+            // Show response one by one
+            console.log("Response received:", data);
+
+            // Optional: Update your UI state here to show progress
+            // setSyncResults(prev => [...prev, data.deviceResponse[0]]);
+
+          } catch (err) {
+            console.error(`Failed to sync ${emp.name} to ${device.id}:`, err);
+          }
+        }
       }
-
-      console.log(devices);
-      console.log(payload);
-      let data = await addPerson(payload);
-      console.log(data);
-
-
-      // FIX: Check if status is explicitly false
-      //   if (data?.status === false) {
-      //     // Check if data.errors actually exists and has keys
-      //     if (data.errors && Object.keys(data.errors).length > 0) {
-      //       const firstKey = Object.keys(data.errors)[0];
-      //       console.log(data.errors);
-      //       notify("Error", data.errors[firstKey][0], "error");
-      //     } else {
-      //       // Fallback if status is false but no specific error object exists
-      //       notify("Error", data?.message, "error");
-      //     }
-      //     return;
-      //   }
-
-      //   notify("Success", "Device Saved", "success")
-      // } catch (error) {
-      //   console.log(error);
-
-      //   notify("Error", parseApiError(error), "error");
-
     } finally {
       setLoading(false);
+      console.log("All sync operations completed.");
     }
   };
 
   return (
-    <div className='p-6 pb-32 space-y-12 bg-slate-50 dark:bg-slate-950 min-h-screen overflow-y-auto'>
+    <div className='p-6 space-y-6 pb-32 overflow-y-auto max-h-[calc(100vh-100px)]'>
 
       {/* HEADER SECTION */}
       <header className="flex flex-col lg:flex-row justify-between items-center gap-6 bg-surface p-4 px-6 rounded-2xl shadow-glass border border-glass-border">
         {/* Left Side: Title & Subtitle */}
         <div className="flex flex-col whitespace-nowrap">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-200 leading-tight">
-            Elite Sync Studio
+            Employee Upload
           </h1>
           <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wider">
-            Personnel & Hardware Bridge
+            upload emplpyee info to devices
           </p>
         </div>
 
