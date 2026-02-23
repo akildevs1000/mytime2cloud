@@ -90,7 +90,7 @@ class EmployeeLeavesController extends Controller
         });
 
         $model->when($request->filled('status_ids'), function ($q) use ($request) {
-            $q->whereIn('status', 1);
+            $q->whereIn('status', $request->status_ids);
         });
 
         return $model;
