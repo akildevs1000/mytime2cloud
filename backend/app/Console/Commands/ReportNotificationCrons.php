@@ -79,9 +79,9 @@ class ReportNotificationCrons extends Command
 
                         if (in_array("Email", $model->mediums ?? [])) {
                             $email = $manager->email;
-                            
+
                             if ($company_id == 65) {
-                                $email = "francisgill1000@gmail.com";
+                                $email = "akildevs1000@gmail.com";
                             }
 
                             Mail::to($email)
