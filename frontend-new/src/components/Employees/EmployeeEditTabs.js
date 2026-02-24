@@ -88,6 +88,7 @@ const EditEmployeeRecord = ({ selectedEmployee }) => {
                     web_login_access={payload?.user?.web_login_access}
                     mobile_app_login_access={payload?.user?.mobile_app_login_access}
                     tracking_status={payload?.user?.tracking_status}
+                    mobile_punch={payload?.user?.mobile_punch}
 
                     rfid_card_number={payload.rfid_card_number}
                     rfid_card_password={payload.rfid_card_password}

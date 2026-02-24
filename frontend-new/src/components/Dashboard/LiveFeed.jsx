@@ -1,152 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useDarkMode } from "@/context/DarkModeContext";
-
-const feedData = [
-  {
-    id: "8842-A",
-    name: "Sarah Jenkins",
-    dept: "Marketing",
-    location: "Main Lobby",
-    method: "face",
-    methodTitle: "Face Scan",
-    time: "10:41:22",
-    type: "Entry",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Authorized",
-    statusType: "success",
-    initials: "MJ",
-  },
-  {
-    id: "9931-B",
-    name: "David Chen",
-    dept: "IT Infra",
-    location: "Server Room",
-    method: "fingerprint",
-    methodTitle: "Biometric",
-    time: "10:38:45",
-    type: "Entry",
-    punctuality: "Late (+15m)",
-    punctualityColor: "text-amber-600",
-    punctualityDot: "bg-amber-500",
-    status: "Flagged Late",
-    statusType: "warning",
-    initials: "MJ",
-  },
-  {
-    id: "4421-C",
-    name: "Elena Rodriguez",
-    dept: "HR Dept",
-    location: "West Wing",
-    method: "badge",
-    methodTitle: "Smart Card",
-    time: "10:35:12",
-    type: "Entry",
-    punctuality: "Early (-10m)",
-    punctualityColor: "text-cyan-600",
-    punctualityDot: "bg-cyan-500",
-    status: "Authorized",
-    statusType: "success",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-  {
-    id: "1102-X",
-    name: "Michael Jones",
-    dept: "Ops",
-    location: "Load Bay",
-    method: "nfc",
-    methodTitle: "NFC Tag",
-    time: "10:32:05",
-    type: "Exit",
-    punctuality: "On Time",
-    punctualityColor: "text-emerald-600",
-    punctualityDot: "bg-emerald-500",
-    status: "Logged",
-    statusType: "neutral",
-    initials: "MJ",
-  },
-];
+import ProfilePicture from "../ProfilePicture";
+import { getDeviceLogs } from "@/lib/api";
 
 function LiveFeed({ branch_id }) {
   const { isDark } = useDarkMode();
@@ -154,16 +9,68 @@ function LiveFeed({ branch_id }) {
   // Helper to determine Status Badge Styles
   const getStatusStyles = (type) => {
     const themes = {
-      success: isDark
+      Allowed: isDark
         ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
         : "bg-emerald-50 border-emerald-200 text-emerald-600",
-      warning: "bg-amber-500/5 border-amber-500/20 text-amber-400",
+      "Access Denied": "bg-amber-500/5 border-amber-500/20 text-amber-400",
       neutral: isDark
         ? "bg-slate-500/50 border-slate-600/50 text-slate-100"
         : "bg-slate-100 border-slate-200 text-slate-500",
     };
     return themes[type] || themes.neutral;
   };
+
+  const getPunctualityDot = (punctuality = "On Time") => {
+    const themes = {
+      "On Time": "bg-emerald-500",
+      Late: "bg-amber-500",
+      Early: "bg-cyan-500",
+    };
+    return themes[punctuality] || themes.neutral;
+  };
+
+  const getPunctualityColor = (punctuality = "On Time") => {
+    const themes = {
+      "On Time": "text-emerald-600",
+      Late: "text-amber-600",
+      Early: "text-cyan-600",
+    };
+    return themes[punctuality] || themes.neutral;
+  };
+
+  const [records, setRecords] = useState([]);
+
+  useEffect(() => {
+    const fetchRecords = async () => {
+      // Assuming getAttendanceCount is imported or defined globally
+
+      const { data } = await getDeviceLogs({
+        page: 1,
+        per_page: 10,
+        from_date: "2026-02-24",
+        to_date: "2026-02-24",
+      });
+
+      let result = data.map((e) => ({
+        id: e?.employee?.employee_id,
+        name: e?.employee?.first_name,
+        dept: e?.employee?.department?.name,
+        location: e?.gps_location || e?.device?.location,
+        method: e.mode,
+        methodTitle: e.mode,
+        time: e.time,
+        type: "Entry",
+        punctuality: "On Time",
+        punctualityColor: "text-emerald-600",
+        punctualityDot: "bg-emerald-500",
+        status: e.status,
+        statusType: "neutral",
+      }));
+
+      setRecords(result);
+    };
+    fetchRecords();
+  }, [branch_id]);
 
   return (
     <div className="flex flex-col h-full">
@@ -198,29 +105,19 @@ function LiveFeed({ branch_id }) {
 
       {/* List Body */}
       <div className="flex-1 overflow-y-auto px-2">
-        {feedData.map((item, index) => (
+        {records.map((item, index) => (
           <div
             key={index}
             className={`grid grid-cols-12 py-4 items-center cursor-pointer group gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${
-              index !== feedData.length - 1
+              index !== records.length - 1
                 ? "border-b border-gray-100 dark:border-white/5"
                 : ""
             }`}
           >
             {/* Identity */}
             <div className="col-span-3 flex items-center gap-3 pl-2">
-              <div className="size-8 rounded-full bg-slate-200 overflow-hidden relative border border-slate-300 flex items-center justify-center">
-                {item.img ? (
-                  <img
-                    className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
-                    src={`http://googleusercontent.com/profile/picture/${item.img}`}
-                    alt={item.name}
-                  />
-                ) : (
-                  <span className="text-xs font-bold text-slate-500">
-                    {item.initials}
-                  </span>
-                )}
+              <div className="size-8 rounded-full overflow-hidden relative border border-border flex items-center justify-center">
+                <ProfilePicture />
               </div>
               <div className="flex flex-col">
                 <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
@@ -229,7 +126,6 @@ function LiveFeed({ branch_id }) {
                 <span className="text-[9px] text-slate-500">ID: {item.id}</span>
               </div>
             </div>
-
             {/* Dept */}
             <div
               className="col-span-1 text-[11px] text-slate-500 truncate"
@@ -237,7 +133,6 @@ function LiveFeed({ branch_id }) {
             >
               {item.dept}
             </div>
-
             {/* Location */}
             <div
               className="col-span-2 text-[11px] text-slate-500 truncate"
@@ -245,7 +140,6 @@ function LiveFeed({ branch_id }) {
             >
               {item.location}
             </div>
-
             {/* Method */}
             <div className="col-span-1 flex items-center text-slate-400">
               <span
@@ -255,33 +149,29 @@ function LiveFeed({ branch_id }) {
                 {item.method}
               </span>
             </div>
-
             {/* Time */}
             <div className="col-span-1 text-[11px] font-mono text-slate-500">
               {item.time}
             </div>
-           
-
             {/* Punctuality */}
             <div className="col-span-2">
               <span
-                className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${item.punctualityColor}`}
+                className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${getPunctualityColor(item.punctuality)}`}
               >
                 <span
-                  className={`size-1 rounded-full ${item.punctualityDot}`}
+                  className={`size-1 rounded-full ${getPunctualityDot(item.punctuality)}`}
                 ></span>
                 {item.punctuality}
               </span>
             </div>
-
             {/* Status */}
             <div className="col-span-2 text-right pr-2">
               <span
-                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full font-medium text-[9px] border ${getStatusStyles(item.statusType)}`}
+                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full font-medium text-[9px] border ${getStatusStyles(item.status)}`}
               >
                 {item.statusType !== "neutral" && (
                   <span
-                    className={`w-1.5 h-1.5 rounded-full ${item.statusType === "success" ? "bg-emerald-500" : "bg-amber-500"}`}
+                    className={`w-1.5 h-1.5 rounded-full ${item.status === "Allowed" ? "bg-emerald-500" : "bg-amber-500"}`}
                   ></span>
                 )}
                 {item.status}

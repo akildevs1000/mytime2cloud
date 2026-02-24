@@ -5,7 +5,7 @@ import Login from './Login';
 import RFID from './RFID';
 import LeaveAndReporting from './LeaveAndReporting';
 
-export default function SETTINGRFIDLOGIN({ id, user_id, email, web_login_access, mobile_app_login_access, tracking_status, rfid_card_number, rfid_card_password, leave_group_id, reporting_manager_id, status }) {
+export default function SETTINGRFIDLOGIN({ id, mobile_punch, user_id, email, web_login_access, mobile_app_login_access, tracking_status, rfid_card_number, rfid_card_password, leave_group_id, reporting_manager_id, status }) {
     return (
         <>
             <div
@@ -38,6 +38,7 @@ export default function SETTINGRFIDLOGIN({ id, user_id, email, web_login_access,
                     web_login_access={web_login_access}
                     mobile_app_login_access={mobile_app_login_access}
                     tracking_status={tracking_status}
+                    mobile_punch={mobile_punch}
                 />
 
                 <RFID
