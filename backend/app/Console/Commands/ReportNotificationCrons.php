@@ -80,9 +80,9 @@ class ReportNotificationCrons extends Command
                         if (in_array("Email", $model->mediums ?? [])) {
                             $email = $manager->email;
 
-                            if ($company_id == 65) {
-                                $email = "akildevs1000@gmail.com";
-                            }
+                            // if ($company_id == 60) {
+                            //     $email = "akildevs1000@gmail.com";
+                            // }
 
                             Mail::to($email)
                                 ->queue(new ReportNotificationMail($model, $manager, $files));
