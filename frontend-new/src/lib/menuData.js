@@ -21,6 +21,8 @@ import {
   DoorClosedIcon,
   LogInIcon,
   Settings,
+  Clipboard,
+  File,
 } from "lucide-react";
 
 // 1️⃣ Reusable menu groups
@@ -29,6 +31,7 @@ const attendanceMenu = [
   { href: "/schedule", icon: CalendarDays, label: "Schedule" },
   { href: "/attendance", icon: FileText, label: "Reports" },
   { href: "/logs", icon: History, label: "Device Logs" },
+  { href: "/attendance/change_request", icon: File, label: "Change Request" },
   { href: "/access_control_logs", icon: Lock, label: "Access Control Logs" },
 ];
 
@@ -80,7 +83,7 @@ export const leftNavLinks = {
   "/logs": attendanceMenu,
   "/access_control_logs": attendanceMenu,
 
-  
+
   "/setup": companyMenu,
   "/company": companyMenu,
   "/branch": companyMenu,

@@ -15,3 +15,15 @@ export const checkProgress = async () => {
     const { data } = await api.get("/progress", { params: await buildQueryParams() });
     return data;
 };
+
+export const changeRequest = async (params = {}) => {
+    let baseUrl = "https://backend.mytime2cloud.com/api";
+    const { data } = await api.get(`/change_request`, { params: await buildQueryParams(params) });
+    return data;
+};
+
+export const updateRequest = async (id, payload = {}) => {
+    let baseUrl = "https://backend.mytime2cloud.com/api";
+    const { data } = await api.post(`/update-change-request/${id}`, payload);
+    return data;
+};
