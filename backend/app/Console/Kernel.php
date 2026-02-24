@@ -70,7 +70,7 @@ class Kernel extends ConsoleKernel
         // --------------------Daily Report Generation for automation-------------------- //
         $schedule
             ->command("task:generate_daily_report")
-            ->dailyAt('09:00')
+            ->dailyAt('05:00')
             ->runInBackground();
         // --------------------Daily Report Generation for automation-------------------- //
 
