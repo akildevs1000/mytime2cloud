@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -730,7 +731,7 @@ class EmployeeControllerNew extends Controller
                 'tracking_status'
             ]);
 
-            $user = User::where('employee_id', $id)->first();
+            $user = User::where('id', $id)->first();
 
             // If they are trying to update user settings but no user exists
             if ($hasUserFields && !$user) {
@@ -739,7 +740,7 @@ class EmployeeControllerNew extends Controller
                 ], 404);
             }
 
-            DB::transaction(function () use ($request, $employee, $user) {
+            DB::transaction(function () use ($request, $employee, $user, $id) {
                 // Update employee status ONLY if it was sent
                 if ($request->has('status')) {
                     $employee->update(['status' => $request->status]);
@@ -747,14 +748,26 @@ class EmployeeControllerNew extends Controller
 
                 // Update user fields ONLY if user exists and fields were sent
                 if ($user) {
-                    $user->update($request->only([
-                        'web_login_access',
-                        'mobile_app_login_access',
-                        'tracking_status'
-                    ]));
+                    $user = User::where('id', $id)->update([
+                        'web_login_access' => $request->web_login_access ?? false,
+                        'mobile_app_login_access' => $request->mobile_app_login_access ?? false,
+                        'tracking_status' => $request->tracking_status ?? false
+                    ]);
+
+                    Log::info(User::where('id', $id)->first());
                 }
             });
 
+            return response()->json(['message' => 'Updated successfully'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updatePassword(Request $request, $id)
+    {
+        try {
+            User::where('id', $id)->update(['password' =>  Hash::make($request->password)]);
             return response()->json(['message' => 'Updated successfully'], 200);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);

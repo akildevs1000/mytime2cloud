@@ -491,15 +491,15 @@ class Controller extends BaseController
 
     public function throwAuthException($request, $user)
     {
-        if ($user->company_id > 0 && $user->company->expiry < now()) {
-            throw ValidationException::withMessages([
-                'email' => ['Subscription has been expired.'],
-            ]);
-        } else if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
-        } else if (!$user->web_login_access) {
+        } else if ($user->company_id > 0 && $user->company->expiry < now()) {
+            throw ValidationException::withMessages([
+                'email' => ['Subscription has been expired.'],
+            ]);
+        } else if (!$user->mobile_app_login_access) {
             throw ValidationException::withMessages([
                 'email' => ['Login access is disabled. Please contact your admin.'],
             ]);
