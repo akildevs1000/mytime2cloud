@@ -18,13 +18,34 @@ class ChangeRequestController extends Controller
         $model = ChangeRequest::query();
 
         $model->where("company_id", $request->company_id);
-        $model->when($request->filled("employee_device_id"), fn ($q) => $q->where('employee_device_id', $request->employee_device_id));
-        $model->when($request->filled("UserID"), fn ($q) => $q->where('employee_device_id', $request->employee_device_id));
-        $model->when($request->filled("request_type"), fn ($q) => $q->where('request_type', $request->request_type));
-        $model->when($request->filled("status"), fn ($q) => $q->where('status', $request->status));
-
+        $model->when($request->filled("employee_device_id"), fn($q) => $q->where('employee_device_id', $request->employee_device_id));
+        $model->when($request->filled("UserID"), fn($q) => $q->where('employee_device_id', $request->employee_device_id));
+        $model->when($request->filled("request_type"), fn($q) => $q->where('request_type', $request->request_type));
+        $model->when($request->filled("status"), fn($q) => $q->where('status', $request->status));
         $model->when($request->filled("branch_id"), function ($query) {
-            $query->whereHas("employee", fn ($q) => $q->where('branch_id', request("branch_id")));
+            $query->whereHas("employee", fn($q) => $q->where('branch_id', request("branch_id")));
+        });
+
+        $model->when($request->filled("status_ids"), fn($q) => $q->whereIn('status', $request->status_ids));
+
+        $model->when($request->filled("branch_ids"), function ($query) {
+            $query->whereHas("employee", fn($q) => $q->whereIn('branch_id', request("branch_ids")));
+        });
+
+        $model->when($request->filled("department_ids"), function ($query) {
+            $query->whereHas("employee", fn($q) => $q->whereIn('department_id', request("department_ids")));
+        });
+
+
+        $model->when($request->filled('search'), function ($q) use ($request) {
+            $q->whereHas('employee',  function ($qu) use ($request) {
+                $searchTerm = "{$request->search}%";
+
+                $qu->where('system_user_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('employee_id', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('first_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm)
+                    ->orWhere('last_name', env('WILD_CARD') ?? 'ILIKE', $searchTerm);
+            });
         });
 
         $model->with(["branch", "employee"]);
