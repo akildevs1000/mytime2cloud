@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { updateGeneralSettings } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 
-const Settings = ({ id, status, web_login_access, mobile_app_login_access, tracking_status }) => {
+const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_access, tracking_status }) => {
     // 1. Refs for Lifecycle Management
     const isInitialMount = useRef(true);
     const isUpdating = useRef(false);
@@ -46,8 +46,8 @@ const Settings = ({ id, status, web_login_access, mobile_app_login_access, track
                 if (Object.keys(payload).length === 0) return;
 
                 isUpdating.current = true;
-                
-                await updateGeneralSettings(payload, id);
+
+                await updateGeneralSettings(payload, user_id);
                 notify(`Success`, "Settings updated successfully", 'success');
             } catch (error) {
                 notify(`Error`, parseApiError(error), 'error');
@@ -83,7 +83,7 @@ const Settings = ({ id, status, web_login_access, mobile_app_login_access, track
 
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-12 pt-4">
-                        
+
                         {/* 1. Employee Status */}
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">

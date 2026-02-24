@@ -61,7 +61,7 @@ const TYPE_COLORS = {
 function EventsAndInsights({ branch_id }) {
   const [activeTab, setActiveTab] = useState("Visitors");
   const tabs = [
-    "Visitors",
+    // "Visitors",
     "Announcements",
     "Holidays",
     "Spotlight",
