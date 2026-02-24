@@ -106,6 +106,7 @@ class User extends Authenticatable
 
     protected $casts = [
         'notify' => 'boolean',
+        'mobile_punch' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
         'email_verified_at' => 'datetime',

@@ -728,7 +728,8 @@ class EmployeeControllerNew extends Controller
             $hasUserFields = $request->hasAny([
                 'web_login_access',
                 'mobile_app_login_access',
-                'tracking_status'
+                'tracking_status',
+                'mobile_punch',
             ]);
 
             $user = User::where('id', $id)->first();
@@ -751,7 +752,8 @@ class EmployeeControllerNew extends Controller
                     $user = User::where('id', $id)->update([
                         'web_login_access' => $request->web_login_access ?? false,
                         'mobile_app_login_access' => $request->mobile_app_login_access ?? false,
-                        'tracking_status' => $request->tracking_status ?? false
+                        'tracking_status' => $request->tracking_status ?? false,
+                        'mobile_punch' => $request->mobile_punch ?? false,
                     ]);
 
                     Log::info(User::where('id', $id)->first());
