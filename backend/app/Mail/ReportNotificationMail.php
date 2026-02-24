@@ -6,7 +6,6 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Support\Facades\Log;
 
 class ReportNotificationMail extends Mailable implements ShouldQueue
 {
@@ -23,21 +22,12 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
         $date = date("Y-m-d", strtotime("-1 day"));
 
         // Attach PDF files if they exist
-        // foreach ($this->files as $file) {
-        //     $relativePath = "public/pdf/$date/{$companyId}/summary_report_{$branchId}_General.pdf";
-        //     $fullPath = storage_path($relativePath);
+        foreach ($this->files as $file) {
+            $fullPath = storage_path("app/public/pdf/$date/{$companyId}/summary_report_{$branchId}_$file.pdf");
 
-        //     if (file_exists($fullPath)) {
-        //         $this->attach($fullPath);
-        //     }
-        // }
-
-        $relativePath = "app/public/pdf/$date/{$companyId}/summary_report_{$branchId}_General.pdf";
-        $fullPath = storage_path($relativePath);
-        Log::info($fullPath);
-
-        if (file_exists($fullPath)) {
-            $this->attach($fullPath);
+            if (file_exists($fullPath)) {
+                $this->attach($fullPath);
+            }
         }
 
         // Build email body
@@ -46,7 +36,7 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
 
         $bodyContent = "Hi {$managerName},<br/>";
         $bodyContent .= "<b>Company: {$companyName}</b><br/><br/>";
-        $bodyContent .= "Hi, Automated Email Reports.<br/>Thanks.";
+        $bodyContent .= "Automated Email Reports.<br/>Thanks.";
 
         return $this->view('emails.report')->with([
             'body' => $bodyContent
