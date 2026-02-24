@@ -78,7 +78,13 @@ class ReportNotificationCrons extends Command
                     if ($manager->branch_id == $model->branch_id) {
 
                         if (in_array("Email", $model->mediums ?? [])) {
-                            Mail::to($manager->email)
+                            $email = $manager->email;
+                            
+                            if ($company_id == 65) {
+                                $email = "francisgill1000@gmail.com";
+                            }
+
+                            Mail::to($email)
                                 ->queue(new ReportNotificationMail($model, $manager, $files));
                         }
 
