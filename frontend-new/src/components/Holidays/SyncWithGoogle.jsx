@@ -4,8 +4,7 @@
 import { useEffect, useState } from "react";
 
 import { getBranches } from "@/lib/api";
-import { updateHolidays } from "@/lib/endpoint/holidays";
-
+import { getGoogleHolidays, storeHolidays } from "@/lib/endpoint/holidays";
 import { SuccessDialog } from "@/components/SuccessDialog";
 import { notify, parseApiError } from "@/lib/utils";
 import Input from "../Theme/Input";
@@ -17,21 +16,13 @@ import { Checkbox } from "../ui/checkbox";
 import { useDebounce } from "@/hooks/useDebounce";
 import { id } from "date-fns/locale";
 import ShiftPreview from "../Shift/ShiftPreview";
-import { RefreshCcw } from "lucide-react";
+import { CalendarCheck, Plus, RefreshCcw } from "lucide-react";
 import ProfilePicture from "../ProfilePicture";
 import { getUser } from "@/config";
+import SyncModal from "./SyncModal";
 
-let defaultPayload = {
-  name: "",
-  total_days: 0,
-  start_date: null, // Assuming 'from' is already in YYYY-MM-DD format
-  end_date: null, // Assuming 'to' is already in YYYY-MM-DD format
-  year: null,
-  branch_id: 0,
-  company_id: 0,
-};
-
-const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
+const SyncWithGoogle = ({ onSuccess = () => {} }) => {
+  const [open, setOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -53,16 +44,18 @@ const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
   const toggleModal = () => setOpen(!open);
 
   useEffect(() => {
-    if (open && editedItem) {
+    if (open) {
       fetchDropdowns();
-      setSelectedBranchId(editedItem?.branch_id);
-      setName(editedItem.name);
-
-      // Ensure these are passed as Date objects or ISO strings the child can parse
-      setFrom(editedItem.start_date);
-      setTo(editedItem.end_date);
+      setSelectedBranchId(null);
+      setFrom(null);
+      setTo(null);
+      setName("");
     }
-  }, [open, editedItem]);
+  }, [open]);
+
+  const [syncResults, setSyncResults] = useState([]);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [totalOperations, setTotalOperations] = useState(0);
 
   const onSubmit = async () => {
     if (!selectedBranchId) {
@@ -70,47 +63,55 @@ const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
       return;
     }
 
-    if (!from || !to) {
-      notify("Error", "Date range must be selected", "error");
-      return;
-    }
-
     setLoading(true);
-
-    const { company_id } = await getUser();
-
-    // --- Dynamic Calculation Logic ---
-    const startDate = new Date(from);
-    const endDate = new Date(to);
-
-    // Calculate difference in milliseconds, then convert to days
-    // We add +1 to include both the start and end date in the count
-    const diffTime = Math.abs(endDate - startDate);
-    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
-    // Extract the year from the start date
-    const selectedYear = startDate.getFullYear();
-    // ---------------------------------
-
-    let payload = {
-      name: name,
-      total_days: totalDays,
-      start_date: from, // Assuming 'from' is already in YYYY-MM-DD format
-      end_date: to, // Assuming 'to' is already in YYYY-MM-DD format
-      year: selectedYear,
-      branch_id: selectedBranchId,
-      company_id: company_id,
-    };
+    setSyncResults([]);
+    setShowStatusModal(true);
 
     try {
-      const dayResult = await updateHolidays(editedItem.id, payload);
-      console.log(dayResult);
-      notify("Success", "Holidays stored successfully", "success");
-      onSuccess?.();
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-      await notify("Error", parseApiError(error), "error");
+      const { company_id } = await getUser();
+      const selectedYear = new Date().getFullYear();
+      const holidays = await getGoogleHolidays(selectedYear);
+
+      setTotalOperations(holidays.length);
+
+      for (const holiday of holidays) {
+        const payload = {
+          ...holiday,
+          company_id: company_id,
+          branch_id: selectedBranchId,
+        };
+
+        try {
+          const apiResult = await storeHolidays(payload);
+
+          // Update results list one-by-one
+          setSyncResults((prev) => [
+            ...prev,
+            {
+              name: holiday.name,
+              start_date: holiday.start_date,
+              end_date: holiday.end_date,
+              total_days: holiday.total_days,
+              status: 200,
+            },
+          ]);
+        } catch (err) {
+          console.error(err);
+          // Push a failure result to the modal so the user sees which one failed
+          setSyncResults((prev) => [
+            ...prev,
+            {
+              name: holiday.name,
+              start_date: holiday.start_date,
+              end_date: holiday.end_date,
+              total_days: holiday.total_days,
+              status: 500, // Error status
+            },
+          ]);
+        }
+      }
+    } catch (globalErr) {
+      notify("Error", "Failed to initialize sync", "error");
     } finally {
       setLoading(false);
     }
@@ -118,6 +119,23 @@ const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
 
   return (
     <>
+      <SyncModal
+        isOpen={showStatusModal}
+        results={syncResults}
+        total={totalOperations}
+        currentCount={syncResults.length}
+        isLoading={loading}
+        onClose={() => setShowStatusModal(false)}
+      />
+
+      <button
+        onClick={() => setOpen(true)}
+        className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+      >
+        <CalendarCheck size={15} />
+        Sycn With Google
+      </button>
+
       {/* Modal Portal Logic */}
       {open && (
         <div
@@ -170,26 +188,6 @@ const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
                         onChange={setSelectedBranchId}
                       />
                     </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      <Input
-                        placeholder="Enter Holiday Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-4">
-                      <DateRangeSelect
-                        value={{ from, to }} // Pass the current state down
-                        onChange={({ from, to }) => {
-                          // Logic to handle the return from child
-                          // If your API needs "YYYY-MM-DD", format it here or in onSubmit
-                          setFrom(from);
-                          setTo(to);
-                        }}
-                      />
-                    </div>
                   </div>
                 </section>
               </div>
@@ -219,4 +217,4 @@ const HolidaysEdit = ({ open, setOpen, editedItem, onSuccess = () => {} }) => {
   );
 };
 
-export default HolidaysEdit;
+export default SyncWithGoogle;

@@ -3,7 +3,8 @@
 
 import { useEffect, useState } from "react";
 
-import { getBranches, storeHolidays } from "@/lib/api";
+import { getBranches } from "@/lib/api";
+import { storeHolidays } from "@/lib/endpoint/holidays";
 import { SuccessDialog } from "@/components/SuccessDialog";
 import { notify, parseApiError } from "@/lib/utils";
 import Input from "../Theme/Input";
