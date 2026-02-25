@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { getBranches, getHolidays } from '@/lib/api';
+import { getBranches } from '@/lib/api';
 
 import Columns from "./columns";
 import DataTable from '@/components/ui/DataTable';
@@ -12,16 +12,19 @@ import MultiDropDown from '@/components/ui/MultiDropDown';
 import Input from '@/components/Theme/Input';
 import IconButton from '@/components/Theme/IconButton';
 import { useDebounce } from '@/hooks/useDebounce';
-import ChangeRequestDialog from '@/components/Attendance/ChangeRequestDialog';
-import Holiday from '@/components/Holidays/Page';
 import HolidaysCreate from '@/components/Holidays/Create';
 import HolidaysEdit from '@/components/Holidays/Edit';
+import { deleteHolidays, getHolidays } from '@/lib/endpoint/holidays';
+import SyncWithGoogle from '@/components/Holidays/SyncWithGoogle';
+import DateRangeSelect from '@/components/ui/DateRange';
 
 export default function EmployeeDataTable() {
 
     const [employees, setEmployees] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [from, setFrom] = useState(null);
+    const [to, setTo] = useState(null);
 
     // Pagination State
     const [currentPage, setCurrentPage] = useState(1);
@@ -60,15 +63,12 @@ export default function EmployeeDataTable() {
                 branch_ids: selectedBranch,
                 department_ids: selectedDepartments,
                 status_ids: selectedStatusses,
+                start_date: from,
+                end_date: to,
                 search: searchTerm || null, // Only include search if it's not empty
             };
 
-            console.log(params);
-
             const result = await getHolidays(params);
-
-            // console.log(result.data);return;
-
 
             // Check if result has expected structure before setting state
             if (result && Array.isArray(result.data)) {
@@ -86,7 +86,7 @@ export default function EmployeeDataTable() {
             setError(parseApiError(error));
             setIsLoading(false);
         }
-    }, [perPage, selectedBranch, selectedDepartments, selectedStatusses, searchTerm]);
+    }, [perPage, selectedBranch, selectedDepartments, selectedStatusses, searchTerm, from, to]);
 
     const debouncedSetSearch = useDebounce((value) => {
         setSearchTerm(value);
@@ -108,6 +108,8 @@ export default function EmployeeDataTable() {
     const handleRefresh = () => {
         setSelectedBranch([]);
         setSelectedDepartments([]);
+        setFrom(null);
+        setTo(null);
         fetchEmployees(currentPage, perPage);
     }
 
@@ -115,9 +117,13 @@ export default function EmployeeDataTable() {
     const [open, setOpen] = useState(false);
 
     const editItem = async (item) => {
-        console.log(item);
         setEditedItem(item);
         setOpen(true)
+    }
+
+    const deleteItem = async (id) => {
+        await deleteHolidays(id);
+        handleRefresh();
     }
 
     return (
@@ -141,7 +147,17 @@ export default function EmployeeDataTable() {
                         />
                     </div>
 
-                    <div className="relative">
+                    <div className="grid grid-cols-1 gap-4">
+                        <DateRangeSelect
+                            value={{ from, to }}
+                            onChange={({ from, to }) => {
+                                setFrom(from);
+                                setTo(to);
+                            }}
+                        />
+                    </div>
+
+                    {/* <div className="relative">
                         <MultiDropDown
                             items={[
                                 { id: "P", name: "Past" },
@@ -155,7 +171,7 @@ export default function EmployeeDataTable() {
                             placeholder="Select a Status"
                             width="w-[320px]"
                         />
-                    </div>
+                    </div> */}
 
                     <div className="relative">
                         <Input
@@ -172,6 +188,8 @@ export default function EmployeeDataTable() {
                         title="Refresh Data"
                     />
 
+                    <SyncWithGoogle onSuccess={handleRefresh} />
+
                     <HolidaysCreate onSuccess={handleRefresh} />
                 </div>
             </div>
@@ -181,7 +199,7 @@ export default function EmployeeDataTable() {
             }
 
             <DataTable
-                columns={Columns(editItem)}
+                columns={Columns(deleteItem, editItem)}
                 data={employees}
                 isLoading={isLoading}
                 error={error}

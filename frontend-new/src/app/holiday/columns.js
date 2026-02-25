@@ -1,5 +1,5 @@
 // columns.js
-import { MoreVertical, Pencil} from "lucide-react";
+import { MoreVertical, Pencil, Trash } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge"; // Assuming you have shadcn Badge
 
@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-export default (editItem) => [
+export default (deleteItem, editItem) => [
   {
     key: "Holiday Name",
     header: "Holiday",
@@ -113,7 +113,14 @@ export default (editItem) => [
           >
             <Pencil className="w-4 h-4 text-primary" /> <span className="text-primary">Edit</span>
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => deleteItem(employee.id)}
+            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100"
+          >
+            <Trash className="w-4 h-4 text-primary" /> <span className="text-primary">Delete</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
+
       </DropdownMenu>
     ),
   },
