@@ -176,6 +176,22 @@ class AttendanceLog extends Model
                     $q->where('DeviceID', $request->device);
                 }
             })
+            ->when($request->filled('device_ids'), function ($q) use ($request) {
+                $deviceIds = (array) $request->input('device_ids'); // Ensure it's an array
+
+                $q->where(function ($query) use ($deviceIds) {
+                    foreach ($deviceIds as $id) {
+                        // If the specific ID in the array needs wildcard logic
+                        if (str_starts_with($id, 'Mobile')) {
+                            $operator = env('WILD_CARD', 'ILIKE');
+                            $query->orWhere('DeviceID', $operator, "{$id}%");
+                        } else {
+                            // Otherwise, standard exact match
+                            $query->orWhere('DeviceID', $id);
+                        }
+                    }
+                });
+            })
             ->when($request->filled('system_user_id'), function ($q) use ($request) {
                 $q->where('UserID', $request->system_user_id);
             })
@@ -191,6 +207,9 @@ class AttendanceLog extends Model
             })
             ->when($request->filled('branch_id'), function ($q) {
                 $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', request("branch_id")));
+            })
+             ->when($request->filled('branch_ids'), function ($q) {
+                $q->whereHas('employee', fn(Builder $query) => $query->whereIn('branch_id', request("branch_ids")));
             });
 
         return $model;

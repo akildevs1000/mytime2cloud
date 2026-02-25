@@ -46,10 +46,23 @@ export default function AttendanceTable() {
     };
 
     const fetchDevices = async () => {
-        if (!selectedBranchIds.length) return;
+        if (!selectedBranchIds.length) {
+            setDevices([]); // Clear devices if no branch is selected
+            return;
+        }
+
         try {
             let result = await getDeviceList(selectedBranchIds);
-            setDevices(result.map((e) => ({ name: e.name, id: e.device_id })));
+
+            // 1. Map your API results
+            const apiDevices = result.map((e) => ({ name: e.name, id: e.device_id }));
+
+            // 2. Define the "Mobile" option
+            const mobileOption = { name: 'Mobile Devices', id: 'Mobile' };
+
+            // 3. Combine them (Mobile at the top, then the rest)
+            setDevices([mobileOption, ...apiDevices]);
+
         } catch (error) {
             setError(parseApiError(error));
         }
@@ -77,7 +90,7 @@ export default function AttendanceTable() {
                 page: currentPage,
                 per_page: perPage,
                 sortDesc: 'false',
-                device: selectedDeviceIds,
+                device_ids: selectedDeviceIds,
                 branch_ids: selectedBranchIds,
                 from_date: from,
                 to_date: to,
