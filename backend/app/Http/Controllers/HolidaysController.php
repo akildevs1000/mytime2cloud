@@ -24,6 +24,7 @@ class HolidaysController extends Controller
         $model = Holidays::query();
         $model->where('company_id', $request->company_id);
         $model->when($request->filled('branch_id'), fn($q) => $q->where('branch_id',  $request->branch_id));
+        $model->when($request->filled('branch_ids'), fn($q) => $q->whereIn('branch_id',  $request->branch_ids));
         $model->where('year', $request->year ?? date("Y"));
         $model->when($request->filled('search_start_date'), fn($q) => $q->where('start_date', env('WILD_CARD') ?? 'ILIKE', "{$request->search_start_date}%"));
         $model->when($request->filled('search_end_date'), fn($q) => $q->where('end_date', env('WILD_CARD') ?? 'ILIKE', "{$request->search_end_date}%"));

@@ -4,6 +4,7 @@ namespace App\Http\Requests\Holidays;
 
 use App\Traits\failedValidationWithName;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreRequest extends FormRequest
 {
@@ -26,13 +27,22 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|min:4|max:100',
+            'name' => [
+                'required',
+                'min:4',
+                'max:100',
+                // This checks if 'name' is unique WHERE company_id and branch_id match
+                Rule::unique('holidays')->where(function ($query) {
+                    return $query->where('company_id', $this->company_id)
+                        ->where('branch_id', $this->branch_id);
+                }),
+            ],
             'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'year' => 'required',
+            'end_date'   => 'required|date',
+            'year'       => 'required',
             'total_days' => 'required',
             'company_id' => 'required',
-            'branch_id' => 'required',
+            'branch_id'  => 'required',
         ];
     }
 }
