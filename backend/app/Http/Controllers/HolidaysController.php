@@ -19,18 +19,47 @@ class HolidaysController extends Controller
         $model->orderByDesc("id");
         return $model->first();
     }
+
     public function getDefaultModelSettings($request)
     {
         $model = Holidays::query();
         $model->where('company_id', $request->company_id);
-        $model->when($request->filled('branch_id'), fn($q) => $q->where('branch_id',  $request->branch_id));
-        $model->when($request->filled('branch_ids'), fn($q) => $q->whereIn('branch_id',  $request->branch_ids));
+        $model->when($request->filled('branch_id'), fn($q) => $q->where('branch_id', $request->branch_id));
+        $model->when($request->filled('branch_ids'), fn($q) => $q->whereIn('branch_id', $request->branch_ids));
         $model->where('year', $request->year ?? date("Y"));
-        $model->when($request->filled('search_start_date'), fn($q) => $q->where('start_date', env('WILD_CARD') ?? 'ILIKE', "{$request->search_start_date}%"));
-        $model->when($request->filled('search_end_date'), fn($q) => $q->where('end_date', env('WILD_CARD') ?? 'ILIKE', "{$request->search_end_date}%"));
-        $model->when($request->filled('serach_total_days'), fn($q) => $q->where('total_days',  $request->serach_total_days));
+
+        // Filtering logic
+        // Check if both dates are present to perform a range search
+        $model->when($request->filled(['start_date', 'end_date']), function ($q) use ($request) {
+            $q->whereBetween('start_date', [$request->start_date, $request->end_date]);
+        });
+
+        // Optional: Fallback if only one date is provided
+        $model->when($request->filled('start_date') && !$request->filled('end_date'), function ($q) use ($request) {
+            $q->where('start_date', '>=', $request->start_date);
+        });
+
+        $model->when($request->filled('end_date') && !$request->filled('start_date'), function ($q) use ($request) {
+            $q->where('end_date', '<=', $request->end_date);
+        });
+
+
         $model->with("branch");
-        $model->orderByDesc("id");
+
+        // --- Order Logic Start ---
+        $today = date('Y-m-d');
+
+        $model->orderByRaw("
+        CASE 
+            WHEN start_date >= '$today' THEN 1  -- Upcoming/Today first
+            ELSE 2                              -- Past holidays second
+        END ASC
+    ");
+
+        // Within those groups, sort upcoming by closest date, and past by newest date
+        $model->orderBy('start_date', 'asc');
+        // --- Order Logic End ---
+
         return $model;
     }
 
