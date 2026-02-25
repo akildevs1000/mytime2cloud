@@ -101,6 +101,18 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
         </span>
       ),
     },
+
+    {
+      key: "latlon",
+      header: "Lat/Lon",
+      render: (item) => (
+        <span
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+        >
+          {item.lat || "—"} {item.lon || "—"}
+        </span>
+      ),
+    },
     
     {
       key: "created_date",

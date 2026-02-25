@@ -11,6 +11,8 @@ import TextArea from '../Theme/TextArea';
 let initialPayload = {
     branch_name: "",
     branch_code: "",
+    lat: "",
+    lon: "",
     address: "",
     user_id: 0,
 };
@@ -34,7 +36,7 @@ export default function Create({ setOpen = () => { }, onSuccess = () => { } }) {
 
                 if (data.errors) {
                     const firstKey = Object.keys(data.errors)[0]; // get the first key
-                    notify("Error", firstKey, "error");
+                    notify("Error", data.errors[firstKey][0], "error");
                     return;
                 } else {
                     notify("Error", data.message, "error");
@@ -90,13 +92,14 @@ export default function Create({ setOpen = () => { }, onSuccess = () => { } }) {
                             <div className="p-6 space-y-5 bg-white/50 dark:bg-gray-900">
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-medium text-slate-400">
-                                        Branc Name <span className="text-red-400">*</span>
+                                        Branch Name <span className="text-red-400">*</span>
                                     </label>
                                     <Input
                                         value={form.branch_name}
                                         onChange={(e) => handleChange("branch_name", e.target.value)}
                                     />
                                 </div>
+
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-medium text-slate-400">
                                         Branch Code <span className="text-red-400">*</span>
@@ -107,13 +110,33 @@ export default function Create({ setOpen = () => { }, onSuccess = () => { } }) {
                                     />
                                 </div>
 
+                                {/* Lat and Lon Container */}
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Lat <span className="text-red-400">*</span>
+                                        </label>
+                                        <Input
+                                            value={form.lat}
+                                            onChange={(e) => handleChange("lat", e.target.value)}
+                                        />
+                                    </div>
 
+                                    <div className="space-y-1.5">
+                                        <label className="block text-sm font-medium text-slate-400">
+                                            Lon <span className="text-red-400">*</span>
+                                        </label>
+                                        <Input
+                                            value={form.lon}
+                                            onChange={(e) => handleChange("lon", e.target.value)}
+                                        />
+                                    </div>
+                                </div>
 
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-medium text-slate-400">
                                         Branch Address
                                     </label>
-
                                     <TextArea
                                         placeholder="Enter address of the branch..."
                                         rows={3}
