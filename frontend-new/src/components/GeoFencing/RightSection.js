@@ -302,13 +302,48 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                                 <div className="mt-3 grid grid-cols-2 gap-3">
                                     <Input
                                         label="Latitude"
+                                        type="number"
+                                        step="any"
                                         value={selectedLat ?? ""}
-                                        readOnly
+                                        onChange={(e) => {
+                                            const raw = e.target.value;
+                                            if (raw === "") {
+                                                setSelectedLat(null);
+                                                return;
+                                            }
+                                            const v = Number(raw);
+                                            if (isNaN(v)) {
+                                                // don't update center with invalid value, but keep input empty/null
+                                                setSelectedLat(null);
+                                                return;
+                                            }
+                                            setSelectedLat(v);
+                                            if (typeof setCenter === "function" && selectedLng !== null) {
+                                                setCenter({ lat: v, lng: selectedLng });
+                                            }
+                                        }}
                                     />
                                     <Input
                                         label="Longitude"
+                                        type="number"
+                                        step="any"
                                         value={selectedLng ?? ""}
-                                        readOnly
+                                        onChange={(e) => {
+                                            const raw = e.target.value;
+                                            if (raw === "") {
+                                                setSelectedLng(null);
+                                                return;
+                                            }
+                                            const v = Number(raw);
+                                            if (isNaN(v)) {
+                                                setSelectedLng(null);
+                                                return;
+                                            }
+                                            setSelectedLng(v);
+                                            if (typeof setCenter === "function" && selectedLat !== null) {
+                                                setCenter({ lat: selectedLat, lng: v });
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>

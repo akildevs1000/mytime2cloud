@@ -1,10 +1,13 @@
 // app/job-sites/geofencing/page.tsx
 import React, { useState } from "react";
+import { LocateIcon, LocationEdit, Map } from "lucide-react";
 import RightSection from "./RightSection";
+import GeoMap from "./GeoMap";
 
 export default function GeoFencing() {
   const [radius, setRadius] = useState(150);
-  const [center, setCenter] = useState({ lat: 23.8103, lng: 90.4125 });
+  // Default to Dubai coordinates
+  const [center, setCenter] = useState({ lat: 25.2048, lng: 55.2708 });
 
   // convert meters -> pixels based on default visual size
   const DEFAULT_RADIUS_METERS = 150; // corresponds to current default visual size
@@ -17,20 +20,9 @@ export default function GeoFencing() {
       <main className="flex h-full w-full">
         {/* Left Side: Interactive Map */}
         <div className="relative flex-1 h-full bg-slate-200 dark:bg-slate-900 overflow-hidden">
-          {/* Google Map (iframe) */}
+          {/* Google Maps JS API (controlled) */}
           <div className="absolute inset-0">
-            <iframe
-              title="GeoFencing Map"
-              className="w-full h-full"
-              style={{ border: 0 }}
-              src={
-                "https://www.google.com/maps/embed/v1/view?key=" +
-                (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "") +
-                `&center=${center.lat},${center.lng}&zoom=13&maptype=roadmap`
-              }
-              allowFullScreen
-              loading="lazy"
-            />
+            <GeoMap center={center} radius={radius} />
 
             {/* subtle overlay for dark mode readability */}
             <div className="absolute inset-0 bg-black/20 pointer-events-none" />
@@ -92,13 +84,23 @@ export default function GeoFencing() {
             </div>
           </div>
 
-          {/* Visual Branchs (Simulated) */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          {/* Visual Branch (Overlay) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
             <div
-              className="rounded-full map-overlay-yellow relative flex items-center justify-center group cursor-move"
+              className="relative flex items-center justify-center"
               style={{ width: diameterPx + "px", height: diameterPx + "px" }}
+              aria-hidden
             >
-              <div className="h-4 w-4 bg-accent-yellow border-2 border-white rounded-full shadow-lg animate-pulse" />
+              {/* translucent ring */}
+              <div
+                className="absolute inset-0 rounded-full"
+                style={{
+                  backgroundColor: "rgba(250,204,21,0.12)",
+                  border: "2px solid rgba(250,204,21,0.9)",
+                }}
+              />
+
+              {/* center marker removed — using default map marker */}
             </div>
           </div>
 
