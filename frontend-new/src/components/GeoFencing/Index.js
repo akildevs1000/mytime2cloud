@@ -1,13 +1,15 @@
 // app/job-sites/geofencing/page.tsx
 import React, { useState } from "react";
-import { LocateIcon, LocationEdit, Map } from "lucide-react";
 import RightSection from "./RightSection";
 import GeoMap from "./GeoMap";
+import FloatingControls from "./FloatingControls";
 
 export default function GeoFencing() {
   const [radius, setRadius] = useState(150);
   // Default to Dubai coordinates
   const [center, setCenter] = useState({ lat: 25.2048, lng: 55.2708 });
+  const [mapApi, setMapApi] = useState(null);
+  const [activeTool, setActiveTool] = useState(null);
 
   // convert meters -> pixels based on default visual size
   const DEFAULT_RADIUS_METERS = 150; // corresponds to current default visual size
@@ -22,67 +24,28 @@ export default function GeoFencing() {
         <div className="relative flex-1 h-full bg-slate-200 dark:bg-slate-900 overflow-hidden">
           {/* Google Maps JS API (controlled) */}
           <div className="absolute inset-0">
-            <GeoMap center={center} radius={radius} />
+            <GeoMap
+              center={center}
+              radius={radius}
+              activeTool={activeTool}
+              setCenter={setCenter}
+              setRadius={setRadius}
+              onMapReady={(api) => setMapApi(api)}
+            />
 
             {/* subtle overlay for dark mode readability */}
             <div className="absolute inset-0 bg-black/20 pointer-events-none" />
           </div>
 
-          {/* Floating Drawing Controls */}
-          <div className="absolute top-6 left-6 flex flex-col gap-2 z-10">
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-1.5 flex flex-col gap-1 border border-border">
-              <button
-                className="p-2 bg-primary/10 text-primary rounded-lg flex items-center justify-center hover:bg-primary/20 transition-colors"
-                title="Select Tool"
-                type="button"
-              >
-                <span className="material-symbols-outlined">near_me</span>
-              </button>
-
-              <hr className="border-border mx-1" />
-
-              <button
-                className="p-2 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Draw Circular Branch"
-                type="button"
-              >
-                <span className="material-symbols-outlined">
-                  radio_button_unchecked
-                </span>
-              </button>
-
-              <button
-                className="p-2 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Draw Polygonal Branch"
-                type="button"
-              >
-                <span className="material-symbols-outlined">polyline</span>
-              </button>
-
-              <button
-                className="p-2 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                title="Place Marker"
-                type="button"
-              >
-                <span className="material-symbols-outlined">location_on</span>
-              </button>
-            </div>
-
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-1.5 flex flex-col gap-1 border border-border mt-4">
-              <button
-                className="p-2 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                type="button"
-              >
-                <span className="material-symbols-outlined">add</span>
-              </button>
-              <button
-                className="p-2 text-slate-600 dark:text-slate-300 rounded-lg flex items-center justify-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                type="button"
-              >
-                <span className="material-symbols-outlined">remove</span>
-              </button>
-            </div>
-          </div>
+          <FloatingControls
+            activeTool={activeTool}
+            onSelectTool={(tool) => {
+              setActiveTool((prev) => (prev === tool ? null : tool));
+              console.debug("FloatingControls: selected", tool);
+            }}
+            onZoomIn={() => mapApi?.zoomIn()}
+            onZoomOut={() => mapApi?.zoomOut()}
+          />
 
           {/* Visual Branch (Overlay) */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">

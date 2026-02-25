@@ -23,11 +23,20 @@ function loadGoogleMaps(apiKey) {
   });
 }
 
-export default function GeoMap({ center = { lat: 25.2048, lng: 55.2708 }, radius = 150 }) {
+export default function GeoMap({
+  center = { lat: 25.2048, lng: 55.2708 },
+  radius = 150,
+  onMapReady = () => {},
+  activeTool = null,
+  setCenter: setCenterProp = null,
+  setRadius: setRadiusProp = null,
+}) {
   const ref = useRef(null);
   const mapRef = useRef(null);
   const circleRef = useRef(null);
   const markerRef = useRef(null);
+  const extraMarkersRef = useRef([]);
+  const pendingCircleCenterRef = useRef(null);
 
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
@@ -66,6 +75,26 @@ export default function GeoMap({ center = { lat: 25.2048, lng: 55.2708 }, radius
             center,
             radius,
           });
+
+          // expose simple API to parent
+          const api = {
+            panTo: (c) => mapRef.current.panTo(new maps.LatLng(c.lat, c.lng)),
+            setCenter: (c) => {
+              mapRef.current.setCenter(new maps.LatLng(c.lat, c.lng));
+              if (markerRef.current) markerRef.current.setPosition(c);
+              if (circleRef.current) circleRef.current.setCenter(c);
+            },
+            setZoom: (z) => mapRef.current.setZoom(z),
+            zoomIn: () => mapRef.current.setZoom(mapRef.current.getZoom() + 1),
+            zoomOut: () => mapRef.current.setZoom(mapRef.current.getZoom() - 1),
+            setRadius: (r) => circleRef.current && circleRef.current.setRadius(Number(r) || 0),
+          };
+
+          try {
+            onMapReady(api);
+          } catch (e) {
+            console.warn("onMapReady callback failed", e);
+          }
         }
       })
       .catch((err) => console.error("Failed to load Google Maps", err));
@@ -93,6 +122,53 @@ export default function GeoMap({ center = { lat: 25.2048, lng: 55.2708 }, radius
       circleRef.current.setRadius(Number(radius) || 0);
     }
   }, [radius]);
+
+  // click handler for tools
+  useEffect(() => {
+    const maps = window.google?.maps;
+    if (!maps || !mapRef.current) return;
+
+    const listener = mapRef.current.addListener("click", (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+
+      if (activeTool === "marker") {
+        // place an extra marker
+        const mk = new maps.Marker({ position: { lat, lng }, map: mapRef.current });
+        extraMarkersRef.current.push(mk);
+        if (typeof setCenterProp === "function") setCenterProp({ lat, lng });
+      } else if (activeTool === "circle") {
+        const pending = pendingCircleCenterRef.current;
+        if (!pending) {
+          // set center
+          pendingCircleCenterRef.current = { lat, lng };
+          if (circleRef.current) circleRef.current.setCenter({ lat, lng });
+          if (typeof setCenterProp === "function") setCenterProp({ lat, lng });
+        } else {
+          // set radius from pending to this click
+          const R = 6371000; // meters
+          const toRad = (deg) => (deg * Math.PI) / 180;
+          const dLat = toRad(lat - pending.lat);
+          const dLon = toRad(lng - pending.lng);
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(toRad(pending.lat)) * Math.cos(toRad(lat)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const dist = R * c;
+          if (circleRef.current) circleRef.current.setRadius(dist);
+          if (typeof setRadiusProp === "function") setRadiusProp(Math.round(dist));
+          pendingCircleCenterRef.current = null;
+        }
+      } else if (activeTool === "select") {
+        // show simple info window
+        const info = new maps.InfoWindow({ content: `<div style="font-size:12px">${lat.toFixed(6)}, ${lng.toFixed(6)}</div>`, position: { lat, lng } });
+        info.open(mapRef.current);
+        setTimeout(() => info.close(), 3000);
+      }
+    });
+
+    return () => {
+      if (listener && listener.remove) listener.remove();
+    };
+  }, [activeTool, setCenterProp, setRadiusProp]);
 
   return <div ref={ref} className="w-full h-full" />;
 }
