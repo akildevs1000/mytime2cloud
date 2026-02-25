@@ -10,12 +10,50 @@ export default function GeoFencing() {
   const [center, setCenter] = useState({ lat: 25.2048, lng: 55.2708 });
   const [mapApi, setMapApi] = useState(null);
   const [activeTool, setActiveTool] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
   // convert meters -> pixels based on default visual size
   const DEFAULT_RADIUS_METERS = 150; // corresponds to current default visual size
   const DEFAULT_DIAMETER_PX = 256; // tailwind h-64 w-64 -> 256px
   const PIXELS_PER_METER = DEFAULT_DIAMETER_PX / (DEFAULT_RADIUS_METERS * 2);
   const diameterPx = Math.max(16, Math.round(radius * 2 * PIXELS_PER_METER));
+
+  // perform search: accepts "lat, lng" or freeform address (uses Google Geocoder when available)
+  function performSearch() {
+    const text = (searchText || "").trim();
+    if (!text) return;
+
+    // try parse as coordinates: "lat, lng" or "lat lng"
+    const coord = text.match(/^\s*([-+]?\d{1,3}(?:\.\d+)?)[,\s]+([-+]?\d{1,3}(?:\.\d+)?)\s*$/);
+    if (coord) {
+      const lat = parseFloat(coord[1]);
+      const lng = parseFloat(coord[2]);
+      if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+        setCenter({ lat, lng });
+        mapApi?.panTo({ lat, lng });
+        return;
+      }
+    }
+
+    // fallback: use Google Geocoder if loaded
+    if (typeof window !== "undefined" && window.google && window.google.maps && window.google.maps.Geocoder) {
+      const geocoder = new window.google.maps.Geocoder();
+      geocoder.geocode({ address: text }, (results, status) => {
+        if (status === "OK" && results && results[0]) {
+          const loc = results[0].geometry.location;
+          const lat = loc.lat();
+          const lng = loc.lng();
+          setCenter({ lat, lng });
+          mapApi?.panTo({ lat, lng });
+        } else {
+          console.warn("Geocode failed:", status);
+        }
+      });
+      return;
+    }
+
+    console.warn("Search: input not coordinates and Geocoder unavailable yet");
+  }
 
   return (
     <div className="h-screen w-full overflow-hidden">
@@ -79,6 +117,11 @@ export default function GeoFencing() {
                   search
                 </span>
                 <input
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") performSearch();
+                  }}
                   className="bg-transparent border-none text-sm w-full focus:ring-0 focus:outline-none dark:text-white"
                   placeholder="Find address or coordinates..."
                   type="text"
@@ -87,6 +130,7 @@ export default function GeoFencing() {
               <button
                 className="bg-primary text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors"
                 type="button"
+                onClick={() => performSearch()}
               >
                 SEARCH
               </button>
