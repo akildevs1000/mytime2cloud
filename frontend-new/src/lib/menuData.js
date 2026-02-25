@@ -23,6 +23,7 @@ import {
   Settings,
   Clipboard,
   File,
+  Map,
 } from "lucide-react";
 
 // 1️⃣ Reusable menu groups
@@ -37,6 +38,7 @@ const attendanceMenu = [
 
 const companyMenu = [
   { href: "/setup", icon: Settings, label: "Setup" },
+  { href: "/geo-fencing", icon: Map, label: "Geo Fencing" },
   { href: "/company", icon: Building, label: "Company" },
   { href: "/branch", icon: Briefcase, label: "Branch" },
   { href: "/department-tabs", icon: Layers, label: "Department" },
