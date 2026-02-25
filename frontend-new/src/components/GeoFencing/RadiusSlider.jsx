@@ -4,10 +4,19 @@ export function RadiusSlider({
   min = 50,
   max = 1000,
   defaultValue = 250,
+  value,
   step = 10,
-  onChange = () => {},
+  onChange = () => { },
 }) {
   const [radius, setRadius] = useState(defaultValue);
+
+  // if parent is controlling value, sync internal state
+  useEffect(() => {
+    if (typeof value === "number" && value !== radius) {
+      setRadius(value);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value]);
 
   // send value to parent when changed
   useEffect(() => {

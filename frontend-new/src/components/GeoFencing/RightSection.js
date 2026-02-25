@@ -2,12 +2,11 @@
 import React, { useEffect, useId, useState } from "react";
 import Input from "../Theme/Input";
 import DropDown from "../ui/DropDown";
-import { getBranches } from "@/lib/api";
-import { notify } from "@/lib/utils";
+import { getBranches, getBranchesForTable } from "@/lib/api";
+import { notify, parseApiError } from "@/lib/utils";
 import { RadiusSlider } from "./RadiusSlider";
 
-export default function RightSection() {
-
+export default function RightSection({ radius, setRadius, setCenter }) {
 
     const switchId = useId();
     const [hardLock, setHardLock] = useState(true);
@@ -16,13 +15,29 @@ export default function RightSection() {
     const toggle = () => setHardLock((v) => !v);
 
     const [branches, setBranches] = useState([]);
+    const [dropdownItems, setDropdownItems] = useState([]);
     const [selectedBranchId, setSelectedBranchId] = useState(null);
-    const [radius, setRadius] = useState(150);
+    const [selectedLat, setSelectedLat] = useState(null);
+    const [selectedLng, setSelectedLng] = useState(null);
+    const [alertOnEntrance, setAlertOnEntrance] = useState(true);
+    const [alertOnExit, setAlertOnExit] = useState(false);
 
     const fetchDropdowns = async () => {
         try {
-            setBranches(await getBranches());
+            const { data } = await getBranchesForTable();
+
+            console.debug("GeoFencing: fetched branches:", data);
+            setBranches(data || []);
+
+            // prepare items for DropDown (ensure `name` exists)
+            const items = (data || []).map((b) => ({
+                ...b,
+                id: b.id,
+                name: b.name ?? b.branch_name ?? b.title ?? b.name_en ?? `Branch ${b.id}`,
+            }));
+            setDropdownItems(items);
         } catch (error) {
+            console.error("GeoFencing: failed to fetch branches", error);
             notify("Error", parseApiError(error), "error");
         }
     };
@@ -31,20 +46,62 @@ export default function RightSection() {
         fetchDropdowns();
     }, []);
 
-    const selectedBranch = branches.find(
-        (b) => b.id === selectedBranchId
-    );
+    const selectedBranch = branches.find((b) => b.id == selectedBranchId);
 
     useEffect(() => {
-        if (!selectedBranch) return;
+        console.debug("GeoFencing: selectedBranchId", selectedBranchId);
+        console.debug("GeoFencing: selectedBranch", selectedBranch);
+    }, [selectedBranchId, selectedBranch]);
 
-        console.log("Lat:", selectedBranch.lat);
-        console.log("Lon:", selectedBranch.lon);
+    useEffect(() => {
+        if (!selectedBranch) {
+            setSelectedLat(null);
+            setSelectedLng(null);
+            return;
+        }
 
-        // Example: center map
-        // map.setView([selectedBranch.latitude, selectedBranch.longitude], 15);
+        const lat = Number(
+            selectedBranch.lat ?? selectedBranch.latitude ?? selectedBranch.lat_dd
+        );
+        const lng = Number(
+            selectedBranch.lon ?? selectedBranch.lng ?? selectedBranch.long ?? selectedBranch.longitude ?? selectedBranch.lon_dd
+        );
 
-    }, [selectedBranchId]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            setSelectedLat(lat);
+            setSelectedLng(lng);
+
+            // update parent map center immediately if provided
+            if (typeof setCenter === "function") {
+                setCenter({ lat, lng });
+            }
+        } else {
+            // clear invalid values
+            setSelectedLat(null);
+            setSelectedLng(null);
+        }
+    }, [selectedBranch, setCenter]);
+
+    const onsubmit = () => {
+        if (!selectedBranch) {
+            notify("Validation Error", "Please select a branch from the dropdown.", "warning");
+            return;
+        }
+        if (selectedLat === null || selectedLng === null) {
+            notify("Validation Error", "Selected branch does not have valid latitude and longitude.", "warning");
+            return;
+        }
+
+        // console it
+        console.log("Submitting Geo-fence with values:");
+        console.log("Branch ID:", selectedBranchId);
+        console.log("Latitude:", selectedLat);
+        console.log("Longitude:", selectedLng);
+        console.log("Radius (meters):", radius);
+        console.log("Hard Lock Enabled:", hardLock);
+        notify("Submitted", "Geo-fence configuration has been submitted. Check console for details.", "success");
+
+    };
 
     return (
         <>
@@ -59,7 +116,7 @@ export default function RightSection() {
                         </div> */}
 
                 <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-black tracking-tight">
+                    <h1 className="text-2xl font-black tracking-tight text-slate-600 dark:text-white">
                         Geo-fencing
                     </h1>
                     <button
@@ -236,12 +293,26 @@ export default function RightSection() {
 
                                 <DropDown
                                     placeholder={"Select Branch"}
-                                    items={branches}
+                                    items={dropdownItems}
                                     value={selectedBranchId}
                                     onChange={setSelectedBranchId}
                                 />
-                            </div>
 
+                                {/* Display lat/lng for debugging / visibility */}
+                                <div className="mt-3 grid grid-cols-2 gap-3">
+                                    <Input
+                                        label="Latitude"
+                                        value={selectedLat ?? ""}
+                                        readOnly
+                                    />
+                                    <Input
+                                        label="Longitude"
+                                        value={selectedLng ?? ""}
+                                        readOnly
+                                    />
+                                </div>
+                            </div>
+{/* 
                             <div>
                                 <label htmlFor={switchId} className="text-xs font-bold text-slate-500 block mb-1.5 uppercase">
                                     Boundary Strictness
@@ -281,7 +352,7 @@ export default function RightSection() {
                                         />
                                     </button>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div>
                                 <label className="text-xs font-bold text-slate-500 block mb-1.5 uppercase">
@@ -290,21 +361,24 @@ export default function RightSection() {
                                 <div className="space-y-2">
                                     <label className="flex items-center gap-3 cursor-pointer">
                                         <input
-                                            defaultChecked
-                                            className="rounded border-slate-300  text-primary focus:ring-primary bg-transparent"
+                                            checked={alertOnEntrance}
+                                            onChange={(e) => setAlertOnEntrance(e.target.checked)}
+                                            className="rounded border border-border  text-primary focus:ring-primary bg-white dark:bg-slate-900"
                                             type="checkbox"
                                         />
-                                        <span className="text-sm">
+                                        <span className="text-sm text-slate-600 dark:text-white">
                                             Alert manager on entrance
                                         </span>
                                     </label>
 
                                     <label className="flex items-center gap-3 cursor-pointer">
                                         <input
-                                            className="rounded border-slate-300  text-primary focus:ring-primary bg-transparent"
+                                            checked={alertOnExit}
+                                            onChange={(e) => setAlertOnExit(e.target.checked)}
+                                            className="rounded border border-border  text-primary focus:ring-primary bg-white dark:bg-slate-900"
                                             type="checkbox"
                                         />
-                                        <span className="text-sm">
+                                        <span className="text-sm text-slate-600 dark:text-white">
                                             Alert on unauthorized exit
                                         </span>
                                     </label>
@@ -314,7 +388,8 @@ export default function RightSection() {
                             <RadiusSlider
                                 min={50}
                                 max={500}
-                                defaultValue={150}
+                                defaultValue={radius}
+                                value={radius}
                                 step={5}
                                 onChange={setRadius}
                             />
@@ -328,7 +403,7 @@ export default function RightSection() {
                 tab == "new" &&
 
                 <div className="p-6 border-t border-border  bg-slate-50 dark:bg-slate-900/20 flex flex-col gap-3">
-                    <button
+                    <button onClick={onsubmit}
                         className="w-full bg-primary text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:bg-primary/90 active:scale-[0.98] transition-all"
                         type="button"
                     >

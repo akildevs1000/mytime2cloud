@@ -4,21 +4,36 @@ import RightSection from "./RightSection";
 
 export default function GeoFencing() {
   const [radius, setRadius] = useState(150);
+  const [center, setCenter] = useState({ lat: 23.8103, lng: 90.4125 });
+
+  // convert meters -> pixels based on default visual size
+  const DEFAULT_RADIUS_METERS = 150; // corresponds to current default visual size
+  const DEFAULT_DIAMETER_PX = 256; // tailwind h-64 w-64 -> 256px
+  const PIXELS_PER_METER = DEFAULT_DIAMETER_PX / (DEFAULT_RADIUS_METERS * 2);
+  const diameterPx = Math.max(16, Math.round(radius * 2 * PIXELS_PER_METER));
 
   return (
     <div className="h-screen w-full overflow-hidden">
       <main className="flex h-full w-full">
         {/* Left Side: Interactive Map */}
         <div className="relative flex-1 h-full bg-slate-200 dark:bg-slate-900 overflow-hidden">
-          {/* Map Background */}
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage:
-                "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD12SiOHLPbriJwiw3eFYQ-fBLxnwBrWKmDXA-PiYIRP3i7wtPRlCIp-zbb366uyij-t5KasNwfL6Y9X4BuAaR9HGWDrAZABe2gp-ios24Le2ZlDcnOXKhpgEQ4IiisdTuFFSggi1Af8bBngIKl4ZzeEDn2dyHzrCZz8R1HQ-ZeGwQZRs33kQ-ElfFQSxhMsoZu-XkbQsxcpx6T2L99zYaBMDOqxx1MVnGOVzQpWBGHWdfSOeUmVGCLJ_M_zXSRJxwIZ0N57p3EIotx')",
-            }}
-          >
-            <div className="absolute inset-0 bg-black/40" />
+          {/* Google Map (iframe) */}
+          <div className="absolute inset-0">
+            <iframe
+              title="GeoFencing Map"
+              className="w-full h-full"
+              style={{ border: 0 }}
+              src={
+                "https://www.google.com/maps/embed/v1/view?key=" +
+                (process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "") +
+                `&center=${center.lat},${center.lng}&zoom=13&maptype=roadmap`
+              }
+              allowFullScreen
+              loading="lazy"
+            />
+
+            {/* subtle overlay for dark mode readability */}
+            <div className="absolute inset-0 bg-black/20 pointer-events-none" />
           </div>
 
           {/* Floating Drawing Controls */}
@@ -79,25 +94,16 @@ export default function GeoFencing() {
 
           {/* Visual Branchs (Simulated) */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="h-64 w-64 rounded-full map-overlay-yellow relative flex items-center justify-center group cursor-move">
-              <div className="absolute -top-10 bg-accent-yellow text-slate-900 text-xs font-bold px-2 py-1 rounded shadow-lg uppercase tracking-wider">
-                Active Branch: HQ Central
-              </div>
+            <div
+              className="rounded-full map-overlay-yellow relative flex items-center justify-center group cursor-move"
+              style={{ width: diameterPx + "px", height: diameterPx + "px" }}
+            >
               <div className="h-4 w-4 bg-accent-yellow border-2 border-white rounded-full shadow-lg animate-pulse" />
             </div>
           </div>
 
           <div className="absolute top-1/4 right-1/4">
-            <div
-              className="h-32 w-48 map-overlay-yellow opacity-70 flex items-center justify-center"
-              style={{
-                clipPath: "polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%)",
-              }}
-            >
-              <span className="material-symbols-outlined text-accent-yellow">
-                location_city
-              </span>
-            </div>
+            {/* Decorative overlay removed to avoid duplicate highlight */}
           </div>
 
           {/* Location Search Bar */}
@@ -124,10 +130,10 @@ export default function GeoFencing() {
         </div>
 
         {/* Right Side: Sidebar Management */}
-        <aside className="w-96 h-full border-l border-border flex flex-col bg-white dark:bg-slate-900 z-10 overflow-hidden">
+          <aside className="w-96 h-full border-l border-border flex flex-col bg-white dark:bg-slate-900 z-10 overflow-hidden">
           {/* Let RightSection handle its own scrolling: */}
           <div className="flex-1 overflow-y-auto">
-            <RightSection />
+            <RightSection radius={radius} setRadius={setRadius} setCenter={setCenter} />
           </div>
         </aside>
       </main>
