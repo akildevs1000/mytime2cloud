@@ -12,9 +12,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function DateRangeSelect({ className, onChange = () => {} }) {
+export default function DateRangeSelect({
+  value,
+  className,
+  onChange = () => {},
+}) {
   // 1. Main state for the selected range (displayed in the button)
   const [date, setDate] = useState({
     // from: new Date(new Date().getFullYear(), new Date().getMonth(), 1), // First day of current month
@@ -31,6 +35,18 @@ export default function DateRangeSelect({ className, onChange = () => {} }) {
   const [open, setOpen] = useState(false);
 
   // --- Handlers ---
+
+  // NEW: Sync internal state when parent props change (e.g., when Edit Modal opens)
+  useEffect(() => {
+    if (value?.from || value?.to) {
+      const newRange = {
+        from: value.from ? new Date(value.from) : null,
+        to: value.to ? new Date(value.to) : null,
+      };
+      setDate(newRange);
+      setDraftDate(newRange);
+    }
+  }, [value]);
 
   const handleOpenChange = (newOpen) => {
     setOpen(newOpen);
