@@ -2,7 +2,7 @@
 import React, { useEffect, useId, useState } from "react";
 import Input from "../Theme/Input";
 import DropDown from "../ui/DropDown";
-import { getBranches, getBranchesForTable } from "@/lib/api";
+import { branchListGeoFencing, getBranches, getBranchesForTable, updateGeoFencing } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 import { RadiusSlider } from "./RadiusSlider";
 
@@ -22,9 +22,15 @@ export default function RightSection({ radius, setRadius, setCenter }) {
     const [alertOnEntrance, setAlertOnEntrance] = useState(true);
     const [alertOnExit, setAlertOnExit] = useState(false);
 
+    const [activeBranches, setActiveBranches] = useState([]);
+
+
     const fetchDropdowns = async () => {
         try {
             const { data } = await getBranchesForTable();
+            const activeBranches = await branchListGeoFencing();
+            console.log(activeBranches);
+            setActiveBranches(activeBranches)
 
             console.debug("GeoFencing: fetched branches:", data);
             setBranches(data || []);
@@ -49,11 +55,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
     const selectedBranch = branches.find((b) => b.id == selectedBranchId);
 
     useEffect(() => {
-        console.debug("GeoFencing: selectedBranchId", selectedBranchId);
-        console.debug("GeoFencing: selectedBranch", selectedBranch);
-    }, [selectedBranchId, selectedBranch]);
-
-    useEffect(() => {
         if (!selectedBranch) {
             setSelectedLat(null);
             setSelectedLng(null);
@@ -71,6 +72,10 @@ export default function RightSection({ radius, setRadius, setCenter }) {
             setSelectedLat(lat);
             setSelectedLng(lng);
 
+            console.log(selectedBranch?.geofence_radius_meter);
+
+            setRadius(selectedBranch?.geofence_radius_meter || 150)
+
             // update parent map center immediately if provided
             if (typeof setCenter === "function") {
                 setCenter({ lat, lng });
@@ -82,7 +87,7 @@ export default function RightSection({ radius, setRadius, setCenter }) {
         }
     }, [selectedBranch, setCenter]);
 
-    const onsubmit = () => {
+    const onsubmit = async () => {
         if (!selectedBranch) {
             notify("Validation Error", "Please select a branch from the dropdown.", "warning");
             return;
@@ -92,16 +97,34 @@ export default function RightSection({ radius, setRadius, setCenter }) {
             return;
         }
 
-        // console it
-        console.log("Submitting Geo-fence with values:");
-        console.log("Branch ID:", selectedBranchId);
-        console.log("Latitude:", selectedLat);
-        console.log("Longitude:", selectedLng);
-        console.log("Radius (meters):", radius);
-        console.log("Hard Lock Enabled:", hardLock);
-        notify("Submitted", "Geo-fence configuration has been submitted. Check console for details.", "success");
+        let payload = {
+            geofence_enabled: true,
+            geofence_radius_meter: radius,
+            lat: selectedLat,
+            lon: selectedLng,
+            hard_lock: hardLock,
+        }
+
+        await updateGeoFencing(selectedBranchId, payload);
+        fetchDropdowns();
+        notify("Submitted", "Geo-fence configuration has been submitted.", "success");
+        setTab("existing");
+    };
+
+    const handleDelete = async (id) => {
+
+        let payload = {
+            geofence_enabled: false,
+            geofence_radius_meter: radius,
+        }
+
+        await updateGeoFencing(id, payload);
+        fetchDropdowns();
+        notify("Submitted", "Configuration has been deleted.", "success");
 
     };
+
+
 
     return (
         <>
@@ -163,114 +186,71 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                     <div className="space-y-3">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                Configured Areas
+                                Configured Branches
                             </h3>
                             <span className="bg-primary/10 text-primary text-[10px] font-bold px-1.5 py-0.5 rounded">
-                                3 TOTAL
+                                {activeBranches.length || 0} TOTAL
                             </span>
                         </div>
 
-                        <div className="bg-slate-50 dark:bg-slate-900 border border-border rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent-yellow" />
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="font-bold text-sm text-gray-600 dark:text-slate-500">Downtown HQ Central</h4>
-                                    <p className="text-xs text-slate-500 mt-0.5">
-                                        5th Ave, Manhattan, NY
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <span className="bg-green-500/10 text-green-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                                        Active
-                                    </span>
-                                </div>
-                            </div>
 
-                            <div className="grid grid-cols-2 mt-4 gap-4">
-                                <div>
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
-                                        Radius
-                                    </span>
-                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">150 Meters</span>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
-                                        Personnel
-                                    </span>
-                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">42 Staff</span>
-                                </div>
-                            </div>
+                        {/* activeBranches for this loop */}
+                        {activeBranches.map((branch, index) => (
+                            <div
+                                key={branch.id || index}
+                                className="bg-slate-50 dark:bg-slate-900 border border-border rounded-xl p-4 shadow-sm relative overflow-hidden group"
+                            >
+                                {/* Decorative accent bar */}
+                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent-yellow" />
 
-                            <div className="mt-4 pt-3 border-t border-border  flex items-center justify-end gap-2">
-                                {/* <button
-                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded transition-colors"
-                                        type="button"
-                                    >
-                                        <span className="material-symbols-outlined text-sm">
-                                            edit
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h4 className="font-bold text-sm text-gray-600 dark:text-slate-500">
+                                            {branch.branch_name}
+                                        </h4>
+                                        <p className="text-xs text-slate-500 mt-0.5">
+                                            {branch.address}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                        <span className="bg-green-500/10 text-green-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                                            {branch.status || 'Active'}
                                         </span>
-                                    </button> */}
-                                <button
-                                    className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded transition-colors text-red-500"
-                                    type="button"
-                                >
-                                    <span className="material-symbols-outlined text-sm text-gray-600 dark:text-slate-500">
-                                        delete
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
+                                    </div>
+                                </div>
 
-                        <div className="bg-slate-50 dark:bg-slate-900 border border-border rounded-xl p-4 shadow-sm relative overflow-hidden group">
-                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent-yellow" />
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="font-bold text-sm text-gray-600 dark:text-slate-500">Downtown HQ Central</h4>
-                                    <p className="text-xs text-slate-500 mt-0.5">
-                                        5th Ave, Manhattan, NY
-                                    </p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    <span className="bg-green-500/10 text-green-500 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                                        Active
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 mt-4 gap-4">
-                                <div>
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
-                                        Radius
-                                    </span>
-                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">150 Meters</span>
-                                </div>
-                                <div>
-                                    <span className="text-[10px] text-slate-400 uppercase font-bold block">
-                                        Personnel
-                                    </span>
-                                    <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">42 Staff</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-4 pt-3 border-t border-border  flex items-center justify-end gap-2">
-                                {/* <button
-                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded transition-colors"
-                                        type="button"
-                                    >
-                                        <span className="material-symbols-outlined text-sm">
-                                            edit
+                                <div className="grid grid-cols-2 mt-4 gap-4">
+                                    <div>
+                                        <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                                            Radius
                                         </span>
-                                    </button> */}
-                                <button
-                                    className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded transition-colors text-red-500"
-                                    type="button"
-                                >
-                                    <span className="material-symbols-outlined text-sm text-gray-600 dark:text-slate-500">
-                                        delete
-                                    </span>
-                                </button>
+                                        <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">
+                                            {branch.geofence_radius_meter} Meters
+                                        </span>
+                                    </div>
+                                    <div>
+                                        <span className="text-[10px] text-slate-400 uppercase font-bold block">
+                                            Personnel
+                                        </span>
+                                        <span className="text-xs font-semibold text-gray-600 dark:text-slate-500">
+                                            {branch.employees_count || 0} Staff
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-border flex items-center justify-end gap-2">
+                                    <button
+                                        className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-900 rounded transition-colors text-red-500"
+                                        type="button"
+                                        onClick={() => handleDelete(branch.id)} // Example handler
+                                    >
+                                        <span className="material-symbols-outlined text-sm text-gray-600 dark:text-slate-500">
+                                            delete
+                                        </span>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ))}
 
                     </div>
                 }
@@ -302,7 +282,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                                 <div className="mt-3 grid grid-cols-2 gap-3">
                                     <Input
                                         label="Latitude"
-                                        type="number"
                                         step="any"
                                         value={selectedLat ?? ""}
                                         onChange={(e) => {
@@ -325,7 +304,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                                     />
                                     <Input
                                         label="Longitude"
-                                        type="number"
                                         step="any"
                                         value={selectedLng ?? ""}
                                         onChange={(e) => {
@@ -347,7 +325,7 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                                     />
                                 </div>
                             </div>
-{/* 
+                            {/* 
                             <div>
                                 <label htmlFor={switchId} className="text-xs font-bold text-slate-500 block mb-1.5 uppercase">
                                     Boundary Strictness
