@@ -27,25 +27,33 @@ class UpdateRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'min:2', 'max:50'],
-            'short_name' => ['required', 'nullable', 'min:3', 'max:4'],
-            'device_id' => ['required', 'min:3', 'max:100'],
-            'location' => ['nullable', 'min:2', 'max:300'],
-            'company_id' => ['required', 'min:1', 'integer'],
-            'status_id' => ['required', 'min:1', 'integer'],
-
-            'model_number' => ['nullable', 'min:6', 'max:50'],
-            'device_type' =>  'required',
-
-            'mode' => ['nullable'],
-
-            'ip' => 'required|ip',
-            'port' => 'required',
-            'function' => 'required',
-            'utc_time_zone' => 'required',
             'branch_id' => 'required',
-            'serial_number' => 'required',
+            'name' => ['required', 'min:2', 'max:50'],
+            'short_name' => ['required', 'min:3', 'max:50'],
+            'location' => ['nullable', 'min:2', 'max:300'],
+            'model_number' => ['nullable', 'min:4', 'max:20'],
+            'device_id' => 'required',
+            'utc_time_zone' => 'required',
+            'function' => 'required',
+            'device_type' => ['required'],
+            'status_id' => ['required', 'min:1', 'integer'],
+            'company_id' => ['required', 'min:1', 'integer'],
+            'mode' => ['nullable'],
+            'ip' => 'nullable',
             'camera_save_images' => 'required'
+            //'camera_save_images' => 'required'
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'branch_id' => 'Branch is required',
+            'short_name' => 'Prefix is required',
+            'device_id' => 'Serial Number is required',
+            'utc_time_zone' => 'Timezone is required',
+            'device_type' => 'Device Type is required',
+            'status_id' => 'Status is required',
         ];
     }
 }

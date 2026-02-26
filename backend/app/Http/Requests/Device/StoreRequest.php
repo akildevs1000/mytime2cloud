@@ -30,6 +30,11 @@ class StoreRequest extends FormRequest
         $companyId = $this->company_id;
         return [
             'branch_id' => 'required',
+            'name' => ['required', 'min:2', 'max:50'],
+            'short_name' => ['required', 'min:3', 'max:50'],
+            'location' => ['nullable', 'min:2', 'max:300'],
+            'model_number' => ['nullable', 'min:4', 'max:20'],
+
             'device_id' => [
                 'required',
                 Rule::unique('devices')->where(function ($query) use ($deviceId, $companyId) {
@@ -38,26 +43,26 @@ class StoreRequest extends FormRequest
                 }),
 
             ],
-
-            'name' => ['required', 'min:2', 'max:50'],
-            'short_name' => ['required', 'nullable', 'min:3', 'max:50'],
-            // 'device_id' => ['required', 'min:3', 'max:100', 'unique:devices'],
-            'location' => ['nullable', 'min:2', 'max:300'],
-            'company_id' => ['required', 'min:1', 'integer'],
-            'status_id' => ['required', 'min:1', 'integer'],
-            'device_id' => ['required'],
-
-            'model_number' => ['nullable', 'min:4', 'max:20'],
-            'device_type' => ['required'],
-
-            'mode' => ['nullable'],
-
-            'ip' => 'nullable',
-            'function' => 'required',
             'utc_time_zone' => 'required',
-
+            'function' => 'required',
+            'device_type' => ['required'],
+            'status_id' => ['required', 'min:1', 'integer'],
+            'company_id' => ['required', 'min:1', 'integer'],
+            'mode' => ['nullable'],
+            'ip' => 'nullable',
             //'camera_save_images' => 'required'
+        ];
+    }
 
+    public function messages(): array
+    {
+        return [
+            'branch_id' => 'Branch is required',
+            'short_name' => 'Prefix is required',
+            'device_id' => 'Serial Number is required',
+            'utc_time_zone' => 'Timezone is required',
+            'device_type' => 'Device Type is required',
+            'status_id' => 'Status is required',
         ];
     }
 }
