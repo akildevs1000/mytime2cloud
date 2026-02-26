@@ -11,6 +11,9 @@ export default function GeoFencing() {
   const [mapApi, setMapApi] = useState(null);
   const [activeTool, setActiveTool] = useState(null);
   const [searchText, setSearchText] = useState("");
+  // Add lifted lat/lng state
+  const [selectedLat, setSelectedLat] = useState(center.lat);
+  const [selectedLng, setSelectedLng] = useState(center.lng);
 
   // convert meters -> pixels based on default visual size
   const DEFAULT_RADIUS_METERS = 150; // corresponds to current default visual size
@@ -30,6 +33,8 @@ export default function GeoFencing() {
       const lng = parseFloat(coord[2]);
       if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
         setCenter({ lat, lng });
+        setSelectedLat(lat);
+        setSelectedLng(lng);
         mapApi?.panTo({ lat, lng });
         return;
       }
@@ -44,6 +49,8 @@ export default function GeoFencing() {
           const lat = loc.lat();
           const lng = loc.lng();
           setCenter({ lat, lng });
+          setSelectedLat(lat);
+          setSelectedLng(lng);
           mapApi?.panTo({ lat, lng });
         } else {
           console.warn("Geocode failed:", status);
@@ -142,7 +149,15 @@ export default function GeoFencing() {
           <aside className="w-96 h-full border-l border-border flex flex-col bg-white dark:bg-slate-900 z-10 overflow-hidden">
           {/* Let RightSection handle its own scrolling: */}
           <div className="flex-1 overflow-y-auto">
-            <RightSection radius={radius} setRadius={setRadius} setCenter={setCenter} />
+            <RightSection
+              radius={radius}
+              setRadius={setRadius}
+              setCenter={setCenter}
+              selectedLat={selectedLat}
+              setSelectedLat={setSelectedLat}
+              selectedLng={selectedLng}
+              setSelectedLng={setSelectedLng}
+            />
           </div>
         </aside>
       </main>

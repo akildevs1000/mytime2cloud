@@ -1,29 +1,20 @@
 // app/job-sites/geofencing/page.tsx
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Input from "../Theme/Input";
 import DropDown from "../ui/DropDown";
-import { branchListGeoFencing, getBranches, getBranchesForTable, updateGeoFencing } from "@/lib/api";
+import { branchListGeoFencing, getBranchesForTable, updateGeoFencing } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 import { RadiusSlider } from "./RadiusSlider";
 
-export default function RightSection({ radius, setRadius, setCenter }) {
+export default function RightSection({ radius, setRadius, setCenter, selectedLat, setSelectedLat, selectedLng, setSelectedLng }) {
 
-    const switchId = useId();
-    const [hardLock, setHardLock] = useState(true);
     const [tab, setTab] = useState("existing");
-
-    const toggle = () => setHardLock((v) => !v);
 
     const [branches, setBranches] = useState([]);
     const [dropdownItems, setDropdownItems] = useState([]);
     const [selectedBranchId, setSelectedBranchId] = useState(null);
-    const [selectedLat, setSelectedLat] = useState(null);
-    const [selectedLng, setSelectedLng] = useState(null);
-    const [alertOnEntrance, setAlertOnEntrance] = useState(true);
-    const [alertOnExit, setAlertOnExit] = useState(false);
 
     const [activeBranches, setActiveBranches] = useState([]);
-
 
     const fetchDropdowns = async () => {
         try {
@@ -54,6 +45,7 @@ export default function RightSection({ radius, setRadius, setCenter }) {
 
     const selectedBranch = branches.find((b) => b.id == selectedBranchId);
 
+    // Only update lat/lng and radius when selectedBranchId changes, not when radius changes from parent
     useEffect(() => {
         if (!selectedBranch) {
             setSelectedLat(null);
@@ -72,9 +64,10 @@ export default function RightSection({ radius, setRadius, setCenter }) {
             setSelectedLat(lat);
             setSelectedLng(lng);
 
-            console.log(selectedBranch?.geofence_radius_meter);
-
-            setRadius(selectedBranch?.geofence_radius_meter || 150)
+            // Only update radius if branch has a value
+            if (selectedBranch.geofence_radius_meter) {
+                setRadius(selectedBranch.geofence_radius_meter);
+            }
 
             // update parent map center immediately if provided
             if (typeof setCenter === "function") {
@@ -85,7 +78,8 @@ export default function RightSection({ radius, setRadius, setCenter }) {
             setSelectedLat(null);
             setSelectedLng(null);
         }
-    }, [selectedBranch, setCenter]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedBranchId]);
 
     const onsubmit = async () => {
         if (!selectedBranch) {
@@ -102,7 +96,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
             geofence_radius_meter: radius,
             lat: selectedLat,
             lon: selectedLng,
-            hard_lock: hardLock,
         }
 
         await updateGeoFencing(selectedBranchId, payload);
@@ -325,83 +318,10 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                                     />
                                 </div>
                             </div>
-                            {/* 
-                            <div>
-                                <label htmlFor={switchId} className="text-xs font-bold text-slate-500 block mb-1.5 uppercase">
-                                    Boundary Strictness
-                                </label>
-                                <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg flex items-center justify-between border border-border ">
-                                    <div>
-                                        <p className="text-sm font-bold">Hard Lock</p>
-                                        <p className="text-[11px] text-slate-500">
-                                            Block clock-in if outside area
-                                        </p>
-                                    </div>
-
-                                    <button
-                                        id={switchId}
-                                        type="button"
-                                        role="switch"
-                                        aria-checked={hardLock}
-                                        onClick={toggle}
-                                        onKeyDown={(e) => {
-                                            // Space/Enter toggles for keyboard users
-                                            if (e.key === "Enter" || e.key === " ") {
-                                                e.preventDefault();
-                                                toggle();
-                                            }
-                                        }}
-                                        className={[
-                                            "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                                            "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-900",
-                                            hardLock ? "bg-primary" : "bg-slate-300 dark:bg-slate-700",
-                                        ].join(" ")}
-                                    >
-                                        <span
-                                            className={[
-                                                "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                                                hardLock ? "translate-x-6" : "translate-x-1",
-                                            ].join(" ")}
-                                        />
-                                    </button>
-                                </div>
-                            </div> */}
-
-                            <div>
-                                <label className="text-xs font-bold text-slate-500 block mb-1.5 uppercase">
-                                    Push Notifications
-                                </label>
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <input
-                                            checked={alertOnEntrance}
-                                            onChange={(e) => setAlertOnEntrance(e.target.checked)}
-                                            className="rounded border border-border  text-primary focus:ring-primary bg-white dark:bg-slate-900"
-                                            type="checkbox"
-                                        />
-                                        <span className="text-sm text-slate-600 dark:text-white">
-                                            Alert manager on entrance
-                                        </span>
-                                    </label>
-
-                                    <label className="flex items-center gap-3 cursor-pointer">
-                                        <input
-                                            checked={alertOnExit}
-                                            onChange={(e) => setAlertOnExit(e.target.checked)}
-                                            className="rounded border border-border  text-primary focus:ring-primary bg-white dark:bg-slate-900"
-                                            type="checkbox"
-                                        />
-                                        <span className="text-sm text-slate-600 dark:text-white">
-                                            Alert on unauthorized exit
-                                        </span>
-                                    </label>
-                                </div>
-                            </div>
-
+                    
                             <RadiusSlider
                                 min={50}
                                 max={500}
-                                defaultValue={radius}
                                 value={radius}
                                 step={5}
                                 onChange={setRadius}
@@ -411,7 +331,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                 }
             </div>
 
-            {/* Bottom Sticky Actions */}
             {
                 tab == "new" &&
 
@@ -425,16 +344,6 @@ export default function RightSection({ radius, setRadius, setCenter }) {
                         </span>
                         Submit
                     </button>
-
-                    {/* <button
-                            className="w-full bg-white dark:bg-slate-900 border border-border  text-slate-600 dark:text-slate-300 font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
-                            type="button"
-                        >
-                            <span className="material-symbols-outlined text-[20px]">
-                                devices
-                            </span>
-                            SYNC TO ALL DEVICES
-                        </button> */}
                 </div>
 
             }

@@ -12,16 +12,20 @@ export function RadiusSlider({
 
   // if parent is controlling value, sync internal state
   useEffect(() => {
+    // Only update local state if value is defined and different
     if (typeof value === "number" && value !== radius) {
       setRadius(value);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only run when value changes
   }, [value]);
 
   // send value to parent when changed
   useEffect(() => {
-    onChange?.(radius);
-  }, [radius, onChange]);
+    // Only call onChange if component is uncontrolled (value is undefined)
+    if (typeof value !== "number") {
+      onChange?.(radius);
+    }
+  }, [radius, onChange, value]);
 
   return (
     <div>
