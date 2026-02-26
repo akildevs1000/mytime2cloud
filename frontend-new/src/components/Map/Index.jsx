@@ -63,10 +63,27 @@ export default function LiveTeamStatus() {
   const lastPositionsRef = useRef({});
   const [movingMap, setMovingMap] = useState({});
   const [employeesData, setEmployeesData] = useState(employees);
+  const [bwMode, setBwMode] = useState(false);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef({});
   const timersRef = useRef({});
+  const darkMapStyleRef = useRef([
+    { elementType: 'geometry', stylers: [{ color: '#1f2937' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { elementType: 'labels.text.stroke', stylers: [{ color: '#1f2937' }] },
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#374151' }] },
+    { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
+    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#111827' }] },
+    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#111827' }] },
+    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#0b1220' }] },
+    { featureType: 'transit', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
+    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0b1220' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4b5563' }] }
+  ]);
 
   // Load Google Maps script (reuse pattern from GeoFencing.GeoMap)
   function loadGoogleMaps(apiKey) {
@@ -179,6 +196,7 @@ export default function LiveTeamStatus() {
             center: initial,
             zoom: 13,
             disableDefaultUI: true,
+            styles: bwMode ? darkMapStyleRef.current : null,
           });
         }
       })
@@ -188,6 +206,14 @@ export default function LiveTeamStatus() {
       mounted = false;
     };
   }, []);
+
+  // Toggle CSS class on the map container so overlays can respond to B/W mode via CSS
+  useEffect(() => {
+    const node = mapContainerRef.current;
+    if (!node) return;
+    if (bwMode) node.classList.add("bw-mode");
+    else node.classList.remove("bw-mode");
+  }, [bwMode]);
 
   // Sync avatar overlays to employeesData
   useEffect(() => {
@@ -248,6 +274,7 @@ export default function LiveTeamStatus() {
             avatarWrap.style.boxSizing = "border-box";
             avatarWrap.style.border = "4px solid #1152d4";
             avatarWrap.style.boxShadow = "0 6px 18px rgba(2,6,23,0.6)";
+            avatarWrap.className = "avatar-wrap";
 
             const img = document.createElement("img");
             img.src = this.employee.avatar || "";
@@ -398,8 +425,36 @@ export default function LiveTeamStatus() {
 
         const overlay = new AvatarOverlay(emp);
         overlay.setMap(mapRef.current);
+        // attach a convenience setter to apply B/W mode (safe if onAdd hasn't run yet)
+        overlay.setBW = (flag) => {
+          try {
+            const av = overlay.avatarWrap;
+            const ping = overlay.pingEl;
+            const tip = overlay.tooltipEl;
+            if (av) {
+              const imgEl = av.querySelector && av.querySelector("img");
+              if (imgEl) imgEl.style.filter = flag ? "grayscale(1) contrast(0.9)" : "";
+              av.style.borderColor = flag ? "#ffffff" : "#1152d4";
+            }
+            if (ping) {
+              // if ping currently active, prefer a light ping on B/W mode
+              if (flag) ping.style.background = ping.style.background || "rgba(255,255,255,0.25)";
+            }
+            if (tip) {
+              const glass = tip.querySelector && tip.querySelector(".glass-panel");
+              if (glass) {
+                glass.style.background = flag ? "#0b0b0b" : "";
+                glass.style.color = flag ? "#e6e6e6" : "";
+              }
+            }
+          } catch (e) {
+            /* ignore */
+          }
+        };
         // immediately set moving state if needed
         if (typeof overlay.setMoving === "function") overlay.setMoving(Boolean(movingMap[emp.id]));
+        // apply current bwMode
+        if (typeof overlay.setBW === "function") overlay.setBW(Boolean(bwMode));
         markersRef.current[emp.id] = overlay;
       }
     });
@@ -415,6 +470,26 @@ export default function LiveTeamStatus() {
       }
     });
   }, [employeesData, movingMap]);
+
+  // Apply B/W mode to existing overlays when toggled
+  useEffect(() => {
+    Object.values(markersRef.current).forEach((ov) => {
+      if (ov && typeof ov.setBW === "function") {
+        try { ov.setBW(Boolean(bwMode)); } catch (e) { }
+      }
+    });
+  }, [bwMode]);
+
+  // apply map style when bwMode toggles
+  useEffect(() => {
+    const maps = window.google?.maps;
+    if (!maps || !mapRef.current) return;
+    try {
+      mapRef.current.setOptions({ styles: bwMode ? darkMapStyleRef.current : null });
+    } catch (e) {
+      console.warn('Failed to apply map style', e);
+    }
+  }, [bwMode]);
 
   const openPanel = (employee) => {
     setSelectedEmployee(employee);
@@ -452,6 +527,9 @@ export default function LiveTeamStatus() {
           75%, 100% { transform: scale(1.5); opacity: 0; }
         }
         .animate-ping { animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
+        .bw-mode .avatar-wrap img { filter: grayscale(1) contrast(0.95); }
+        .bw-mode .avatar-wrap { border-color: #ffffff !important; }
+        .bw-mode .glass-panel { background: #0b0b0b !important; color: #e6e6e6 !important; }
         
         .pin-tooltip {
           opacity: 0;
@@ -496,6 +574,14 @@ export default function LiveTeamStatus() {
           <button className="flex w-12 h-12 items-center justify-center rounded-xl bg-slate-900 text-slate-300 shadow-xl border border-slate-800 hover:bg-slate-800 transition-all">
             <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
               <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setBwMode((s) => !s)}
+            title="Toggle B/W mode"
+            className={`flex w-12 h-12 items-center justify-center rounded-xl shadow-lg transition-all ${bwMode ? 'bg-white text-black' : 'bg-slate-900 text-slate-300'}`}>
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+              <path d="M12 3v18a9 9 0 100-18z" />
             </svg>
           </button>
         </div>
