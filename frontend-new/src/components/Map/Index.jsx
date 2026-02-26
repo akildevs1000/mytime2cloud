@@ -261,7 +261,73 @@ export default function LiveTeamStatus() {
             container.appendChild(ping);
             container.appendChild(avatarWrap);
 
+            // Tooltip (hidden by default)
+            const tooltip = document.createElement("div");
+            tooltip.className = "pin-tooltip";
+            tooltip.style.position = "absolute";
+            tooltip.style.bottom = "100%";
+            tooltip.style.left = "50%";
+            tooltip.style.transform = "translate(-50%,8px)";
+            tooltip.style.pointerEvents = "none";
+            tooltip.style.opacity = "0";
+            tooltip.style.transition = "opacity 0.18s, transform 0.18s";
+
+            const glass = document.createElement("div");
+            glass.className = "glass-panel rounded-xl p-3 w-48 shadow-2xl";
+            glass.style.width = "12rem";
+            glass.style.fontSize = "12px";
+
+            const titleRow = document.createElement("div");
+            titleRow.className = "flex items-start justify-between mb-2";
+            const titleBlk = document.createElement("div");
+            const h4 = document.createElement("h4");
+            h4.className = "text-xs font-bold text-white";
+            h4.textContent = this.employee.name || "";
+            const p = document.createElement("p");
+            p.className = "text-[10px] text-slate-400";
+            p.textContent = this.employee.location || "";
+            titleBlk.appendChild(h4);
+            titleBlk.appendChild(p);
+            titleRow.appendChild(titleBlk);
+
+            const ico = document.createElement("svg");
+            ico.setAttribute("viewBox", "0 0 24 24");
+            ico.setAttribute("fill", "currentColor");
+            ico.className = "w-4 h-4 text-green-400 flex-shrink-0";
+            ico.innerHTML = '<path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 3h-2v-2h2v2zm0-4h-2V7h2v4z"/>';
+            titleRow.appendChild(ico);
+
+            const badges = document.createElement("div");
+            badges.className = "flex items-center gap-2 mb-3";
+            const status = document.createElement("span");
+            status.className = "text-[10px] font-medium px-2 py-0.5 rounded-full";
+            status.style.background = "rgba(250,204,21,0.12)";
+            status.style.color = "#facc15";
+            status.textContent = "Active";
+            const shift = document.createElement("span");
+            shift.className = "text-[10px] text-slate-500";
+            shift.textContent = `Shift: ${this.employee.shift || ""}`;
+            badges.appendChild(status);
+            badges.appendChild(shift);
+
+            const btn = document.createElement("button");
+            btn.className = "w-full py-1.5 bg-[#1152d4] rounded-lg text-white text-[10px] font-bold";
+            btn.textContent = "View Profile";
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              try { openPanel(this.employee); } catch (err) {}
+            });
+
+            glass.appendChild(titleRow);
+            glass.appendChild(badges);
+            glass.appendChild(btn);
+
+            tooltip.appendChild(glass);
+
             this.div.appendChild(container);
+            this.div.appendChild(tooltip);
+
+            this.tooltipEl = tooltip;
 
             // click forward to openPanel
             this.div.addEventListener("click", (e) => {
@@ -275,6 +341,22 @@ export default function LiveTeamStatus() {
 
             this.pingEl = ping;
             this.avatarWrap = avatarWrap;
+
+            // show/hide tooltip on hover
+            this.div.addEventListener("mouseenter", () => {
+              if (this.tooltipEl) {
+                this.tooltipEl.style.opacity = "1";
+                this.tooltipEl.style.transform = "translate(-50%,0)";
+                this.tooltipEl.style.pointerEvents = "auto";
+              }
+            });
+            this.div.addEventListener("mouseleave", () => {
+              if (this.tooltipEl) {
+                this.tooltipEl.style.opacity = "0";
+                this.tooltipEl.style.transform = "translate(-50%,8px)";
+                this.tooltipEl.style.pointerEvents = "none";
+              }
+            });
 
             this.getPanes().overlayMouseTarget.appendChild(this.div);
           }
