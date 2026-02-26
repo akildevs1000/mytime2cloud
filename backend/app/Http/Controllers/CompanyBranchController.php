@@ -27,6 +27,17 @@ class CompanyBranchController extends Controller
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         return $model->get(["id", "branch_name as name"]);
     }
+
+    public function branchListGeoFencing($id)
+    {
+        return CompanyBranch::orderBy("branch_name", "asc")
+         ->where('company_id', $id)
+         ->where('geofence_enabled', true)
+         ->withCount('employees')
+         ->get();
+    }
+
+
     public function seedDefaultData()
     {
         $arr = [];
@@ -130,6 +141,25 @@ class CompanyBranchController extends Controller
 
         try {
             $record = $model->where("id", $id)->update($data);
+
+            if ($record) {
+                return $this->response('Branch successfully updated.', null, true);
+            } else {
+                return $this->response('Branch cannot add.', null, false);
+            }
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    public function updateGeoFencing(Request $request, $id)
+    {
+        try {
+
+            $record = CompanyBranch::where("id", $id)->update([
+                "geofence_enabled" => $request->geofence_enabled,
+                "geofence_radius_meter" => $request->geofence_radius_meter,
+            ]);
 
             if ($record) {
                 return $this->response('Branch successfully updated.', null, true);
