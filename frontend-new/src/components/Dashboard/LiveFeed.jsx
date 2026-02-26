@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDarkMode } from "@/context/DarkModeContext";
+import { useAuth } from "@/context/AuthContext";
 import ProfilePicture from "../ProfilePicture";
-import { getDeviceLogs } from "@/lib/api";
+import { getDeviceJson, getDeviceLogs, getEmployeesJson } from "@/lib/api";
 import useMqtt from "@/hooks/useMqtt";
 import {
   Smartphone,
@@ -12,84 +13,45 @@ import {
   RefreshCw,
   Edit3,
   Monitor,
-  User
+  User,
 } from "lucide-react";
+import { caps } from "@/lib/utils";
+import { getUser } from "@/config";
 
-const DeviceInfo = ({ item, caps }) => {
-  const isMobile = item.DeviceID?.includes("Mobile");
-
-  return (
-    <>
-      {/* 1. The Icon */}
-      {/* {isMobile ? <Smartphone size={16} /> : <Monitor size={16} />} */}
-
-      {isMobile ? (
-        <>
-          Mobile <br />
-          {item.gps_location}
-        </>
-      ) : (
-        <>
-          {item.device ? caps(item.device.name) : "---"} <br />
-          {item.device?.location || "---"}
-        </>
-      )}
-    </>
-  );
+// 1. Define the base icon mapping
+const baseIcons = {
+  Card: <Contact size={16} title="Card" />,
+  Fing: <Fingerprint size={16} title="Fingerprint" />,
+  Face: <ScanFace size={16} title="Face" />,
+  Pin: <Hash size={16} title="PIN" />,
+  Manual: <Edit3 size={16} title="Manual" />,
+  Repeated: <RefreshCw size={16} title="Repeated" />,
+  Mobile: <Smartphone size={16} title="Mobile" />,
+  Device: <Monitor size={16} title="Monitor" />,
 };
 
-const ModeInfo = ({ item }) => {
-  // Check for mobile first
-  const isMobile = item.DeviceID?.includes(`Mobile`);
-  const mode = item.mode;
-
-  // 1. Define the base icon mapping
-  const baseIcons = {
-    Card: <Contact size={16} title="Card" />,
-    Fing: <Fingerprint size={16} title="Fingerprint" />,
-    Face: <ScanFace size={16} title="Face" />,
-    Pin: <Hash size={16} title="PIN" />,
-    Manual: <Edit3 size={16} title="Manual" />,
-    Repeated: <RefreshCw size={16} title="Repeated" />,
-    Mobile: <Smartphone size={16} title="Mobile" />,
-  };
-
-  // 2. Define how each mode maps to those icons
-  const iconGroups = {
-    Card: [baseIcons.Card],
-    Fing: [baseIcons.Fing],
-    Face: [baseIcons.Face],
-    "Fing + Card": [baseIcons.Fing, baseIcons.Card],
-    "Face + Fing": [baseIcons.Face, baseIcons.Fing],
-    "Face + Card": [baseIcons.Face, baseIcons.Card],
-    "Card + Pin": [baseIcons.Card, baseIcons.Pin],
-    "Face + Pin": [baseIcons.Face, baseIcons.Pin],
-    "Fing + Pin": [baseIcons.Fing, baseIcons.Pin],
-    "Fing + Card + Pin": [baseIcons.Fing, baseIcons.Card, baseIcons.Pin],
-    "Face + Card + Pin": [baseIcons.Face, baseIcons.Card, baseIcons.Pin],
-    "Face + Fing + Pin": [baseIcons.Face, baseIcons.Fing, baseIcons.Pin],
-    "Face + Fing + Card": [baseIcons.Face, baseIcons.Fing, baseIcons.Card],
-    Manual: [baseIcons.Manual],
-    Repeated: [baseIcons.Repeated],
-  };
-
-  // 3. Logic: If mobile, show mobile icon. Otherwise, get group icons.
-  const activeIcons = isMobile ? [baseIcons.Mobile] : (iconGroups[mode] || []);
-
-  return (
-    <div className="flex items-center gap-1" title={isMobile ? "Mobile" : mode}>
-      {activeIcons.map((icon, index) => (
-        <span key={index}>
-          {icon}
-        </span>
-      ))}
-      {/* Optional: Add text label next to mobile icon */}
-      {isMobile && <span className="text-xs font-medium ">Mobile</span>}
-    </div>
-  );
+// 2. Define how each mode maps to those icons
+const iconGroups = {
+  Card: [baseIcons.Card],
+  Fing: [baseIcons.Fing],
+  Face: [baseIcons.Face],
+  "Fing + Card": [baseIcons.Fing, baseIcons.Card],
+  "Face + Fing": [baseIcons.Face, baseIcons.Fing],
+  "Face + Card": [baseIcons.Face, baseIcons.Card],
+  "Card + Pin": [baseIcons.Card, baseIcons.Pin],
+  "Face + Pin": [baseIcons.Face, baseIcons.Pin],
+  "Fing + Pin": [baseIcons.Fing, baseIcons.Pin],
+  "Fing + Card + Pin": [baseIcons.Fing, baseIcons.Card, baseIcons.Pin],
+  "Face + Card + Pin": [baseIcons.Face, baseIcons.Card, baseIcons.Pin],
+  "Face + Fing + Pin": [baseIcons.Face, baseIcons.Fing, baseIcons.Pin],
+  "Face + Fing + Card": [baseIcons.Face, baseIcons.Fing, baseIcons.Card],
+  Manual: [baseIcons.Manual],
+  Repeated: [baseIcons.Repeated],
 };
 
 function LiveFeed({ branch_id }) {
+  const user = getUser();
+
   const { isDark } = useDarkMode();
 
   // Helper to determine Status Badge Styles
@@ -126,42 +88,69 @@ function LiveFeed({ branch_id }) {
 
   const [records, setRecords] = useState([]);
 
+  const DeptInfo = (employee) => {
+    // Support both API and real-time records
+    let branch = employee?.branch?.branch_name || "-";
+    let department = employee?.department?.name || "";
+    let dept = branch;
+    if (department) {
+      dept += ` / ${department}`;
+    }
+    console.log(`DeptInfo`, employee);
+
+    return dept;
+  };
+
+  // Fetch device logs API
+  const fetchRecords = async () => {
+    const today = new Date().toISOString().split("T")[0];
+    const { data } = await getDeviceLogs({
+      page: 1,
+      per_page: 50,
+      from_date: today,
+      to_date: today,
+    });
+
+    //26&from_date_txt=2026-02-26&to_date_txt=2026-02-26
+    let result = data.map((e) => ({
+      ...e,
+      id: e?.employee?.employee_id,
+      name: e?.employee?.first_name,
+      type: "Entry",
+      punctuality: "On Time",
+      punctualityColor: "text-emerald-600",
+      punctualityDot: "bg-emerald-500",
+      status: e.status,
+      statusType: "neutral",
+      time: `${e.date} ${e.time}`,
+
+      dept: `${e?.employee?.branch?.branch_name} ${e?.employee?.branch?.branch_name ? " / " + e?.employee?.department?.name : ""}`,
+      location: e.DeviceID?.includes("Mobile")
+        ? e.gps_location
+        : e.device?.location,
+
+      modes: e.DeviceID?.includes(`Mobile`)
+        ? [baseIcons.Mobile]
+        : iconGroups[item.Device],
+    }));
+    setRecords(result);
+  };
+
   useEffect(() => {
-    const fetchRecords = async () => {
-      // Assuming getAttendanceCount is imported or defined globally
-
-      const today = new Date().toISOString().split("T")[0];
-
-      const { data } = await getDeviceLogs({
-        page: 1,
-        per_page: 10,
-        from_date: today,
-        to_date: today,
-      });
-
-      console.log(data);
-
-      let result = data.map((e) => ({
-        ...e,
-        id: e?.employee?.employee_id,
-        name: e?.employee?.first_name,
-        dept:
-          e?.employee?.branch?.branch_name +
-          " / " +
-          e?.employee?.department?.name,
-        location: e?.gps_location || e?.device?.location,
-        type: "Entry",
-        punctuality: "On Time",
-        punctualityColor: "text-emerald-600",
-        punctualityDot: "bg-emerald-500",
-        status: e.status,
-        statusType: "neutral",
-      }));
-
-      setRecords(result);
-    };
     fetchRecords();
   }, [branch_id]);
+
+  const [deviceJson, setDeviceJson] = useState(null);
+  const [employeesJson, setEmployeesJson] = useState(null);
+
+  const fetchDeviceJson = async () => {
+    setDeviceJson(await getDeviceJson(user.company_id));
+    setEmployeesJson(await getEmployeesJson(user.company_id));
+  };
+
+  useEffect(() => {
+    fetchDeviceJson();
+  }, []);
 
   const { lastMessage } = useMqtt(["mqtt/face/+/+"]);
 
@@ -169,14 +158,44 @@ function LiveFeed({ branch_id }) {
     // Only process if we have a message and it's NOT a heartbeat
     if (!lastMessage || lastMessage.topic.includes("heartbeat")) return;
 
-    const { data } = lastMessage;
-    const user = data.personName || `User ${data.personId || "Unknown"}`;
-    const device = data.facesluiceName || data.facesluiceId || "Main Gate";
-    const logEntry = `🎯 ATTENDANCE: ${user} at ${device}`;
+    const {
+      data: { customId, personName, facesluiceId, time,VerifyStatus, ...rest },
+    } = lastMessage;
 
-    console.log(logEntry);
+    console.log(rest);
+    
 
-    // setLogs((prev) => [logEntry, ...prev].slice(0, 50));
+    if (!deviceJson) return;
+
+    if (!employeesJson) return;
+
+    let foundInfo = deviceJson[facesluiceId];
+    let foundEmployeeInfo = employeesJson[customId];
+
+    if (!foundInfo) return;
+    if (!foundEmployeeInfo) return;
+
+    console.log(foundInfo);
+    console.log("foundInfo DEvide", foundInfo);
+
+    // Insert new real-time record at the top, matching existing structure
+    setRecords((prev) => [
+      {
+        id: customId,
+        name: personName,
+        dept: `${foundEmployeeInfo?.branch?.branch_name} ${foundEmployeeInfo?.branch?.branch_name ? " / " + foundEmployeeInfo?.department?.name : ""}`,
+        location: foundInfo?.location || "-", // You can update this if you have location info
+        type: "Entry",
+        punctuality: "On Time",
+        punctualityColor: "text-emerald-600",
+        punctualityDot: "bg-emerald-500",
+        status: VerifyStatus == "1" ?  "Allowed" : "",
+        statusType: "neutral",
+        LogTime: time,
+        modes: [baseIcons.Device],
+      },
+      ...prev,
+    ]);
   }, [lastMessage]);
 
   return (
@@ -188,6 +207,14 @@ function LiveFeed({ branch_id }) {
           <h3 className="text-base font-bold text-gray-600 dark:text-gray-300 font-display tracking-wide">
             Live Recognition Feed
           </h3>
+          <button
+            className="ml-4 px-3 py-1 text-xs font-bold rounded bg-primary text-white hover:bg-primary/90 transition-colors"
+            onClick={fetchRecords}
+            type="button"
+            title="Refresh Device Logs"
+          >
+            Refresh Logs
+          </button>
         </div>
         <div className="flex gap-4 items-center">
           <span className="text-[11px] text-slate-400 font-mono">
@@ -234,23 +261,23 @@ function LiveFeed({ branch_id }) {
                 <span className="text-[9px] text-slate-500">ID: {item.id}</span>
               </div>
             </div>
-            {/* Dept */}
-            <div
-              className="col-span-1 text-[11px] text-slate-500 truncate"
-              title={item.dept}
-            >
+            <div className="col-span-1 text-[11px] text-slate-500 truncate">
               {item.dept}
             </div>
             {/* Location - Matches header span of 4 */}
             <div className="col-span-4 text-[11px] text-slate-500 truncate pr-4">
-              <DeviceInfo item={item} />
+              {item.location}
             </div>
             <div className="col-span-1 flex items-center text-slate-400">
-              <ModeInfo item={item} />
+              {item.modes.map((icon, index) => (
+                <span key={index}>{icon}</span>
+              ))}
+              {/* Optional: Add text label next to mobile icon */}
+              {/* {isMobile && <span className="text-xs font-medium ">Mobile</span>} */}
             </div>
             {/* Date Time */}
             <div className="col-span-1 text-[11px] font-mono text-slate-500">
-              {item.date} {item.time}
+              {item.LogTime}
             </div>
             {/* Punctuality */}
             <div className="col-span-1">

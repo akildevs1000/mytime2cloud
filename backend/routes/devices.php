@@ -76,3 +76,4 @@ Route::get('/trigger-all-devices-alarm-sdk', [DeviceController::class, 'triggerA
 Route::post('/download-profilepic-sdk', [DeviceController::class, 'downloadProfilePictureSdk']);
 Route::get('/download-profilepic-disk', [DeviceController::class, 'downloadProfilePicture']);
 Route::post('/copy-to-profilepic', [DeviceController::class, 'copytoProfilePicture']);
+Route::get('/devices-json/{id}', [DeviceController::class, 'devicesJson']);

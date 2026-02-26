@@ -66,3 +66,4 @@ Route::post('employee-update-password/{id}', [EmployeeControllerNew::class, 'upd
 Route::post('employee-update-login-new/{id}', [EmployeeControllerNew::class, 'updateLogin']);
 
 Route::get('employee-details/{id}', [EmployeeControllerNew::class, 'show']);
+Route::get('employees-json/{id}', [EmployeeControllerNew::class, 'employeesJson']);

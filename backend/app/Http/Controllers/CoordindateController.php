@@ -20,6 +20,26 @@ class CoordindateController extends Controller
     public function store(StoreRequest $request)
     {
         try {
+            // 1. Ensure only validated data is used
+            $coordinate = Coordindate::create($request->validated());
+
+            // 2. Return a 201 Created response with the resource
+            return response()->json([
+                'message' => 'Coordinate recorded successfully.',
+                'data' => $coordinate
+            ], 201);
+        } catch (\Exception $e) {
+            // 3. Handle unexpected database or system errors
+            return response()->json([
+                'message' => 'Failed to save coordinate.',
+                'error' => $e->getMessage() // Consider hiding this in production
+            ], 500);
+        }
+    }
+
+    public function storeNew(StoreRequest $request)
+    {
+        try {
             $validated = $request->validated();
             $minDistance = 100; // 100 meters
 

@@ -36,6 +36,23 @@ class DeviceController extends Controller
     const ONLINE_STATUS_ID = 1;
     const OFFLINE_STATUS_ID = 2;
 
+    public function devicesJson($id)
+    {
+        return Device::where("company_id", $id)->get([
+            "id",
+            "company_id",
+            "branch_id",
+            "location",
+            "name",
+            "short_name",
+            "model_number",
+            "device_id"
+        ])
+            ->keyBy("device_id"); // Changes the structure from [key => [obj]] to [key => obj]
+    }
+
+
+
     public function dropdownList()
     {
         $model = Device::query();

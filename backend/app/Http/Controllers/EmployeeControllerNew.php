@@ -887,4 +887,57 @@ class EmployeeControllerNew extends Controller
 
         return $employee;
     }
+
+
+    public function employeesJson($id)
+    {
+        // $filePath = storage_path('app') . '/employees_list.json';
+
+        // // Check if file exists and return cached data
+        // if (file_exists($filePath)) {
+        //     $jsonContent = file_get_contents($filePath);
+        //     return json_decode($jsonContent, true);
+        // }
+
+        // Fallback: Generate if file doesn't exist
+        $employees = Employee::where("company_id", $id)->withOut("schedule")->get([
+            "id",
+            "company_id",
+            "employee_id",
+            "system_user_id",
+            "branch_id",
+            "department_id",
+            "first_name as name",
+        ])
+            ->keyBy("employee_id");
+
+        return $employees;
+    }
+
+    public function getEmployeesJson()
+    {
+        try {
+            $filePath = storage_path('app') . '/employees_list.json';
+
+            if (!file_exists($filePath)) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Employees JSON cache not found. Run: php artisan employees:generate-json',
+                    'data' => null
+                ], 404);
+            }
+
+            // Serve raw JSON file directly without re-parsing for maximum speed
+            return response()->file($filePath, [
+                'Content-Type' => 'application/json',
+                'Cache-Control' => 'public, max-age=3600'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Error retrieving employees data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -155,8 +155,9 @@ class CompanyBranchController extends Controller
     public function updateGeoFencing(Request $request, $id)
     {
         try {
-
             $record = CompanyBranch::where("id", $id)->update([
+                "lat" => $request->lat,
+                "lon" => $request->lon,
                 "geofence_enabled" => $request->geofence_enabled,
                 "geofence_radius_meter" => $request->geofence_radius_meter,
             ]);
