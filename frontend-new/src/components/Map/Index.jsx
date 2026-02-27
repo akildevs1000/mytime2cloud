@@ -270,33 +270,41 @@ export default function LiveTeamStatus() {
     loadGoogleMaps(apiKey)
       .then((maps) => {
         if (!mounted) return;
-        if (!mapContainerRef.current) return;
+        const mountMap = () => {
+          if (!mounted) return;
+          if (!mapContainerRef.current) {
+            requestAnimationFrame(mountMap);
+            return;
+          }
 
-        const currentDiv =
-          mapRef.current && typeof mapRef.current.getDiv === "function"
-            ? mapRef.current.getDiv()
-            : null;
+          const currentDiv =
+            mapRef.current && typeof mapRef.current.getDiv === "function"
+              ? mapRef.current.getDiv()
+              : null;
 
-        const needsRecreate = !mapRef.current || currentDiv !== mapContainerRef.current;
+          const needsRecreate = !mapRef.current || currentDiv !== mapContainerRef.current;
 
-        if (needsRecreate) {
-          const initial = employeesData[0] || BASE_MAP_CENTER;
-          mapRef.current = new maps.Map(mapContainerRef.current, {
-            center: {
-              lat: Number.isFinite(initial?.lat) ? initial.lat : BASE_MAP_CENTER.lat,
-              lng: Number.isFinite(initial?.lng) ? initial.lng : BASE_MAP_CENTER.lng,
-            },
-            zoom: 13,
-            disableDefaultUI: true,
-            styles: bwMode ? darkMapStyleRef.current : null,
-          });
-        }
+          if (needsRecreate) {
+            const initial = employeesData[0] || BASE_MAP_CENTER;
+            mapRef.current = new maps.Map(mapContainerRef.current, {
+              center: {
+                lat: Number.isFinite(initial?.lat) ? initial.lat : BASE_MAP_CENTER.lat,
+                lng: Number.isFinite(initial?.lng) ? initial.lng : BASE_MAP_CENTER.lng,
+              },
+              zoom: 13,
+              disableDefaultUI: true,
+              styles: bwMode ? darkMapStyleRef.current : null,
+            });
+          }
 
-        if (mapRef.current && maps.event?.trigger) {
-          maps.event.trigger(mapRef.current, "resize");
-        }
+          if (mapRef.current && maps.event?.trigger) {
+            maps.event.trigger(mapRef.current, "resize");
+          }
 
-        setMapReady(true);
+          setMapReady(true);
+        };
+
+        mountMap();
       })
       .catch((err) => {
         const message = err?.message || "Failed to load Google Maps";
