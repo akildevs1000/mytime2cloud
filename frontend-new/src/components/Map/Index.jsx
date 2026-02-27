@@ -26,7 +26,7 @@ export default function LiveTeamStatus() {
   const [sidePanelOpen, setSidePanelOpen] = useState(false);
   const lastPositionsRef = useRef({});
   const [movingMap, setMovingMap] = useState({});
-  const [employeesData, setEmployeesData] = useState([]);
+  const [employeesData, setEmployeesData] = useState(employeesSeed);
   const [bwMode, setBwMode] = useState(false);
   const [mapError, setMapError] = useState("");
   const [mapReady, setMapReady] = useState(false);
@@ -35,6 +35,33 @@ export default function LiveTeamStatus() {
   const markersRef = useRef({});
   const timersRef = useRef({});
   const darkMapStyleRef = useRef(darkMapStyle);
+
+  const ensureMapInstance = useCallback((maps) => {
+    if (!mapContainerRef.current) return false;
+
+    const currentDiv =
+      mapRef.current && typeof mapRef.current.getDiv === "function"
+        ? mapRef.current.getDiv()
+        : null;
+
+    const needsRecreate = !mapRef.current || currentDiv !== mapContainerRef.current;
+
+    if (needsRecreate) {
+      mapRef.current = new maps.Map(mapContainerRef.current, {
+        center: BASE_MAP_CENTER,
+        zoom: 13,
+        disableDefaultUI: true,
+        styles: bwMode ? darkMapStyleRef.current : null,
+      });
+    }
+
+    if (mapRef.current && maps.event?.trigger) {
+      maps.event.trigger(mapRef.current, "resize");
+    }
+
+    setMapReady(true);
+    return true;
+  }, [bwMode]);
 
   const parseGpsNumber = (value) => {
     if (value === null || value === undefined || value === "") return null;
@@ -276,32 +303,7 @@ export default function LiveTeamStatus() {
             requestAnimationFrame(mountMap);
             return;
           }
-
-          const currentDiv =
-            mapRef.current && typeof mapRef.current.getDiv === "function"
-              ? mapRef.current.getDiv()
-              : null;
-
-          const needsRecreate = !mapRef.current || currentDiv !== mapContainerRef.current;
-
-          if (needsRecreate) {
-            const initial = employeesData[0] || BASE_MAP_CENTER;
-            mapRef.current = new maps.Map(mapContainerRef.current, {
-              center: {
-                lat: Number.isFinite(initial?.lat) ? initial.lat : BASE_MAP_CENTER.lat,
-                lng: Number.isFinite(initial?.lng) ? initial.lng : BASE_MAP_CENTER.lng,
-              },
-              zoom: 13,
-              disableDefaultUI: true,
-              styles: bwMode ? darkMapStyleRef.current : null,
-            });
-          }
-
-          if (mapRef.current && maps.event?.trigger) {
-            maps.event.trigger(mapRef.current, "resize");
-          }
-
-          setMapReady(true);
+          ensureMapInstance(maps);
         };
 
         mountMap();
@@ -315,7 +317,15 @@ export default function LiveTeamStatus() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [ensureMapInstance]);
+
+  // Safety net: if map script is already ready but init missed container timing, create map anyway.
+  useEffect(() => {
+    if (mapRef.current) return;
+    const maps = window.google?.maps;
+    if (!maps) return;
+    ensureMapInstance(maps);
+  }, [ensureMapInstance, mapReady]);
 
   // Toggle CSS class on the map container so overlays can respond to B/W mode via CSS
   useEffect(() => {

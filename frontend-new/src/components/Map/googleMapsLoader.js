@@ -1,39 +1,68 @@
+let pendingLoadPromise = null;
+
 export function loadGoogleMaps(apiKey) {
-  if (typeof window === "undefined") return Promise.reject();
+  if (typeof window === "undefined") return Promise.reject(new Error("Window is unavailable"));
   if (window.google && window.google.maps) return Promise.resolve(window.google.maps);
+  if (pendingLoadPromise) return pendingLoadPromise;
 
-  return new Promise((resolve, reject) => {
-    const existing = document.getElementById("gmaps-script");
-    if (existing) {
+  pendingLoadPromise = new Promise((resolve, reject) => {
+    let settled = false;
+    let timeoutId = null;
+    let pollId = null;
+
+    const finishResolve = () => {
+      if (settled) return;
       if (window.google && window.google.maps) {
+        settled = true;
+        if (timeoutId) clearTimeout(timeoutId);
+        if (pollId) clearInterval(pollId);
+        pendingLoadPromise = null;
         resolve(window.google.maps);
-        return;
       }
+    };
 
+    const finishReject = (error) => {
+      if (settled) return;
+      settled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (pollId) clearInterval(pollId);
+      pendingLoadPromise = null;
+      reject(error);
+    };
+
+    const existing = document.getElementById("gmaps-script");
+
+    const attachWatchers = (scriptNode) => {
       const onLoad = () => {
         if (window.google && window.google.maps) {
-          resolve(window.google.maps);
+          finishResolve();
         } else {
-          reject(new Error("Google Maps loaded but window.google.maps is unavailable"));
+          finishReject(new Error("Google Maps loaded but window.google.maps is unavailable"));
         }
       };
 
-      const onError = () => reject(new Error("Failed to load Google Maps script"));
+      const onError = () => finishReject(new Error("Failed to load Google Maps script"));
 
-      existing.addEventListener("load", onLoad, { once: true });
-      existing.addEventListener("error", onError, { once: true });
+      scriptNode.addEventListener("load", onLoad, { once: true });
+      scriptNode.addEventListener("error", onError, { once: true });
 
-      const pollId = setInterval(() => {
+      pollId = setInterval(() => {
         if (window.google && window.google.maps) {
-          clearInterval(pollId);
-          resolve(window.google.maps);
+          finishResolve();
         }
       }, 200);
 
-      setTimeout(() => {
-        clearInterval(pollId);
-      }, 5000);
+      timeoutId = setTimeout(() => {
+        if (window.google && window.google.maps) {
+          finishResolve();
+          return;
+        }
+        finishReject(new Error("Timed out loading Google Maps"));
+      }, 10000);
+    };
 
+    if (existing) {
+      attachWatchers(existing);
       return;
     }
 
@@ -42,14 +71,9 @@ export function loadGoogleMaps(apiKey) {
     script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
     script.async = true;
     script.defer = true;
-    script.onload = () => {
-      if (window.google && window.google.maps) {
-        resolve(window.google.maps);
-      } else {
-        reject(new Error("Google Maps loaded but window.google.maps is unavailable"));
-      }
-    };
-    script.onerror = () => reject(new Error("Failed to load Google Maps script"));
     document.head.appendChild(script);
+    attachWatchers(script);
   });
+
+  return pendingLoadPromise;
 }
