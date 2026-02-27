@@ -107,3 +107,30 @@ sudo apt-get install imagemagick
 
 
 
+
+
+
+
+{
+    "lat": 25.2545229,
+    "lon": 55.303495,
+    "user_id": 667,
+    "company_id": 2
+}
+
+
+
+{
+    "lat": 25.2455128,
+    "lon": 55.2941351,
+    "user_id": 667,
+    "company_id": 2
+}
+
+
+{
+    "lat": 25.3452326,
+    "lon": 55.4128809,
+    "user_id": 667,
+    "company_id": 2
+}
