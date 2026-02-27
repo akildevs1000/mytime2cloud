@@ -3,12 +3,16 @@ import mqtt from 'mqtt';
 
 const useMqtt = (topics) => {
     const MQTT_WS_URL = process.env.NEXT_PUBLIC_MQTT_WS_URL;
-    console.log(`MQTT_WS_URL`, MQTT_WS_URL);
     const [status, setStatus] = useState({ connected: false, error: null });
     const [lastMessage, setLastMessage] = useState(null);
     const clientRef = useRef(null);
 
     useEffect(() => {
+        if (!MQTT_WS_URL) {
+            setStatus({ connected: false, error: 'NEXT_PUBLIC_MQTT_WS_URL is not configured' });
+            return;
+        }
+
         // Initialize client
         const client = mqtt.connect(MQTT_WS_URL, {
             clientId: `web_client_${Math.random().toString(16).slice(2, 8)}`,
@@ -20,7 +24,9 @@ const useMqtt = (topics) => {
 
         client.on("connect", () => {
             setStatus({ connected: true, error: null });
-            client.subscribe(topics);
+            if (topics?.length) {
+                client.subscribe(topics);
+            }
         });
 
         client.on("error", (err) => {
@@ -31,7 +37,11 @@ const useMqtt = (topics) => {
             try {
                 const payload = JSON.parse(messageBuffer.toString());
                 // We return an object containing the topic and the parsed data
-                setLastMessage({ topic, data: payload.info || {} });
+                setLastMessage({
+                    topic,
+                    data: payload?.info ?? payload ?? {},
+                    raw: payload ?? {},
+                });
             } catch (e) {
                 console.error("MQTT Parse Error:", e);
             }
@@ -43,7 +53,7 @@ const useMqtt = (topics) => {
                 clientRef.current.end();
             }
         };
-    }, []); // Only re-run if URL or Topics change
+    }, [MQTT_WS_URL, JSON.stringify(topics || [])]);
 
     return { status, lastMessage };
 };
