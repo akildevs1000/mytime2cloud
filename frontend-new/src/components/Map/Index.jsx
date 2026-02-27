@@ -1,113 +1,189 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import LiveTrackerBottomFeed from "./LiveTrackerBottomFeed";
 import SidePanel from "./SidePanel";
 import distanceMeters from "@/hooks/useDistance";
+import { employeesSeed, darkMapStyle } from "./mapData";
+import { loadGoogleMaps } from "./googleMapsLoader";
+import { createAvatarOverlay } from "./createAvatarOverlay";
+import { getUser } from "@/config";
+import useSse from "@/hooks/useSse";
 
-const employees = [
-  {
-    id: 1,
-    name: "John Doe",
-    role: "Senior Field Engineer",
-    location: "West Branch Office",
-    status: "active",
-    shift: "09:00 - 17:00",
-    clockIn: "08:58 AM",
-    expectedOut: "05:00 PM",
-    battery: 82,
-    matchScore: "99.2%",
-    checkinTime: "2m ago",
-    checkinType: "CHECK-IN",
-    verified: true,
-    mapPos: { top: "35%", left: "45%" },
-    lat: 25.2685,
-    lng: 55.2882,
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAgOmBDUE9YRPKrUELhubdiGKupJPt-_S1cAy0MCwnS4XLJ0F8HKYFSrehE-s5euFiPpgEgHiFZD1C4_azu015NF6eEUjCMMmf5ddSOmpi7ops0nKsPkh-1dy7Q1O1Pp1zJHGd2YLtIXjenPSPEq1tcWmZihbIU5Lihw_hliby7B7g5OIIOw7sSOcnp6QZ9Kaqnr238I7B2rX5VS7ZLN459F5CuA34Ygdr8rggzQtDdziWsB7Dzre13RYIJcDIEu1yRzWs-3KnWTG0_",
-    refPhoto:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuCpuHuPvKJ-OCU_SWCUKbTl9A1bkYIObn45SD6zIRyBPGxh9ozH5rliQZbKaWLnwieFy66QRxJs_rVxJ28X-QNhxfnCFVtp1sRXPST_p6tQZsWVJzFrXcjd9veTIERvC0oH1fzTv-6-askTYufViMnxeJlGipTNkjZgRj1ArZ_cc-7WafzJInZgxuypOW06H3lNN241UqYi-e4OBezv1-AtMkXejLMh0a7R-l4NHajnk7IOsEot82U8HzMsphPWLGTj-bVZbYu29kmW",
-    livePhoto:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAB4uboUFzRdHOoKqfS3LX6c5lEvQ4iEMgt_2WI80FOmrymhPfLvnVg3MkIssLQXmr7NAP8zyxLVrhshpEioeGt3gv5nOPDLBrj6HulU-q7b_My2ofalSElnNwRDmPNfDJmXUNsGR71dBEyxgTASi9mA0oFc-aLwaveZzdXZCy9tLMIvCnEARDmiDWzRgDPIhWNarEaq3HnHW3oy7njRPCpWIY2_bV-Jz1Mv560hkzOiInB36okrjyZlbVdvRRUS6qtbHwY9ZO5YXlo",
-    feedThumb:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuC5sQ1au3fUOqOakeVlZYmy9oip1UWbBjFiB2_n6cY4RLEHoiPSkaTMuye7gzCkL3lSydkJG-FNf_HNdw6nX4krujcOx_OxZ3yxOxPBQ2WAwBTDeEm3Xy1PXfqTLwk4xTzfgq03Amg8u6Tt_bnCNWfBhD1nQhBxxXIeKRp4ZuayieOA07UWQj0OLvEPwj-vw7N2U3G6GJ7bqrAVXih3kPx5RliPZjS83EylAE4qDk8gu3R-MyRyaaf09E8r-b4wSZnG1XLdBL8rdCox",
-  },
-  {
-    id: 2,
-    name: "Sarah Smith",
-    role: "Logistics Coordinator",
-    location: "North Warehouse",
-    status: "active",
-    shift: "08:00 - 16:00",
-    clockIn: "07:55 AM",
-    expectedOut: "04:00 PM",
-    battery: 67,
-    matchScore: "98.1%",
-    checkinTime: "5m ago",
-    checkinType: "CHECK-IN",
-    verified: true,
-    mapPos: { top: "55%", left: "60%" },
-    lat: 25.2312,
-    lng: 55.3214,
-    avatar:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAhS-rjJPilpVNSIf4S1vqyLYBjOahtdAeaKqmOsavmsWsy6lZeuR7sD6MN8XD63HAjqlt1EtHUfLHcYo0TWgH0b7dnytzUFy7dWzbY72R4_ecQrVPgFxq9qJcT6Gy85R9MatxIeAb0Z_McRlVUY6mFVEmtM_--OoDAfNfASkikA1iw4Cgit1p0Xhhm8Y-Qqs9T9s3RQYlbU0Oj1ZI8ocJe97z9Bd37VM-l0bqfk9Iylqr7tBHsRhImTlfKvKbk9bMZ-C8IQZvEOxPb",
-    feedThumb:
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAeweoCuz_VO4J0wKgiBPLxxEsGIzPr1TE3ItVOfeIZvcIKmeQqmpT0vBj5OHcVd0WkQH17gkQodvGq0LswAXroHGVWoEKaKCqvTUaFxzLCIHJX_HcwhwUW04yPlzMbXK6OvdwrNkaHgT64z6b9xGgWEfaUEbOoPC0AjP1JBQsmfifYjOcaos6Bjs-v61fo1_q6eQVd1R4bA-R-yGoK85XMy5oYzserGrvzvqgdRQw7kOi-y8jTs5i9chSH4AgWJhvCHHDoXxPGnpa0",
-  },
-];
+const BASE_MAP_CENTER = { lat: 25.2812992, lng: 25.3015108 };
 
 export default function LiveTeamStatus() {
+  let companyId = null;
+  try {
+    const user = getUser();
+    companyId = user?.company_id;
+  } catch (error) {
+    companyId = null;
+  }
+  const simulationEnabled = process.env.NEXT_PUBLIC_LIVE_TRACKER_SIMULATION === "true";
+
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [sidePanelOpen, setSidePanelOpen] = useState(false);
-  const [hoveredPin, setHoveredPin] = useState(null);
   const lastPositionsRef = useRef({});
   const [movingMap, setMovingMap] = useState({});
-  const [employeesData, setEmployeesData] = useState(employees);
+  const [employeesData, setEmployeesData] = useState([]);
   const [bwMode, setBwMode] = useState(false);
+  const [mapError, setMapError] = useState("");
+  const [mapReady, setMapReady] = useState(false);
   const mapContainerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef({});
   const timersRef = useRef({});
-  const darkMapStyleRef = useRef([
-    { elementType: 'geometry', stylers: [{ color: '#1f2937' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { elementType: 'labels.text.stroke', stylers: [{ color: '#1f2937' }] },
-    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#374151' }] },
-    { featureType: 'administrative.land_parcel', elementType: 'labels.text.fill', stylers: [{ color: '#6b7280' }] },
-    { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#111827' }] },
-    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#111827' }] },
-    { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#0b1220' }] },
-    { featureType: 'transit', elementType: 'labels.text.fill', stylers: [{ color: '#9ca3af' }] },
-    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0b1220' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#4b5563' }] }
-  ]);
+  const darkMapStyleRef = useRef(darkMapStyle);
 
-  // Load Google Maps script (reuse pattern from GeoFencing.GeoMap)
-  function loadGoogleMaps(apiKey) {
-    if (typeof window === "undefined") return Promise.reject();
-    if (window.google && window.google.maps) return Promise.resolve(window.google.maps);
+  const parseGpsNumber = (value) => {
+    if (value === null || value === undefined || value === "") return null;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  };
 
-    return new Promise((resolve, reject) => {
-      const existing = document.getElementById("gmaps-script");
-      if (existing) {
-        existing.addEventListener("load", () => resolve(window.google.maps));
-        existing.addEventListener("error", reject);
-        return;
+  const isValidLat = (value) => Number.isFinite(value) && value >= -90 && value <= 90;
+  const isValidLng = (value) => Number.isFinite(value) && value >= -180 && value <= 180;
+
+  const scoreDistance = (point, reference) => {
+    if (!point || !reference) return Number.POSITIVE_INFINITY;
+    if (!Number.isFinite(point.lat) || !Number.isFinite(point.lng)) return Number.POSITIVE_INFINITY;
+    if (!Number.isFinite(reference.lat) || !Number.isFinite(reference.lng)) return Number.POSITIVE_INFINITY;
+    const dLat = point.lat - reference.lat;
+    const dLng = point.lng - reference.lng;
+    return dLat * dLat + dLng * dLng;
+  };
+
+  const getEmployeeIdFromPayload = (payload = {}) => {
+    return (
+      payload.employeeId ||
+      payload.employee_id ||
+      payload.customId ||
+      payload.userId ||
+      payload.user_id ||
+      payload.id ||
+      null
+    );
+  };
+
+  const getLatLngFromPayload = (payload = {}, reference = BASE_MAP_CENTER) => {
+    const rawLat = parseGpsNumber(payload.lat ?? payload.latitude);
+    const rawLng = parseGpsNumber(payload.lng ?? payload.lon ?? payload.long ?? payload.longitude);
+    if (rawLat === null || rawLng === null) return null;
+
+    const direct = { lat: rawLat, lng: rawLng };
+    const swapped = { lat: rawLng, lng: rawLat };
+
+    const directValid = isValidLat(direct.lat) && isValidLng(direct.lng);
+    const swappedValid = isValidLat(swapped.lat) && isValidLng(swapped.lng);
+
+    if (!directValid && !swappedValid) return null;
+    if (directValid && !swappedValid) return direct;
+    if (!directValid && swappedValid) return swapped;
+
+    return scoreDistance(swapped, reference) < scoreDistance(direct, reference) ? swapped : direct;
+  };
+
+  const createLiveEmployee = (employeeId, payload, coords) => {
+    const fallback = employeesSeed[0] || {};
+    return {
+      id: Number.isFinite(Number(employeeId)) ? Number(employeeId) : String(employeeId),
+      name: payload.personName || payload.name || `Employee ${employeeId}`,
+      role: payload.role || "Field Employee",
+      location: payload.location || payload.address || "Live Mobile Location",
+      status: "active",
+      shift: payload.shift || "-",
+      clockIn: payload.clockIn || "-",
+      expectedOut: payload.expectedOut || "-",
+      battery: parseGpsNumber(payload.battery) ?? 0,
+      matchScore: payload.matchScore || "-",
+      checkinTime: payload.checkinTime || "Just now",
+      checkinType: payload.checkinType || "TRACKING",
+      verified: payload.verified !== false,
+      mapPos: { top: "50%", left: "50%" },
+      lat: coords.lat,
+      lng: coords.lng,
+      avatar: payload.avatar || fallback.avatar || "",
+      refPhoto: payload.refPhoto || fallback.refPhoto,
+      livePhoto: payload.livePhoto || fallback.livePhoto,
+      feedThumb: payload.feedThumb || payload.avatar || fallback.feedThumb || "",
+    };
+  };
+
+  const mergePayloadIntoEmployees = useCallback((payload = {}) => {
+    const employeeId = getEmployeeIdFromPayload(payload);
+    if (!employeeId) return;
+
+    setEmployeesData((prev) => {
+      const index = prev.findIndex((emp) => String(emp.id) === String(employeeId));
+      const reference = index >= 0
+        ? { lat: prev[index]?.lat, lng: prev[index]?.lng }
+        : prev[0]
+          ? { lat: prev[0].lat, lng: prev[0].lng }
+          : BASE_MAP_CENTER;
+      const coords = getLatLngFromPayload(payload, reference);
+      if (!coords) return prev;
+
+      if (index === -1) {
+        return [createLiveEmployee(employeeId, payload, coords), ...prev];
       }
 
-      const script = document.createElement("script");
-      script.id = "gmaps-script";
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}`;
-      script.async = true;
-      script.defer = true;
-      script.onload = () => resolve(window.google.maps);
-      script.onerror = reject;
-      document.head.appendChild(script);
+      const updated = [...prev];
+      const current = updated[index];
+      updated[index] = {
+        ...current,
+        ...payload,
+        id: current.id,
+        lat: coords.lat,
+        lng: coords.lng,
+        location: payload.location || payload.address || current.location,
+        battery: parseGpsNumber(payload.battery) ?? current.battery,
+        checkinTime: payload.checkinTime || "Just now",
+        checkinType: payload.checkinType || current.checkinType || "TRACKING",
+        status: payload.status || current.status,
+        avatar: current.avatar,
+        feedThumb: current.feedThumb,
+      };
+      return updated;
     });
-  }
+  }, []);
+
+  const handleSseMapMessage = useCallback(
+    (incoming) => {
+      if (!incoming || typeof incoming !== "object") return;
+      if (incoming.type && incoming.type !== "map") return;
+
+      const rawPayload = incoming.data && typeof incoming.data === "object" ? incoming.data : incoming;
+      const payloadList = Array.isArray(rawPayload) ? rawPayload : [rawPayload];
+
+      payloadList.forEach((payloadData) => {
+        if (!payloadData || typeof payloadData !== "object") return;
+
+        if (
+          payloadData.company_id &&
+          companyId &&
+          Number(payloadData.company_id) !== Number(companyId)
+        ) {
+          return;
+        }
+
+        const normalizedPayload = {
+          ...payloadData,
+          lat: payloadData.lat ?? payloadData.latitude,
+          lng: payloadData.lng ?? payloadData.lon ?? payloadData.longitude ?? payloadData.long,
+          user_id: payloadData.user_id ?? payloadData.employee_id ?? payloadData.employeeId ?? payloadData.id,
+          checkinTime: incoming.timestamp || payloadData.updated_at || payloadData.created_at || "Just now",
+          checkinType: "TRACKING",
+          status: "active",
+        };
+
+        mergePayloadIntoEmployees(normalizedPayload);
+      });
+    },
+    [companyId, mergePayloadIntoEmployees],
+  );
+
+  useSse({ clientId: companyId, onMessage: handleSseMapMessage, storeMessages: false });
 
 
 
@@ -153,6 +229,7 @@ export default function LiveTeamStatus() {
 
   // Simulation: nudge one employee's position every 2s to demonstrate movement/ping
   useEffect(() => {
+    if (!simulationEnabled) return;
     const idToMove = 1; // simulate employee with id=1
     const interval = setInterval(() => {
       setEmployeesData((prev) => {
@@ -176,31 +253,56 @@ export default function LiveTeamStatus() {
       });
     }, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [simulationEnabled]);
 
   // Initialize Google Map once
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
     if (!apiKey) {
       console.warn("Map: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY not set");
+      setMapError("Google Maps API key missing");
       return;
     }
 
     let mounted = true;
+    setMapError("");
+    setMapReady(false);
     loadGoogleMaps(apiKey)
       .then((maps) => {
         if (!mounted) return;
-        if (!mapRef.current && mapContainerRef.current) {
-          const initial = employeesData[0] || { lat: 25.2048, lng: 55.2708 };
+        if (!mapContainerRef.current) return;
+
+        const currentDiv =
+          mapRef.current && typeof mapRef.current.getDiv === "function"
+            ? mapRef.current.getDiv()
+            : null;
+
+        const needsRecreate = !mapRef.current || currentDiv !== mapContainerRef.current;
+
+        if (needsRecreate) {
+          const initial = employeesData[0] || BASE_MAP_CENTER;
           mapRef.current = new maps.Map(mapContainerRef.current, {
-            center: initial,
+            center: {
+              lat: Number.isFinite(initial?.lat) ? initial.lat : BASE_MAP_CENTER.lat,
+              lng: Number.isFinite(initial?.lng) ? initial.lng : BASE_MAP_CENTER.lng,
+            },
             zoom: 13,
             disableDefaultUI: true,
             styles: bwMode ? darkMapStyleRef.current : null,
           });
         }
+
+        if (mapRef.current && maps.event?.trigger) {
+          maps.event.trigger(mapRef.current, "resize");
+        }
+
+        setMapReady(true);
       })
-      .catch((err) => console.error("Failed to load Google Maps", err));
+      .catch((err) => {
+        const message = err?.message || "Failed to load Google Maps";
+        setMapError(message);
+        console.error("Failed to load Google Maps", err);
+      });
 
     return () => {
       mounted = false;
@@ -223,253 +325,46 @@ export default function LiveTeamStatus() {
     const currentIds = new Set();
 
     employeesData.forEach((emp) => {
-      currentIds.add(emp.id);
+      const employeeKey = String(emp.id);
+      currentIds.add(employeeKey);
       const pos = { lat: emp.lat, lng: emp.lng };
-      const exists = markersRef.current[emp.id];
+      const exists = markersRef.current[employeeKey];
       if (exists) {
         // update position and moving state
         if (typeof exists.setPosition === "function") exists.setPosition(pos);
         if (typeof exists.setMoving === "function") exists.setMoving(Boolean(movingMap[emp.id]));
       } else {
-        // create a DOM overlay so we can render the avatar and custom ping
-        class AvatarOverlay extends maps.OverlayView {
-          constructor(employee) {
-            super();
-            this.employee = employee;
-            this.position = pos;
-            this.div = null;
-          }
-          onAdd() {
-            this.div = document.createElement("div");
-            this.div.style.position = "absolute";
-            this.div.style.transform = "translate(-50%,-50%)";
-            this.div.style.pointerEvents = "auto";
-
-            const size = 48;
-            const border = 4;
-
-            // container
-            const container = document.createElement("div");
-            container.style.position = "relative";
-            container.style.width = `${size}px`;
-            container.style.height = `${size}px`;
-
-            // ping layer (absolute, covers avatar)
-            const ping = document.createElement("div");
-            ping.className = "avatar-ping";
-            ping.style.position = "absolute";
-            ping.style.left = `-${border}px`;
-            ping.style.top = `-${border}px`;
-            ping.style.width = `${size + border * 2}px`;
-            ping.style.height = `${size + border * 2}px`;
-            ping.style.borderRadius = "50%";
-            ping.style.pointerEvents = "none";
-
-            // avatar element with border
-            const avatarWrap = document.createElement("div");
-            avatarWrap.style.width = `${size}px`;
-            avatarWrap.style.height = `${size}px`;
-            avatarWrap.style.borderRadius = "50%";
-            avatarWrap.style.overflow = "hidden";
-            avatarWrap.style.boxSizing = "border-box";
-            avatarWrap.style.border = "4px solid #1152d4";
-            avatarWrap.style.boxShadow = "0 6px 18px rgba(2,6,23,0.6)";
-            avatarWrap.className = "avatar-wrap";
-
-            const img = document.createElement("img");
-            img.src = this.employee.avatar || "";
-            img.alt = this.employee.name || "";
-            img.style.width = "100%";
-            img.style.height = "100%";
-            img.style.objectFit = "cover";
-            img.draggable = false;
-
-            avatarWrap.appendChild(img);
-            container.appendChild(ping);
-            container.appendChild(avatarWrap);
-
-            // Tooltip (hidden by default)
-            const tooltip = document.createElement("div");
-            tooltip.className = "pin-tooltip";
-            tooltip.style.position = "absolute";
-            tooltip.style.bottom = "100%";
-            tooltip.style.left = "50%";
-            tooltip.style.transform = "translate(-50%,8px)";
-            tooltip.style.pointerEvents = "none";
-            tooltip.style.opacity = "0";
-            tooltip.style.transition = "opacity 0.18s, transform 0.18s";
-
-            const glass = document.createElement("div");
-            glass.className = "glass-panel rounded-xl p-3 w-48 shadow-2xl";
-            glass.style.width = "12rem";
-            glass.style.fontSize = "12px";
-
-            const titleRow = document.createElement("div");
-            titleRow.className = "flex items-start justify-between mb-2";
-            const titleBlk = document.createElement("div");
-            const h4 = document.createElement("h4");
-            h4.className = "text-xs font-bold text-white";
-            h4.textContent = this.employee.name || "";
-            const p = document.createElement("p");
-            p.className = "text-[10px] text-slate-400";
-            p.textContent = this.employee.location || "";
-            titleBlk.appendChild(h4);
-            titleBlk.appendChild(p);
-            titleRow.appendChild(titleBlk);
-
-            const ico = document.createElement("svg");
-            ico.setAttribute("viewBox", "0 0 24 24");
-            ico.setAttribute("fill", "currentColor");
-            ico.className = "w-4 h-4 text-green-400 flex-shrink-0";
-            ico.innerHTML = '<path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 3h-2v-2h2v2zm0-4h-2V7h2v4z"/>';
-            titleRow.appendChild(ico);
-
-            const badges = document.createElement("div");
-            badges.className = "flex items-center gap-2 mb-3";
-            const status = document.createElement("span");
-            status.className = "text-[10px] font-medium px-2 py-0.5 rounded-full";
-            status.style.background = "rgba(250,204,21,0.12)";
-            status.style.color = "#facc15";
-            status.textContent = "Active";
-            const shift = document.createElement("span");
-            shift.className = "text-[10px] text-slate-500";
-            shift.textContent = `Shift: ${this.employee.shift || ""}`;
-            badges.appendChild(status);
-            badges.appendChild(shift);
-
-            const btn = document.createElement("button");
-            btn.className = "w-full py-1.5 bg-[#1152d4] rounded-lg text-white text-[10px] font-bold";
-            btn.textContent = "View Profile";
-            btn.addEventListener("click", (e) => {
-              e.stopPropagation();
-              try { openPanel(this.employee); } catch (err) {}
-            });
-
-            glass.appendChild(titleRow);
-            glass.appendChild(badges);
-            glass.appendChild(btn);
-
-            tooltip.appendChild(glass);
-
-            this.div.appendChild(container);
-            this.div.appendChild(tooltip);
-
-            this.tooltipEl = tooltip;
-
-            // click forward to openPanel
-            this.div.addEventListener("click", (e) => {
-              e.stopPropagation();
-              try {
-                openPanel(this.employee);
-              } catch (err) {
-                // ignore
-              }
-            });
-
-            this.pingEl = ping;
-            this.avatarWrap = avatarWrap;
-
-            // show/hide tooltip on hover
-            this.div.addEventListener("mouseenter", () => {
-              if (this.tooltipEl) {
-                this.tooltipEl.style.opacity = "1";
-                this.tooltipEl.style.transform = "translate(-50%,0)";
-                this.tooltipEl.style.pointerEvents = "auto";
-              }
-            });
-            this.div.addEventListener("mouseleave", () => {
-              if (this.tooltipEl) {
-                this.tooltipEl.style.opacity = "0";
-                this.tooltipEl.style.transform = "translate(-50%,8px)";
-                this.tooltipEl.style.pointerEvents = "none";
-              }
-            });
-
-            this.getPanes().overlayMouseTarget.appendChild(this.div);
-          }
-          draw() {
-            if (!this.div) return;
-            const projection = this.getProjection();
-            if (!projection) return;
-            const point = projection.fromLatLngToDivPixel(new maps.LatLng(this.position.lat, this.position.lng));
-            if (point) {
-              this.div.style.left = `${point.x}px`;
-              this.div.style.top = `${point.y}px`;
-            }
-          }
-          onRemove() {
-            if (this.div && this.div.parentNode) this.div.parentNode.removeChild(this.div);
-            this.div = null;
-            this.pingEl = null;
-            this.avatarWrap = null;
-          }
-          setPosition(p) {
-            this.position = p;
-            try {
-              this.draw();
-            } catch (e) { }
-          }
-          setMoving(flag) {
-            if (!this.pingEl || !this.avatarWrap) return;
-            if (flag) {
-              this.pingEl.style.background = "rgba(17,82,212,0.4)";
-              this.pingEl.style.animation = "ping 1.5s cubic-bezier(0,0,0.2,1) infinite";
-              this.avatarWrap.style.borderColor = "#1fb5ff";
-            } else {
-              this.pingEl.style.animation = "";
-              this.pingEl.style.background = "transparent";
-              this.avatarWrap.style.borderColor = "#1152d4";
-            }
-          }
-        }
-
-        const overlay = new AvatarOverlay(emp);
-        overlay.setMap(mapRef.current);
-        // attach a convenience setter to apply B/W mode (safe if onAdd hasn't run yet)
-        overlay.setBW = (flag) => {
-          try {
-            const av = overlay.avatarWrap;
-            const ping = overlay.pingEl;
-            const tip = overlay.tooltipEl;
-            if (av) {
-              const imgEl = av.querySelector && av.querySelector("img");
-              if (imgEl) imgEl.style.filter = flag ? "grayscale(1) contrast(0.9)" : "";
-              av.style.borderColor = flag ? "#ffffff" : "#1152d4";
-            }
-            if (ping) {
-              // if ping currently active, prefer a light ping on B/W mode
-              if (flag) ping.style.background = ping.style.background || "rgba(255,255,255,0.25)";
-            }
-            if (tip) {
-              const glass = tip.querySelector && tip.querySelector(".glass-panel");
-              if (glass) {
-                glass.style.background = flag ? "#0b0b0b" : "";
-                glass.style.color = flag ? "#e6e6e6" : "";
-              }
-            }
-          } catch (e) {
-            /* ignore */
-          }
-        };
-        // immediately set moving state if needed
-        if (typeof overlay.setMoving === "function") overlay.setMoving(Boolean(movingMap[emp.id]));
-        // apply current bwMode
-        if (typeof overlay.setBW === "function") overlay.setBW(Boolean(bwMode));
-        markersRef.current[emp.id] = overlay;
+        const overlay = createAvatarOverlay({
+          maps,
+          employee: emp,
+          pos,
+          map: mapRef.current,
+          openPanel,
+          bwMode,
+          moving: movingMap[emp.id],
+        });
+        markersRef.current[employeeKey] = overlay;
       }
     });
 
     // remove overlays that are no longer present
     Object.keys(markersRef.current).forEach((id) => {
-      const numId = Number(id);
-      if (!currentIds.has(numId)) {
+      if (!currentIds.has(String(id))) {
         try {
-          markersRef.current[numId].setMap(null);
+          markersRef.current[id].setMap(null);
         } catch (e) { }
-        delete markersRef.current[numId];
+        delete markersRef.current[id];
       }
     });
   }, [employeesData, movingMap]);
+
+  useEffect(() => {
+    const maps = window.google?.maps;
+    if (!maps || !mapRef.current || employeesData.length === 0) return;
+    const first = employeesData[0];
+    if (!first || !Number.isFinite(first.lat) || !Number.isFinite(first.lng)) return;
+    mapRef.current.panTo({ lat: first.lat, lng: first.lng });
+  }, [employeesData]);
 
   // Apply B/W mode to existing overlays when toggled
   useEffect(() => {
@@ -553,6 +448,16 @@ export default function LiveTeamStatus() {
         <div className="absolute inset-0 bg-[#0a0c10]">
           <div ref={mapContainerRef} className="w-full h-full" />
           <div className="absolute inset-0 map-gradient-overlay pointer-events-none" />
+          {!mapReady && !mapError && (
+            <div className="absolute top-4 left-4 z-20 rounded-md bg-black/70 px-3 py-1 text-xs text-slate-200">
+              Loading map...
+            </div>
+          )}
+          {mapError && (
+            <div className="absolute top-4 left-4 z-20 rounded-md bg-red-900/80 px-3 py-1 text-xs text-red-100">
+              {mapError}
+            </div>
+          )}
         </div>
 
         {/* Map Controls */}
