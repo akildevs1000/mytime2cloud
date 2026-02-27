@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Coordindate\StoreRequest;
 use App\Models\Coordindate;
+use App\Services\Notify;
+use Illuminate\Support\Facades\Log;
 
 class CoordindateController extends Controller
 {
@@ -19,9 +21,13 @@ class CoordindateController extends Controller
 
     public function store(StoreRequest $request)
     {
+        $data = $request->validated();
+
         try {
             // 1. Ensure only validated data is used
-            $coordinate = Coordindate::create($request->validated());
+            $coordinate = Coordindate::create($data);
+
+            Notify::push($data["company_id"], "map", "new location recorded", $coordinate->toArray());
 
             // 2. Return a 201 Created response with the resource
             return response()->json([
