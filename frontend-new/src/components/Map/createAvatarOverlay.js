@@ -87,32 +87,21 @@ export function createAvatarOverlay({ maps, employee, pos, map, openPanel, bwMod
       ico.innerHTML = '<path d="M23 12l-2.44-2.78.34-3.68-3.61-.82-1.89-3.18L12 3 8.6 1.54 6.71 4.72l-3.61.81.34 3.68L1 12l2.44 2.78-.34 3.69 3.61.82 1.89 3.18L12 21l3.4 1.46 1.89-3.18 3.61-.82-.34-3.68L23 12zm-10 3h-2v-2h2v2zm0-4h-2V7h2v4z"/>';
       titleRow.appendChild(ico);
 
-      const badges = document.createElement("div");
-      badges.className = "flex items-center gap-2 mb-3";
-      const status = document.createElement("span");
-      status.className = "text-[10px] font-medium px-2 py-0.5 rounded-full";
-      status.style.background = "rgba(250,204,21,0.12)";
-      status.style.color = "#facc15";
-      status.textContent = "Active";
-      const shift = document.createElement("span");
-      shift.className = "text-[10px] text-slate-500";
-      shift.textContent = `Shift: ${this.employee.shift || ""}`;
-      badges.appendChild(status);
-      badges.appendChild(shift);
-
-      const btn = document.createElement("button");
-      btn.className = "w-full py-1.5 bg-[#1152d4] rounded-lg text-white text-[10px] font-bold";
-      btn.textContent = "View Profile";
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        try {
-          openPanel(this.employee);
-        } catch (err) {}
-      });
+      // show single avatar preview in tooltip (no separate ref/live images)
+      const previewWrap = document.createElement("div");
+      previewWrap.className = "mb-2 rounded-lg overflow-hidden bg-slate-700";
+      previewWrap.style.height = "8rem";
+      previewWrap.style.width = "100%";
+      const previewImg = document.createElement("img");
+      previewImg.src = this.employee.avatar || "";
+      previewImg.alt = this.employee.name || "";
+      previewImg.style.width = "100%";
+      previewImg.style.height = "100%";
+      previewImg.style.objectFit = "cover";
+      previewWrap.appendChild(previewImg);
 
       glass.appendChild(titleRow);
-      glass.appendChild(badges);
-      glass.appendChild(btn);
+      glass.appendChild(previewWrap);
 
       tooltip.appendChild(glass);
 

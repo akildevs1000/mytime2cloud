@@ -46,7 +46,7 @@ export default function SidePanel({ selectedEmployee, sidePanelOpen, closePanel 
                                             </svg>
                                             <span className="text-sm font-bold">Face Recognition Pass</span>
                                         </div>
-                                        <span className="text-[10px] font-bold text-slate-400">{selectedEmployee.matchScore} Match</span>
+                                        {/* matchScore removed */}
                                     </div>
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="aspect-square rounded-lg bg-slate-700 overflow-hidden">
@@ -63,38 +63,10 @@ export default function SidePanel({ selectedEmployee, sidePanelOpen, closePanel 
                             </section>
                         )}
 
-                        {/* Shift Details */}
-                        <section>
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Shift Details</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                                <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
-                                    <p className="text-[10px] text-slate-500 font-medium mb-1">Clock In</p>
-                                    <p className="text-sm font-bold">{selectedEmployee.clockIn}</p>
-                                </div>
-                                <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700">
-                                    <p className="text-[10px] text-slate-500 font-medium mb-1">Expected Out</p>
-                                    <p className="text-sm font-bold">{selectedEmployee.expectedOut}</p>
-                                </div>
-                            </div>
-                        </section>
+                        {/* Shift Details removed */}
 
                         {/* Device & Safety */}
-                        <section>
-                            <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">
-                                Device &amp; Safety
-                            </h4>
-                            <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-xl border border-slate-700">
-                                <div className="flex items-center gap-3">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-slate-400">
-                                        <path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z" />
-                                    </svg>
-                                    <span className="text-xs font-bold">Battery Level</span>
-                                </div>
-                                <span className={`text-xs font-bold ${selectedEmployee.battery > 60 ? "text-green-500" : selectedEmployee.battery > 30 ? "text-amber-400" : "text-red-500"}`}>
-                                    {selectedEmployee.battery}%
-                                </span>
-                            </div>
-                        </section>
+                        {/* Device & Safety removed */}
                     </div>
 
                     {/* Actions */}

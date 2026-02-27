@@ -107,30 +107,47 @@ sudo apt-get install imagemagick
 
 
 
-
-
-
-
 {
-    "lat": 25.2545229,
-    "lon": 55.303495,
-    "user_id": 667,
-    "company_id": 2
+    "clientId": 2,
+    "type": "map",
+    "message": "real-time map update",
+    "timestamp": "2026-02-27 23:50:46",
+    "data": {
+        "user_id": 678,
+        "name": "Francis Gill",
+        "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuAgOmBDUE9YRPKrUELhubdiGKupJPt-_S1cAy0MCwnS4XLJ0F8HKYFSrehE-s5euFiPpgEgHiFZD1C4_azu015NF6eEUjCMMmf5ddSOmpi7ops0nKsPkh-1dy7Q1O1Pp1zJHGd2YLtIXjenPSPEq1tcWmZihbIU5Lihw_hliby7B7g5OIIOw7sSOcnp6QZ9Kaqnr238I7B2rX5VS7ZLN459F5CuA34Ygdr8rggzQtDdziWsB7Dzre13RYIJcDIEu1yRzWs-3KnWTG0_",
+       "lat": 25.2545229,
+        "lon": 55.303495,
+        "timestamp": "2026-02-27 23:50:46"
+    }
 }
 
-
-
 {
-    "lat": 25.2455128,
-    "lon": 55.2941351,
-    "user_id": 667,
-    "company_id": 2
+    "clientId": 2,
+    "type": "map",
+    "message": "real-time map update",
+    "timestamp": "2026-02-27 23:50:46",
+    "data": {
+        "user_id": 678,
+        "name": "Sarah Smith",
+        "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuAhS-rjJPilpVNSIf4S1vqyLYBjOahtdAeaKqmOsavmsWsy6lZeuR7sD6MN8XD63HAjqlt1EtHUfLHcYo0TWgH0b7dnytzUFy7dWzbY72R4_ecQrVPgFxq9qJcT6Gy85R9MatxIeAb0Z_McRlVUY6mFVEmtM_--OoDAfNfASkikA1iw4Cgit1p0Xhhm8Y-Qqs9T9s3RQYlbU0Oj1ZI8ocJe97z9Bd37VM-l0bqfk9Iylqr7tBHsRhImTlfKvKbk9bMZ-C8IQZvEOxPb",
+        "lat": 25.2455128,
+        "lon": 55.2941351,
+        "timestamp": "2026-02-27 23:50:46"
+    }
 }
 
-
 {
-    "lat": 25.3452326,
-    "lon": 55.4128809,
-    "user_id": 667,
-    "company_id": 2
+    "clientId": 2,
+    "type": "map",
+    "message": "real-time map update",
+    "timestamp": "2026-02-27 23:50:46",
+    "data": {
+        "user_id": 678,
+        "name": "Jhon Doe",
+        "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuAhS-rjJPilpVNSIf4S1vqyLYBjOahtdAeaKqmOsavmsWsy6lZeuR7sD6MN8XD63HAjqlt1EtHUfLHcYo0TWgH0b7dnytzUFy7dWzbY72R4_ecQrVPgFxq9qJcT6Gy85R9MatxIeAb0Z_McRlVUY6mFVEmtM_--OoDAfNfASkikA1iw4Cgit1p0Xhhm8Y-Qqs9T9s3RQYlbU0Oj1ZI8ocJe97z9Bd37VM-l0bqfk9Iylqr7tBHsRhImTlfKvKbk9bMZ-C8IQZvEOxPb",
+        "lat": 25.3452326,
+        "lon": 55.4128809,
+        "timestamp": "2026-02-27 23:50:46"
+    }
 }

@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import GeoFencing from "@/components/GeoFencing/Index";
 import LiveTracker from "@/components/Map/Index";
 
 

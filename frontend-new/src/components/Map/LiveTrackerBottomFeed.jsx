@@ -46,29 +46,14 @@ export default function LiveTrackerBottomFeed({ employees, openPanel }) {
                             <div className="relative flex-shrink-0">
                                 <div
                                     className="w-11 h-11 rounded-lg bg-center bg-cover border border-slate-700"
-                                    style={{ backgroundImage: `url('${emp.feedThumb}')` }}
+                                    style={{ backgroundImage: `url('${emp.avatar}')` }}
                                 />
-                                <div
-                                    className={`absolute -bottom-1 -right-1 rounded-full border-2 border-[#101622] p-0.5 flex items-center justify-center ${emp.verified ? "bg-green-500" : "bg-slate-500"}`}
-                                    style={{ width: 18, height: 18 }}
-                                >
-                                    <div className="w-2.5 h-2.5 text-white">
-                                        {emp.verified ? <CheckIcon /> : <ClockIcon />}
-                                    </div>
-                                </div>
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs font-bold truncate">{emp.name}</p>
                                 <p className="text-[10px] text-slate-500 truncate mb-1">{emp.location}</p>
                                 <div className="flex items-center justify-between">
-                                    <span className="text-[9px] font-medium text-slate-400">
-                                        {emp.checkinTime} • {emp.verified ? "Verified" : "Pending"}
-                                    </span>
-                                    <span
-                                        className={`text-[9px] font-bold ${emp.checkinType === "CHECK-IN" ? "text-amber-400" : "text-[#1152d4]"}`}
-                                    >
-                                        {emp.checkinType}
-                                    </span>
+                                    <span className="text-[9px] font-medium text-slate-400">{emp.timestamp}</span>
                                 </div>
                             </div>
                         </button>

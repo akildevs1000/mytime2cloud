@@ -2,15 +2,15 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import LiveTrackerBottomFeed from "./LiveTrackerBottomFeed";
-import SidePanel from "./SidePanel";
 import distanceMeters from "@/hooks/useDistance";
-import { employeesSeed, darkMapStyle } from "./mapData";
+import { darkMapStyle } from "./mapData";
 import { loadGoogleMaps } from "./googleMapsLoader";
 import { createAvatarOverlay } from "./createAvatarOverlay";
 import { getUser } from "@/config";
 import useSse from "@/hooks/useSse";
 
-const BASE_MAP_CENTER = { lat: 25.2812992, lng: 25.3015108 };
+const BASE_MAP_CENTER = { lat: 25.2812992, lng: 55.4128809 };
+
 
 export default function LiveTeamStatus() {
   let companyId = null;
@@ -22,11 +22,10 @@ export default function LiveTeamStatus() {
   }
   const simulationEnabled = process.env.NEXT_PUBLIC_LIVE_TRACKER_SIMULATION === "true";
 
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-  const [sidePanelOpen, setSidePanelOpen] = useState(false);
+  // side panel removed; clicks are no-ops
   const lastPositionsRef = useRef({});
   const [movingMap, setMovingMap] = useState({});
-  const [employeesData, setEmployeesData] = useState(employeesSeed);
+  const [employeesData, setEmployeesData] = useState([]);
   const [bwMode, setBwMode] = useState(false);
   const [mapError, setMapError] = useState("");
   const [mapReady, setMapReady] = useState(false);
@@ -112,28 +111,16 @@ export default function LiveTeamStatus() {
   };
 
   const createLiveEmployee = (employeeId, payload, coords) => {
-    const fallback = employeesSeed[0] || {};
+    const avatar = payload.avatar || "";
     return {
       id: Number.isFinite(Number(employeeId)) ? Number(employeeId) : String(employeeId),
       name: payload.personName || payload.name || `Employee ${employeeId}`,
-      role: payload.role || "Field Employee",
-      location: payload.location || payload.address || "Live Mobile Location",
-      status: "active",
-      shift: payload.shift || "-",
-      clockIn: payload.clockIn || "-",
-      expectedOut: payload.expectedOut || "-",
-      battery: parseGpsNumber(payload.battery) ?? 0,
-      matchScore: payload.matchScore || "-",
-      checkinTime: payload.checkinTime || "Just now",
-      checkinType: payload.checkinType || "TRACKING",
-      verified: payload.verified !== false,
+      location: payload.location || payload.address || "Live Location",
       mapPos: { top: "50%", left: "50%" },
       lat: coords.lat,
       lng: coords.lng,
-      avatar: payload.avatar || fallback.avatar || "",
-      refPhoto: payload.refPhoto || fallback.refPhoto,
-      livePhoto: payload.livePhoto || fallback.livePhoto,
-      feedThumb: payload.feedThumb || payload.avatar || fallback.feedThumb || "",
+      avatar,
+      timestamp: payload.timestamp || new Date().toISOString(),
     };
   };
 
@@ -159,17 +146,14 @@ export default function LiveTeamStatus() {
       const current = updated[index];
       updated[index] = {
         ...current,
-        ...payload,
         id: current.id,
+        name: payload.personName || payload.name || current.name,
+        role: payload.role || current.role,
+        location: payload.location || payload.address || current.location,
         lat: coords.lat,
         lng: coords.lng,
-        location: payload.location || payload.address || current.location,
-        battery: parseGpsNumber(payload.battery) ?? current.battery,
-        checkinTime: payload.checkinTime || "Just now",
-        checkinType: payload.checkinType || current.checkinType || "TRACKING",
-        status: payload.status || current.status,
-        avatar: current.avatar,
-        feedThumb: current.feedThumb,
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgOmBDUE9YRPKrUELhubdiGKupJPt-_S1cAy0MCwnS4XLJ0F8HKYFSrehE-s5euFiPpgEgHiFZD1C4_azu015NF6eEUjCMMmf5ddSOmpi7ops0nKsPkh-1dy7Q1O1Pp1zJHGd2YLtIXjenPSPEq1tcWmZihbIU5Lihw_hliby7B7g5OIIOw7sSOcnp6QZ9Kaqnr238I7B2rX5VS7ZLN459F5CuA34Ygdr8rggzQtDdziWsB7Dzre13RYIJcDIEu1yRzWs-3KnWTG0_',
+        mapPos: current.mapPos || { top: "50%", left: "50%" },
       };
       return updated;
     });
@@ -199,9 +183,6 @@ export default function LiveTeamStatus() {
           lat: payloadData.lat ?? payloadData.latitude,
           lng: payloadData.lng ?? payloadData.lon ?? payloadData.longitude ?? payloadData.long,
           user_id: payloadData.user_id ?? payloadData.employee_id ?? payloadData.employeeId ?? payloadData.id,
-          checkinTime: incoming.timestamp || payloadData.updated_at || payloadData.created_at || "Just now",
-          checkinType: "TRACKING",
-          status: "active",
         };
 
         mergePayloadIntoEmployees(normalizedPayload);
@@ -211,6 +192,8 @@ export default function LiveTeamStatus() {
   );
 
   useSse({ clientId: companyId, onMessage: handleSseMapMessage, storeMessages: false });
+
+  
 
 
 
@@ -327,6 +310,25 @@ export default function LiveTeamStatus() {
     ensureMapInstance(maps);
   }, [ensureMapInstance, mapReady]);
 
+  // Fallback: attempt to initialize Google Maps for a short period in case
+  // script/container timing causes the normal init to miss.
+  useEffect(() => {
+    let attempts = 0;
+    const maxAttempts = 20; // ~10 seconds (500ms interval)
+    const iv = setInterval(() => {
+      if (mapRef.current) return clearInterval(iv);
+      const maps = window.google?.maps;
+      if (maps && mapContainerRef.current) {
+        try {
+          ensureMapInstance(maps);
+        } catch (e) {}
+      }
+      attempts += 1;
+      if (attempts >= maxAttempts) clearInterval(iv);
+    }, 500);
+    return () => clearInterval(iv);
+  }, [ensureMapInstance]);
+
   // Toggle CSS class on the map container so overlays can respond to B/W mode via CSS
   useEffect(() => {
     const node = mapContainerRef.current;
@@ -404,15 +406,8 @@ export default function LiveTeamStatus() {
     }
   }, [bwMode]);
 
-  const openPanel = (employee) => {
-    setSelectedEmployee(employee);
-    setSidePanelOpen(true);
-  };
-
-  const closePanel = () => {
-    setSidePanelOpen(false);
-    setTimeout(() => setSelectedEmployee(null), 500);
-  };
+  // no-op panel opener now that side panel is removed
+  const openPanel = () => {};
 
 
   return (
@@ -515,16 +510,7 @@ export default function LiveTeamStatus() {
         <LiveTrackerBottomFeed employees={employeesData} openPanel={openPanel} />
       </main>
 
-      {/* Side Panel Overlay */}
-      {sidePanelOpen && (
-        <div
-          className="absolute inset-0 z-50 bg-black/20"
-          onClick={closePanel}
-        />
-      )}
-
-      {/* Side Panel */}
-      <SidePanel selectedEmployee={selectedEmployee} sidePanelOpen={sidePanelOpen} closePanel={closePanel} />
+      {/* Side panel removed */}
     </div>
   );
 }
