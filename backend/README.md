@@ -143,7 +143,7 @@ sudo apt-get install imagemagick
     "message": "real-time map update",
     "timestamp": "2026-02-27 23:50:46",
     "data": {
-        "user_id": 678,
+        "user_id": 679,
         "name": "Jhon Doe",
         "avatar": "https://lh3.googleusercontent.com/aida-public/AB6AXuAhS-rjJPilpVNSIf4S1vqyLYBjOahtdAeaKqmOsavmsWsy6lZeuR7sD6MN8XD63HAjqlt1EtHUfLHcYo0TWgH0b7dnytzUFy7dWzbY72R4_ecQrVPgFxq9qJcT6Gy85R9MatxIeAb0Z_McRlVUY6mFVEmtM_--OoDAfNfASkikA1iw4Cgit1p0Xhhm8Y-Qqs9T9s3RQYlbU0Oj1ZI8ocJe97z9Bd37VM-l0bqfk9Iylqr7tBHsRhImTlfKvKbk9bMZ-C8IQZvEOxPb",
         "lat": 25.3452326,

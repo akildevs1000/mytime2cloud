@@ -1,23 +1,7 @@
-function CheckIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-        </svg>
-    );
-}
-
-function ClockIcon() {
-    return (
-        <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
-            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
-        </svg>
-    );
-}
-
 export default function LiveTrackerBottomFeed({ employees, openPanel }) {
     return (
         <div
-            className="absolute bottom-20 inset-x-0 z-40 border-t border-slate-800 px-6 py-4 shadow-2xl"
+            className="absolute bottom-15 inset-x-0 z-40 border-t border-slate-800 px-6 py-4 shadow-2xl"
             style={{ background: "rgba(17,19,24,0.95)", backdropFilter: "blur(20px)" }}
         >
             <div className="max-w-[1400px] mx-auto">

@@ -412,54 +412,14 @@ export default function LiveTeamStatus() {
 
   return (
     <div
-      className="relative flex h-screen w-full flex-col overflow-hidden bg-[#101622] text-slate-100"
+      className="live-tracker-map relative flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#101622] text-slate-100"
       style={{ fontFamily: "Inter, sans-serif" }}
     >
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
-        @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
-        
-        .map-gradient-overlay {
-          background: linear-gradient(180deg, rgba(16,22,34,0.8) 0%, rgba(16,22,34,0) 15%, rgba(16,22,34,0) 85%, rgba(16,22,34,0.9) 100%);
-        }
-        .glass-panel {
-          background: rgba(28,31,39,0.85);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(255,255,255,0.1);
-        }
-        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #282e39; border-radius: 10px; }
-        
-        @keyframes ping {
-          75%, 100% { transform: scale(1.5); opacity: 0; }
-        }
-        .animate-ping { animation: ping 1.5s cubic-bezier(0,0,0.2,1) infinite; }
-        .bw-mode .avatar-wrap img { filter: grayscale(1) contrast(0.95); }
-        .bw-mode .avatar-wrap { border-color: #ffffff !important; }
-        .bw-mode .glass-panel { background: #0b0b0b !important; color: #e6e6e6 !important; }
-        
-        .pin-tooltip {
-          opacity: 0;
-          transform: translateY(8px);
-          pointer-events: none;
-          transition: opacity 0.3s, transform 0.3s;
-        }
-        .pin-wrapper:hover .pin-tooltip {
-          opacity: 1;
-          transform: translateY(0);
-          pointer-events: auto;
-        }
-        .side-panel-enter { transform: translateX(100%); }
-        .side-panel-open { transform: translateX(0); }
-        .side-panel-closed { transform: translateX(100%); }
-      `}</style>
-
       {/* Main Map Area */}
       <main className="relative flex-1 overflow-hidden">
         {/* Background Map (Google Maps will mount here) */}
         <div className="absolute inset-0 bg-[#0a0c10]">
-          <div ref={mapContainerRef} className="w-full h-full" />
+            <div ref={mapContainerRef} className="w-full h-full min-h-0" />
           <div className="absolute inset-0 map-gradient-overlay pointer-events-none" />
           {!mapReady && !mapError && (
             <div className="absolute top-4 left-4 z-20 rounded-md bg-black/70 px-3 py-1 text-xs text-slate-200">

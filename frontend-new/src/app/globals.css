@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@300;700&family=Noto+Sans:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 @import "tailwindcss";
 @import "tw-animate-css";
@@ -215,4 +216,78 @@
 .dark .swal2-icon.swal2-warning {
   border-color: var(--color-gold-glow) !important;
   color: var(--color-gold-glow) !important;
+}
+
+.live-tracker-map .map-gradient-overlay {
+  background: linear-gradient(180deg, rgba(16,22,34,0.8) 0%, rgba(16,22,34,0) 15%, rgba(16,22,34,0) 85%, rgba(16,22,34,0.9) 100%);
+}
+
+.live-tracker-map .glass-panel {
+  background: rgba(28,31,39,0.85);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.live-tracker-map .custom-scrollbar::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+
+.live-tracker-map .custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.live-tracker-map .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #282e39;
+  border-radius: 10px;
+}
+
+@keyframes live-tracker-ping {
+  75%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.live-tracker-map .animate-ping {
+  animation: live-tracker-ping 1.5s cubic-bezier(0,0,0.2,1) infinite;
+}
+
+.live-tracker-map .bw-mode .avatar-wrap img {
+  filter: grayscale(1) contrast(0.95);
+}
+
+.live-tracker-map .bw-mode .avatar-wrap {
+  border-color: #ffffff !important;
+}
+
+.live-tracker-map .bw-mode .glass-panel {
+  background: #0b0b0b !important;
+  color: #e6e6e6 !important;
+}
+
+.live-tracker-map .pin-tooltip {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.live-tracker-map .pin-wrapper:hover .pin-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.live-tracker-map .side-panel-enter {
+  transform: translateX(100%);
+}
+
+.live-tracker-map .side-panel-open {
+  transform: translateX(0);
+}
+
+.live-tracker-map .side-panel-closed {
+  transform: translateX(100%);
 }

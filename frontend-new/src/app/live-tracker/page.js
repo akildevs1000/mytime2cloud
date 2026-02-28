@@ -7,7 +7,7 @@ import LiveTracker from "@/components/Map/Index";
 
 const LiveTrackerPage = () => {
   return (
-    <div className="p-4 pb-0 overflow-y-auto max-h-[calc(100vh)]">
+    <div className="h-full min-h-0 overflow-hidden">
       <LiveTracker />
     </div>
   );
