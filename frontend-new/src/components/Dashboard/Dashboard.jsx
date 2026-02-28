@@ -9,21 +9,16 @@ import { getBranches } from "@/lib/api";
 import { parseApiError } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Dropdown from "../Theme/DropDown";
+import MultiDropDown from "../ui/MultiDropDown";
 
 const AdminDashboard = () => {
-  const [selectedBranch, setSelectedBranch] = useState({
-    name: "Select All Branches",
-    id: null,
-  });
+  const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [branches, setBranches] = useState([]);
   const [error, setError] = useState(null);
 
   const fetchBranches = async () => {
     try {
-      setBranches([
-        { name: "Select All", id: null },
-        ...(await getBranches()),
-      ]);
+      setBranches(await getBranches());
     } catch (error) {
       setError(parseApiError(error));
     }
@@ -40,11 +35,11 @@ const AdminDashboard = () => {
           Executive Overview
         </h2>
         <div className="filter-glass px-1 py-1 rounded-xl flex items-center gap-1.5 max-w-sm">
-          <Dropdown
+          <MultiDropDown
             items={branches}
-            selectedItem={selectedBranch}
-            onSelect={(item) => {
-              setSelectedBranch(item);
+            value={selectedBranchIds}
+            onChange={(item) => {
+              setSelectedBranchIds(item);
             }}
             placeholder="Select a Branch"
           />
@@ -52,23 +47,23 @@ const AdminDashboard = () => {
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 pb-16 custom-scrollbar flex flex-col gap-5">
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-          <Stats branch_id={selectedBranch?.id} />
+          <Stats branch_ids={selectedBranchIds} />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 h-[340px]">
           <div className="grid grid-cols-2 gap-4 h-full">
             <div className="glass-panel rounded-2xl p-5 relative overflow-hidden flex flex-col h-full">
-              <AttendanceCard branch_id={selectedBranch?.id} />
+              <AttendanceCard branch_ids={selectedBranchIds} />
             </div>
             <div className="glass-panel rounded-2xl p-5 relative overflow-hidden flex flex-col h-full items-center justify-center">
-              <WelnessCard branch_id={selectedBranch?.id} />
+              <WelnessCard branch_ids={selectedBranchIds} />
             </div>
           </div>
           <div className="glass-panel rounded-2xl p-0 relative overflow-hidden flex flex-col h-[340px]">
-            <EventsAndInsights branch_id={selectedBranch?.id} />
+            <EventsAndInsights branch_ids={selectedBranchIds} />
           </div>
         </div>
         <div className="glass-panel rounded-2xl flex-1 flex flex-col">
-          <LiveFeed branch_id={selectedBranch?.id} />
+          <LiveFeed branch_ids={selectedBranchIds} />
         </div>
       </div>
     </div>

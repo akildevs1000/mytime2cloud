@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useDarkMode } from "@/context/DarkModeContext";
-import { useAuth } from "@/context/AuthContext";
 import ProfilePicture from "../ProfilePicture";
 import { getDeviceJson, getDeviceLogs, getEmployeesJson } from "@/lib/api";
 import useMqtt from "@/hooks/useMqtt";
+import { getLateMinutes } from "@/hooks/useLateMinutes";
 import {
   Smartphone,
   Contact,
@@ -49,7 +49,49 @@ const iconGroups = {
   Repeated: [baseIcons.Repeated],
 };
 
-function LiveFeed({ branch_id }) {
+const defaultPunctuality = {
+  punctuality: "On Time",
+  punctualityColor: "text-emerald-600",
+  punctualityDot: "bg-emerald-500",
+};
+
+function getPunctualityFromShift(shift, logTime) {
+  if (!shift || shift.shift_type_id === 1 || shift.shift_type_id === 2) {
+    return defaultPunctuality;
+  }
+
+  const arrivalDateTime = typeof logTime === "string" ? logTime : "";
+  const hasDatePart = arrivalDateTime.includes(" ");
+  const dutyTime = shift?.on_duty_time
+    ? shift.on_duty_time.length === 5
+      ? `${shift.on_duty_time}:00`
+      : shift.on_duty_time
+    : null;
+
+  if (!hasDatePart || !dutyTime) {
+    return defaultPunctuality;
+  }
+
+  const shiftDate = arrivalDateTime.split(" ")[0];
+  const shiftStartDateTime = `${shiftDate} ${dutyTime}`;
+  const lateMinutes = getLateMinutes(
+    arrivalDateTime,
+    shiftStartDateTime,
+    shift?.grace_time || "00:00"
+  );
+
+  if (lateMinutes > 0) {
+    return {
+      punctuality: "Late",
+      punctualityColor: "text-amber-600",
+      punctualityDot: "bg-amber-500",
+    };
+  }
+
+  return defaultPunctuality;
+}
+
+function LiveFeed({ branch_ids }) {
   const user = getUser();
 
   const { isDark } = useDarkMode();
@@ -88,19 +130,6 @@ function LiveFeed({ branch_id }) {
 
   const [records, setRecords] = useState([]);
 
-  const DeptInfo = (employee) => {
-    // Support both API and real-time records
-    let branch = employee?.branch?.branch_name || "-";
-    let department = employee?.department?.name || "";
-    let dept = branch;
-    if (department) {
-      dept += ` / ${department}`;
-    }
-    console.log(`DeptInfo`, employee);
-
-    return dept;
-  };
-
   // Fetch device logs API
   const fetchRecords = async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -138,7 +167,7 @@ function LiveFeed({ branch_id }) {
 
   useEffect(() => {
     fetchRecords();
-  }, [branch_id]);
+  }, [branch_ids]);
 
   const [deviceJson, setDeviceJson] = useState(null);
   const [employeesJson, setEmployeesJson] = useState(null);
@@ -159,11 +188,10 @@ function LiveFeed({ branch_id }) {
     if (!lastMessage || lastMessage.topic.includes("heartbeat")) return;
 
     const {
-      data: { customId, personName, facesluiceId, time,VerifyStatus, ...rest },
+      data: { customId, personName, facesluiceId, time, VerifyStatus, ...rest },
     } = lastMessage;
 
     console.log(rest);
-    
 
     if (!deviceJson) return;
 
@@ -175,8 +203,10 @@ function LiveFeed({ branch_id }) {
     if (!foundInfo) return;
     if (!foundEmployeeInfo) return;
 
-    console.log(foundInfo);
-    console.log("foundInfo DEvide", foundInfo);
+    const shift = foundEmployeeInfo?.schedule?.shift;
+    const { punctuality, punctualityColor, punctualityDot } =
+      getPunctualityFromShift(shift, time);
+
 
     // Insert new real-time record at the top, matching existing structure
     setRecords((prev) => [
@@ -186,10 +216,10 @@ function LiveFeed({ branch_id }) {
         dept: `${foundEmployeeInfo?.branch?.branch_name} ${foundEmployeeInfo?.branch?.branch_name ? " / " + foundEmployeeInfo?.department?.name : ""}`,
         location: foundInfo?.location || "-", // You can update this if you have location info
         type: "Entry",
-        punctuality: "On Time",
-        punctualityColor: "text-emerald-600",
-        punctualityDot: "bg-emerald-500",
-        status: VerifyStatus == "1" ?  "Allowed" : "",
+        punctuality,
+        punctualityColor,
+        punctualityDot,
+        status: VerifyStatus == "1" ? "Allowed" : "",
         statusType: "neutral",
         LogTime: time,
         modes: [baseIcons.Device],
