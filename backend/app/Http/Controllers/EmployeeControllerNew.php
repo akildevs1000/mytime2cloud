@@ -900,15 +900,16 @@ class EmployeeControllerNew extends Controller
         // }
 
         // Fallback: Generate if file doesn't exist
-        $employees = Employee::where("company_id", $id)->withOut("schedule")->get([
-            "id",
-            "company_id",
-            "employee_id",
-            "system_user_id",
-            "branch_id",
-            "department_id",
-            "first_name as name",
-        ])
+        $employees = Employee::where("company_id", $id)
+            ->get([
+                "id",
+                "company_id",
+                "employee_id",
+                "system_user_id",
+                "branch_id",
+                "department_id",
+                "first_name as name",
+            ])
             ->keyBy("employee_id");
 
         return $employees;
