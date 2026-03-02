@@ -610,6 +610,124 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function companyStatsPunctuality(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+
+        $employeeIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        if ($employeeIds->isEmpty()) {
+            return response()->json([
+                'data' => [],
+                'filters' => [
+                    'company_id' => $companyId,
+                    'branch_ids' => $branchIds,
+                    'department_ids' => $departmentIds,
+                    'range' => [
+                        'from' => $currentStart,
+                        'to' => $currentEnd,
+                    ],
+                ],
+            ]);
+        }
+
+        $rows = Attendance::query()
+            ->where('company_id', $companyId)
+            ->whereIn('employee_id', $employeeIds)
+            ->whereBetween('date', [$currentStart, $currentEnd])
+            ->selectRaw("employee_id,
+                SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as total_days,
+                SUM(CASE WHEN status = 'P' AND late_coming = '---' THEN 1 ELSE 0 END) as punctual_days")
+            ->groupBy('employee_id')
+            ->havingRaw("SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) > 0")
+            ->orderByDesc('punctual_days')
+            ->limit(10)
+            ->get();
+
+        $employeeMap = Employee::query()
+            ->where('company_id', $companyId)
+            ->whereIn('system_user_id', $rows->pluck('employee_id')->toArray())
+            ->with(['department'])
+            ->get(['system_user_id', 'first_name', 'last_name', 'display_name', 'profile_picture', 'department_id'])
+            ->keyBy('system_user_id');
+
+        $data = $rows->map(function ($row) use ($employeeMap) {
+            $employee = $employeeMap->get((int) $row->employee_id);
+            $totalDays = (int) $row->total_days;
+            $punctualDays = (int) $row->punctual_days;
+            $score = $totalDays > 0 ? round(($punctualDays / $totalDays) * 100, 1) : 0;
+
+            $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
+            if ($name === '') {
+                $name = (string) ($employee?->display_name ?? 'Unknown');
+            }
+
+            return [
+                'system_user_id' => (int) $row->employee_id,
+                'name' => $name,
+                'dept' => (string) ($employee?->department?->name ?? '---'),
+                'score' => number_format($score, 1) . '%',
+                'score_value' => $score,
+                'img' => $employee?->profile_picture ?: null,
+                'punctual_days' => $punctualDays,
+                'total_days' => $totalDays,
+            ];
+        })
+            ->sortByDesc('score_value')
+            ->take(3)
+            ->values();
+
+        return response()->json([
+            'data' => $data,
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+            ],
+        ]);
+    }
+
     private function resolveAttendanceHour($timeValue): int
     {
         if (!is_string($timeValue)) {
