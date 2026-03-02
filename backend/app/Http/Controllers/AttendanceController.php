@@ -191,6 +191,310 @@ class AttendanceController extends Controller
         return ["avg_clock_in" => $avg_clock_in, "avg_clock_out" => $avg_clock_out, "avg_working_hours" => $avg_working_hours, "leaves" => $leavesArray];
     }
 
+    public function companyStats(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = $this->normalizeIds($request->input('branch_ids'));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+
+        $activeEmployeeQuery = (clone $employeeQuery)->where('status', 1);
+
+        $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        $now = Carbon::now();
+        $currentStart = $now->copy()->startOfMonth()->toDateString();
+        $currentEnd = $now->copy()->endOfDay()->toDateString();
+
+        $daysElapsed = max(1, $now->copy()->startOfMonth()->diffInDays($now->copy()->endOfDay()) + 1);
+        $previousStart = $now->copy()->subMonthNoOverflow()->startOfMonth()->toDateString();
+        $previousEnd = $now->copy()->subMonthNoOverflow()->startOfMonth()->addDays($daysElapsed - 1)->toDateString();
+
+        $attendanceCurrent = Attendance::query()
+            ->where('company_id', $companyId)
+            ->whereIn('employee_id', $employeeSystemUserIds)
+            ->whereBetween('date', [$currentStart, $currentEnd]);
+
+        $attendancePrevious = Attendance::query()
+            ->where('company_id', $companyId)
+            ->whereIn('employee_id', $employeeSystemUserIds)
+            ->whereBetween('date', [$previousStart, $previousEnd]);
+
+        $totalStaff = $activeEmployeeQuery->count();
+        $previousTotalStaff = (clone $activeEmployeeQuery)->whereDate('created_at', '<', $now->copy()->startOfMonth())->count();
+
+        $presentCount = (clone $attendanceCurrent)->where('status', 'P')->count();
+        $totalAttendanceRows = (clone $attendanceCurrent)->whereNotIn('status', ['---'])->count();
+        $attendancePercent = $totalAttendanceRows > 0 ? round(($presentCount / $totalAttendanceRows) * 100, 1) : 0;
+
+        $previousPresentCount = (clone $attendancePrevious)->where('status', 'P')->count();
+        $previousAttendanceRows = (clone $attendancePrevious)->whereNotIn('status', ['---'])->count();
+        $previousAttendancePercent = $previousAttendanceRows > 0 ? round(($previousPresentCount / $previousAttendanceRows) * 100, 1) : 0;
+
+        $currentOvertimeMinutes = $this->sumDurationMinutes((clone $attendanceCurrent)->pluck('ot')->toArray());
+        $previousOvertimeMinutes = $this->sumDurationMinutes((clone $attendancePrevious)->pluck('ot')->toArray());
+
+        $lateInCount = (clone $attendanceCurrent)->where('late_coming', '!=', '---')->count();
+        $previousLateInCount = (clone $attendancePrevious)->where('late_coming', '!=', '---')->count();
+
+        $earlyOutCount = (clone $attendanceCurrent)->where('early_going', '!=', '---')->count();
+        $previousEarlyOutCount = (clone $attendancePrevious)->where('early_going', '!=', '---')->count();
+
+        $avgWorkMinutes = $this->avgDurationMinutes((clone $attendanceCurrent)->where('total_hrs', '!=', '---')->pluck('total_hrs')->toArray());
+        $previousAvgWorkMinutes = $this->avgDurationMinutes((clone $attendancePrevious)->where('total_hrs', '!=', '---')->pluck('total_hrs')->toArray());
+
+        $absentCount = (clone $attendanceCurrent)->where('status', 'A')->count();
+        $previousAbsentCount = (clone $attendancePrevious)->where('status', 'A')->count();
+
+        $leaveCount = (clone $attendanceCurrent)->where('status', 'L')->count();
+        $previousLeaveCount = (clone $attendancePrevious)->where('status', 'L')->count();
+
+        $manualPunchCount = (clone $attendanceCurrent)->where('is_manual_entry', true)->count();
+        $previousManualPunchCount = (clone $attendancePrevious)->where('is_manual_entry', true)->count();
+
+        $top3Punctual = Attendance::query()
+            ->join('employees', 'employees.system_user_id', '=', 'attendances.employee_id')
+            ->where('attendances.company_id', $companyId)
+            ->whereBetween('attendances.date', [$currentStart, $currentEnd])
+            ->whereIn('attendances.employee_id', $employeeSystemUserIds)
+            ->where('attendances.status', 'P')
+            ->where('attendances.late_coming', '---')
+            ->selectRaw('attendances.employee_id, employees.employee_id as employee_code, employees.first_name, employees.last_name, COUNT(*) as punctual_days')
+            ->groupBy('attendances.employee_id', 'employees.employee_id', 'employees.first_name', 'employees.last_name')
+            ->orderByDesc('punctual_days')
+            ->limit(3)
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'system_user_id' => (int) $row->employee_id,
+                    'employee_id' => (string) ($row->employee_code ?? ''),
+                    'name' => trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')),
+                    'punctual_days' => (int) $row->punctual_days,
+                ];
+            })
+            ->values();
+
+        $top3AbsentLate = Attendance::query()
+            ->join('employees', 'employees.system_user_id', '=', 'attendances.employee_id')
+            ->where('attendances.company_id', $companyId)
+            ->whereBetween('attendances.date', [$currentStart, $currentEnd])
+            ->whereIn('attendances.employee_id', $employeeSystemUserIds)
+            ->selectRaw("attendances.employee_id, employees.employee_id as employee_code, employees.first_name, employees.last_name,
+                SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as absent_days,
+                SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as late_days,
+                SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) + SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as issue_days")
+            ->groupBy('attendances.employee_id', 'employees.employee_id', 'employees.first_name', 'employees.last_name')
+            ->havingRaw('SUM(CASE WHEN attendances.status = ? THEN 1 ELSE 0 END) + SUM(CASE WHEN attendances.late_coming != ? THEN 1 ELSE 0 END) > 0', ['A', '---'])
+            ->orderByDesc('issue_days')
+            ->limit(3)
+            ->get()
+            ->map(function ($row) {
+                return [
+                    'system_user_id' => (int) $row->employee_id,
+                    'employee_id' => (string) ($row->employee_code ?? ''),
+                    'name' => trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')),
+                    'absent_days' => (int) $row->absent_days,
+                    'late_days' => (int) $row->late_days,
+                    'issue_days' => (int) $row->issue_days,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'stats' => [
+                [
+                    'title' => 'Total Staff',
+                    'value' => (string) $totalStaff,
+                    'icon' => 'groups',
+                    'color' => 'blue',
+                    'trend' => $this->formatTrend($this->trendPercent($totalStaff, $previousTotalStaff)),
+                    'trendUp' => $totalStaff >= $previousTotalStaff,
+                    'subText' => 'Active members',
+                    'type' => 'sparkline',
+                    'path' => 'M0 20 C 20 25, 40 10, 60 15 C 80 20, 90 5, 100 10',
+                ],
+                [
+                    'title' => 'Attendance',
+                    'value' => number_format($attendancePercent, 1) . '%',
+                    'icon' => 'donut_large',
+                    'color' => 'emerald',
+                    'trend' => $this->formatTrend($this->trendPercent($attendancePercent, $previousAttendancePercent)),
+                    'trendUp' => $attendancePercent >= $previousAttendancePercent,
+                    'type' => 'progress',
+                    'progress' => number_format($attendancePercent, 1) . '%',
+                ],
+                [
+                    'title' => 'Overtime',
+                    'value' => $this->minutesToHoursLabel($currentOvertimeMinutes),
+                    'icon' => 'schedule',
+                    'color' => 'purple',
+                    'trend' => $this->formatTrend($this->trendPercent($currentOvertimeMinutes, $previousOvertimeMinutes)),
+                    'trendUp' => $currentOvertimeMinutes <= $previousOvertimeMinutes,
+                    'subText' => 'Monthly total',
+                ],
+                [
+                    'title' => 'Late In',
+                    'value' => (string) $lateInCount,
+                    'icon' => 'warning',
+                    'color' => 'orange',
+                    'trend' => $this->formatTrend($this->trendPercent($lateInCount, $previousLateInCount)),
+                    'trendUp' => $lateInCount <= $previousLateInCount,
+                    'type' => 'progress',
+                    'progress' => $totalAttendanceRows > 0 ? number_format(($lateInCount / $totalAttendanceRows) * 100, 1) . '%' : '0%',
+                ],
+                [
+                    'title' => 'Early Out',
+                    'value' => (string) $earlyOutCount,
+                    'icon' => 'logout',
+                    'color' => 'orange',
+                    'trend' => $this->formatTrend($this->trendPercent($earlyOutCount, $previousEarlyOutCount)),
+                    'trendUp' => $earlyOutCount <= $previousEarlyOutCount,
+                    'subText' => 'Unplanned',
+                ],
+                [
+                    'title' => 'Avg Work Hrs',
+                    'value' => $this->minutesToHoursLabel($avgWorkMinutes, 1),
+                    'icon' => 'timelapse',
+                    'color' => 'blue',
+                    'trend' => $this->formatTrend($this->trendPercent($avgWorkMinutes, $previousAvgWorkMinutes)),
+                    'trendUp' => $avgWorkMinutes >= $previousAvgWorkMinutes,
+                    'subText' => 'Daily average',
+                ],
+                [
+                    'title' => 'Absent',
+                    'value' => (string) $absentCount,
+                    'icon' => 'person_off',
+                    'color' => 'emerald',
+                    'trend' => $this->formatTrend($this->trendPercent($absentCount, $previousAbsentCount)),
+                    'trendUp' => $absentCount <= $previousAbsentCount,
+                    'subText' => 'Unexcused',
+                ],
+                [
+                    'title' => 'Leave',
+                    'value' => (string) $leaveCount,
+                    'icon' => 'flight_takeoff',
+                    'color' => 'emerald',
+                    'trend' => $this->formatTrend($this->trendPercent($leaveCount, $previousLeaveCount)),
+                    'trendUp' => $leaveCount <= $previousLeaveCount,
+                    'subText' => 'Approved',
+                ],
+                [
+                    'title' => 'Manual Punch',
+                    'value' => (string) $manualPunchCount,
+                    'icon' => 'pan_tool',
+                    'color' => 'purple',
+                    'trend' => $this->formatTrend($this->trendPercent($manualPunchCount, $previousManualPunchCount)),
+                    'trendUp' => $manualPunchCount <= $previousManualPunchCount,
+                    'subText' => 'Corrections',
+                ],
+            ],
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+            ],
+            'top_3_punctual' => $top3Punctual,
+            'top_3_absent_late' => $top3AbsentLate,
+        ]);
+    }
+
+    private function normalizeIds($value): array
+    {
+        if (is_null($value) || $value === '') {
+            return [];
+        }
+
+        if (is_string($value)) {
+            $value = explode(',', $value);
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        return array_values(array_filter(array_map(static function ($item) {
+            if ($item === '' || is_null($item)) {
+                return null;
+            }
+            return (int) $item;
+        }, $value), static fn($item) => !is_null($item) && $item > 0));
+    }
+
+    private function sumDurationMinutes(array $times): int
+    {
+        $total = 0;
+
+        foreach ($times as $time) {
+            if (!is_string($time) || $time === '---' || strpos($time, ':') === false) {
+                continue;
+            }
+
+            [$hours, $minutes] = array_pad(explode(':', $time), 2, 0);
+            $total += ((int) $hours * 60) + (int) $minutes;
+        }
+
+        return $total;
+    }
+
+    private function avgDurationMinutes(array $times): int
+    {
+        $durations = [];
+
+        foreach ($times as $time) {
+            if (!is_string($time) || $time === '---' || strpos($time, ':') === false) {
+                continue;
+            }
+
+            [$hours, $minutes] = array_pad(explode(':', $time), 2, 0);
+            $durations[] = ((int) $hours * 60) + (int) $minutes;
+        }
+
+        if (count($durations) === 0) {
+            return 0;
+        }
+
+        return (int) round(array_sum($durations) / count($durations));
+    }
+
+    private function minutesToHoursLabel(int $minutes, int $precision = 0): string
+    {
+        $hours = $minutes / 60;
+        return number_format($hours, $precision) . 'h';
+    }
+
+    private function trendPercent(float|int $current, float|int $previous): float
+    {
+        if ((float) $previous === 0.0) {
+            return 0.0;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
+
+    private function formatTrend(float $trend): string
+    {
+        return number_format(abs($trend), 1) . '%';
+    }
+
     public function getEmployeeLeavecount($request)
     {
 
