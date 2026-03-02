@@ -740,6 +740,8 @@ class AttendanceController extends Controller
             'from_date' => 'nullable|date',
             'to_date' => 'nullable|date',
             'search' => 'nullable|string',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
         $companyId = (int) $request->company_id;
@@ -749,6 +751,8 @@ class AttendanceController extends Controller
         )));
         $departmentIds = $this->normalizeIds($request->input('department_ids'));
         $search = trim((string) $request->input('search', ''));
+        $page = max(1, (int) $request->input('page', 1));
+        $perPage = max(1, min(100, (int) $request->input('per_page', 10)));
 
         $now = Carbon::now();
         $selectedStart = $request->filled('from_date')
@@ -765,7 +769,7 @@ class AttendanceController extends Controller
         $currentStart = $selectedStart->toDateString();
         $currentEnd = $selectedEnd->toDateString();
 
-        $rows = Attendance::query()
+        $baseQuery = Attendance::query()
             ->join('employees', function ($join) use ($companyId) {
                 $join->on('employees.system_user_id', '=', 'attendances.employee_id')
                     ->where('employees.company_id', '=', $companyId);
@@ -783,7 +787,13 @@ class AttendanceController extends Controller
                         ->orWhere('employees.display_name', $wildcard, "%{$search}%")
                         ->orWhere('employees.employee_id', $wildcard, "%{$search}%");
                 });
-            })
+            });
+
+        $total = (clone $baseQuery)->count('attendances.id');
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+
+        $rows = (clone $baseQuery)
             ->select([
                 'attendances.id',
                 'attendances.date',
@@ -801,7 +811,7 @@ class AttendanceController extends Controller
             ])
             ->orderByDesc('attendances.date')
             ->orderByDesc('attendances.id')
-            ->limit(50)
+            ->forPage($page, $perPage)
             ->get();
 
         $data = $rows->map(function ($row) {
@@ -828,8 +838,12 @@ class AttendanceController extends Controller
         return response()->json([
             'data' => $data,
             'meta' => [
-                'total' => $data->count(),
-                'limit' => 50,
+                'total' => $total,
+                'page' => $page,
+                'per_page' => $perPage,
+                'last_page' => $lastPage,
+                'from' => $total > 0 ? (($page - 1) * $perPage) + 1 : 0,
+                'to' => $total > 0 ? (($page - 1) * $perPage) + $data->count() : 0,
             ],
             'filters' => [
                 'company_id' => $companyId,
@@ -840,6 +854,8 @@ class AttendanceController extends Controller
                     'to' => $currentEnd,
                 ],
                 'search' => $search,
+                'page' => $page,
+                'per_page' => $perPage,
             ],
         ]);
     }
