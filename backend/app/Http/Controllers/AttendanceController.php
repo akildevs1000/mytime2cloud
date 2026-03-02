@@ -769,6 +769,12 @@ class AttendanceController extends Controller
         $currentStart = $selectedStart->toDateString();
         $currentEnd = $selectedEnd->toDateString();
 
+        $daysElapsed = max(1, $selectedStart->copy()->diffInDays($selectedEnd) + 1);
+        $previousEndDate = $selectedStart->copy()->subDay();
+        $previousStartDate = $previousEndDate->copy()->subDays($daysElapsed - 1);
+        $previousStart = $previousStartDate->toDateString();
+        $previousEnd = $previousEndDate->toDateString();
+
         $baseQuery = Attendance::query()
             ->join('employees', function ($join) use ($companyId) {
                 $join->on('employees.system_user_id', '=', 'attendances.employee_id')
@@ -787,50 +793,84 @@ class AttendanceController extends Controller
                         ->orWhere('employees.display_name', $wildcard, "%{$search}%")
                         ->orWhere('employees.employee_id', $wildcard, "%{$search}%");
                 });
-            });
-
-        $total = (clone $baseQuery)->count('attendances.id');
-        $lastPage = max(1, (int) ceil($total / $perPage));
-        $page = min($page, $lastPage);
-
-        $rows = (clone $baseQuery)
-            ->select([
-                'attendances.id',
-                'attendances.date',
-                'attendances.status',
-                'attendances.in',
-                'attendances.total_hrs',
-                'attendances.late_coming',
+            })
+            ->selectRaw("employees.system_user_id,
+                employees.employee_id as employee_code,
+                employees.first_name,
+                employees.last_name,
+                employees.display_name,
+                employees.profile_picture,
+                COALESCE(departments.name, '---') as department_name,
+                SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
+                SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days")
+            ->groupBy(
                 'employees.system_user_id',
-                'employees.employee_id as employee_code',
+                'employees.employee_id',
                 'employees.first_name',
                 'employees.last_name',
                 'employees.display_name',
                 'employees.profile_picture',
-                'departments.name as department_name',
-            ])
-            ->orderByDesc('attendances.date')
-            ->orderByDesc('attendances.id')
+                'departments.name'
+            )
+            ->havingRaw("SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) > 0");
+
+        $total = DB::query()->fromSub((clone $baseQuery)->toBase(), 'attendance_summary')->count();
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+
+        $rows = (clone $baseQuery)
+            ->orderByDesc('days_present')
+            ->orderBy('employees.first_name')
             ->forPage($page, $perPage)
             ->get();
 
-        $data = $rows->map(function ($row) {
+        $employeeIds = $rows->pluck('system_user_id')->filter()->values();
+
+        $previousSummary = Attendance::query()
+            ->where('company_id', $companyId)
+            ->whereIn('employee_id', $employeeIds)
+            ->whereBetween('date', [$previousStart, $previousEnd])
+            ->selectRaw("employee_id,
+                SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) as prev_days_present,
+                SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as prev_total_days")
+            ->groupBy('employee_id')
+            ->get()
+            ->keyBy('employee_id');
+
+        $data = $rows->map(function ($row) use ($previousSummary) {
+
             $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
             if ($name === '') {
                 $name = (string) ($row->display_name ?? 'Unknown');
             }
 
+            $daysPresent = (int) ($row->days_present ?? 0);
+            $totalDays = (int) ($row->total_days ?? 0);
+            $rate = $totalDays > 0 ? round(($daysPresent / $totalDays) * 100, 1) : 0;
+
+            $prev = $previousSummary->get((int) $row->system_user_id);
+            $prevPresent = (int) ($prev->prev_days_present ?? 0);
+            $prevTotal = (int) ($prev->prev_total_days ?? 0);
+            $prevRate = $prevTotal > 0 ? round(($prevPresent / $prevTotal) * 100, 1) : 0;
+            $trend = round($rate - $prevRate, 1);
+
+            $status = 'CRITICAL';
+            if ($rate >= 90) {
+                $status = 'GOOD';
+            } elseif ($rate >= 75) {
+                $status = 'WARNING';
+            }
+
             return [
-                'id' => (int) $row->id,
                 'system_user_id' => (int) $row->system_user_id,
                 'employee_code' => (string) ($row->employee_code ?? ''),
                 'name' => $name,
                 'department' => (string) ($row->department_name ?? '---'),
-                'date' => (string) $row->date,
-                'status' => (string) ($row->status ?? '---'),
-                'check_in' => (string) ($row->in ?? '---'),
-                'total_hrs' => (string) ($row->total_hrs ?? '---'),
-                'late_coming' => (string) ($row->late_coming ?? '---'),
+                'days_present' => $daysPresent,
+                'total_days' => $totalDays,
+                'rate' => $rate,
+                'trend' => $trend,
+                'status' => $status,
                 'img' => $row->profile_picture ?: null,
             ];
         })->values();
