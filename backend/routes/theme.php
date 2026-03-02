@@ -22,3 +22,5 @@ Route::post('whatsapp_message_queue', [WhatsappNotificationsLogController::class
 Route::get('whatsapp_messages_logs', [WhatsappNotificationsLogController::class, "index"]);
 
 Route::get('dashbaord_short_view_count', [ThemeController::class, "dashboardShortViewCount"]);
+
+Route::get('dashboard_counts_last_7_days_chart', [ThemeController::class, "dashboardGetCountslast7DaysChart"]);

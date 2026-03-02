@@ -357,6 +357,34 @@ class ThemeController extends Controller
         return $finalarray;
     }
 
+    public function dashboardGetCountslast7DaysChart(Request $request)
+    {
+        $colors = [
+            "#14b8a6",
+            "#06b6d4",
+            "#10b981",
+            "#6366f1",
+            "#a855f7",
+            "#f59e0b",
+            "#ef4444",
+        ];
+
+        $rows = $this->dashboardGetCountslast7Days($request);
+
+        $data = [];
+        foreach ($rows as $index => $row) {
+            $dayLetter = substr((new DateTime($row["date"]))->format("D"), 0, 1);
+
+            $data[] = [
+                "day"   => $dayLetter,
+                "value" => (int) ($row["presentCount"] ?? 0),
+                "fill"  => $colors[$index % count($colors)],
+            ];
+        }
+
+        return $data;
+    }
+
     public function createDateRangeArray($startDate, $endDate)
     {
         $dateStrings = [];
