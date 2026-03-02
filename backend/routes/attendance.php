@@ -11,6 +11,7 @@ Route::get('company_stats_hourly_trends', [AttendanceController::class, "company
 Route::get('company_stats_department_breakdown', [AttendanceController::class, "companyStatsDepartmentBreakdown"]);
 Route::get('company_stats_punctuality', [AttendanceController::class, "companyStatsPunctuality"]);
 Route::get('company_stats_daily_attendance', [AttendanceController::class, "companyStatsDailyAttendance"]);
+Route::get('company_stats_summary_payload', [AttendanceController::class, "companyStatsSummaryPayload"]);
 Route::get('get_attendance_tabs', [AttendanceController::class, "getAttendanceTabsDisplay"]);
 Route::get('regenerate-attendance', [AttendanceController::class, "regenerateAttendance"]);
 
