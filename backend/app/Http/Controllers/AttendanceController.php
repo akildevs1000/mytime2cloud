@@ -195,12 +195,18 @@ class AttendanceController extends Controller
     {
         $request->validate([
             'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
             'branch_ids' => 'nullable',
             'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
         ]);
 
         $companyId = (int) $request->company_id;
-        $branchIds = $this->normalizeIds($request->input('branch_ids'));
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
         $departmentIds = $this->normalizeIds($request->input('department_ids'));
 
         $employeeQuery = Employee::query()->where('company_id', $companyId);
@@ -218,12 +224,25 @@ class AttendanceController extends Controller
         $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
 
         $now = Carbon::now();
-        $currentStart = $now->copy()->startOfMonth()->toDateString();
-        $currentEnd = $now->copy()->endOfDay()->toDateString();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
 
-        $daysElapsed = max(1, $now->copy()->startOfMonth()->diffInDays($now->copy()->endOfDay()) + 1);
-        $previousStart = $now->copy()->subMonthNoOverflow()->startOfMonth()->toDateString();
-        $previousEnd = $now->copy()->subMonthNoOverflow()->startOfMonth()->addDays($daysElapsed - 1)->toDateString();
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $daysElapsed = max(1, $selectedStart->copy()->diffInDays($selectedEnd) + 1);
+        $previousEndDate = $selectedStart->copy()->subDay();
+        $previousStartDate = $previousEndDate->copy()->subDays($daysElapsed - 1);
+        $previousStart = $previousStartDate->toDateString();
+        $previousEnd = $previousEndDate->toDateString();
 
         $attendanceCurrent = Attendance::query()
             ->where('company_id', $companyId)
@@ -236,7 +255,7 @@ class AttendanceController extends Controller
             ->whereBetween('date', [$previousStart, $previousEnd]);
 
         $totalStaff = $activeEmployeeQuery->count();
-        $previousTotalStaff = (clone $activeEmployeeQuery)->whereDate('created_at', '<', $now->copy()->startOfMonth())->count();
+        $previousTotalStaff = $totalStaff;
 
         $presentCount = (clone $attendanceCurrent)->where('status', 'P')->count();
         $totalAttendanceRows = (clone $attendanceCurrent)->whereNotIn('status', ['---'])->count();
@@ -415,6 +434,139 @@ class AttendanceController extends Controller
             // 'top_3_punctual' => $top3Punctual,
             // 'top_3_absent_late' => $top3AbsentLate,
         ]);
+    }
+
+    public function companyStatsHourlyTrends(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+
+        $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $hourlyData = [];
+        for ($hour = 0; $hour < 24; $hour++) {
+            $label = str_pad((string) $hour, 2, '0', STR_PAD_LEFT) . ':00';
+            $hourlyData[$hour] = [
+                'label' => $label,
+                'present' => 0,
+                'late' => 0,
+                'absent' => 0,
+            ];
+        }
+
+        if ($employeeSystemUserIds->isNotEmpty()) {
+            $attendanceRows = Attendance::query()
+                ->where('company_id', $companyId)
+                ->whereIn('employee_id', $employeeSystemUserIds)
+                ->whereBetween('date', [$currentStart, $currentEnd])
+                ->get(['status', 'late_coming', 'in']);
+
+            foreach ($attendanceRows as $row) {
+                $hour = $this->resolveAttendanceHour($row->in ?? null);
+                $status = strtoupper((string) ($row->status ?? ''));
+                $isLate = is_string($row->late_coming ?? null) && $row->late_coming !== '---';
+
+                if ($status === 'A') {
+                    $hourlyData[$hour]['absent']++;
+                    continue;
+                }
+
+                if ($isLate) {
+                    $hourlyData[$hour]['late']++;
+                    continue;
+                }
+
+                if ($status === 'P') {
+                    $hourlyData[$hour]['present']++;
+                }
+            }
+        }
+
+        return response()->json([
+            'data' => array_values($hourlyData),
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+            ],
+        ]);
+    }
+
+    private function resolveAttendanceHour($timeValue): int
+    {
+        if (!is_string($timeValue)) {
+            return 0;
+        }
+
+        $value = trim($timeValue);
+        if ($value === '' || $value === '---') {
+            return 0;
+        }
+
+        $formats = ['H:i', 'H:i:s', 'g:i A', 'g:iA', 'h:i A', 'h:iA'];
+
+        foreach ($formats as $format) {
+            try {
+                return Carbon::createFromFormat($format, $value)->hour;
+            } catch (\Throwable $e) {
+            }
+        }
+
+        try {
+            return Carbon::parse($value)->hour;
+        } catch (\Throwable $e) {
+        }
+
+        if (preg_match('/^(\d{1,2})/', $value, $matches)) {
+            $hour = (int) $matches[1];
+            if ($hour >= 0 && $hour <= 23) {
+                return $hour;
+            }
+        }
+
+        return 0;
     }
 
     private function normalizeIds($value): array

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('seed_default_data', [AttendanceController::class, "seedDefaultDataManual"]);
 Route::get('attendance_avg_clock', [AttendanceController::class, "attendance_avg_clock"]);
 Route::get('company_stats', [AttendanceController::class, "companyStats"]);
+Route::get('company_stats_hourly_trends', [AttendanceController::class, "companyStatsHourlyTrends"]);
 Route::get('get_attendance_tabs', [AttendanceController::class, "getAttendanceTabsDisplay"]);
 Route::get('regenerate-attendance', [AttendanceController::class, "regenerateAttendance"]);
 
