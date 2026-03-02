@@ -2,9 +2,10 @@
 import React, { useEffect, useState } from "react";
 import Input from "../Theme/Input";
 import DropDown from "../ui/DropDown";
-import { branchListGeoFencing, getBranchesForTable, updateGeoFencing } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 import { RadiusSlider } from "./RadiusSlider";
+import { branchListGeoFencing, getBranchesForTable, updateGeoFencing } from "@/lib/api";
+import { getUser } from "@/config";
 
 export default function RightSection({ radius, setRadius, setCenter, selectedLat, setSelectedLat, selectedLng, setSelectedLng }) {
 
@@ -17,9 +18,10 @@ export default function RightSection({ radius, setRadius, setCenter, selectedLat
     const [activeBranches, setActiveBranches] = useState([]);
 
     const fetchDropdowns = async () => {
+        const user = await getUser();
         try {
             const { data } = await getBranchesForTable();
-            const activeBranches = await branchListGeoFencing();
+            const activeBranches = await branchListGeoFencing(user.company_id);
             console.log(activeBranches);
             setActiveBranches(activeBranches)
 
@@ -97,6 +99,8 @@ export default function RightSection({ radius, setRadius, setCenter, selectedLat
             lat: selectedLat,
             lon: selectedLng,
         }
+
+        
 
         await updateGeoFencing(selectedBranchId, payload);
         fetchDropdowns();
@@ -318,7 +322,7 @@ export default function RightSection({ radius, setRadius, setCenter, selectedLat
                                     />
                                 </div>
                             </div>
-                    
+
                             <RadiusSlider
                                 min={50}
                                 max={500}

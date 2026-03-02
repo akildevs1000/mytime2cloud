@@ -21,7 +21,7 @@ export default function AttendancePage() {
     // return <AttendanceTable />;
 
     return (
-        <div className="w-full min-h-screen p-6 bg-slate-50 dark:bg-slate-900">
+        <div className="w-full p-4 pb-24 overflow-y-auto max-h-[calc(100vh)]">
             {/* Header and Tab Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between  mb-6">
                 <h1 className="text-xl font-bold text-slate-800 dark:text-white mb-4 md:mb-0">
