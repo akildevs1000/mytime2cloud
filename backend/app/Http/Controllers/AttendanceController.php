@@ -751,6 +751,7 @@ class AttendanceController extends Controller
         )));
         $departmentIds = $this->normalizeIds($request->input('department_ids'));
         $search = trim((string) $request->input('search', ''));
+        $normalizedSearch = strtolower($search);
         $page = max(1, (int) $request->input('page', 1));
         $perPage = max(1, min(100, (int) $request->input('per_page', 10)));
 
@@ -785,13 +786,12 @@ class AttendanceController extends Controller
             ->whereBetween('attendances.date', [$currentStart, $currentEnd])
             ->when(!empty($branchIds), fn($q) => $q->whereIn('employees.branch_id', $branchIds))
             ->when(!empty($departmentIds), fn($q) => $q->whereIn('employees.department_id', $departmentIds))
-            ->when($search !== '', function ($q) use ($search) {
-                $wildcard = env('WILD_CARD') ?? 'LIKE';
-                $q->where(function ($query) use ($search, $wildcard) {
-                    $query->where('employees.first_name', $wildcard, "%{$search}%")
-                        ->orWhere('employees.last_name', $wildcard, "%{$search}%")
-                        ->orWhere('employees.display_name', $wildcard, "%{$search}%")
-                        ->orWhere('employees.employee_id', $wildcard, "%{$search}%");
+            ->when($normalizedSearch !== '', function ($q) use ($normalizedSearch) {
+                $q->where(function ($query) use ($normalizedSearch) {
+                    $query->whereRaw('LOWER(employees.first_name) LIKE ?', ["%{$normalizedSearch}%"])
+                        ->orWhereRaw('LOWER(employees.last_name) LIKE ?', ["%{$normalizedSearch}%"])
+                        ->orWhereRaw('LOWER(employees.display_name) LIKE ?', ["%{$normalizedSearch}%"])
+                        ->orWhereRaw('LOWER(employees.employee_id) LIKE ?', ["%{$normalizedSearch}%"]);
                 });
             })
             ->selectRaw("employees.system_user_id,
