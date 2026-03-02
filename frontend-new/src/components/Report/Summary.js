@@ -1,10 +1,174 @@
+"use client";
+
 // app/executive-attendance/page.tsx
 // Next.js App Router page component (React)
 // If you prefer a reusable component, move JSX into /components and import it here.
 
-import React from "react";
+import React, { useEffect, useState } from 'react';
+import { getCompanyStats } from '@/lib/endpoint/dashboard';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts';
 
 export default function ExecutiveAttendanceDashboardPage() {
+
+  const chartData = [
+    { label: "01", present: 85, late: 5, absent: 10 },
+    { label: "02", present: 80, late: 8, absent: 12 },
+    { label: "03", present: 90, late: 2, absent: 8 },
+    { label: "04", present: 75, late: 15, absent: 10 },
+    { label: "05", present: 88, late: 4, absent: 8 },
+    { label: "06", present: 92, late: 3, absent: 5 },
+    { label: "07", present: 92, late: 3, absent: 5 },
+    { label: "08", present: 92, late: 3, absent: 5 },
+    { label: "09", present: 92, late: 3, absent: 5 },
+    { label: "10", present: 92, late: 3, absent: 5 },
+    { label: "11", present: 92, late: 3, absent: 5 },
+    { label: "12", present: 92, late: 3, absent: 5 },
+
+  ];
+
+  const topStaff = [
+    { name: "Sarah Miller", dept: "Marketing", score: "100%", img: "https://i.pravatar.cc/150?u=1" },
+    { name: "John Doe", dept: "Sales", score: "99%", img: "https://i.pravatar.cc/150?u=2" },
+    { name: "Alex Lee", dept: "Dev", score: "98%", initial: "AL" },
+  ];
+
+  const defaultStats = [
+    {
+      title: "Total Staff",
+      value: "142",
+      icon: "groups",
+      color: "blue",
+      trend: "2%",
+      trendUp: true,
+      subText: "Active members",
+      type: "sparkline",
+      path: "M0 20 C 20 25, 40 10, 60 15 C 80 20, 90 5, 100 10"
+    },
+    {
+      title: "Attendance",
+      value: "96.5%",
+      icon: "donut_large",
+      color: "emerald",
+      trend: "1.5%",
+      trendUp: true,
+      type: "progress",
+      progress: "96.5%"
+    },
+    {
+      title: "Overtime",
+      value: "320h",
+      icon: "schedule",
+      color: "purple",
+      trend: "5%",
+      trendUp: false,
+      subText: "Monthly total"
+    },
+    {
+      title: "Late In",
+      value: "12",
+      icon: "warning",
+      color: "orange",
+      trend: "10%",
+      trendUp: false,
+      type: "progress",
+      progress: "35%"
+    },
+    {
+      title: "Early Out",
+      value: "8",
+      icon: "logout",
+      color: "orange",
+      trend: "4%",
+      trendUp: true,
+      subText: "Unplanned"
+    },
+    {
+      title: "Avg Work Hrs",
+      value: "8.2h",
+      icon: "timelapse",
+      color: "blue",
+      trend: "0%",
+      subText: "Daily average"
+    },
+    {
+      title: "Absent",
+      value: "4",
+      icon: "person_off",
+      color: "emerald",
+      trend: "2%",
+      trendUp: false,
+      subText: "Unexcused"
+    },
+    {
+      title: "Leave",
+      value: "6",
+      icon: "flight_takeoff",
+      color: "emerald",
+      trend: "0%",
+      subText: "Approved"
+    },
+    {
+      title: "Manual Punch",
+      value: "15",
+      icon: "pan_tool",
+      color: "purple",
+      trend: "12%",
+      trendUp: true,
+      subText: "Corrections"
+    }
+  ];
+
+  const [stats, setStats] = useState([]);
+  const [topPunctual, setTopPunctual] = useState([]);
+  const [topAbsentLate, setTopAbsentLate] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchStats = async () => {
+      try {
+        const data = await getCompanyStats();
+        if (isMounted) {
+          setStats(Array.isArray(data?.stats) && data.stats.length > 0 ? data.stats : defaultStats);
+          setTopPunctual(Array.isArray(data?.top_3_punctual) ? data.top_3_punctual : []);
+          setTopAbsentLate(Array.isArray(data?.top_3_absent_late) ? data.top_3_absent_late : []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch company stats:', error);
+        if (isMounted) {
+          setStats(defaultStats);
+          setTopPunctual([]);
+          setTopAbsentLate([]);
+        }
+      }
+    };
+
+    fetchStats();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Helper for color logic
+  const colors = {
+    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
+    emerald: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
+    orange: "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
+    purple: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
+  };
+
+  const getPersonName = (item = {}) => item.name || item.employee_name || item.title || "Unknown";
+  const getPersonRole = (item = {}) => item.designation || item.department || item.role || "--";
+  const getAvatarUrl = (item = {}) => item.photo || item.avatar || item.profile_image || "";
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-white  min-h-screen flex flex-col antialiased selection:bg-accent/20 overflow-y-auto ">
       <main className="relative z-10 flex-1 w-full  mx-auto px-6 py-8 flex flex-col gap-8 max-h-[calc(100vh-100px)]">
@@ -36,289 +200,170 @@ export default function ExecutiveAttendanceDashboardPage() {
         </div>
 
         {/* KPIs */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="glass-panel p-5 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="flex items-center justify-between mb-2 z-10">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                Total Present
-              </p>
-              <div className="p-1.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-md">
-                <span className="material-symbols-outlined text-[20px] block">
-                  person_check
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-end justify-between gap-3 z-10">
-              <div>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                  128
+        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
+          {stats.map((item, idx) => (
+            <div key={idx} className="glass-panel p-4 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-2 z-10">
+                <p className="text-slate-500 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wide truncate">
+                  {item.title}
                 </p>
-                <div className="flex items-center text-emerald-600 dark:text-emerald-400 text-sm font-bold mb-1 bg-emerald-50 dark:bg-emerald-900/20 px-1.5 py-0.5 rounded w-fit mt-1">
-                  <span className="material-symbols-outlined text-[16px]">
-                    trending_up
+                <div className={`p-1 rounded-md ${colors[item.color]}`}>
+                  <span className="material-symbols-outlined text-[18px] block">
+                    {item.icon}
                   </span>
-                  <span>4% vs yesterday</span>
                 </div>
               </div>
 
-              <svg
-                className="h-10 w-20 text-blue-500/20 dark:text-blue-400/20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 100 40"
-                aria-hidden="true"
-              >
-                <path
-                  d="M0 20 C 20 25, 40 10, 60 15 C 80 20, 90 5, 100 10"
-                  vectorEffect="non-scaling-stroke"
-                />
+              {/* Bottom Section */}
+              <div className="flex items-end justify-between gap-2 z-10">
+                <div className="flex-1 min-w-0">
+                  <p className="text-xl font-bold text-slate-900 dark:text-white leading-none">
+                    {item.value}
+                  </p>
+
+                  {/* Conditional Trend Badge */}
+                  {item.trend !== "0%" ? (
+                    <div className={`flex items-center text-[9px] font-bold mt-1 px-1 py-0.5 rounded w-fit ${item.trendUp ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'text-orange-600 bg-orange-50 dark:bg-orange-900/20'
+                      }`}>
+                      <span className="material-symbols-outlined text-[10px]">
+                        {item.trendUp ? 'trending_up' : 'trending_down'}
+                      </span>
+                      <span>{item.trend}</span>
+                    </div>
+                  ) : (
+                    <p className="text-[9px] text-slate-400 mt-1 font-medium">{item.subText}</p>
+                  )}
+                </div>
+
+                {/* Conditional Visuals (Sparkline or Progress) */}
+                {item.type === 'sparkline' && (
+                  <svg className="h-6 w-12 text-blue-500/30" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 100 40">
+                    <path d={item.path} vectorEffect="non-scaling-stroke" />
+                  </svg>
+                )}
+
+                {item.type === 'progress' && (
+                  <div className="h-1.5 w-10 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
+                    <div
+                      className={`h-full rounded-full ${item.color === 'orange' ? 'bg-orange-500' : 'bg-emerald-500'}`}
+                      style={{ width: item.progress }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-6">
+      {/* LEFT: MAIN TRENDS CHART */}
+      <div className="lg:col-span-3 flex flex-col glass-panel rounded-xl p-5 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">
+              Attendance Trends
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+              Stacked breakdown (Present vs Late vs Absent)
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+              <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Present
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+              <span className="h-2.5 w-2.5 rounded-sm bg-orange-500" /> Late
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+              <span className="h-2.5 w-2.5 rounded-sm bg-rose-400" /> Absent
+            </div>
+          </div>
+        </div>
+
+        <div className="h-64 w-full pt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barCategoryGap="28%">
+              <XAxis
+                dataKey="label"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 10, fill: '#94a3b8' }}
+              />
+              <Tooltip
+                cursor={{ fill: 'rgba(148,163,184,0.08)' }}
+                contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+              />
+              <Bar dataKey="present" stackId="attendance" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={50} />
+              <Bar dataKey="late" stackId="attendance" fill="#f97316" barSize={50} />
+              <Bar dataKey="absent" stackId="attendance" fill="#fb7185" barSize={50} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* RIGHT: INSIGHTS COLUMN */}
+      <div className="flex flex-col gap-4">
+        {/* Dept Donut */}
+        <div className="glass-panel rounded-xl p-5 shadow-sm">
+          <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide mb-4">
+            By Department
+          </h3>
+          <div className="flex items-center gap-4">
+            <div className="relative w-20 h-20 shrink-0">
+              <svg className="rotate-[-90deg]" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="currentColor" strokeWidth="6" className="text-slate-100 dark:text-slate-800" />
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="currentColor" strokeWidth="6" strokeDasharray="40 60" className="text-blue-500" />
+                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="currentColor" strokeWidth="6" strokeDasharray="30 70" strokeDashoffset="-40" className="text-sky-400" />
               </svg>
             </div>
-          </div>
-
-          <div className="glass-panel p-5 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                Late Arrivals Today
-              </p>
-              <div className="p-1.5 bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-md">
-                <span className="material-symbols-outlined text-[20px] block">
-                  timer_off
-                </span>
+            <div className="flex flex-col gap-1 w-full">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">Eng</span>
+                <span className="font-bold dark:text-white">40%</span>
               </div>
-            </div>
-
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                  14
-                </p>
-                <p className="text-xs text-slate-400 mt-1 font-medium">
-                  Attention needed
-                </p>
-              </div>
-
-              <div className="h-2 w-24 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden self-end mb-2">
-                <div className="h-full w-[35%] bg-orange-500 rounded-full" />
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                On Leave Today
-              </p>
-              <div className="p-1.5 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-md">
-                <span className="material-symbols-outlined text-[20px] block">
-                  beach_access
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                  8
-                </p>
-                <span className="text-slate-400 text-sm mb-1 block mt-1">
-                  Approved absences
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass-panel p-5 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                Active Overtime
-              </p>
-              <div className="p-1.5 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-md">
-                <span className="material-symbols-outlined text-[20px] block">
-                  schedule
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-end justify-between gap-3">
-              <div>
-                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                  5
-                </p>
-                <span className="text-slate-400 text-sm mb-1 block mt-1">
-                  Employees clocked out late
-                </span>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500">Sales</span>
+                <span className="font-bold dark:text-white">30%</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Two columns */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Punctuality */}
-          <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-emerald-100 dark:bg-emerald-900/40 rounded-full text-emerald-700 dark:text-emerald-400">
-                  <span className="material-symbols-outlined text-xl block">
-                    verified
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Punctuality Shoutouts
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Earliest arrivals today
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:bg-white/80 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="bg-center bg-no-repeat bg-cover rounded-full size-12 shadow-sm"
-                    aria-label="Portrait of Sarah Jenkins"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDpVajIAANdPvPVKlYSJffxdUDh61X9tGHApK4BRapjQy-KYR2VrqObfx-VXzHKRJSWS_FY2JTqXIVY0eR8PTLIsXkV1MSlM5-ZtwHEMeJ3JNljQT_krfbFnwXe3HVHfUK9FNEPDyQfS-PGmMCD1XzZZ-jgmtQdzjyMvxD0vmmaQnE_MxhG5pgfG6j7-0m7kaM_SnqYf0qLS_iV4kLk_CoF5KUApqxltLfuXfEdJNw-kd0sAU77igbOh7WA3C_bee42O6RgSM2oGg__")',
-                    }}
-                  />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      Sarah Jenkins
-                    </p>
-                    <p className="text-xs text-slate-500">Engineering Lead</p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    07:45 AM
-                  </span>
-                  <span className="text-[10px] text-slate-400">45m Early</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:bg-white/80 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="bg-center bg-no-repeat bg-cover rounded-full size-12 shadow-sm"
-                    aria-label="Portrait of David Chen"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBZoi34EXObzaZFq5sPoNtwsG3gpJ229fGyDeqCLfbtKegxNJJbDh98qmPUwCTmhStfwLwGAI0tieibJH0KGbqXJfmi3mvu-1i9aSJ6i-I81r8-DKf2etU0mQX0eTVmTeZ6-XClY4uABbkBbyTIVFUbXQPyE2d_Go1Qnr-NhwGLv5Sus2RHqZw8SiMk_HXCeaVkFnA9pAZEjOTR-Lbo3CaXeHs5ebiu2bbkB4bsOG-nWXxgQ7CXdatTW4xTBnGmBKRVcGKjcdWH4iMi")',
-                    }}
-                  />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      David Chen
-                    </p>
-                    <p className="text-xs text-slate-500">Product Designer</p>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end">
-                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
-                    07:52 AM
-                  </span>
-                  <span className="text-[10px] text-slate-400">38m Early</span>
-                </div>
-              </div>
-            </div>
+        {/* Punctuality List */}
+        <div className="glass-panel rounded-xl p-5 shadow-sm flex-1">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">Punctuality</h3>
+            <button className="text-[10px] text-blue-500 font-bold hover:underline">VIEW ALL</button>
           </div>
-
-          {/* Absence/Late */}
-          <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-700/60 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-amber-100 dark:bg-amber-900/40 rounded-full text-amber-700 dark:text-amber-400">
-                  <span className="material-symbols-outlined text-xl block">
-                    warning
-                  </span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Current Absence/Late
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium">
-                    Employees not yet checked in
-                  </p>
-                </div>
-              </div>
-
-              <button className="text-primary text-sm font-bold hover:underline">
-                View All
-              </button>
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:bg-white/80 transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="bg-center bg-no-repeat bg-cover rounded-full size-12 grayscale opacity-80"
-                    aria-label="Portrait of Michael Ross"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuD_GBzYbVdd6BK8yRD3QWZ8VVfEUJLf7ewCmUHdfDgdDZqvmNapi0boSk89cQT9QdcatiagrCAxmR-jgSwh94WeAkX3FunIDgKOxznh_wRcBhINehmFcgUINBsqHPW5_DhB9bHtdVthriLc98pGOEDdQWG8bzVHJgOSDP5xrEJLBxcUXm05IrFOU4YnBkGv1nJEHMtWPz6KS9EwxQgglWeE-5aiqk43Q3qGQ9quc7Ca7npFV1cyT7J_fGqZVitxFD2lcgBZQbY7PLXE")',
-                    }}
-                  />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      Michael Ross
-                    </p>
-                    <p className="text-xs text-slate-500">Sales Executive</p>
+          <div className="flex flex-col gap-4">
+            {topStaff.map((staff, idx) => (
+              <div key={idx} className="flex items-center gap-3">
+                {staff.img ? (
+                  <img src={staff.img} className="h-8 w-8 rounded-full ring-2 ring-emerald-500/20" alt="" />
+                ) : (
+                  <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold ring-2 ring-blue-500/20">
+                    {staff.initial}
                   </div>
+                )}
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-xs font-bold truncate dark:text-white">{staff.name}</span>
+                  <span className="text-[10px] text-slate-400">{staff.dept}</span>
                 </div>
-
-                <div className="flex flex-col items-end gap-1">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200">
-                    Not Checked In
-                  </span>
-                  <button className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-1 opacity-100 transition-opacity">
-                    Contact{" "}
-                    <span className="material-symbols-outlined text-[10px]">
-                      call
-                    </span>
-                  </button>
-                </div>
+                <span className="text-xs font-bold text-emerald-500">{staff.score}</span>
               </div>
-
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 hover:bg-white/80 transition-colors group">
-                <div className="flex items-center gap-4">
-                  <div
-                    className="bg-center bg-no-repeat bg-cover rounded-full size-12 grayscale opacity-80"
-                    aria-label="Portrait of Linda Kim"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCAuEK2shAOlbgzd7osB3MjtNYAt0jNq2R4SNHWsx1pPhAJ6pgUSlvpC8EOYIzdZ8VVlaLJkss32xoY7lUL9BQXGCwDfaVNnfBvxJs33ZZejVQLzbFLnewNuwMFbu7ZkpphwnerJcMsRIZpCsPhX-uPK2ONeeSynC7qCBFh3U9YsB_-KECiSZ-z3my8unETQQ2KgVw3FhOOMtNrAlO_rm0UQmL-1Ods4GYeXJ_VtFGJFfAyq8pWkffud-6qK4poZpKLoKF6M7cZI8B_")',
-                    }}
-                  />
-                  <div>
-                    <p className="font-bold text-slate-900 dark:text-white">
-                      Linda Kim
-                    </p>
-                    <p className="text-xs text-slate-500">Recruiter</p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-1">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200">
-                    Late (No Notice)
-                  </span>
-                  <button className="text-[10px] font-bold text-primary hover:text-primary/80 flex items-center gap-1 opacity-100 transition-opacity">
-                    Contact{" "}
-                    <span className="material-symbols-outlined text-[10px]">
-                      call
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
+      </div>
+    </section>
 
         {/* Table */}
         <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 mb-8">

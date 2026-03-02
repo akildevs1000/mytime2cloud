@@ -94,7 +94,6 @@ function getPunctualityFromShift(shift, logTime) {
 }
 
 function LiveFeed({ branch_ids, department_ids }) {
-
   const router = useRouter();
 
   const user = getUser();
@@ -170,7 +169,7 @@ function LiveFeed({ branch_ids, department_ids }) {
 
       modes: e.DeviceID?.includes(`Mobile`)
         ? [baseIcons.Mobile]
-        : iconGroups[item.Device],
+        : iconGroups[baseIcons.Device],
     }));
     setRecords(result);
     setIsLoading(false);
@@ -183,13 +182,13 @@ function LiveFeed({ branch_ids, department_ids }) {
   const [deviceJson, setDeviceJson] = useState(null);
   const [employeesJson, setEmployeesJson] = useState(null);
 
-  const fetchDeviceJson = async () => {
+  const fetchJson = async () => {
     setDeviceJson(await getDeviceJson(user.company_id));
     setEmployeesJson(await getEmployeesJson(user.company_id));
   };
 
   useEffect(() => {
-    fetchDeviceJson();
+    fetchJson();
   }, []);
 
   const { lastMessage } = useMqtt(["mqtt/face/+/+"]);
@@ -256,7 +255,10 @@ function LiveFeed({ branch_ids, department_ids }) {
           {/* <span className="text-[11px] text-slate-400 font-mono">
             Refreshing in 5s...
           </span> */}
-          <button onClick={() => router.push("/logs")} className="text-xs font-bold text-primary hover:text-gray-600 dark:text-gray-300 transition-colors uppercase tracking-wider">
+          <button
+            onClick={() => router.push("/logs")}
+            className="text-xs font-bold text-primary hover:text-gray-600 dark:text-gray-300 transition-colors uppercase tracking-wider"
+          >
             View Full Log
           </button>
         </div>
@@ -305,7 +307,7 @@ function LiveFeed({ branch_ids, department_ids }) {
               {item.location}
             </div>
             <div className="col-span-1 flex items-center text-slate-400">
-              {item.modes.map((icon, index) => (
+              {item?.modes?.map((icon, index) => (
                 <span key={index}>{icon}</span>
               ))}
               {/* Optional: Add text label next to mobile icon */}

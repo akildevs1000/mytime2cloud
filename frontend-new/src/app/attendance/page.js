@@ -18,7 +18,7 @@ export default function AttendancePage() {
         }
     };
 
-    return <AttendanceTable />;
+    // return <AttendanceTable />;
 
     return (
         <div className="w-full min-h-screen p-6 bg-slate-50 dark:bg-slate-900">
