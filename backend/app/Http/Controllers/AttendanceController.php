@@ -677,6 +677,7 @@ class AttendanceController extends Controller
                 SUM(CASE WHEN status = 'P' AND late_coming = '---' THEN 1 ELSE 0 END) as punctual_days")
             ->groupBy('employee_id')
             ->havingRaw("SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) > 0")
+            ->havingRaw("SUM(CASE WHEN status = 'P' AND late_coming = '---' THEN 1 ELSE 0 END) > 0")
             ->orderByDesc('punctual_days')
             ->limit(10)
             ->get();
@@ -710,6 +711,7 @@ class AttendanceController extends Controller
                 'total_days' => $totalDays,
             ];
         })
+            ->filter(fn($item) => $item['score_value'] > 0)
             ->sortByDesc('score_value')
             ->take(3)
             ->values();
