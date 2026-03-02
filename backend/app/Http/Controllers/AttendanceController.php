@@ -534,6 +534,82 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function companyStatsDepartmentBreakdown(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $rows = Attendance::query()
+            ->join('employees', function ($join) use ($companyId) {
+                $join->on('employees.system_user_id', '=', 'attendances.employee_id')
+                    ->where('employees.company_id', '=', $companyId);
+            })
+            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->where('attendances.company_id', $companyId)
+            ->whereBetween('attendances.date', [$currentStart, $currentEnd])
+            ->whereNotIn('attendances.status', ['---'])
+            ->when(!empty($branchIds), fn($q) => $q->whereIn('employees.branch_id', $branchIds))
+            ->when(!empty($departmentIds), fn($q) => $q->whereIn('employees.department_id', $departmentIds))
+            ->selectRaw("COALESCE(departments.name, 'Unknown') as name, COUNT(*) as total")
+            ->groupByRaw("COALESCE(departments.name, 'Unknown')")
+            ->orderByDesc('total')
+            ->get();
+
+        $grandTotal = (int) $rows->sum('total');
+
+        $data = $rows->map(function ($row) use ($grandTotal) {
+            $count = (int) $row->total;
+            $percentage = $grandTotal > 0 ? round(($count / $grandTotal) * 100, 1) : 0;
+
+            return [
+                'name' => (string) $row->name,
+                'count' => $count,
+                'percentage' => $percentage,
+            ];
+        })->values();
+
+        return response()->json([
+            'data' => $data,
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+            ],
+        ]);
+    }
+
     private function resolveAttendanceHour($timeValue): int
     {
         if (!is_string($timeValue)) {
