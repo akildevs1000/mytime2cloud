@@ -32,12 +32,13 @@ const ImageUploader = ({ onImageSet = () => {}, existingImage = null }) => {
         quality: 0.8,
       });
 
-      const { data } = await axios.post(
-        `${FACE_VALIDATOR_URL}/validate-passport`,
-        {
-          image_base64: clientCompressed,
-        },
-      );
+      let url = `${FACE_VALIDATOR_URL}/validate-passport`;
+
+      console.log(url);
+
+      const { data } = await axios.post(url, {
+        image_base64: clientCompressed,
+      });
 
       // Destructure based on your actual response
       const { status, message, cropped_image, meta } = data;

@@ -1,3 +1,5 @@
+import { dashboardGetCountslast7DaysChart } from "@/lib/endpoint/dashboard";
+import { useEffect, useState } from "react";
 import {
   BarChart,
   Bar,
@@ -9,17 +11,27 @@ import {
   Cell,
 } from "recharts";
 
-const data = [
-  { day: "M", value: 60, fill: "#14b8a6" }, // Mon
-  { day: "T", value: 85, fill: "#06b6d4" }, // Tue
-  { day: "W", value: 75, fill: "#10b981" }, // Wed
-  { day: "T", value: 70, fill: "#6366f1" }, // Thu
-  { day: "F", value: 65, fill: "#a855f7" }, // Fri
-  { day: "S", value: 50, fill: "#f59e0b" }, // Sat
-  { day: "S", value: 40, fill: "#ef4444" }, // Sun
-];
+function AttendanceCard({ branch_ids, department_ids }) {
+  const [stats, setStats] = useState([
+    { day: "M", value: 100, fill: "#14b8a6" }, // Mon
+    { day: "T", value: 100, fill: "#06b6d4" }, // Tue
+    { day: "W", value: 100, fill: "#10b981" }, // Wed
+    { day: "T", value: 100, fill: "#6366f1" }, // Thu
+    { day: "F", value: 100, fill: "#a855f7" }, // Fri
+    { day: "S", value: 100, fill: "#f59e0b" }, // Sat
+    { day: "S", value: 100, fill: "#ef4444" }, // Sun
+  ]);
 
-function AttendanceCard({ branch_id }) {
+  useEffect(() => {
+    const fetchAttendanceCounts = async () => {
+      setStats(
+        await dashboardGetCountslast7DaysChart({ branch_ids, department_ids }),
+      );
+    };
+
+    fetchAttendanceCounts();
+  }, [branch_ids, department_ids]);
+
   return (
     <>
       <div className="flex justify-between items-start mb-2">
@@ -29,17 +41,15 @@ function AttendanceCard({ branch_id }) {
           </h3>
           <p className="text-[10px] text-slate-500">Weekly Distribution</p>
         </div>
-        <button className="text-slate-400 hover:text-slate-800 transition-colors">
-          <span className="material-symbols-outlined text-sm">
-            more_horiz
-          </span>
-        </button>
+        {/* <button className="text-slate-400 hover:text-slate-800 transition-colors">
+          <span className="material-symbols-outlined text-sm">more_horiz</span>
+        </button> */}
       </div>
 
       <div className="w-full h-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
+            data={stats}
             margin={{ top: 10, right: 10, left: 0, bottom: 10 }}
           >
             <CartesianGrid
@@ -61,12 +71,8 @@ function AttendanceCard({ branch_id }) {
                 borderRadius: "6px",
               }}
             />
-            <Bar
-              dataKey="value"
-              radius={[4, 4, 0, 0]}
-              barSize={18}
-            >
-              {data.map((entry, index) => (
+            <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={18}>
+              {stats.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}
             </Bar>

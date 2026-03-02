@@ -82,9 +82,9 @@ function EventsAndInsights({ branch_id }) {
             </span>
             Insights & Events
           </h3>
-          <button className="material-symbols-outlined text-slate-500 hover:text-gray-600 dark:text-gray-300 text-sm">
+          {/* <button className="material-symbols-outlined text-slate-500 hover:text-gray-600 dark:text-gray-300 text-sm">
             more_vert
-          </button>
+          </button> */}
         </div>
 
         {/* Tab Navigation */}

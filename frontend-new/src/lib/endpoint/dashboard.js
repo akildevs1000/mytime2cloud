@@ -1,7 +1,13 @@
 import { api, buildQueryParams } from "@/lib/api-client";
 
-export const getAttendanceCount = async (branch_id = null) => {
-    const params = await buildQueryParams(branch_id ? { branch_id } : {});
-    const { data } = await api.get("/dashbaord_attendance_count", { params });
+export const getAttendanceCount = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const { data } = await api.get("/dashbaord_attendance_count", { params: queryParams });
+    return data;
+};
+
+export const dashboardGetCountslast7DaysChart = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const { data } = await api.get("/dashboard_counts_last_7_days_chart", { params: queryParams });
     return data;
 };

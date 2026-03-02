@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { caps } from "@/lib/utils";
 import { getUser } from "@/config";
+import IconButton from "../Theme/IconButton";
+import { useRouter } from "next/navigation";
 
 // 1. Define the base icon mapping
 const baseIcons = {
@@ -77,7 +79,7 @@ function getPunctualityFromShift(shift, logTime) {
   const lateMinutes = getLateMinutes(
     arrivalDateTime,
     shiftStartDateTime,
-    shift?.grace_time || "00:00"
+    shift?.grace_time || "00:00",
   );
 
   if (lateMinutes > 0) {
@@ -91,7 +93,10 @@ function getPunctualityFromShift(shift, logTime) {
   return defaultPunctuality;
 }
 
-function LiveFeed({ branch_ids }) {
+function LiveFeed({ branch_ids, department_ids }) {
+
+  const router = useRouter();
+
   const user = getUser();
 
   const { isDark } = useDarkMode();
@@ -129,15 +134,20 @@ function LiveFeed({ branch_ids }) {
   };
 
   const [records, setRecords] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Fetch device logs API
   const fetchRecords = async () => {
+    setIsLoading(true);
     const today = new Date().toISOString().split("T")[0];
     const { data } = await getDeviceLogs({
       page: 1,
       per_page: 50,
       from_date: today,
       to_date: today,
+
+      branch_ids,
+      department_ids,
     });
 
     //26&from_date_txt=2026-02-26&to_date_txt=2026-02-26
@@ -163,11 +173,12 @@ function LiveFeed({ branch_ids }) {
         : iconGroups[item.Device],
     }));
     setRecords(result);
+    setIsLoading(false);
   };
 
   useEffect(() => {
     fetchRecords();
-  }, [branch_ids]);
+  }, [branch_ids, department_ids]);
 
   const [deviceJson, setDeviceJson] = useState(null);
   const [employeesJson, setEmployeesJson] = useState(null);
@@ -191,8 +202,6 @@ function LiveFeed({ branch_ids }) {
       data: { customId, personName, facesluiceId, time, VerifyStatus, ...rest },
     } = lastMessage;
 
-    console.log(rest);
-
     if (!deviceJson) return;
 
     if (!employeesJson) return;
@@ -206,7 +215,6 @@ function LiveFeed({ branch_ids }) {
     const shift = foundEmployeeInfo?.schedule?.shift;
     const { punctuality, punctualityColor, punctualityDot } =
       getPunctualityFromShift(shift, time);
-
 
     // Insert new real-time record at the top, matching existing structure
     setRecords((prev) => [
@@ -237,20 +245,18 @@ function LiveFeed({ branch_ids }) {
           <h3 className="text-base font-bold text-gray-600 dark:text-gray-300 font-display tracking-wide">
             Live Recognition Feed
           </h3>
-          <button
-            className="ml-4 px-3 py-1 text-xs font-bold rounded bg-primary text-white hover:bg-primary/90 transition-colors"
+
+          <RefreshCw
+            className={`${isLoading ? "animate-spin" : ""}`}
             onClick={fetchRecords}
-            type="button"
-            title="Refresh Device Logs"
-          >
-            Refresh Logs
-          </button>
+            size={14}
+          />
         </div>
         <div className="flex gap-4 items-center">
-          <span className="text-[11px] text-slate-400 font-mono">
+          {/* <span className="text-[11px] text-slate-400 font-mono">
             Refreshing in 5s...
-          </span>
-          <button className="text-xs font-bold text-primary hover:text-gray-600 dark:text-gray-300 transition-colors uppercase tracking-wider">
+          </span> */}
+          <button onClick={() => router.push("/logs")} className="text-xs font-bold text-primary hover:text-gray-600 dark:text-gray-300 transition-colors uppercase tracking-wider">
             View Full Log
           </button>
         </div>

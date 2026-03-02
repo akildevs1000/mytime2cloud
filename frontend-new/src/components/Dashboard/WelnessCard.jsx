@@ -1,27 +1,27 @@
 import { useDarkMode } from "@/context/DarkModeContext";
-import { getAttendanceCount } from "@/lib/api/dashboard";
+import { getAttendanceCount } from "@/lib/endpoint/dashboard";
 import { useEffect, useState, useMemo } from "react";
 import { PieChart, Pie, ResponsiveContainer, Cell } from "recharts";
 
-function WelnessCard({ branch_id }) {
+function WelnessCard({ branch_ids, department_ids }) {
   const { isDark } = useDarkMode();
   const [stats, setStats] = useState({
     employeeCount: 0,
     presentCount: 0,
     absentCount: 0,
     leaveCount: 0,
-    vaccationCount: 0,
+    vacationCount: 0,
     offlineDevices: 0,
   });
 
   useEffect(() => {
     const fetchAttendanceCounts = async () => {
       // Assuming getAttendanceCount is imported or defined globally
-      const data = await getAttendanceCount(branch_id);
+      const data = await getAttendanceCount({ branch_ids, department_ids });
       setStats(data);
     };
     fetchAttendanceCounts();
-  }, [branch_id]);
+  }, [branch_ids, department_ids]);
 
   // 1. Calculate Wellness Value Dynamically
   const wellnessValue = useMemo(() => {
@@ -29,7 +29,7 @@ function WelnessCard({ branch_id }) {
     
     // Logic: Wellness is high when people are present or on scheduled vacation, 
     // and low when there is high unplanned absence or leave.
-    const positiveFactors = stats.presentCount + stats.vaccationCount;
+    const positiveFactors = stats.presentCount + stats.vacationCount;
     const score = Math.round((positiveFactors / stats.employeeCount) * 100);
     
     return Math.min(100, Math.max(0, score)); // Clamp between 0-100
@@ -53,9 +53,9 @@ function WelnessCard({ branch_id }) {
         <p className="text-[10px] text-slate-400">Burnout Risk Monitor</p>
       </div>
 
-      <button className="absolute top-5 right-5 text-slate-500 hover:text-gray-600 dark:text-gray-300">
+      {/* <button className="absolute top-5 right-5 text-slate-500 hover:text-gray-600 dark:text-gray-300">
         <span className="material-symbols-outlined text-sm">more_horiz</span>
-      </button>
+      </button> */}
 
       <div className="relative w-40 h-40 mt-4 group">
         <ResponsiveContainer width="100%" height="100%">

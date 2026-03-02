@@ -68,6 +68,7 @@ export default function EmployeesPage() {
                 page: page,
                 per_page: perPage,
                 sortDesc: 'false',
+                branch_ids: selectedBranchIds.length > 0 ? selectedBranchIds : [],
                 department_ids: selectedDepartmentIds.length > 0 ? selectedDepartmentIds : [],
                 search: searchTerm || null, // Only include search if it's not empty
             };
@@ -89,7 +90,7 @@ export default function EmployeesPage() {
             setError(parseApiError(error));
             setIsLoading(false);
         }
-    }, [perPage, selectedDepartmentIds, searchTerm]);
+    }, [perPage, selectedBranchIds, selectedDepartmentIds, searchTerm]);
 
 
     useEffect(() => {

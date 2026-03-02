@@ -6,7 +6,7 @@ export const API_BASE_URL = env.NEXT_PUBLIC_API_URL || 'https://backend.mytime2c
 
 export const FACE_VALIDATOR_URL =
   typeof window !== "undefined"
-    ? env.NEXT_PUBLIC_FACE_VALIDATOR_ENDPOINT || "https://face-validator.mytime2cloud.com/"
+    ? env.NEXT_PUBLIC_FACE_VALIDATOR_ENDPOINT || "https://face-validator.mytime2cloud.com"
     : null;
 
 
