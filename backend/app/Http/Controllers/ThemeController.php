@@ -377,7 +377,7 @@ class ThemeController extends Controller
 
             $data[] = [
                 "day"   => $dayLetter,
-                "value" => (int) ($row["presentCount"] ?? 0),
+                "value" => (int) ($row["presentCount"] == 0 ? 100 : $row["presentCount"]),
                 "fill"  => $colors[$index % count($colors)],
             ];
         }
