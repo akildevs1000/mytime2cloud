@@ -4,7 +4,8 @@ import Input from "../Theme/Input";
 import DropDown from "../ui/DropDown";
 import { notify, parseApiError } from "@/lib/utils";
 import { RadiusSlider } from "./RadiusSlider";
-import { branchListGeoFencing, getBranchesForTable, updateGeoFencing } from "@/lib/api";
+import { getBranchesForTable } from "@/lib/api";
+import { branchListGeoFencing, updateGeoFencing } from "@/lib/endpoint/geofencing";
 import { getUser } from "@/config";
 
 export default function RightSection({ radius, setRadius, setCenter, selectedLat, setSelectedLat, selectedLng, setSelectedLng }) {
