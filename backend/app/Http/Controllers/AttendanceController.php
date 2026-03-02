@@ -730,6 +730,120 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function companyStatsDailyAttendance(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+            'search' => 'nullable|string',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+        $search = trim((string) $request->input('search', ''));
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $rows = Attendance::query()
+            ->join('employees', function ($join) use ($companyId) {
+                $join->on('employees.system_user_id', '=', 'attendances.employee_id')
+                    ->where('employees.company_id', '=', $companyId);
+            })
+            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->where('attendances.company_id', $companyId)
+            ->whereBetween('attendances.date', [$currentStart, $currentEnd])
+            ->when(!empty($branchIds), fn($q) => $q->whereIn('employees.branch_id', $branchIds))
+            ->when(!empty($departmentIds), fn($q) => $q->whereIn('employees.department_id', $departmentIds))
+            ->when($search !== '', function ($q) use ($search) {
+                $wildcard = env('WILD_CARD') ?? 'LIKE';
+                $q->where(function ($query) use ($search, $wildcard) {
+                    $query->where('employees.first_name', $wildcard, "%{$search}%")
+                        ->orWhere('employees.last_name', $wildcard, "%{$search}%")
+                        ->orWhere('employees.display_name', $wildcard, "%{$search}%")
+                        ->orWhere('employees.employee_id', $wildcard, "%{$search}%");
+                });
+            })
+            ->select([
+                'attendances.id',
+                'attendances.date',
+                'attendances.status',
+                'attendances.in',
+                'attendances.total_hrs',
+                'attendances.late_coming',
+                'employees.system_user_id',
+                'employees.employee_id as employee_code',
+                'employees.first_name',
+                'employees.last_name',
+                'employees.display_name',
+                'employees.profile_picture',
+                'departments.name as department_name',
+            ])
+            ->orderByDesc('attendances.date')
+            ->orderByDesc('attendances.id')
+            ->limit(50)
+            ->get();
+
+        $data = $rows->map(function ($row) {
+            $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+            if ($name === '') {
+                $name = (string) ($row->display_name ?? 'Unknown');
+            }
+
+            return [
+                'id' => (int) $row->id,
+                'system_user_id' => (int) $row->system_user_id,
+                'employee_code' => (string) ($row->employee_code ?? ''),
+                'name' => $name,
+                'department' => (string) ($row->department_name ?? '---'),
+                'date' => (string) $row->date,
+                'status' => (string) ($row->status ?? '---'),
+                'check_in' => (string) ($row->in ?? '---'),
+                'total_hrs' => (string) ($row->total_hrs ?? '---'),
+                'late_coming' => (string) ($row->late_coming ?? '---'),
+                'img' => $row->profile_picture ?: null,
+            ];
+        })->values();
+
+        return response()->json([
+            'data' => $data,
+            'meta' => [
+                'total' => $data->count(),
+                'limit' => 50,
+            ],
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+                'search' => $search,
+            ],
+        ]);
+    }
+
     private function resolveAttendanceHour($timeValue): int
     {
         if (!is_string($timeValue)) {
