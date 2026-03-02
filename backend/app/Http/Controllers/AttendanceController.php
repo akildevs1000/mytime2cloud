@@ -902,6 +902,18 @@ class AttendanceController extends Controller
 
     public function companyStatsSummaryPayload(Request $request)
     {
+        $request->merge([
+            'company_id' => $request->input('company_id', $request->input('companyId')),
+            'branch_id' => $request->input('branch_id', $request->input('branchId')),
+            'branch_ids' => $request->input('branch_ids', $request->input('branchIds')),
+            'department_ids' => $request->input('department_ids', $request->input('departmentIds')),
+            'from_date' => $request->input('from_date', $request->input('fromDate')),
+            'to_date' => $request->input('to_date', $request->input('toDate')),
+            'absent_threshold' => $request->input('absent_threshold', $request->input('absentThreshold')),
+            'late_threshold' => $request->input('late_threshold', $request->input('lateThreshold')),
+            'per_page' => $request->input('per_page', $request->input('perPage')),
+        ]);
+
         $request->validate([
             'company_id' => 'required|integer|exists:companies,id',
             'branch_id' => 'nullable',
@@ -1070,7 +1082,9 @@ class AttendanceController extends Controller
                 'page' => (int) $dailyRequest->input('page', 1),
                 'per_page' => (int) $dailyRequest->input('per_page', 50),
             ],
-        ]);
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
     private function resolveAttendanceHour($timeValue): int
