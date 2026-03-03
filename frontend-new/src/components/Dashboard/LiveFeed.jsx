@@ -15,10 +15,10 @@ import {
   Monitor,
   User,
 } from "lucide-react";
-import { caps } from "@/lib/utils";
 import { getUser } from "@/config";
-import IconButton from "../Theme/IconButton";
 import { useRouter } from "next/navigation";
+import { useBrowserNotification } from "@/hooks/useBrowserNotification";
+import Swal from "sweetalert2";
 
 // 1. Define the base icon mapping
 const baseIcons = {
@@ -94,6 +94,9 @@ function getPunctualityFromShift(shift, logTime) {
 }
 
 function LiveFeed({ branch_ids, department_ids }) {
+  
+  const { showNotification } = useBrowserNotification();
+
   const router = useRouter();
 
   const user = getUser();
@@ -198,7 +201,7 @@ function LiveFeed({ branch_ids, department_ids }) {
     if (!lastMessage || lastMessage.topic.includes("heartbeat")) return;
 
     const {
-      data: { customId, personName, facesluiceId, time, VerifyStatus, ...rest },
+      data: { customId, personName, facesluiceId, time, VerifyStatus, pic,...rest },
     } = lastMessage;
 
     if (!deviceJson) return;
@@ -214,6 +217,25 @@ function LiveFeed({ branch_ids, department_ids }) {
     const shift = foundEmployeeInfo?.schedule?.shift;
     const { punctuality, punctualityColor, punctualityDot } =
       getPunctualityFromShift(shift, time);
+
+    // do something like person name with id punched at time and is late or on time etc
+    showNotification({
+      title: "Attendance Notification",
+      body: `${personName} with ID ${customId} punched ${punctuality} at ${time}`,
+      icon: pic
+    });
+
+    Swal.fire({
+      title: "Attendance Notification",
+      text: `${personName} with ID ${customId} punched ${punctuality} at ${time}`,
+      icon: "success",
+      toast: true,
+      position: "top-end",
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      heightAuto: false,
+    });
 
     // Insert new real-time record at the top, matching existing structure
     setRecords((prev) => [

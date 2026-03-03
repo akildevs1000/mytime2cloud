@@ -40,6 +40,15 @@ export default function Header() {
       .toUpperCase();
   }, [mounted, now]);
 
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      if (Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    }
+  }, []);
+
   // Sync state with document class on mount and when changed
   useEffect(() => {
     const root = window.document.documentElement;
