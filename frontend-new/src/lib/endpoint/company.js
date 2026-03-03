@@ -47,3 +47,9 @@ export const updateCompanyPin = async (pin) => {
     });
     return data;
 };
+
+export const updateCompanyPassword = async (payload = {}) => {
+    const id = getCompanyId();
+    const { data } = await api.post(`/company/${id}/update/user`, payload);
+    return data;
+};

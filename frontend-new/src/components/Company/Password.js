@@ -2,15 +2,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 import { SuccessDialog } from "@/components/SuccessDialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-
-import { User, ArrowLeft, Upload, Image, Briefcase, Badge, BaggageClaim, Building, Building2, Building2Icon, Info, Settings, Lock } from "lucide-react";
-import { convertFileToBase64,parseApiError } from "@/lib/utils";
-import { storeEmployee, updateContact, updatePassword } from "@/lib/api";
+import { parseApiError } from "@/lib/utils";
+import { updatePassword } from "@/lib/api";
 
 const CompanyPassword = () => {
 
@@ -21,12 +16,10 @@ const CompanyPassword = () => {
     password_confirmation: "",
   });
 
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [open, setOpen] = useState(false);
   const [globalError, setGlobalError] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,10 +29,6 @@ const CompanyPassword = () => {
       [name]: value,
     }));
 
-    setErrors((prev) => ({
-      ...prev,
-      [name]: undefined,
-    }));
   };
 
   const onSubmit = async (e) => {
@@ -61,70 +50,78 @@ const CompanyPassword = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <div className="lg:col-span-2 lg:pl-4">
-        <form onSubmit={onSubmit} className="space-y-8">
-          <section>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-6 flex items-center">
-              <Lock className="mr-3 h-6 w-6 text-primary" />
-              Password Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
-              <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Current Password
-                </label>
-                <Input
-                  name="current_password"
-                  value={formData.current_password}
-                  onChange={handleChange}
-                />
-              </div>
+    <div className="max-w-1xl">
+      <form onSubmit={onSubmit} className="space-y-6">
+        <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
+          <div className="flex items-center gap-4 mb-8">
+            <div className="p-3 rounded-xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+              <span className="material-symbols-outlined">lock</span>
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Password</h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400">Update company user password</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="md:col-span-2">
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+                Current Password
+              </label>
+              <input
+                type="password"
+                name="current_password"
+                value={formData.current_password || ""}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+              />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-5">
-              <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                  New Password
-                </label>
-                <Input
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="flex flex-col">
-                <label className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-200">
-                  Confirm New Password
-                </label>
-                <Input
-                  name="password_confirmation"
-                  value={formData.password_confirmation}
-                  onChange={handleChange}
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+                New Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                value={formData.password || ""}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+              />
             </div>
-          </section>
+
+            <div>
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                name="password_confirmation"
+                value={formData.password_confirmation || ""}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+              />
+            </div>
+          </div>
 
           {globalError && (
-            <div
-              className="mb-4 p-3 border border-red-500 bg-red-50 text-red-700 rounded-lg"
-              role="alert"
-            >
-              {globalError}
+            <div className="w-full mt-4">
+              <div className="p-3 rounded-lg border border-red-400/30 bg-red-500/10 text-red-600 dark:text-red-300 text-sm" role="alert">
+                {globalError}
+              </div>
             </div>
           )}
 
-          <div className="flex justify-end space-x-4 pt-4">
-            <Button
+          <div className="flex justify-end pt-6">
+            <button
               type="submit"
-              className="bg-primary hover:bg-indigo-700"
+              className="px-5 py-2.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
-            </Button>
+              {isSubmitting ? "Updating..." : "Update Password"}
+            </button>
           </div>
-        </form>
+        </section>
 
         <SuccessDialog
           open={open}
@@ -132,7 +129,7 @@ const CompanyPassword = () => {
           title="Password Change"
           description="Password Change successfully."
         />
-      </div>
+      </form>
     </div>
   );
 };

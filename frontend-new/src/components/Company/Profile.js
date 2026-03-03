@@ -5,7 +5,6 @@ import {
     getCompanyLogo,
     getCompanyProfile,
     updateCompanyLogo,
-    updateCompanyPin,
     updateCompanyProfile,
     updateCompanyProfileContact,
 } from "@/lib/endpoint/company";
@@ -22,7 +21,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
 
     const [isLoading, setIsLoading] = useState(parentLoading);
     const [isSaving, setIsSaving] = useState(false);
-    const [isPinSaving, setIsPinSaving] = useState(false);
     const [error, setError] = useState(null);
     const [logoDirty, setLogoDirty] = useState(false);
     const [companyQrImageUrl, setCompanyQrImageUrl] = useState("");
@@ -81,7 +79,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
             secondaryDesignation: "",
             secondaryEmail: "",
             secondaryPhone: "",
-            pin: profile?.pin || "",
             logo: null,
             timezone: "Option 1",
             currency: "Option 1",
@@ -129,7 +126,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                     secondaryDesignation: "",
                     secondaryEmail: "",
                     secondaryPhone: "",
-                    pin: company?.pin || "",
                     logo: logo || company?.logo || null,
                     timezone: "Option 1",
                     currency: "Option 1",
@@ -234,21 +230,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
             setError(parseApiError(err));
         } finally {
             setIsSaving(false);
-        }
-    };
-
-    const handlePinUpdate = async () => {
-        setError(null);
-        setIsPinSaving(true);
-        try {
-            await updateCompanyPin((form.pin || "").trim());
-            initialRef.current = { ...initialRef.current, pin: (form.pin || "").trim() };
-            setForm((prev) => ({ ...prev, pin: (prev.pin || "").trim() }));
-            notify("Saved", "Company PIN updated successfully.", "success");
-        } catch (err) {
-            setError(parseApiError(err));
-        } finally {
-            setIsPinSaving(false);
         }
     };
 
@@ -434,29 +415,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                         </div>
                     </section>
 
-                    <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
-                        <Header icon="pin" title="Company PIN" description="Set company PIN" />
-
-                        <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-                            <div className="flex-1">
-                                <Label>Pin</Label>
-                                <Input
-                                    name="pin"
-                                    value={form.pin}
-                                    onChange={handleChange}
-                                    placeholder="Enter company PIN"
-                                />
-                            </div>
-                            <button
-                                type="button"
-                                onClick={handlePinUpdate}
-                                disabled={isPinSaving}
-                                className="px-5 py-2.5 rounded-lg font-semibold bg-indigo-600 hover:bg-indigo-700 text-white transition disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                                {isPinSaving ? "Updating..." : "Update PIN"}
-                            </button>
-                        </div>
-                    </section>
                 </div>
             </div>
 
