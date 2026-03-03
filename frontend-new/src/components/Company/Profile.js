@@ -345,16 +345,6 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                             onChange={handleChange}
                         />
 
-                        <Divider title="Secondary Manager Contact" icon="supervisor_account" />
-                        <ContactGrid
-                            values={{
-                                name: form.secondaryName,
-                                designation: form.secondaryDesignation,
-                                phone: form.secondaryPhone,
-                            }}
-                            prefix="secondary"
-                            onChange={handleChange}
-                        />
                     </section>
                 </div>
 
@@ -401,51 +391,27 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
 
                         <div className="mb-8">
                             <Label>Company Logo</Label>
-                            <label className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 transition p-8 flex flex-col items-center gap-3 cursor-pointer">
-                                <div className="w-20 h-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center overflow-hidden">
+                            <label className="border border-slate-200 dark:border-slate-700 rounded-2xl bg-white/80 dark:bg-slate-800/70 hover:bg-white dark:hover:bg-slate-800 transition p-6 flex flex-col items-center gap-4 cursor-pointer shadow-sm">
+                                <div className="w-full rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/80 dark:bg-slate-900/50 p-5 flex items-center justify-center">
+                                    <div className="w-28 h-28 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl flex items-center justify-center overflow-hidden shadow-sm">
                                     {form.logo ? (
-                                        <img src={form.logo} alt="Company Logo" className="w-full h-full object-cover" />
+                                        <img src={form.logo} alt="Company Logo" className="w-full h-full object-contain p-2" />
                                     ) : (
                                         <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-4xl">
                                             cloud_circle
                                         </span>
                                     )}
+                                    </div>
                                 </div>
                                 <div className="text-center text-sm">
-                                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">Click to upload</span>
-                                    <span className="text-slate-500 dark:text-slate-400"> or drag & drop</span>
-                                    <p className="text-xs text-slate-400 mt-1">SVG, PNG, JPG (max 2MB)</p>
+                                    <span className="inline-flex items-center gap-1 font-semibold text-indigo-600 dark:text-indigo-400">
+                                        <span className="material-symbols-outlined text-base">upload</span>
+                                        {form.logo ? "Replace logo" : "Upload logo"}
+                                    </span>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">SVG, PNG, JPG (max 2MB)</p>
                                 </div>
                                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
                             </label>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 mb-8">
-                            <ColorPicker label="Primary" value="#4F46E5" />
-                            <ColorPicker label="Secondary" value="#10B981" />
-                        </div>
-
-                        <div>
-                            <Label>Favicon</Label>
-                            <div className="flex items-center gap-4 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white/60 dark:bg-slate-800/60">
-                                <div className="size-8 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-sm text-slate-400">star</span>
-                                </div>
-                                <p className="flex-1 text-xs text-slate-500 dark:text-slate-400 truncate">favicon.ico</p>
-                                <button className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Update</button>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
-                        <Header icon="public" title="Regional Settings" description="Localization and standards" />
-
-                        <div className="space-y-5">
-                            <SelectSideBar label="Timezone" name="timezone" value={form.timezone} onChange={handleChange} />
-                            <div className="grid grid-cols-2 gap-5">
-                                <SelectSideBar label="Currency" name="currency" value={form.currency} onChange={handleChange} />
-                                <SelectSideBar label="Language" name="language" value={form.language} onChange={handleChange} />
-                            </div>
                         </div>
                     </section>
                 </div>
