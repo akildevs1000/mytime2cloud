@@ -124,13 +124,31 @@ class EmployeeControllerNew extends Controller
             // Remove the Base64 string before creating the record
             unset($dataToStore['profile_image_base64']);
 
+            // Remove email and password from employee data (they belong to User model)
+            $email = $dataToStore['email'] ?? null;
+            $password = $dataToStore['password'] ?? null;
+            unset($dataToStore['email']);
+            unset($dataToStore['password']);
+
             // 8. Create the Employee record
             $employee = Employee::create($dataToStore);
 
-            // 9. Return a successful response
+            // 9. Create User record if email and password are provided
+            $user = null;
+            if (!empty($email) && !empty($password)) {
+                $user = User::create([
+                    'name' => $employee->full_name ?? $employee->first_name . ' ' . $employee->last_name,
+                    'email' => $email,
+                    'password' => $password, // Already hashed above
+                    'employee_id' => $employee->id,
+                ]);
+            }
+
+            // 10. Return a successful response
             return response()->json([
                 'message'  => 'Employee created successfully!',
                 'employee' => $employee,
+                'user' => $user,
             ], 201);
         } catch (ValidationException $e) {
 
