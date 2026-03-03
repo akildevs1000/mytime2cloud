@@ -20,6 +20,7 @@ import {
 } from 'recharts';
 import ProfilePicture from '../ProfilePicture';
 import { Download } from 'lucide-react';
+import { getUser } from '@/config/index';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -183,12 +184,16 @@ export default function ExecutiveAttendanceDashboardPage() {
   };
 
   const fetchAllData = async () => {
+
+    const user = await getUser();
+
     try {
       const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
       const payload = {
         ...dateRange,
         branch_ids: selectedBranchIds,
         department_ids: selectedDepartmentIds,
+        company_id: user?.company_id || 0,
       };
 
       const [statsResponse, hourlyTrendResponse, departmentResponse, punctualityResponse] = await Promise.all([
@@ -286,33 +291,35 @@ export default function ExecutiveAttendanceDashboardPage() {
   const handleExportPdf = async () => {
     try {
       setIsExporting(true);
+      const user = await getUser();
       const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
       const payload = {
         ...dateRange,
         branch_ids: selectedBranchIds,
         department_ids: selectedDepartmentIds,
+        company_id: user?.company_id || 0,
       };
 
-      const response = await downloadCompanyStatsSummaryPdf(payload);
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-
-      const contentDisposition = response.headers['content-disposition'];
-      let filename = 'attendance_summary.pdf';
-      if (contentDisposition) {
-        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match?.[1]) {
-          filename = match[1].replace(/['"]/g, '');
+      // Build query string from payload
+      const params = new URLSearchParams();
+      
+      // Add api_base for the HTML page to know where to call Laravel API
+      params.append('api_base', process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend.mytime2cloud.com/api');
+      
+      Object.entries(payload).forEach(([key, value]) => {
+        if (Array.isArray(value)) {
+          // Handle arrays by joining with comma
+          if (value.length > 0) {
+            params.append(key, value.join(','));
+          }
+        } else if (value !== undefined && value !== null) {
+          params.append(key, value);
         }
-      }
+      });
 
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      // Open the URL in a new tab with the parameters
+      const reportUrl = `http://127.0.0.1:5500/monthly-summary/index.html?${params.toString()}`;
+      window.open(reportUrl, '_blank');
     } catch (error) {
       console.error('Failed to export PDF:', error);
     } finally {
@@ -433,7 +440,7 @@ export default function ExecutiveAttendanceDashboardPage() {
             <button onClick={fetchAllData} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2">
               Submit
             </button> <button onClick={handleExportPdf} disabled={isExporting} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
-             <Download size={20} />
+              <Download size={20} />
               {isExporting ? 'Exporting...' : 'Export Report'}
             </button>
 
@@ -526,7 +533,7 @@ export default function ExecutiveAttendanceDashboardPage() {
             <div className="h-64 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barCategoryGap="28%">
-                  <CartesianGrid strokeDasharray="3 3"  stroke="#e2e8f0" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="label"
                     axisLine={false}
