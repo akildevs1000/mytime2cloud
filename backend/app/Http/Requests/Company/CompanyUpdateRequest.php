@@ -34,6 +34,10 @@ class CompanyUpdateRequest extends FormRequest
         }
 
         return [
+            'name' => ['nullable', 'string', 'max:255'],
+            'legal_name' => ['nullable', 'string', 'max:255'],
+            'industry' => ['nullable', 'string', 'max:255'],
+            'website' => ['nullable', 'string', 'max:255'],
             'member_from' => ['nullable', 'date'],
             'expiry' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:500'],
