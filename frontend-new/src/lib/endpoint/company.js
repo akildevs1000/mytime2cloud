@@ -38,3 +38,12 @@ export const updateCompanyLogo = async (logoBase64) => {
     });
     return data;
 };
+
+export const updateCompanyPin = async (pin) => {
+    const company_id = getCompanyId();
+    const { data } = await api.post(`/set-pin`, {
+        company_id,
+        pin,
+    });
+    return data;
+};
