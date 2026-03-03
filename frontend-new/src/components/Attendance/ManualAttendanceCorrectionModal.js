@@ -309,14 +309,11 @@ export default function ManualAttendanceCorrectionModal({
         const fallbackTime = ["in1", "out1", "in2", "out2"].map((key) => form?.[key]).find((value) => !!value);
 
         const payload = {
-            ...form,
-            evidenceName,
-            employee: activeEmployee,
             user_id: selectedEmployeeId,
             branch_id: activeEmployee?.branchId ?? 0,
+            date: form?.date || "",
             time: nextRequiredTime || fallbackTime || "",
-            logCount,
-            missingFieldKey,
+            device_id: "Manual",
         };
 
         onApply?.(payload);

@@ -370,24 +370,12 @@ export default function AttendanceTable() {
     fetchRecords(shiftTypeId)
   }, [shiftTypeId])
 
-  const resolveLogType = async ({ user_id, date, logCount, missingFieldKey }) => {
-    if (missingFieldKey) {
-      return String(missingFieldKey).startsWith('out') ? 'out' : 'in';
-    }
-
-    if (typeof logCount === 'number') {
-      return logCount % 2 === 0 ? 'in' : 'out';
-    }
-
+  const resolveLogType = async ({ user_id }) => {
     const response = await getDeviceLogs({
       page: 1,
       per_page: 1,
       sortDesc: true,
       UserID: user_id,
-      from_date: date,
-      to_date: date,
-      from_date_txt: date,
-      to_date_txt: date,
     });
 
     const latest = Array.isArray(response?.data)
@@ -403,20 +391,11 @@ export default function AttendanceTable() {
   const handleManualCorrectionApply = async (payload = {}) => {
     const user = getUser();
 
-    const user_id = payload?.user_id ?? payload?.employee?.id ?? payload?.employee?.user_id ?? payload?.employee?.system_user_id;
-    const branch_id = payload?.branch_id ?? payload?.employee?.branchId ?? payload?.employee?.branch_id ?? 0;
+    const user_id = payload?.user_id;
+    const branch_id = payload?.branch_id ?? 0;
     const date = payload?.date;
     const device_id = payload?.device_id || 'Manual';
-
-    const timeCandidates = [
-      payload?.time,
-      payload?.[payload?.missingFieldKey],
-      payload?.in1,
-      payload?.out1,
-      payload?.in2,
-      payload?.out2,
-    ].filter(Boolean);
-    const time = timeCandidates[0];
+    const time = payload?.time;
 
     if (!user_id || !date || !time) {
       notify('Warning', 'Please select employee, date, and time.', 'warning');
@@ -427,9 +406,6 @@ export default function AttendanceTable() {
     try {
       const log_type = await resolveLogType({
         user_id,
-        date,
-        logCount: payload?.logCount,
-        missingFieldKey: payload?.missingFieldKey,
       });
 
       let log_payload = {
