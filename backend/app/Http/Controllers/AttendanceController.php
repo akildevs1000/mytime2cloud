@@ -1087,6 +1087,287 @@ class AttendanceController extends Controller
             ->header('Expires', '0');
     }
 
+    public function companyStatsSummaryPdf(Request $request)
+    {
+        $request->merge([
+            'company_id' => $request->input('company_id', $request->input('companyId')),
+            'branch_id' => $request->input('branch_id', $request->input('branchId')),
+            'branch_ids' => $request->input('branch_ids', $request->input('branchIds')),
+            'department_ids' => $request->input('department_ids', $request->input('departmentIds')),
+            'from_date' => $request->input('from_date', $request->input('fromDate')),
+            'to_date' => $request->input('to_date', $request->input('toDate')),
+            'per_page' => 500,
+        ]);
+
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $companyId = (int) $request->company_id;
+
+        $company = \App\Models\Company::find($companyId);
+        $companyName = $company?->name ?? 'WorkDay Analytics';
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $startMonth = Carbon::parse($currentStart)->format('F Y');
+        $endMonth = Carbon::parse($currentEnd)->format('F Y');
+        $periodLabel = $startMonth === $endMonth ? $startMonth : "$startMonth - $endMonth";
+        $generatedDate = $now->format('F jS, Y');
+
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $stats = $this->companyStats($request)->getData(true);
+        $hourlyTrends = $this->companyStatsHourlyTrends($request)->getData(true);
+        $departmentBreakdown = $this->companyStatsDepartmentBreakdown($request)->getData(true);
+        $punctuality = $this->companyStatsPunctuality($request)->getData(true);
+
+        $absentThreshold = (float) $request->input('absent_threshold', 15);
+        $lateThreshold = (int) $request->input('late_threshold', 3);
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+        $employeeIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        $attentionRows = collect();
+        if ($employeeIds->isNotEmpty()) {
+            $attentionRows = Attendance::query()
+                ->where('company_id', $companyId)
+                ->whereIn('employee_id', $employeeIds)
+                ->whereBetween('date', [$currentStart, $currentEnd])
+                ->selectRaw("employee_id,
+                    SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as total_days,
+                    SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as absent_days,
+                    SUM(CASE WHEN late_coming != '---' THEN 1 ELSE 0 END) as late_days")
+                ->groupBy('employee_id')
+                ->havingRaw("SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) > 0")
+                ->get();
+        }
+
+        $employeeMap = Employee::query()
+            ->where('company_id', $companyId)
+            ->whereIn('system_user_id', $attentionRows->pluck('employee_id')->toArray())
+            ->with(['department'])
+            ->get(['system_user_id', 'first_name', 'last_name', 'display_name', 'profile_picture', 'department_id'])
+            ->keyBy('system_user_id');
+
+        $highAbsenteeism = $attentionRows
+            ->map(function ($row) use ($employeeMap) {
+                $employee = $employeeMap->get((int) $row->employee_id);
+                $totalDays = (int) $row->total_days;
+                $absentDays = (int) $row->absent_days;
+                $absentRate = $totalDays > 0 ? round(($absentDays / $totalDays) * 100, 1) : 0;
+                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($employee?->display_name ?? 'Unknown');
+                }
+                return [
+                    'name' => $name,
+                    'department' => (string) ($employee?->department?->name ?? '---'),
+                    'img' => $employee?->profile_picture ?: null,
+                    'absent_days' => $absentDays,
+                    'absent_rate' => $absentRate,
+                ];
+            })
+            ->filter(fn($item) => $item['absent_rate'] >= $absentThreshold)
+            ->sortByDesc('absent_rate')
+            ->take(5)
+            ->values()
+            ->toArray();
+
+        $frequentLateIns = $attentionRows
+            ->map(function ($row) use ($employeeMap) {
+                $employee = $employeeMap->get((int) $row->employee_id);
+                $lateDays = (int) $row->late_days;
+                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($employee?->display_name ?? 'Unknown');
+                }
+                return [
+                    'name' => $name,
+                    'department' => (string) ($employee?->department?->name ?? '---'),
+                    'img' => $employee?->profile_picture ?: null,
+                    'late_days' => $lateDays,
+                ];
+            })
+            ->filter(fn($item) => $item['late_days'] >= $lateThreshold)
+            ->sortByDesc('late_days')
+            ->take(5)
+            ->values()
+            ->toArray();
+
+        // Detailed employee statistics for page 2 table
+        $detailRows = Attendance::query()
+            ->join('employees', function ($join) use ($companyId) {
+                $join->on('employees.system_user_id', '=', 'attendances.employee_id')
+                    ->where('employees.company_id', '=', $companyId);
+            })
+            ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->where('attendances.company_id', $companyId)
+            ->whereBetween('attendances.date', [$currentStart, $currentEnd])
+            ->when(!empty($branchIds), fn($q) => $q->whereIn('employees.branch_id', $branchIds))
+            ->when(!empty($departmentIds), fn($q) => $q->whereIn('employees.department_id', $departmentIds))
+            ->selectRaw("
+                employees.system_user_id,
+                employees.first_name,
+                employees.last_name,
+                employees.display_name,
+                employees.profile_picture,
+                COALESCE(departments.name, '---') as department_name,
+                SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
+                SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
+                SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
+                SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
+                SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
+                SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as late_in_count,
+                SUM(CASE WHEN attendances.early_going != '---' THEN 1 ELSE 0 END) as early_out_count,
+                " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
+                " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
+                " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "
+            ")
+            ->groupBy(
+                'employees.system_user_id',
+                'employees.first_name',
+                'employees.last_name',
+                'employees.display_name',
+                'employees.profile_picture',
+                'departments.name'
+            )
+            ->havingRaw("SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) > 0")
+            ->orderByDesc('days_present')
+            ->orderBy('employees.first_name')
+            ->limit(500)
+            ->get();
+
+        $daysElapsed = max(1, $selectedStart->copy()->diffInDays($selectedEnd) + 1);
+        $standardHoursPerDay = 10;
+        $requiredHoursBase = $standardHoursPerDay;
+
+        $employeeDetails = $detailRows->map(function ($row) use ($requiredHoursBase) {
+            $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+            if ($name === '') {
+                $name = (string) ($row->display_name ?? 'Unknown');
+            }
+
+            $daysPresent = (int) ($row->days_present ?? 0);
+            $totalDays = (int) ($row->total_days ?? 0);
+            $daysAbsent = (int) ($row->days_absent ?? 0);
+            $daysLeave = (int) ($row->days_leave ?? 0);
+            $manualLogs = (int) ($row->manual_logs ?? 0);
+            $lateInCount = (int) ($row->late_in_count ?? 0);
+            $earlyOutCount = (int) ($row->early_out_count ?? 0);
+
+            $avgCheckinMin = (float) ($row->avg_checkin_minutes ?? 0);
+            $avgCheckoutMin = (float) ($row->avg_checkout_minutes ?? 0);
+
+            $avgCheckin = $avgCheckinMin > 0
+                ? sprintf('%02d:%02d', intdiv((int)$avgCheckinMin, 60), ((int)$avgCheckinMin) % 60)
+                : '---';
+            $avgCheckout = $avgCheckoutMin > 0
+                ? sprintf('%02d:%02d', intdiv((int)$avgCheckoutMin, 60), ((int)$avgCheckoutMin) % 60)
+                : '---';
+
+            $totalWorkingMinutes = (float) ($row->total_working_minutes ?? 0);
+            $totalHours = round($totalWorkingMinutes / 60);
+            $avgWorkingHrs = $daysPresent > 0 ? round($totalWorkingMinutes / 60 / $daysPresent, 2) : 0;
+            $requiredHours = $totalDays * $requiredHoursBase;
+            $performance = $requiredHours > 0 ? min(100, round(($totalHours / $requiredHours) * 100)) : 0;
+
+            return [
+                'name' => $name,
+                'department' => (string) ($row->department_name ?? '---'),
+                'img' => $row->profile_picture ?: null,
+                'present' => $daysPresent,
+                'absent' => $daysAbsent,
+                'leave' => $daysLeave,
+                'manual_logs' => $manualLogs,
+                'avg_checkin' => $avgCheckin,
+                'avg_checkout' => $avgCheckout,
+                'late_in' => $lateInCount,
+                'early_out' => $earlyOutCount,
+                'avg_working_hrs' => number_format($avgWorkingHrs, 2),
+                'total_hours' => $totalHours,
+                'required_hours' => $requiredHours,
+                'performance' => $performance,
+            ];
+        })->values()->toArray();
+
+        $pdfData = [
+            'companyName' => $companyName,
+            'generatedDate' => $generatedDate,
+            'periodLabel' => $periodLabel,
+            'stats' => $stats['stats'] ?? [],
+            'hourlyTrends' => $hourlyTrends['data'] ?? [],
+            'departmentBreakdown' => $departmentBreakdown['data'] ?? [],
+            'punctualityTop' => $punctuality['data'] ?? [],
+            'highAbsenteeism' => $highAbsenteeism,
+            'frequentLateIns' => $frequentLateIns,
+            'employeeDetails' => $employeeDetails,
+        ];
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.company_summary_report', $pdfData)
+            ->setPaper('a4', 'landscape');
+
+        $filename = 'attendance_summary_' . str_replace(' ', '_', strtolower($periodLabel)) . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    private function buildAvgTimeSelect(string $column, string $alias): string
+    {
+        return "AVG(
+            CASE
+                WHEN {$column} IS NOT NULL
+                    AND {$column} != '---'
+                    AND {$column} != ''
+                    AND {$column} REGEXP '^[0-9]{1,2}:[0-9]{2}'
+                THEN HOUR({$column}) * 60 + MINUTE({$column})
+                ELSE NULL
+            END
+        ) as {$alias}";
+    }
+
+    private function buildSumDurationSelect(string $column, string $alias): string
+    {
+        return "SUM(
+            CASE
+                WHEN {$column} IS NOT NULL
+                    AND {$column} != '---'
+                    AND {$column} != ''
+                    AND {$column} REGEXP '^[0-9]{1,2}:[0-9]{2}'
+                THEN HOUR({$column}) * 60 + MINUTE({$column})
+                ELSE 0
+            END
+        ) as {$alias}";
+    }
+
     private function resolveAttendanceHour($timeValue): int
     {
         if (!is_string($timeValue)) {

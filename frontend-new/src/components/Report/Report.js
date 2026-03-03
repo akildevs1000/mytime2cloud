@@ -35,6 +35,20 @@ export default function AttendanceTable() {
 
   const [isOpen, setIsOpen] = useState(false);
 
+  // Helper to get current month's first and last day (matching Vue behavior)
+  const getDefaultDateRange = () => {
+    const dt = new Date();
+    const y = dt.getFullYear();
+    const m = dt.getMonth() + 1;
+    const lastDay = new Date(y, m, 0).getDate(); // Last day of current month
+    const mm = m < 10 ? `0${m}` : m;
+    return {
+      from: `${y}-${mm}-01`,
+      to: `${y}-${mm}-${lastDay < 10 ? '0' + lastDay : lastDay}`,
+    };
+  };
+
+  const defaultDates = getDefaultDateRange();
 
   // filters
   const [shiftTypeId, setShiftTypeId] = useState(`0`);
@@ -44,8 +58,8 @@ export default function AttendanceTable() {
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState([]);
   const [selectedReportTemplate, setSelectedReportTemplate] = useState("Template1");
 
-  const [from, setFrom] = useState(null);
-  const [to, setTo] = useState(null);
+  const [from, setFrom] = useState(defaultDates.from);
+  const [to, setTo] = useState(defaultDates.to);
 
   const [records, setAttendance] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +79,7 @@ export default function AttendanceTable() {
   const [isButtonclicked, setIsButtonclicked] = useState(false);
 
   const [tabs, setTabs] = useState([]);
-  const [orginalTabSet, setOriginalTabSet] = useState({});
+  const [orginalTabSet, setOriginalTabSet] = useState({ single: true, double: true, multi: true });
 
 
   const fetchStatuses = async () => {
@@ -173,22 +187,25 @@ export default function AttendanceTable() {
     setError(null);
 
     try {
+      // Match Vue frontend payload exactly
       const params = {
         page: currentPage,
         per_page: perPage,
+        report_type: 'Monthly',  // CRITICAL: Backend uses this to determine date filtering
         shift_type_id: shiftTypeId,
         report_template: selectedReportTemplate,
+        overtime: 0,
         from_date: formatDateDubai(from),
         to_date: formatDateDubai(to),
         employee_id: selectedEmployeeIds,
         statuses: selectedStatusIds,
         department_ids: selectedDepartmentIds,
-        showTabs: JSON.stringify({ single: true, double: true, multi: true }),
+        showTabs: JSON.stringify(orginalTabSet),
       };
 
 
       setParams(params);
-      console.log(params);
+      console.log('Attendance Report Params:', params);
 
       const result = await getAttendanceReports(params);
 
@@ -217,10 +234,14 @@ export default function AttendanceTable() {
       return;
     }
 
-    if (
-      !selectedReportTemplate
-    ) {
+    if (!selectedReportTemplate) {
       notify("Warning", "Template not selected", "warning");
+      return;
+    }
+
+    // Validate date range
+    if (!from || !to) {
+      notify("Warning", "Date range must be selected", "warning");
       return;
     }
 
@@ -230,24 +251,30 @@ export default function AttendanceTable() {
       const endpointPrefix = isMultiShift ? "multi_in_out_" : "";
       const baseUrl = `${API_BASE_URL}/${endpointPrefix}${type}`;
 
-      const user = await getUser();
-
-      console.log(user);
-
+      const user = getUser();
 
       let company_id = user?.company_id ?? 0;
+      let branch_id = user?.branch_id ?? null;
 
-      // Common parameters used in most logic branches
+      const fromDate = formatDateDubai(from);
+      const toDate = formatDateDubai(to);
+
+      // Common parameters used in most logic branches (matching Vue exactly)
       const commonParams = {
         report_template: selectedReportTemplate,
         main_shift_type: shiftTypeId,
         shift_type_id: shiftTypeId,
         company_id: company_id,
         report_type: 'Monthly',
-        from_date: formatDateDubai(from),
-        to_date: formatDateDubai(to),
-        showTabs: JSON.stringify(shiftTabMapping[shiftTypeId]),
+        from_date: fromDate,
+        to_date: toDate,
+        showTabs: JSON.stringify(orginalTabSet),  // Use actual tab set from API, not hardcoded
       };
+
+      // Add branch_id if user has one (matching buildQueryParams behavior)
+      if (branch_id && branch_id !== 0) {
+        commonParams.branch_id = branch_id;
+      }
 
       if (selectedReportTemplate == 'Template3' && actionType == 'PDF') {
         setIsOpen(true);
@@ -259,8 +286,8 @@ export default function AttendanceTable() {
         const t4Params = new URLSearchParams({
           employee_ids: selectedEmployeeIds.join(","),
           company_id: company_id,
-          from_date: commonParams.from_date,
-          to_date: commonParams.to_date,
+          from_date: fromDate,
+          to_date: toDate,
           shift_type_id: shiftTypeId,
           company_name: "Hilal & Co",
         });
@@ -269,18 +296,28 @@ export default function AttendanceTable() {
         return;
       }
 
-      // 2. Prepare the Query String for other actions
+      // 2. Prepare the Query String for other actions (matching Vue frontend format)
       const queryObj = new URLSearchParams(commonParams);
 
       if (selectedDepartmentIds?.length > 0) {
         queryObj.append("department_ids", selectedDepartmentIds.join(","));
       }
 
-      queryObj.append("employee_id", selectedEmployeeIds); // Note: passes as string/comma-sep
+      // Pass employee_id as comma-separated string (same as Vue frontend)
+      queryObj.append("employee_id", selectedEmployeeIds.join(","));
       queryObj.append("employee_ids", selectedEmployeeIds.join(","));
+
+      // Always add status parameter (matching Vue frontend - it always includes this)
+      queryObj.append("status", selectedStatusIds.join(","));
+      // Also add statuses param (Vue sends statuses array)
+      queryObj.append("statuses", selectedStatusIds.join(","));
 
       const fullQsUrl = `${baseUrl}?${queryObj.toString()}`;
 
+      // Debug: Log the full URL being used for CSV/PDF download
+      console.log('CSV/PDF Download URL:', fullQsUrl);
+      console.log('Date range:', { from, to, fromDate, toDate });
+      console.log('Employees:', selectedEmployeeIds);
 
       // 3. Handle PDF/Async Generation
       if (actionType !== "EXCEL") {

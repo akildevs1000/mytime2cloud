@@ -34,7 +34,7 @@ const attendanceMenu = [
   { href: "/attendance", icon: FileText, label: "Reports" },
   { href: "/logs", icon: History, label: "Device Logs" },
   { href: "/attendance/change_request", icon: File, label: "Change Request" },
-  { href: "/access_control_logs", icon: Lock, label: "Access Control Logs" },
+  // { href: "/access_control_logs", icon: Lock, label: "Access Control Logs" },
 ];
 
 const companyMenu = [
@@ -85,8 +85,7 @@ export const leftNavLinks = {
   "/attendance": attendanceMenu,
   "/reports": attendanceMenu,
   "/logs": attendanceMenu,
-  "/access_control_logs": attendanceMenu,
-
+  // "/access_control_logs": attendanceMenu,
 
   "/setup": companyMenu,
   "/company": companyMenu,
@@ -95,5 +94,8 @@ export const leftNavLinks = {
   "/department-tabs": companyMenu,
   "/device": companyMenu,
   "/payslips": companyMenu,
+  "/geo-fencing": companyMenu,
+  "/live-tracker": companyMenu,
+
 
 };
