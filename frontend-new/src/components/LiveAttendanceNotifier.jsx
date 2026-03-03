@@ -11,7 +11,7 @@ export default function LiveAttendanceNotifier() {
   const user = getUser();
   const { showNotification } = useBrowserNotification();
   const { lastAttendanceEvent } = useLiveAttendance();
-  const lastShownEventRef = useRef({ signature: null, shownAt: 0 });
+  const seenEventsRef = useRef(new Map());
 
   const showAttendanceNotification = useCallback(
     ({ personName, customId, time, pic, punctuality, actionText }) => {
@@ -20,13 +20,22 @@ export default function LiveAttendanceNotifier() {
       const readableAction = actionText || `punched ${punctuality}`;
       const signature = `${customId || "--"}-${personName}-${time}-${readableAction}`;
       const now = Date.now();
+      const dedupeWindowMs = 60 * 1000;
+      const lastShownAt = seenEventsRef.current.get(signature);
       const isRecentDuplicate =
-        lastShownEventRef.current.signature === signature &&
-        now - lastShownEventRef.current.shownAt < 1500;
+        typeof lastShownAt === "number" && now - lastShownAt < dedupeWindowMs;
 
       if (isRecentDuplicate) return;
 
-      lastShownEventRef.current = { signature, shownAt: now };
+      seenEventsRef.current.set(signature, now);
+
+      if (seenEventsRef.current.size > 200) {
+        for (const [key, shownAt] of seenEventsRef.current) {
+          if (now - shownAt > dedupeWindowMs) {
+            seenEventsRef.current.delete(key);
+          }
+        }
+      }
 
       showNotification({
         title: "Attendance Notification",
@@ -63,8 +72,6 @@ export default function LiveAttendanceNotifier() {
         incoming.data && typeof incoming.data === "object"
           ? incoming.data
           : incoming;
-
-      console.log(rawPayload);
 
       const payload = Array.isArray(rawPayload) ? rawPayload[0] : rawPayload;
 
