@@ -461,95 +461,89 @@ export default function AttendanceTable() {
 
 
   return (
-    <div className='p-10'>
-      <div className="flex flex-wrap items-center justify-between space-x-3 space-y-2 mb-6 sm:space-y-0">
+    <div className='pt-2 pb-4 px-3 md:pt-2 md:pb-6 md:px-6 lg:pt-2 lg:pb-8 lg:px-10 overflow-x-hidden'>
+      <h3 className="text-2xl font-extrabold text-gray-600 dark:text-slate-300 flex items-center">
+        Attendance Report
+      </h3>
 
-        <div className='flex gap-5'>
-          <h1 className="text-2xl font-extrabold text-gray-600 dark:text-slate-300 flex items-center">
-            {/* <User className="w-7 h-7 mr-3 text-indigo-600" /> */}
-            Attendance Report
-          </h1>
 
-          <div className="flex flex-col">
-            <MultiDropDown
-              placeholder={'Select Status'}
-              items={statusses}
-              value={selectedStatusIds}
-              onChange={setSelectedStatusIds}
-              badgesCount={1}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <MultiDropDown
-              placeholder={'Select Branch'}
-              items={branches}
-              value={selectedBranchIds}
-              onChange={setSelectedBranchIds}
-              badgesCount={1}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <MultiDropDown
-              placeholder={'Select Department'}
-              items={departments}
-              value={selectedDepartmentIds}
-              onChange={setSelectedDepartment}
-              badgesCount={1}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <MultiDropDown
-              placeholder={'Select Employees'}
-              items={scheduledEmployees}
-              value={selectedEmployeeIds}
-              onChange={setSelectedEmployeeIds}
-              badgesCount={1}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <DropDown
-              placeholder={'Select Report Template'}
-              onChange={setSelectedReportTemplate}
-              value={selectedReportTemplate}
-              items={reportTemplates}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <DateRangeSelect
-              value={{ from, to }}
-              onChange={({ from, to }) => {
-                setFrom(from);
-                setTo(to);
-              }
-              } />
-          </div>
-
-          {/* Refresh Button */}
-          <button onClick={handleSubmit} className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
-            <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} /> Submit
-          </button>
+      <div className='flex flex-wrap items-center gap-2 my-2'>
+        <div className="flex flex-col min-w-[180px]">
+          <MultiDropDown
+            placeholder={'Select Status'}
+            items={statusses}
+            value={selectedStatusIds}
+            onChange={setSelectedStatusIds}
+            badgesCount={1}
+          />
         </div>
 
+        <div className="flex flex-col min-w-[180px]">
+          <MultiDropDown
+            placeholder={'Select Branch'}
+            items={branches}
+            value={selectedBranchIds}
+            onChange={setSelectedBranchIds}
+            badgesCount={1}
+          />
+        </div>
 
+        <div className="flex flex-col min-w-[180px]">
+          <MultiDropDown
+            placeholder={'Select Department'}
+            items={departments}
+            value={selectedDepartmentIds}
+            onChange={setSelectedDepartment}
+            badgesCount={1}
+          />
+        </div>
 
+        <div className="flex flex-col min-w-[220px]">
+          <MultiDropDown
+            placeholder={'Select Employees'}
+            items={scheduledEmployees}
+            value={selectedEmployeeIds}
+            onChange={setSelectedEmployeeIds}
+            badgesCount={1}
+          />
+        </div>
+
+        <div className="flex flex-col min-w-[200px]">
+          <DropDown
+            placeholder={'Select Report Template'}
+            onChange={setSelectedReportTemplate}
+            value={selectedReportTemplate}
+            items={reportTemplates}
+          />
+        </div>
+
+        <div className="flex flex-col min-w-[240px]">
+          <DateRangeSelect
+            value={{ from, to }}
+            onChange={({ from, to }) => {
+              setFrom(from);
+              setTo(to);
+            }
+            } />
+        </div>
+
+        {/* Refresh Button */}
+        <button onClick={handleSubmit} className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
+          <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} /> Submit
+        </button>
       </div>
 
-      <div className='flex'>
+      <div className='w-full'>
         <Tabs
           value={shiftTypeId || '0'}
           onValueChange={(value) => setShiftTypeId(value)}
           className="w-full"
         >
           {/* --- Tabs Header --- */}
-          <div className="flex justify-between mb-4">
+          <div className="">
             {
-              tabs.length > 0 && <div className="flex justify-between p-2 bg-white dark:bg-slate-800 w-full rounded-lg shadow">
-                <TabsList className="flex bg-white dark:bg-slate-700 p-1">
+              tabs.length > 0 && <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 p-2 bg-white dark:bg-slate-800 w-full rounded-lg shadow">
+                <TabsList className="flex flex-wrap bg-white dark:bg-slate-700 p-1">
                   {tabs.map((tab) => (
                     <TabsTrigger
                       key={tab.id}
@@ -561,7 +555,7 @@ export default function AttendanceTable() {
                   ))}
                 </TabsList>
 
-                <div className='flex gap-2'>
+                <div className='flex flex-wrap gap-2'>
 
                   <div className="relative">
                     <button
