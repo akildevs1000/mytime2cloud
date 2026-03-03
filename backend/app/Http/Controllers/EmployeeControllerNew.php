@@ -142,6 +142,10 @@ class EmployeeControllerNew extends Controller
                     'password' => $password, // Already hashed above
                     'employee_id' => $employee->id,
                 ]);
+
+                // Update employee with user_id
+                $employee->update(['user_id' => $user->id]);
+                $employee->refresh();
             }
 
             // 10. Return a successful response
