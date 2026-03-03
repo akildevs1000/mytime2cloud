@@ -678,6 +678,43 @@ class ScheduleEmployeeController extends Controller
         }
     }
 
+    public function employee_related_shift(Request $request, $id)
+    {
+        $today = date('Y-m-d');
+
+        $schedule = ScheduleEmployee::query()
+            ->where('company_id', $request->company_id)
+            ->where('employee_id', $id)
+            ->where('from_date', '<=', $today)
+            ->where('to_date', '>=', $today)
+            ->with(['shift:id,name,shift_name,on_duty_time,off_duty_time', 'shift_type:id,name'])
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+        if (!$schedule) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No active shift found for employee.',
+                'record' => null,
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'record' => [
+                'employee_id' => $schedule->employee_id,
+                'shift_id' => $schedule->shift_id,
+                'shift_type_id' => $schedule->shift_type_id,
+                'shift_name' => $schedule->shift->name ?? $schedule->shift->shift_name ?? '---',
+                'on_duty_time' => $schedule->shift->on_duty_time ?? null,
+                'off_duty_time' => $schedule->shift->off_duty_time ?? null,
+                'shift_type_name' => $schedule->shift_type->name ?? '---',
+                'from_date' => $schedule->from_date,
+                'to_date' => $schedule->to_date,
+            ],
+        ]);
+    }
+
 
     public function scheduleStats()
     {
