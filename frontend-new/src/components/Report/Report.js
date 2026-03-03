@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Eye, File, Printer, RefreshCw } from 'lucide-react';
+import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
+import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getDeviceLogs, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
 import DropDown from '@/components/ui/DropDown';
 import DateRangeSelect from "@/components/ui/DateRange";
@@ -13,10 +13,11 @@ import Columns from "./columns";
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { formatDateDubai, notify, parseApiError } from '@/lib/utils';
 import RegenerateReport from '@/components/Report/Regenerate';
-import { getAttendanceTabs, startReportGeneration } from '@/lib/endpoint/attendance';
+import { generateManualLog, getAttendanceTabs, startReportGeneration } from '@/lib/endpoint/attendance';
 import LoadingProgressDialog from './LoadingProgressDialog';
 import { API_BASE_URL } from '@/config';
 import { getUser } from "@/config/index";
+import ManualAttendanceCorrectionModal from '../Attendance/ManualAttendanceCorrectionModal';
 
 const shiftTabMapping = {
   '0': { single: true, double: false, multi: false },
@@ -34,6 +35,7 @@ const reportTemplates = [
 export default function AttendanceTable() {
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isManualSubmitting, setIsManualSubmitting] = useState(false);
 
   // Helper to get current month's first and last day (matching Vue behavior)
   const getDefaultDateRange = () => {
@@ -171,6 +173,20 @@ export default function AttendanceTable() {
 
   const [params, setParams] = useState(null);
 
+  const normalizeId = (value) => String(value ?? "");
+  const selectedIdSet = new Set((selectedEmployeeIds || []).map((id) => normalizeId(id)));
+
+  const getEmployeePrimaryId = (emp) =>
+    normalizeId(emp?.system_user_id ?? emp?.user_id ?? emp?.id ?? emp?.employee_id);
+
+  const selectedEmployee = selectedEmployeeIds?.length
+    ? scheduledEmployees?.find((emp) => selectedIdSet.has(getEmployeePrimaryId(emp)))
+    : null;
+
+  const correctionEmployees = selectedEmployeeIds?.length
+    ? scheduledEmployees.filter((emp) => selectedIdSet.has(getEmployeePrimaryId(emp)))
+    : scheduledEmployees;
+
 
   const fetchRecords = async (shiftTypeId) => {
 
@@ -246,7 +262,7 @@ export default function AttendanceTable() {
     }
 
     try {
-      
+
       const isMultiShift = [2, 5].includes(Number(shiftTypeId));
       const endpointPrefix = isMultiShift ? "multi_in_out_" : "";
       const baseUrl = `${API_BASE_URL}/${endpointPrefix}${type}`;
@@ -354,6 +370,95 @@ export default function AttendanceTable() {
     fetchRecords(shiftTypeId)
   }, [shiftTypeId])
 
+  const resolveLogType = async ({ user_id, date, logCount, missingFieldKey }) => {
+    if (missingFieldKey) {
+      return String(missingFieldKey).startsWith('out') ? 'out' : 'in';
+    }
+
+    if (typeof logCount === 'number') {
+      return logCount % 2 === 0 ? 'in' : 'out';
+    }
+
+    const response = await getDeviceLogs({
+      page: 1,
+      per_page: 1,
+      sortDesc: true,
+      UserID: user_id,
+      from_date: date,
+      to_date: date,
+      from_date_txt: date,
+      to_date_txt: date,
+    });
+
+    const latest = Array.isArray(response?.data)
+      ? response.data?.[0]
+      : Array.isArray(response)
+        ? response?.[0]
+        : null;
+
+    const latestType = String(latest?.log_type || '').toLowerCase();
+    return ['in', 'auto'].includes(latestType) ? 'out' : 'in';
+  };
+
+  const handleManualCorrectionApply = async (payload = {}) => {
+    const user = getUser();
+
+    const user_id = payload?.user_id ?? payload?.employee?.id ?? payload?.employee?.user_id ?? payload?.employee?.system_user_id;
+    const branch_id = payload?.branch_id ?? payload?.employee?.branchId ?? payload?.employee?.branch_id ?? 0;
+    const date = payload?.date;
+    const device_id = payload?.device_id || 'Manual';
+
+    const timeCandidates = [
+      payload?.time,
+      payload?.[payload?.missingFieldKey],
+      payload?.in1,
+      payload?.out1,
+      payload?.in2,
+      payload?.out2,
+    ].filter(Boolean);
+    const time = timeCandidates[0];
+
+    if (!user_id || !date || !time) {
+      notify('Warning', 'Please select employee, date, and time.', 'warning');
+      return;
+    }
+
+    setIsManualSubmitting(true);
+    try {
+      const log_type = await resolveLogType({
+        user_id,
+        date,
+        logCount: payload?.logCount,
+        missingFieldKey: payload?.missingFieldKey,
+      });
+
+      let log_payload = {
+        branch_id,
+        UserID: user_id,
+        LogTime: date + ' ' + time,
+        DeviceID: device_id,
+        company_id: user?.company_id,
+        log_type,
+      };
+
+      const response = await generateManualLog(log_payload);
+
+      if (response?.status === false) {
+        throw new Error(response?.message || 'Unable to submit manual log.');
+      }
+
+      notify('Saved', response?.message || 'Correction submitted successfully.', 'success');
+      setIsOpen(false);
+      if (isButtonclicked) {
+        fetchRecords(shiftTypeId);
+      }
+    } catch (error) {
+      notify('Error', parseApiError(error), 'error');
+    } finally {
+      setIsManualSubmitting(false);
+    }
+  };
+
 
   return (
     <div className='p-10'>
@@ -458,6 +563,16 @@ export default function AttendanceTable() {
 
                 <div className='flex gap-2'>
 
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsOpen(true)}
+                      className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+                    >
+                      <Pencil size={15} />
+                      Manual Log
+                    </button>
+                  </div>
+
                   <RegenerateReport shift_type_id={shiftTypeId} />
 
                   <button onClick={() => process_file_in_child_comp('monthly_download_pdf', `PDF`)}
@@ -513,7 +628,25 @@ export default function AttendanceTable() {
         onClose={() => setIsProgressOpen(false)}
       />
 
-      
+      <ManualAttendanceCorrectionModal
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        onApply={handleManualCorrectionApply}
+        isSubmitting={isManualSubmitting}
+        employees={correctionEmployees}
+        employee={{
+          name: selectedEmployee?.full_name || "Employee",
+          code: selectedEmployee?.employee_id || "---",
+          branch_id: selectedEmployee?.branch_id || 0,
+          department: selectedEmployee?.department?.name || "---",
+          avatar: selectedEmployee?.picture || "",
+        }}
+        initialData={{
+          date: from || "",
+        }}
+      />
+
+
     </div>
   );
 }
