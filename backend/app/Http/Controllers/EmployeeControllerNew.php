@@ -136,12 +136,25 @@ class EmployeeControllerNew extends Controller
             // 9. Create User record if email and password are provided
             $user = null;
             if (!empty($email) && !empty($password)) {
-                $user = User::create([
-                    'name' => $employee->full_name ?? $employee->first_name . ' ' . $employee->last_name,
-                    'email' => $email,
-                    'password' => $password, // Already hashed above
-                    'employee_id' => $employee->id,
-                ]);
+                // Check if user with this email already exists
+                $existingUser = User::where('email', $email)->first();
+                
+                if ($existingUser) {
+                    // Update existing user and link to new employee
+                    $existingUser->update([
+                        'password' => $password,
+                        'employee_id' => $employee->id,
+                    ]);
+                    $user = $existingUser;
+                } else {
+                    // Create new user
+                    $user = User::create([
+                        'name' => $employee->full_name ?? $employee->first_name . ' ' . $employee->last_name,
+                        'email' => $email,
+                        'password' => $password, // Already hashed above
+                        'employee_id' => $employee->id,
+                    ]);
+                }
 
                 // Update employee with user_id
                 $employee->update(['user_id' => $user->id]);
