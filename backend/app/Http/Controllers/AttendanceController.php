@@ -741,7 +741,7 @@ class AttendanceController extends Controller
             'to_date' => 'nullable|date',
             'search' => 'nullable|string',
             'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:100',
+            'per_page' => 'nullable|integer|min:1|max:500',
         ]);
 
         $companyId = (int) $request->company_id;
@@ -753,7 +753,7 @@ class AttendanceController extends Controller
         $search = trim((string) $request->input('search', ''));
         $normalizedSearch = strtolower($search);
         $page = max(1, (int) $request->input('page', 1));
-        $perPage = max(1, min(100, (int) $request->input('per_page', 10)));
+        $perPage = max(1, min(500, (int) $request->input('per_page', 10)));
 
         $now = Carbon::now();
         $selectedStart = $request->filled('from_date')
@@ -802,7 +802,15 @@ class AttendanceController extends Controller
                 employees.profile_picture,
                 COALESCE(departments.name, '---') as department_name,
                 SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
-                SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days")
+                SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
+                SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
+                SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
+                SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
+                SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as late_in_count,
+                SUM(CASE WHEN attendances.early_going != '---' THEN 1 ELSE 0 END) as early_out_count,
+                " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
+                " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
+                " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "")
             ->groupBy(
                 'employees.system_user_id',
                 'employees.employee_id',
@@ -845,8 +853,24 @@ class AttendanceController extends Controller
             }
 
             $daysPresent = (int) ($row->days_present ?? 0);
+            $daysAbsent = (int) ($row->days_absent ?? 0);
+            $daysLeave = (int) ($row->days_leave ?? 0);
+            $manualLogs = (int) ($row->manual_logs ?? 0);
             $totalDays = (int) ($row->total_days ?? 0);
+            $lateInCount = (int) ($row->late_in_count ?? 0);
+            $earlyOutCount = (int) ($row->early_out_count ?? 0);
             $rate = $totalDays > 0 ? round(($daysPresent / $totalDays) * 100, 1) : 0;
+
+            // Format time from minutes
+            $avgCheckinMin = (float) ($row->avg_checkin_minutes ?? 0);
+            $avgCheckoutMin = (float) ($row->avg_checkout_minutes ?? 0);
+            $totalWorkingMin = (int) ($row->total_working_minutes ?? 0);
+            
+            $avgCheckin = $avgCheckinMin > 0 ? sprintf('%02d:%02d', floor($avgCheckinMin / 60), $avgCheckinMin % 60) : '---';
+            $avgCheckout = $avgCheckoutMin > 0 ? sprintf('%02d:%02d', floor($avgCheckoutMin / 60), $avgCheckoutMin % 60) : '---';
+
+            $avgWorkingMinPerDay = $daysPresent > 0 ? round($totalWorkingMin / $daysPresent) : 0;
+            $avgWorkingHrs = $avgWorkingMinPerDay > 0 ? sprintf('%d:%02d', floor($avgWorkingMinPerDay / 60), $avgWorkingMinPerDay % 60) : '---';
 
             $prev = $previousSummary->get((int) $row->system_user_id);
             $prevPresent = (int) ($prev->prev_days_present ?? 0);
@@ -867,7 +891,15 @@ class AttendanceController extends Controller
                 'name' => $name,
                 'department' => (string) ($row->department_name ?? '---'),
                 'days_present' => $daysPresent,
+                'days_absent' => $daysAbsent,
+                'days_leave' => $daysLeave,
+                'manual_logs' => $manualLogs,
                 'total_days' => $totalDays,
+                'late_in_count' => $lateInCount,
+                'early_out_count' => $earlyOutCount,
+                'avg_checkin' => $avgCheckin,
+                'avg_checkout' => $avgCheckout,
+                'avg_working_hrs' => $avgWorkingHrs,
                 'rate' => $rate,
                 'trend' => $trend,
                 'status' => $status,
@@ -1342,17 +1374,20 @@ class AttendanceController extends Controller
 
     private function buildAvgTimeSelect(string $column, string $alias): string
     {
-        $driver = DB::connection()->getDriverName();
+        $driver = config('database.default');
+        
+        // Quote column for PostgreSQL reserved keywords (in, out)
+        $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
 
         if ($driver === 'pgsql') {
             // PostgreSQL: use ~ for regex, EXTRACT for time parts
             return "AVG(
                 CASE
-                    WHEN {$column} IS NOT NULL
-                        AND {$column} != '---'
-                        AND {$column} != ''
-                        AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
-                    THEN EXTRACT(HOUR FROM {$column}::time) * 60 + EXTRACT(MINUTE FROM {$column}::time)
+                    WHEN {$quotedColumn} IS NOT NULL
+                        AND {$quotedColumn} != '---'
+                        AND {$quotedColumn} != ''
+                        AND {$quotedColumn} ~ '^[0-9]{1,2}:[0-9]{2}'
+                    THEN EXTRACT(HOUR FROM {$quotedColumn}::time) * 60 + EXTRACT(MINUTE FROM {$quotedColumn}::time)
                     ELSE NULL
                 END
             ) as {$alias}";
@@ -1373,17 +1408,20 @@ class AttendanceController extends Controller
 
     private function buildSumDurationSelect(string $column, string $alias): string
     {
-        $driver = DB::connection()->getDriverName();
+        $driver = config('database.default');
+        
+        // Quote column for PostgreSQL reserved keywords (in, out)
+        $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
 
         if ($driver === 'pgsql') {
             // PostgreSQL: use ~ for regex, EXTRACT for time parts
             return "SUM(
                 CASE
-                    WHEN {$column} IS NOT NULL
-                        AND {$column} != '---'
-                        AND {$column} != ''
-                        AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
-                    THEN EXTRACT(HOUR FROM {$column}::time) * 60 + EXTRACT(MINUTE FROM {$column}::time)
+                    WHEN {$quotedColumn} IS NOT NULL
+                        AND {$quotedColumn} != '---'
+                        AND {$quotedColumn} != ''
+                        AND {$quotedColumn} ~ '^[0-9]{1,2}:[0-9]{2}'
+                    THEN EXTRACT(HOUR FROM {$quotedColumn}::time) * 60 + EXTRACT(MINUTE FROM {$quotedColumn}::time)
                     ELSE 0
                 END
             ) as {$alias}";
@@ -1400,6 +1438,19 @@ class AttendanceController extends Controller
                 ELSE 0
             END
         ) as {$alias}";
+    }
+    
+    /**
+     * Quote column name for PostgreSQL (handles reserved keywords like 'in', 'out')
+     */
+    private function quoteColumnPgsql(string $column): string
+    {
+        // Split table.column format
+        if (str_contains($column, '.')) {
+            [$table, $col] = explode('.', $column, 2);
+            return "\"{$table}\".\"{$col}\"";
+        }
+        return "\"{$column}\"";
     }
 
     private function resolveAttendanceHour($timeValue): int
