@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import useMqtt from "@/hooks/useMqtt";
+import useSse from "@/hooks/useSse";
 import { getDeviceJson, getEmployeesJson } from "@/lib/api";
 import { getUser } from "@/config";
 import { getLateMinutes } from "@/hooks/useLateMinutes";
@@ -55,6 +56,7 @@ function getPunctualityFromShift(shift, logTime) {
 export function LiveAttendanceProvider({ children }) {
   const user = getUser();
   const { lastMessage } = useMqtt(["mqtt/face/+/+"]);
+  const companyId = user?.company_id;
 
   const [deviceJson, setDeviceJson] = useState(null);
   const [employeesJson, setEmployeesJson] = useState(null);
@@ -62,7 +64,6 @@ export function LiveAttendanceProvider({ children }) {
 
   useEffect(() => {
     const fetchJson = async () => {
-      const companyId = user?.company_id;
       if (!companyId) return;
 
       setDeviceJson(await getDeviceJson(companyId));
@@ -70,7 +71,7 @@ export function LiveAttendanceProvider({ children }) {
     };
 
     fetchJson();
-  }, [user?.company_id]);
+  }, [companyId]);
 
   useEffect(() => {
     if (!lastMessage || lastMessage.topic.includes("heartbeat")) return;
@@ -91,6 +92,7 @@ export function LiveAttendanceProvider({ children }) {
 
     setLastAttendanceEvent({
       eventId: `${customId}-${facesluiceId}-${time}`,
+      source: "mqtt",
       customId,
       personName,
       time,
@@ -107,6 +109,92 @@ export function LiveAttendanceProvider({ children }) {
       location: foundInfo?.location || "-",
     });
   }, [lastMessage, deviceJson, employeesJson]);
+
+  useSse({
+    clientId: companyId,
+    storeMessages: false,
+    enabled: !!companyId,
+    onMessage: (incoming) => {
+      if (!incoming || typeof incoming !== "object") return;
+      if (incoming.type && incoming.type !== "clock") return;
+      if (!deviceJson || !employeesJson) return;
+
+      const rawPayload =
+        incoming.data && typeof incoming.data === "object"
+          ? incoming.data
+          : incoming;
+
+      const payloadList = Array.isArray(rawPayload) ? rawPayload : [rawPayload];
+
+      payloadList.forEach((payload) => {
+        if (!payload || typeof payload !== "object") return;
+
+        if (
+          payload.company_id &&
+          companyId &&
+          Number(payload.company_id) !== Number(companyId)
+        ) {
+          return;
+        }
+
+        const customId =
+          payload.customId ||
+          payload.user_id ||
+          payload.employee_id ||
+          payload.employeeId ||
+          payload.id;
+        const personName =
+          payload.personName || payload.name || payload.employee_name;
+        const facesluiceId =
+          payload.facesluiceId || payload.device_id || payload.deviceId;
+        const time =
+          payload.time ||
+          payload.log_time ||
+          payload.LogTime ||
+          payload.datetime ||
+          payload.timestamp ||
+          incoming.timestamp;
+
+        if (!customId || !personName || !time) return;
+
+        const foundInfo = facesluiceId ? deviceJson?.[facesluiceId] : null;
+        const foundEmployeeInfo = employeesJson?.[customId];
+        if (!foundEmployeeInfo) return;
+
+        const shift = foundEmployeeInfo?.schedule?.shift;
+        const { punctuality, punctualityColor, punctualityDot } =
+          getPunctualityFromShift(shift, time);
+
+        setLastAttendanceEvent({
+          eventId: `${customId}-${facesluiceId || "sse"}-${time}`,
+          source: "sse",
+          customId,
+          personName,
+          time,
+          pic: payload.pic || payload.photo || payload.avatar,
+          status:
+            payload.VerifyStatus == "1"
+              ? "Allowed"
+              : payload.status || payload.VerifyStatusText || "",
+          punctuality,
+          punctualityColor,
+          punctualityDot,
+          dept:
+            payload.dept ||
+            `${foundEmployeeInfo?.branch?.branch_name} ${
+              foundEmployeeInfo?.branch?.branch_name
+                ? " / " + foundEmployeeInfo?.department?.name
+                : ""
+            }`,
+          location:
+            payload.location ||
+            payload.address ||
+            foundInfo?.location ||
+            "-",
+        });
+      });
+    },
+  });
 
   const value = useMemo(
     () => ({

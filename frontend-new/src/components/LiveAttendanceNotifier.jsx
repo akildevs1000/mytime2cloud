@@ -60,6 +60,7 @@ export default function LiveAttendanceNotifier() {
 
   useEffect(() => {
     if (!lastAttendanceEvent) return;
+    if (lastAttendanceEvent.source === "sse") return;
     showAttendanceNotification(lastAttendanceEvent);
   }, [lastAttendanceEvent, showAttendanceNotification]);
 
