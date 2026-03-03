@@ -36,6 +36,7 @@ class CompanyUpdateRequest extends FormRequest
         return [
             'member_from' => ['nullable', 'date'],
             'expiry' => ['nullable', 'date'],
+            'location' => ['nullable', 'string', 'max:500'],
             'max_branches' => ['nullable', 'integer'],
             'max_employee' => ['nullable', 'integer'],
             'max_devices' => ['nullable', 'integer'],
