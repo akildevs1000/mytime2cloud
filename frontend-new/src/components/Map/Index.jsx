@@ -152,7 +152,7 @@ export default function LiveTeamStatus() {
         location: payload.location || payload.address || current.location,
         lat: coords.lat,
         lng: coords.lng,
-        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAgOmBDUE9YRPKrUELhubdiGKupJPt-_S1cAy0MCwnS4XLJ0F8HKYFSrehE-s5euFiPpgEgHiFZD1C4_azu015NF6eEUjCMMmf5ddSOmpi7ops0nKsPkh-1dy7Q1O1Pp1zJHGd2YLtIXjenPSPEq1tcWmZihbIU5Lihw_hliby7B7g5OIIOw7sSOcnp6QZ9Kaqnr238I7B2rX5VS7ZLN459F5CuA34Ygdr8rggzQtDdziWsB7Dzre13RYIJcDIEu1yRzWs-3KnWTG0_',
+        avatar: payload.avatar,
         mapPos: current.mapPos || { top: "50%", left: "50%" },
       };
       return updated;
