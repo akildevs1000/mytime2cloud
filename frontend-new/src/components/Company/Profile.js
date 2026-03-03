@@ -1,262 +1,503 @@
-export default function CompanyProfile() {
+import { useEffect, useMemo, useRef, useState } from "react";
+import QRCode from "qrcode";
+import DropDown from "@/components/ui/DropDown";
+import {
+    getCompanyLogo,
+    getCompanyProfile,
+    updateCompanyLogo,
+    updateCompanyProfile,
+    updateCompanyProfileContact,
+} from "@/lib/endpoint/company";
+import { convertFileToBase64, notify, parseApiError } from "@/lib/utils";
+
+export default function CompanyProfile({ profile, contact, isLoading: parentLoading = false }) {
+    const companyQrTargetUrl = "https://mytime2cloud.com/login/";
+    const industryOptions = [
+        { id: "Technology & Software", name: "Technology & Software" },
+        { id: "Manufacturing", name: "Manufacturing" },
+        { id: "Healthcare", name: "Healthcare" },
+        { id: "Retail", name: "Retail" },
+    ];
+
+    const [isLoading, setIsLoading] = useState(parentLoading);
+    const [isSaving, setIsSaving] = useState(false);
+    const [error, setError] = useState(null);
+    const [logoDirty, setLogoDirty] = useState(false);
+    const [companyQrImageUrl, setCompanyQrImageUrl] = useState("");
+
+    const toDateInputValue = (value) => {
+        if (!value) return "";
+        if (typeof value === "string") {
+            const normalized = value.replace(/\//g, "-");
+            const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})/);
+            return match ? `${match[1]}-${match[2]}-${match[3]}` : "";
+        }
+        const parsedDate = new Date(value);
+        if (Number.isNaN(parsedDate.getTime())) return "";
+        return parsedDate.toISOString().split("T")[0];
+    };
+
+    useEffect(() => {
+        const generateQr = async () => {
+            try {
+                const dataUrl = await QRCode.toDataURL(companyQrTargetUrl, {
+                    width: 360,
+                    margin: 1,
+                    color: {
+                        dark: "#0f172a",
+                        light: "#ffffff",
+                    },
+                });
+                setCompanyQrImageUrl(dataUrl);
+            } catch (_) {
+                setCompanyQrImageUrl("");
+            }
+        };
+
+        generateQr();
+    }, [companyQrTargetUrl]);
+
+    const initialState = useMemo(
+        () => ({
+            companyName: profile?.name || "",
+            legalName: profile?.legal_name || "",
+            registrationNo: profile?.company_code || "",
+            memberFrom: toDateInputValue(profile?.member_from),
+            expiryDate: toDateInputValue(profile?.expiry),
+            maxBranches: profile?.max_branches || "",
+            maxEmployees: profile?.max_employee || "",
+            maxDevices: profile?.max_devices || "",
+            industry: profile?.industry || "Technology & Software",
+            website: profile?.website || "",
+            address: profile?.location || "",
+            primaryName: contact?.name || "",
+            primaryDesignation: contact?.position || "",
+            primaryEmail: profile?.email || "",
+            primaryPhone: contact?.number || "",
+            primaryWhatsapp: contact?.whatsapp || contact?.number || "",
+            secondaryName: "",
+            secondaryDesignation: "",
+            secondaryEmail: "",
+            secondaryPhone: "",
+            logo: null,
+            timezone: "Option 1",
+            currency: "Option 1",
+            language: "Option 1",
+        }),
+        [profile, contact]
+    );
+
+    const [form, setForm] = useState(initialState);
+    const initialRef = useRef(initialState);
+
+    useEffect(() => {
+        initialRef.current = initialState;
+        setForm(initialState);
+        setIsLoading(parentLoading);
+    }, [initialState, parentLoading]);
+
+    useEffect(() => {
+        const hydrate = async () => {
+            if (profile || contact) return;
+
+            setIsLoading(true);
+            try {
+                const company = await getCompanyProfile();
+                const logo = await getCompanyLogo();
+
+                const nextState = {
+                    companyName: company?.name || "",
+                    legalName: company?.legal_name || "",
+                    registrationNo: company?.company_code || "",
+                    memberFrom: toDateInputValue(company?.member_from),
+                    expiryDate: toDateInputValue(company?.expiry),
+                    maxBranches: company?.max_branches || "",
+                    maxEmployees: company?.max_employee || "",
+                    maxDevices: company?.max_devices || "",
+                    industry: company?.industry || "Technology & Software",
+                    website: company?.website || "",
+                    address: company?.location || "",
+                    primaryName: company?.contact?.name || "",
+                    primaryDesignation: company?.contact?.position || "",
+                    primaryEmail: company?.user?.email || "",
+                    primaryPhone: company?.contact?.number || "",
+                    primaryWhatsapp: company?.contact?.whatsapp || company?.contact?.number || "",
+                    secondaryName: "",
+                    secondaryDesignation: "",
+                    secondaryEmail: "",
+                    secondaryPhone: "",
+                    logo: logo || company?.logo || null,
+                    timezone: "Option 1",
+                    currency: "Option 1",
+                    language: "Option 1",
+                };
+
+                initialRef.current = nextState;
+                setForm(nextState);
+            } catch (err) {
+                setError(parseApiError(err));
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        hydrate();
+    }, [profile, contact]);
+
+    useEffect(() => {
+        const loadLogo = async () => {
+            if (!profile && !contact) return;
+            try {
+                const logo = await getCompanyLogo();
+                if (logo) {
+                    setForm((prev) => ({ ...prev, logo }));
+                    initialRef.current = { ...initialRef.current, logo };
+                }
+            } catch (_) {
+            }
+        };
+
+        loadLogo();
+    }, [profile, contact]);
+
+    const handleChange = (event) => {
+        const { name, value } = event.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleLogoChange = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        try {
+            const base64 = await convertFileToBase64(file);
+            setForm((prev) => ({ ...prev, logo: base64 }));
+            setLogoDirty(true);
+        } catch {
+            setError("Unable to read selected logo file.");
+        }
+    };
+
+    const handleCancel = () => {
+        setForm(initialRef.current);
+        setLogoDirty(false);
+        setError(null);
+    };
+
+    const handleSave = async () => {
+        setError(null);
+
+        if (!form.companyName?.trim()) {
+            setError("Company name is required.");
+            return;
+        }
+
+        if (!form.primaryName?.trim() || !form.primaryDesignation?.trim() || !form.primaryPhone?.trim() || !form.primaryWhatsapp?.trim()) {
+            setError("Primary contact fields are required.");
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            await updateCompanyProfile({
+                name: form.companyName,
+                legal_name: form.legalName,
+                member_from: form.memberFrom,
+                expiry: form.expiryDate,
+                max_branches: form.maxBranches,
+                max_employee: form.maxEmployees,
+                max_devices: form.maxDevices,
+                industry: form.industry,
+                website: form.website,
+                location: form.address,
+            });
+
+            await updateCompanyProfileContact({
+                name: form.primaryName,
+                position: form.primaryDesignation,
+                number: form.primaryPhone,
+                whatsapp: form.primaryWhatsapp,
+            });
+
+            if (logoDirty && form.logo) {
+                await updateCompanyLogo(form.logo);
+            }
+
+            initialRef.current = { ...form };
+            setLogoDirty(false);
+            notify("Saved", "Company profile updated successfully.", "success");
+        } catch (err) {
+            setError(parseApiError(err));
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    if (isLoading) {
+        return (
+            <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
+                Loading company profile...
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                 <div className="lg:col-span-7 flex flex-col gap-8">
-                    {/* ===== Company Identity ===== */}
                     <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 dark:bg-indigo-400/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
 
-                        <Header
-                            icon="badge"
-                            title="Company Identity"
-                            description="Legal information and public profile"
-                            color="indigo"
-                        />
+                        <Header icon="badge" title="Company Identity" description="Legal information and public profile" color="indigo" />
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Field label="Company Name" span>
-                                <Input value="MYTIME CLOUD" bold />
+                                <Input name="companyName" value={form.companyName} onChange={handleChange} bold />
+                            </Field>
+
+                            <Field label="Company Email" span>
+                                <Input name="primaryEmail" value={form.primaryEmail} bold readOnly />
                             </Field>
 
                             <Field label="Legal Name">
-                                <Input value="MyTime Solutions Inc." />
+                                <Input name="legalName" value={form.legalName} onChange={handleChange} />
                             </Field>
 
                             <Field label="Registration No.">
-                                <Input value="REG-8842-XJ9" />
+                                <Input name="registrationNo" value={form.registrationNo} onChange={handleChange} readOnly />
+                            </Field>
+
+                            <Field label="Member From">
+                                <Input name="memberFrom" value={form.memberFrom} readOnly />
+                            </Field>
+
+                            <Field label="Expiry Date">
+                                <Input name="expiryDate" value={form.expiryDate} readOnly />
+                            </Field>
+
+                            <Field label="Max Branches">
+                                <Input name="maxBranches" value={form.maxBranches} readOnly min="0" />
+                            </Field>
+
+                            <Field label="Max Employees">
+                                <Input name="maxEmployees" value={form.maxEmployees} readOnly min="0" />
+                            </Field>
+
+                            <Field label="Max Devices">
+                                <Input name="maxDevices" value={form.maxDevices} readOnly min="0" />
                             </Field>
 
                             <Field label="Industry">
-                                <Select
-                                    options={[
-                                        "Technology & Software",
-                                        "Manufacturing",
-                                        "Healthcare",
-                                        "Retail",
-                                    ]}
+                                <DropDown
+                                    items={industryOptions}
+                                    value={form.industry}
+                                    onChange={(value) =>
+                                        setForm((prev) => ({
+                                            ...prev,
+                                            industry: value || "",
+                                        }))
+                                    }
+                                    placeholder="Select Industry"
+                                    width="w-full"
                                 />
                             </Field>
+
+
 
                             <Field label="Website">
                                 <div className="flex">
                                     <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-sm font-medium">
                                         https://
                                     </span>
-                                    <Input value="mytime.cloud" rounded="r" />
+                                    <Input name="website" value={form.website} readOnly rounded="r" />
                                 </div>
                             </Field>
                         </div>
                     </section>
 
-                    {/* ===== Location & Contact ===== */}
                     <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
-                        <Header
-                            icon="business"
-                            title="Location & Contact"
-                            description="Headquarters and contact points"
-                            color="emerald"
-                        />
+                        <Header icon="business" title="Location & Contact" description="Headquarters and contact points" color="emerald" />
 
-                        {/* Map */}
                         <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 h-48 bg-slate-100 dark:bg-slate-800 relative">
-
                             <iframe
                                 allowFullScreen=""
                                 className="grayscale-[20%] group-hover:grayscale-0 transition-all duration-500"
                                 height="100%"
                                 loading="lazy"
                                 src="https://www.google.com/maps?q=25.2650,55.2889&hl=en&z=15&output=embed"
-                                style={{ border: '0', width: "100%" }}
+                                style={{ border: "0", width: "100%" }}
                             ></iframe>
-
-
                         </div>
 
                         <Field label="Full Address" className="mt-4">
-                            <Textarea value="101 Innovation Dr, Suite 500, San Francisco, CA 94103" />
+                            <Textarea name="address" value={form.address} onChange={handleChange} />
                         </Field>
 
                         <Divider title="Primary Manager Contact" icon="person" />
                         <ContactGrid
                             values={{
-                                name: "Sarah Connor",
-                                designation: "HR Director",
-                                email: "sarah@mytime.cloud",
-                                phone: "+1 (555) 012-3456",
+                                name: form.primaryName,
+                                designation: form.primaryDesignation,
+                                phone: form.primaryPhone,
+                                whatsapp: form.primaryWhatsapp,
                             }}
+                            prefix="primary"
+                            onChange={handleChange}
                         />
 
                         <Divider title="Secondary Manager Contact" icon="supervisor_account" />
-                        <ContactGrid />
+                        <ContactGrid
+                            values={{
+                                name: form.secondaryName,
+                                designation: form.secondaryDesignation,
+                                phone: form.secondaryPhone,
+                            }}
+                            prefix="secondary"
+                            onChange={handleChange}
+                        />
                     </section>
                 </div>
-                <div className="lg:col-span-5 flex flex-col gap-8">
 
-                    {/* ===== QR Code ===== */}
+                <div className="lg:col-span-5 flex flex-col gap-8">
                     <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8 hover:shadow-md transition-shadow">
-                        <Header
-                            icon="qr_code_2"
-                            title="Company QR Code"
-                            description="Scan for mobile app access"
-                        />
+                        <Header icon="qr_code_2" title="Company QR Code" description="Scan for mobile app access" />
 
                         <div className="flex flex-col items-center justify-center p-6 bg-white/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl relative group cursor-pointer">
                             <div className="absolute inset-0 bg-indigo-600/10 opacity-0 group-hover:opacity-100 transition rounded-xl" />
 
-                            <img
-                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCT2Rbmgd9WmVCwQAJOXil7FgbqKPaBIZmde7z5wXu8DrCydk1rRL-A31dv4XGy59yObYv1BKlLTGbfY1vnQLKplqdTCoCWn_PQcTKDLpM7e8clKfBvayyqSOFUTOzOZ4CYPsHgmVj0Ijky6pUXFsxTQrpjSUN34qwkl73sVUuvvJY_zYesPiuIOgyWRinAL-bKCZsjy7rVzgyxVB7uGegxEtLM-PcMDlccevPJEV4a9RGDOpeDjGyyiHxR6fAc27UKdHMJybt2fEIK"
-                                alt="Company QR"
-                                className="w-32 h-32 rounded-lg opacity-90 mb-4 group-hover:scale-105 transition-transform"
-                            />
+                            <div className="w-36 h-36 rounded-xl bg-white p-2 border border-slate-200 shadow-sm mb-4 z-10">
+                                {companyQrImageUrl ? (
+                                    <img
+                                        src={companyQrImageUrl}
+                                        alt="Company QR"
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                                        Loading QR...
+                                    </div>
+                                )}
+                            </div>
 
                             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                                 Standard Access Token
                             </p>
 
-                            <button className="mt-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 z-10">
+                            <a
+                                href={companyQrImageUrl}
+                                download="mytime2cloud-login-qr.png"
+                                target="_blank"
+                                rel="noreferrer"
+                                className="mt-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 z-10"
+                            >
                                 <span className="material-symbols-outlined text-sm">download</span>
                                 Download QR
-                            </button>
+                            </a>
                         </div>
                     </section>
 
-                    {/* ===== Branding ===== */}
                     <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
-                        <Header
-                            icon="palette"
-                            title="Corporate Branding"
-                            description="Look and feel customization"
-                        />
+                        <Header icon="palette" title="Corporate Branding" description="Look and feel customization" />
 
-                        {/* Logo Upload */}
                         <div className="mb-8">
                             <Label>Company Logo</Label>
-                            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 transition p-8 flex flex-col items-center gap-3 cursor-pointer">
-                                <div className="w-20 h-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-4xl">
-                                        cloud_circle
-                                    </span>
+                            <label className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 transition p-8 flex flex-col items-center gap-3 cursor-pointer">
+                                <div className="w-20 h-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg flex items-center justify-center overflow-hidden">
+                                    {form.logo ? (
+                                        <img src={form.logo} alt="Company Logo" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="material-symbols-outlined text-indigo-600 dark:text-indigo-400 text-4xl">
+                                            cloud_circle
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="text-center text-sm">
-                                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">
-                                        Click to upload
-                                    </span>
+                                    <span className="font-semibold text-indigo-600 dark:text-indigo-400">Click to upload</span>
                                     <span className="text-slate-500 dark:text-slate-400"> or drag & drop</span>
                                     <p className="text-xs text-slate-400 mt-1">SVG, PNG, JPG (max 2MB)</p>
                                 </div>
-                            </div>
+                                <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                            </label>
                         </div>
 
-                        {/* Colors */}
                         <div className="grid grid-cols-2 gap-4 mb-8">
                             <ColorPicker label="Primary" value="#4F46E5" />
                             <ColorPicker label="Secondary" value="#10B981" />
                         </div>
 
-                        {/* Favicon */}
                         <div>
                             <Label>Favicon</Label>
                             <div className="flex items-center gap-4 p-3 border border-slate-200 dark:border-slate-700 rounded-lg bg-white/60 dark:bg-slate-800/60">
                                 <div className="size-8 rounded bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
-                                    <span className="material-symbols-outlined text-sm text-slate-400">
-                                        star
-                                    </span>
+                                    <span className="material-symbols-outlined text-sm text-slate-400">star</span>
                                 </div>
-                                <p className="flex-1 text-xs text-slate-500 dark:text-slate-400 truncate">
-                                    favicon.ico
-                                </p>
-                                <button className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                                    Update
-                                </button>
+                                <p className="flex-1 text-xs text-slate-500 dark:text-slate-400 truncate">favicon.ico</p>
+                                <button className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">Update</button>
                             </div>
                         </div>
                     </section>
 
-                    {/* ===== Regional Settings ===== */}
                     <section className="bg-white/70 dark:bg-slate-900/60 backdrop-blur-xl border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm p-6 md:p-8">
-                        <Header
-                            icon="public"
-                            title="Regional Settings"
-                            description="Localization and standards"
-                        />
+                        <Header icon="public" title="Regional Settings" description="Localization and standards" />
 
                         <div className="space-y-5">
-                            <SelectSideBar label="Timezone" />
+                            <SelectSideBar label="Timezone" name="timezone" value={form.timezone} onChange={handleChange} />
                             <div className="grid grid-cols-2 gap-5">
-                                <SelectSideBar label="Currency" />
-                                <SelectSideBar label="Language" />
+                                <SelectSideBar label="Currency" name="currency" value={form.currency} onChange={handleChange} />
+                                <SelectSideBar label="Language" name="language" value={form.language} onChange={handleChange} />
                             </div>
                         </div>
                     </section>
                 </div>
             </div>
 
-            <div className="w-full mt-10">
-                <div
-                    className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl
-    rounded-2xl p-4 px-6
-    flex flex-col sm:flex-row items-center justify-between gap-4
-    shadow-sm"
-                >
-                    {/* Last saved */}
-                    <div className="text-sm text-slate-400 dark:text-slate-500 hidden sm:block">
-                        {/* Last saved:
-                        <span className="ml-1 font-medium text-slate-600 dark:text-slate-300">
-                            Today at 09:42 AM
-                        </span> */}
+            {error && (
+                <div className="w-full mt-4 px-2">
+                    <div className="p-3 rounded-lg border border-red-400/30 bg-red-500/10 text-red-600 dark:text-red-300 text-sm">
+                        {error}
                     </div>
+                </div>
+            )}
 
-                    {/* Actions */}
+            <div className="w-full mt-10">
+                <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl p-4 px-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div className="text-sm text-slate-400 dark:text-slate-500 hidden sm:block"></div>
+
                     <div className="flex gap-3 w-full sm:w-auto justify-end">
                         <button
-                            className="px-6 py-2.5 rounded-lg font-medium
-          text-slate-500 dark:text-slate-400
-          hover:text-slate-700 dark:hover:text-slate-200
-          hover:bg-slate-100/70 dark:hover:bg-slate-800/70 dark:bg-slate-800
-          transition"
+                            type="button"
+                            onClick={handleCancel}
+                            disabled={isSaving}
+                            className="px-6 py-2.5 rounded-lg font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 dark:bg-slate-800 transition"
                         >
                             Cancel
                         </button>
 
                         <button
-                            className="px-8 py-2.5 rounded-lg font-bold
-          bg-gradient-to-r from-indigo-600 to-indigo-700
-          hover:from-indigo-700 hover:to-indigo-800
-          text-white
-          shadow-lg shadow-indigo-500/20
-          flex items-center gap-2 transition"
+                            type="button"
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="px-8 py-2.5 rounded-lg font-bold bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-lg shadow-indigo-500/20 flex items-center gap-2 transition"
                         >
-                            <span className="material-symbols-outlined text-[20px]">
-                                check
-                            </span>
-                            Save Changes
+                            <span className="material-symbols-outlined text-[20px]">check</span>
+                            {isSaving ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
                 </div>
             </div>
-
         </>
     );
 }
 
-/* ===================== Reusable Components ===================== */
-
 function Header({ icon, title, description, color }) {
     return (
         <div className="flex items-center gap-4 mb-8">
-            <div
-                className={`p-3 rounded-xl bg-${color}-50 text-${color}-600 dark:bg-${color}-500/10 dark:text-${color}-400`}
-            >
+            <div className={`p-3 rounded-xl bg-${color}-50 text-${color}-600 dark:bg-${color}-500/10 dark:text-${color}-400`}>
                 <span className="material-symbols-outlined">{icon}</span>
             </div>
             <div>
-                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                    {title}
-                </h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {description}
-                </p>
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h2>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
             </div>
         </div>
     );
@@ -265,59 +506,67 @@ function Header({ icon, title, description, color }) {
 function Field({ label, children, span, className }) {
     return (
         <div className={`${span ? "md:col-span-2" : ""} ${className || ""}`}>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
-                {label}
-            </label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">{label}</label>
             {children}
         </div>
     );
 }
 
-function Input({ value, bold, rounded }) {
+function Input({ value, bold, rounded, name, onChange, placeholder, readOnly = false, type = "text", min }) {
     return (
         <input
-            defaultValue={value}
-            className={`w-full px-4 py-3 rounded-${rounded || "lg"} border
-      bg-white/70 dark:bg-slate-900
-      border-slate-200 dark:border-slate-700
-      text-slate-800 dark:text-slate-200
-      ${bold ? "font-semibold" : ""}
-      focus:ring-2 focus:ring-indigo-500/20`}
+            type={type}
+            min={min}
+            name={name}
+            value={value || ""}
+            onChange={onChange}
+            placeholder={placeholder}
+            readOnly={readOnly}
+            className={`w-full px-4 py-3 rounded-${rounded || "lg"} border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 ${bold ? "font-semibold" : ""} focus:ring-2 focus:ring-indigo-500/20`}
         />
     );
 }
 
 const Label = ({ children }) => (
-    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
-        {children}
-    </label>
+    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">{children}</label>
 );
 
-
-const SelectSideBar = ({ label }) => (
+const SelectSideBar = ({ label, name, value, onChange }) => (
     <div>
         <Label>{label}</Label>
-        <select className="w-full bg-white/60 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20">
+        <select
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="w-full bg-white/60 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-4 py-3 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+        >
             <option>Option 1</option>
         </select>
     </div>
 );
 
-function Select({ options }) {
+function Select({ options, name, value, onChange }) {
     return (
-        <select className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20">
-            {options.map((o) => (
-                <option key={o}>{o}</option>
+        <select
+            name={name}
+            value={value}
+            onChange={onChange}
+            className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20"
+        >
+            {options.map((option) => (
+                <option key={option}>{option}</option>
             ))}
         </select>
     );
 }
 
-function Textarea({ value }) {
+function Textarea({ value, name, onChange }) {
     return (
         <textarea
             rows={2}
-            defaultValue={value}
+            name={name}
+            value={value || ""}
+            onChange={onChange}
             className="w-full px-4 py-3 rounded-lg border bg-white/70 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500/20 resize-none"
         />
     );
@@ -326,23 +575,21 @@ function Textarea({ value }) {
 function Divider({ title, icon }) {
     return (
         <div className="flex items-center gap-2 my-6 border-b border-slate-200 dark:border-slate-700 pb-2">
-            <span className="material-symbols-outlined text-slate-400 text-sm">
-                {icon}
-            </span>
-            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-300">
-                {title}
-            </h3>
+            <span className="material-symbols-outlined text-slate-400 text-sm">{icon}</span>
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-slate-300">{title}</h3>
         </div>
     );
 }
 
-function ContactGrid({ values = {} }) {
+function ContactGrid({ values = {}, prefix = "", onChange }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input placeholder="Contact Name" value={values.name} />
-            <Input placeholder="Designation" value={values.designation} />
-            <Input placeholder="Email" value={values.email} />
-            <Input placeholder="Phone" value={values.phone} />
+            <Input name={`${prefix}Name`} onChange={onChange} placeholder="Contact Name" value={values.name} />
+            <Input name={`${prefix}Designation`} onChange={onChange} placeholder="Designation" value={values.designation} />
+            <Input name={`${prefix}Phone`} onChange={onChange} placeholder="Phone" value={values.phone} />
+            {prefix === "primary" && (
+                <Input name="primaryWhatsapp" onChange={onChange} placeholder="Whatsapp" value={values.whatsapp} />
+            )}
         </div>
     );
 }
@@ -352,9 +599,7 @@ const ColorPicker = ({ label, value }) => (
         <Label>{label}</Label>
         <div className="flex items-center gap-2 p-2 bg-white/60 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
             <input type="color" defaultValue={value} className="w-8 h-8 rounded" />
-            <span className="text-xs font-mono text-slate-600 dark:text-slate-300">
-                {value}
-            </span>
+            <span className="text-xs font-mono text-slate-600 dark:text-slate-300">{value}</span>
         </div>
     </div>
 );
