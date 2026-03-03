@@ -687,7 +687,7 @@ class ScheduleEmployeeController extends Controller
             ->where('employee_id', $id)
             ->where('from_date', '<=', $today)
             ->where('to_date', '>=', $today)
-            ->with(['shift:id,name,shift_name,on_duty_time,off_duty_time', 'shift_type:id,name'])
+            ->with(['shift:id,name,on_duty_time,off_duty_time', 'shift_type:id,name'])
             ->orderBy('updated_at', 'desc')
             ->first();
 
