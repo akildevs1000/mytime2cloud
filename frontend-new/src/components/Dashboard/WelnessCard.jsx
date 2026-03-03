@@ -25,15 +25,20 @@ function WelnessCard({ branch_ids, department_ids }) {
 
   // 1. Calculate Wellness Value Dynamically
   const wellnessValue = useMemo(() => {
-    if (!stats.employeeCount || stats.employeeCount === 0) return 0;
-    
-    // Logic: Wellness is high when people are present or on scheduled vacation, 
-    // and low when there is high unplanned absence or leave.
-    const positiveFactors = stats.presentCount + stats.vacationCount;
-    const score = Math.round((positiveFactors / stats.employeeCount) * 100);
-    
-    return Math.min(100, Math.max(0, score)); // Clamp between 0-100
+    const employeeCount = Number(stats?.employeeCount) || 0;
+    const presentCount = Number(stats?.presentCount) || 0;
+    const vacationCount = Number(stats?.vacationCount) || 0;
+
+    if (employeeCount <= 0) return 0;
+
+    const positiveFactors = presentCount + vacationCount;
+    const score = Math.round((positiveFactors / employeeCount) * 100);
+
+    if (!Number.isFinite(score)) return 0;
+    return Math.min(100, Math.max(0, score));
   }, [stats]);
+
+  const safeWellnessValue = Number.isFinite(wellnessValue) ? wellnessValue : 0;
 
   // 2. Determine Status Styling
   const getStatus = (value) => {
@@ -70,12 +75,12 @@ function WelnessCard({ branch_ids, department_ids }) {
               isAnimationActive={false}
             />
             <Pie
-              data={[{ value: wellnessValue }]}
+              data={[{ value: safeWellnessValue }]}
               dataKey="value"
               innerRadius={60}
               outerRadius={75}
               startAngle={90}
-              endAngle={90 - (wellnessValue / 100) * 360}
+              endAngle={90 - (safeWellnessValue / 100) * 360}
               fill={status.color} // Dynamic Color
               stroke="none"
               cornerRadius={20}
@@ -86,7 +91,7 @@ function WelnessCard({ branch_ids, department_ids }) {
 
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-3xl font-bold text-gray-600 dark:text-gray-300 font-display tracking-tight">
-            {wellnessValue}%
+            {safeWellnessValue}%
           </span>
           <span className={`text-[10px] font-bold uppercase tracking-wider ${status.bg} ${status.text} px-2 py-0.5 rounded-full border border-current/20 mt-1`}>
             {status.label}
