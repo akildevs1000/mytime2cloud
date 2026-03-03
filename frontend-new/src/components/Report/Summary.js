@@ -5,7 +5,7 @@
 // If you prefer a reusable component, move JSX into /components and import it here.
 
 import React, { useEffect, useState } from 'react';
-import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality } from '@/lib/endpoint/dashboard';
+import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, downloadCompanyStatsSummaryPdf } from '@/lib/endpoint/dashboard';
 import MonthPicker from '@/components/ui/MonthPicker';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { getBranches, getDepartmentsByBranchIds } from '@/lib/api';
@@ -16,8 +16,10 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  CartesianGrid,
 } from 'recharts';
 import ProfilePicture from '../ProfilePicture';
+import { Download } from 'lucide-react';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -34,6 +36,7 @@ export default function ExecutiveAttendanceDashboardPage() {
   const [departments, setDepartments] = useState([]);
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState([]);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedMonthRange, setSelectedMonthRange] = useState(() => {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -155,153 +158,9 @@ export default function ExecutiveAttendanceDashboardPage() {
     };
   }, [selectedBranchIds]);
 
-  useEffect(() => {
-    let isMounted = true;
+  // Data is fetched only when user clicks Submit button via fetchAllData()
 
-    const fetchStats = async () => {
-      try {
-        const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
-        const payload = {
-          ...dateRange,
-          branch_ids: selectedBranchIds,
-          department_ids: selectedDepartmentIds,
-        };
-
-        const [statsResponse, hourlyTrendResponse, departmentResponse, punctualityResponse] = await Promise.all([
-          getCompanyStats(payload),
-          getCompanyStatsHourlyTrends(payload),
-          getCompanyStatsDepartmentBreakdown(payload),
-          getCompanyStatsPunctuality(payload),
-        ]);
-
-        if (isMounted) {
-          setStats(Array.isArray(statsResponse?.stats) && statsResponse.stats.length > 0 ? statsResponse.stats : []);
-
-          const normalizedChartData = Array.isArray(hourlyTrendResponse?.data)
-            ? hourlyTrendResponse.data.map((item) => ({
-              label: item?.label,
-              present: Number(item?.present || 0),
-              late: Number(item?.late || 0),
-              absent: Number(item?.absent || 0),
-            }))
-            : [];
-
-          const normalizedDepartmentData = Array.isArray(departmentResponse?.data)
-            ? departmentResponse.data.map((item) => ({
-              name: item?.name || 'Unknown',
-              count: Number(item?.count || 0),
-              percentage: Number(item?.percentage || 0),
-            }))
-            : [];
-
-          const normalizedPunctualityData = Array.isArray(punctualityResponse?.data)
-            ? punctualityResponse.data.map((item) => {
-              const displayName = item?.name || 'Unknown';
-              const initials = displayName
-                .split(' ')
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((part) => part[0]?.toUpperCase())
-                .join('') || 'NA';
-
-              return {
-                name: displayName,
-                dept: item?.dept || '---',
-                score: item?.score || '0%',
-                img: item?.img || null,
-                initial: initials,
-              };
-            })
-            : [];
-
-          setChartData(normalizedChartData);
-          setDepartmentBreakdown(normalizedDepartmentData);
-          setPunctualityData(normalizedPunctualityData);
-        }
-      } catch (error) {
-        console.error('Failed to fetch company stats:', error);
-        if (isMounted) {
-          setStats([]);
-          setChartData([]);
-          setDepartmentBreakdown([]);
-          setPunctualityData([]);
-        }
-      }
-    };
-
-    fetchStats();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedMonthRange, selectedBranchIds, selectedDepartmentIds]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchDailyAttendance = async () => {
-      try {
-        const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
-        const payload = {
-          ...dateRange,
-          branch_ids: selectedBranchIds,
-          department_ids: selectedDepartmentIds,
-          search: attendanceSearchText.trim(),
-          page: attendancePage,
-          per_page: attendanceMeta.per_page || 10,
-        };
-
-        const dailyAttendanceResponse = await getCompanyStatsDailyAttendance(payload);
-
-        if (isMounted) {
-          const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
-            ? dailyAttendanceResponse.data.map((item) => ({
-              id: item?.system_user_id,
-              employeeCode: item?.employee_code || '---',
-              name: item?.name || 'Unknown',
-              department: item?.department || '---',
-              daysPresent: Number(item?.days_present ?? item?.daysPresent ?? 0),
-              totalDays: Number(item?.total_days ?? item?.totalDays ?? 0),
-              rate: Number(item?.rate || 0),
-              trend: Number(item?.trend || 0),
-              status: item?.status || 'CRITICAL',
-              img: item?.img || null,
-            }))
-            : [];
-
-          setDailyAttendanceRows(normalizedDailyAttendanceRows);
-          const responsePage = Number(dailyAttendanceResponse?.meta?.page || 1);
-          setAttendanceMeta({
-            total: Number(dailyAttendanceResponse?.meta?.total || 0),
-            page: responsePage,
-            per_page: Number(dailyAttendanceResponse?.meta?.per_page || 10),
-            last_page: Number(dailyAttendanceResponse?.meta?.last_page || 1),
-            from: Number(dailyAttendanceResponse?.meta?.from || 0),
-            to: Number(dailyAttendanceResponse?.meta?.to || 0),
-          });
-          if (responsePage !== attendancePage) {
-            setAttendancePage(responsePage);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch daily attendance detail:', error);
-        if (isMounted) {
-          setDailyAttendanceRows([]);
-          setAttendanceMeta((current) => ({ ...current, total: 0, from: 0, to: 0, last_page: 1 }));
-        }
-      }
-    };
-
-    fetchDailyAttendance();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [selectedMonthRange, selectedBranchIds, selectedDepartmentIds, attendanceSearchText, attendancePage]);
-
-  useEffect(() => {
-    setAttendancePage(1);
-  }, [selectedMonthRange, selectedBranchIds, selectedDepartmentIds]);
+  // Daily attendance data is fetched only when user clicks Submit button via fetchAllData()
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
@@ -321,6 +180,144 @@ export default function ExecutiveAttendanceDashboardPage() {
       from: monthRangeValue.from,
       to: monthRangeValue.to || monthRangeValue.from,
     });
+  };
+
+  const fetchAllData = async () => {
+    try {
+      const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
+      const payload = {
+        ...dateRange,
+        branch_ids: selectedBranchIds,
+        department_ids: selectedDepartmentIds,
+      };
+
+      const [statsResponse, hourlyTrendResponse, departmentResponse, punctualityResponse] = await Promise.all([
+        getCompanyStats(payload),
+        getCompanyStatsHourlyTrends(payload),
+        getCompanyStatsDepartmentBreakdown(payload),
+        getCompanyStatsPunctuality(payload),
+      ]);
+
+      setStats(Array.isArray(statsResponse?.stats) && statsResponse.stats.length > 0 ? statsResponse.stats : []);
+
+      const normalizedChartData = Array.isArray(hourlyTrendResponse?.data)
+        ? hourlyTrendResponse.data.map((item) => ({
+          label: item?.label,
+          present: Number(item?.present || 0),
+          late: Number(item?.late || 0),
+          absent: Number(item?.absent || 0),
+        }))
+        : [];
+
+      const normalizedDepartmentData = Array.isArray(departmentResponse?.data)
+        ? departmentResponse.data.map((item) => ({
+          name: item?.name || 'Unknown',
+          count: Number(item?.count || 0),
+          percentage: Number(item?.percentage || 0),
+        }))
+        : [];
+
+      const normalizedPunctualityData = Array.isArray(punctualityResponse?.data)
+        ? punctualityResponse.data.map((item) => {
+          const displayName = item?.name || 'Unknown';
+          const initials = displayName
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0]?.toUpperCase())
+            .join('') || 'NA';
+
+          return {
+            name: displayName,
+            dept: item?.dept || '---',
+            score: item?.score || '0%',
+            img: item?.img || null,
+            initial: initials,
+          };
+        })
+        : [];
+
+      setChartData(normalizedChartData);
+      setDepartmentBreakdown(normalizedDepartmentData);
+      setPunctualityData(normalizedPunctualityData);
+
+      // Also fetch daily attendance
+      const dailyPayload = {
+        ...dateRange,
+        branch_ids: selectedBranchIds,
+        department_ids: selectedDepartmentIds,
+        search: attendanceSearchText.trim(),
+        page: 1,
+        per_page: attendanceMeta.per_page || 10,
+      };
+
+      const dailyAttendanceResponse = await getCompanyStatsDailyAttendance(dailyPayload);
+
+      const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
+        ? dailyAttendanceResponse.data.map((item) => ({
+          id: item?.system_user_id,
+          employeeCode: item?.employee_code || '---',
+          name: item?.name || 'Unknown',
+          department: item?.department || '---',
+          daysPresent: Number(item?.days_present ?? item?.daysPresent ?? 0),
+          totalDays: Number(item?.total_days ?? item?.totalDays ?? 0),
+          rate: Number(item?.rate || 0),
+          trend: Number(item?.trend || 0),
+          status: item?.status || 'CRITICAL',
+          img: item?.img || null,
+        }))
+        : [];
+
+      setDailyAttendanceRows(normalizedDailyAttendanceRows);
+      setAttendancePage(1);
+      setAttendanceMeta({
+        total: Number(dailyAttendanceResponse?.meta?.total || 0),
+        page: 1,
+        per_page: Number(dailyAttendanceResponse?.meta?.per_page || 10),
+        last_page: Number(dailyAttendanceResponse?.meta?.last_page || 1),
+        from: Number(dailyAttendanceResponse?.meta?.from || 0),
+        to: Number(dailyAttendanceResponse?.meta?.to || 0),
+      });
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    try {
+      setIsExporting(true);
+      const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
+      const payload = {
+        ...dateRange,
+        branch_ids: selectedBranchIds,
+        department_ids: selectedDepartmentIds,
+      };
+
+      const response = await downloadCompanyStatsSummaryPdf(payload);
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'attendance_summary.pdf';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match?.[1]) {
+          filename = match[1].replace(/['"]/g, '');
+        }
+      }
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export PDF:', error);
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   // Helper for color logic
@@ -431,12 +428,15 @@ export default function ExecutiveAttendanceDashboardPage() {
               className="min-w-[240px]"
             />
 
-            <button className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2">
-              <span className="material-symbols-outlined text-[18px]">
-                download
-              </span>
-              Export Report
+
+
+            <button onClick={fetchAllData} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2">
+              Submit
+            </button> <button onClick={handleExportPdf} disabled={isExporting} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+             <Download size={20} />
+              {isExporting ? 'Exporting...' : 'Export Report'}
             </button>
+
           </div>
         </div>
 
@@ -526,6 +526,7 @@ export default function ExecutiveAttendanceDashboardPage() {
             <div className="h-64 w-full pt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barCategoryGap="28%">
+                  <CartesianGrid strokeDasharray="3 3"  stroke="#e2e8f0" />
                   <XAxis
                     dataKey="label"
                     axisLine={false}

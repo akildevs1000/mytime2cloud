@@ -18,7 +18,7 @@ const defaultPunctuality = {
 };
 
 function getPunctualityFromShift(shift, logTime) {
-  if (!shift || shift.shift_type_id === 1 || shift.shift_type_id === 2) {
+  if (!shift || shift.shift_type_id == 1 || shift.shift_type_id == 2) {
     return defaultPunctuality;
   }
 

@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import ExecutiveAttendanceDashboardPage from '@/components/Report/Summary';
 import AttendanceTable from '@/components/Report/Report';
+import PerformanceReport from '@/components/Report/Performance';
 
 // Define the available tabs
-const TABS = ['Attendance', 'Summary'];
+const TABS = ['Attendance', 'Summary', 'Performance'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');
@@ -14,6 +15,7 @@ export default function AttendancePage() {
         switch (activeTab) {
             case 'Attendance': return <AttendanceTable />;
             case 'Summary': return <ExecutiveAttendanceDashboardPage />;
+            case 'Performance': return <PerformanceReport />;
             default: return null;
         }
     };

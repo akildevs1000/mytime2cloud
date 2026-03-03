@@ -70,18 +70,11 @@ export const getDepartments = async (branch_id = null) => {
     return data;
 };
 
+
 export const getDepartmentsByBranchIds = async (branch_ids = []) => {
 
-
-    console.log(`from getDepartments: ${branch_ids}`);
-
-
     let params = { branch_ids };
-
     const { data } = await axios.get(`${API_BASE}/department-list`, { params: await buildQueryParams(params) });
-
-    console.log(data);
-
     return data;
 };
 
@@ -132,11 +125,18 @@ export const removeEmployeeSchedule = async (id) => {
 };
 
 export const getDeviceLogs = async (params = {}) => {
-    const { data } = await axios.get(`${API_BASE}/attendance_logs`, {
+
+    let baseURL = API_BASE;
+    // baseURL = "https://backend.mytime2cloud.com/api";
+
+    const { data } = await axios.get(`${baseURL}/attendance_logs`, {
         params: await buildQueryParams(params),
     });
     return data;
 };
+
+
+
 
 export const getPaginatedRoles = async (params = {}) => {
     const { data } = await axios.get(`${API_BASE}/role`, {
@@ -468,6 +468,16 @@ export const getDevices = async (params = {}) => {
     return data;
 };
 
+export const getDeviceJson = async (company_id) => {
+    const { data } = await axios.get(`${API_BASE}/devices-json/${company_id}`);
+    return data;
+};
+
+export const getEmployeesJson = async (company_id) => {
+    const { data } = await axios.get(`${API_BASE}/employees-json/${company_id}`);
+    return data;
+};
+
 export const createDevice = async (payload = {}) => {
     const user = await getUser();
     return await axios.post(`${API_BASE}/device`, { ...payload, company_id: user?.company_id || 0 });
@@ -674,9 +684,18 @@ export const updateBranch = async (id, payload = {}) => {
     const user = await getUser();
     return await axios.put(`${API_BASE}/branch/${id}`, { ...payload, company_id: user?.company_id || 0 });
 };
+export const updateGeoFencing = async (id, payload = {}) => {
+    return await axios.put(`${API_BASE}/branch-update-geofencing/${id}`, payload);
+};
 export const deleteBranch = async (id) => {
     await axios.delete(`${API_BASE}/branch/${id}`);
     return true;
+};
+
+export const branchListGeoFencing = async () => {
+    const user = await getUser();
+    const { data } = await axios.get(`${API_BASE}/branch-list-for-geofencing/${user?.company_id || 0}`);
+    return data;
 };
 
 // DESIGNATION END

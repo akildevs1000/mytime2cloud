@@ -41,3 +41,12 @@ export const getCompanyStatsDailyAttendance = async (params = {}) => {
     const { data } = await api.get("/company_stats_daily_attendance", { params: queryParams });
     return data;
 };
+
+export const downloadCompanyStatsSummaryPdf = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const response = await api.get("/company_stats_summary_pdf", {
+        params: queryParams,
+        responseType: "blob",
+    });
+    return response;
+};
