@@ -138,12 +138,13 @@ class EmployeeControllerNew extends Controller
             if (!empty($email) && !empty($password)) {
                 // Check if user with this email already exists
                 $existingUser = User::where('email', $email)->first();
-                
+
                 if ($existingUser) {
                     // Update existing user and link to new employee
                     $existingUser->update([
                         'password' => $password,
                         'employee_id' => $employee->id,
+                        "company_id" => $employee->company_id,
                     ]);
                     $user = $existingUser;
                 } else {
@@ -153,6 +154,7 @@ class EmployeeControllerNew extends Controller
                         'email' => $email,
                         'password' => $password, // Already hashed above
                         'employee_id' => $employee->id,
+                        "company_id" => $employee->company_id,
                     ]);
                 }
 
