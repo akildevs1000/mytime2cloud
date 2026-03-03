@@ -5,6 +5,7 @@ import MainContentWrapper from "@/components/MainContentWrapper";
 import { Noto_Sans } from 'next/font/google';
 import { DarkModeProvider } from "@/context/DarkModeContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { LiveAttendanceProvider } from "@/context/LiveAttendanceContext";
 
 const notoSans = Noto_Sans({
   subsets: ['latin'],
@@ -30,13 +31,15 @@ export default function RootLayout({ children }) {
       <body className="text-slate-200 font-body overflow-hidden">
         <DarkModeProvider>
           <AuthProvider>
-            <Header />
-            <div className="flex flex-1 ">
-              <LeftMenu />
-              <MainContentWrapper>
-                {children}
-              </MainContentWrapper>
-            </div>
+            <LiveAttendanceProvider>
+              <Header />
+              <div className="flex flex-1 ">
+                <LeftMenu />
+                <MainContentWrapper>
+                  {children}
+                </MainContentWrapper>
+              </div>
+            </LiveAttendanceProvider>
           </AuthProvider>
 
         </DarkModeProvider>

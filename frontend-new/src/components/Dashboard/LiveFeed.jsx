@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDarkMode } from "@/context/DarkModeContext";
 import ProfilePicture from "../ProfilePicture";
-import { getDeviceJson, getDeviceLogs, getEmployeesJson } from "@/lib/api";
-import useMqtt from "@/hooks/useMqtt";
-import { getLateMinutes } from "@/hooks/useLateMinutes";
+import { getDeviceLogs } from "@/lib/api";
 import {
   Smartphone,
   Contact,
@@ -15,10 +13,8 @@ import {
   Monitor,
   User,
 } from "lucide-react";
-import { getUser } from "@/config";
 import { useRouter } from "next/navigation";
-import { useBrowserNotification } from "@/hooks/useBrowserNotification";
-import Swal from "sweetalert2";
+import { useLiveAttendance } from "@/context/LiveAttendanceContext";
 
 // 1. Define the base icon mapping
 const baseIcons = {
@@ -51,55 +47,9 @@ const iconGroups = {
   Repeated: [baseIcons.Repeated],
 };
 
-const defaultPunctuality = {
-  punctuality: "On Time",
-  punctualityColor: "text-emerald-600",
-  punctualityDot: "bg-emerald-500",
-};
-
-function getPunctualityFromShift(shift, logTime) {
-  if (!shift || shift.shift_type_id === 1 || shift.shift_type_id === 2) {
-    return defaultPunctuality;
-  }
-
-  const arrivalDateTime = typeof logTime === "string" ? logTime : "";
-  const hasDatePart = arrivalDateTime.includes(" ");
-  const dutyTime = shift?.on_duty_time
-    ? shift.on_duty_time.length === 5
-      ? `${shift.on_duty_time}:00`
-      : shift.on_duty_time
-    : null;
-
-  if (!hasDatePart || !dutyTime) {
-    return defaultPunctuality;
-  }
-
-  const shiftDate = arrivalDateTime.split(" ")[0];
-  const shiftStartDateTime = `${shiftDate} ${dutyTime}`;
-  const lateMinutes = getLateMinutes(
-    arrivalDateTime,
-    shiftStartDateTime,
-    shift?.grace_time || "00:00",
-  );
-
-  if (lateMinutes > 0) {
-    return {
-      punctuality: "Late",
-      punctualityColor: "text-amber-600",
-      punctualityDot: "bg-amber-500",
-    };
-  }
-
-  return defaultPunctuality;
-}
-
 function LiveFeed({ branch_ids, department_ids }) {
-  
-  const { showNotification } = useBrowserNotification();
-
   const router = useRouter();
-
-  const user = getUser();
+  const { lastAttendanceEvent } = useLiveAttendance();
 
   const { isDark } = useDarkMode();
 
@@ -182,80 +132,28 @@ function LiveFeed({ branch_ids, department_ids }) {
     fetchRecords();
   }, [branch_ids, department_ids]);
 
-  const [deviceJson, setDeviceJson] = useState(null);
-  const [employeesJson, setEmployeesJson] = useState(null);
-
-  const fetchJson = async () => {
-    setDeviceJson(await getDeviceJson(user.company_id));
-    setEmployeesJson(await getEmployeesJson(user.company_id));
-  };
-
   useEffect(() => {
-    fetchJson();
-  }, []);
-
-  const { lastMessage } = useMqtt(["mqtt/face/+/+"]);
-
-  useEffect(() => {
-    // Only process if we have a message and it's NOT a heartbeat
-    if (!lastMessage || lastMessage.topic.includes("heartbeat")) return;
-
-    const {
-      data: { customId, personName, facesluiceId, time, VerifyStatus, pic,...rest },
-    } = lastMessage;
-
-    if (!deviceJson) return;
-
-    if (!employeesJson) return;
-
-    let foundInfo = deviceJson[facesluiceId];
-    let foundEmployeeInfo = employeesJson[customId];
-
-    if (!foundInfo) return;
-    if (!foundEmployeeInfo) return;
-
-    const shift = foundEmployeeInfo?.schedule?.shift;
-    const { punctuality, punctualityColor, punctualityDot } =
-      getPunctualityFromShift(shift, time);
-
-    // do something like person name with id punched at time and is late or on time etc
-    showNotification({
-      title: "Attendance Notification",
-      body: `${personName} with ID ${customId} punched ${punctuality} at ${time}`,
-      icon: pic
-    });
-
-    Swal.fire({
-      title: "Attendance Notification",
-      text: `${personName} with ID ${customId} punched ${punctuality} at ${time}`,
-      icon: "success",
-      toast: true,
-      position: "top-end",
-      showConfirmButton: false,
-      timer: 3000,
-      timerProgressBar: true,
-      heightAuto: false,
-    });
+    if (!lastAttendanceEvent) return;
 
     // Insert new real-time record at the top, matching existing structure
     setRecords((prev) => [
       {
-        id: customId,
-        name: personName,
-        dept: `${foundEmployeeInfo?.branch?.branch_name} ${foundEmployeeInfo?.branch?.branch_name ? " / " + foundEmployeeInfo?.department?.name : ""}`,
-        location: foundInfo?.location || "-", // You can update this if you have location info
+        id: lastAttendanceEvent.customId,
+        name: lastAttendanceEvent.personName,
+        dept: lastAttendanceEvent.dept,
+        location: lastAttendanceEvent.location,
         type: "Entry",
-        punctuality,
-        punctualityColor,
-        punctualityDot,
-        status: VerifyStatus == "1" ? "Allowed" : "",
+        punctuality: lastAttendanceEvent.punctuality,
+        punctualityColor: lastAttendanceEvent.punctualityColor,
+        punctualityDot: lastAttendanceEvent.punctualityDot,
+        status: lastAttendanceEvent.status,
         statusType: "neutral",
-        LogTime: time,
+        LogTime: lastAttendanceEvent.time,
         modes: [baseIcons.Device],
       },
       ...prev,
     ]);
-  }, [lastMessage]);
+  }, [lastAttendanceEvent]);
 
   return (
     <div className="flex flex-col h-full w-full">

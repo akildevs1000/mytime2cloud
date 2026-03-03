@@ -16,8 +16,18 @@ const useSse = ({
   const [messages, setMessages] = useState([]);
   const [status, setStatus] = useState({ connected: false, error: null });
   const sourceRef = useRef(null);
+  const onMessageRef = useRef(onMessage);
+  const storeMessagesRef = useRef(storeMessages);
   const baseUrl = streamUrl || process.env.NEXT_PUBLIC_SSE_STREAM_URL || DEFAULT_SSE_STREAM_URL;
   const resolvedUrl = clientId ? `${baseUrl}?clientId=${encodeURIComponent(clientId)}` : null;
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+  }, [onMessage]);
+
+  useEffect(() => {
+    storeMessagesRef.current = storeMessages;
+  }, [storeMessages]);
 
   useEffect(() => {
     if (!enabled || !resolvedUrl) return;
@@ -32,23 +42,23 @@ const useSse = ({
     source.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (storeMessages) {
+        if (storeMessagesRef.current) {
           setMessages((prev) => [...prev, data]);
         }
-        if (typeof onMessage === "function") {
+        if (typeof onMessageRef.current === "function") {
           try {
-            onMessage(data, event);
+            onMessageRef.current(data, event);
           } catch (callbackError) {
             console.error("SSE onMessage callback error:", callbackError);
           }
         }
       } catch {
-        if (storeMessages) {
+        if (storeMessagesRef.current) {
           setMessages((prev) => [...prev, event.data]);
         }
-        if (typeof onMessage === "function") {
+        if (typeof onMessageRef.current === "function") {
           try {
-            onMessage(event.data, event);
+            onMessageRef.current(event.data, event);
           } catch (callbackError) {
             console.error("SSE onMessage callback error:", callbackError);
           }
@@ -65,7 +75,7 @@ const useSse = ({
       sourceRef.current = null;
       setStatus((prev) => ({ ...prev, connected: false }));
     };
-  }, [enabled, resolvedUrl, withCredentials, onMessage, storeMessages]);
+  }, [enabled, resolvedUrl, withCredentials]);
 
   const clearMessages = () => setMessages([]);
 

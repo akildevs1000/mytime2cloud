@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { getUser } from "@/config/index";
 import { useDarkMode } from "@/context/DarkModeContext";
+import LiveAttendanceNotifier from "@/components/LiveAttendanceNotifier";
 
 export default function Header() {
   const router = useRouter();
@@ -105,65 +106,68 @@ export default function Header() {
   const filteredLinks = navLinks;
 
   return (
-    <header className="flex items-center justify-between bg-white dark:bg-slate-900 p-3 border-b border-gray-100 dark:border-slate-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center">
-          <img alt="MyTime Cloud logo" className="h-10" src="/logo22.png" />
-        </div>
-      </div>
-
-      <nav className="hidden md:flex items-center space-x-6">
-        {filteredLinks.map((link) => {
-          const isActive = link.href === pathname;
-          const baseClasses = "text-sm font-medium";
-          const activeClasses = "text-primary dark:text-purple-400 rounded-md";
-          const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400";
-
-          return (
-            <Link
-              key={link.name}
-              href={link.href}
-              className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
-            >
-              {link.name}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center gap-4">
-          <button
-            className="relative p-2 text-slate-500 hover:text-red-600 transition-colors"
-            title="Watch Tutorial"
-          >
-            <span className="material-symbols-outlined">smart_display</span>
-          </button>
-
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className="relative p-2 text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-gold-glow transition-all duration-300 active-pop"
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-          >
-            <span className="material-symbols-outlined transition-transform duration-500 rotate-0 dark:rotate-[360deg]">
-              {isDark ? "light_mode" : "dark_mode"}
-            </span>
-            <span
-              className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-colors ${isDark ? "bg-gold-glow shadow-[0_0_8px_#fbbf24]" : "bg-transparent"
-                }`}
-            />
-          </button>
-
-          <div className="text-right hidden sm:block">
-            <h2 className="text-sm font-bold text-gray-600 dark:text-gray-300 font-display">
-              {time}
-            </h2>
-            <p className="text-[10px] text-gray-600 dark:text-gray-300 font-mono">
-              {date}
-            </p>
+    <>
+      <LiveAttendanceNotifier />
+      <header className="flex items-center justify-between bg-white dark:bg-slate-900 p-3 border-b border-gray-100 dark:border-slate-800 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] z-20">
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center">
+            <img alt="MyTime Cloud logo" className="h-10" src="/logo22.png" />
           </div>
         </div>
-      </div>
-    </header>
+
+        <nav className="hidden md:flex items-center space-x-6">
+          {filteredLinks.map((link) => {
+            const isActive = link.href === pathname;
+            const baseClasses = "text-sm font-medium";
+            const activeClasses = "text-primary dark:text-purple-400 rounded-md";
+            const inactiveClasses = "text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400";
+
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="flex items-center space-x-4">
+          <div className="flex items-center gap-4">
+            <button
+              className="relative p-2 text-slate-500 hover:text-red-600 transition-colors"
+              title="Watch Tutorial"
+            >
+              <span className="material-symbols-outlined">smart_display</span>
+            </button>
+
+            <button
+              onClick={() => setIsDark(!isDark)}
+              className="relative p-2 text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-gold-glow transition-all duration-300 active-pop"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              <span className="material-symbols-outlined transition-transform duration-500 rotate-0 dark:rotate-[360deg]">
+                {isDark ? "light_mode" : "dark_mode"}
+              </span>
+              <span
+                className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-colors ${isDark ? "bg-gold-glow shadow-[0_0_8px_#fbbf24]" : "bg-transparent"
+                  }`}
+              />
+            </button>
+
+            <div className="text-right hidden sm:block">
+              <h2 className="text-sm font-bold text-gray-600 dark:text-gray-300 font-display">
+                {time}
+              </h2>
+              <p className="text-[10px] text-gray-600 dark:text-gray-300 font-mono">
+                {date}
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+    </>
   );
 }
