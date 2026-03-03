@@ -1342,6 +1342,23 @@ class AttendanceController extends Controller
 
     private function buildAvgTimeSelect(string $column, string $alias): string
     {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: use ~ for regex, EXTRACT for time parts
+            return "AVG(
+                CASE
+                    WHEN {$column} IS NOT NULL
+                        AND {$column} != '---'
+                        AND {$column} != ''
+                        AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
+                    THEN EXTRACT(HOUR FROM {$column}::time) * 60 + EXTRACT(MINUTE FROM {$column}::time)
+                    ELSE NULL
+                END
+            ) as {$alias}";
+        }
+
+        // MySQL: use REGEXP, HOUR/MINUTE functions
         return "AVG(
             CASE
                 WHEN {$column} IS NOT NULL
@@ -1356,6 +1373,23 @@ class AttendanceController extends Controller
 
     private function buildSumDurationSelect(string $column, string $alias): string
     {
+        $driver = DB::connection()->getDriverName();
+
+        if ($driver === 'pgsql') {
+            // PostgreSQL: use ~ for regex, EXTRACT for time parts
+            return "SUM(
+                CASE
+                    WHEN {$column} IS NOT NULL
+                        AND {$column} != '---'
+                        AND {$column} != ''
+                        AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
+                    THEN EXTRACT(HOUR FROM {$column}::time) * 60 + EXTRACT(MINUTE FROM {$column}::time)
+                    ELSE 0
+                END
+            ) as {$alias}";
+        }
+
+        // MySQL: use REGEXP, HOUR/MINUTE functions
         return "SUM(
             CASE
                 WHEN {$column} IS NOT NULL
