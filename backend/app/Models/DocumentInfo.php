@@ -49,4 +49,9 @@ class DocumentInfo extends Model
             $builder->orderBy('id', 'desc');
         });
     }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

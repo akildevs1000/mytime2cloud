@@ -50,6 +50,8 @@ class DocumentInfoController extends Controller
                 );
             })
 
+            ->with("employee")
+
             ->orderBy("expiry_date", "asc")
 
             ->get();
