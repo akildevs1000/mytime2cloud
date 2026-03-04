@@ -21,8 +21,21 @@ import {
 import ProfilePicture from '../ProfilePicture';
 import { Download } from 'lucide-react';
 import { getUser } from '@/config/index';
+import DatePicker from '../ui/DatePicker';
+import DropDown from '../ui/DropDown';
+import { set } from 'date-fns';
 
 export default function ExecutiveAttendanceDashboardPage() {
+
+  const [reportType, setReportType] = useState('monthly'); // 'daily' or 'monthly'
+
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
 
   const [stats, setStats] = useState([]);
   const [chartData, setChartData] = useState([]);
@@ -190,7 +203,19 @@ export default function ExecutiveAttendanceDashboardPage() {
     const user = await getUser();
 
     try {
-      const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
+      let isDaily = reportType === 'daily';
+
+      let dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
+
+      if (isDaily) {
+
+        dateRange = {
+          from_date: selectedDate,
+          to_date: selectedDate,
+        }
+
+      }
+
       const payload = {
         ...dateRange,
         branch_ids: selectedBranchIds,
@@ -294,15 +319,27 @@ export default function ExecutiveAttendanceDashboardPage() {
     try {
       setIsExporting(true);
       const user = await getUser();
-      const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
-      
+
+      let isDaily = reportType === 'daily';
+
+      let dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
+
+      if (isDaily) {
+
+        dateRange = {
+          from_date: selectedDate,
+          to_date: selectedDate,
+        }
+
+      }
+
       // Build URL parameters for the HTML template
       const params = new URLSearchParams();
       params.append('api_base', 'https://backend.mytime2cloud.com/api');
       params.append('company_id', user?.company_id || 0);
       params.append('from_date', dateRange.from_date);
       params.append('to_date', dateRange.to_date);
-      
+
       if (selectedBranchIds && selectedBranchIds.length > 0) {
         params.append('branch_ids', selectedBranchIds.join(','));
       }
@@ -311,7 +348,7 @@ export default function ExecutiveAttendanceDashboardPage() {
       }
 
       // Open the standalone HTML template
-      const templateUrl = `http://127.0.0.1:5500/monthly-summary/index.html?${params.toString()}`;
+      const templateUrl = `http://127.0.0.1:5501/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
       window.open(templateUrl, '_blank');
 
     } catch (error) {
@@ -424,11 +461,37 @@ export default function ExecutiveAttendanceDashboardPage() {
               badgesCount={1}
             />
 
-            <MonthPicker
-              value={selectedMonthRange}
-              onChange={handleMonthChange}
-              className="min-w-[240px]"
-            />
+            <div>
+              <DropDown
+                value={reportType}
+                items={[
+                  { name: 'Daily', id: 'daily' },
+                  { name: 'Monthly', id: 'monthly' },
+                ]}
+                onChange={setReportType}
+                placeholder="Pick a Report type"
+              />
+            </div>
+
+            {
+              /* For daily report, we show date picker. For monthly report, we show month picker */
+              reportType === 'daily' ? (
+                <div className=''>
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={setSelectedDate}
+                    placeholder="Pick a date"
+                    className="w-[250px]"
+                  />
+                </div>
+              ) : <MonthPicker
+                value={selectedMonthRange}
+                onChange={handleMonthChange}
+                className="min-w-[240px]"
+              />
+            }
+
+
 
 
 
