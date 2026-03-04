@@ -13,6 +13,7 @@
         rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -775,49 +776,75 @@
         }
 
         /* ✅ FIXED: no pagebreak.before selector (causes blank pages) */
-        function downloadPdf() {
-            // Select all page containers
-            var pages = document.querySelectorAll('.page-container');
-            // Create a temporary wrapper
-            var wrapper = document.createElement('div');
-            wrapper.style.background = '#fff';
-            wrapper.style.width = '297mm';
-            wrapper.style.minHeight = '210mm';
-            wrapper.style.display = 'block';
-            // Clone and append all pages
-            pages.forEach(function (page, idx) {
-                var clone = page.cloneNode(true);
-                // Only set pageBreakAfter for all but the last page
-                if (idx < pages.length - 1) {
-                    clone.style.pageBreakAfter = 'always';
-                } else {
-                    clone.style.pageBreakAfter = 'auto';
-                }
-                wrapper.appendChild(clone);
-            });
-            document.body.appendChild(wrapper);
+        async function downloadPdf() {
+            const buttons = document.querySelector(".no-print");
+            const overlay = document.getElementById("loadingOverlay");
 
-            var opt = {
-                margin: [0, 0, 0, 0],
-                filename: 'attendance_report.pdf',
-                image: { type: 'jpeg', quality: 1 },
-                html2canvas: {
+            // hide UI
+            if (buttons) buttons.style.display = "none";
+            if (overlay) overlay.classList.add("hidden");
+
+            const pages = Array.from(document.querySelectorAll(".page-container"));
+
+            // ✅ Temporarily remove overflow issues during capture (very important)
+            const restore = pages.map((p) => {
+                return {
+                    el: p,
+                    overflow: p.style.overflow,
+                    height: p.style.height,
+                    boxShadow: p.style.boxShadow,
+                };
+            });
+
+            pages.forEach((p) => {
+                p.style.overflow = "hidden";     // avoid blank canvas splits
+                p.style.boxShadow = "none";      // optional
+            });
+
+            // ✅ Use jsPDF directly (no html2pdf auto-pagebreak)
+            const pdf = new window.jspdf.jsPDF({
+                orientation: "landscape",
+                unit: "mm",
+                format: "a4",
+            });
+
+            // A4 landscape in mm
+            const pageW = 297;
+            const pageH = 210;
+
+            for (let i = 0; i < pages.length; i++) {
+                const el = pages[i];
+
+                // ✅ render each page separately
+                const canvas = await html2canvas(el, {
                     scale: 3,
                     useCORS: true,
-                    backgroundColor: '#fff',
-                    logging: false
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
-                pagebreak: { mode: ['css', 'legacy'] }
-            };
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    windowWidth: el.scrollWidth,
+                    windowHeight: el.scrollHeight,
+                });
 
-            var buttons = document.querySelector('.no-print');
-            if (buttons) buttons.style.display = 'none';
+                const imgData = canvas.toDataURL("image/jpeg", 1.0);
 
-            html2pdf().set(opt).from(wrapper).save().then(function () {
-                if (buttons) buttons.style.display = 'flex';
-                document.body.removeChild(wrapper);
+                if (i > 0) pdf.addPage("a4", "landscape");
+
+                // ✅ Fit image exactly to A4 landscape
+                pdf.addImage(imgData, "JPEG", 0, 0, pageW, pageH, undefined, "FAST");
+            }
+
+            pdf.save("attendance_report.pdf");
+
+            // restore styles
+            restore.forEach((r) => {
+                r.el.style.overflow = r.overflow;
+                r.el.style.height = r.height;
+                r.el.style.boxShadow = r.boxShadow;
             });
+
+            // restore UI
+            if (buttons) buttons.style.display = "flex";
+            if (overlay) overlay.classList.remove("hidden");
         }
 
         function init() {
