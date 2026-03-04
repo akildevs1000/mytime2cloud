@@ -4,9 +4,11 @@ import React, { useState } from 'react';
 import AutomationAttendance from '@/components/Automation/Attendance/page';
 import AutomationAbsent from '@/components/Automation/Absent/page';
 import AutomationDevice from '@/components/Automation/Device/page';
+import AutomationDocumentExpiry from '@/components/Automation/DocumentExpiry/page';
+import AutomationAccessControl from '@/components/Automation/AccessControl/page';
 
 // Define the available tabs
-const TABS = ['Attendance', 'Absent', 'Device'];
+const TABS = ['Attendance', 'Absent', 'Device', 'Document Expiry', 'Access Control'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');
@@ -16,6 +18,8 @@ export default function AttendancePage() {
             case 'Attendance': return <AutomationAttendance />;
             case 'Absent': return <AutomationAbsent />;
             case 'Device': return <AutomationDevice />;
+            case 'Document Expiry': return <AutomationDocumentExpiry />;
+            case 'Access Control': return <AutomationAccessControl />;
 
             default: return null;
         }
@@ -26,7 +30,7 @@ export default function AttendancePage() {
     return (
         <div className="w-full p-4 pb-24 overflow-y-auto max-h-[calc(100vh)]">
             {/* Header and Tab Bar */}
-            <div className="flex px-10 flex-col md:flex-row md:items-center justify-between  mb-6">
+            <div className="flex pt-5 flex-col md:flex-row md:items-center justify-between  mb-6">
                 <h1 className="text-2xl font-extrabold text-gray-600 dark:text-slate-300 flex items-center">
                 </h1>
                 <div className="flex space-x-8">

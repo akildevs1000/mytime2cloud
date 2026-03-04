@@ -64,7 +64,16 @@ const EmployeeDocuments = ({ employee_id }) => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">{doc.title}</div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">{doc.attachment}</div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            <a
+                              href={doc.access_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              {doc.attachment}
+                            </a>
+                          </div>
                         </div>
                       </div>
                     </td>
