@@ -7,11 +7,12 @@ import DropDown from "@/components/ui/DropDown";
 import { getBranches } from "@/lib/api";
 import Input from "@/components/Theme/Input";
 import TimePicker from "@/components/ui/TimePicker";
-import { storeReportNotification } from "@/lib/endpoint/automation";
+import { storeReportNotification, updateReportNotification } from "@/lib/endpoint/automation";
 import { getUser } from "@/config";
 
+// Use the shared endpoint function for updating
 async function updateAttendanceNotification(id, payload) {
-    return { data: { status: true, message: "Updated" } };
+    return await updateReportNotification(id, payload);
 }
 
 const DayCircle = ({ active, label, onClick }) => (
@@ -47,10 +48,12 @@ const ChipToggle = ({ active, label, onClick }) => (
 
 export default function AttendanceAutomationDialog({
     editItemPayload = null,
-    onSaved = () => { },
+    onSaved = () => {},
     triggerLabel = "Add",
+    idEditOpen = false,
+    setIdEditOpen = () => {},
 }) {
-    const [open, setOpen] = useState(false);
+    const open = idEditOpen;
     const [loading, setLoading] = useState(false);
     const [branches, setBranches] = useState([]);
     const [error, setError] = useState(null);
@@ -88,7 +91,7 @@ export default function AttendanceAutomationDialog({
 
     const toggleModal = () => {
         if (loading) return;
-        setOpen((v) => !v);
+        setIdEditOpen(false);
     };
 
     useEffect(() => {
@@ -201,7 +204,7 @@ export default function AttendanceAutomationDialog({
             }
 
             notify ? notify("Success", data?.message || "Saved", "success") : alert("Saved");
-            setOpen(false);
+            setIdEditOpen(false);
             onSaved?.(data);
         } catch (e) {
             const err = parseApiError ? parseApiError(e) : String(e);
@@ -213,13 +216,7 @@ export default function AttendanceAutomationDialog({
 
     return (
         <>
-            <button
-                onClick={() => setOpen(true)}
-                className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
-            >
-                <span className="material-symbols-outlined text-[18px]">add</span>
-                {triggerLabel}
-            </button>
+            {/* The Add button should be rendered only in the parent, not here, to avoid duplicate triggers */}
 
             {open && (
                 <div
