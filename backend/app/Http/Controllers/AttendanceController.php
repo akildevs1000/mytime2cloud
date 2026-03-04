@@ -955,7 +955,7 @@ class AttendanceController extends Controller
             'to_date' => 'nullable|date',
             'search' => 'nullable|string',
             'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:200',
+            'per_page' => 'nullable|integer|min:1|max:1000',
             'absent_threshold' => 'nullable|numeric|min:0|max:100',
             'late_threshold' => 'nullable|integer|min:1',
         ]);
