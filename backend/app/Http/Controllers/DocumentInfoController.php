@@ -8,6 +8,20 @@ use Illuminate\Http\Request;
 
 class DocumentInfoController extends Controller
 {
+    public function index()
+    {
+        return DocumentInfo::where("company_id", request("company_id"))
+
+            ->when(request("branch_ids"), function ($query) {
+                $query->whereHas("employee", fn($q) => $q->whereIn('branch_id', request("branch_ids")));
+            })
+
+            ->when(request("department_ids"), function ($query) {
+                $query->whereHas("employee", fn($q) => $q->whereIn('department_id', request("department_ids")));
+            })
+
+            ->get();
+    }
 
     public function store(DocumentInfo $DocumentInfo, Request $request)
     {
