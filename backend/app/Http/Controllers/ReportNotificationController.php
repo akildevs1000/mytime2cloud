@@ -20,7 +20,10 @@ class ReportNotificationController extends Controller
 
         $model = $model->with(["managers", "logs"])
             ->where('company_id', $request->company_id)
-            ->where('type', request("type") ?? "automation")
+
+            ->when($request->filled('type'), function ($q) use ($request) {
+                $q->where('type', request("type") ?? "automation");
+            })
 
             ->when($request->filled('types') && count(request("types")) > 0, function ($q) use ($request) {
                 $q->whereIn('type', request("types") ?? ["automation"]);
