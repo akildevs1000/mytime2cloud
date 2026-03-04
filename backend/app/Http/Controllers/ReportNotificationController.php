@@ -89,6 +89,17 @@ class ReportNotificationController extends Controller
                     $q->orderBy($request->sortBy . "", $sortDesc == 'true' ? 'desc' : 'asc'); {
                     }
                 }
+            })
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $key = trim(strtolower($request->search));
+
+                $q->whereHas("managers", function ($mq) use ($key) {
+                    $like = env('WILD_CARD') ?? 'ILIKE';
+
+                    $mq->whereRaw('LOWER(name) LIKE ?', [$key . '%'])
+                        ->orWhereRaw('LOWER(email) LIKE ?', [$key . '%'])
+                        ->orWhereRaw('LOWER(whatsapp_number) LIKE ?', [$key . '%']);
+                });
             });
 
         if (!$request->filled('sortBy')) {
