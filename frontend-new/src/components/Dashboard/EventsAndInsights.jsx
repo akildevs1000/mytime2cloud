@@ -1,3 +1,4 @@
+import AutomationAll from '@/components/Automation/All/page';
 import React, { useState, useMemo } from "react";
 
 const MOCK_DATA = {
@@ -65,7 +66,7 @@ function EventsAndInsights({ branch_id }) {
     "Announcements",
     "Holidays",
     "Spotlight",
-    "Weather",
+    "Automation",
   ];
 
   // In a real app, you might fetch data based on activeTab and branch_id
@@ -82,11 +83,7 @@ function EventsAndInsights({ branch_id }) {
             </span>
             Insights & Events
           </h3>
-          {/* <button className="material-symbols-outlined text-slate-500 hover:text-gray-600 dark:text-gray-300 text-sm">
-            more_vert
-          </button> */}
         </div>
-
         {/* Tab Navigation */}
         <div className="flex gap-1 bg-black/20 p-1 rounded-lg overflow-x-auto no-scrollbar">
           {tabs.map((tab) => (
@@ -104,58 +101,60 @@ function EventsAndInsights({ branch_id }) {
           ))}
         </div>
       </div>
-
       {/* Content Section */}
       <div className="flex-1 relative flex flex-col min-h-0 overflow-hidden">
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
-          {/* Table Header */}
-          <div className="grid grid-cols-12 px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-            <div className="col-span-6">Event</div>
-            <div className="col-span-3">Source</div>
-            <div className="col-span-3 text-right">Time</div>
-          </div>
-
-          {/* Table Body */}
-          {currentData.length > 0 ? (
-            currentData.map((item) => (
-              <div
-                key={item.id}
-                className="grid grid-cols-12 items-center px-3 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors rounded-lg group cursor-pointer"
-              >
-                <div className="col-span-6 flex items-center gap-3">
-                  <div
-                    className={`size-2 shrink-0 rounded-full ${TYPE_COLORS[item.type] || "bg-slate-400"}`}
-                  ></div>
-                  <div className="truncate">
-                    <p className="text-xs font-bold text-gray-600 dark:text-gray-300 truncate">
-                      {item.event}
-                    </p>
-                    <p className="text-[9px] text-slate-500 truncate">
-                      {item.location}
-                    </p>
+        {activeTab === "Automation" ? (
+          <AutomationAll />
+        ) : (
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
+            {/* Table Header */}
+            <div className="grid grid-cols-12 px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              <div className="col-span-6">Event</div>
+              <div className="col-span-3">Source</div>
+              <div className="col-span-3 text-right">Time</div>
+            </div>
+            {/* Table Body */}
+            {currentData.length > 0 ? (
+              currentData.map((item) => (
+                <div
+                  key={item.id}
+                  className="grid grid-cols-12 items-center px-3 py-2.5 border-b border-white/5 hover:bg-white/5 transition-colors rounded-lg group cursor-pointer"
+                >
+                  <div className="col-span-6 flex items-center gap-3">
+                    <div
+                      className={`size-2 shrink-0 rounded-full ${TYPE_COLORS[item.type] || "bg-slate-400"}`}
+                    ></div>
+                    <div className="truncate">
+                      <p className="text-xs font-bold text-gray-600 dark:text-gray-300 truncate">
+                        {item.event}
+                      </p>
+                      <p className="text-[9px] text-slate-500 truncate">
+                        {item.location}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="col-span-3 text-[10px] text-gray-600 dark:text-gray-300 truncate">
+                    {item.source}
+                  </div>
+                  <div className="col-span-3 text-right">
+                    <span className="text-[10px] font-mono text-gray-600 dark:text-gray-300">
+                      {item.time}
+                    </span>
                   </div>
                 </div>
-                <div className="col-span-3 text-[10px] text-gray-600 dark:text-gray-300 truncate">
-                  {item.source}
-                </div>
-                <div className="col-span-3 text-right">
-                  <span className="text-[10px] font-mono text-gray-600 dark:text-gray-300">
-                    {item.time}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center py-10 opacity-50">
+                <span className="material-symbols-outlined text-4xl mb-2">
+                  inbox
+                </span>
+                <p className="text-[10px] font-bold uppercase tracking-widest">
+                  No Events Found
+                </p>
               </div>
-            ))
-          ) : (
-            <div className="flex flex-col items-center justify-center py-10 opacity-50">
-              <span className="material-symbols-outlined text-4xl mb-2">
-                inbox
-              </span>
-              <p className="text-[10px] font-bold uppercase tracking-widest">
-                No Events Found
-              </p>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
