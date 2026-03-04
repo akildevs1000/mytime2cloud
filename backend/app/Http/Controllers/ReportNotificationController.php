@@ -26,7 +26,6 @@ class ReportNotificationController extends Controller
                 $q->whereIn('types', request("types") ?? ["automation"]);
             })
 
-
             ->with("managers", function ($query) use ($request) {
                 $query->where("company_id", $request->company_id);
             })
