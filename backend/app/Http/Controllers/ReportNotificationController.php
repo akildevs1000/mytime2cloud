@@ -22,6 +22,10 @@ class ReportNotificationController extends Controller
             ->where('company_id', $request->company_id)
             ->where('type', request("type") ?? "automation")
 
+            ->when($request->filled('types') && count(request("types")) > 0, function ($q) use ($request) {
+                $q->whereIn('types', request("types") ?? ["automation"]);
+            })
+
 
             ->with("managers", function ($query) use ($request) {
                 $query->where("company_id", $request->company_id);
@@ -39,15 +43,15 @@ class ReportNotificationController extends Controller
 
             ->when($request->filled('manager1'), function ($q) use ($request) {
 
-                $q->whereHas("managers", fn ($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%'));
+                $q->whereHas("managers", fn($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager1 . '%'));
             })
             ->when($request->filled('manager2'), function ($q) use ($request) {
 
-                $q->whereHas("managers", fn ($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%'));
+                $q->whereHas("managers", fn($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager2 . '%'));
             })
             ->when($request->filled('manager3'), function ($q) use ($request) {
 
-                $q->whereHas("managers", fn ($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%'));
+                $q->whereHas("managers", fn($q) => $q->where("name", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%')->orWhere("email", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%')->orWhere("whatsapp_number", env('WILD_CARD') ?? 'ILIKE', $request->manager3 . '%'));
             })
             ->when($request->filled('time'), function ($q) use ($request) {
                 $q->where('time', env('WILD_CARD') ?? 'ILIKE', "$request->time%");
