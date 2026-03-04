@@ -7,12 +7,9 @@ import DropDown from "@/components/ui/DropDown";
 import { getBranches } from "@/lib/api";
 import Input from "@/components/Theme/Input";
 import TimePicker from "@/components/ui/TimePicker";
-import { storeReportNotification } from "@/lib/endpoint/automation";
+import { storeReportNotification, updateReportNotification } from "@/lib/endpoint/automation";
 import { getUser } from "@/config";
 
-async function updateDeviceNotification(id, payload) {
-    return { data: { status: true, message: "Updated" } };
-}
 
 const DayCircle = ({ active, label, onClick }) => (
     <button
@@ -45,12 +42,14 @@ const ChipToggle = ({ active, label, onClick }) => (
     </button>
 );
 
-export default function DeviceDialog({
+export default function DeviceAutomationDialog({
     editItemPayload = null,
     onSaved = () => { },
     triggerLabel = "Add",
+    idEditOpen = false,
+    setIdEditOpen = () => { },
 }) {
-    const [open, setOpen] = useState(false);
+    const open = idEditOpen;
     const [loading, setLoading] = useState(false);
     const [branches, setBranches] = useState([]);
     const [error, setError] = useState(null);
@@ -88,7 +87,7 @@ export default function DeviceDialog({
 
     const toggleModal = () => {
         if (loading) return;
-        setOpen((v) => !v);
+        setIdEditOpen(false);
     };
 
     useEffect(() => {
@@ -189,7 +188,7 @@ export default function DeviceDialog({
             console.log(payload);
 
             const data = editItemPayload?.id
-                ? await updateDeviceNotification(editItemPayload.id, payload)
+                ? await updateReportNotification(editItemPayload.id, payload)
                 : await storeReportNotification(payload);
 
             if (data?.status === false) {
@@ -201,7 +200,7 @@ export default function DeviceDialog({
             }
 
             notify ? notify("Success", data?.message || "Saved", "success") : alert("Saved");
-            setOpen(false);
+            setIdEditOpen(false);
             onSaved?.(data);
         } catch (e) {
             const err = parseApiError ? parseApiError(e) : String(e);
@@ -213,13 +212,7 @@ export default function DeviceDialog({
 
     return (
         <>
-            <button
-                onClick={() => setOpen(true)}
-                className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
-            >
-                <span className="material-symbols-outlined text-[18px]">add</span>
-                {triggerLabel}
-            </button>
+            {/* The Add button should be rendered only in the parent, not here, to avoid duplicate triggers */}
 
             {open && (
                 <div
@@ -251,7 +244,7 @@ export default function DeviceDialog({
                                     {editItemPayload?.id ? "Edit Device Automation" : "Add Device Automation"}
                                 </h3>
                                 <p className="text-xs text-slate-400 mt-0.5">
-                                    Create notification rule for device events
+                                    Create notification rule for device
                                 </p>
                                 {error ? <p className="mt-2 text-xs text-red-500">{String(error)}</p> : null}
                             </div>
@@ -291,7 +284,7 @@ export default function DeviceDialog({
                                             <Input
                                                 value={form.subject}
                                                 onChange={(e) => setField("subject", e.target.value)}
-                                                placeholder="E.g. Notify Managers about today's device events"
+                                                placeholder="E.g. Notify Managers about today's device status"
                                             />
                                         </div>
 

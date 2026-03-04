@@ -19,17 +19,6 @@ export default (deleteItem, editItem) => {
             ),
         },
         {
-            key: "type",
-            header: "Type",
-            render: (e) => (
-                <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e.type
-                        ? e.type.charAt(0).toUpperCase() + e.type.slice(1).toLowerCase()
-                        : "N/A"}
-                </p>
-            ),
-        },
-        {
             key: "subject",
             header: "Subject",
             render: (e) => (
