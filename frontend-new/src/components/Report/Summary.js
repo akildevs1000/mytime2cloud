@@ -4,8 +4,8 @@
 // Next.js App Router page component (React)
 // If you prefer a reusable component, move JSX into /components and import it here.
 
-import React, { useEffect, useState } from 'react';
-import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, downloadCompanyStatsSummaryPdf } from '@/lib/endpoint/dashboard';
+import React, { useEffect, useState, useRef } from 'react';
+import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, getCompanyStatsSummaryPayload } from '@/lib/endpoint/dashboard';
 import MonthPicker from '@/components/ui/MonthPicker';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { getBranches, getDepartmentsByBranchIds } from '@/lib/api';
@@ -21,6 +21,9 @@ import {
 import ProfilePicture from '../ProfilePicture';
 import { Download } from 'lucide-react';
 import { getUser } from '@/config/index';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
+import SummaryPdfTemplate from './SummaryPdfTemplate';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -38,6 +41,8 @@ export default function ExecutiveAttendanceDashboardPage() {
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState([]);
   const [isExporting, setIsExporting] = useState(false);
+  const [pdfData, setPdfData] = useState(null);
+  const pdfContainerRef = useRef(null);
   const [selectedMonthRange, setSelectedMonthRange] = useState(() => {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -293,33 +298,25 @@ export default function ExecutiveAttendanceDashboardPage() {
       setIsExporting(true);
       const user = await getUser();
       const dateRange = getMonthBounds(selectedMonthRange?.from, selectedMonthRange?.to || selectedMonthRange?.from);
-      const payload = {
-        ...dateRange,
-        branch_ids: selectedBranchIds,
-        department_ids: selectedDepartmentIds,
-        company_id: user?.company_id || 0,
-      };
-
-      // Build query string from payload
+      
+      // Build URL parameters for the HTML template
       const params = new URLSearchParams();
+      params.append('api_base', 'https://backend.mytime2cloud.com/api');
+      params.append('company_id', user?.company_id || 0);
+      params.append('from_date', dateRange.from_date);
+      params.append('to_date', dateRange.to_date);
       
-      // Add api_base for the HTML page to know where to call Laravel API
-      params.append('api_base', process.env.NEXT_PUBLIC_BACKEND_URL || 'https://backend.mytime2cloud.com/api');
-      
-      Object.entries(payload).forEach(([key, value]) => {
-        if (Array.isArray(value)) {
-          // Handle arrays by joining with comma
-          if (value.length > 0) {
-            params.append(key, value.join(','));
-          }
-        } else if (value !== undefined && value !== null) {
-          params.append(key, value);
-        }
-      });
+      if (selectedBranchIds && selectedBranchIds.length > 0) {
+        params.append('branch_ids', selectedBranchIds.join(','));
+      }
+      if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
+        params.append('department_ids', selectedDepartmentIds.join(','));
+      }
 
-      // Open the URL in a new tab with the parameters
-      const reportUrl = `http://127.0.0.1:5500/monthly-summary/index.html?${params.toString()}`;
-      window.open(reportUrl, '_blank');
+      // Open the standalone HTML template
+      const templateUrl = `http://127.0.0.1:5500/monthly-summary/index.html?${params.toString()}`;
+      window.open(templateUrl, '_blank');
+
     } catch (error) {
       console.error('Failed to export PDF:', error);
     } finally {
@@ -399,6 +396,22 @@ export default function ExecutiveAttendanceDashboardPage() {
 
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-white  min-h-screen flex flex-col antialiased selection:bg-accent/20 overflow-y-auto ">
+      {/* Hidden PDF Template Container */}
+      {pdfData && (
+        <div
+          ref={pdfContainerRef}
+          style={{
+            position: 'absolute',
+            left: '-9999px',
+            top: 0,
+            width: '210mm',
+            backgroundColor: '#ffffff',
+          }}
+        >
+          <SummaryPdfTemplate data={pdfData} periodLabel={selectedMonthLabel} />
+        </div>
+      )}
+      
       <main className="relative z-10 flex-1 w-full  mx-auto px-6 py-8 flex flex-col gap-8 max-h-[calc(100vh-100px)]">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">

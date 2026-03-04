@@ -50,3 +50,9 @@ export const downloadCompanyStatsSummaryPdf = async (params = {}) => {
     });
     return response;
 };
+
+export const getCompanyStatsSummaryPayload = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const { data } = await api.get("/company_stats_summary_payload", { params: queryParams });
+    return data;
+};
