@@ -1,19 +1,21 @@
 "use client";
 
 import React, { useState } from 'react';
-import ExecutiveAttendanceDashboardPage from '@/components/Report/Summary';
-import AttendanceTable from '@/components/Report/Report';
+import AutomationAttendance from '@/components/Automation/Attendance/page';
+import AutomationAbsent from '@/components/Automation/Absent/page';
+import AutomationDevice from '@/components/Automation/Device/page';
 
 // Define the available tabs
-const TABS = ['Attendance', 'Summary'];
+const TABS = ['Attendance', 'Absent', 'Device'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');
 
     const renderContent = () => {
         switch (activeTab) {
-            case 'Attendance': return <AttendanceTable />;
-            case 'Summary': return <ExecutiveAttendanceDashboardPage />;
+            case 'Attendance': return <AutomationAttendance />;
+            case 'Absent': return <AutomationAbsent />;
+            case 'Device': return <AutomationDevice />;
 
             default: return null;
         }
