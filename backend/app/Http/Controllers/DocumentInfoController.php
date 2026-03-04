@@ -54,7 +54,7 @@ class DocumentInfoController extends Controller
 
             ->orderBy("expiry_date", "asc")
 
-            ->get();
+            ->paginate(request("per_page", 10));
     }
 
     public function store(DocumentInfo $DocumentInfo, Request $request)
