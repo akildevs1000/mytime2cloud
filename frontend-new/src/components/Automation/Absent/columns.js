@@ -1,5 +1,5 @@
 // columns.js
-import { MoreVertical, Trash } from "lucide-react";
+import { MoreVertical, Pencil, Trash } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -7,7 +7,7 @@ import {
     DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 
-export default (deleteItem) => {
+export default (deleteItem, editItem) => {
     return [
         {
             key: "branch",
@@ -148,6 +148,16 @@ export default (deleteItem) => {
                         className="w-32 bg-white dark:bg-gray-900 shadow-md rounded-md py-1"
                         onClick={(ev) => ev.stopPropagation()}
                     >
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation(); // Stop row redirect
+                                editItem(row);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        >
+                            <Pencil className="w-4 h-4 text-primary" />
+                            <span className="text-primary font-medium">Edit</span>
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                             onClick={(ev) => {
                                 ev.stopPropagation();

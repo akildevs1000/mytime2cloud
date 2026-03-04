@@ -15,7 +15,7 @@ import IconButton from '@/components/Theme/IconButton';
 import Create from '@/components/Automation/Attendance/Create';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { SCHEDULE_STATS } from '@/lib/dropdowns';
-import { getReportNotifications } from '@/lib/endpoint/automation';
+import { deleteReportNotification, getReportNotifications } from '@/lib/endpoint/automation';
 
 export default function AutomationAttendance() {
 
@@ -106,11 +106,20 @@ export default function AutomationAttendance() {
         fetchRecords(currentPage, perPage);
     }
 
+    const [idEditOpen, setIdEditOpen] = useState(false);
+    const [editItemPayload, setEditItemPayload] = useState(null);
+
+    const editItem = async (item) => {
+        setEditItemPayload(item);
+        setIdEditOpen(false); // force close first to ensure re-open
+        setTimeout(() => setIdEditOpen(true), 0);
+    }
+
 
     const deleteItem = async (id) => {
         if (confirm("Are you sure you want to delete this employee?")) {
             try {
-                await removeEmployeeSchedule(id);
+                await deleteReportNotification(id);
                 handleRefresh();
             } catch (error) {
                 console.error("Error deleting employee:", error);
@@ -155,13 +164,23 @@ export default function AutomationAttendance() {
                             title="Refresh Data"
                         />
 
-                        <Create onSuccess={handleRefresh} />
+                        <button
+                            onClick={() => {
+                                setEditItemPayload(null);
+                                setIdEditOpen(true);
+                            }}
+                            className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">add</span>
+                            Add
+                        </button>
+                        <Create idEditOpen={idEditOpen} setIdEditOpen={setIdEditOpen} editItemPayload={editItemPayload} onSaved={handleRefresh} />
 
                     </div>
                 </div>
 
                 <DataTable
-                    columns={Columns(deleteItem)}
+                    columns={Columns(deleteItem, editItem)}
                     data={records}
                     isLoading={isLoading}
                     error={error}
