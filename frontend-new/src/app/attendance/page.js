@@ -6,7 +6,7 @@ import AttendanceTable from '@/components/Report/Report';
 import PerformanceReport from '@/components/Report/Performance';
 
 // Define the available tabs
-const TABS = ['Attendance', 'Summary', 'Performance'];
+const TABS = ['Attendance', 'Summary'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');

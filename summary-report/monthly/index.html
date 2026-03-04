@@ -780,9 +780,10 @@
             const buttons = document.querySelector(".no-print");
             const overlay = document.getElementById("loadingOverlay");
 
-            // hide UI
+            // Show loading overlay
+            if (overlay) overlay.classList.remove("hidden");
+            // hide UI controls
             if (buttons) buttons.style.display = "none";
-            if (overlay) overlay.classList.add("hidden");
 
             const pages = Array.from(document.querySelectorAll(".page-container"));
 
@@ -842,9 +843,10 @@
                 r.el.style.boxShadow = r.boxShadow;
             });
 
-            // restore UI
+            // restore UI controls
             if (buttons) buttons.style.display = "flex";
-            if (overlay) overlay.classList.remove("hidden");
+            // Hide loading overlay after generation
+            if (overlay) overlay.classList.add("hidden");
         }
 
         function init() {

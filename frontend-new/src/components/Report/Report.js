@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil } from 'lucide-react';
+import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getDeviceLogs, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
@@ -19,6 +19,13 @@ import { API_BASE_URL } from '@/config';
 import { getUser } from "@/config/index";
 import ManualAttendanceCorrectionModal from '../Attendance/ManualAttendanceCorrectionModal';
 
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
 const shiftTabMapping = {
   '0': { single: true, double: false, multi: false },
   '2': { single: false, double: false, multi: true },
@@ -33,6 +40,8 @@ const reportTemplates = [
 ];
 
 export default function AttendanceTable() {
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
   const [isManualSubmitting, setIsManualSubmitting] = useState(false);
@@ -545,17 +554,40 @@ export default function AttendanceTable() {
 
                   <RegenerateReport shift_type_id={shiftTypeId} />
 
-                  <button onClick={() => process_file_in_child_comp('monthly_download_pdf', `PDF`)}
-                    className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
-                  >
-                    <Printer size={15} />
-                  </button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      asChild
+                      /* This prevents the dropdown trigger itself from triggering the row click */
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="p-2 rounded-full cursor-pointer w-fit">
+                        <MoreVertical className="w-5 h-5 text-gray-400" />
+                      </div>
+                    </DropdownMenuTrigger>
 
-                  <button onClick={() => process_file_in_child_comp('monthly_download_csv', `EXCEL`)}
-                    className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
-                  >
-                    <File size={15} />
-                  </button>
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-32 bg-white dark:bg-gray-900 shadow-md rounded-md py-1"
+                    /* This prevents clicking inside the menu from triggering the row click */
+                    >
+                      <DropdownMenuItem
+                        onClick={() => { process_file_in_child_comp('monthly_download_pdf', `PDF`); setIsMenuOpen(false); }}
+                        className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                      >
+                        <Pencil className="w-4 h-4 text-primary" />
+                        <span className="text-primary font-medium">PDF</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        onClick={() => { process_file_in_child_comp('monthly_download_csv', `EXCEL`); setIsMenuOpen(false); }}
+                        className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                      >
+                        <File className="w-4 h-4 text-primary" />
+                        <span className="text-primary font-medium">Excel</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
                 </div>
 
               </div>
