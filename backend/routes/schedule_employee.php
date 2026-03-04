@@ -27,6 +27,7 @@ Route::get('scheduled_employees_index', [ScheduleEmployeeController::class, 'sch
 Route::get('scheduled_employees_with_type', [ScheduleEmployeeController::class, 'scheduled_employees_with_type']);
 Route::get('scheduled_employees_with_type_new', [ScheduleEmployeeController::class, 'scheduled_employees_with_type_new']);
 Route::get('/get_shifts_by_employee/{id}', [ScheduleEmployeeController::class, 'getShiftsByEmployee']);
+Route::get('/employee_related_shift/{id}', [ScheduleEmployeeController::class, 'employee_related_shift']);
 
 Route::get('/employees_with_schedule_count', [ScheduleEmployeeController::class, 'employeesWithScheduleCount']);
 Route::get('/schedule_stats', [ScheduleEmployeeController::class, 'scheduleStats']);

@@ -27,3 +27,15 @@ export const updateRequest = async (id, payload = {}) => {
     const { data } = await api.post(`/update-change-request/${id}`, payload);
     return data;
 };
+
+export const generateManualLog = async (payload = {}) => {
+    const { data } = await api.post(`/generate_log`, payload);
+    return data;
+};
+
+export const getEmployeeRelatedShift = async (employee_id) => {
+    const { data } = await api.get(`/employee_related_shift/${employee_id}`, {
+        params: await buildQueryParams(),
+    });
+    return data?.record || null;
+};

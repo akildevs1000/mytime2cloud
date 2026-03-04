@@ -307,11 +307,20 @@ class CompanyController extends Controller
     {
 
         $data = $request->validated();
+        $companyRecord = Company::findOrFail($id);
+
         if ($request->logo_only == 1) {
             return $this->update_log($request, $id);
         }
-        $data["no_branch"]    = $request->no_branch ? 1 : 0;
-        $data["max_branches"] = $request->max_branches;
+
+        if ($request->has('no_branch')) {
+            $data["no_branch"] = $request->no_branch ? 1 : 0;
+        }
+
+        if ($request->filled('max_branches')) {
+            $data["max_branches"] = (int) $request->max_branches;
+        }
+
         // $data["lat"] = $request->lat;
         // $data["lon"] = $request->lon;
         $data["name"] = $request->name;
@@ -330,7 +339,7 @@ class CompanyController extends Controller
             $data['logo'] = $fileName;
         }
 
-        $company = Company::find($id)->update($data);
+        $company = $companyRecord->update($data);
         if (! $company) {
             return $this->response('Company cannot updated.', null, false);
         }

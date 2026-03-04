@@ -144,6 +144,8 @@ const Company = () => {
     { id: 'tab-branch', label: 'Branch Management' },
     { id: 'tab-schedule', label: 'Working Schedule' },
     { id: 'tab-docs', label: 'Documents' },
+    { id: 'tab-password', label: 'Password' },
+    { id: 'tab-pin', label: 'Door Pin' },
   ];
 
   const handleGoBack = () => router.push(`/`);
@@ -192,10 +194,12 @@ const Company = () => {
 
         {/* Tab Content Area */}
         <div className="py-6">
-          {activeTab === 'tab-gen' && <Profile /> }
+          {activeTab === 'tab-gen' && <Profile profile={profileData} contact={contactData} isLoading={isLoading} /> }
           {activeTab === 'tab-branch' && <Branch />}
           {activeTab === 'tab-schedule' && <WorkingSchedule />}
           {activeTab === 'tab-docs' && <Document />}
+          {activeTab === 'tab-password' && <Password />}
+          {activeTab === 'tab-pin' && <DoorPin pin={pin} isLoading={isLoading} />}
         </div>
       </div>
     </div>
