@@ -21,9 +21,6 @@ import {
 import ProfilePicture from '../ProfilePicture';
 import { Download } from 'lucide-react';
 import { getUser } from '@/config/index';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import SummaryPdfTemplate from './SummaryPdfTemplate';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -397,21 +394,6 @@ export default function ExecutiveAttendanceDashboardPage() {
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-800 dark:text-white  min-h-screen flex flex-col antialiased selection:bg-accent/20 overflow-y-auto ">
       {/* Hidden PDF Template Container */}
-      {pdfData && (
-        <div
-          ref={pdfContainerRef}
-          style={{
-            position: 'absolute',
-            left: '-9999px',
-            top: 0,
-            width: '210mm',
-            backgroundColor: '#ffffff',
-          }}
-        >
-          <SummaryPdfTemplate data={pdfData} periodLabel={selectedMonthLabel} />
-        </div>
-      )}
-      
       <main className="relative z-10 flex-1 w-full  mx-auto px-6 py-8 flex flex-col gap-8 max-h-[calc(100vh-100px)]">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
