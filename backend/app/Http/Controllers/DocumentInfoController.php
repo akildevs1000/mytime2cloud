@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DocumentInfo;
+use Carbon\Carbon;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Http\Request;
 
@@ -19,6 +20,37 @@ class DocumentInfoController extends Controller
             ->when(request("department_ids"), function ($query) {
                 $query->whereHas("employee", fn($q) => $q->whereIn('department_id', request("department_ids")));
             })
+
+            ->get();
+    }
+
+    public function upcomingExpiry()
+    {
+        $today = Carbon::today();
+        
+        $next30Days = Carbon::today()->addDays(30);
+
+        return DocumentInfo::where("company_id", request("company_id"))
+
+            ->whereBetween("expiry_date", [$today, $next30Days])
+
+            ->when(request("branch_ids"), function ($query) {
+                $query->whereHas(
+                    "employee",
+                    fn($q) =>
+                    $q->whereIn('branch_id', request("branch_ids"))
+                );
+            })
+
+            ->when(request("department_ids"), function ($query) {
+                $query->whereHas(
+                    "employee",
+                    fn($q) =>
+                    $q->whereIn('department_id', request("department_ids"))
+                );
+            })
+
+            ->orderBy("expiry_date", "asc")
 
             ->get();
     }
