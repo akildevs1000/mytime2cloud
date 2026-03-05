@@ -6,4 +6,3 @@ backend/ssl/cert.key
 .vscode/settings.json
 node_modules
 loglistner_mqtt
-sync-calender-api
