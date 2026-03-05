@@ -11,6 +11,10 @@ app.use(cors());
 
 const UAE_HOLIDAYS_URL = 'https://calendar.google.com/calendar/ical/en.ae%23holiday%40group.v.calendar.google.com/public/basic.ics';
 
+app.get('/health', async (req, res) => {
+    res.json({ "status": true });
+});
+
 app.get('/holidays/:year', async (req, res) => {
     const selectedYear = parseInt(req.params.year);
 
