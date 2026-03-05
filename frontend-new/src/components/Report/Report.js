@@ -332,10 +332,11 @@ export default function AttendanceTable() {
       queryObj.append("employee_id", selectedEmployeeIds.join(","));
       queryObj.append("employee_ids", selectedEmployeeIds.join(","));
 
-      // Always add status parameter (matching Vue frontend - it always includes this)
-      queryObj.append("status", selectedStatusIds.join(","));
-      // Also add statuses param (Vue sends statuses array)
-      queryObj.append("statuses", selectedStatusIds.join(","));
+      // Status filter: Vue defaults to "-1" when nothing selected (backend skips filter for "-1")
+      queryObj.append("status", selectedStatusIds.length > 0 ? selectedStatusIds.join(",") : "-1");
+      if (selectedStatusIds.length > 0) {
+        queryObj.append("statuses", selectedStatusIds.join(","));
+      }
 
       const fullQsUrl = `${baseUrl}?${queryObj.toString()}`;
 
