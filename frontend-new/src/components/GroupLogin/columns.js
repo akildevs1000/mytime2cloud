@@ -51,7 +51,7 @@ export default (editItem, deleteItem) => [
     key: "mobile_email",
     header: "Mobile / Email",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item?.email || "—"}</p>
         <br />
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item?.login_employee?.phone_number || "—"}</p>
@@ -62,7 +62,7 @@ export default (editItem, deleteItem) => [
     key: "branch_department",
     header: "Branch / Department",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item?.login_employee?.department?.branch?.name || "—"}</p>
         <br />
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item?.login_employee?.department?.name || "—"}</p>
@@ -73,7 +73,7 @@ export default (editItem, deleteItem) => [
     key: "role",
     header: "Role",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {item?.role?.name || "N/A"}
       </div>
     ),
@@ -83,7 +83,7 @@ export default (editItem, deleteItem) => [
     key: "validty",
     header: "Validty",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {item?.start_date_display || "N/A"} - {item?.end_date_display || "N/A"}
       </div>
     ),

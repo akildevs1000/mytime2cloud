@@ -170,7 +170,7 @@ export default function Department() {
                   </td>
 
                   {/* Code logic: DEP or SUB */}
-                  <td className="py-3 px-4 font-mono text-xs text-slate-500 group-hover:text-slate-400">
+                  <td className="py-3 px-4 text-xs text-slate-500 group-hover:text-slate-400">
                     {isParent ? `DEP-${record.id}` : `SUB-${record.id}`}
                   </td>
 

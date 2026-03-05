@@ -80,7 +80,7 @@ const Calendar = () => {
               </svg>
               Sync with Google
             </button>
-            {/* <span className="absolute top-full mt-1.5 text-[10px] font-mono text-neon-cyan/60 tracking-tight whitespace-nowrap">
+            {/* <span className="absolute top-full mt-1.5 text-[10px] text-neon-cyan/60 tracking-tight whitespace-nowrap">
                 Last Synced: 14m ago
               </span> */}
           </div>

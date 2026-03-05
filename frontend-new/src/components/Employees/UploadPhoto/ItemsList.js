@@ -32,7 +32,7 @@ const PersonnelRow = ({ person, isChecked, onToggle, theme = 'slate' }) => {
         </div>
       </div>
 
-      <span className="text-xs text-slate-500 font-mono tracking-tight border border-border px-2 py-0.5 rounded">
+      <span className="text-xs text-slate-500 tracking-tight border border-border px-2 py-0.5 rounded">
         {person.id}
       </span>
     </label>

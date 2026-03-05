@@ -27,7 +27,7 @@ export default (deleteItem) => {
                     <ProfilePicture src={e.profile_picture} />
 
                     <div>
-                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">{e?.first_name}</p>
+                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{e?.first_name}</p>
                         <p className="text-sm text-gray-500">
                             ID: {e.employee_id}
                         </p>
@@ -39,7 +39,7 @@ export default (deleteItem) => {
             key: "branch",
             header: "Branch / Dept",
             render: (e) => (
-                <p onClick={() => handleRowClick(e)} className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+                <p onClick={() => handleRowClick(e)} className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
                     {e.branch?.branch_name || "N/A"} / {e.department?.name || "N/A"}
                 </p>
             ),

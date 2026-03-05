@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find \"D:/projects/mytime2cloud/cloud-app/frontend-new/src/app\" -name \"page.js\" -exec grep -l \"Summary\\\\|summary\\\\|daily\\\\|Daily\" {} ;)"
+      "Bash(find \"D:/projects/mytime2cloud/cloud-app/frontend-new/src/app\" -name \"page.js\" -exec grep -l \"Summary\\\\|summary\\\\|daily\\\\|Daily\" {} ;)",
+      "Bash(grep -r \"fetch\\\\|axios\\\\|api\\\\.\" /d/projects/mytime2cloud/cloud-app/frontend-new/src/lib/endpoint/*.js)"
     ]
   }
 }

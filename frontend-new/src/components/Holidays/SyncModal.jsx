@@ -59,13 +59,13 @@ const SyncModal = ({
                   <td className="p-3 font-medium text-slate-700 dark:text-slate-200">
                     {res.name}
                   </td>
-                  <td className="p-3 text-slate-500 font-mono text-xs">
+                  <td className="p-3 text-slate-500 text-xs">
                     {res.start_date}
                   </td>
-                  <td className="p-3 text-slate-500 font-mono text-xs">
+                  <td className="p-3 text-slate-500 text-xs">
                     {res.end_date}
                   </td>
-                  <td className="p-3 text-slate-500 font-mono text-xs">
+                  <td className="p-3 text-slate-500 text-xs">
                     {res.total_days}
                   </td>
                   <td className="p-3">

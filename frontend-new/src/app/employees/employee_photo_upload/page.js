@@ -57,7 +57,7 @@ const SyncStatusModal = ({ results, total, currentCount, isOpen, onClose, isLoad
               {results.map((res, index) => (
                 <tr key={index} className="animate-in fade-in slide-in-from-bottom-1">
                   <td className="p-3 font-medium text-slate-700 dark:text-slate-200">{res.name}</td>
-                  <td className="p-3 text-slate-500 font-mono text-xs">{res.device_id}</td>
+                  <td className="p-3 text-slate-500 text-xs">{res.device_id}</td>
                   <td className="p-3">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-colors ${res.status == 200
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'

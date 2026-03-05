@@ -12,7 +12,7 @@ const Dual = ({ shift = "", handleChange = () => {} }) => {
           </span>
           Session shift
         </h3>
-        <span className="text-xs font-mono bg-surface-dark border border-gray-200 dark:dark:border-white/10 px-2 py-1 rounded text-gray-600 dark:text-slate-300">
+        <span className="text-xs bg-surface-dark border border-gray-200 dark:dark:border-white/10 px-2 py-1 rounded text-gray-600 dark:text-slate-300">
           Multiple IN/OUT
         </span>
       </div>

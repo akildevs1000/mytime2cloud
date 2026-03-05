@@ -136,7 +136,7 @@ function EventsAndInsights({ branch_ids }) {
                   </div>
 
                   <div className="col-span-3 text-right">
-                    <span className="text-[10px] font-mono text-gray-600 dark:text-gray-300">
+                    <span className="text-[10px] text-gray-600 dark:text-gray-300">
                       {item.time}
                     </span>
                   </div>

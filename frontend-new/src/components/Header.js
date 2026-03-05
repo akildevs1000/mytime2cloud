@@ -161,7 +161,7 @@ export default function Header() {
               <h2 className="text-sm font-bold text-gray-600 dark:text-gray-300 font-display">
                 {time}
               </h2>
-              <p className="text-[10px] text-gray-600 dark:text-gray-300 font-mono">
+              <p className="text-[10px] text-gray-600 dark:text-gray-300">
                 {date}
               </p>
             </div>

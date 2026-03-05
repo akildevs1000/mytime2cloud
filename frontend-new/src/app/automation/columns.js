@@ -46,7 +46,7 @@ export default (deleteItem) => {
             header: "Time",
             render: (e) => (
                 <p
-                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                    className="text-sm text-slate-500 dark:text-slate-400"
                 >
                     {e.time || "N/A"}
                 </p>
@@ -58,7 +58,7 @@ export default (deleteItem) => {
             header: "Days",
             render: (e) => (
                 <p
-                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                    className="text-sm text-slate-500 dark:text-slate-400"
                 >
                     {Array.isArray(e.days) ? e.days.join(", ") : e.days || "N/A"}
                 </p>
@@ -123,7 +123,7 @@ export default (deleteItem) => {
             header: "Media",
             render: (e) => (
                 <p
-                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                    className="text-sm text-slate-500 dark:text-slate-400"
                 >
                     {Array.isArray(e.mediums)
                         ? e.mediums.join(", ")

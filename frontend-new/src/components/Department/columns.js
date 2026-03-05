@@ -73,7 +73,7 @@ export default function Columns({ onSuccess = () => { } } = {}) {
       header: "Name",
       render: (admin) => (
         <span
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
           title={admin.name || "—"}
         >
           {admin.name || "—"}

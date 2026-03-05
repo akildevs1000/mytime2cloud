@@ -324,7 +324,7 @@ const CSVDownload = ({ onSuccess = () => { } }) => {
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400 font-mono">{emp.employee_id}</td>
+                                                            <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{emp.employee_id}</td>
                                                             <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{emp.department?.name}</td>
                                                             <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{emp.designation?.name}</td>
                                                         </tr>

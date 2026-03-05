@@ -72,7 +72,7 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
       header: "Name",
       render: (item) => (
         <span onClick={() => handleRowClick(item)}
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
         >
           {item.branch_name || "—"}
         </span>
@@ -84,7 +84,7 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
       header: "Short Name",
       render: (item) => (
         <span onClick={() => handleRowClick(item)}
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
         >
           {item.branch_code || "—"}
         </span>
@@ -95,7 +95,7 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
       header: "Location",
       render: (item) => (
         <span
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
         >
           {item.address || "—"}
         </span>
@@ -107,7 +107,7 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
       header: "Lat/Lon",
       render: (item) => (
         <span
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
         >
           {item.lat || "—"} {item.lon || "—"}
         </span>
@@ -119,7 +119,7 @@ export default function Columns({ handleRowClick, onSuccess = () => { } } = {}) 
       header: "Since",
       render: (item) => (
         <span
-          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono"
+          className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell"
         >
           {item.created_date || "—"}
         </span>

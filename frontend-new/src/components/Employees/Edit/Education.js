@@ -96,7 +96,7 @@ const CertificationTable = () => (
           </div>
         </td>
         <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">PMI</td>
-        <td className="px-4 py-4 text-sm font-mono text-slate-600 dark:text-slate-400">12/2025</td>
+        <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-400">12/2025</td>
         <td className="px-4 py-4">
           <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
             <CheckCircle size={10} /> Active

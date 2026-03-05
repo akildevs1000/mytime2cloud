@@ -13,7 +13,7 @@ export default (shiftTypeId) => {
                     <ProfilePicture src={employee.profile_picture} />
 
                     <div>
-                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">{employee?.first_name}</p>
+                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{employee?.first_name}</p>
                         <p className="text-sm text-gray-500">
                             ID: {employee.employee_id}
                         </p>

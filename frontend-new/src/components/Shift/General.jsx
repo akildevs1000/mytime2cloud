@@ -64,7 +64,7 @@ const General = ({
                 {/* <input
                   type="time"
                   defaultValue="03:00"
-                  className="w-full rounded-lg bg-[#1e293b] border border-white/10 text-white py-3 pl-10 pr-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-base font-mono shadow-sm transition-all outline-none"
+                  className="w-full rounded-lg bg-[#1e293b] border border-white/10 text-white py-3 pl-10 pr-3 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-base shadow-sm transition-all outline-none"
                 /> */}
               </div>
               <p className="text-[10px] text-slate-500 pl-1">

@@ -564,7 +564,7 @@ const ColorPicker = ({ label, value }) => (
         <Label>{label}</Label>
         <div className="flex items-center gap-2 p-2 bg-white/60 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
             <input type="color" defaultValue={value} className="w-8 h-8 rounded" />
-            <span className="text-xs font-mono text-slate-600 dark:text-slate-300">{value}</span>
+            <span className="text-xs text-slate-600 dark:text-slate-300">{value}</span>
         </div>
     </div>
 );

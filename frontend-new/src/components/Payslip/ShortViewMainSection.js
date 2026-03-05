@@ -249,7 +249,7 @@ const ShortViewMainSection = ({ payload }) => {
                     <div>
                       <p className="text-xs text-gray-600 dark:text-slate-300 uppercase font-semibold tracking-wider">Bank Transfer</p>
                       <p className="text-sm font-semibold text-gray-900 dark:text-white mt-0.5">HSBC Holdings</p>
-                      <p className="text-xs text-slate-500 font-mono mt-0.5">**** 4589</p>
+                      <p className="text-xs text-slate-500 mt-0.5">**** 4589</p>
                     </div>
                   </div>
                   {/* Date Info */}

@@ -198,7 +198,7 @@ function LiveFeed({ branch_ids, department_ids }) {
           />
         </div>
         <div className="flex gap-4 items-center">
-          {/* <span className="text-[11px] text-slate-400 font-mono">
+          {/* <span className="text-[11px] text-slate-400">
             Refreshing in 5s...
           </span> */}
           <button

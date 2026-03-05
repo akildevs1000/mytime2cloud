@@ -20,7 +20,7 @@ export default (deleteItem) => [
     key: "name",
     header: "Name",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item.name || "—"}</p>
       </div>
     ),
@@ -30,7 +30,7 @@ export default (deleteItem) => [
     key: "description",
     header: "Description",
     render: (item) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{item.description || "—"}</p>
       </div>
     ),
@@ -44,7 +44,7 @@ export default (deleteItem) => [
       let trueModules = item?.modules ? Object.keys(item?.modules).filter(k => item?.modules[k]).join(", ") : "—"
 
       return (
-        <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+        <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
           <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{trueModules}</p>
         </div>
       )

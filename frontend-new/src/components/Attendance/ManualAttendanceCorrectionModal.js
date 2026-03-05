@@ -366,7 +366,7 @@ export default function ManualAttendanceCorrectionModal({
                             <div>
                                 <h2 className="text-lg font-semibold text-slate-800 dark:text-white leading-tight">{activeEmployee.name}</h2>
                                 <div className="flex items-center gap-3 mt-1 text-sm">
-                                    <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-xs font-mono uppercase tracking-wider">
+                                    <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-xs uppercase tracking-wider">
                                         ID: {activeEmployee.code}
                                     </span>
                                     <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">

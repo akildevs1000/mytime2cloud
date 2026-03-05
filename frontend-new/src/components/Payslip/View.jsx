@@ -201,10 +201,10 @@ const ViewPayslip = ({ open, setOpen, paySlipInput, onSuccess = () => {} }) => {
                   {data.employee.name}
                 </h2>
                 <div className="flex flex-wrap gap-2">
-                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-xs font-mono border dark:border-slate-700">
+                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-xs border dark:border-slate-700">
                     ID: {data.employee.id}
                   </span>
-                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-xs font-mono border dark:border-slate-700">
+                  <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-lg text-xs border dark:border-slate-700">
                     REF: {data.employee.ref}
                   </span>
                 </div>

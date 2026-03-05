@@ -15,7 +15,7 @@ export default (deleteItem, editItem) => [
     key: "Holiday Name",
     header: "Holiday",
     render: ({ name }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {name}
       </div>
     ),
@@ -24,7 +24,7 @@ export default (deleteItem, editItem) => [
     key: "branch",
     header: "Branch / Dept",
     render: ({ branch }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {branch?.branch_name || "-"}
       </div>
     ),
@@ -34,7 +34,7 @@ export default (deleteItem, editItem) => [
     key: "duration",
     header: "Duration",
     render: ({ start_date, end_date }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {start_date} - {end_date}
       </div>
     ),
@@ -44,7 +44,7 @@ export default (deleteItem, editItem) => [
     key: "total_days",
     header: "Total Days",
     render: ({ total_days }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {total_days}
       </div>
     ),
@@ -54,7 +54,7 @@ export default (deleteItem, editItem) => [
     key: "last_sync_at",
     header: "Last Sync At",
     render: ({ last_sync_at }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
         {last_sync_at}
       </div>
     ),

@@ -321,7 +321,7 @@ const VisitorHub = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-slate-500 dark:text-slate-400 font-mono text-xs">
+                      <div className="text-slate-500 dark:text-slate-400 text-xs">
                         10:45 AM
                       </div>
                     </td>
@@ -374,7 +374,7 @@ const VisitorHub = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 font-mono text-xs">
+                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">
                       09:30 AM
                     </td>
                     <td className="px-6 py-4">
@@ -430,7 +430,7 @@ const VisitorHub = () => {
                     <p className="text-sm font-bold text-red-600 dark:text-red-400">
                       Overstay Alert
                     </p>
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       2 mins ago
                     </span>
                   </div>
@@ -452,7 +452,7 @@ const VisitorHub = () => {
                     <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
                       New Request
                     </p>
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       15 mins ago
                     </span>
                   </div>
@@ -481,7 +481,7 @@ const VisitorHub = () => {
                     <p className="text-sm font-bold text-slate-700 dark:text-slate-300">
                       Check-out
                     </p>
-                    <span className="text-[10px] font-mono text-slate-400 dark:text-slate-500">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500">
                       1 hour ago
                     </span>
                   </div>
