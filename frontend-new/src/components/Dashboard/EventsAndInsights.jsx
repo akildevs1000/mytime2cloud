@@ -1,4 +1,6 @@
-import AutomationAll from '@/components/Automation/All/page';
+import AutomationAll from "@/components/Automation/All/page";
+import HolidaysAll from "@/components/Holidays/page";
+
 import React, { useState, useMemo } from "react";
 
 const MOCK_DATA = {
@@ -59,14 +61,14 @@ const TYPE_COLORS = {
   info: "bg-blue-500",
 };
 
-function EventsAndInsights({ branch_id }) {
+function EventsAndInsights({ branch_ids }) {
   const [activeTab, setActiveTab] = useState("Visitors");
   const tabs = [
     // "Visitors",
-    "Announcements",
-    "Holidays",
-    "Spotlight",
     "Automation",
+    "Holidays",
+    "Announcements",
+    "Spotlight",
   ];
 
   // In a real app, you might fetch data based on activeTab and branch_id
@@ -105,6 +107,8 @@ function EventsAndInsights({ branch_id }) {
       <div className="flex-1 relative flex flex-col min-h-0 overflow-hidden">
         {activeTab === "Automation" ? (
           <AutomationAll />
+        ) : activeTab === "Holidays" ? (
+          <HolidaysAll />
         ) : (
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
             {/* Table Header */}

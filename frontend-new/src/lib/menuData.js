@@ -58,6 +58,7 @@ const employeesMenu = [
   { href: "/employees", icon: Users, label: "Employee List" },
   { href: "/employees/employee_photo_upload", icon: Upload, label: "Employee Upload" },
   { href: "/leaves", icon: FileText, label: "Leaves Requests" },
+  { href: "/document-expiry", icon: FileText, label: "Document Expiry" },
 ];
 
 const visitorMenu = [
@@ -79,6 +80,7 @@ export const leftNavLinks = {
   "/employees": employeesMenu,
   "/employee_photo_upload": employeesMenu,
   "/leaves": employeesMenu,
+  "/document-expiry": employeesMenu,
 
   "/shift": attendanceMenu,
   "/schedule": attendanceMenu,
@@ -96,6 +98,4 @@ export const leftNavLinks = {
   "/payslips": companyMenu,
   "/geo-fencing": companyMenu,
   "/live-tracker": companyMenu,
-
-
 };
