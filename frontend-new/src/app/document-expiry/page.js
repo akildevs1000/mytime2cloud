@@ -1,8 +1,8 @@
 "use client";
 
-import AutomationDocumentExpiry from '@/components/Automation/DocumentExpiry/page';
+import EmployeesDocumentExpiry from '@/components/Employees/DocumentExpiry/page';
 
 
 export default function EmployeeDataTable() {
-    return <AutomationDocumentExpiry />
+    return <EmployeesDocumentExpiry />
 }
