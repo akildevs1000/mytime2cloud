@@ -317,7 +317,7 @@ export default function AttendanceTable() {
           company_name: "Hilal & Co",
         });
 
-        window.open(`http://localhost:4173/attendance-report/?${t4Params.toString()}`, "_blank");
+        window.open(`https://summary-report.netlify.app/attendance-report/?${t4Params.toString()}`, "_blank");
         return;
       }
 
