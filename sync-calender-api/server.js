@@ -4,6 +4,7 @@ const ical = require('node-ical');
 const axios = require('axios');
 
 const app = express();
+const HOST = "0.0.0.0";
 const PORT = 5778; // Updated port
 
 app.use(cors());
@@ -12,11 +13,11 @@ const UAE_HOLIDAYS_URL = 'https://calendar.google.com/calendar/ical/en.ae%23holi
 
 app.get('/holidays/:year', async (req, res) => {
     const selectedYear = parseInt(req.params.year);
-    
+
     try {
         const response = await axios.get(UAE_HOLIDAYS_URL);
         const data = ical.parseICS(response.data);
-        
+
         let rawHolidays = [];
 
         for (let k in data) {
@@ -26,10 +27,10 @@ app.get('/holidays/:year', async (req, res) => {
                 const name = event.summary;
 
                 // 1. Filter by year and exclude non-public holiday events (like Ramadan start)
-                if (startDate.getFullYear() === selectedYear && 
-                    !name.toLowerCase().includes('ramadan') && 
+                if (startDate.getFullYear() === selectedYear &&
+                    !name.toLowerCase().includes('ramadan') &&
                     !name.toLowerCase().includes('hajj')) {
-                    
+
                     rawHolidays.push({
                         date: startDate.toISOString().split('T')[0],
                         // Remove "(tentative)" and "Holiday" suffixes for cleaner grouping
@@ -44,7 +45,7 @@ app.get('/holidays/:year', async (req, res) => {
 
         // 3. Group into the required Payload format
         const finalPayloads = [];
-        
+
         rawHolidays.forEach((item) => {
             const lastEntry = finalPayloads[finalPayloads.length - 1];
 
@@ -72,6 +73,7 @@ app.get('/holidays/:year', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`API is live on http://localhost:${PORT}/holidays/2026`);
+
+app.listen(PORT, HOST, () => {
+    console.log(`API is live on http://${HOST}:${PORT}/holidays/2026`);
 });
