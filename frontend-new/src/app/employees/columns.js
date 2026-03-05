@@ -27,7 +27,7 @@ export default (deleteEmployee, editEmployee) => [
         <ProfilePicture src={e.profile_picture} />
 
         <div>
-          <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">{e?.first_name}</p>
+          <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell ">{e?.first_name}</p>
           <p className="text-sm text-gray-500">
             ID: {e.employee_id}
           </p>
@@ -39,7 +39,7 @@ export default (deleteEmployee, editEmployee) => [
     key: "branch",
     header: "Branch / Department",
     render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell ">
         {employee.branch?.branch_name || "N/A"} / {employee.department?.name || "N/A"}
       </div>
     ),
@@ -48,7 +48,7 @@ export default (deleteEmployee, editEmployee) => [
     key: "position",
     header: "Position",
     render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell ">
         {employee.designation?.name || "N/A"}
       </div>
     ),
@@ -57,7 +57,7 @@ export default (deleteEmployee, editEmployee) => [
     key: "mobile_email",
     header: "Mobile / Email",
     render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell ">
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{employee.user?.email || "—"}</p>
         <br />
         <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{employee.phone_number || "—"}</p>
@@ -68,7 +68,7 @@ export default (deleteEmployee, editEmployee) => [
     key: "timezone",
     header: "Join Date",
     render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">
+      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell ">
         {employee.show_joining_date || "N/A"}
       </div>
     ),

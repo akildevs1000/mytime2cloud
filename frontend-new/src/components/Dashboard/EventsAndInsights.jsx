@@ -1,10 +1,11 @@
 import AutomationAll from "@/components/Automation/All/page";
 import HolidaysAll from "@/components/Holidays/page";
+import AnnouncementsAll from "@/components/Announcements/page"; // ✅ add this
 
 import React, { useState, useMemo } from "react";
 
 const MOCK_DATA = {
-  Visitors: [
+  Automation: [
     {
       id: 1,
       event: "Unauthorized Access",
@@ -42,16 +43,6 @@ const MOCK_DATA = {
   ],
   Holidays: [],
   Spotlight: [],
-  Weather: [
-    {
-      id: 5,
-      event: "Heavy Rain Alert",
-      location: "External Parking",
-      source: "Meteo Station",
-      time: "08:45 AM",
-      type: "warning",
-    },
-  ],
 };
 
 const TYPE_COLORS = {
@@ -62,16 +53,11 @@ const TYPE_COLORS = {
 };
 
 function EventsAndInsights({ branch_ids }) {
-  const [activeTab, setActiveTab] = useState("Visitors");
-  const tabs = [
-    // "Visitors",
-    "Automation",
-    "Holidays",
-    "Announcements",
-    "Spotlight",
-  ];
+  const [activeTab, setActiveTab] = useState("Automation");
 
-  // In a real app, you might fetch data based on activeTab and branch_id
+  const tabs = ["Automation", "Holidays", "Announcements", "Spotlight"];
+
+  // fallback table content for tabs that don't have their own component
   const currentData = useMemo(() => MOCK_DATA[activeTab] || [], [activeTab]);
 
   return (
@@ -86,6 +72,7 @@ function EventsAndInsights({ branch_ids }) {
             Insights & Events
           </h3>
         </div>
+
         {/* Tab Navigation */}
         <div className="flex gap-1 bg-black/20 p-1 rounded-lg overflow-x-auto no-scrollbar">
           {tabs.map((tab) => (
@@ -103,12 +90,15 @@ function EventsAndInsights({ branch_ids }) {
           ))}
         </div>
       </div>
+
       {/* Content Section */}
       <div className="flex-1 relative flex flex-col min-h-0 overflow-hidden">
         {activeTab === "Automation" ? (
           <AutomationAll />
         ) : activeTab === "Holidays" ? (
           <HolidaysAll />
+        ) : activeTab === "Announcements" ? (
+          <AnnouncementsAll /> // ✅ Announcements component
         ) : (
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
             {/* Table Header */}
@@ -117,6 +107,7 @@ function EventsAndInsights({ branch_ids }) {
               <div className="col-span-3">Source</div>
               <div className="col-span-3 text-right">Time</div>
             </div>
+
             {/* Table Body */}
             {currentData.length > 0 ? (
               currentData.map((item) => (
@@ -126,8 +117,10 @@ function EventsAndInsights({ branch_ids }) {
                 >
                   <div className="col-span-6 flex items-center gap-3">
                     <div
-                      className={`size-2 shrink-0 rounded-full ${TYPE_COLORS[item.type] || "bg-slate-400"}`}
-                    ></div>
+                      className={`size-2 shrink-0 rounded-full ${
+                        TYPE_COLORS[item.type] || "bg-slate-400"
+                      }`}
+                    />
                     <div className="truncate">
                       <p className="text-xs font-bold text-gray-600 dark:text-gray-300 truncate">
                         {item.event}
@@ -137,9 +130,11 @@ function EventsAndInsights({ branch_ids }) {
                       </p>
                     </div>
                   </div>
+
                   <div className="col-span-3 text-[10px] text-gray-600 dark:text-gray-300 truncate">
                     {item.source}
                   </div>
+
                   <div className="col-span-3 text-right">
                     <span className="text-[10px] font-mono text-gray-600 dark:text-gray-300">
                       {item.time}
