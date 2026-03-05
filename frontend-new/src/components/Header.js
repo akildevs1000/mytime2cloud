@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getUser } from "@/config/index";
 import { useDarkMode } from "@/context/DarkModeContext";
 import LiveAttendanceNotifier from "@/components/LiveAttendanceNotifier";
+import { LocateFixed } from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -136,6 +137,14 @@ export default function Header() {
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center gap-4">
+            <button onClick={() => router.push("/live-tracker")}
+              className="relative p-2 text-slate-500 hover:text-primary transition-colors"
+              title="Watch Tutorial"
+            >
+              <LocateFixed  size={22} strokeWidth={1.8} />
+              {/* <span className="material-symbols-outlined">smart_display</span> */}
+            </button>
+
             <button
               className="relative p-2 text-slate-500 hover:text-red-600 transition-colors"
               title="Watch Tutorial"
