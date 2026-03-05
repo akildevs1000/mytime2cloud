@@ -48,7 +48,9 @@ const iconGroups = {
 };
 
 function LiveFeed({ branch_ids, department_ids }) {
+
   const router = useRouter();
+  
   const { lastAttendanceEvent } = useLiveAttendance();
 
   const { isDark } = useDarkMode();
@@ -104,19 +106,25 @@ function LiveFeed({ branch_ids, department_ids }) {
     // Map data to match Vue logic for columns (employee, branch/department, device info, time, in/out, mode, status)
     let result = data.map((e) => {
       // Employee name logic
-      const employeeName = [e?.employee?.first_name, e?.employee?.last_name].filter(Boolean).join(" ") || "---";
+      const employeeName =
+        [e?.employee?.first_name, e?.employee?.last_name]
+          .filter(Boolean)
+          .join(" ") || "---";
       // Branch/Department logic
-      const branchDept = [e?.employee?.branch?.branch_name, e?.employee?.department?.name].filter(Boolean).join(" / ") || "---";
+      const branchDept =
+        [e?.employee?.branch?.branch_name, e?.employee?.department?.name]
+          .filter(Boolean)
+          .join(" / ") || "---";
       // Device info logic
-      let deviceName = "---";
-      let deviceLocation = "---";
-      if (e.DeviceID?.includes("Mobile")) {
-        deviceName = "Mobile";
-        deviceLocation = e.gps_location || "---";
-      } else if (e.device) {
-        deviceName = e.device.name || "---";
-        deviceLocation = e.device.location || "---";
+      // Fallback to name only if gps_location is null/undefined
+
+      let deviceLocation = e.gps_location ?? e.device.name;
+
+      // Direct replacement for "Unknown"
+      if (deviceLocation === "Unknown") {
+        deviceLocation = "Manual";
       }
+
       // In/Out logic
       let inout = "---";
       if (e.log_type === "Out") inout = "Out";
@@ -137,7 +145,6 @@ function LiveFeed({ branch_ids, department_ids }) {
         id: e?.employee?.employee_id,
         name: employeeName,
         dept: branchDept,
-        deviceName,
         deviceLocation,
         time: `${e.time}`,
         inout,
@@ -161,21 +168,24 @@ function LiveFeed({ branch_ids, department_ids }) {
   useEffect(() => {
     if (!lastAttendanceEvent) return;
 
-    // Insert new real-time record at the top, matching existing structure
     setRecords((prev) => [
       {
         id: lastAttendanceEvent.customId,
         name: lastAttendanceEvent.personName,
         dept: lastAttendanceEvent.dept,
-        location: lastAttendanceEvent.location,
-        type: "Entry",
+        deviceLocation: lastAttendanceEvent.location ?? "Office Location",
+        log_type: lastAttendanceEvent.log_type || "---",
         punctuality: lastAttendanceEvent.punctuality,
         punctualityColor: lastAttendanceEvent.punctualityColor,
         punctualityDot: lastAttendanceEvent.punctualityDot,
         status: lastAttendanceEvent.status,
         statusType: "neutral",
-        LogTime: lastAttendanceEvent.time,
-        modes: [baseIcons.Device],
+        time: lastAttendanceEvent.time,
+        modes: [
+          lastAttendanceEvent.eventId?.includes("Mobile")
+            ? baseIcons.Mobile
+            : baseIcons.Face,
+        ],
       },
       ...prev,
     ]);
@@ -214,10 +224,11 @@ function LiveFeed({ branch_ids, department_ids }) {
       <div className="grid grid-cols-13 px-6 py-3 border-y border-gray-200 dark:border-white/5 text-[11px] font-bold text-slate-500 uppercase tracking-wider bg-white/[0.02]">
         <div className="col-span-2 pl-2">Employee</div>
         <div className="col-span-2">Branch / Dept</div>
+        <div className="col-span-1">Mode</div>
         <div className="col-span-2">Device</div>
         <div className="col-span-1">Time</div>
         <div className="col-span-1">In/Out</div>
-        <div className="col-span-1">Mode</div>
+
         <div className="col-span-2 text-right pr-2">Status</div>
       </div>
 
@@ -241,14 +252,23 @@ function LiveFeed({ branch_ids, department_ids }) {
                 <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors truncate">
                   {item.name}
                 </span>
-                <span className="text-xs text-slate-600 dark:text-slate-300">ID: {item.id}</span>
+                <span className="text-xs text-slate-600 dark:text-slate-300">
+                  ID: {item.id}
+                </span>
               </div>
             </div>
             {/* Branch/Department */}
             <div className="col-span-2 text-xs text-slate-600 dark:text-slate-300">
               {item.dept}
             </div>
-           
+
+            {/* Mode */}
+            <div className="col-span-1 flex items-center text-slate-400">
+              {item?.modes?.map((icon, idx) => (
+                <span key={idx}>{icon}</span>
+              ))}
+            </div>
+
             <div className="col-span-2 text-xs text-slate-600 dark:text-slate-300">
               {item.deviceLocation}
             </div>
@@ -266,12 +286,7 @@ function LiveFeed({ branch_ids, department_ids }) {
                 <span>---</span>
               )}
             </div>
-            {/* Mode */}
-            <div className="col-span-1 flex items-center text-slate-400">
-              {item?.modes?.map((icon, idx) => (
-                <span key={idx}>{icon}</span>
-              ))}
-            </div>
+
             {/* Status (unchanged) */}
             <div className="col-span-2 text-right pr-2">
               <span

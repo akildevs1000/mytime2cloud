@@ -90,25 +90,34 @@ export function LiveAttendanceProvider({ children }) {
     const { punctuality, punctualityColor, punctualityDot } =
       getPunctualityFromShift(shift, time);
 
+
+    const customDate = time;
+
+    let customTime = new Date(customDate.replace(' ', 'T')).toLocaleTimeString('en-GB', {
+      timeZone: 'Asia/Dubai',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
     setLastAttendanceEvent({
-      eventId: `${customId}-${facesluiceId}-${time}`,
+      eventId: `${customId}-${facesluiceId}-${customTime}`,
       source: "mqtt",
       customId,
       personName,
-      time,
+      time: customTime,
       pic,
       status: VerifyStatus == "1" ? "Allowed" : "",
       punctuality,
       punctualityColor,
       punctualityDot,
-      dept: `${foundEmployeeInfo?.branch?.branch_name} ${
-        foundEmployeeInfo?.branch?.branch_name
-          ? " / " + foundEmployeeInfo?.department?.name
-          : ""
-      }`,
-      location: foundInfo?.location || "-",
+      dept: `${foundEmployeeInfo?.branch?.branch_name} ${foundEmployeeInfo?.branch?.branch_name
+        ? " / " + foundEmployeeInfo?.department?.name
+        : ""
+        }`,
+      location: foundInfo?.name || "-",
     });
   }, [lastMessage, deviceJson, employeesJson]);
+
 
   useSse({
     clientId: companyId,
@@ -129,68 +138,50 @@ export function LiveAttendanceProvider({ children }) {
       payloadList.forEach((payload) => {
         if (!payload || typeof payload !== "object") return;
 
-        if (
-          payload.company_id &&
-          companyId &&
-          Number(payload.company_id) !== Number(companyId)
-        ) {
-          return;
-        }
 
-        const customId =
-          payload.customId ||
-          payload.user_id ||
-          payload.employee_id ||
-          payload.employeeId ||
-          payload.id;
-        const personName =
-          payload.personName || payload.name || payload.employee_name;
-        const facesluiceId =
-          payload.facesluiceId || payload.device_id || payload.deviceId;
-        const time =
-          payload.time ||
-          payload.log_time ||
-          payload.LogTime ||
-          payload.datetime ||
-          payload.timestamp ||
-          incoming.timestamp;
+        const [hours, minutes] = payload.time.split(":");
+        const myDate = new Date();
+        myDate.setHours(hours, minutes);
+        const customId = payload.user_id;
+        const personName = payload.name;
+        const facesluiceId = payload.device_id;
+        const time = myDate.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
         if (!customId || !personName || !time) return;
 
-        const foundInfo = facesluiceId ? deviceJson?.[facesluiceId] : null;
+        const foundDeviceInfo = facesluiceId ? deviceJson?.[facesluiceId] : null;
+
+        console.log(foundDeviceInfo);
+
         const foundEmployeeInfo = employeesJson?.[customId];
         if (!foundEmployeeInfo) return;
 
         const shift = foundEmployeeInfo?.schedule?.shift;
-        const { punctuality, punctualityColor, punctualityDot } =
-          getPunctualityFromShift(shift, time);
+
+        const { punctuality, punctualityColor, punctualityDot } = getPunctualityFromShift(shift, time);
 
         setLastAttendanceEvent({
+          ...payload,
           eventId: `${customId}-${facesluiceId || "sse"}-${time}`,
-          source: "sse",
+          source_type: "sse",
           customId,
           personName,
           time,
-          pic: payload.pic || payload.photo || payload.avatar,
-          status:
-            payload.VerifyStatus == "1"
-              ? "Allowed"
-              : payload.status || payload.VerifyStatusText || "",
+          pic: payload.avatar,
+          status: "Allowed",
           punctuality,
           punctualityColor,
           punctualityDot,
           dept:
             payload.dept ||
-            `${foundEmployeeInfo?.branch?.branch_name} ${
-              foundEmployeeInfo?.branch?.branch_name
-                ? " / " + foundEmployeeInfo?.department?.name
-                : ""
+            `${foundEmployeeInfo?.branch?.branch_name} ${foundEmployeeInfo?.branch?.branch_name
+              ? " / " + foundEmployeeInfo?.department?.name
+              : ""
             }`,
-          location:
-            payload.location ||
-            payload.address ||
-            foundInfo?.location ||
-            "-",
+          location: payload.location,
         });
       });
     },
