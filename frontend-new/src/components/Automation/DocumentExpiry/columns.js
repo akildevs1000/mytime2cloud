@@ -1,79 +1,165 @@
-import ProfilePicture from "@/components/ProfilePicture";
-import { FileType, ImageIcon } from "lucide-react";
+// columns.js
+import { MoreVertical, Pencil, Trash } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
-export default (deleteItem) => {
+export default (deleteItem, editItem) => {
     return [
         {
-            key: "employee",
-            header: "Personnel",
-            render: (e) => (
-                <div className="flex items-center space-x-3" onClick={() => handleRowClick(e)}>
-
-                    <ProfilePicture src={e?.employee?.profile_picture} />
-
-                    <div>
-                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">{e?.employee?.first_name}</p>
-                        <p className="text-sm text-gray-500">
-                            ID: {e?.employee?.employee_id}
-                        </p>
-                    </div>
-                </div>
-            ),
-        },
-        {
             key: "branch",
-            header: "Branch / Department",
+            header: "Branch",
             render: (e) => (
                 <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e?.employee?.branch ? e.employee.branch.branch_name : "N/A"} / {e?.employee?.department ? e.employee.department.name : "N/A"} 
+                    {e.branch ? e.branch?.branch_name : "N/A"}
                 </p>
             ),
         },
         {
-            key: "title",
-            header: "Title",
+            key: "subject",
+            header: "Subject",
             render: (e) => (
-                <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e.title || "N/A"}
-                </p>
-            ),
-        },
-        {
-            key: "issue_date",
-            header: "Issue Date",
-            render: (e) => (
-                <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e.issue_date_display || "N/A"}
-                </p>
-            ),
-        },
-        {
-            key: "expiry_date",
-            header: "Expiry Date",
-            render: (e) => (
-                <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e.expiry_date_display || "N/A"}
+                <p
+                    className="text-sm text-slate-700 dark:text-slate-200"
+                >
+                    {e.subject || "N/A"}
                 </p>
             ),
         },
 
         {
-            key: "access_url",
-            header: "Access URL",
+            key: "time",
+            header: "Time",
             render: (e) => (
-                <div className="flex items-center">
-                    <a
-                        href={e.access_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline dark:text-blue-400"
-                    >
-                        <div className={`flex-shrink-0 h-10 w-10 flex items-center justify-center rounded ${e.type === 'pdf' ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-                            }`}>
-                            {e.type === 'pdf' ? <FileType size={20} /> : <ImageIcon size={20} />}
+                <p
+                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                >
+                    {e.time || "N/A"}
+                </p>
+            ),
+        },
+
+        {
+            key: "days",
+            header: "Days",
+            render: (e) => (
+                <p
+                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                >
+                    {Array.isArray(e.days) ? e.days.join(", ") : e.days || "N/A"}
+                </p>
+            ),
+        },
+
+        {
+            key: "manager1",
+            header: "Manager1",
+            render: (e) => {
+                const m = e.managers?.[0];
+
+                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
+
+                return (
+                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
+                        <span className="font-medium">{m.name}</span>
+                        <span className="text-xs">{m.email}</span>
+                        <span className="text-xs">{m.whatsapp_number}</span>
+                    </div>
+                );
+            },
+        },
+
+        {
+            key: "manager2",
+            header: "Manager2",
+            render: (e) => {
+                const m = e.managers?.[1];
+
+                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
+
+                return (
+                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
+                        <span className="font-medium">{m.name}</span>
+                        <span className="text-xs">{m.email}</span>
+                        <span className="text-xs">{m.whatsapp_number}</span>
+                    </div>
+                );
+            },
+        },
+
+        {
+            key: "manager3",
+            header: "Manager3",
+            render: (e) => {
+                const m = e.managers?.[2];
+
+                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
+
+                return (
+                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
+                        <span className="font-medium">{m.name}</span>
+                        <span className="text-xs">{m.email}</span>
+                        <span className="text-xs">{m.whatsapp_number}</span>
+                    </div>
+                );
+            },
+        },
+        {
+            key: "medium",
+            header: "Media",
+            render: (e) => (
+                <p
+                    className="text-sm text-slate-500 dark:text-slate-400 font-mono"
+                >
+                    {Array.isArray(e.mediums)
+                        ? e.mediums.join(", ")
+                        : e.medium || e.mediums || "N/A"}
+                </p>
+            ),
+        },
+
+        {
+            key: "options",
+            header: "Options",
+            render: (row) => (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild onClick={(ev) => ev.stopPropagation()}>
+                        <div className="p-2 rounded-full cursor-pointer w-fit">
+                            <MoreVertical className="w-5 h-5 text-gray-400" />
                         </div>
-                    </a>
-                </div>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent
+                        align="end"
+                        className="w-32 bg-white dark:bg-gray-900 shadow-md rounded-md py-1"
+                        onClick={(ev) => ev.stopPropagation()}
+                    >
+                        <DropdownMenuItem
+                            onClick={(e) => {
+                                e.stopPropagation(); // Stop row redirect
+                                editItem(row);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        >
+                            <Pencil className="w-4 h-4 text-primary" />
+                            <span className="text-primary font-medium">Edit</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                            onClick={(ev) => {
+                                ev.stopPropagation();
+                                // adjust the id field to your actual primary key if not employee_id
+                                deleteItem(row.id ?? row.report_notification_id ?? row.employee_id);
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                        >
+                            <Trash className="w-4 h-4 text-red-500" />
+                            <span className="text-red-500 font-medium">Delete</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             ),
         },
     ];

@@ -12,13 +12,12 @@ import Pagination from '@/lib/Pagination';
 import Columns from "./columns";
 import { parseApiError } from '@/lib/utils';
 import IconButton from '@/components/Theme/IconButton';
-import Create from '@/components/Automation/Device/Create';
+import Create from '@/components/Automation/DocumentExpiry/Create';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { SCHEDULE_STATS } from '@/lib/dropdowns';
-import { getReportNotifications } from '@/lib/endpoint/automation';
-import { getDocumentExpiry } from '@/lib/endpoint/document_expiry';
+import { deleteReportNotification, getReportNotifications } from '@/lib/endpoint/automation';
 
-export default function AutomationDevice() {
+export default function AutomationDocumentExpiry() {
 
     const [records, setRecords] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -69,16 +68,15 @@ export default function AutomationDevice() {
         setError(null);
 
         try {
-            
             const params = {
                 page: page,
                 per_page: perPage,
                 sortDesc: 'false',
                 branch_ids: selectedBranchIds,
                 search: searchTerm || null, // Only include search if it's not empty
+                types: ["document_expiry"] // Only fetch document expiry type notifications for this page
             };
-
-            const result = await getDocumentExpiry(params);
+            const result = await getReportNotifications(params);
 
             // Check if result has expected structure before setting state
             if (result && Array.isArray(result.data)) {
@@ -108,14 +106,23 @@ export default function AutomationDevice() {
         fetchRecords(currentPage, perPage);
     }
 
+    const [idEditOpen, setIdEditOpen] = useState(false);
+    const [editItemPayload, setEditItemPayload] = useState(null);
+
+    const editItem = async (item) => {
+        setEditItemPayload(item);
+        setIdEditOpen(false); // force close first to ensure re-open
+        setTimeout(() => setIdEditOpen(true), 0);
+    }
+
 
     const deleteItem = async (id) => {
-        if (confirm("Are you sure you want to delete this employee?")) {
+        if (confirm("Are you sure you want to delete this document expiry notification?")) {
             try {
-                await removeEmployeeSchedule(id);
+                await deleteReportNotification(id);
                 handleRefresh();
             } catch (error) {
-                console.error("Error deleting employee:", error);
+                console.error("Error deleting document expiry notification:", error);
             }
         }
     }
@@ -126,7 +133,7 @@ export default function AutomationDevice() {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6  sm:space-y-0">
                     <h1 className="text-2xl font-extrabold text-gray-600 dark:text-gray-300 flex items-center">
                         {/* <User className="w-7 h-7 mr-3 text-indigo-600" /> */}
-                        Document Expiry
+                        Document Expiry Notifications
                     </h1>
                     <div className="flex flex-wrap items-center space-x-3 space-y-2 sm:space-y-0">
                         <div className="relative">
@@ -157,13 +164,23 @@ export default function AutomationDevice() {
                             title="Refresh Data"
                         />
 
-                        {/* <Create onSuccess={handleRefresh} /> */}
+                        <button
+                            onClick={() => {
+                                setEditItemPayload(null);
+                                setIdEditOpen(true);
+                            }}
+                            className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+                        >
+                            <span className="material-symbols-outlined text-[18px]">add</span>
+                            Add
+                        </button>
+                        <Create idEditOpen={idEditOpen} setIdEditOpen={setIdEditOpen} editItemPayload={editItemPayload} onSaved={handleRefresh} />
 
                     </div>
                 </div>
 
                 <DataTable
-                    columns={Columns(deleteItem)}
+                    columns={Columns(deleteItem, editItem)}
                     data={records}
                     isLoading={isLoading}
                     error={error}
