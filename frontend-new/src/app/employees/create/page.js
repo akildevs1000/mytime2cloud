@@ -7,29 +7,29 @@ const EmployeeCreatePage = () => {
             <Form payload={
                 {
                     title: "Mr.",
-                    first_name: "francis",
-                    last_name: "gill",
-                    full_name: "francis",
-                    display_name: "francis",
-                    employee_id: 1000,
+                    first_name: "",
+                    last_name: "",
+                    full_name: "",
+                    display_name: "",
+                    employee_id: 0,
                     joining_date: null,
                     branch_id: 1,
-                    phone_number: "ssdfsfsdfdf",
-                    whatsapp_number: "sdfsdfsdf",
-                    system_user_id: 1000,
+                    phone_number: "",
+                    whatsapp_number: "",
+                    system_user_id: 0,
                     department_id: 1,
                     designation_id: 1,
-                    rfid_card_number: "sdkjf",
+                    rfid_card_number: "",
                     gender: "",
                     profile_image_base64: null,
 
-                    nationality: "test",
+                    nationality: "",
                     date_of_birth: null,
-                    religion: "test",
-                    blood_group: "test",
-                    marital_status: "test",
-                    email: "tes",
-                    password: "sdfsfdd"
+                    religion: "",
+                    blood_group: "",
+                    marital_status: "",
+                    email: "",
+                    password: ""
 
                 }
             } />

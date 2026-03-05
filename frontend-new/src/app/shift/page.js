@@ -12,6 +12,7 @@ import { getShifts, removeShift } from '@/lib/api';
 import Pagination from '@/lib/Pagination';
 import DataTable from '@/components/ui/DataTable';
 import IconButton from '@/components/Theme/IconButton';
+import { parseApiError } from '@/lib/utils';
 
 export default function ShiftPage() {
 
@@ -52,7 +53,7 @@ export default function ShiftPage() {
             }
 
         } catch (err) {
-            setError(parseApiError(error))
+            setError(parseApiError(err))
             setIsLoading(false);
         }
     }, [perPage, searchTerm]);

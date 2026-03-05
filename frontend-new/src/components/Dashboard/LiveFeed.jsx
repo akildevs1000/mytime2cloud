@@ -246,7 +246,7 @@ function LiveFeed({ branch_ids, department_ids }) {
             {/* Employee */}
             <div className="col-span-2 flex items-center gap-3 pl-2">
               <div className="size-8 min-w-[32px] rounded-full overflow-hidden relative border border-border flex items-center justify-center">
-                <ProfilePicture />
+                <ProfilePicture src={item?.employee?.profile_picture} />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors truncate">
