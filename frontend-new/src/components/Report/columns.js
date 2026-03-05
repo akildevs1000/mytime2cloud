@@ -89,12 +89,12 @@ export default (shiftTypeId) => {
             {
                 key: "in",
                 header: "In",
-                render: (log) => `${log?.in}`,
+                render: (log) => (<p className={`text-sm text-${log?.device_in?.name !== "---" ? "red" : ''}-400`}>{`${log?.in}`}</p>) ,
             },
             {
                 key: "out",
                 header: "Out",
-                render: (log) => `${log?.out}`,
+                render: (log) => (<p className={`text-sm text-${log?.device_out?.name !== "---" ? "red" : ''}-400`}>{`${log?.out}`}</p>),
             },
             {
                 key: "late_coming",

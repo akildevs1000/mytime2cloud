@@ -41,7 +41,7 @@ const ChipToggle = ({ active, label, onClick }) => (
     </button>
 );
 
-export default function AbsentAutomationDialog({
+export default function DocumentExpiryAutomationDialog({
     editItemPayload = null,
     onSaved = () => { },
     triggerLabel = "Add",
@@ -238,10 +238,10 @@ export default function AbsentAutomationDialog({
                         <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
                             <div>
                                 <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">
-                                    {editItemPayload?.id ? "Edit Absent Automation" : "Add Absent Automation"}
+                                    {editItemPayload?.id ? "Edit Document Expiry Automation" : "Add Document Expiry Automation"}
                                 </h3>
                                 <p className="text-xs text-slate-400 mt-0.5">
-                                    Create notification rule for absent
+                                    Create notification rule for document expiry
                                 </p>
                                 {error ? <p className="mt-2 text-xs text-red-500">{String(error)}</p> : null}
                             </div>
@@ -281,7 +281,7 @@ export default function AbsentAutomationDialog({
                                             <Input
                                                 value={form.subject}
                                                 onChange={(e) => setField("subject", e.target.value)}
-                                                placeholder="E.g. Notify Managers about today's absent"
+                                                placeholder="E.g. Notify Managers about today's document expiry"
                                             />
                                         </div>
 
