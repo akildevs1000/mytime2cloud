@@ -339,6 +339,8 @@ class CompanyController extends Controller
             $data['logo'] = $fileName;
         }
 
+        unset($data['email']);
+
         $company = $companyRecord->update($data);
         if (! $company) {
             return $this->response('Company cannot updated.', null, false);
