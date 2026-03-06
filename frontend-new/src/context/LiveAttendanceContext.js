@@ -227,8 +227,10 @@ export function LiveAttendanceProvider({ children }) {
   useEffect(() => { deviceJsonRef.current = deviceJson; }, [deviceJson]);
   useEffect(() => { employeesJsonRef.current = employeesJson; }, [employeesJson]);
 
+  const hasLookupData = !!deviceJson && !!employeesJson;
+
   useEffect(() => {
-    if (!companyId) return;
+    if (!companyId || !hasLookupData) return;
 
     let ws;
     let reconnectTimeout;
@@ -311,7 +313,7 @@ export function LiveAttendanceProvider({ children }) {
       clearTimeout(reconnectTimeout);
       if (ws) ws.close();
     };
-  }, [companyId]);
+  }, [companyId, hasLookupData]);
 
   const value = useMemo(
     () => ({
