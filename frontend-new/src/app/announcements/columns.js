@@ -33,7 +33,7 @@ export default (handleRowClick, handleEdit, handleDelete, handleView) => {
             render: (e) => (
                 <p
                     onClick={() => handleRowClick(e)}
-                    className="text-sm text-slate-500 dark:text-slate-400 cursor-pointer hover:text-primary transition-colors font-medium"
+                    className="text-sm text-slate-600 dark:text-slate-300 cursor-pointer hover:text-primary transition-colors font-medium"
                 >
                     {e.title || "N/A"}
                 </p>
@@ -45,7 +45,7 @@ export default (handleRowClick, handleEdit, handleDelete, handleView) => {
             render: (e) => (
                 <p
                     onClick={() => handleRowClick(e)}
-                    className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell cursor-pointer max-w-[300px] truncate"
+                    className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell cursor-pointer max-w-[300px] truncate"
                     title={e.description?.replace(/<[^>]*>/g, '') || ""}
                 >
                     {e.description?.replace(/<[^>]*>/g, '')?.substring(0, 80) || "N/A"}
@@ -69,7 +69,7 @@ export default (handleRowClick, handleEdit, handleDelete, handleView) => {
             key: "start_date",
             header: "Start Date",
             render: (e) => (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
                     {e.start_date || "N/A"}
                 </p>
             ),
@@ -78,7 +78,7 @@ export default (handleRowClick, handleEdit, handleDelete, handleView) => {
             key: "end_date",
             header: "End Date",
             render: (e) => (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
                     {e.end_date || "N/A"}
                 </p>
             ),
@@ -87,7 +87,7 @@ export default (handleRowClick, handleEdit, handleDelete, handleView) => {
             key: "created_at",
             header: "Posted",
             render: (e) => (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+                <p className="text-sm text-slate-600 dark:text-slate-300">
                     {e.created_at || "N/A"}
                 </p>
             ),

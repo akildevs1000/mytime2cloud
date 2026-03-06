@@ -235,7 +235,7 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
 
     if (isLoading) {
         return (
-            <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
+            <div className="p-6 text-sm text-slate-600 dark:text-slate-300">
                 Loading company profile...
             </div>
         );
@@ -306,7 +306,7 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
 
                             <Field label="Website">
                                 <div className="flex">
-                                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-sm font-medium">
+                                    <span className="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-sm font-medium">
                                         https://
                                     </span>
                                     <Input name="website" value={form.website} readOnly rounded="r" />
@@ -369,7 +369,7 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                                 )}
                             </div>
 
-                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300">
                                 Standard Access Token
                             </p>
 
@@ -408,7 +408,7 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                                         <span className="material-symbols-outlined text-base">upload</span>
                                         {form.logo ? "Replace logo" : "Upload logo"}
                                     </span>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">SVG, PNG, JPG (max 2MB)</p>
+                                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">SVG, PNG, JPG (max 2MB)</p>
                                 </div>
                                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
                             </label>
@@ -433,7 +433,7 @@ export default function CompanyProfile({ profile, contact, isLoading: parentLoad
                             type="button"
                             onClick={handleCancel}
                             disabled={isSaving}
-                            className="px-6 py-2.5 rounded-lg font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 dark:bg-slate-800 transition"
+                            className="px-6 py-2.5 rounded-lg font-medium text-slate-600 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/70 dark:hover:bg-slate-800/70 dark:bg-slate-800 transition"
                         >
                             Cancel
                         </button>
@@ -462,7 +462,7 @@ function Header({ icon, title, description, color }) {
             </div>
             <div>
                 <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">{title}</h2>
-                <p className="text-sm text-slate-500 dark:text-slate-400">{description}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{description}</p>
             </div>
         </div>
     );
@@ -471,7 +471,7 @@ function Header({ icon, title, description, color }) {
 function Field({ label, children, span, className }) {
     return (
         <div className={`${span ? "md:col-span-2" : ""} ${className || ""}`}>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">{label}</label>
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">{label}</label>
             {children}
         </div>
     );
@@ -493,7 +493,7 @@ function Input({ value, bold, rounded, name, onChange, placeholder, readOnly = f
 }
 
 const Label = ({ children }) => (
-    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">{children}</label>
+    <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">{children}</label>
 );
 
 const SelectSideBar = ({ label, name, value, onChange }) => (

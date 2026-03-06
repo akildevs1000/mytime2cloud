@@ -39,11 +39,11 @@ export default function ExecutiveAttendanceDashboardPage() {
                 <table className="w-full text-left border-collapse min-w-[200px]">
                     <thead>
                         <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Branch</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Type</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Subject</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Time</th>
-                            {/* <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center whitespace-nowrap">Medium</th> */}
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Branch</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Type</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Subject</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Time</th>
+                            {/* <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center whitespace-nowrap">Medium</th> */}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
@@ -59,7 +59,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400">No attendance detail found for selected filters.</td>
+                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-600 dark:text-slate-300">No attendance detail found for selected filters.</td>
                             </tr>
                         )}
                     </tbody>

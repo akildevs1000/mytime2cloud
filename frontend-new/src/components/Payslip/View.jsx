@@ -262,7 +262,7 @@ const ViewPayslip = ({ open, setOpen, paySlipInput, onSuccess = () => {} }) => {
                   className="fill-emerald-500 text-emerald-500"
                   size={8}
                 />
-                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
                   Earnings
                 </h3>
               </div>
@@ -294,7 +294,7 @@ const ViewPayslip = ({ open, setOpen, paySlipInput, onSuccess = () => {} }) => {
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Circle className="fill-red-500 text-red-500" size={8} />
-                <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+                <h3 className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
                   Deductions
                 </h3>
               </div>
@@ -331,12 +331,12 @@ const ViewPayslip = ({ open, setOpen, paySlipInput, onSuccess = () => {} }) => {
               <p className="text-xs font-bold text-indigo-500 uppercase tracking-[0.2em] mb-2">
                 Net Payable Amount
               </p>
-              <p className="italic text-slate-500 dark:text-slate-400 text-sm">
+              <p className="italic text-slate-600 dark:text-slate-300 text-sm">
                 "{data.netPayableWords}"
               </p>
             </div>
             <div className="relative z-10 flex items-baseline gap-3">
-              <span className="text-slate-500 dark:text-slate-400 font-medium">
+              <span className="text-slate-600 dark:text-slate-300 font-medium">
                 AED
               </span>
               <span className="text-5xl md:text-6xl font-bold text-slate-900 dark:text-white tracking-tighter drop-shadow-sm">

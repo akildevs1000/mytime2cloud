@@ -61,7 +61,7 @@ function Pagination({
     <div className={`bg-slate-50/50 dark:bg-slate-800/50 px-6 py-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-4 ${className}`}>
       
       {/* LEFT: Range Information */}
-      <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
         {labels.showing} <span className="text-slate-900 dark:text-slate-100">{start}-{end}</span> {labels.of} <span className="text-slate-900 dark:text-slate-100">{total}</span>
       </span>
 
@@ -105,7 +105,7 @@ function Pagination({
             </div>
           )}
           
-          <span className="text-xs text-slate-500 dark:text-slate-400">
+          <span className="text-xs text-slate-600 dark:text-slate-300">
             {labels.perPageSuffix}
           </span>
         </div>
@@ -115,7 +115,7 @@ function Pagination({
           <button
             onClick={goPrev}
             disabled={!canPrev}
-            className="p-1.5 rounded-md  hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+            className="p-1.5 rounded-md  hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
             title={labels.previous}
           >
             {LeftIcon ? <LeftIcon /> : <span className="material-icons-outlined text-sm block">chevron_left</span>}
@@ -130,7 +130,7 @@ function Pagination({
           <button
             onClick={goNext}
             disabled={!canNext}
-            className="p-1.5 rounded-md  hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
+            className="p-1.5 rounded-md  hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 disabled:opacity-30 disabled:hover:bg-transparent transition-colors"
             title={labels.next}
           >
             {RightIcon ? <RightIcon /> : <span className="material-icons-outlined text-sm block">chevron_right</span>}

@@ -128,7 +128,7 @@ export default function RightSection({ radius, setRadius, setCenter, selectedLat
         <>
             {/* Header Actions */}
             <div className="p-6 border-b border-border ">
-                {/* <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">
+                {/* <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-widest mb-2">
                             <span>Dashboard</span>
                             <span className="material-symbols-outlined text-[12px]">
                                 chevron_right

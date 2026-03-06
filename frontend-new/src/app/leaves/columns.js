@@ -49,7 +49,7 @@ export default (editItem) => [
     key: "branch",
     header: "Branch / Dept",
     render: ({ employee }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {employee.branch?.branch_name || "-"} / {employee.department?.name || "-"}
       </div>
     ),
@@ -58,7 +58,7 @@ export default (editItem) => [
     key: "group",
     header: "Group",
     render: ({ employee }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {employee.leave_group?.group_name || "-"}
       </div>
     ),
@@ -67,7 +67,7 @@ export default (editItem) => [
     key: "leave_type",
     header: "Leave Type",
     render: (employee) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {employee.leave_type?.short_name || "-"}
       </div>
     ),
@@ -76,7 +76,7 @@ export default (editItem) => [
     key: "duration",
     header: "Duation",
     render: ({ start_date, end_date }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {start_date} to {end_date}
       </div>
     ),
@@ -86,7 +86,7 @@ export default (editItem) => [
     key: "leave_note",
     header: "Leave Note",
     render: ({ reason }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {reason}
       </div>
     ),
@@ -96,7 +96,7 @@ export default (editItem) => [
     key: "created_at",
     header: "Applied On",
     render: ({ created_at }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {created_at}
       </div>
     ),

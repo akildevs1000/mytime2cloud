@@ -10,7 +10,7 @@ export default [
         <ProfilePicture src={employee.profile_picture} />
 
         <div>
-          <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{employee?.first_name}</p>
+          <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{employee?.first_name}</p>
           <p className="text-sm text-gray-500">
             ID: {employee.employee_id}
           </p>
@@ -23,28 +23,28 @@ export default [
     key: "branch",
     header: "Branch / Department",
     render: ({ employee }) => (
-      <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{employee?.branch?.branch_name || "N/A"} / {employee?.department?.name || "N/A"}</p>
+      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{employee?.branch?.branch_name || "N/A"} / {employee?.department?.name || "N/A"}</p>
     ),
   },
   {
     key: "datetime",
     header: "Date Time",
     render: (log) => (
-      <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{log?.date} {log?.time} </p>
+      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{log?.date} {log?.time} </p>
     ),
   },
   {
     key: "log_type",
     header: "Log Type",
     render: (log) => (
-      <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{log?.log_type || "—"}</p>
+      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{log?.log_type || "—"}</p>
     ),
   },
   {
     key: "device",
     header: "Device",
     render: (log) => (
-      <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{log?.device?.name || "—"}</p>
+      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{log?.device?.name || "—"}</p>
     ),
   },
 
@@ -52,7 +52,7 @@ export default [
     key: "location",
     header: "Location",
     render: (log) => (
-      <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{log?.device?.location || "—"}</p>
+      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{log?.device?.location || "—"}</p>
     ),
   },
 ];

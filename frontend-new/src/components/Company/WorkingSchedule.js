@@ -126,7 +126,7 @@ const WorkingSchedule = () => {
             <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">
               Weekend Configuration
             </h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-slate-600 dark:text-slate-300">
               Define standard weekly time-off policies
             </p>
           </div>
@@ -134,7 +134,7 @@ const WorkingSchedule = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
               Weekly Off 1
             </label>
             <DropDown
@@ -154,7 +154,7 @@ const WorkingSchedule = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
               Weekly Off 2
             </label>
             <DropDown

@@ -89,7 +89,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Employee Status</span>
-                                <span className="text-xs text-slate-500 dark:text-slate-400">Active account status</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-300">Active account status</span>
                             </div>
                             <div className="relative inline-block w-12 mr-2 align-middle select-none">
                                 <input
@@ -110,7 +110,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Location Tracking</span>
-                                <span className="text-xs text-slate-500 dark:text-slate-400">GPS tracking for mobile punch-in</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-300">GPS tracking for mobile punch-in</span>
                             </div>
                             <div className="relative inline-block w-12 mr-2 align-middle select-none">
                                 <input
@@ -131,7 +131,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Web Login Access</span>
-                                <span className="text-xs text-slate-500 dark:text-slate-400">Allow browser dashboard access</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-300">Allow browser dashboard access</span>
                             </div>
                             <div className="relative inline-block w-12 mr-2 align-middle select-none">
                                 <input
@@ -152,7 +152,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Mobile App Login Access</span>
-                                <span className="text-xs text-slate-500 dark:text-slate-400">Allow iOS/Android app access</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-300">Allow iOS/Android app access</span>
                             </div>
                             <div className="relative inline-block w-12 mr-2 align-middle select-none">
                                 <input
@@ -172,7 +172,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                         <div className="flex items-center justify-between">
                             <div className="flex flex-col">
                                 <span className="text-sm font-medium text-slate-900 dark:text-white">Clock In/Out Permission</span>
-                                <span className="text-xs text-slate-500 dark:text-slate-400">Set the permission for click in/out for iOS/Android app access</span>
+                                <span className="text-xs text-slate-600 dark:text-slate-300">Set the permission for click in/out for iOS/Android app access</span>
                             </div>
                             <div className="relative inline-block w-12 mr-2 align-middle select-none">
                                 <input

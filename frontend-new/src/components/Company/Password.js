@@ -59,13 +59,13 @@ const CompanyPassword = () => {
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Password</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Update company user password</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Update company user password</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
                 Current Password
               </label>
               <input
@@ -78,7 +78,7 @@ const CompanyPassword = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
                 New Password
               </label>
               <input
@@ -91,7 +91,7 @@ const CompanyPassword = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+              <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
                 Confirm New Password
               </label>
               <input

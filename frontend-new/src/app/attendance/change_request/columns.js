@@ -49,7 +49,7 @@ export default (editItem) => [
     key: "branch",
     header: "Branch / Dept",
     render: ({ employee }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {employee?.branch?.branch_name || "-"} / {employee?.department?.name || "-"}
       </div>
     ),
@@ -59,7 +59,7 @@ export default (editItem) => [
     key: "duration",
     header: "Duration",
     render: ({ from_date, to_date }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {from_date} - {to_date}
       </div>
     ),
@@ -69,7 +69,7 @@ export default (editItem) => [
     key: "remarks",
     header: "Remarks",
     render: ({ remarks }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {remarks}
       </div>
     ),
@@ -79,7 +79,7 @@ export default (editItem) => [
     key: "requested_at",
     header: "Applied On",
     render: ({ requested_at }) => (
-      <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
         {requested_at}
       </div>
     ),

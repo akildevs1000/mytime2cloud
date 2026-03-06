@@ -40,11 +40,11 @@ export default function DocumentExpiryAll() {
                 <table className="w-full text-left border-collapse min-w-[200px]">
                     <thead>
                         <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Branch</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Employee</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Title</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Issue Date</th>
-                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 whitespace-nowrap">Expiry Date</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Branch</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Employee</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Title</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Issue Date</th>
+                            <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 whitespace-nowrap">Expiry Date</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
@@ -57,7 +57,7 @@ export default function DocumentExpiryAll() {
                                         <ProfilePicture src={row?.employee?.profile_picture} />
 
                                         <div>
-                                            <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell font-mono">{row?.employee?.first_name}</p>
+                                            <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell font-mono">{row?.employee?.first_name}</p>
                                             <p className="text-sm text-gray-500">
                                                 ID: {row?.employee?.employee_id}
                                             </p>
@@ -73,7 +73,7 @@ export default function DocumentExpiryAll() {
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-500 dark:text-slate-400">No attendance detail found for selected filters.</td>
+                                <td colSpan={5} className="px-6 py-12 text-center text-sm text-slate-600 dark:text-slate-300">No attendance detail found for selected filters.</td>
                             </tr>
                         )}
                     </tbody>

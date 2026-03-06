@@ -27,7 +27,7 @@ export default (deleteItem) => {
                     <ProfilePicture src={e.profile_picture} />
 
                     <div>
-                        <p className="font-medium text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">{e?.first_name}</p>
+                        <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{e?.first_name}</p>
                         <p className="text-sm text-gray-500">
                             ID: {e.employee_id}
                         </p>
@@ -39,7 +39,7 @@ export default (deleteItem) => {
             key: "branch",
             header: "Branch / Dept",
             render: (e) => (
-                <p onClick={() => handleRowClick(e)} className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+                <p onClick={() => handleRowClick(e)} className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                     {e.branch?.branch_name || "N/A"} / {e.department?.name || "N/A"}
                 </p>
             ),
@@ -49,9 +49,9 @@ export default (deleteItem) => {
             key: "schedule_status",
             header: "Active Interval",
             render: (e) => (
-                <div onClick={() => handleRowClick(e)} className="flex flex-col text-slate-500 dark:text-slate-400">
+                <div onClick={() => handleRowClick(e)} className="flex flex-col text-slate-600 dark:text-slate-300">
                     {!e.schedule?.shift && e.schedule_all?.length > 0 ? (
-                        <div className="text-slate-500 dark:text-slate-400 text-sm">Expired</div>
+                        <div className="text-slate-600 dark:text-slate-300 text-sm">Expired</div>
                     ) : (
                         <div>
                             {e.schedule?.isAutoShift
@@ -75,7 +75,7 @@ export default (deleteItem) => {
             key: "status",
             header: "Status",
             render: (e) => (
-                <div className="flex flex-col text-slate-500 dark:text-slate-400">
+                <div className="flex flex-col text-slate-600 dark:text-slate-300">
                     {!e.schedule?.shift && e.schedule_all?.length > 0 ? (
                         <div className="  dark:text-slate-400 text-sm"><AlertCircle className="text-red-700" /></div>
                     ) : (

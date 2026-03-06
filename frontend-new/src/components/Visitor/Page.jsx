@@ -8,7 +8,7 @@ const VisitorHub = () => {
         <div className="glass-panel bg-white dark:bg-slate-900/50 rounded-xl p-5 flex flex-col gap-1 relative overflow-hidden group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-300 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/20 shadow-sm dark:shadow-none">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider">
                 Visitors Today
               </p>
               <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1 drop-shadow-sm dark:drop-shadow-md">
@@ -36,7 +36,7 @@ const VisitorHub = () => {
         <div className="glass-panel bg-white dark:bg-slate-900/50 rounded-xl p-5 flex flex-col gap-1 relative overflow-hidden group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-300 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider">
                 Currently On-site
               </p>
               <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1 drop-shadow-sm dark:drop-shadow-md">
@@ -61,7 +61,7 @@ const VisitorHub = () => {
         <div className="glass-panel bg-white dark:bg-slate-900/50 rounded-xl p-5 flex flex-col gap-1 relative overflow-hidden group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-300 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider">
                 Expected
               </p>
               <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1 drop-shadow-sm dark:drop-shadow-md">
@@ -93,7 +93,7 @@ const VisitorHub = () => {
         <div className="glass-panel bg-white dark:bg-slate-900/50 rounded-xl p-5 flex flex-col gap-1 relative overflow-hidden group hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all duration-300 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-none">
           <div className="flex justify-between items-start">
             <div>
-              <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+              <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider">
                 Pending Approval
               </p>
               <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1 drop-shadow-sm dark:drop-shadow-md">
@@ -129,7 +129,7 @@ const VisitorHub = () => {
                 </span>
                 Quick Check-in
               </h3>
-              <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center gap-1 transition-colors">
+              <button className="text-xs text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium flex items-center gap-1 transition-colors">
                 Full Registration
                 <span className="material-symbols-outlined text-sm">
                   arrow_forward
@@ -183,7 +183,7 @@ const VisitorHub = () => {
                   },
                 ].map((field, idx) => (
                   <div key={idx} className="space-y-1.5">
-                    <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                    <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                       {field.label}
                     </label>
                     <div className="relative group">
@@ -203,7 +203,7 @@ const VisitorHub = () => {
 
                 {/* Select fields need similar logic */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                  <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">
                     ID Type
                   </label>
                   <div className="relative group">
@@ -245,7 +245,7 @@ const VisitorHub = () => {
             {/* Header Section */}
             <div className="p-5 border-b border-slate-200 dark:border-slate-700/50 flex items-center justify-between bg-slate-50 dark:bg-slate-800/30">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-slate-500 dark:text-slate-400">
+                <span className="material-symbols-outlined text-slate-600 dark:text-slate-300">
                   table_rows
                 </span>
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
@@ -253,12 +253,12 @@ const VisitorHub = () => {
                 </h3>
               </div>
               <div className="flex gap-2">
-                <button className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-transparent hover:border-indigo-200 dark:hover:border-slate-600">
+                <button className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-transparent hover:border-indigo-200 dark:hover:border-slate-600">
                   <span className="material-symbols-outlined text-[20px]">
                     filter_list
                   </span>
                 </button>
-                <button className="p-2 text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-transparent hover:border-indigo-200 dark:hover:border-slate-600">
+                <button className="p-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-transparent hover:border-indigo-200 dark:hover:border-slate-600">
                   <span className="material-symbols-outlined text-[20px]">
                     download
                   </span>
@@ -321,7 +321,7 @@ const VisitorHub = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-slate-500 dark:text-slate-400 text-xs">
+                      <div className="text-slate-600 dark:text-slate-300 text-xs">
                         10:45 AM
                       </div>
                     </td>
@@ -374,7 +374,7 @@ const VisitorHub = () => {
                         </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-500 dark:text-slate-400 text-xs">
+                    <td className="px-6 py-4 text-slate-600 dark:text-slate-300 text-xs">
                       09:30 AM
                     </td>
                     <td className="px-6 py-4">

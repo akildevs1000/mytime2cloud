@@ -3,7 +3,7 @@ export default (deleteEmployee) => [
         key: "name",
         header: "Document Name",
         render: (item) => (
-            <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+            <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                 {item.name}
             </div>
         ),
@@ -12,7 +12,7 @@ export default (deleteEmployee) => [
         key: "branch",
         header: "Uploaded Date",
         render: (item) => (
-            <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+            <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                 {item.date || "N/A"}
             </div>
         ),
@@ -21,7 +21,7 @@ export default (deleteEmployee) => [
         key: "department",
         header: "Type",
         render: (item) => (
-            <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+            <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                 {item.type || "N/A"}
             </div>
         ),
@@ -31,7 +31,7 @@ export default (deleteEmployee) => [
         key: "expiry",
         header: "Expiry Date",
         render: (item) => (
-            <div className="text-sm text-slate-500 dark:text-slate-400 hidden xl:table-cell">
+            <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">
                 {item.type || "N/A"}
             </div>
         ),

@@ -14,7 +14,7 @@ const EmergencyContact = ({ payload }) => {
         <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
           Contact Details
         </h2>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-slate-600 dark:text-slate-300 mt-1">
           Maintain employee primary communication channels and emergency contact information.
         </p>
       </div>

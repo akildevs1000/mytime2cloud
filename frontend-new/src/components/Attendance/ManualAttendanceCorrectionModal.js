@@ -369,7 +369,7 @@ export default function ManualAttendanceCorrectionModal({
                                     <span className="bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded text-xs uppercase tracking-wider">
                                         ID: {activeEmployee.code}
                                     </span>
-                                    <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                                    <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300">
                                         <span className="material-symbols-outlined text-xs">corporate_fare</span>
                                         {activeEmployee.department}
                                     </span>
@@ -397,7 +397,7 @@ export default function ManualAttendanceCorrectionModal({
                                     <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">schedule</span>
                                     <div className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg py-2.5 pl-10 pr-3 flex items-center justify-between text-slate-700 dark:text-slate-200 text-sm">
                                         <span>{form.shiftLabel}</span>
-                                        <span className="bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">{shiftDurationLabel}</span>
+                                        <span className="bg-slate-200 dark:bg-slate-800 px-2 py-0.5 rounded text-[10px] font-bold text-slate-600 dark:text-slate-300 uppercase">{shiftDurationLabel}</span>
                                     </div>
                                 </div>
                             </div>
@@ -414,7 +414,7 @@ export default function ManualAttendanceCorrectionModal({
                                         <span className="text-indigo-600 dark:text-indigo-400 font-semibold">Click to upload</span> or drag and drop
                                     </p>
                                     <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 uppercase">PDF, JPG, PNG up to 5MB</p>
-                                    {evidenceName && <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">{evidenceName}</p>}
+                                    {evidenceName && <p className="text-xs text-slate-600 dark:text-slate-300 mt-2">{evidenceName}</p>}
                                 </button>
                                 <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={onFileSelect} />
                             </div>
@@ -431,7 +431,7 @@ export default function ManualAttendanceCorrectionModal({
                                 </button>
                             </div>
 
-                            <div className="mb-4 text-[11px] text-slate-500 dark:text-slate-400">
+                            <div className="mb-4 text-[11px] text-slate-600 dark:text-slate-300">
                                 Logs found: <span className="font-semibold">{logCount}</span>
                                 {missingFieldKey
                                     ? <span className="ml-2">• Next required: <span className="font-semibold uppercase">{missingFieldKey.replace("1", " 1").replace("2", " 2")}</span></span>
@@ -481,7 +481,7 @@ export default function ManualAttendanceCorrectionModal({
                 </div>
 
                 <div className="px-6 py-5 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
                         <span className="material-symbols-outlined text-sm">info</span>
                         <span className="text-[11px] font-medium italic">Action will be logged in audit trail.</span>
                     </div>

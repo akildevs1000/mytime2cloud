@@ -63,7 +63,7 @@ const ItemsList = ({
           </h2>
           <span className={`text-[10px] font-bold px-2.5 py-1 border rounded-full uppercase tracking-wider ${isIndigo
               ? 'text-indigo-500 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/50 bg-indigo-50/50 dark:bg-indigo-950/30'
-              : 'text-slate-500 dark:text-slate-400 border-border bg-slate-50/50 dark:bg-slate-800/30'
+              : 'text-slate-600 dark:text-slate-300 border-border bg-slate-50/50 dark:bg-slate-800/30'
             }`}>
             {items.length} {badgeLabel}
           </span>

@@ -128,7 +128,7 @@ export default function SchedulePage() {
                         >
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                                    <p className="text-slate-600 dark:text-slate-300 text-xs font-semibold uppercase tracking-wider">
                                         {stat.label}
                                     </p>
                                     <h3 className="text-3xl font-bold text-slate-900 dark:text-white mt-1 drop-shadow-sm dark:drop-shadow-md">

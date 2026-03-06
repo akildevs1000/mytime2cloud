@@ -41,7 +41,7 @@ export default function TeamAvailability() {
       <div className="pb-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Users size={16} className="text-blue-500" />
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+          <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
             Team on Leave
           </span>
         </div>

@@ -10,7 +10,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
       header: "Branch",
       render: (device) => (
         <span
-          className="text-slate-500 dark:text-slate-400 cursor-pointer block max-w-[150px] truncate"
+          className="text-slate-600 dark:text-slate-300 cursor-pointer block max-w-[150px] truncate"
           title={device.name || "—"}
 
         >
@@ -23,7 +23,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
       header: "Name",
       render: (device) => (
         <span
-          className="text-slate-500 dark:text-slate-400 cursor-pointer block max-w-[150px] truncate"
+          className="text-slate-600 dark:text-slate-300 cursor-pointer block max-w-[150px] truncate"
           title={device.name || "—"}
 
         >
@@ -37,7 +37,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
       header: "Function",
       render: (device) => (
         <span
-          className="text-slate-500 dark:text-slate-400 cursor-pointer block max-w-[100px] truncate"
+          className="text-slate-600 dark:text-slate-300 cursor-pointer block max-w-[100px] truncate"
           title={device.function || "—"}
 
         >
@@ -92,7 +92,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
       key: "alarm",
       header: "Alarm",
       render: (device) => (
-        <span className="text-center text-slate-500 dark:text-slate-400">
+        <span className="text-center text-slate-600 dark:text-slate-300">
           <AlarmClock size={25} />
         </span>
       ),
@@ -102,7 +102,7 @@ export default function Columns(deleteItem, editItem, deviceSettings, setOpenDoo
       header: "Time Sync",
       render: (device) => (
         <span
-          className="text-slate-500 dark:text-slate-400 cursor-pointer block max-w-[150px] truncate"
+          className="text-slate-600 dark:text-slate-300 cursor-pointer block max-w-[150px] truncate"
           title={device.sync_date_time || "—"}
           onClick={() => console.log(device.id)}
         >

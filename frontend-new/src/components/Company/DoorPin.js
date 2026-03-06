@@ -69,12 +69,12 @@ const CompanyPassword = ({ pin, isLoading }) => {
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Company PIN</h2>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Set company PIN</p>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Set company PIN</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-500 dark:text-slate-400">
+            <label className="block text-xs font-bold uppercase tracking-wider mb-2 text-slate-600 dark:text-slate-300">
               PIN
             </label>
             <input

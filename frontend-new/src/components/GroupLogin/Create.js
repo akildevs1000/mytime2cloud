@@ -178,7 +178,7 @@ const Create = ({ isEditOpen = false, defaultPayload = {}, pageTitle = "Add Item
                   <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white transition-colors">
                     Manager Login
                   </h1>
-                  <p className="text-sm mt-0.5 text-slate-500 dark:text-slate-400 transition-colors">
+                  <p className="text-sm mt-0.5 text-slate-600 dark:text-slate-300 transition-colors">
                     {pageTitle} Configuration
                   </p>
                 </div>

@@ -34,7 +34,7 @@ export default function AttendancePage() {
                             onClick={() => setActiveTab(tab)}
                             className={`pb-3 px-1 text-sm font-bold tracking-wide uppercase transition-colors border-b-[3px] ${activeTab === tab
                                 ? 'border-[#7f19e6] text-[#7f19e6]'
-                                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                                : 'border-transparent text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-200'
                                 }`}
                         >
                             {tab}

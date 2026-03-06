@@ -295,7 +295,7 @@ export default function PerformanceReport() {
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Performance Reports
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium">
+            <p className="text-slate-600 dark:text-slate-300 font-medium">
               {selectedMonthLabel}
             </p>
           </div>
@@ -394,40 +394,40 @@ export default function PerformanceReport() {
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Employee
                   </th>
-                  {/* <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  {/* <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Join Date
                   </th> */}
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Present
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Absent
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Incomplete
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Late In
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Early Out
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Weekoff
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Leave
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Holiday
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Rating
                   </th>
-                  {/* <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right">
+                  {/* <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">
                     Actions
                   </th> */}
                 </tr>
@@ -436,7 +436,7 @@ export default function PerformanceReport() {
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
                 {loading ? (
                   <tr>
-                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
                         Loading...
@@ -455,7 +455,7 @@ export default function PerformanceReport() {
                               <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                 {item?.employee?.first_name || '---'} {item?.employee?.last_name || ''}
                               </p>
-                              <p className="text-xs text-slate-500 dark:text-slate-400">
+                              <p className="text-xs text-slate-600 dark:text-slate-300">
                                 #{item?.employee?.employee_id || '---'}
                               </p>
                             </div>
@@ -518,7 +518,7 @@ export default function PerformanceReport() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
                       No data available. Click 'Generate' button to see the results.
                     </td>
                   </tr>

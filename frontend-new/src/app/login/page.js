@@ -177,7 +177,7 @@ const Login = () => {
                             <h2 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
                                 Welcome Back
                             </h2>
-                            <p className="text-slate-500 dark:text-slate-400 text-base">
+                            <p className="text-slate-600 dark:text-slate-300 text-base">
                                 Securely log in to your enterprise dashboard.
                             </p>
                         </div>

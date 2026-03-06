@@ -3,7 +3,7 @@
 import * as React from "react";
 
 const Label = ({ children }) => (
-  <label className="block text-[10px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+  <label className="block text-[10px] font-bold uppercase text-slate-600 dark:text-slate-300 mb-1">
     {children}
   </label>
 );

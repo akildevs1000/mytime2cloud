@@ -63,7 +63,7 @@ export default function LeavesCalendarView() {
       <div className="pb-3 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CalendarIcon size={16} className="text-indigo-500" />
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+          <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-widest">
             Leave Calendar
           </span>
         </div>
@@ -120,7 +120,7 @@ export default function LeavesCalendarView() {
         ].map((item) => (
           <div key={item.label} className="flex items-center gap-1.5 justify-center">
             <div className={`w-1.5 h-1.5 rounded-full ${item.color}`}></div>
-            <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tighter">
+            <span className="text-[9px] font-bold text-slate-600 dark:text-slate-300 uppercase tracking-tighter">
               {item.label}
             </span>
           </div>

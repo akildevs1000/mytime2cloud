@@ -427,7 +427,7 @@ export default function ExecutiveAttendanceDashboardPage() {
     if (trendValue < 0) {
       return { label: `↘ ${trendValue}%`, className: 'text-red-600 dark:text-red-400' };
     }
-    return { label: '— 0%', className: 'text-slate-500 dark:text-slate-400' };
+    return { label: '— 0%', className: 'text-slate-600 dark:text-slate-300' };
   };
 
   const currentAttendancePage = attendanceMeta.page || attendancePage;
@@ -444,7 +444,7 @@ export default function ExecutiveAttendanceDashboardPage() {
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               {selectedMonthLabel}
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">
+            <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
               Monthly attendance performance overview.
             </p>
           </div>
@@ -541,7 +541,7 @@ export default function ExecutiveAttendanceDashboardPage() {
             <div key={idx} className="glass-panel p-4 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
               {/* Header */}
               <div className="flex items-center justify-between mb-2 z-10">
-                <p className="text-slate-500 dark:text-slate-400 text-[10px] font-semibold uppercase tracking-wide truncate">
+                <p className="text-slate-600 dark:text-slate-300 text-[10px] font-semibold uppercase tracking-wide truncate">
                   {item.title}
                 </p>
                 <div className={`p-1 rounded-md ${colors[item.color]}`}>
@@ -600,7 +600,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                 <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">
                   Attendance Trends
                 </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5">
+                <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
                   Stacked breakdown (Present vs Late vs Absent)
                 </p>
               </div>
@@ -683,7 +683,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-slate-500 dark:text-slate-400">No department data found for selected filters.</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300">No department data found for selected filters.</p>
               )}
             </div>
 
@@ -710,7 +710,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <span className="text-xs font-bold text-emerald-500">{staff.score}</span>
                   </div>
                 )) : (
-                  <p className="text-xs text-slate-500 dark:text-slate-400">No punctuality data found for selected filters.</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300">No punctuality data found for selected filters.</p>
                 )}
               </div>
             </div>
@@ -750,25 +750,25 @@ export default function ExecutiveAttendanceDashboardPage() {
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Employee
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
                     Department
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Days Present
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Rate
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Trend
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-center">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 text-right w-32">
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right w-32">
                     Action
                   </th>
                 </tr>
@@ -797,7 +797,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                             <p className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
                               {row.name}
                             </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
                               #{row.employeeCode}
                             </p>
                           </div>
@@ -843,7 +843,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                   );
                 }) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-500 dark:text-slate-400">
+                    <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
                       No attendance detail found for selected filters.
                     </td>
                   </tr>

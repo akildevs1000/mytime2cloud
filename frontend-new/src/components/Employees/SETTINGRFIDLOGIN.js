@@ -15,7 +15,7 @@ export default function SETTINGRFIDLOGIN({ id, mobile_punch, user_id, email, web
                     <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
                         Settings
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 mt-1">
+                    <p className="text-slate-600 dark:text-slate-300 mt-1">
                         Manage general preferences, security credentials, and hardware
                         access.
                     </p>

@@ -242,7 +242,7 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
                             <h4 className="text-sm font-bold text-slate-700 dark:text-gray-200 truncate">
                               {editedItem.alternate_employee.full_name}
                             </h4>
-                            <div className="flex gap-3 text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            <div className="flex gap-3 text-[11px] text-slate-600 dark:text-slate-300 font-medium">
                               <span className="flex items-center gap-1">
                                 ID: <span className="text-blue-500">{editedItem.alternate_employee.employee_id}</span>
                               </span>
@@ -353,7 +353,7 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
               {activeTab === 'quota' && (
                 <div className="rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden">
                   <table className="w-full text-sm text-center">
-                    <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 font-bold">
+                    <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-bold">
                       <tr>
                         <th className="px-4 py-3 text-left">Type</th>
                         <th className="px-4 py-3">Total</th>

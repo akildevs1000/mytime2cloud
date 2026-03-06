@@ -26,7 +26,7 @@ const SalaryHistoryChart = () => {
           <h4 className="text-base font-bold text-slate-900 dark:text-white">
             Salary History
           </h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
             Earnings & Deductions
           </p>
         </div>

@@ -11,7 +11,7 @@ const RadioGroup = ({
   return (
     <div className="flex flex-col gap-3">
       {label && (
-        <label className="text-sm font-semibold text-slate-500 dark:text-slate-400 ml-1">
+        <label className="text-sm font-semibold text-slate-600 dark:text-slate-300 ml-1">
           {label}
         </label>
       )}
