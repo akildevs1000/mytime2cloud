@@ -215,6 +215,11 @@ class AttendanceLogController extends Controller
 
         $result["data"] = array_values(array_unique($result["data"]));
 
+        $deviceFunctionMap = Device::excludeMobile()
+            ->get(['device_id', 'function']) // Only fetch what you need
+            ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
+            ->toArray();
+
         $records = [];
 
         foreach ($result["data"] as $row) {
@@ -234,6 +239,8 @@ class AttendanceLogController extends Controller
                 "log_date_time"       => $logTime,
                 "index_serial_number" => $columns[3] ?? null,
                 "log_date"            => $logDate,
+
+                "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
             ];
         }
 
