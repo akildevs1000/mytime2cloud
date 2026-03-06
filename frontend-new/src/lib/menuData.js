@@ -54,6 +54,10 @@ const companyMenu = [
   { href: "/payslips", icon: DollarSign, label: "Payroll" },
 ];
 
+const payrollMenu = [
+  { href: "/payslips", icon: DollarSign, label: "Payroll" },
+];
+
 const employeesMenu = [
   { href: "/employees", icon: Users, label: "Employee List" },
   { href: "/employees/employee_photo_upload", icon: Upload, label: "Employee Upload" },
@@ -87,6 +91,7 @@ export const leftNavLinks = {
   "/attendance": attendanceMenu,
   "/reports": attendanceMenu,
   "/logs": attendanceMenu,
+  "/change_request": attendanceMenu,
   // "/access_control_logs": attendanceMenu,
 
   "/setup": companyMenu,
@@ -95,7 +100,21 @@ export const leftNavLinks = {
   "/login/manager-login": companyMenu,
   "/department-tabs": companyMenu,
   "/device": companyMenu,
-  "/payslips": companyMenu,
+  "/payslips": payrollMenu,
   "/geo-fencing": companyMenu,
   "/live-tracker": companyMenu,
 };
+
+// notificaiton top is missing
+// attendac left menu add manual log entry
+// in employee menu add transfer branch option
+// open door option keep on access ctontrol tab
+// real time for old device
+
+
+//  $deviceFunctionMap = Device::excludeMobile()
+//             ->get(['device_id', 'function']) // Only fetch what you need
+//             ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
+//             ->toArray();
+
+//  "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
