@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { Pencil, RefreshCw } from 'lucide-react';
 
 import { getBranches, getDeviceList, getDeviceLogs } from '@/lib/api';
 
@@ -11,8 +11,11 @@ import Pagination from '@/lib/Pagination';
 import { EmployeeExtras } from '@/components/Employees/Extras';
 import DataTable from '@/components/ui/DataTable';
 import Columns from "./columns";
-import { parseApiError } from '@/lib/utils';
+import { notify, parseApiError } from '@/lib/utils';
 import MultiDropDown from '@/components/ui/MultiDropDown';
+import ManualAttendanceCorrectionModal from '@/components/Attendance/ManualAttendanceCorrectionModal';
+import { getUser } from '@/config';
+import { generateManualLog } from '@/lib/endpoint/attendance';
 
 
 
@@ -21,6 +24,10 @@ export default function AttendanceTable() {
     // filters
     const [selectedBranchIds, setSelectedBranchIds] = useState([]);
     const [selectedDeviceIds, setSelectedDeviceIds] = useState([]);
+
+
+    const [isOpen, setIsOpen] = useState(false);
+    const [isManualSubmitting, setIsManualSubmitting] = useState(false);
 
     const [from, setFrom] = useState(null);
     const [to, setTo] = useState(null);
@@ -188,6 +195,29 @@ export default function AttendanceTable() {
                     <button onClick={fetchRecords} className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
                         <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} /> Submit
                     </button>
+
+                    <div className="relative">
+                        <button
+                            onClick={() => setIsOpen(true)}
+                            className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
+                        >
+                            <Pencil size={15} />
+                            Manual Log
+                        </button>
+                    </div>
+
+                    <ManualAttendanceCorrectionModal
+                        open={isOpen}
+                        onClose={() => setIsOpen(false)}
+                        isSubmitting={isManualSubmitting}
+                        initialData={{
+                            date: from || "",
+                        }}
+                        onSuccess={() => {
+                            if (isButtonclicked) fetchRecords();
+                        }}
+
+                    />
                 </div>
             </div>
 

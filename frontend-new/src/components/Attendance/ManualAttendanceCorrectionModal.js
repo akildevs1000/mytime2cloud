@@ -5,7 +5,9 @@ import DropDown from "@/components/ui/DropDown";
 import DatePicker from "@/components/ui/DatePicker";
 import TimePicker from "@/components/ui/TimePicker";
 import { getDeviceLogs, getScheduledEmployeeList } from "@/lib/api";
-import { getEmployeeRelatedShift } from "@/lib/endpoint/attendance";
+import { generateManualLog, getEmployeeRelatedShift } from "@/lib/endpoint/attendance";
+import { notify, parseApiError } from "@/lib/utils";
+import { getUser } from "@/config";
 
 const defaultEmployee = {
     name: "Employee",
@@ -86,8 +88,7 @@ const firstItem = (value) => (Array.isArray(value) ? value[0] : value);
 export default function ManualAttendanceCorrectionModal({
     open = false,
     onClose = () => { },
-    onApply,
-    isSubmitting = false,
+    onSuccess,
     initialData = {},
 }) {
     const fileInputRef = useRef(null);
@@ -101,6 +102,7 @@ export default function ManualAttendanceCorrectionModal({
     const [logCount, setLogCount] = useState(0);
     const [missingFieldKey, setMissingFieldKey] = useState(null);
     const [employees, setEmployees] = useState([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -309,19 +311,67 @@ export default function ManualAttendanceCorrectionModal({
         setEvidenceName(file?.name || "");
     };
 
-    const handleApply = () => {
+    const resolveLogType = async (user_id) => {
+        const response = await getDeviceLogs({
+            page: 1,
+            per_page: 1,
+            sortDesc: true,
+            UserID: user_id,
+        });
+
+        const latest = Array.isArray(response?.data)
+            ? response.data?.[0]
+            : Array.isArray(response)
+                ? response?.[0]
+                : null;
+
+        const latestType = String(latest?.log_type || "").toLowerCase();
+        return ["in", "auto"].includes(latestType) ? "out" : "in";
+    };
+
+    const handleApply = async () => {
         const nextRequiredTime = missingFieldKey ? form?.[missingFieldKey] : "";
         const fallbackTime = ["in1", "out1", "in2", "out2"].map((key) => form?.[key]).find((value) => !!value);
 
-        const payload = {
-            user_id: selectedEmployeeId,
-            branch_id: activeEmployee?.branchId ?? 0,
-            date: form?.date || "",
-            time: nextRequiredTime || fallbackTime || "",
-            device_id: "Manual",
-        };
+        const user_id = selectedEmployeeId;
+        const branch_id = activeEmployee?.branchId ?? 0;
+        const date = form?.date || "";
+        const time = nextRequiredTime || fallbackTime || "";
 
-        onApply?.(payload);
+        if (!user_id || !date || !time) {
+            notify("Warning", "Please select employee, date, and time.", "warning");
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const user = getUser();
+            const log_type = await resolveLogType(user_id);
+
+            const log_payload = {
+                branch_id,
+                UserID: user_id,
+                LogTime: date + " " + time,
+                DeviceID: "Manual",
+                company_id: user?.company_id,
+                log_type,
+            };
+
+            const response = await generateManualLog(log_payload);
+
+            if (response?.status === false) {
+                notify("Error", (response?.message || "Unable to submit manual log."), "error");
+                return;
+            }
+
+            notify("Saved", response?.message || "Correction submitted successfully.", "success");
+            onClose?.();
+            onSuccess?.();
+        } catch (error) {
+            notify("Error", parseApiError(error), "error");
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
