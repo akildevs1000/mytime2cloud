@@ -106,10 +106,10 @@ export const leftNavLinks = {
 };
 
 // notificaiton top is missing
-// attendac left menu add manual log entry
+// attendac left menu add manual log entry ->change to attendan log page (done)
 // in employee menu add transfer branch option
 // open door option keep on access ctontrol tab
-// real time for old device
+// real time for old device done
 
 
 //  $deviceFunctionMap = Device::excludeMobile()
