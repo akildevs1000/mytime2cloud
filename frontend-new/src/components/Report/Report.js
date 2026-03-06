@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getDeviceLogs, getScheduledEmployeeList, getStatuses } from '@/lib/api';
+import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
 import DropDown from '@/components/ui/DropDown';
 import DateRangeSelect from "@/components/ui/DateRange";
@@ -13,7 +13,7 @@ import Columns from "./columns";
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { formatDateDubai, notify, parseApiError } from '@/lib/utils';
 import RegenerateReport from '@/components/Report/Regenerate';
-import { generateManualLog, getAttendanceTabs, startReportGeneration } from '@/lib/endpoint/attendance';
+import { getAttendanceTabs, startReportGeneration } from '@/lib/endpoint/attendance';
 import LoadingProgressDialog from './LoadingProgressDialog';
 import { API_BASE_URL } from '@/config';
 import { getUser } from "@/config/index";
@@ -44,7 +44,6 @@ export default function AttendanceTable() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isManualSubmitting, setIsManualSubmitting] = useState(false);
 
   // Helper to get current month's first and last day (matching Vue behavior)
   const getDefaultDateRange = () => {
@@ -181,21 +180,6 @@ export default function AttendanceTable() {
   }, [selectedEmployeeIds]);
 
   const [params, setParams] = useState(null);
-
-  const normalizeId = (value) => String(value ?? "");
-  const selectedIdSet = new Set((selectedEmployeeIds || []).map((id) => normalizeId(id)));
-
-  const getEmployeePrimaryId = (emp) =>
-    normalizeId(emp?.system_user_id ?? emp?.user_id ?? emp?.id ?? emp?.employee_id);
-
-  const selectedEmployee = selectedEmployeeIds?.length
-    ? scheduledEmployees?.find((emp) => selectedIdSet.has(getEmployeePrimaryId(emp)))
-    : null;
-
-  const correctionEmployees = selectedEmployeeIds?.length
-    ? scheduledEmployees.filter((emp) => selectedIdSet.has(getEmployeePrimaryId(emp)))
-    : scheduledEmployees;
-
 
   const fetchRecords = async (shiftTypeId) => {
 
@@ -380,70 +364,6 @@ export default function AttendanceTable() {
     fetchRecords(shiftTypeId)
   }, [shiftTypeId])
 
-  const resolveLogType = async ({ user_id }) => {
-    const response = await getDeviceLogs({
-      page: 1,
-      per_page: 1,
-      sortDesc: true,
-      UserID: user_id,
-    });
-
-    const latest = Array.isArray(response?.data)
-      ? response.data?.[0]
-      : Array.isArray(response)
-        ? response?.[0]
-        : null;
-
-    const latestType = String(latest?.log_type || '').toLowerCase();
-    return ['in', 'auto'].includes(latestType) ? 'out' : 'in';
-  };
-
-  const handleManualCorrectionApply = async (payload = {}) => {
-    const user = getUser();
-
-    const user_id = payload?.user_id;
-    const branch_id = payload?.branch_id ?? 0;
-    const date = payload?.date;
-    const device_id = payload?.device_id || 'Manual';
-    const time = payload?.time;
-
-    if (!user_id || !date || !time) {
-      notify('Warning', 'Please select employee, date, and time.', 'warning');
-      return;
-    }
-
-    setIsManualSubmitting(true);
-    try {
-      const log_type = await resolveLogType({
-        user_id,
-      });
-
-      let log_payload = {
-        branch_id,
-        UserID: user_id,
-        LogTime: date + ' ' + time,
-        DeviceID: device_id,
-        company_id: user?.company_id,
-        log_type,
-      };
-
-      const response = await generateManualLog(log_payload);
-
-      if (response?.status === false) {
-        throw new Error(response?.message || 'Unable to submit manual log.');
-      }
-
-      notify('Saved', response?.message || 'Correction submitted successfully.', 'success');
-      setIsOpen(false);
-      if (isButtonclicked) {
-        fetchRecords(shiftTypeId);
-      }
-    } catch (error) {
-      notify('Error', parseApiError(error), 'error');
-    } finally {
-      setIsManualSubmitting(false);
-    }
-  };
 
 
   return (
@@ -634,15 +554,8 @@ export default function AttendanceTable() {
       <ManualAttendanceCorrectionModal
         open={isOpen}
         onClose={() => setIsOpen(false)}
-        onApply={handleManualCorrectionApply}
-        isSubmitting={isManualSubmitting}
-        employees={correctionEmployees}
-        employee={{
-          name: selectedEmployee?.full_name || "Employee",
-          code: selectedEmployee?.employee_id || "---",
-          branch_id: selectedEmployee?.branch_id || 0,
-          department: selectedEmployee?.department?.name || "---",
-          avatar: selectedEmployee?.picture || "",
+        onSuccess={() => {
+          if (isButtonclicked) fetchRecords(shiftTypeId);
         }}
         initialData={{
           date: from || "",

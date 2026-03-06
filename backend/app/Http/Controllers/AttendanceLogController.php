@@ -431,7 +431,6 @@ class AttendanceLogController extends Controller
     public function GenerateManualLog(Request $request)
     {
         try {
-
             $payload = [
                 "UserID"     => $request->UserID,
                 "LogTime"    => $request->LogTime . ":00",
@@ -441,6 +440,18 @@ class AttendanceLogController extends Controller
                 "log_date"   => date("Y-m-d"),
             ];
 
+            $exists = AttendanceLog::where('UserID', $payload['UserID'])
+                ->where('LogTime', $payload['LogTime'])
+                ->where('DeviceID', $payload['DeviceID'])
+                ->exists();
+
+            if ($exists) {
+                return [
+                    'status'  => false,
+                    'message' => 'A log already exists for this employee at the specified time.',
+                ];
+            }
+
             AttendanceLog::create($payload);
 
             return [
@@ -448,14 +459,16 @@ class AttendanceLogController extends Controller
                 'message' => 'Log Successfully Updated',
             ];
         } catch (\Throwable $th) {
-            throw $th;
+            $this->devLog("generate-manual-log", $th);
+            return [
+                'status'  => false,
+                'message' => 'Unable to create log entry. Please try again.',
+            ];
         }
     }
 
     public function GenerateLog(Request $request)
     {
-        $message = "";
-
         $payload = [
             "UserID"       => $request->UserID,
             "LogTime"      => $request->LogTime . ":00",
@@ -467,20 +480,31 @@ class AttendanceLogController extends Controller
         ];
 
         try {
-            $message = AttendanceLog::create($payload);
+            $exists = AttendanceLog::where('UserID', $payload['UserID'])
+                ->where('LogTime', $payload['LogTime'])
+                ->where('DeviceID', $payload['DeviceID'])
+                ->exists();
 
-            if ($message) {
+            if ($exists) {
                 return [
-                    'status'  => true,
-                    'message' => 'Log Successfully Updated',
+                    'status'  => false,
+                    'message' => 'A log already exists for this employee at the specified time.',
                 ];
             }
-        } catch (\Throwable $th) {
-            $message = $th;
-        }
 
-        $this->devLog("render-manual-log", $message);
-        return $message;
+            AttendanceLog::create($payload);
+
+            return [
+                'status'  => true,
+                'message' => 'Log Successfully Updated',
+            ];
+        } catch (\Throwable $th) {
+            $this->devLog("render-manual-log", $th);
+            return [
+                'status'  => false,
+                'message' => 'Unable to create log entry. Please try again.',
+            ];
+        }
     }
 
     public function SyncCompanyIdsWithDevices()

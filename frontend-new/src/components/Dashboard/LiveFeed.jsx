@@ -209,9 +209,6 @@ function LiveFeed({ branch_ids, department_ids }) {
           />
         </div>
         <div className="flex gap-4 items-center">
-          {/* <span className="text-[11px] text-slate-400">
-            Refreshing in 5s...
-          </span> */}
           <button
             onClick={() => router.push("/logs")}
             className="text-xs font-bold text-primary hover:text-gray-600 dark:text-gray-300 transition-colors uppercase tracking-wider"
@@ -264,7 +261,7 @@ function LiveFeed({ branch_ids, department_ids }) {
             </div>
 
             {/* Mode */}
-            <div className="col-span-1 flex items-center text-slate-400">
+            <div className="col-span-1 flex items-center text-slate-600 dark:text-slate-300">
               {item?.modes?.map((icon, idx) => (
                 <span key={idx}>{icon}</span>
               ))}
