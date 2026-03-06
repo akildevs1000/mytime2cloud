@@ -946,6 +946,7 @@ class EmployeeControllerNew extends Controller
                 "branch_id",
                 "department_id",
                 "first_name as name",
+                "profile_picture",
             ])
             ->keyBy("employee_id");
 
