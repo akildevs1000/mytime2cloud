@@ -5,3 +5,6 @@ backend/ssl/cert.crt
 backend/ssl/cert.key
 .vscode/settings.json
 node_modules
+loglistner_mqtt/log-listener-mytime-mqtt.js
+loglistner_mqtt/package-lock.json
+loglistner_mqtt/package.json

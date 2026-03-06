@@ -48,7 +48,6 @@ const iconGroups = {
 };
 
 function LiveFeed({ branch_ids, department_ids }) {
-
   const router = useRouter();
 
   const { lastAttendanceEvent } = useLiveAttendance();
@@ -147,6 +146,7 @@ function LiveFeed({ branch_ids, department_ids }) {
         dept: branchDept,
         deviceLocation,
         time: `${e.time}`,
+        profile_picture: `${e.employee?.profile_picture}`,
         inout,
         modes,
         // Keep status and punctuality as before
@@ -178,6 +178,7 @@ function LiveFeed({ branch_ids, department_ids }) {
         punctuality: lastAttendanceEvent.punctuality,
         punctualityColor: lastAttendanceEvent.punctualityColor,
         punctualityDot: lastAttendanceEvent.punctualityDot,
+        profile_picture:lastAttendanceEvent.profile_picture,
         status: lastAttendanceEvent.status,
         statusType: "neutral",
         time: lastAttendanceEvent.time,
@@ -228,7 +229,7 @@ function LiveFeed({ branch_ids, department_ids }) {
         <div className="col-span-2">Device</div>
         <div className="col-span-1">Time</div>
         <div className="col-span-1">In/Out</div>
-        <div className="col-span-1">Punctuality</div>
+        {/* <div className="col-span-1">Punctuality</div> */}
         <div className="col-span-2 text-right pr-2">Status</div>
       </div>
 
@@ -237,15 +238,16 @@ function LiveFeed({ branch_ids, department_ids }) {
         {records.map((item, index) => (
           <div
             key={index}
-            className={`grid grid-cols-13 py-4 items-center cursor-pointer group gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${index !== records.length - 1
+            className={`grid grid-cols-13 py-4 items-center cursor-pointer group gap-2 transition-colors hover:bg-slate-50 dark:hover:bg-white/5 ${
+              index !== records.length - 1
                 ? "border-b border-gray-100 dark:border-white/5"
                 : ""
-              }`}
+            }`}
           >
             {/* Employee */}
             <div className="col-span-2 flex gap-3 pl-2">
               <div className="size-8 min-w-[32px] rounded-full overflow-hidden relative border border-border flex items-center justify-center">
-                <ProfilePicture src={item?.employee?.profile_picture} />
+                <ProfilePicture src={item?.profile_picture} />
               </div>
               <div className="flex flex-col min-w-0">
                 <span className="text-[11px] font-bold text-gray-600 dark:text-gray-300 group-hover:text-slate-950 dark:group-hover:text-white transition-colors truncate">
@@ -288,8 +290,7 @@ function LiveFeed({ branch_ids, department_ids }) {
 
             {/* Status (unchanged) */}
 
-
-            <div className="col-span-1">
+            {/* <div className="col-span-1">
               <span
                 className={`inline-flex items-center gap-1.5 text-[11px] font-medium ${getPunctualityColor(item.punctuality)}`}
               >
@@ -298,7 +299,7 @@ function LiveFeed({ branch_ids, department_ids }) {
                 ></span>
                 {item.punctuality}
               </span>
-            </div>
+            </div> */}
 
             <div className="col-span-2 text-right pr-2">
               <span
