@@ -18,9 +18,29 @@
 
 require("dotenv").config();
 const mqtt = require("mqtt");
+const { Aedes } = require("aedes");
+const net = require("net");
 const { DatabaseSync } = require("node:sqlite");
 const fs = require("fs");
 const path = require("path");
+
+
+const os = require('os');
+
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1'; // Fallback to localhost if nothing found
+}
+
+const localIp = getLocalIpAddress();
 
 // ========== ERROR LOGGING ==========
 
@@ -62,19 +82,11 @@ const uniqueId =
 // ========== CONFIG ==========
 
 // MQTT
-const MQTT_HOST = process.env.MQTT_HOST || "";
-const MQTT_PORT = process.env.MQTT_PORT || 1883;
-const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
-const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
-
-console.log(MQTT_HOST);
-
-const MQTT_TOPIC_ATT = process.env.MYTIME_MQTT_TOPIC_ATT || "";
-const MQTT_TOPIC_HEARTBEAT = process.env.MYTIME_MQTT_TOPIC_HEARTBEAT || "";
-
-// Use model_number to identify product type
-const HEARTBEAT_MODEL_NUMBER =
-  process.env.MYTIME_HEARTBEAT_MODEL_NUMBER || "MYTIME1";
+const MQTT_HOST = `mqtt://${localIp}`;
+const MQTT_PORT = 1883;
+const MQTT_TOPIC_ATT = "mqtt/face/+/+";
+const MQTT_TOPIC_HEARTBEAT = "mqtt/face/heartbeat ";
+const MODEL_NUMBER = process.env.MODEL_NUMBER || "MYTIME1";
 
 // SQLite database path - defaults to Laravel's database
 const SQLITE_DB_PATH =
@@ -84,7 +96,26 @@ const SQLITE_DB_PATH =
 // CSV logs directory
 const logDir =
   process.env.MYTIME_LOG_DIR ||
-  path.join(__dirname, "../backend/storage/app/mqtt-mytime-logs");
+  path.join(__dirname, "./mqtt-mytime-logs");
+
+
+// --- The "Nice" Console Log ---
+
+console.log("\n" + "=".repeat(50));
+console.log(`🚀 SERVICE STARTED: ${MODEL_NUMBER}`);
+console.log("=".repeat(50));
+
+console.table({
+  "MQTT Host": MQTT_HOST,
+  "MQTT Port": MQTT_PORT,
+  "Attendance Topic": MQTT_TOPIC_ATT,
+  "Heartbeat Topic": MQTT_TOPIC_HEARTBEAT,
+  "SQLite DB": SQLITE_DB_PATH,
+  "Log Directory": logDir
+});
+
+console.log("=".repeat(50));
+console.log("📡 Listening for MQTT messages...\n");
 
 // Ensure log dir exists
 if (!fs.existsSync(logDir)) {
@@ -224,9 +255,9 @@ function getCompanyIdForDevice(deviceId) {
   } catch (err) {
     logError(
       "getCompanyIdForDevice failed (" +
-        key +
-        "): " +
-        (err?.message || err),
+      key +
+      "): " +
+      (err?.message || err),
     );
     return null;
   }
@@ -250,7 +281,7 @@ function verifyDevicesOnlineStatus() {
 
     try {
       if (lastHeartbeatTs && now - lastHeartbeatTs <= ONE_HOUR_MS) {
-        stmtSetDeviceOnline.run(HEARTBEAT_MODEL_NUMBER, serial, serial);
+        stmtSetDeviceOnline.run(MODEL_NUMBER, serial, serial);
         console.log(
           "Heartbeat OK in last hour. Setting device ONLINE:",
           serial,
@@ -258,7 +289,7 @@ function verifyDevicesOnlineStatus() {
           new Date(lastHeartbeatTs).toISOString(),
         );
       } else {
-        stmtSetDeviceOffline.run(HEARTBEAT_MODEL_NUMBER, serial, serial);
+        stmtSetDeviceOffline.run(MODEL_NUMBER, serial, serial);
         console.log(
           "No heartbeat in last hour. Setting device OFFLINE:",
           serial,
@@ -269,9 +300,9 @@ function verifyDevicesOnlineStatus() {
     } catch (err) {
       logError(
         "Failed to update devices status (" +
-          serial +
-          "): " +
-          (err?.message || err),
+        serial +
+        "): " +
+        (err?.message || err),
       );
     }
   }
@@ -325,7 +356,7 @@ function flushAttendanceQueue() {
   } catch (err) {
     try {
       stmtRollback.run();
-    } catch (_) {}
+    } catch (_) { }
     logError("Bulk attendance insert failed: " + (err?.message || err));
     // Fallback: write batch to a file for later reprocessing
     try {
@@ -350,274 +381,307 @@ setInterval(() => {
   }
 }, FLUSH_MS);
 
-// ========== MQTT CLIENT ==========
-const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
-  // username: MQTT_USERNAME || undefined,
-  // password: MQTT_PASSWORD || undefined,
-  clientId: `gateway-${uniqueId}`,
-  keepalive: 30,
-});
+// ========== LOCAL AEDES MQTT BROKER + MQTT CLIENT ==========
+const LOCAL_BROKER_PORT = parseInt(MQTT_PORT, 10);
 
-client.on("connect", () => {
-  console.log("MQTT connected to", MQTT_HOST);
+let aedes;
+let brokerServer;
+let client;
 
-  client.subscribe([MQTT_TOPIC_ATT, MQTT_TOPIC_HEARTBEAT], (err) => {
-    if (err) {
-      logError("Subscribe error: " + err.message);
-    } else {
+(async () => {
+  aedes = await Aedes.createBroker();
+  brokerServer = net.createServer(aedes.handle.bind(aedes));
+
+  brokerServer.listen(LOCAL_BROKER_PORT, () => {
+    console.log("Aedes MQTT broker listening on port", LOCAL_BROKER_PORT);
+  });
+
+  aedes.on("client", (aedesClient) => {
+    console.log("Broker: client connected:", aedesClient.id);
+  });
+
+  aedes.on("clientDisconnect", (aedesClient) => {
+    console.log("Broker: client disconnected:", aedesClient.id);
+  });
+
+  aedes.on("publish", (packet, aedesClient) => {
+    if (aedesClient) {
       console.log(
-        "Subscribed to:",
-        MQTT_TOPIC_ATT,
-        "and",
-        MQTT_TOPIC_HEARTBEAT,
+        "Broker: message from",
+        aedesClient.id,
+        "on topic",
+        packet.topic,
       );
     }
   });
-});
 
-client.on("error", (err) => logError("MQTT error: " + err.message));
+  // ========== MQTT CLIENT (connects to local broker) ==========
+  client = mqtt.connect(`${MQTT_HOST}:${LOCAL_BROKER_PORT}`, {
+    clientId: `gateway-${uniqueId}`,
+    keepalive: 30,
+  });
 
-// ========== MQTT MESSAGE HANDLER ==========
-client.on("message", (receivedTopic, messageBuffer) => {
-  console.log(
-    "-----------------------------------------------------------LOG Listener (SQLite) - receivedTopic",
-    receivedTopic,
-  );
+  client.on("connect", () => {
+    console.log("MQTT connected to", MQTT_HOST);
 
-  // 1) HEARTBEAT MESSAGE
-  if (receivedTopic === MQTT_TOPIC_HEARTBEAT) {
-    let hbJson;
-
-    try {
-      hbJson = JSON.parse(messageBuffer.toString());
-      console.log("hbJson", hbJson);
-    } catch {
-      logError("Invalid HeartBeat JSON payload: " + messageBuffer.toString());
-      return;
-    }
-
-    if (!hbJson.info) {
-      logError("HeartBeat JSON missing 'info' field");
-      return;
-    }
-
-    const hbInfo = hbJson.info;
-    const serialNumber = hbInfo.facesluiceId || null;
-    const hbTimeStr = hbInfo.time || null;
-
-    if (!serialNumber) {
-      logError(
-        "HeartBeat missing facesluiceId/serial_number. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo)),
-      );
-      return;
-    }
-
-    if (!hbTimeStr || hbTimeStr.trim() === "") {
-      logError(
-        "HeartBeat missing time field. Payload: " +
-          JSON.stringify(sanitizeInfo(hbInfo)),
-      );
-      return;
-    }
-
-    // Track last heartbeat time for this device
-    let lastHeartbeatTs = Date.now();
-    const parsedMs = Date.parse(hbTimeStr);
-    if (!isNaN(parsedMs)) lastHeartbeatTs = parsedMs;
-    else logError("HeartBeat time parse failed, using now(). time=" + hbTimeStr);
-
-    heartbeatMap.set(serialNumber, {
-      lastHeartbeatTs,
-      lastHeartbeatTimeStr: hbTimeStr,
+    client.subscribe([MQTT_TOPIC_ATT, MQTT_TOPIC_HEARTBEAT], (err) => {
+      if (err) {
+        logError("Subscribe error: " + err.message);
+      } else {
+        console.log(
+          "Subscribed to:",
+          MQTT_TOPIC_ATT,
+          "and",
+          MQTT_TOPIC_HEARTBEAT,
+        );
+      }
     });
+  });
 
+  client.on("error", (err) => logError("MQTT error: " + err.message));
+
+  // ========== MQTT MESSAGE HANDLER ==========
+  client.on("message", (receivedTopic, messageBuffer) => {
     console.log(
-      "  Heartbeat received. Serial/device_id:",
-      serialNumber,
-      "| JSON time:",
-      hbTimeStr,
-      "| stored lastHeartbeatTs:",
-      new Date(lastHeartbeatTs).toISOString(),
+      "-----------------------------------------------------------LOG Listener (SQLite) - receivedTopic",
+      receivedTopic,
     );
 
-    // Throttle DB updates for heartbeat
-    const lastWrite = lastHeartbeatDbWriteMap.get(serialNumber) || 0;
-    const shouldWrite = Date.now() - lastWrite >= MIN_HB_DB_WRITE_MS;
+    // 1) HEARTBEAT MESSAGE
+    if (receivedTopic === MQTT_TOPIC_HEARTBEAT) {
+      let hbJson;
 
-    if (!shouldWrite) return;
+      try {
+        hbJson = JSON.parse(messageBuffer.toString());
+        console.log("hbJson", hbJson);
+      } catch {
+        logError("Invalid HeartBeat JSON payload: " + messageBuffer.toString());
+        return;
+      }
 
-    try {
-      stmtHeartbeatUpdate.run(
-        hbTimeStr,
-        HEARTBEAT_MODEL_NUMBER,
-        serialNumber,
-        serialNumber,
-      );
+      if (!hbJson.info) {
+        logError("HeartBeat JSON missing 'info' field");
+        return;
+      }
 
-      lastHeartbeatDbWriteMap.set(serialNumber, Date.now());
+      const hbInfo = hbJson.info;
+      const serialNumber = hbInfo.facesluiceId || null;
+      const hbTimeStr = hbInfo.time || null;
+
+      if (!serialNumber) {
+        logError(
+          "HeartBeat missing facesluiceId/serial_number. Payload: " +
+          JSON.stringify(sanitizeInfo(hbInfo)),
+        );
+        return;
+      }
+
+      if (!hbTimeStr || hbTimeStr.trim() === "") {
+        logError(
+          "HeartBeat missing time field. Payload: " +
+          JSON.stringify(sanitizeInfo(hbInfo)),
+        );
+        return;
+      }
+
+      // Track last heartbeat time for this device
+      let lastHeartbeatTs = Date.now();
+      const parsedMs = Date.parse(hbTimeStr);
+      if (!isNaN(parsedMs)) lastHeartbeatTs = parsedMs;
+      else logError("HeartBeat time parse failed, using now(). time=" + hbTimeStr);
+
+      heartbeatMap.set(serialNumber, {
+        lastHeartbeatTs,
+        lastHeartbeatTimeStr: hbTimeStr,
+      });
 
       console.log(
-        "Device ONLINE & last_live_datetime updated (throttled) (model:",
-        HEARTBEAT_MODEL_NUMBER,
-        "key:",
-        serialNumber + ")",
+        "  Heartbeat received. Serial/device_id:",
+        serialNumber,
+        "| JSON time:",
+        hbTimeStr,
+        "| stored lastHeartbeatTs:",
+        new Date(lastHeartbeatTs).toISOString(),
       );
-    } catch (err) {
-      logError(
-        "Failed to update devices (heartbeat): " + (err?.message || err),
-      );
+
+      // Throttle DB updates for heartbeat
+      const lastWrite = lastHeartbeatDbWriteMap.get(serialNumber) || 0;
+      const shouldWrite = Date.now() - lastWrite >= MIN_HB_DB_WRITE_MS;
+
+      if (!shouldWrite) return;
+
+      try {
+        stmtHeartbeatUpdate.run(
+          hbTimeStr,
+          MODEL_NUMBER,
+          serialNumber,
+          serialNumber,
+        );
+
+        lastHeartbeatDbWriteMap.set(serialNumber, Date.now());
+
+        console.log(
+          "Device ONLINE & last_live_datetime updated (throttled) (model:",
+          MODEL_NUMBER,
+          "key:",
+          serialNumber + ")",
+        );
+      } catch (err) {
+        logError(
+          "Failed to update devices (heartbeat): " + (err?.message || err),
+        );
+      }
+
+      return;
     }
 
-    return;
-  }
-
-  // 2) ATTENDANCE / OTHER FACE TOPICS
-  let json;
-  try {
-    json = JSON.parse(messageBuffer.toString());
-  } catch {
-    logError("Invalid JSON payload: " + messageBuffer.toString());
-    return;
-  }
-
-  if (!json.info) {
-    logError("Missing .info field. Topic: " + receivedTopic);
-    return;
-  }
-
-  const info = json.info;
-  const safeInfo = sanitizeInfo(info);
-
-  // Require RFIDCard or personId
-  const userId = info.RFIDCard || info.personId || null;
-  if (!userId || userId == 0 || userId < 0) {
-    logError(
-      "Skipping insert: No RFIDCard + No personId. Payload: " +
-        JSON.stringify(safeInfo),
-    );
-    return;
-  }
-
-  const timeStr = info.time || null;
-  if (!timeStr || timeStr.trim() === "") {
-    logError(
-      "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo),
-    );
-    return;
-  }
-
-  const logDate = timeStr.split(" ")[0];
-  const deviceId = String(info.facesluiceId || "").trim();
-  const logTime = info.time;
-
-  if (!deviceId) {
-    logError(
-      "Skipping insert: Missing facesluiceId (DeviceID). Payload: " +
-        JSON.stringify(safeInfo),
-    );
-    return;
-  }
-
-  // Company id (cached, synchronous)
-  const companyId = getCompanyIdForDevice(deviceId);
-
-  // Convert Date to string for SQLite
-  const now = todayGMT4();
-  const nowStr = now.toISOString().slice(0, 19).replace("T", " ");
-
-  // Prepare row for batch insert
-  const row = {
-    UserID: userId,
-    DeviceID: deviceId,
-    company_id: companyId,
-    LogTime: logTime,
-    SerialNumber: info.RecordID || null,
-    status: info.VerifyStatus == 1 ? "Allowed" : "Denied",
-    mode: "Face",
-    reason: "---",
-    log_date_time: timeStr,
-    index_serial_number: info.RecordID || null,
-    log_date: logDate,
-    created_at: nowStr,
-    updated_at: nowStr,
-  };
-
-  // Queue safety (backpressure)
-  if (attendanceQueue.length >= MAX_QUEUE) {
+    // 2) ATTENDANCE / OTHER FACE TOPICS
+    let json;
     try {
-      const overflowFile = path.join(
-        logDir,
-        `overflow-attendance-${todayGMT4().toISOString().slice(0, 10)}.jsonl`,
-      );
-      fs.appendFileSync(overflowFile, JSON.stringify(row) + "\n");
-      logError(
-        `Attendance queue overflow (>${MAX_QUEUE}). Wrote to overflow file and dropped from memory.`,
-      );
-    } catch (e) {
-      logError(
-        `Attendance queue overflow and failed to write overflow file: ${e.message}`,
-      );
+      json = JSON.parse(messageBuffer.toString());
+    } catch {
+      logError("Invalid JSON payload: " + messageBuffer.toString());
+      return;
     }
-  } else {
-    attendanceQueue.push(row);
-  }
 
-  // Flush immediately if batch reached
-  if (attendanceQueue.length >= MAX_BATCH) {
-    try {
-      flushAttendanceQueue();
-    } catch (err) {
-      logError(
-        "flushAttendanceQueue (immediate) error: " + (err?.message || err),
-      );
+    if (!json.info) {
+      logError("Missing .info field. Topic: " + receivedTopic);
+      return;
     }
-  }
 
-  // ====== MQTT publish (keep existing logic) ======
-  if (client.connected) {
-    console.log("MQTT client is connected");
+    const info = json.info;
+    const safeInfo = sanitizeInfo(info);
 
-    const fullName = (info.personName || info.persionName || "").trim();
-    const firstName = fullName ? fullName.split(/\s+/)[0] : "";
-    const lastName = fullName ? fullName.split(/\s+/).slice(1).join(" ") : "";
+    // Require RFIDCard or personId
+    const userId = info.RFIDCard || info.personId || null;
+    if (!userId || userId == 0 || userId < 0) {
+      logError(
+        "Skipping insert: No RFIDCard + No personId. Payload: " +
+        JSON.stringify(safeInfo),
+      );
+      return;
+    }
 
-    const inout = "";
+    const timeStr = info.time || null;
+    if (!timeStr || timeStr.trim() === "") {
+      logError(
+        "Skipping insert: Missing timeStr. Payload: " + JSON.stringify(safeInfo),
+      );
+      return;
+    }
 
-    const payload = {
+    const logDate = timeStr.split(" ")[0];
+    const deviceId = String(info.facesluiceId || "").trim();
+    const logTime = info.time;
+
+    if (!deviceId) {
+      logError(
+        "Skipping insert: Missing facesluiceId (DeviceID). Payload: " +
+        JSON.stringify(safeInfo),
+      );
+      return;
+    }
+
+    // Company id (cached, synchronous)
+    const companyId = getCompanyIdForDevice(deviceId);
+
+    // Convert Date to string for SQLite
+    const now = todayGMT4();
+    const nowStr = now.toISOString().slice(0, 19).replace("T", " ");
+
+    // Prepare row for batch insert
+    const row = {
       UserID: userId,
-      employee: {
-        first_name: firstName,
-        last_name: lastName,
-        full_name: fullName,
-      },
-      LogTime: info.time || null,
-      device: {
-        id: info.facesluiceId || null,
-        name: info.facesluiceName || null,
-      },
-      inout,
-      gps_location: "",
-
-      RecordID: String(info.RecordID || ""),
-      is_live: String(info.PushType) === "0",
-      message: "queued",
+      DeviceID: deviceId,
+      company_id: companyId,
+      LogTime: logTime,
+      SerialNumber: info.RecordID || null,
+      status: info.VerifyStatus == 1 ? "Allowed" : "Denied",
+      mode: "Face",
+      reason: "---",
+      log_date_time: timeStr,
+      index_serial_number: info.RecordID || null,
+      log_date: logDate,
+      created_at: nowStr,
+      updated_at: nowStr,
     };
 
-    const topic = payload.is_live
-      ? `mqtt/face/${info.facesluiceId}/recods/livelogs`
-      : `mqtt/face/${info.facesluiceId}/recods/missinglogs`;
+    // Queue safety (backpressure)
+    if (attendanceQueue.length >= MAX_QUEUE) {
+      try {
+        const overflowFile = path.join(
+          logDir,
+          `overflow-attendance-${todayGMT4().toISOString().slice(0, 10)}.jsonl`,
+        );
+        fs.appendFileSync(overflowFile, JSON.stringify(row) + "\n");
+        logError(
+          `Attendance queue overflow (>${MAX_QUEUE}). Wrote to overflow file and dropped from memory.`,
+        );
+      } catch (e) {
+        logError(
+          `Attendance queue overflow and failed to write overflow file: ${e.message}`,
+        );
+      }
+    } else {
+      attendanceQueue.push(row);
+    }
 
-    client.publish(topic, JSON.stringify(payload), { qos: 1 });
-    console.log("MQTT client published message", payload);
-  } else {
-    console.log("MQTT client is not connected");
-    logError(
-      "MQTT publish failed: client not connected. Payload: " +
+    // Flush immediately if batch reached
+    if (attendanceQueue.length >= MAX_BATCH) {
+      try {
+        flushAttendanceQueue();
+      } catch (err) {
+        logError(
+          "flushAttendanceQueue (immediate) error: " + (err?.message || err),
+        );
+      }
+    }
+
+    // ====== MQTT publish (keep existing logic) ======
+    if (client.connected) {
+      console.log("MQTT client is connected");
+
+      const fullName = (info.personName || info.persionName || "").trim();
+      const firstName = fullName ? fullName.split(/\s+/)[0] : "";
+      const lastName = fullName ? fullName.split(/\s+/).slice(1).join(" ") : "";
+
+      const inout = "";
+
+      const payload = {
+        UserID: userId,
+        employee: {
+          first_name: firstName,
+          last_name: lastName,
+          full_name: fullName,
+        },
+        LogTime: info.time || null,
+        device: {
+          id: info.facesluiceId || null,
+          name: info.facesluiceName || null,
+        },
+        inout,
+        gps_location: "",
+
+        RecordID: String(info.RecordID || ""),
+        is_live: String(info.PushType) === "0",
+        message: "queued",
+      };
+
+      const topic = payload.is_live
+        ? `mqtt/face/${info.facesluiceId}/recods/livelogs`
+        : `mqtt/face/${info.facesluiceId}/recods/missinglogs`;
+
+      client.publish(topic, JSON.stringify(payload), { qos: 1 });
+      console.log("MQTT client published message", payload);
+    } else {
+      console.log("MQTT client is not connected");
+      logError(
+        "MQTT publish failed: client not connected. Payload: " +
         JSON.stringify(sanitizeInfo(info)),
-    );
-  }
-});
+      );
+    }
+  });
+})(); // end async IIFE
 
 // ========== GRACEFUL SHUTDOWN ==========
 function shutdown() {
@@ -626,6 +690,13 @@ function shutdown() {
     flushAttendanceQueue();
   } catch (err) {
     logError("Shutdown flush error: " + (err?.message || err));
+  }
+  try {
+    if (aedes) aedes.close();
+    if (brokerServer) brokerServer.close();
+    console.log("Aedes broker closed.");
+  } catch (err) {
+    logError("Aedes close error: " + (err?.message || err));
   }
   try {
     db.close();
