@@ -85,7 +85,7 @@ const uniqueId =
 const MQTT_HOST = `mqtt://${localIp}`;
 const MQTT_PORT = 1883;
 const MQTT_TOPIC_ATT = "mqtt/face/+/+";
-const MQTT_TOPIC_HEARTBEAT = "mqtt/face/heartbeat ";
+const MQTT_TOPIC_HEARTBEAT = "mqtt/face/heartbeat";
 const MODEL_NUMBER = process.env.MODEL_NUMBER || "MYTIME1";
 
 // SQLite database path - defaults to Laravel's database
