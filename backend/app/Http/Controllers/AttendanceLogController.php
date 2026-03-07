@@ -204,7 +204,67 @@ class AttendanceLogController extends Controller
         fwrite($fp, serialize($store));
         fclose($fp);
     }
+
     public function store()
+    {
+        $result = $this->handleFile();
+
+        if (array_key_exists("error", $result)) {
+            return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+        }
+
+        $result["data"] = array_values(array_unique($result["data"]));
+
+        $deviceFunctionMap = Device::excludeMobile()
+            ->get(['device_id', 'function']) // Only fetch what you need
+            ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
+            ->toArray();
+
+        $records = [];
+
+        foreach ($result["data"] as $row) {
+            $columns = explode(',', $row);
+
+            $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
+            $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+
+            $records[] = [
+                "UserID"              => $columns[0] ?? null,
+                "DeviceID"            => $columns[1] ?? null,
+                "LogTime"             => $logTime,
+                "SerialNumber"        => $columns[3] ?? null,
+                "status"              => $columns[4] ?? "Allowed",
+                "mode"                => $columns[5] ?? "Face",
+                "reason"              => $columns[6] ?? "---",
+                "log_date_time"       => $logTime,
+                "index_serial_number" => $columns[3] ?? null,
+                "log_date"            => $logDate,
+
+                "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
+            ];
+        }
+
+        try {
+            // ✅ skips duplicates based on unique index: (DeviceID, LogTime, UserID)
+            $inserted = DB::table('attendance_logs')->insertOrIgnore($records);
+
+            Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+
+            // $inserted may be int or bool depending on Laravel/driver; keep message safe.
+            $insertedCountText = is_int($inserted) ? $inserted : "some";
+
+            return $this->getMeta(
+                "Sync Attenance Logs",
+                "Processed " . count($records) . " logs. Inserted " . $insertedCountText . " new logs. Duplicates ignored.\n"
+            );
+        } catch (\Throwable $th) {
+            Logger::channel("custom")->error('Error occured while inserting logs.');
+            Logger::channel("custom")->error('Error Details: ' . $th);
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+        }
+    }
+
+    public function storeOLD()
     {
         $result = $this->handleFile();
 
@@ -371,7 +431,6 @@ class AttendanceLogController extends Controller
     public function GenerateManualLog(Request $request)
     {
         try {
-
             $payload = [
                 "UserID"     => $request->UserID,
                 "LogTime"    => $request->LogTime . ":00",
@@ -381,6 +440,18 @@ class AttendanceLogController extends Controller
                 "log_date"   => date("Y-m-d"),
             ];
 
+            $exists = AttendanceLog::where('UserID', $payload['UserID'])
+                ->where('LogTime', $payload['LogTime'])
+                ->where('DeviceID', $payload['DeviceID'])
+                ->exists();
+
+            if ($exists) {
+                return [
+                    'status'  => false,
+                    'message' => 'A log already exists for this employee at the specified time.',
+                ];
+            }
+
             AttendanceLog::create($payload);
 
             return [
@@ -388,14 +459,16 @@ class AttendanceLogController extends Controller
                 'message' => 'Log Successfully Updated',
             ];
         } catch (\Throwable $th) {
-            throw $th;
+            $this->devLog("generate-manual-log", $th);
+            return [
+                'status'  => false,
+                'message' => 'Unable to create log entry. Please try again.',
+            ];
         }
     }
 
     public function GenerateLog(Request $request)
     {
-        $message = "";
-
         $payload = [
             "UserID"       => $request->UserID,
             "LogTime"      => $request->LogTime . ":00",
@@ -407,20 +480,31 @@ class AttendanceLogController extends Controller
         ];
 
         try {
-            $message = AttendanceLog::create($payload);
+            $exists = AttendanceLog::where('UserID', $payload['UserID'])
+                ->where('LogTime', $payload['LogTime'])
+                ->where('DeviceID', $payload['DeviceID'])
+                ->exists();
 
-            if ($message) {
+            if ($exists) {
                 return [
-                    'status'  => true,
-                    'message' => 'Log Successfully Updated',
+                    'status'  => false,
+                    'message' => 'A log already exists for this employee at the specified time.',
                 ];
             }
-        } catch (\Throwable $th) {
-            $message = $th;
-        }
 
-        $this->devLog("render-manual-log", $message);
-        return $message;
+            AttendanceLog::create($payload);
+
+            return [
+                'status'  => true,
+                'message' => 'Log Successfully Updated',
+            ];
+        } catch (\Throwable $th) {
+            $this->devLog("render-manual-log", $th);
+            return [
+                'status'  => false,
+                'message' => 'Unable to create log entry. Please try again.',
+            ];
+        }
     }
 
     public function SyncCompanyIdsWithDevices()
