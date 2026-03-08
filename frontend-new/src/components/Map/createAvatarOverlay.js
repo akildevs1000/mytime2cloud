@@ -60,8 +60,15 @@ export function createAvatarOverlay({ maps, employee, pos, map, openPanel, bwMod
       tooltip.style.transform = "translate(-50%,8px)";
       tooltip.style.pointerEvents = "none";
       tooltip.style.opacity = "0";
-      tooltip.style.transition = "opacity 0.18s, transform 0.18s";
+      tooltip.style.transition = "opacity 0.10s, transform 0.18s";
 
+        // Start ping animation for 5 seconds
+        ping.style.background = "rgba(17,82,212,0.4)";
+        ping.style.animation = "ping 1s cubic-bezier(0,0,0.2,1) infinite";
+        setTimeout(() => {
+          ping.style.animation = "";
+          ping.style.background = "transparent";
+        }, 5000);
       const glass = document.createElement("div");
       glass.className = "glass-panel rounded-xl p-3 w-48 shadow-2xl";
       glass.style.width = "12rem";
