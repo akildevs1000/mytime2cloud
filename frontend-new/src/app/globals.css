@@ -254,7 +254,7 @@
 }
 
 .live-tracker-map .bw-mode .avatar-wrap img {
-  filter: grayscale(1) contrast(0.95);
+  filter: none;
 }
 
 .live-tracker-map .bw-mode .avatar-wrap {

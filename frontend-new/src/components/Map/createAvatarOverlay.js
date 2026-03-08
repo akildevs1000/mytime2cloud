@@ -180,26 +180,7 @@ export function createAvatarOverlay({ maps, employee, pos, map, openPanel, bwMod
       }
     }
     setBW(flag) {
-      try {
-        const av = this.avatarWrap;
-        const ping = this.pingEl;
-        const tip = this.tooltipEl;
-        if (av) {
-          const imgEl = av.querySelector && av.querySelector("img");
-          if (imgEl) imgEl.style.filter = flag ? "grayscale(1) contrast(0.9)" : "";
-          av.style.borderColor = flag ? "#ffffff" : "#1152d4";
-        }
-        if (ping && flag) {
-          ping.style.background = ping.style.background || "rgba(255,255,255,0.25)";
-        }
-        if (tip) {
-          const glass = tip.querySelector && tip.querySelector(".glass-panel");
-          if (glass) {
-            glass.style.background = flag ? "#0b0b0b" : "";
-            glass.style.color = flag ? "#e6e6e6" : "";
-          }
-        }
-      } catch (e) {}
+      // Do nothing: avatars should always remain colorful, bwMode only affects map background
     }
   }
 
