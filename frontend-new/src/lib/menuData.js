@@ -31,10 +31,13 @@ import {
 const attendanceMenu = [
   { href: "/shift", icon: Clock, label: "Shift" },
   { href: "/schedule", icon: CalendarDays, label: "Schedule" },
-  { href: "/attendance", icon: FileText, label: "Reports" },
-  { href: "/logs", icon: History, label: "Device Logs" },
   { href: "/attendance/change_request", icon: File, label: "Change Request" },
   // { href: "/access_control_logs", icon: Lock, label: "Access Control Logs" },
+];
+
+const reportMenu = [
+  { href: "/report", icon: FileText, label: "Reports" },
+  { href: "/logs", icon: History, label: "Device Logs" },
 ];
 
 const companyMenu = [
@@ -73,7 +76,7 @@ const dashboardMenu = [
   { href: "/", icon: Home, label: "Dashboard" },
   { href: "/employees", icon: Users, label: "Employees" },
   { href: "/shift", icon: FileText, label: "Attendance" },
-  { href: "/attendance", icon: Calendar, label: "Reports" },
+  { href: "/report", icon: Calendar, label: "Reports" },
 ];
 
 export const leftNavLinks = {
@@ -86,11 +89,10 @@ export const leftNavLinks = {
   "/leaves": employeesMenu,
   "/document-expiry": employeesMenu,
 
+   "/report": reportMenu,
+
   "/shift": attendanceMenu,
   "/schedule": attendanceMenu,
-  "/attendance": attendanceMenu,
-  "/reports": attendanceMenu,
-  "/logs": attendanceMenu,
   "/change_request": attendanceMenu,
   // "/access_control_logs": attendanceMenu,
 

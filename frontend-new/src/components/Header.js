@@ -134,7 +134,7 @@ export default function Header() {
     { name: 'PAYROLL', href: '/payslips' },
     // { name: 'ACCESS CONTROL', href: '/access_control_logs' },
     // { name: 'VISITORS', href: '/visitor' },
-    { name: 'REPORTS', href: '/attendance' },
+    { name: 'REPORTS', href: '/report' },
     { name: 'SETTINGS', href: '/setup' },
   ];
 
