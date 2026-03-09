@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getUser } from "@/config/index";
 import { useDarkMode } from "@/context/DarkModeContext";
 import LiveAttendanceNotifier from "@/components/LiveAttendanceNotifier";
-import { LocateFixed, Bell, PlayCircle, Sun, Moon } from "lucide-react";
+import { LocateFixed, Bell, PlayCircle, Sun, Moon, X } from "lucide-react";
 import useSse from "@/hooks/useSse";
 
 export default function Header() {
@@ -62,23 +62,42 @@ export default function Header() {
   const [user, setUser] = useState(null);
 
   const [notificationCount, setNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState([]);
   const [isShaking, setIsShaking] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef(null);
 
   const clientId = user?.company_id ?? null;
 
-  const handleSseNotification = useCallback(
-    (incoming) => {
-      if (!incoming || typeof incoming !== "object") return;
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-      // Only handle notification-type events, ignore map/other types
-      if (incoming.type && incoming.type !== "notification" && incoming.type !== "leave_request") return;
+  const handleSseNotification = useCallback((incoming) => {
+    if (!incoming || typeof incoming !== "object") return;
+    if (incoming.type && incoming.type !== "notification" && incoming.type !== "leave_request" && incoming.type !== "change_request") return;
 
-      setNotificationCount((prev) => prev + 1);
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 600);
-    },
-    [],
-  );
+    const newNotif = {
+      id: Date.now(),
+      message: incoming.message ?? "New notification",
+      type: incoming.type ?? "notification",
+      access_url: incoming.data?.access_url ?? null,
+      timestamp: incoming.data?.timestamp ?? new Date().toLocaleString(),
+      read: false,
+    };
+
+    setNotifications((prev) => [newNotif, ...prev]);
+    setNotificationCount((prev) => prev + 1);
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 600);
+  }, []);
 
   useSse({ clientId, onMessage: handleSseNotification, storeMessages: false });
 
@@ -159,25 +178,86 @@ export default function Header() {
 
         <div className="flex items-center space-x-4">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => {
-                setNotificationCount(0);
-                router.push("/notifications");
-              }}
-              className="relative p-2 text-slate-500 hover:text-primary transition-colors"
-              title="Notifications"
-            >
-              <Bell
-                size={22}
-                strokeWidth={1.8}
-                className={`transition-colors duration-300 ${notificationCount > 0 ? "text-primary" : ""} ${isShaking ? "bell-shake" : ""}`}
-              />
-              {notificationCount > 0 && (
-                <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full leading-none shadow-sm">
-                  {notificationCount > 99 ? "99+" : notificationCount}
-                </span>
+            {/* Notification Bell + Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => {
+                  setShowDropdown((prev) => !prev);
+                  setNotificationCount(0);
+                }}
+                className="relative p-2 text-slate-500 hover:text-primary transition-colors"
+                title="Notifications"
+              >
+                <Bell
+                  size={22}
+                  strokeWidth={1.8}
+                  className={`transition-colors duration-300 ${notificationCount > 0 ? "text-primary" : ""} ${isShaking ? "bell-shake" : ""}`}
+                />
+                {notificationCount > 0 && (
+                  <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full leading-none shadow-sm">
+                    {notificationCount > 99 ? "99+" : notificationCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Dropdown Panel */}
+              {showDropdown && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-gray-100 dark:border-slate-700 z-50 overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 dark:border-slate-700">
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">Notifications</span>
+                    <div className="flex items-center gap-2">
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={() => setNotifications([])}
+                          className="text-[11px] text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                          Clear all
+                        </button>
+                      )}
+                      <button onClick={() => setShowDropdown(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+                        <X size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* List */}
+                  <ul className="max-h-72 overflow-y-auto divide-y divide-gray-50 dark:divide-slate-700">
+                    {notifications.length === 0 ? (
+                      <li className="px-4 py-8 text-center text-sm text-gray-400 dark:text-slate-500">
+                        No notifications yet
+                      </li>
+                    ) : (
+                      notifications.map((notif) => (
+                        <li key={notif.id}>
+                          {notif.access_url ? (
+                            <button
+                              onClick={() => {
+                                setNotifications((prev) => prev.filter((n) => n.id !== notif.id));
+                                setShowDropdown(false);
+                                router.push(notif.access_url);
+                              }}
+                              className="w-full flex flex-col gap-0.5 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/60 transition-colors text-left cursor-pointer"
+                            >
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{notif.message}</span>
+                              <span className="text-[11px] text-gray-400 dark:text-slate-500">{notif.timestamp}</span>
+                            </button>
+                          ) : (
+                            <div
+                              onClick={() => setNotifications((prev) => prev.filter((n) => n.id !== notif.id))}
+                              className="flex flex-col gap-0.5 px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/60 transition-colors cursor-pointer"
+                            >
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{notif.message}</span>
+                              <span className="text-[11px] text-gray-400 dark:text-slate-500">{notif.timestamp}</span>
+                            </div>
+                          )}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
               )}
-            </button>
+            </div>
 
             <button onClick={() => router.push("/live-tracker")}
               className="relative p-2 text-slate-500 hover:text-primary transition-colors"
