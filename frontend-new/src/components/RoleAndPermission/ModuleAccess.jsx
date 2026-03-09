@@ -49,7 +49,7 @@ const ModuleCard = ({ card, isActive, onToggle }) => {
         <h3
           className={`font-bold transition-colors ${
             isActive
-              ? "text-slate-800 dark:white"
+              ? "text-slate-800 dark:text-white"
               : "text-slate-600 dark:text-slate-400"
           }`}
         >
