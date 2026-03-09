@@ -18,6 +18,21 @@ const path = require("path");
 const os = require("os");
 const http = require("http");
 
+function getLocalIpAddress() {
+  const interfaces = os.networkInterfaces();
+  for (const name of Object.keys(interfaces)) {
+    for (const iface of interfaces[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (iface.family === 'IPv4' && !iface.internal) {
+        return iface.address;
+      }
+    }
+  }
+  return '127.0.0.1'; // Fallback to localhost if nothing found
+}
+
+const localIp = getLocalIpAddress();
+
 //const { v4: uuidv4 } = require("uuid");
 const uniqueId =
   "mytim2cloud-" +
@@ -32,10 +47,10 @@ const uniqueId =
 const { AsyncLocalStorage } = require("async_hooks");
 
 // ======= CONFIG =======
-const MQTT_HOST = process.env.MQTT_HOST || "";
-const MQTT_PORT = process.env.MQTT_PORT || 1883;
-const MQTT_USERNAME = process.env.MQTT_USERNAME || "";
-const MQTT_PASSWORD = process.env.MQTT_PASSWORD || "";
+
+
+const MQTT_HOST = `mqtt://${localIp}`;
+const MQTT_PORT = 1883;
 
 // Topic prefix: e.g. "mqtt/face"
 const MQTT_TOPIC_PREFIX = process.env.MQTT_TOPIC_PREFIX || "";
@@ -261,8 +276,6 @@ setInterval(cleanupOldLogs, 24 * 60 * 60 * 1000);
 
 // ======= MQTT CLIENT =======
 const client = mqtt.connect(`${MQTT_HOST}:${MQTT_PORT}`, {
-  username: MQTT_USERNAME || undefined,
-  password: MQTT_PASSWORD || undefined,
   clientId: `gateway-${uniqueId}`,
   keepalive: 30,
 });

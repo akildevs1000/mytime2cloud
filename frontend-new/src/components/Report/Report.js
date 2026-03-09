@@ -285,10 +285,10 @@ export default function AttendanceTable() {
         commonParams.branch_id = branch_id;
       }
 
-      if (selectedReportTemplate == 'Template3' && actionType == 'PDF') {
-        setIsOpen(true);
-        return;
-      }
+      // if (selectedReportTemplate == 'Template3' && actionType == 'PDF') {
+      //   setIsMenuOpen(true);
+      //   return;
+      // }
 
       // 1. Handle Template4 Redirect (Special Case)
       if (selectedReportTemplate === "Template4" && actionType !== "EXCEL") {

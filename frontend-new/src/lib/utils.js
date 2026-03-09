@@ -212,39 +212,56 @@ export const notify = (title, text, type = 'success') => {
 /**
  * Compresses an image file and returns a Base64 string.
  */
-export const compressImage = (file, { maxWidth = 600, maxHeight = 600, quality = 0.7 } = {}) => {
+// export const compressImage = (file, { maxWidth = 600, maxHeight = 600, quality = 0.7 } = {}) => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader();
+
+//     reader.onload = (event) => {
+//       const img = new Image();
+//       img.onload = () => {
+//         let width = img.width;
+//         let height = img.height;
+
+//         // Maintain Aspect Ratio
+//         if (width > maxWidth) {
+//           height = (height * maxWidth) / width;
+//           width = maxWidth;
+//         }
+//         if (height > maxHeight) {
+//           width = (width * maxHeight) / height;
+//           height = maxHeight;
+//         }
+
+//         const canvas = document.createElement("canvas");
+//         canvas.width = width;
+//         canvas.height = height;
+//         const ctx = canvas.getContext("2d");
+//         ctx.drawImage(img, 0, 0, width, height);
+
+//         const compressedBase64 = canvas.toDataURL(file.type, quality);
+//         resolve(compressedBase64);
+//       };
+//       img.onerror = (err) => reject(err);
+//       img.src = event.target.result;
+//     };
+//     reader.onerror = (err) => reject(err);
+//     reader.readAsDataURL(file);
+//   });
+// };
+
+
+export const compressImage = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-
-        // Maintain Aspect Ratio
-        if (width > maxWidth) {
-          height = (height * maxWidth) / width;
-          width = maxWidth;
-        }
-        if (height > maxHeight) {
-          width = (width * maxHeight) / height;
-          height = maxHeight;
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        const compressedBase64 = canvas.toDataURL(file.type, quality);
-        resolve(compressedBase64);
-      };
-      img.onerror = (err) => reject(err);
-      img.src = event.target.result;
+    reader.onload = () => {
+      // Returns the full data URL (e.g., data:image/jpeg;base64,...)
+      resolve(reader.result);
     };
+
     reader.onerror = (err) => reject(err);
+
+    // Reads the file as a Data URL for backend processing
     reader.readAsDataURL(file);
   });
 };
