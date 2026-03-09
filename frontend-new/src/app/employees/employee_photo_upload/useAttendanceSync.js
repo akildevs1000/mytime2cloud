@@ -8,12 +8,12 @@ export function useAttendanceSync(initialData = []) {
 
   // IMPORTANT: This syncs the hook when the API data arrives
   useEffect(() => {
-    if (initialData && initialData.length > 0 && availableItems.length === 0) {
+    if (initialData && initialData.length > 0) {
       setAvailableItems(initialData);
       setCheckedItems([]);
       setSelectedItems([]);
     }
-  }, [initialData, availableItems.length]);
+  }, [initialData]);
 
   const toggleCheck = (id) => {
     setCheckedItems(prev =>
