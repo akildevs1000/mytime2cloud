@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getUser } from "@/config/index";
 import { useDarkMode } from "@/context/DarkModeContext";
 import LiveAttendanceNotifier from "@/components/LiveAttendanceNotifier";
 import { LocateFixed, Bell, PlayCircle, Sun, Moon } from "lucide-react";
+import useSse from "@/hooks/useSse";
 
 export default function Header() {
   const router = useRouter();
@@ -60,7 +61,26 @@ export default function Header() {
 
   const [user, setUser] = useState(null);
 
-  const [notificationCount, setNotificationCount] = useState(3);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [isShaking, setIsShaking] = useState(false);
+
+  const clientId = user?.company_id ?? null;
+
+  const handleSseNotification = useCallback(
+    (incoming) => {
+      if (!incoming || typeof incoming !== "object") return;
+
+      // Only handle notification-type events, ignore map/other types
+      if (incoming.type && incoming.type !== "notification" && incoming.type !== "leave_request") return;
+
+      setNotificationCount((prev) => prev + 1);
+      setIsShaking(true);
+      setTimeout(() => setIsShaking(false), 600);
+    },
+    [],
+  );
+
+  useSse({ clientId, onMessage: handleSseNotification, storeMessages: false });
 
   const loadUser = async () => {
     try {
@@ -140,11 +160,18 @@ export default function Header() {
         <div className="flex items-center space-x-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push("/notifications")}
+              onClick={() => {
+                setNotificationCount(0);
+                router.push("/notifications");
+              }}
               className="relative p-2 text-slate-500 hover:text-primary transition-colors"
               title="Notifications"
             >
-              <Bell size={22} strokeWidth={1.8} />
+              <Bell
+                size={22}
+                strokeWidth={1.8}
+                className={`transition-colors duration-300 ${notificationCount > 0 ? "text-primary" : ""} ${isShaking ? "bell-shake" : ""}`}
+              />
               {notificationCount > 0 && (
                 <span className="absolute top-0.5 right-0.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full leading-none shadow-sm">
                   {notificationCount > 99 ? "99+" : notificationCount}
@@ -156,7 +183,7 @@ export default function Header() {
               className="relative p-2 text-slate-500 hover:text-primary transition-colors"
               title="Watch Tutorial"
             >
-              <LocateFixed  size={22} strokeWidth={1.8} />
+              <LocateFixed size={22} strokeWidth={1.8} />
               {/* <span className="material-symbols-outlined">smart_display</span> */}
             </button>
 
@@ -172,14 +199,14 @@ export default function Header() {
               className="relative p-2 text-slate-500 hover:text-amber-500 dark:text-slate-400 dark:hover:text-gold-glow transition-all duration-300 active-pop"
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <span className="inline-flex mt-1 transition-transform duration-500 rotate-0 dark:rotate-[360deg]">
+              <span className="inline-flex transition-transform duration-500 rotate-0 dark:rotate-[360deg]">
                 {isDark
                   ? <Sun size={22} strokeWidth={1.8} />
                   : <Moon size={22} strokeWidth={1.8} />
                 }
               </span>
               <span
-                className={`absolute top-2.5 right-1.5 w-1.5 h-1.5 rounded-full transition-colors ${isDark ? "bg-gold-glow shadow-[0_0_8px_#fbbf24]" : "bg-transparent"}`}
+                className={`absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full transition-colors ${isDark ? "bg-gold-glow shadow-[0_0_8px_#fbbf24]" : "bg-transparent"}`}
               />
             </button>
 
