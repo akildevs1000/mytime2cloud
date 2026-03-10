@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import axios from "axios";
 
 import { getUser } from "@/config/index";
+import Input from "../Theme/Input";
 
 export function EmployeeExtras({ data, onUploadSuccess }) {
   const [branches, setBranches] = useState([]);
@@ -298,7 +299,7 @@ export function EmployeeExtras({ data, onUploadSuccess }) {
           </Popover>
 
           {/* File input */}
-          <input
+          <Input
             type="file"
             accept=".csv"
             onChange={(e) => setFiles(e.target.files[0])}
