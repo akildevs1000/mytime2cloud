@@ -224,6 +224,7 @@ export default function LeaveRequestCreate({
                     return;
                 } else {
                     notify("Error", response.message, "error");
+                    onSuccess();
                     return;
                 }
             }
