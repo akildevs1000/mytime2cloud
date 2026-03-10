@@ -10,3 +10,13 @@ export const getEmployeesByDepartmentIds = async (department_ids = []) => {
     return data;
 };
 
+export const getEmployeesByDepartmentId = async (department_id = null) => {
+    let params = {
+        department_id: department_id,
+    };
+    const { data } = await api.get(`${API_BASE}/employee-list`, {
+        params: await buildQueryParams(params),
+    });
+    return data;
+};
+

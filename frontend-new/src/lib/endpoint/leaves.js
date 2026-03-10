@@ -21,7 +21,7 @@ export const getUpcomingLeaves = async (params = {}) => {
 };
 
 export const getLeavesEvents = async (params = {}) => {
-     let baseURL = API_BASE;
+    let baseURL = API_BASE;
     const { data } = await api.get(`${baseURL}/employee_leaves_events`, { params: await buildQueryParams(params) });
     return data;
 };
@@ -33,7 +33,21 @@ export const approveLeave = async (id, payload = {}) => {
 };
 
 export const rejectLeave = async (id, params = {}) => {
-     let baseURL = API_BASE;
+    let baseURL = API_BASE;
     const { data } = await api.get(`${baseURL}/employee_leaves/reject/${id}`, { params: await buildQueryParams(params) });
     return data;
+};
+
+export const createLeave = async (id, payload = {}) => {
+    let baseURL = API_BASE;
+    const params = await buildQueryParams();
+    const { data } = await api.post(`${baseURL}/employee_leaves`, payload, { params });
+    return data;
+};
+
+
+export const getLeaveTypesByGroupId = async (id, params = {}) => {
+    let baseURL = API_BASE;
+    const { data } = await api.get(`${baseURL}/leave_groups/${id}`, { params: await buildQueryParams(params) });
+    return data[0].leave_count;
 };

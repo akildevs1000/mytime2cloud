@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Search, Plus, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { getBranches, getDepartments, getDepartmentsByBranchIds, getEmployees, removeEmployee } from '@/lib/api';
-import { EmployeeExtras } from '@/components/Employees/Extras';
+import { getBranches, getDepartments, getDepartmentsByBranchIds, } from '@/lib/api';
 
 import Columns from "./columns";
 import DataTable from '@/components/ui/DataTable';
@@ -19,7 +18,18 @@ import DropDown from '@/components/ui/DropDown';
 import { useDebounce } from '@/hooks/useDebounce';
 import LeaveViewDialog from '@/components/Employees/LeaveRequests';
 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import LeaveRequestCreate from '@/components/LeaveRequest/Create';
+import { Button } from '@/components/ui/button';
+
 export default function EmployeeDataTable() {
+
+    const [open, setOpen] = useState(false);
 
     const [employees, setEmployees] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -196,6 +206,18 @@ export default function EmployeeDataTable() {
                         isLoading={isLoading}
                         title="Refresh Data"
                     />
+
+                    <Button onClick={() => setOpen(true)}>Apply Leave</Button>
+
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogContent className="!w-[600px] !max-w-[90%] p-7 ">
+                            <DialogHeader>
+                                <DialogTitle>New Leave Request</DialogTitle>
+                            </DialogHeader>
+
+                            <LeaveRequestCreate setOpen={setOpen} onSuccess={handleRefresh} />
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
 
