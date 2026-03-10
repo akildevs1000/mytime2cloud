@@ -47,7 +47,7 @@ class EmployeeController extends Controller
         $model->when(request()->filled('department_id'), fn($q) => $q->where('department_id', request('department_id')));
         //$model->excludeRelations();
         $model->with(["department", "sub_department", "designation"]);
-        $model->select("profile_picture", "id", "first_name as name", "first_name", "last_name", "system_user_id", "employee_id", "branch_id", "department_id", "designation_id", "sub_department_id");
+        $model->select("profile_picture", "id", "first_name as name", "first_name", "last_name", "system_user_id", "employee_id", "branch_id", "department_id", "designation_id", "sub_department_id","leave_group_id","reporting_manager_id");
         $model->orderBy(request('order_by') ?? "id", request('sort_by_desc') ? "desc" : "asc");
         $model->with("schedule_all:employee_id,shift_type_id");
         $model->with("latestSchedule:employee_id,shift_type_id");
