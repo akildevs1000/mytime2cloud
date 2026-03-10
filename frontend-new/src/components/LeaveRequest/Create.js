@@ -7,7 +7,7 @@ import { getUser } from "@/config/index";
 import Input from "../Theme/Input";
 import { Select } from "../ui/select";
 import TextArea from "../Theme/TextArea";
-import { createLeave, getLeaveTypesByGroupId } from "@/lib/endpoint/leaves";
+import { createLeave, getLeaveTypesByGroupId, uploadLeaveDocuments } from "@/lib/endpoint/leaves";
 import { getEmployeesByDepartmentId, getEmployeesByDepartmentIds } from "@/lib/api/employee";
 import DatePicker from "../ui/DatePicker";
 import DropDown from "../ui/DropDown";
@@ -176,6 +176,10 @@ export default function LeaveRequestCreate({
             prev.map((doc, i) => {
                 if (i !== index) return doc;
                 if (field === "file" && value) {
+                    // if (value.size > 100 * 1024) {
+                    //     notify("Error", "File size must be less than 100KB", "error");
+                    //     return doc;
+                    // }
                     return { ...doc, file: value, previewUrl: URL.createObjectURL(value) };
                 }
                 return { ...doc, [field]: value };
@@ -212,17 +216,28 @@ export default function LeaveRequestCreate({
                 response = await createLeave(null, payload);
             }
 
-            let { data } = response;
-
-            if (data?.status === false) {
-                if (data.errors) {
-                    setErrors(data.errors);
-                    const firstKey = Object.keys(data.errors)[0];
-                    notify("Error", data.errors[firstKey][0], "error");
+            if (response?.status === false) {
+                if (response.errors) {
+                    setErrors(response.errors);
+                    const firstKey = Object.keys(response.errors)[0];
+                    notify("Error", response.errors[firstKey][0], "error");
                     return;
                 } else {
-                    notify("Error", data.message, "error");
+                    notify("Error", response.message, "error");
                     return;
+                }
+            }
+
+            // Upload documents after leave is created
+            const leaveId = response?.record?.id;
+            const validDocs = documents.filter((doc) => doc.file && doc.title);
+
+            if (leaveId && validDocs.length > 0) {
+                try {
+                    await uploadLeaveDocuments(leaveId, form.employee_id, validDocs);
+                } catch (docError) {
+                    notify("Warning", "Leave created but document upload failed", "error");
+                    console.error("Document upload error:", docError);
                 }
             }
 

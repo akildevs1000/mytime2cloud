@@ -46,6 +46,32 @@ export const createLeave = async (id, payload = {}) => {
 };
 
 
+export const uploadLeaveDocuments = async (leaveId, employeeId, documents = []) => {
+    let baseURL = API_BASE;
+    const params = await buildQueryParams();
+
+    const formData = new FormData();
+    formData.append("company_id", params.company_id);
+    formData.append("leave_id", leaveId);
+    formData.append("employee_id", employeeId);
+
+    documents.forEach((doc, index) => {
+        formData.append(`items[${index}][key]`, doc.title);
+        formData.append(`items[${index}][value]`, doc.file);
+    });
+
+    const { data } = await api.post(`${baseURL}/employee_document`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
+    return data;
+};
+
+export const getLeaveDocuments = async (params = {}) => {
+    let baseURL = API_BASE;
+    const { data } = await api.get(`${baseURL}/employee_document`, { params: await buildQueryParams(params) });
+    return data;
+};
+
 export const getLeaveTypesByGroupId = async (id, params = {}) => {
     let baseURL = API_BASE;
     const { data } = await api.get(`${baseURL}/leave_groups/${id}`, { params: await buildQueryParams(params) });

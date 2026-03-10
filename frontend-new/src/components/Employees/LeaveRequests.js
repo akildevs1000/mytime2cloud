@@ -10,7 +10,7 @@ import {
   PieChart,
   ClipboardList
 } from 'lucide-react';
-import { approveLeave, getLeavesGroups, rejectLeave } from '@/lib/endpoint/leaves';
+import { approveLeave, getLeavesGroups, rejectLeave, getLeaveDocuments } from '@/lib/endpoint/leaves';
 import TeamAvailability from './TeamAvailability';
 import LeavesCalendarView from './LeavesCalendarView';
 import { getUser } from '@/config';
@@ -21,6 +21,7 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
   const [leaveStats, setLeaveStats] = useState([]);
   const [approveRejectNotes, setApproveRejectNotes] = useState(editedItem?.approve_reject_notes || "");
   const [loading, setLoading] = useState(false);
+  const [leaveDocuments, setLeaveDocuments] = useState([]);
 
   const toggleModal = () => setIsOpen(!open);
 
@@ -67,10 +68,23 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
     }
   }
 
+  const fetchLeaveDocuments = async () => {
+    try {
+      const data = await getLeaveDocuments({
+        employee_id: editedItem.employee.id,
+        leave_id: editedItem.id,
+      });
+      setLeaveDocuments(data?.data || data || []);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     if (isOpen && editedItem?.id) {
       console.log(editedItem);
-      verifyAvailableCount(editedItem.employee.leave_group_id)
+      verifyAvailableCount(editedItem.employee.leave_group_id);
+      fetchLeaveDocuments();
     }
   }, [isOpen, editedItem]);
 
@@ -182,6 +196,7 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
             <div className="flex justify-end px-6 bg-gray-50 dark:bg-slate-900/50 border-b border-gray-200 dark:border-white/10">
               {[
                 { id: 'info', label: 'Information', icon: <ClipboardList size={14} /> },
+                { id: 'documents', label: 'Documents', icon: <FileText size={14} /> },
                 { id: 'quota', label: 'Leave Quota', icon: <PieChart size={14} /> }
               ].map((tab) => (
                 <button
@@ -347,6 +362,53 @@ export default function LeaveViewDialog({ isOpen, setIsOpen, editedItem, onSucce
                       <TeamAvailability />
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'documents' && (
+                <div className="space-y-4">
+                  {leaveDocuments.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                      <FileText size={40} strokeWidth={1.5} />
+                      <p className="mt-3 text-sm font-medium">No documents uploaded</p>
+                      <p className="text-xs mt-1">Documents attached to this leave request will appear here.</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-gray-100 dark:border-white/10 overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-300 font-bold">
+                          <tr>
+                            <th className="px-4 py-3 text-left">#</th>
+                            <th className="px-4 py-3 text-left">Document Title</th>
+                            <th className="px-4 py-3 text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-slate-600 dark:text-slate-300">
+                          {leaveDocuments.map((doc, index) => (
+                            <tr key={doc.id || index} className="hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                              <td className="px-4 py-3 font-medium">{index + 1}</td>
+                              <td className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <FileText size={16} className="text-blue-500 shrink-0" />
+                                  <span className="font-medium">{doc.key || `Document ${index + 1}`}</span>
+                                </div>
+                              </td>
+                              <td className="px-4 py-3 text-center">
+                                <a
+                                  href={doc.value}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                                >
+                                  <Eye size={14} /> View
+                                </a>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
               )}
 
