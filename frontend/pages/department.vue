@@ -35,15 +35,25 @@
       />
     </v-tab-item>
     <v-tab-item>
-      <SimpleScreen
+      <DepartmentPage
         Model="Department"
         permission_name="department"
         endpoint="departments"
         :headers="[
           {
+            text: 'Branch',
+            align: 'left',
+            value: 'branch.branch_name',
+          },
+          {
             text: 'Name',
             align: 'left',
             value: 'name',
+          },
+          {
+            text: 'Description',
+            align: 'left',
+            value: 'description',
           },
           { text: 'Options', align: 'left', sortable: false, value: 'options' },
         ]"
