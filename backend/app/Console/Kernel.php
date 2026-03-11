@@ -106,7 +106,13 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
-
+            // AI Streak Commands: late, early, absent
+            $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=late --streak=3")
+                ->dailyAt('06:00');
+            $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=early --streak=3")
+                ->dailyAt('06:10');
+            $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=absent --streak=3")
+                ->dailyAt('06:20');
 
             $schedule
                 ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
