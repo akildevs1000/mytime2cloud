@@ -56,3 +56,9 @@ export const getCompanyStatsSummaryPayload = async (params = {}) => {
     const { data } = await api.get("/company_stats_summary_payload", { params: queryParams });
     return data;
 };
+
+export const getAIFeeds = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const { data } = await api.get("/ai-feeds", { params: queryParams });
+    return data;
+};

@@ -4,6 +4,7 @@ import AnnouncementsAll from "@/components/Announcements/page"; // ✅ add this
 
 import React, { useState, useMemo } from "react";
 import DocumentExpiryAll from "../Employees/DocumentExpiry/All/page";
+import AIFeedAll from "../AIFeeds/All/page";
 
 const MOCK_DATA = {
   Automation: [
@@ -56,7 +57,7 @@ const TYPE_COLORS = {
 function EventsAndInsights({ branch_ids }) {
   const [activeTab, setActiveTab] = useState("Automation");
 
-  const tabs = ["Automation", "Holidays", "Announcements", "Document Expiry"];
+  const tabs = ["Automation", "Holidays", "Announcements", "Document Expiry", "AI Feeds"];
 
   // fallback table content for tabs that don't have their own component
   const currentData = useMemo(() => MOCK_DATA[activeTab] || [], [activeTab]);
@@ -101,7 +102,9 @@ function EventsAndInsights({ branch_ids }) {
         ) : activeTab === "Announcements" ? (
           <AnnouncementsAll /> // ✅ Announcements component
         ) : activeTab === "Document Expiry" ? (
-          <DocumentExpiryAll /> // ✅ Document Expiry component
+          <DocumentExpiryAll />
+        ) : activeTab === "AI Feeds" ? (
+          <AIFeedAll />
         ) : (
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2">
             {/* Table Header */}
