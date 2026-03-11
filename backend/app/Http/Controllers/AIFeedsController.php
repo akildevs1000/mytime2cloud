@@ -49,9 +49,7 @@ class AIFeedsController extends Controller
             'per_page' => 'nullable|integer|min:1|max:100',
         ]);
 
-        $query = AIFeeds::with('employee')
-            ->where('employee_id', $id)
-            ->orderBy('created_at', 'desc');
+        $query = AIFeeds::where('employee_id', $id)->orderBy('created_at', 'desc');
 
         if ($request->filled('type')) {
             $query->where('type', $request->type);
