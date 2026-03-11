@@ -34,8 +34,16 @@ class CheckConsecutiveAttendancIssue extends Command
     {
 
         $companyId = $this->option('company_id');
-        $fromDate = $this->option('from_date') ? Carbon::parse($this->option('from_date'))->startOfDay() : Carbon::now()->startOfMonth();
-        $toDate = $this->option('to_date') ? Carbon::parse($this->option('to_date'))->endOfDay() : Carbon::now()->endOfDay();
+        if ($this->option('from_date')) {
+            $fromDate = Carbon::parse($this->option('from_date'))->startOfDay();
+        } else {
+            $fromDate = Carbon::now()->subDays(2)->startOfDay(); // last 3 days: today, yesterday, day before
+        }
+        if ($this->option('to_date')) {
+            $toDate = Carbon::parse($this->option('to_date'))->endOfDay();
+        } else {
+            $toDate = Carbon::now()->endOfDay();
+        }
         $type = strtolower($this->option('type') ?? 'late');
         $streakTarget = (int) ($this->option('streak') ?? 3);
 
