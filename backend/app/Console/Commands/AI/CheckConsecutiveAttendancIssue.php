@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Attendance;
 use App\Models\Employee;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CheckConsecutiveAttendancIssue extends Command
 {
@@ -122,10 +123,32 @@ class CheckConsecutiveAttendancIssue extends Command
             'absent' => 'consecutive absent',
         ][$type] ?? $type;
 
+        $feedRows = [];
         foreach ($results as $employeeId => $dates) {
             $employee = Employee::where('system_user_id', $employeeId)->first();
             $name = $employee ? ($employee->first_name . ' ' . $employee->last_name) : $employeeId;
-            $this->info("$name ($employeeId) - {$streakTarget}+ $typeLabel on: " . implode(' | ', $dates));
+            $desc = "$name ($employeeId) - {$streakTarget}+ $typeLabel on: " . implode(' | ', $dates);
+            $this->info($desc);
+
+            foreach ($dates as $dateGroup) {
+                $feedRows[] = [
+                    'company_id' => $companyId,
+                    'type' => $type,
+                    'description' => $desc,
+                    'data' => json_encode([
+                        'employee_id' => $employeeId,
+                        'streak' => $streakTarget,
+                        'dates' => $dateGroup,
+                        'name' => $name,
+                    ]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+        }
+
+        if (!empty($feedRows)) {
+            DB::table('ai_feeds')->insertOrIgnore($feedRows);
         }
 
         return 0;
