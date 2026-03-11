@@ -7,7 +7,7 @@ use App\Models\Attendance;
 use App\Models\Employee;
 use Carbon\Carbon;
 
-class CheckThreeConsecutiveLate extends Command
+class CheckConsecutiveAttendancIssue extends Command
 {
     /**
      * The name and signature of the console command.
