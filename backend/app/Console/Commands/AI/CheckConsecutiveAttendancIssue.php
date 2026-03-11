@@ -127,7 +127,7 @@ class CheckConsecutiveAttendancIssue extends Command
         foreach ($results as $employeeId => $dates) {
             $employee = Employee::where('system_user_id', $employeeId)->first();
             $name = $employee ? ($employee->first_name) : $employeeId;
-            $desc = "$name with Employee ID {$employeeId} has {$streakTarget}+ $typeLabel on: " . implode(' | ', $dates);
+            $desc = "$name with Employee ID ({$employeeId}) has {$streakTarget}+ $typeLabel on: " . implode(' | ', $dates);
             $this->info($desc);
 
             foreach ($dates as $dateGroup) {
