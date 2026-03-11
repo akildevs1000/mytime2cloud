@@ -14,7 +14,7 @@ class CheckConsecutiveAttendancIssue extends Command
      *
      * @var string
      */
-    protected $signature = 'ai:check-three-consecutive-late {--company_id=} {--from_date=} {--to_date=} {--type=late} {--streak=3}';
+    protected $signature = 'ai:check-consecutive-attendanc-issue {--company_id=} {--from_date=} {--to_date=} {--type=late} {--streak=3}';
 
 
     // php artisan ai:check-consecutive-attendanc-issue --company_id=2 --type=late --streak=3
