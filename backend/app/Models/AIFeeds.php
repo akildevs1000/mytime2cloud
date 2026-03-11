@@ -13,6 +13,7 @@ class AIFeeds extends Model
 
     protected $fillable = [
         'company_id',
+        'employee_id',
         'type',
         'description',
         'data',
@@ -21,4 +22,9 @@ class AIFeeds extends Model
     protected $casts = [
         'data' => 'array',
     ];
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
 }

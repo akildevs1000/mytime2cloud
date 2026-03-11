@@ -133,6 +133,7 @@ class CheckConsecutiveAttendancIssue extends Command
             foreach ($dates as $dateGroup) {
                 $feedRows[] = [
                     'company_id' => $companyId,
+                    'employee_id' => $employee->id ?? 0,
                     'type' => $type,
                     'description' => $desc,
                     'data' => json_encode([

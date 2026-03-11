@@ -112,6 +112,7 @@ class CheckConsecutiveAttendancIssueClaude extends Command
         foreach ($parsed as $row) {
             $feeds[] = [
                 'company_id' => $companyId,
+                'employee_id' => $row['employee_id'] ?? null,
                 'type' => $type,
                 'description' => $row['description'] ?? '',
                 'data' => json_encode([
