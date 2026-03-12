@@ -1020,14 +1020,16 @@ class EmployeeControllerNew extends Controller
             ->orderBy('LogTime')
             ->get();
 
+        $logCount = $attendanceLogs->count();
+
         return response()->json([
             'status' => true,
             'shift' => $shift,
             'shift_type' => $shift_type,
             'schedule' => $schedule,
             'attendance_logs' => [
-                'count' => $attendanceLogs->count(),
-                'clock_status' => $attendanceLogs->count() % 2 === 0 ? 'OUT' : 'IN', // 1,3,5,7 => IN, 0,2,4,6 => OUT
+                'count' => $logCount,
+                'clock_status' => $logCount > 0 && $logCount % 2 === 0 ? 'OUT' : 'IN', // 1,3,5,7 => IN, 0,2,4,6 => OUT
                 'data' => $attendanceLogs,
             ],
         ]);
