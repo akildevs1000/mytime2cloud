@@ -32,12 +32,15 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { useDarkMode } from '@/context/DarkModeContext';
+import { getBgColor, setStatusLabel } from '@/lib/utils';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
   const { isDark } = useDarkMode();
 
   const [reportType, setReportType] = useState('monthly'); // 'daily' or 'monthly'
+
+  const [attendanceReportType, setAttendanceReportType] = useState('range');
 
   const [selectedDate, setSelectedDate] = useState(() => {
     const now = new Date();
@@ -293,42 +296,66 @@ export default function ExecutiveAttendanceDashboardPage() {
         branch_ids: selectedBranchIds,
         department_ids: selectedDepartmentIds,
         search: attendanceSearchText.trim(),
-        page: 1,
+        page: attendancePage,
         per_page: attendanceMeta.per_page || 10,
       };
 
       const dailyAttendanceResponse = await getCompanyStatsDailyAttendance(dailyPayload);
 
+      const resolvedAttendanceReportType =
+        dailyAttendanceResponse?.report_type === 'daily' ? 'daily' : 'range';
+
+      setAttendanceReportType(resolvedAttendanceReportType);
+
       const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
-        ? dailyAttendanceResponse.data.map((item) => ({
-          id: item?.system_user_id,
-          employeeCode: item?.employee_code || '---',
-          name: item?.name || 'Unknown',
-          department: item?.department || '---',
-          daysPresent: Number(item?.days_present ?? 0),
-          daysAbsent: Number(item?.days_absent ?? 0),
-          daysLeave: Number(item?.days_leave ?? 0),
-          manualMogs: Number(item?.manual_logs ?? 0),
-          daysMissing: Number(item?.days_missing ?? 0),
-          daysWeekoff: Number(item?.days_weekoff ?? 0),
-          totalDays: Number(item?.total_days ?? item?.totalDays ?? 0),
+        ? dailyAttendanceResponse.data.map((item) => {
+          const baseRow = {
+            id: item?.system_user_id,
+            employeeCode: item?.employee_code || '---',
+            name: item?.name || 'Unknown',
+            department: item?.department || '---',
+            shift_type_id: item?.shift_type_id || '---',
+            logs: item?.logs || '---',
+            img: item?.img || null,
+          };
 
-          avgIn: item?.avg_checkin ?? item?.avgIn ?? 0,
-          avgOut: (item?.avg_checkout ?? item?.avgOut ?? 0),
+          if (resolvedAttendanceReportType === 'daily') {
+            return {
+              ...baseRow,
+              date: item?.date || '---',
+              in: item?.in || '---',
+              out: item?.out || '---',
+              lateIn: item?.late_in || '---',
+              earlyOut: item?.early_out || '---',
+              ot: item?.ot || '---',
+              totalHrs: item?.total_hrs || '---',
+              status: item?.status || '---',
+            };
+          }
 
-          lateIn: (item?.late_in_hours),
-          EarlyGo: (item?.early_out_hours),
+          return {
+            ...baseRow,
+            daysPresent: Number(item?.days_present ?? 0),
+            daysAbsent: Number(item?.days_absent ?? 0),
+            daysLeave: Number(item?.days_leave ?? 0),
+            manualLogs: Number(item?.manual_logs ?? 0),
+            totalDays: Number(item?.total_days ?? 0),
 
-          avgHrs: (item?.avg_working_hrs ?? item?.avgHrs ?? 0),
-          totalHrs: (item?.total_hours ?? item?.totalHrs ?? 0),
-          expectedHrs: (item?.required_hours ?? item?.expectedHrs ?? 0),
+            avgIn: item?.avg_checkin ?? '---',
+            avgOut: item?.avg_checkout ?? '---',
+            lateIn: item?.late_in_hours ?? '---',
+            earlyOut: item?.early_out_hours ?? '---',
+            avgHrs: item?.avg_working_hrs ?? '---',
+            totalHrs: item?.total_hours ?? '---',
+            expectedHrs: item?.required_hours ?? '---',
 
-          rate: Number(item?.rate || 0),
-          trend: Number(item?.trend || 0),
-          status: item?.status || 'CRITICAL',
-          img: item?.img || null,
-        }))
+            rate: Number(item?.rate || 0),
+            trend: Number(item?.trend || 0),
+            status: item?.status,
+          };
+        })
         : [];
+
 
       setDailyAttendanceRows(normalizedDailyAttendanceRows);
       setAttendancePage(1);
@@ -346,6 +373,11 @@ export default function ExecutiveAttendanceDashboardPage() {
       setIsLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    fetchAllData();
+  }, [attendancePage]);
 
   const handleExportPdf = async () => {
     try {
@@ -435,7 +467,9 @@ export default function ExecutiveAttendanceDashboardPage() {
               {selectedMonthLabel}
             </h1>
             <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
-              Monthly attendance performance overview.
+              {reportType === 'daily'
+                ? 'Daily attendance performance overview.'
+                : 'Monthly attendance performance overview.'}
             </p>
           </div>
 
@@ -730,8 +764,7 @@ export default function ExecutiveAttendanceDashboardPage() {
         <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white self-start sm:self-center">
-              {reportType === 'daily' ? 'Daily' : 'Monthly'}  Attendance Detail
-              
+              {reportType === 'daily' ? 'Daily' : 'Monthly'} Attendance Detail
             </h3>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -759,53 +792,179 @@ export default function ExecutiveAttendanceDashboardPage() {
           <div className="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-y-auto">
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
-                <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">P</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">A</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">L</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">M</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CI</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CO</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">LI</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">EO</th>
-                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg WH</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">WH</th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">Perf</th>
-                </tr>
+                {reportType === 'daily' ? (
+                  <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Department</th>
+                    <>
+                      <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Punches</th>
+                    </>
+
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">OT</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Total Hrs</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Status</th>
+                  </tr>
+                ) : (
+                  <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">P</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">A</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">L</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">M</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CI</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CO</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">LI</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">EO</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg WH</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">WH</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">Perf</th>
+                  </tr>
+                )}
               </thead>
 
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
-                {dailyAttendanceRows.length > 0 ? dailyAttendanceRows.map((row) => (
-                  <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group relative">
-                    <td className="px-4 py-3 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <ProfilePicture src={row.img} />
-                        <div>
-                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
-                            {row.name}
-                          </p>
-                          <p className="text-xs text-slate-600 dark:text-slate-300">
-                            #{row.employeeCode}
-                          </p>
+                {dailyAttendanceRows.length > 0 ? (
+                  dailyAttendanceRows.map((row, index) => (
+                    <tr key={index} className="hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group relative">
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <ProfilePicture src={row.img} />
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
+                              {row.name}
+                            </p>
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                              #{row.employeeCode}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysPresent}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysAbsent}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysLeave}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysMissing}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgIn}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgOut}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.lateIn}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.EarlyGo}</td>
-                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgHrs}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">{row.totalHrs} / {row.expectedHrs}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">{row.rate} %</td>
-                  </tr>
-                )) : (
+                      </td>
+
+                      {reportType === 'daily' ? (
+                        <>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.department}
+                          </td>
+                          {
+                            row.shift_type_id != 2 && row.shift_type_id != 5 ? (
+                              <>
+                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  <div className="flex flex-col items-center gap-1 text-xs">
+                                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                      In {row.in || '--'}
+                                    </span>
+
+                                    <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                                      Out {row.out || '--'}
+                                    </span>
+                                  </div>
+                                </td>
+
+                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                    {row.lateIn || '--'}
+                                  </span>
+                                </td>
+
+                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
+                                    {row.earlyOut || '--'}
+                                  </span>
+                                </td>
+                              </>
+                            ) : (
+                              <>
+                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  <div className="flex flex-wrap justify-center gap-1 text-xs">
+                                    {(row.logs || []).length > 0 ? (
+                                      row.logs.map((log, idx) => (
+                                        <span
+                                          key={idx}
+                                          className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+                                        >
+                                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                                            {log.in || "--"}
+                                          </span>
+
+                                          <span className="text-slate-400">→</span>
+
+                                          <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                                            {log.out || "--"}
+                                          </span>
+                                        </span>
+                                      ))
+                                    ) : (
+                                      <span className="text-slate-400">No Logs</span>
+                                    )}
+                                  </div>
+                                </td>
+                              </>
+                            )
+                          }
+
+
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.ot}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.totalHrs}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-center">
+                            <span className={`text-sm ${getBgColor(row.status)}`}
+                              style={{
+                                padding: "2px 10px",
+                                borderRadius: "50px",
+                              }}
+                            >
+                              {setStatusLabel(row?.status)}
+                            </span>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.daysPresent}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.daysAbsent}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.daysLeave}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.manualLogs}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.avgIn}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.avgOut}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.lateIn}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.earlyOut}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.avgHrs}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.totalHrs} / {row.expectedHrs}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.rate} %
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  ))
+                ) : (
                   <tr>
-                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
+                    <td
+                      colSpan={reportType === 'daily' ? 9 : 12}
+                      className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300"
+                    >
                       No attendance detail found for selected filters.
                     </td>
                   </tr>
