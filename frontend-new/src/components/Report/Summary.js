@@ -5,7 +5,7 @@
 // If you prefer a reusable component, move JSX into /components and import it here.
 
 import React, { useEffect, useState, useRef } from 'react';
-import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, getCompanyStatsSummaryPayload } from '@/lib/endpoint/dashboard';
+import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDayTrends, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, getCompanyStatsSummaryPayload } from '@/lib/endpoint/dashboard';
 import MonthPicker from '@/components/ui/MonthPicker';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { getBranches, getDepartmentsByBranchIds } from '@/lib/api';
@@ -31,8 +31,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useDarkMode } from '@/context/DarkModeContext';
 
 export default function ExecutiveAttendanceDashboardPage() {
+
+  const { isDark } = useDarkMode();
 
   const [reportType, setReportType] = useState('monthly'); // 'daily' or 'monthly'
 
@@ -234,9 +237,11 @@ export default function ExecutiveAttendanceDashboardPage() {
 
       setIsLoading(true);
 
+      const trendFetcher = isDaily ? getCompanyStatsHourlyTrends : getCompanyStatsDayTrends;
+
       const [statsResponse, hourlyTrendResponse, departmentResponse, punctualityResponse] = await Promise.all([
         getCompanyStats(payload),
-        getCompanyStatsHourlyTrends(payload),
+        trendFetcher(payload),
         getCompanyStatsDepartmentBreakdown(payload),
         getCompanyStatsPunctuality(payload),
       ]);
@@ -244,12 +249,10 @@ export default function ExecutiveAttendanceDashboardPage() {
       setStats(Array.isArray(statsResponse?.stats) && statsResponse.stats.length > 0 ? statsResponse.stats : []);
 
       const normalizedChartData = Array.isArray(hourlyTrendResponse?.data)
-        ? hourlyTrendResponse.data.map((item) => ({
-          label: item?.label,
-          present: Number(item?.present || 0),
-          late: Number(item?.late || 0),
-          absent: Number(item?.absent || 0),
-        }))
+        ? hourlyTrendResponse.data.map((item) => (isDaily
+          ? { label: item?.label, punches: Number(item?.punches || 0) }
+          : { label: item?.label, present: Number(item?.present || 0), absent: Number(item?.absent || 0) }
+        ))
         : [];
 
       const normalizedDepartmentData = Array.isArray(departmentResponse?.data)
@@ -603,23 +606,30 @@ export default function ExecutiveAttendanceDashboardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
               <div>
                 <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">
-                  Attendance Trends
+                  {reportType === 'daily' ? 'Peak Hours' : 'Daily Trends'}
                 </h3>
                 <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
-                  Stacked breakdown (Present vs Late vs Absent)
+                  {reportType === 'daily'
+                    ? 'Employee punch-in distribution by hour'
+                    : 'Stacked breakdown by day (Present vs Absent)'}
                 </p>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                  <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Present
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                  <span className="h-2.5 w-2.5 rounded-sm bg-orange-500" /> Late
-                </div>
-                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                  <span className="h-2.5 w-2.5 rounded-sm bg-rose-400" /> Absent
-                </div>
+                {reportType === 'daily' ? (
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                    <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Punches
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Present
+                    </div>
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                      <span className="h-2.5 w-2.5 rounded-sm bg-rose-400" /> Absent
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -639,12 +649,24 @@ export default function ExecutiveAttendanceDashboardPage() {
                     tick={{ fontSize: 10, fill: '#94a3b8' }}
                   />
                   <Tooltip
-                    cursor={{ fill: 'rgba(148,163,184,0.08)' }}
-                    contentStyle={{ borderRadius: '8px', fontSize: '12px' }}
+                    cursor={{ fill: 'rgba(148,163,184,0.1)' }}
+                    contentStyle={{
+                      backgroundColor: isDark ? '#1e293b' : '#ffffff',
+                      borderColor: isDark ? '#334155' : '#e2e8f0',
+                      color: isDark ? '#f8fafc' : '#1e293b',
+                      borderRadius: '8px',
+                      fontSize: '12px'
+                    }}
+                    itemStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
                   />
-                  <Bar dataKey="present" stackId="attendance" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={50} />
-                  <Bar dataKey="late" stackId="attendance" fill="#f97316" barSize={50} />
-                  <Bar dataKey="absent" stackId="attendance" fill="#fb7185" barSize={50} />
+                  {reportType === 'daily' ? (
+                    <Bar dataKey="punches" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={50} />
+                  ) : (
+                    <>
+                      <Bar dataKey="present" stackId="attendance" fill="#3b82f6" barSize={50} />
+                      <Bar dataKey="absent" stackId="attendance" fill="#fb7185" radius={[3, 3, 0, 0]} barSize={50} />
+                    </>
+                  )}
                 </BarChart>
               </ResponsiveContainer>
             </div>
