@@ -1431,10 +1431,16 @@ class AttendanceController extends Controller
                 : '---';
 
             $totalWorkingMinutes = (float) ($row->total_working_minutes ?? 0);
-            $totalHours = round($totalWorkingMinutes / 60);
-            $avgWorkingHrs = $daysPresent > 0 ? round($totalWorkingMinutes / 60 / $daysPresent, 2) : 0;
+            $totalHours = (int) floor($totalWorkingMinutes / 60);
+            $totalMinutes = (int) ($totalWorkingMinutes % 60);
+            $totalHoursFormatted = $totalWorkingMinutes > 0 ? sprintf('%02d:%02d', $totalHours, $totalMinutes) : '---';
+
+            $avgWorkingMinPerDay = $daysPresent > 0 ? round($totalWorkingMinutes / $daysPresent) : 0;
+            $avgWorkingHrsFormatted = $avgWorkingMinPerDay > 0 ? sprintf('%02d:%02d', floor($avgWorkingMinPerDay / 60), $avgWorkingMinPerDay % 60) : '---';
+
             $requiredHours = $totalDays * $requiredHoursBase;
-            $performance = $requiredHours > 0 ? min(100, round(($totalHours / $requiredHours) * 100)) : 0;
+            $requiredHoursFormatted = $requiredHours > 0 ? sprintf('%02d:00', $requiredHours) : '---';
+            $performance = $requiredHours > 0 ? min(100, round(($totalWorkingMinutes / 60 / $requiredHours) * 100)) : 0;
 
             // Resolve profile picture as in High Absenteeism section
             $img = null;
@@ -1454,9 +1460,9 @@ class AttendanceController extends Controller
                 'avg_checkout' => $avgCheckout,
                 'late_in' => $lateInCount,
                 'early_out' => $earlyOutCount,
-                'avg_working_hrs' => number_format($avgWorkingHrs, 2),
-                'total_hours' => $totalHours,
-                'required_hours' => $requiredHours,
+                'avg_working_hrs' => $avgWorkingHrsFormatted,
+                'total_hours' => $totalHoursFormatted,
+                'required_hours' => $requiredHoursFormatted,
                 'performance' => $performance,
             ];
         })->values()->toArray();
