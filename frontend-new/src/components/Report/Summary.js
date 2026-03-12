@@ -316,8 +316,8 @@ export default function ExecutiveAttendanceDashboardPage() {
           avgIn: item?.avg_checkin ?? item?.avgIn ?? 0,
           avgOut: (item?.avg_checkout ?? item?.avgOut ?? 0),
 
-          lateIn: Number(item?.late_in_count ?? item?.lateIn ?? 0),
-          EarlyGo: Number(item?.early_out_count ?? item?.EarlyGo ?? 0),
+          lateIn: (item?.late_in_hours),
+          EarlyGo: (item?.early_out_hours),
 
           avgHrs: (item?.avg_working_hrs ?? item?.avgHrs ?? 0),
           totalHrs: (item?.total_hours ?? item?.totalHrs ?? 0),
