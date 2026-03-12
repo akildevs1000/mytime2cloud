@@ -68,7 +68,7 @@ const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
       onSuccess();
       setSuccessOpen(true);
       setOpen(false);
-      notify("Success", "Department Saved", "success")
+      notify("Success", "Saved", "success")
     } catch (error) {
       console.log(error);
       
@@ -106,9 +106,9 @@ const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Edit Department</h3>
+                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Edit AI Trigger</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  update department in the system
+                  update AI Trigger in the system
                 </p>
               </div>
               <button
@@ -122,28 +122,6 @@ const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
             {/* Form Content */}
             <form onSubmit={onSubmit}>
               <div className="p-6 space-y-5 bg-white/50 dark:bg-gray-900">
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-400">
-                    Branch <span className="text-red-400">*</span>
-                  </label>
-                  <DropDown
-                    placeholder="Select Branch"
-                    width="w-full"
-                    value={form.branch_id}
-                    onChange={(value) => handleChange("branch_id", value)}
-                    items={branches} />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-400">
-                    Department Title <span className="text-red-400">*</span>
-                  </label>
-                  <Input
-                    placeholder="e.g. Sales"
-                    type="text"
-                    value={form.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                  />
-                </div>
 
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-400">
@@ -151,7 +129,7 @@ const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
                   </label>
 
                   <TextArea
-                    placeholder="Brief description of the department..."
+                    placeholder="Brief description of the AI Trigger..."
                     rows={3}
                     value={form.description || ""}
                     onChange={(e) => handleChange("description", e.target.value)}
@@ -172,7 +150,7 @@ const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-primary/20"
                 >
-                  {loading ? "Saving..." : "Save Department"}
+                  {loading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
