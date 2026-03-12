@@ -589,7 +589,6 @@ class AttendanceController extends Controller
                 'label' => $cursor->format('d M'),
                 'date' => $dateKey,
                 'present' => 0,
-                'late' => 0,
                 'absent' => 0,
             ];
             $cursor->addDay();
@@ -600,7 +599,7 @@ class AttendanceController extends Controller
                 ->where('company_id', $companyId)
                 ->whereIn('employee_id', $employeeSystemUserIds)
                 ->whereBetween('date', [$currentStart, $currentEnd])
-                ->get(['status', 'late_coming', 'date']);
+                ->get(['status', 'date']);
 
             foreach ($attendanceRows as $row) {
                 $dateKey = Carbon::parse($row->date)->toDateString();
@@ -609,19 +608,10 @@ class AttendanceController extends Controller
                 }
 
                 $status = strtoupper((string) ($row->status ?? ''));
-                $isLate = is_string($row->late_coming ?? null) && $row->late_coming !== '---';
 
                 if ($status === 'A') {
                     $dayData[$dateKey]['absent']++;
-                    continue;
-                }
-
-                if ($isLate) {
-                    $dayData[$dateKey]['late']++;
-                    continue;
-                }
-
-                if ($status === 'P') {
+                } elseif ($status === 'P') {
                     $dayData[$dateKey]['present']++;
                 }
             }
