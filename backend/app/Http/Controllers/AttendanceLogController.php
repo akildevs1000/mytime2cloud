@@ -240,7 +240,7 @@ class AttendanceLogController extends Controller
                 "index_serial_number" => $columns[3] ?? null,
                 "log_date"            => $logDate,
 
-                "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
+                "log_type" => (str_contains(strtolower($columns[1]), 'in')) ? 'In' : 'Out'
             ];
         }
 

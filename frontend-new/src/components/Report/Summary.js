@@ -730,7 +730,8 @@ export default function ExecutiveAttendanceDashboardPage() {
         <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white self-start sm:self-center">
-              Daily Attendance Detail
+              {reportType === 'daily' ? 'Daily' : 'Monthly'}  Attendance Detail
+              
             </h3>
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
