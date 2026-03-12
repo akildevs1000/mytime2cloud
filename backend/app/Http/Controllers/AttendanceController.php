@@ -931,6 +931,8 @@ class AttendanceController extends Controller
                     'name' => $name,
                     'department' => (string) ($row->department_name ?? '---'),
                     'date' => (string) ($row->date ?? '---'),
+                    'shift_type_id' => (string) ($row->shift_type_id ?? '---'),
+                    'logs' => ($row->logs ?? []),
                     'in' => (string) ($row->in_time ?? '---'),
                     'out' => (string) ($row->out_time ?? '---'),
                     'late_in' => (string) ($row->late_in ?? '---'),
