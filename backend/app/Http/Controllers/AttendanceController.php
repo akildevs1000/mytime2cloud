@@ -841,6 +841,7 @@ class AttendanceController extends Controller
         $selectedStart = $request->filled('from_date')
             ? Carbon::parse($request->input('from_date'))->startOfDay()
             : $now->copy()->startOfMonth()->startOfDay();
+
         $selectedEnd = $request->filled('to_date')
             ? Carbon::parse($request->input('to_date'))->endOfDay()
             : $now->copy()->endOfDay();
@@ -851,6 +852,7 @@ class AttendanceController extends Controller
 
         $currentStart = $selectedStart->toDateString();
         $currentEnd = $selectedEnd->toDateString();
+        $isSingleDay = $currentStart === $currentEnd;
 
         $daysElapsed = max(1, $selectedStart->copy()->diffInDays($selectedEnd) + 1);
         $previousEndDate = $selectedStart->copy()->subDay();
@@ -875,183 +877,228 @@ class AttendanceController extends Controller
                         ->orWhereRaw('LOWER(employees.display_name) LIKE ?', ["%{$normalizedSearch}%"])
                         ->orWhereRaw('LOWER(employees.employee_id) LIKE ?', ["%{$normalizedSearch}%"]);
                 });
-            })
-            ->selectRaw("employees.system_user_id,
-                    employees.employee_id as employee_code,
-                    employees.first_name,
-                    employees.last_name,
-                    employees.display_name,
-                    employees.profile_picture,
-                    COALESCE(departments.name, '---') as department_name,
-                    SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
-                    SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
-                    SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
-                    SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
-                    SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
+            });
 
-                                SUM(
-                                    CASE
-                                        WHEN attendances.late_coming IS NOT NULL
-                                            AND attendances.late_coming != '---'
-                                            AND attendances.late_coming != ''
-                                        THEN
-                                            CASE
-                                                WHEN attendances.late_coming LIKE '%:%'
-                                                    AND attendances.late_coming ~ '^[0-9]{1,3}:[0-9]{1,2}$'
-                                                THEN
-                                                    (split_part(attendances.late_coming, ':', 1)::integer * 60)
-                                                    + split_part(attendances.late_coming, ':', 2)::integer
-                                                WHEN attendances.late_coming ~ '^[0-9]+$'
-                                                THEN attendances.late_coming::integer
-                                                ELSE 0
-                                            END
-                                        ELSE 0
-                                    END
-                                ) as late_in_minutes,
+        if ($isSingleDay) {
+            $baseQuery->selectRaw("
+            employees.system_user_id,
+            employees.employee_id as employee_code,
+            employees.first_name,
+            employees.last_name,
+            employees.display_name,
+            employees.profile_picture,
+            COALESCE(departments.name, '---') as department_name,
+            attendances.date,
+            COALESCE(attendances.in, '---') as in_time,
+            COALESCE(attendances.out, '---') as out_time,
+            COALESCE(attendances.late_coming, '---') as late_in,
+            COALESCE(attendances.early_going, '---') as early_out,
+            COALESCE(attendances.ot, '---') as ot,
+            COALESCE(attendances.total_hrs, '---') as total_hrs,
+            COALESCE(attendances.status, '---') as attendance_status
+        ");
 
-                        SUM(
-                            CASE
-                                WHEN attendances.early_going IS NOT NULL
-                                    AND attendances.early_going != '---'
-                                    AND attendances.early_going != ''
-                                THEN
-                                    CASE
-                                        WHEN attendances.early_going LIKE '%:%'
-                                            AND attendances.early_going ~ '^[0-9]{1,3}:[0-9]{1,2}$'
-                                        THEN
-                                            (split_part(attendances.early_going, ':', 1)::integer * 60)
-                                            + split_part(attendances.early_going, ':', 2)::integer
-                                        WHEN attendances.early_going ~ '^[0-9]+$'
-                                        THEN attendances.early_going::integer
-                                        ELSE 0
-                                    END
-                                ELSE 0
-                            END
-                        ) as early_out_minutes,
+            $total = (clone $baseQuery)->count();
 
-                    " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
-                    " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
-                    " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "
-                ")->groupBy(
-                'employees.system_user_id',
-                'employees.employee_id',
-                'employees.first_name',
-                'employees.last_name',
-                'employees.display_name',
-                'employees.profile_picture',
-                'departments.name'
-            )
-            ->havingRaw("SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) > 0");
+            $lastPage = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $lastPage);
 
-        $total = DB::query()->fromSub((clone $baseQuery)->toBase(), 'attendance_summary')->count();
-        $lastPage = max(1, (int) ceil($total / $perPage));
-        $page = min($page, $lastPage);
+            $rows = (clone $baseQuery)
+                ->orderBy('employees.first_name')
+                ->forPage($page, $perPage)
+                ->get();
 
-        $rows = (clone $baseQuery)
-            ->orderByDesc('days_present')
-            ->orderBy('employees.first_name')
-            ->forPage($page, $perPage)
-            ->get();
-
-        $employeeIds = $rows->pluck('system_user_id')->filter()->values();
-
-        $previousSummary = Attendance::query()
-            ->where('company_id', $companyId)
-            ->whereIn('employee_id', $employeeIds)
-            ->whereBetween('date', [$previousStart, $previousEnd])
-            ->selectRaw("employee_id,
-                SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) as prev_days_present,
-                SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as prev_total_days")
-            ->groupBy('employee_id')
-            ->get()
-            ->keyBy('employee_id');
-
-        $data = $rows->map(function ($row) use ($previousSummary) {
-            $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
-            if ($name === '') {
-                $name = (string) ($row->display_name ?? 'Unknown');
-            }
-
-            $daysPresent = (int) ($row->days_present ?? 0);
-            $daysAbsent = (int) ($row->days_absent ?? 0);
-            $daysLeave = (int) ($row->days_leave ?? 0);
-            $manualLogs = (int) ($row->manual_logs ?? 0);
-            $totalDays = (int) ($row->total_days ?? 0);
-            $lateInMinutes = (int) ($row->late_in_minutes ?? 0);
-            $earlyOutMinutes = (int) ($row->early_out_minutes ?? 0);
-            $rate = $totalDays > 0 ? round(($daysPresent / $totalDays) * 100, 1) : 0;
-
-            // Format time from minutes
-            $avgCheckinMin = (float) ($row->avg_checkin_minutes ?? 0);
-            $avgCheckoutMin = (float) ($row->avg_checkout_minutes ?? 0);
-            $totalWorkingMin = (int) ($row->total_working_minutes ?? 0);
-
-            $avgCheckin = $avgCheckinMin > 0 ? sprintf('%02d:%02d', floor($avgCheckinMin / 60), $avgCheckinMin % 60) : '---';
-            $avgCheckout = $avgCheckoutMin > 0 ? sprintf('%02d:%02d', floor($avgCheckoutMin / 60), $avgCheckoutMin % 60) : '---';
-
-            $avgWorkingMinPerDay = $daysPresent > 0 ? round($totalWorkingMin / $daysPresent) : 0;
-            $avgWorkingHrs = $avgWorkingMinPerDay > 0 ? sprintf('%d:%02d', floor($avgWorkingMinPerDay / 60), $avgWorkingMinPerDay % 60) : '---';
-
-            $totalHours = (int) floor($totalWorkingMin / 60);
-            $totalMinutes = (int) ($totalWorkingMin % 60);
-            $totalHoursFormatted = $totalWorkingMin > 0 ? sprintf('%02d:%02d', $totalHours, $totalMinutes) : '---';
-
-            $standardHoursPerDay = 10;
-            $requiredHours = $totalDays * $standardHoursPerDay;
-            $requiredHoursFormatted = $requiredHours > 0 ? sprintf('%02d:00', $requiredHours) : '---';
-
-            $prev = $previousSummary->get((int) $row->system_user_id);
-            $prevPresent = (int) ($prev->prev_days_present ?? 0);
-            $prevTotal = (int) ($prev->prev_total_days ?? 0);
-            $prevRate = $prevTotal > 0 ? round(($prevPresent / $prevTotal) * 100, 1) : 0;
-            $trend = round($rate - $prevRate, 1);
-
-            $status = 'CRITICAL';
-            if ($rate >= 90) {
-                $status = 'GOOD';
-            } elseif ($rate >= 75) {
-                $status = 'WARNING';
-            }
-
-            // Ensure img is a full URL if not empty and not already a URL
-            $img = null;
-            if (!empty($row->profile_picture)) {
-                if (filter_var($row->profile_picture, FILTER_VALIDATE_URL)) {
-                    $img = $row->profile_picture;
-                } else {
-                    $img = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . ltrim($row->profile_picture, '/');
+            $data = $rows->map(function ($row) {
+                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($row->display_name ?? 'Unknown');
                 }
-            }
 
-            // Format late/early minutes to HH:MM
-            $lateInHours = $lateInMinutes > 0 ? sprintf('%d:%02d', floor($lateInMinutes / 60), $lateInMinutes % 60) : '---';
-            $earlyOutHours = $earlyOutMinutes > 0 ? sprintf('%d:%02d', floor($earlyOutMinutes / 60), $earlyOutMinutes % 60) : '---';
+                $img = null;
+                if (!empty($row->profile_picture)) {
+                    if (filter_var($row->profile_picture, FILTER_VALIDATE_URL)) {
+                        $img = $row->profile_picture;
+                    } else {
+                        $img = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . ltrim($row->profile_picture, '/');
+                    }
+                }
 
-            return [
-                'system_user_id' => (int) $row->system_user_id,
-                'employee_code' => (string) ($row->employee_code ?? ''),
-                'name' => $name,
-                'department' => (string) ($row->department_name ?? '---'),
-                'days_present' => $daysPresent,
-                'days_absent' => $daysAbsent,
-                'days_leave' => $daysLeave,
-                'manual_logs' => $manualLogs,
-                'total_days' => $totalDays,
-                'late_in_hours' => $lateInHours,
-                'early_out_hours' => $earlyOutHours,
-                'avg_checkin' => $avgCheckin,
-                'avg_checkout' => $avgCheckout,
-                'avg_working_hrs' => $avgWorkingHrs,
-                'total_hours' => $totalHoursFormatted,
-                'required_hours' => $requiredHoursFormatted,
-                'rate' => $rate,
-                'trend' => $trend,
-                'status' => $status,
-                'img' => $img,
-            ];
-        })->values();
+                return [
+                    'system_user_id' => (int) $row->system_user_id,
+                    'employee_code' => (string) ($row->employee_code ?? ''),
+                    'name' => $name,
+                    'department' => (string) ($row->department_name ?? '---'),
+                    'date' => (string) ($row->date ?? '---'),
+                    'in' => (string) ($row->in_time ?? '---'),
+                    'out' => (string) ($row->out_time ?? '---'),
+                    'late_in' => (string) ($row->late_in ?? '---'),
+                    'early_out' => (string) ($row->early_out ?? '---'),
+                    'ot' => (string) ($row->ot ?? '---'),
+                    'total_hrs' => (string) ($row->total_hrs ?? '---'),
+                    'status' => (string) ($row->attendance_status ?? '---'),
+                    'img' => $img,
+                ];
+            })->values();
+        } else {
+            $baseQuery->selectRaw("
+            employees.system_user_id,
+            employees.employee_id as employee_code,
+            employees.first_name,
+            employees.last_name,
+            employees.display_name,
+            employees.profile_picture,
+            COALESCE(departments.name, '---') as department_name,
+            SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
+            SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
+            SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
+            SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
+            SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
+            " . $this->buildSumMinutesSelect('attendances.late_coming', 'late_in_minutes') . ",
+            " . $this->buildSumMinutesSelect('attendances.early_going', 'early_out_minutes') . ",
+            " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
+            " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
+            " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "
+        ")
+                ->groupBy(
+                    'employees.system_user_id',
+                    'employees.employee_id',
+                    'employees.first_name',
+                    'employees.last_name',
+                    'employees.display_name',
+                    'employees.profile_picture',
+                    'departments.name'
+                )
+                ->havingRaw("SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) > 0");
+
+            $total = DB::query()
+                ->fromSub((clone $baseQuery)->toBase(), 'attendance_summary')
+                ->count();
+
+            $lastPage = max(1, (int) ceil($total / $perPage));
+            $page = min($page, $lastPage);
+
+            $rows = (clone $baseQuery)
+                ->orderByDesc('days_present')
+                ->orderBy('employees.first_name')
+                ->forPage($page, $perPage)
+                ->get();
+
+            $employeeIds = $rows->pluck('system_user_id')->filter()->values();
+
+            $previousSummary = Attendance::query()
+                ->where('company_id', $companyId)
+                ->whereIn('employee_id', $employeeIds)
+                ->whereBetween('date', [$previousStart, $previousEnd])
+                ->selectRaw("
+                employee_id,
+                SUM(CASE WHEN status = 'P' THEN 1 ELSE 0 END) as prev_days_present,
+                SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as prev_total_days
+            ")
+                ->groupBy('employee_id')
+                ->get()
+                ->keyBy('employee_id');
+
+            $data = $rows->map(function ($row) use ($previousSummary) {
+                $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($row->display_name ?? 'Unknown');
+                }
+
+                $daysPresent = (int) ($row->days_present ?? 0);
+                $daysAbsent = (int) ($row->days_absent ?? 0);
+                $daysLeave = (int) ($row->days_leave ?? 0);
+                $manualLogs = (int) ($row->manual_logs ?? 0);
+                $totalDays = (int) ($row->total_days ?? 0);
+                $lateInMinutes = (int) ($row->late_in_minutes ?? 0);
+                $earlyOutMinutes = (int) ($row->early_out_minutes ?? 0);
+                $rate = $totalDays > 0 ? round(($daysPresent / $totalDays) * 100, 1) : 0;
+
+                $avgCheckinMin = (float) ($row->avg_checkin_minutes ?? 0);
+                $avgCheckoutMin = (float) ($row->avg_checkout_minutes ?? 0);
+                $totalWorkingMin = (int) ($row->total_working_minutes ?? 0);
+
+                $avgCheckin = $avgCheckinMin > 0
+                    ? sprintf('%02d:%02d', floor($avgCheckinMin / 60), $avgCheckinMin % 60)
+                    : '---';
+
+                $avgCheckout = $avgCheckoutMin > 0
+                    ? sprintf('%02d:%02d', floor($avgCheckoutMin / 60), $avgCheckoutMin % 60)
+                    : '---';
+
+                $avgWorkingMinPerDay = $daysPresent > 0 ? round($totalWorkingMin / $daysPresent) : 0;
+                $avgWorkingHrs = $avgWorkingMinPerDay > 0
+                    ? sprintf('%d:%02d', floor($avgWorkingMinPerDay / 60), $avgWorkingMinPerDay % 60)
+                    : '---';
+
+                $totalHours = (int) floor($totalWorkingMin / 60);
+                $totalMinutes = (int) ($totalWorkingMin % 60);
+                $totalHoursFormatted = $totalWorkingMin > 0
+                    ? sprintf('%02d:%02d', $totalHours, $totalMinutes)
+                    : '---';
+
+                $standardHoursPerDay = 10;
+                $requiredHours = $totalDays * $standardHoursPerDay;
+                $requiredHoursFormatted = $requiredHours > 0
+                    ? sprintf('%02d:00', $requiredHours)
+                    : '---';
+
+                $prev = $previousSummary->get((int) $row->system_user_id);
+                $prevPresent = (int) ($prev->prev_days_present ?? 0);
+                $prevTotal = (int) ($prev->prev_total_days ?? 0);
+                $prevRate = $prevTotal > 0 ? round(($prevPresent / $prevTotal) * 100, 1) : 0;
+                $trend = round($rate - $prevRate, 1);
+
+                $status = 'CRITICAL';
+                if ($rate >= 90) {
+                    $status = 'GOOD';
+                } elseif ($rate >= 75) {
+                    $status = 'WARNING';
+                }
+
+                $img = null;
+                if (!empty($row->profile_picture)) {
+                    if (filter_var($row->profile_picture, FILTER_VALIDATE_URL)) {
+                        $img = $row->profile_picture;
+                    } else {
+                        $img = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . ltrim($row->profile_picture, '/');
+                    }
+                }
+
+                $lateInHours = $lateInMinutes > 0
+                    ? sprintf('%d:%02d', floor($lateInMinutes / 60), $lateInMinutes % 60)
+                    : '---';
+
+                $earlyOutHours = $earlyOutMinutes > 0
+                    ? sprintf('%d:%02d', floor($earlyOutMinutes / 60), $earlyOutMinutes % 60)
+                    : '---';
+
+                return [
+                    'system_user_id' => (int) $row->system_user_id,
+                    'employee_code' => (string) ($row->employee_code ?? ''),
+                    'name' => $name,
+                    'department' => (string) ($row->department_name ?? '---'),
+                    'days_present' => $daysPresent,
+                    'days_absent' => $daysAbsent,
+                    'days_leave' => $daysLeave,
+                    'manual_logs' => $manualLogs,
+                    'total_days' => $totalDays,
+                    'late_in_hours' => $lateInHours,
+                    'early_out_hours' => $earlyOutHours,
+                    'avg_checkin' => $avgCheckin,
+                    'avg_checkout' => $avgCheckout,
+                    'avg_working_hrs' => $avgWorkingHrs,
+                    'total_hours' => $totalHoursFormatted,
+                    'required_hours' => $requiredHoursFormatted,
+                    'rate' => $rate,
+                    'trend' => $trend,
+                    'status' => $status,
+                    'img' => $img,
+                ];
+            })->values();
+        }
 
         return response()->json([
+            'report_type' => $isSingleDay ? 'daily' : 'range',
             'data' => $data,
             'meta' => [
                 'total' => $total,
@@ -1074,205 +1121,6 @@ class AttendanceController extends Controller
                 'per_page' => $perPage,
             ],
         ]);
-    }
-
-    public function companyStatsSummaryPayload(Request $request)
-    {
-        $request->merge([
-            'company_id' => $request->input('company_id', $request->input('companyId')),
-            'branch_id' => $request->input('branch_id', $request->input('branchId')),
-            'branch_ids' => $request->input('branch_ids', $request->input('branchIds')),
-            'department_ids' => $request->input('department_ids', $request->input('departmentIds')),
-            'from_date' => $request->input('from_date', $request->input('fromDate')),
-            'to_date' => $request->input('to_date', $request->input('toDate')),
-            'absent_threshold' => $request->input('absent_threshold', $request->input('absentThreshold')),
-            'late_threshold' => $request->input('late_threshold', $request->input('lateThreshold')),
-            'per_page' => $request->input('per_page', $request->input('perPage')),
-        ]);
-
-        $request->validate([
-            'company_id' => 'required|integer|exists:companies,id',
-            'branch_id' => 'nullable',
-            'branch_ids' => 'nullable',
-            'department_ids' => 'nullable',
-            'from_date' => 'nullable|date',
-            'to_date' => 'nullable|date',
-            'search' => 'nullable|string',
-            'page' => 'nullable|integer|min:1',
-            'per_page' => 'nullable|integer|min:1|max:1000',
-            'absent_threshold' => 'nullable|numeric|min:0|max:100',
-            'late_threshold' => 'nullable|integer|min:1',
-        ]);
-
-        $companyId = (int) $request->company_id;
-        $branchIds = array_values(array_unique(array_merge(
-            $this->normalizeIds($request->input('branch_ids')),
-            $this->normalizeIds($request->input('branch_id'))
-        )));
-        $departmentIds = $this->normalizeIds($request->input('department_ids'));
-
-        $now = Carbon::now();
-        $selectedStart = $request->filled('from_date')
-            ? Carbon::parse($request->input('from_date'))->startOfDay()
-            : $now->copy()->startOfMonth()->startOfDay();
-        $selectedEnd = $request->filled('to_date')
-            ? Carbon::parse($request->input('to_date'))->endOfDay()
-            : $now->copy()->endOfDay();
-
-        if ($selectedEnd->lt($selectedStart)) {
-            $selectedEnd = $selectedStart->copy()->endOfDay();
-        }
-
-        $currentStart = $selectedStart->toDateString();
-        $currentEnd = $selectedEnd->toDateString();
-
-        $employeeQuery = Employee::query()->where('company_id', $companyId);
-        if (!empty($branchIds)) {
-            $employeeQuery->whereIn('branch_id', $branchIds);
-        }
-        if (!empty($departmentIds)) {
-            $employeeQuery->whereIn('department_id', $departmentIds);
-        }
-
-        $employeeIds = $employeeQuery->pluck('system_user_id')->filter()->values();
-
-        $stats = $this->companyStats($request)->getData(true);
-        $hourlyTrends = $this->companyStatsHourlyTrends($request)->getData(true);
-        $departmentBreakdown = $this->companyStatsDepartmentBreakdown($request)->getData(true);
-        $punctuality = $this->companyStatsPunctuality($request)->getData(true);
-
-        $dailyRequest = clone $request;
-        if (!$dailyRequest->filled('per_page')) {
-            $dailyRequest->merge(['per_page' => 50]);
-        }
-        $dailyAttendance = $this->companyStatsDailyAttendance($dailyRequest)->getData(true);
-
-        $absentThreshold = (float) $request->input('absent_threshold', 15);
-        $lateThreshold = (int) $request->input('late_threshold', 3);
-
-        $attentionRows = collect();
-
-        if ($employeeIds->isNotEmpty()) {
-            $attentionRows = Attendance::query()
-                ->where('company_id', $companyId)
-                ->whereIn('employee_id', $employeeIds)
-                ->whereBetween('date', [$currentStart, $currentEnd])
-                ->selectRaw("employee_id,
-                    SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as total_days,
-                    SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as absent_days,
-                    SUM(CASE WHEN late_coming != '---' THEN 1 ELSE 0 END) as late_days")
-                ->groupBy('employee_id')
-                ->havingRaw("SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) > 0")
-                ->get();
-        }
-
-        $employeeMap = Employee::query()
-            ->where('company_id', $companyId)
-            ->whereIn('system_user_id', $attentionRows->pluck('employee_id')->toArray())
-            ->with(['department'])
-            ->get(['system_user_id', 'first_name', 'last_name', 'display_name', 'profile_picture', 'department_id'])
-            ->keyBy('system_user_id');
-
-        $highAbsenteeism = $attentionRows
-            ->map(function ($row) use ($employeeMap) {
-                $employee = $employeeMap->get((int) $row->employee_id);
-                $totalDays = (int) $row->total_days;
-                $absentDays = (int) $row->absent_days;
-                $absentRate = $totalDays > 0 ? round(($absentDays / $totalDays) * 100, 1) : 0;
-
-                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
-                if ($name === '') {
-                    $name = (string) ($employee?->display_name ?? 'Unknown');
-                }
-
-                // Ensure profile_picture is set correctly
-                $img = null;
-                if (isset($employee) && !empty($employee->profile_picture)) {
-                    $img = $employee->profile_picture;
-                }
-
-                return [
-                    'system_user_id' => (int) $row->employee_id,
-                    'name' => $name,
-                    'department' => (string) ($employee?->department?->name ?? '---'),
-                    'img' => $img,
-                    'absent_days' => $absentDays,
-                    'total_days' => $totalDays,
-                    'absent_rate' => $absentRate,
-                ];
-            })
-            ->filter(fn($item) => $item['absent_rate'] >= $absentThreshold)
-            ->sortByDesc('absent_rate')
-            ->take(10)
-            ->values();
-
-        $frequentLateIns = $attentionRows
-            ->map(function ($row) use ($employeeMap) {
-                $employee = $employeeMap->get((int) $row->employee_id);
-                $lateDays = (int) $row->late_days;
-
-                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
-                if ($name === '') {
-                    $name = (string) ($employee?->display_name ?? 'Unknown');
-                }
-
-                // Ensure profile_picture is set correctly
-                $img = null;
-                if (isset($employee) && !empty($employee->profile_picture)) {
-                    $img = $employee->profile_picture;
-                }
-
-                return [
-                    'system_user_id' => (int) $row->employee_id,
-                    'name' => $name,
-                    'department' => (string) ($employee?->department?->name ?? '---'),
-                    'img' => $img,
-                    'late_days' => $lateDays,
-                ];
-            })
-            ->filter(fn($item) => $item['late_days'] > 0)
-            ->sortByDesc('late_days')
-            ->filter(fn($item) => $item['late_days'] >= $lateThreshold)
-            ->take(10)
-            ->values();
-
-        return response()->json([
-            'stats' => $stats['stats'] ?? [],
-            'hourly_trends' => $hourlyTrends['data'] ?? [],
-            'department_breakdown' => $departmentBreakdown['data'] ?? [],
-            'punctuality_top' => $punctuality['data'] ?? [],
-            'daily_attendance' => $dailyAttendance['data'] ?? [],
-            'daily_attendance_meta' => $dailyAttendance['meta'] ?? [
-                'total' => 0,
-                'page' => 1,
-                'per_page' => (int) $dailyRequest->input('per_page', 50),
-                'last_page' => 1,
-                'from' => 0,
-                'to' => 0,
-            ],
-            'attention_required' => [
-                'high_absenteeism' => $highAbsenteeism,
-                'frequent_late_ins' => $frequentLateIns,
-                'thresholds' => [
-                    'absent_rate_percent' => $absentThreshold,
-                    'late_ins_count' => $lateThreshold,
-                ],
-            ],
-            'filters' => [
-                'company_id' => $companyId,
-                'branch_ids' => $branchIds,
-                'department_ids' => $departmentIds,
-                'range' => [
-                    'from' => $currentStart,
-                    'to' => $currentEnd,
-                ],
-                'search' => (string) $dailyRequest->input('search', ''),
-                'page' => (int) $dailyRequest->input('page', 1),
-                'per_page' => (int) $dailyRequest->input('per_page', 50),
-            ],
-        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
-            ->header('Pragma', 'no-cache')
-            ->header('Expires', '0');
     }
 
     public function companyStatsSummaryPdf(Request $request)
@@ -1542,70 +1390,36 @@ class AttendanceController extends Controller
 
     private function buildAvgTimeSelect(string $column, string $alias): string
     {
-        $driver = config('database.default');
-
-        // Quote column for PostgreSQL reserved keywords (in, out)
-        $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
-
-        if ($driver === 'pgsql') {
-            // PostgreSQL: use ~ for regex, EXTRACT for time parts
-            return "AVG(
-                CASE
-                    WHEN {$quotedColumn} IS NOT NULL
-                        AND {$quotedColumn} != '---'
-                        AND {$quotedColumn} != ''
-                        AND {$quotedColumn} ~ '^[0-9]{1,2}:[0-9]{2}'
-                    THEN EXTRACT(HOUR FROM {$quotedColumn}::time) * 60 + EXTRACT(MINUTE FROM {$quotedColumn}::time)
-                    ELSE NULL
-                END
-            ) as {$alias}";
-        }
-
-        // MySQL: use REGEXP, HOUR/MINUTE functions
-        return "AVG(
+        return "
+        AVG(
             CASE
                 WHEN {$column} IS NOT NULL
                     AND {$column} != '---'
                     AND {$column} != ''
-                    AND {$column} REGEXP '^[0-9]{1,2}:[0-9]{2}'
-                THEN HOUR({$column}) * 60 + MINUTE({$column})
+                    AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
+                THEN EXTRACT(HOUR FROM {$column}::time) * 60
+                    + EXTRACT(MINUTE FROM {$column}::time)
                 ELSE NULL
             END
-        ) as {$alias}";
+        ) as {$alias}
+    ";
     }
 
     private function buildSumDurationSelect(string $column, string $alias): string
     {
-        $driver = config('database.default');
-
-        // Quote column for PostgreSQL reserved keywords (in, out)
-        $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
-
-        if ($driver === 'pgsql') {
-            // PostgreSQL: use ~ for regex, EXTRACT for time parts
-            return "SUM(
-                CASE
-                    WHEN {$quotedColumn} IS NOT NULL
-                        AND {$quotedColumn} != '---'
-                        AND {$quotedColumn} != ''
-                        AND {$quotedColumn} ~ '^[0-9]{1,2}:[0-9]{2}'
-                    THEN EXTRACT(HOUR FROM {$quotedColumn}::time) * 60 + EXTRACT(MINUTE FROM {$quotedColumn}::time)
-                    ELSE 0
-                END
-            ) as {$alias}";
-        }
-
-        // MySQL: use REGEXP, HOUR/MINUTE functions
-        return "SUM(
+        return "
+        SUM(
             CASE
                 WHEN {$column} IS NOT NULL
                     AND {$column} != '---'
                     AND {$column} != ''
-                    AND {$column} REGEXP '^[0-9]{1,2}:[0-9]{2}'
-                THEN HOUR({$column}) * 60 + MINUTE({$column})
+                    AND {$column} ~ '^[0-9]{1,2}:[0-9]{2}'
+                THEN EXTRACT(HOUR FROM {$column}::time) * 60
+                    + EXTRACT(MINUTE FROM {$column}::time)
                 ELSE 0
             END
-        ) as {$alias}";
+        ) as {$alias}
+    ";
     }
 
     /**
@@ -2283,5 +2097,30 @@ class AttendanceController extends Controller
                 (new SingleShiftController)->renderData($request),
             );
         }
+    }
+
+    private function buildSumMinutesSelect(string $column, string $alias): string
+    {
+        return "
+        SUM(
+            CASE
+                WHEN {$column} IS NOT NULL
+                    AND {$column} != '---'
+                    AND {$column} != ''
+                THEN
+                    CASE
+                        WHEN {$column} LIKE '%:%'
+                            AND {$column} ~ '^[0-9]{1,3}:[0-9]{1,2}$'
+                        THEN
+                            (split_part({$column}, ':', 1)::integer * 60)
+                            + split_part({$column}, ':', 2)::integer
+                        WHEN {$column} ~ '^[0-9]+$'
+                        THEN {$column}::integer
+                        ELSE 0
+                    END
+                ELSE 0
+            END
+        ) as {$alias}
+    ";
     }
 }
