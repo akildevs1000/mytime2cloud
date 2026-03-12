@@ -260,6 +260,8 @@ class EmployeeLeavesController extends Controller
 
     public function approveLeave(Request $request, $leaveId)
     {
+        return $this->processLeaveStatus($request, $leaveId, 1, "approved");
+
         $model = EmployeeLeaves::find($leaveId);
 
         $company_id = $request->company_id;
@@ -269,6 +271,8 @@ class EmployeeLeavesController extends Controller
         if (!$model) {
             return $this->response('Employee Leave data is not available.', null, false);
         }
+
+
 
         $lastAdmin = User::where("company_id", $company_id)
             ->where("order", "<", $request->order)
