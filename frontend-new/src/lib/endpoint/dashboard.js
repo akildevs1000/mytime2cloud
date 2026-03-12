@@ -24,6 +24,12 @@ export const getCompanyStatsHourlyTrends = async (params = {}) => {
     return data;
 };
 
+export const getCompanyStatsDayTrends = async (params = {}) => {
+    const queryParams = await buildQueryParams(params);
+    const { data } = await api.get("/company_stats_day_trends", { params: queryParams });
+    return data;
+};
+
 export const getCompanyStatsDepartmentBreakdown = async (params = {}) => {
     const queryParams = await buildQueryParams(params);
     const { data } = await api.get("/company_stats_department_breakdown", { params: queryParams });
