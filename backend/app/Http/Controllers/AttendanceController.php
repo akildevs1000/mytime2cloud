@@ -954,6 +954,14 @@ class AttendanceController extends Controller
             $avgWorkingMinPerDay = $daysPresent > 0 ? round($totalWorkingMin / $daysPresent) : 0;
             $avgWorkingHrs = $avgWorkingMinPerDay > 0 ? sprintf('%d:%02d', floor($avgWorkingMinPerDay / 60), $avgWorkingMinPerDay % 60) : '---';
 
+            $totalHours = (int) floor($totalWorkingMin / 60);
+            $totalMinutes = (int) ($totalWorkingMin % 60);
+            $totalHoursFormatted = $totalWorkingMin > 0 ? sprintf('%02d:%02d', $totalHours, $totalMinutes) : '---';
+
+            $standardHoursPerDay = 10;
+            $requiredHours = $totalDays * $standardHoursPerDay;
+            $requiredHoursFormatted = $requiredHours > 0 ? sprintf('%02d:00', $requiredHours) : '---';
+
             $prev = $previousSummary->get((int) $row->system_user_id);
             $prevPresent = (int) ($prev->prev_days_present ?? 0);
             $prevTotal = (int) ($prev->prev_total_days ?? 0);
@@ -992,6 +1000,8 @@ class AttendanceController extends Controller
                 'avg_checkin' => $avgCheckin,
                 'avg_checkout' => $avgCheckout,
                 'avg_working_hrs' => $avgWorkingHrs,
+                'total_hours' => $totalHoursFormatted,
+                'required_hours' => $requiredHoursFormatted,
                 'rate' => $rate,
                 'trend' => $trend,
                 'status' => $status,
