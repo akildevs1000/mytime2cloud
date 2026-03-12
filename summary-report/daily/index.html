@@ -158,7 +158,7 @@
                 <p class="text-text-sub text-xs" id="generatedDate">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
+                <div class="inline-block px-4 py-1.5 rounded border border-slate-200">
                     <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod">October 2023</span>
@@ -171,16 +171,12 @@
         <section class="border border-slate-200 rounded p-3 shrink-0">
             <div class="flex items-center justify-between mb-2">
                 <div>
-                    <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Attendance Trends</h3>
-                    <p class="text-[10px] text-text-sub">Daily breakdown (Present vs Late vs Absent)</p>
+                    <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Peak Hours</h3>
+                    <p class="text-[10px] text-text-sub">Employee punch-in distribution by hour</p>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-primary"></span><span
-                            class="text-[10px] uppercase font-bold text-text-sub">Present</span></div>
-                    <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-secondary"></span><span
-                            class="text-[10px] uppercase font-bold text-text-sub">Late</span></div>
-                    <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-slate-200"></span><span
-                            class="text-[10px] uppercase font-bold text-text-sub">Absent</span></div>
+                            class="text-[10px] uppercase font-bold text-text-sub">Punches</span></div>
                 </div>
             </div>
             <div class="h-28 w-full flex items-end justify-between gap-1 px-1 border-l border-b border-slate-200"
@@ -248,7 +244,7 @@
                 <p class="text-text-sub text-xs" id="generatedDate2">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
+                <div class="inline-block px-4 py-1.5 rounded border border-slate-200">
                     <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod2">October 2023</span>
@@ -303,7 +299,7 @@
                 <p class="text-text-sub text-xs" id="generatedDate3">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
+                <div class="inline-block px-4 py-1.5 rounded border border-slate-200">
                     <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod3">October 2023</span>
@@ -439,24 +435,17 @@
                 labelsContainer.innerHTML = '';
                 return;
             }
-            var maxTotal = Math.max.apply(null, trends.map(function (t) {
-                return (t.present || 0) + (t.late || 0) + (t.absent || 0);
+            var maxPunches = Math.max.apply(null, trends.map(function (t) {
+                return Number(t.punches || 0);
             })) || 1;
 
             container.innerHTML = trends.map(function (t) {
-                var present = Number(t.present || 0);
-                var late = Number(t.late || 0);
-                var absent = Number(t.absent || 0);
-
-                var presentPct = Math.round((present / maxTotal) * 100);
-                var latePct = Math.round((late / maxTotal) * 100);
-                var absentPct = Math.round((absent / maxTotal) * 100);
+                var punches = Number(t.punches || 0);
+                var punchPct = Math.round((punches / maxPunches) * 100);
 
                 return (
-                    '<div class="w-full flex flex-col-reverse h-full gap-[1px]">' +
-                    '<div class="bg-primary w-full" style="height:' + presentPct + '%"></div>' +
-                    '<div class="bg-secondary w-full" style="height:' + latePct + '%"></div>' +
-                    '<div class="bg-slate-200 w-full" style="height:' + absentPct + '%"></div>' +
+                    '<div class="w-full flex flex-col-reverse h-full">' +
+                    '<div class="bg-primary w-full rounded-t" style="height:' + punchPct + '%"></div>' +
                     '</div>'
                 );
             }).join('');
@@ -615,13 +604,9 @@
                 var rateColor = getPerformanceColor(rate);
                 var avgIn = emp.avg_checkin || '---';
                 var avgOut = emp.avg_checkout || '---';
-                var avgHrs = emp.avg_working_hrs ? Number(emp.avg_working_hrs || 0) : '---';
-                var avgHrsNum = Number(emp.avg_working_hrs);
-                var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
-                var totalHrsNum = Number(emp.total_working_hrs);
-                var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
-                var expectedHrsNum = Number(emp.total_days) * 9;
-                var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
+                var avgHrs = emp.avg_working_hrs || '---';
+                var totalHrs = emp.total_hours || '---';
+                var expectedHrs = emp.required_hours || '---';
 
                 var avatarHtml = emp.img
                     ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
@@ -679,12 +664,9 @@
                     var rateColor = getPerformanceColor(rate);
                     var avgIn = emp.avg_checkin || '---';
                     var avgOut = emp.avg_checkout || '---';
-                    var avgHrsNum = Number(emp.avg_working_hrs);
-                    var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
-                    var totalHrsNum = Number(emp.total_working_hrs);
-                    var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
-                    var expectedHrsNum = Number(emp.total_days) * 9;
-                    var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
+                    var avgHrs = emp.avg_working_hrs || '---';
+                    var totalHrs = emp.total_hours || '---';
+                    var expectedHrs = emp.required_hours || '---';
 
                     var avatarHtml = emp.img
                         ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
@@ -725,7 +707,7 @@
                     '<p class="text-text-sub text-xs">Generated on ' + generatedDate + '</p>' +
                     '</div>' +
                     '<div class="text-right">' +
-                    '<div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">' +
+                    '<div class="inline-block px-4 py-1.5 rounded border border-slate-200">' +
                     '<span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting Period</span>' +
                     '<span class="block text-base font-bold text-primary">' + periodLabel + '</span>' +
                     '</div>' +

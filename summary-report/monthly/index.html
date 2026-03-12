@@ -171,7 +171,7 @@
             <div class="flex items-center justify-between mb-2">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Attendance Trends</h3>
-                    <p class="text-[10px] text-text-sub">Day-wise breakdown (Present vs Late vs Absent)</p>
+                    <p class="text-[10px] text-text-sub">Day-wise breakdown (Present vs Absent)</p>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-primary"></span><span
@@ -245,7 +245,7 @@
                 <p class="text-text-sub text-xs" id="generatedDate2">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
+                <div class="inline-block  px-4 py-1.5 rounded border border-slate-200">
                     <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod2">October 2023</span>
@@ -300,7 +300,7 @@
                 <p class="text-text-sub text-xs" id="generatedDate3">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
+                <div class="inline-block  px-4 py-1.5 rounded border border-slate-200">
                     <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod3">October 2023</span>
@@ -609,13 +609,9 @@
                 var rateColor = getPerformanceColor(rate);
                 var avgIn = emp.avg_checkin || '---';
                 var avgOut = emp.avg_checkout || '---';
-                var avgHrs = emp.avg_working_hrs ? Number(emp.avg_working_hrs || 0) : '---';
-                var avgHrsNum = Number(emp.avg_working_hrs);
-                var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
-                var totalHrsNum = Number(emp.total_working_hrs);
-                var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
-                var expectedHrsNum = Number(emp.total_days) * 9;
-                var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
+                var avgHrs = emp.avg_working_hrs || '---';
+                var totalHrs = emp.total_hours || '---';
+                var expectedHrs = emp.required_hours || '---';
 
                 var avatarHtml = emp.img
                     ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
@@ -673,12 +669,9 @@
                     var rateColor = getPerformanceColor(rate);
                     var avgIn = emp.avg_checkin || '---';
                     var avgOut = emp.avg_checkout || '---';
-                    var avgHrsNum = Number(emp.avg_working_hrs);
-                    var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
-                    var totalHrsNum = Number(emp.total_working_hrs);
-                    var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
-                    var expectedHrsNum = Number(emp.total_days) * 9;
-                    var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
+                    var avgHrs = emp.avg_working_hrs || '---';
+                    var totalHrs = emp.total_hours || '---';
+                    var expectedHrs = emp.required_hours || '---';
 
                     var avatarHtml = emp.img
                         ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
@@ -719,7 +712,7 @@
                     '<p class="text-text-sub text-xs">Generated on ' + generatedDate + '</p>' +
                     '</div>' +
                     '<div class="text-right">' +
-                    '<div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">' +
+                    '<div class="inline-block  px-4 py-1.5 rounded border border-slate-200">' +
                     '<span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting Period</span>' +
                     '<span class="block text-base font-bold text-primary">' + periodLabel + '</span>' +
                     '</div>' +
