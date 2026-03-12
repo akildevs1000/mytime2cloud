@@ -967,6 +967,16 @@ class AttendanceController extends Controller
                 $status = 'WARNING';
             }
 
+            // Ensure img is a full URL if not empty and not already a URL
+            $img = null;
+            if (!empty($row->profile_picture)) {
+                if (filter_var($row->profile_picture, FILTER_VALIDATE_URL)) {
+                    $img = $row->profile_picture;
+                } else {
+                    $img = 'https://backend.mytime2cloud.com/media/employee/profile_picture/' . ltrim($row->profile_picture, '/');
+                }
+            }
+
             return [
                 'system_user_id' => (int) $row->system_user_id,
                 'employee_code' => (string) ($row->employee_code ?? ''),
@@ -985,7 +995,7 @@ class AttendanceController extends Controller
                 'rate' => $rate,
                 'trend' => $trend,
                 'status' => $status,
-                'img' => $row->profile_picture ?: null,
+                'img' => $img,
             ];
         })->values();
 
