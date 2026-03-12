@@ -23,7 +23,7 @@ class AITrigger extends Model
     ];
 
     protected $casts = [
-        'run_time' => 'datetime:H:i',
+        'created_at' => 'datetime:d-My-Y H:i:s',
     ];
 
     public function company()
