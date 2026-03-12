@@ -877,35 +877,62 @@ class AttendanceController extends Controller
                 });
             })
             ->selectRaw("employees.system_user_id,
-                employees.employee_id as employee_code,
-                employees.first_name,
-                employees.last_name,
-                employees.display_name,
-                employees.profile_picture,
-                COALESCE(departments.name, '---') as department_name,
-                SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
-                SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
-                SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
-                SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
-                SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
-                SUM(CASE WHEN attendances.late_coming != '---' THEN 
-                    CASE 
-                        WHEN attendances.late_coming LIKE '%:%' THEN (CAST(SUBSTRING_INDEX(attendances.late_coming, ':', 1) AS SIGNED) * 60 + CAST(SUBSTRING_INDEX(attendances.late_coming, ':', -1) AS SIGNED))
-                        WHEN attendances.late_coming REGEXP '^[0-9]+$' THEN CAST(attendances.late_coming AS SIGNED)
-                        ELSE 0
-                    END
-                ELSE 0 END) as late_in_minutes,
-                SUM(CASE WHEN attendances.early_going != '---' THEN 
-                    CASE 
-                        WHEN attendances.early_going LIKE '%:%' THEN (CAST(SUBSTRING_INDEX(attendances.early_going, ':', 1) AS SIGNED) * 60 + CAST(SUBSTRING_INDEX(attendances.early_going, ':', -1) AS SIGNED))
-                        WHEN attendances.early_going REGEXP '^[0-9]+$' THEN CAST(attendances.early_going AS SIGNED)
-                        ELSE 0
-                    END
-                ELSE 0 END) as early_out_minutes,
-                " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
-                " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
-                " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "")
-            ->groupBy(
+    employees.employee_id as employee_code,
+    employees.first_name,
+    employees.last_name,
+    employees.display_name,
+    employees.profile_picture,
+    COALESCE(departments.name, '---') as department_name,
+    SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
+    SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
+    SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
+    SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
+    SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
+
+    SUM(
+        CASE
+            WHEN attendances.late_coming IS NOT NULL
+                 AND attendances.late_coming != '---'
+                 AND attendances.late_coming != ''
+            THEN
+                CASE
+                    WHEN attendances.late_coming LIKE '%:%'
+                         AND attendances.late_coming ~ '^[0-9]{1,3}:[0-9]{1,2}$'
+                    THEN
+                        (split_part(attendances.late_coming, ':', 1)::integer * 60)
+                        + split_part(attendances.late_coming, ':', 2)::integer
+                    WHEN attendances.late_coming ~ '^[0-9]+$'
+                    THEN attendances.late_coming::integer
+                    ELSE 0
+                END
+            ELSE 0
+        END
+    ) as late_in_minutes,
+
+    SUM(
+        CASE
+            WHEN attendances.early_going IS NOT NULL
+                 AND attendances.early_going != '---'
+                 AND attendances.early_going != ''
+            THEN
+                CASE
+                    WHEN attendances.early_going LIKE '%:%'
+                         AND attendances.early_going ~ '^[0-9]{1,3}:[0-9]{1,2}$'
+                    THEN
+                        (split_part(attendances.early_going, ':', 1)::integer * 60)
+                        + split_part(attendances.early_going, ':', 2)::integer
+                    WHEN attendances.early_going ~ '^[0-9]+$'
+                    THEN attendances.early_going::integer
+                    ELSE 0
+                END
+            ELSE 0
+        END
+    ) as early_out_minutes,
+
+    " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
+    " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
+    " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "
+")->groupBy(
                 'employees.system_user_id',
                 'employees.employee_id',
                 'employees.first_name',
@@ -958,7 +985,7 @@ class AttendanceController extends Controller
             $avgCheckinMin = (float) ($row->avg_checkin_minutes ?? 0);
             $avgCheckoutMin = (float) ($row->avg_checkout_minutes ?? 0);
             $totalWorkingMin = (int) ($row->total_working_minutes ?? 0);
-            
+
             $avgCheckin = $avgCheckinMin > 0 ? sprintf('%02d:%02d', floor($avgCheckinMin / 60), $avgCheckinMin % 60) : '---';
             $avgCheckout = $avgCheckoutMin > 0 ? sprintf('%02d:%02d', floor($avgCheckoutMin / 60), $avgCheckoutMin % 60) : '---';
 
@@ -1516,7 +1543,7 @@ class AttendanceController extends Controller
     private function buildAvgTimeSelect(string $column, string $alias): string
     {
         $driver = config('database.default');
-        
+
         // Quote column for PostgreSQL reserved keywords (in, out)
         $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
 
@@ -1550,7 +1577,7 @@ class AttendanceController extends Controller
     private function buildSumDurationSelect(string $column, string $alias): string
     {
         $driver = config('database.default');
-        
+
         // Quote column for PostgreSQL reserved keywords (in, out)
         $quotedColumn = $driver === 'pgsql' ? $this->quoteColumnPgsql($column) : $column;
 
@@ -1580,7 +1607,7 @@ class AttendanceController extends Controller
             END
         ) as {$alias}";
     }
-    
+
     /**
      * Quote column name for PostgreSQL (handles reserved keywords like 'in', 'out')
      */
