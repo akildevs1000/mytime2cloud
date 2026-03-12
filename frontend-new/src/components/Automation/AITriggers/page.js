@@ -1,14 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Pencil, Trash, UserLock } from "lucide-react";
-import { deleteDepartment, deleteSubDepartments, getSubDepartments } from "@/lib/api";
-
 import Pagination from "@/lib/Pagination";
 import DataTable from "@/components/ui/DataTable";
 import Columns from "./columns";
 import Create from "./Create";
 import { notify, parseApiError } from "@/lib/utils";
+import { getAiTriggers } from "@/lib/endpoint/ai_triggers";
 
 export default function AITriggers() {
   const [records, setRecords] = useState([]);
@@ -22,19 +20,19 @@ export default function AITriggers() {
 
   useEffect(() => {
     fetchRecords();
-  }, []);
+  }, [currentPage, perPage]);
 
   const fetchRecords = async () => {
     try {
       setIsLoading(true);
       setError(null);
 
-      const result = await getSubDepartments({
+      const result = await getAiTriggers({
         page: currentPage,
         per_page: perPage,
       });
 
-      console.log(`getSubDepartments`);
+      console.log(`getAiTriggers`);
       console.log(result);
 
 
@@ -52,29 +50,6 @@ export default function AITriggers() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (confirm("Are you sure you want to delete this employee?")) {
-      try {
-        await deleteSubDepartments(id);
-        fetchRecords();
-        notify("Success", "Sub department deleted", "success")
-      } catch (error) {
-        console.error("Error deleting employee:", error);
-      }
-    }
-  };
-
-  const onEdit = (record) => {
-    // console.log("Edit record:", record);
-  }
-
-  const onDelete = (record) => {
-    // console.log("Delete record:", record);
-  }
-
-  const columns = Columns({
-    onSuccess: fetchRecords, // refresh after edit
-  });
 
   return (
     <>
@@ -82,7 +57,7 @@ export default function AITriggers() {
         className="p-5 border-gray-200 dark:border-white/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900"
       >
         <div className="flex items-center gap-3">
-          <h3 className="font-bold text-white text-lg">Departments</h3>
+          <h3 className="font-bold text-white text-lg">AI Triggers</h3>
         </div>
         <div className="flex items-center gap-3">
           <Create onSuccess={fetchRecords} />
@@ -90,7 +65,7 @@ export default function AITriggers() {
       </div>
 
       <DataTable
-        columns={Columns(onEdit, onDelete)}
+        columns={Columns({ onSuccess: fetchRecords })}
         data={records}
         isLoading={isLoading}
         error={error}
@@ -109,8 +84,8 @@ export default function AITriggers() {
         }
       />
 
-   
-   
+
+
     </>
   )
 }

@@ -5,7 +5,8 @@ import { useState } from "react";
 import { MoreVertical, PenBox, Trash2 } from "lucide-react";
 import AiTriggerEdit from "@/components/Automation/AITriggers/Edit";
 
-import { deleteDepartment } from "@/lib/api";
+import { deleteItem } from "@/lib/endpoint/ai_triggers";
+
 import { parseApiError } from "@/lib/utils";
 
 
@@ -17,7 +18,7 @@ function OptionsMenu({ admin, onSuccess = () => { } }) {
     if (!confirmDelete) return; // exit if user cancels
 
     try {
-      await deleteDepartment(id);
+      await deleteItem(id);
       onSuccess();
     } catch (error) {
       console.log(parseApiError(error));
@@ -44,14 +45,14 @@ function OptionsMenu({ admin, onSuccess = () => { } }) {
 export default function Columns({ onSuccess = () => { } } = {}) {
   return [
     {
-      key: "name",
-      header: "Name",
+      key: "type",
+      header: "Type",
       render: (admin) => (
         <span
           className="text-sm w-[150px] text-slate-600 dark:text-slate-300 hidden xl:table-cell"
-          title={admin.name || "—"}
+          title={admin.type || "—"}
         >
-          {admin.name || "—"}
+          {admin.type || "—"}
         </span>
       ),
     },

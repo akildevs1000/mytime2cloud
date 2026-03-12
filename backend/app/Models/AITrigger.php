@@ -22,6 +22,10 @@ class AITrigger extends Model
         'company_id'
     ];
 
+    protected $casts = [
+        'run_time' => 'datetime:H:i',
+    ];
+
     public function company()
     {
         return $this->belongsTo(Company::class);
@@ -114,7 +118,9 @@ Return ONLY JSON.
 
     public static function generateFingerprint(array $parsedData): string
     {
-        return strtolower("{$parsedData['type']}_{$parsedData['days']}_weekly_{$parsedData['weekday']}_{$parsedData['run_time']}");
+        $weekdayPart = $parsedData['weekday'] ?? 'any';
+
+        return strtolower("{$parsedData['type']}_{$parsedData['days']}_weekly_{$weekdayPart}_{$parsedData['run_time']}");
     }
 
     public static function callAI(string $message): ?array

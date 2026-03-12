@@ -24,7 +24,7 @@ class AITriggerController extends Controller
         if (!$trigger) {
             return response()->json([
                 'status' =>  false,
-                'message' => 'Trigger already exists or message invalid/unrelated.'
+                'message' => 'Trigger invalid/unrelated or already exists.'
             ]);
         }
 

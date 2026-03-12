@@ -3,15 +3,14 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getBranches, createDepartment } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 import Input from "@/components/Theme/Input";
 import DropDown from "@/components/ui/DropDown";
 import TextArea from "@/components/Theme/TextArea";
 
+import { getAiTriggers,createAITrigger } from "@/lib/endpoint/ai_triggers";
+
 let defaultPayload = {
-  branch_id: 0,
-  name: "",
   description: "",
 };
 
@@ -52,12 +51,14 @@ const Create = ({ onSuccess = () => { } }) => {
     e.preventDefault();
     setLoading(true);
     try {
-      let { data } = await createDepartment(form);
+      let data = await createAITrigger(form);
+
+      console.log(data);
+      
 
       // FIX: Check if status is explicitly false
       if (data?.status === false) {
-        const firstKey = Object.keys(data.errors)[0];
-        notify("Error", data.errors[firstKey][0], "error");
+        notify("Error", data.message, "error");
         return; // Stop execution if there's a validation error
       }
 
@@ -65,7 +66,7 @@ const Create = ({ onSuccess = () => { } }) => {
       onSuccess();
       setSuccessOpen(true);
       setOpen(false);
-      notify("Success", "Department Saved", "success")
+      notify("Success", "Saved", "success")
     } catch (error) {
       notify("Error", parseApiError(error), "error");
 
@@ -80,7 +81,7 @@ const Create = ({ onSuccess = () => { } }) => {
         className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
       >
         <span className="material-symbols-outlined text-[18px]">add</span>
-        Add Department
+        Add AI Trigger
       </button>
 
       {/* Modal Portal Logic */}
@@ -102,9 +103,9 @@ const Create = ({ onSuccess = () => { } }) => {
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Department</h3>
+                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Trigger</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Create a new department in the system
+                  Create a new AI Trigger for attendance
                 </p>
               </div>
               <button
@@ -120,34 +121,11 @@ const Create = ({ onSuccess = () => { } }) => {
               <div className="p-6 space-y-5 bg-white/50 dark:bg-gray-900">
                 <div className="space-y-1.5">
                   <label className="block text-sm font-medium text-slate-400">
-                    Branch <span className="text-red-400">*</span>
-                  </label>
-                  <DropDown
-                    placeholder="Select Branch"
-                    width="w-full"
-                    value={form.branch_id}
-                    onChange={(value) => handleChange("branch_id", value)}
-                    items={branches} />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-400">
-                    Department Title <span className="text-red-400">*</span>
-                  </label>
-                  <Input
-                    placeholder="e.g. Sales"
-                    type="text"
-                    value={form.title}
-                    onChange={(e) => handleChange("name", e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-400">
                     Description
                   </label>
 
                   <TextArea
-                    placeholder="Brief description of the department..."
+                    placeholder="Brief description of the"
                     rows={3}
                     value={form.description}
                     onChange={(e) => handleChange("description", e.target.value)}
@@ -168,7 +146,7 @@ const Create = ({ onSuccess = () => { } }) => {
                   type="submit"
                   className="px-4 py-2 rounded-lg bg-primary text-white hover:bg-blue-600 transition-all text-sm font-bold shadow-lg shadow-primary/20"
                 >
-                  {loading ? "Saving..." : "Save Department"}
+                  {loading ? "Saving..." : "Save"}
                 </button>
               </div>
             </form>
