@@ -23,15 +23,16 @@ class AITriggerController extends Controller
 
         if (!$trigger) {
             return response()->json([
-                'status' => 'warning',
+                'status' =>  false,
                 'message' => 'Trigger already exists or message invalid/unrelated.'
             ]);
         }
 
         return response()->json([
-            'status' => 'success',
+            'status' => true,
             'trigger' => $trigger
         ]);
+
     }
 
     public function destroy($id)
@@ -39,6 +40,7 @@ class AITriggerController extends Controller
         AITrigger::findOrFail($id)->delete();
 
         return response()->json([
+            "status" => true,
             "message" => "Deleted"
         ]);
     }
