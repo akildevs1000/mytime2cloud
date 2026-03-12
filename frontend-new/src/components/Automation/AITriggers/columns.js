@@ -1,166 +1,81 @@
 // columns.js
-import { MoreVertical, Pencil, Trash } from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+"use client";
 
-export default (deleteItem, editItem) => {
-    return [
-        {
-            key: "branch",
-            header: "Branch",
-            render: (e) => (
-                <p className="text-sm text-slate-700 dark:text-slate-200">
-                    {e.branch ? e.branch?.branch_name : "N/A"}
-                </p>
-            ),
-        },
-        {
-            key: "subject",
-            header: "Subject",
-            render: (e) => (
-                <p
-                    className="text-sm text-slate-700 dark:text-slate-200"
-                >
-                    {e.subject || "N/A"}
-                </p>
-            ),
-        },
+import { useState } from "react";
+import { MoreVertical, PenBox, Trash2 } from "lucide-react";
+import AiTriggerEdit from "@/components/Automation/AITriggers/Edit";
 
-        {
-            key: "time",
-            header: "Time",
-            render: (e) => (
-                <p
-                    className="text-sm text-slate-600 dark:text-slate-300"
-                >
-                    {e.time || "N/A"}
-                </p>
-            ),
-        },
+import { deleteDepartment } from "@/lib/api";
+import { parseApiError } from "@/lib/utils";
 
-        {
-            key: "days",
-            header: "Days",
-            render: (e) => (
-                <p
-                    className="text-sm text-slate-600 dark:text-slate-300"
-                >
-                    {Array.isArray(e.days) ? e.days.join(", ") : e.days || "N/A"}
-                </p>
-            ),
-        },
 
-        {
-            key: "manager1",
-            header: "Manager1",
-            render: (e) => {
-                const m = e.managers?.[0];
+function OptionsMenu({ admin, onSuccess = () => { } }) {
+  const [openEdit, setOpenEdit] = useState(false);
 
-                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
+  const onDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this item?");
+    if (!confirmDelete) return; // exit if user cancels
 
-                return (
-                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
-                        <span className="font-medium">{m.name}</span>
-                        <span className="text-xs">{m.email}</span>
-                        <span className="text-xs">{m.whatsapp_number}</span>
-                    </div>
-                );
-            },
-        },
+    try {
+      await deleteDepartment(id);
+      onSuccess();
+    } catch (error) {
+      console.log(parseApiError(error));
+    }
+  };
 
-        {
-            key: "manager2",
-            header: "Manager2",
-            render: (e) => {
-                const m = e.managers?.[1];
+  return (
+    <div className="relative">
+      <AiTriggerEdit
+        defaultPayload={admin}
+        onSuccess={() => {
+          onSuccess(); // refresh parent data
+          setOpenEdit(false);
+        }}
+      />
+      <button onClick={() => onDelete(admin.id)} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+        <Trash2 size={15} />
+      </button>
+    </div>
+  );
+}
 
-                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
 
-                return (
-                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
-                        <span className="font-medium">{m.name}</span>
-                        <span className="text-xs">{m.email}</span>
-                        <span className="text-xs">{m.whatsapp_number}</span>
-                    </div>
-                );
-            },
-        },
-
-        {
-            key: "manager3",
-            header: "Manager3",
-            render: (e) => {
-                const m = e.managers?.[2];
-
-                if (!m) return <span className="text-slate-400 text-sm">N/A</span>;
-
-                return (
-                    <div className="flex flex-col text-sm leading-tight text-slate-600 dark:text-slate-300">
-                        <span className="font-medium">{m.name}</span>
-                        <span className="text-xs">{m.email}</span>
-                        <span className="text-xs">{m.whatsapp_number}</span>
-                    </div>
-                );
-            },
-        },
-        {
-            key: "medium",
-            header: "Media",
-            render: (e) => (
-                <p
-                    className="text-sm text-slate-600 dark:text-slate-300"
-                >
-                    {Array.isArray(e.mediums)
-                        ? e.mediums.join(", ")
-                        : e.medium || e.mediums || "N/A"}
-                </p>
-            ),
-        },
-
-        {
-            key: "options",
-            header: "Options",
-            render: (row) => (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild onClick={(ev) => ev.stopPropagation()}>
-                        <div className="p-2 rounded-full cursor-pointer w-fit">
-                            <MoreVertical className="w-5 h-5 text-gray-400" />
-                        </div>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent
-                        align="end"
-                        className="w-32 bg-white dark:bg-gray-900 shadow-md rounded-md py-1"
-                        onClick={(ev) => ev.stopPropagation()}
-                    >
-                        <DropdownMenuItem
-                            onClick={(e) => {
-                                e.stopPropagation(); // Stop row redirect
-                                editItem(row);
-                            }}
-                            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                        >
-                            <Pencil className="w-4 h-4 text-primary" />
-                            <span className="text-primary font-medium">Edit</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={(ev) => {
-                                ev.stopPropagation();
-                                // adjust the id field to your actual primary key if not employee_id
-                                deleteItem(row.id ?? row.report_notification_id ?? row.employee_id);
-                            }}
-                            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                        >
-                            <Trash className="w-4 h-4 text-red-500" />
-                            <span className="text-red-500 font-medium">Delete</span>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            ),
-        },
-    ];
-};
+export default function Columns({ onSuccess = () => { } } = {}) {
+  return [
+    {
+      key: "name",
+      header: "Name",
+      render: (admin) => (
+        <span
+          className="text-sm w-[150px] text-slate-600 dark:text-slate-300 hidden xl:table-cell"
+          title={admin.name || "—"}
+        >
+          {admin.name || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "created_at",
+      header: "Created At",
+      render: (admin) => (
+        <span
+          className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell"
+          title={admin.created_at || "—"}
+        >
+          {admin.created_at || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "options",
+      header: "Actions",
+      render: (admin) => (
+        <OptionsMenu
+          admin={admin}
+          onSuccess={onSuccess}
+        />
+      ),
+    },
+  ];
+}

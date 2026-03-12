@@ -3,19 +3,16 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { getBranches, createDepartment } from "@/lib/api";
+import { getBranches, createDepartment, updateDepartment } from "@/lib/api";
 import { notify, parseApiError } from "@/lib/utils";
 import Input from "@/components/Theme/Input";
 import DropDown from "@/components/ui/DropDown";
 import TextArea from "@/components/Theme/TextArea";
+import { Pencil } from "lucide-react";
 
-let defaultPayload = {
-  branch_id: 0,
-  name: "",
-  description: "",
-};
+const AiTriggerEdit = ({ defaultPayload, onSuccess = () => { } }) => {
 
-const Create = ({ onSuccess = () => { } }) => {
+
 
   const [open, setOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
@@ -39,6 +36,8 @@ const Create = ({ onSuccess = () => { } }) => {
 
   useEffect(() => {
     if (open) {
+      // data coming here but not showing in form defaultPayload 
+      console.log(defaultPayload);
       fetchBranches();
       setForm(defaultPayload);
     }
@@ -49,10 +48,14 @@ const Create = ({ onSuccess = () => { } }) => {
   };
 
   const onSubmit = async (e) => {
+    
     e.preventDefault();
     setLoading(true);
     try {
-      let { data } = await createDepartment(form);
+      let { data } = await updateDepartment(defaultPayload.id, form);
+
+      console.log(data);
+      
 
       // FIX: Check if status is explicitly false
       if (data?.status === false) {
@@ -67,6 +70,8 @@ const Create = ({ onSuccess = () => { } }) => {
       setOpen(false);
       notify("Success", "Department Saved", "success")
     } catch (error) {
+      console.log(error);
+      
       notify("Error", parseApiError(error), "error");
 
     } finally {
@@ -74,13 +79,12 @@ const Create = ({ onSuccess = () => { } }) => {
     }
   };
 
+  if (!form.branch_id) null;
+
   return (
     <>
-      <button onClick={() => setOpen(true)}
-        className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
-      >
-        <span className="material-symbols-outlined text-[18px]">add</span>
-        Add Department
+      <button onClick={() => setOpen(true)} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-700 transition-colors">
+        <Pencil size={15} />
       </button>
 
       {/* Modal Portal Logic */}
@@ -102,9 +106,9 @@ const Create = ({ onSuccess = () => { } }) => {
             {/* Header */}
             <div className="px-6 py-5 border-b border-gray-200 dark:border-white/10 flex justify-between items-center">
               <div>
-                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Add Department</h3>
+                <h3 className="text-lg font-bold text-gray-600 dark:text-gray-300">Edit Department</h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Create a new department in the system
+                  update department in the system
                 </p>
               </div>
               <button
@@ -136,7 +140,7 @@ const Create = ({ onSuccess = () => { } }) => {
                   <Input
                     placeholder="e.g. Sales"
                     type="text"
-                    value={form.title}
+                    value={form.name}
                     onChange={(e) => handleChange("name", e.target.value)}
                   />
                 </div>
@@ -149,7 +153,7 @@ const Create = ({ onSuccess = () => { } }) => {
                   <TextArea
                     placeholder="Brief description of the department..."
                     rows={3}
-                    value={form.description}
+                    value={form.description || ""}
                     onChange={(e) => handleChange("description", e.target.value)}
                   />
                 </div>
@@ -179,4 +183,4 @@ const Create = ({ onSuccess = () => { } }) => {
   );
 };
 
-export default Create;
+export default AiTriggerEdit;
