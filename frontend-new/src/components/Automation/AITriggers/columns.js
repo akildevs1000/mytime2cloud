@@ -57,6 +57,30 @@ export default function Columns({ onSuccess = () => { } } = {}) {
       ),
     },
     {
+      key: "frequency",
+      header: "Frequency",
+      render: (admin) => (
+        <span
+          className="text-sm w-[150px] text-slate-600 dark:text-slate-300 hidden xl:table-cell"
+          title={admin.frequency || "—"}
+        >
+          {admin.frequency || "—"}
+        </span>
+      ),
+    },
+    {
+      key: "run_time",
+      header: "Scheduled AT",
+      render: (admin) => (
+        <span
+          className="text-sm w-[150px] text-slate-600 dark:text-slate-300 hidden xl:table-cell"
+          title={admin.run_time || "—"}
+        >
+          {admin.run_time || "—"}
+        </span>
+      ),
+    },
+    {
       key: "created_at",
       header: "Created At",
       render: (admin) => (
