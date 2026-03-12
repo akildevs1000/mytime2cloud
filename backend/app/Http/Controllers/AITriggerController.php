@@ -16,7 +16,7 @@ class AITriggerController extends Controller
 
     public function store(Request $request)
     {
-        $message = $request->message;
+        $message = $request->description;
         $companyId = $request->company_id ?? 2;
 
         $trigger = AITrigger::createFromMessage($message, $companyId);
