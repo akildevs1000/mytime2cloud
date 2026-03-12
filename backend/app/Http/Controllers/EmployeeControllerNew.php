@@ -1027,6 +1027,7 @@ class EmployeeControllerNew extends Controller
             'schedule' => $schedule,
             'attendance_logs' => [
                 'count' => $attendanceLogs->count(),
+                'clock_status' => $attendanceLogs->count() % 2 === 0 ? 'OUT' : 'IN', // 1,3,5,7 => IN, 0,2,4,6 => OUT
                 'data' => $attendanceLogs,
             ],
         ]);
