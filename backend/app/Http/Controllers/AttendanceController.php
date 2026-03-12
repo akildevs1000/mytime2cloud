@@ -888,8 +888,20 @@ class AttendanceController extends Controller
                 SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
                 SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
                 SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
-                SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as late_in_count,
-                SUM(CASE WHEN attendances.early_going != '---' THEN 1 ELSE 0 END) as early_out_count,
+                SUM(CASE WHEN attendances.late_coming != '---' THEN 
+                    CASE 
+                        WHEN attendances.late_coming LIKE '%:%' THEN (CAST(SUBSTRING_INDEX(attendances.late_coming, ':', 1) AS SIGNED) * 60 + CAST(SUBSTRING_INDEX(attendances.late_coming, ':', -1) AS SIGNED))
+                        WHEN attendances.late_coming REGEXP '^[0-9]+$' THEN CAST(attendances.late_coming AS SIGNED)
+                        ELSE 0
+                    END
+                ELSE 0 END) as late_in_minutes,
+                SUM(CASE WHEN attendances.early_going != '---' THEN 
+                    CASE 
+                        WHEN attendances.early_going LIKE '%:%' THEN (CAST(SUBSTRING_INDEX(attendances.early_going, ':', 1) AS SIGNED) * 60 + CAST(SUBSTRING_INDEX(attendances.early_going, ':', -1) AS SIGNED))
+                        WHEN attendances.early_going REGEXP '^[0-9]+$' THEN CAST(attendances.early_going AS SIGNED)
+                        ELSE 0
+                    END
+                ELSE 0 END) as early_out_minutes,
                 " . $this->buildAvgTimeSelect('attendances.in', 'avg_checkin_minutes') . ",
                 " . $this->buildAvgTimeSelect('attendances.out', 'avg_checkout_minutes') . ",
                 " . $this->buildSumDurationSelect('attendances.total_hrs', 'total_working_minutes') . "")
@@ -928,7 +940,6 @@ class AttendanceController extends Controller
             ->keyBy('employee_id');
 
         $data = $rows->map(function ($row) use ($previousSummary) {
-
             $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
             if ($name === '') {
                 $name = (string) ($row->display_name ?? 'Unknown');
@@ -939,8 +950,8 @@ class AttendanceController extends Controller
             $daysLeave = (int) ($row->days_leave ?? 0);
             $manualLogs = (int) ($row->manual_logs ?? 0);
             $totalDays = (int) ($row->total_days ?? 0);
-            $lateInCount = (int) ($row->late_in_count ?? 0);
-            $earlyOutCount = (int) ($row->early_out_count ?? 0);
+            $lateInMinutes = (int) ($row->late_in_minutes ?? 0);
+            $earlyOutMinutes = (int) ($row->early_out_minutes ?? 0);
             $rate = $totalDays > 0 ? round(($daysPresent / $totalDays) * 100, 1) : 0;
 
             // Format time from minutes
@@ -985,6 +996,10 @@ class AttendanceController extends Controller
                 }
             }
 
+            // Format late/early minutes to HH:MM
+            $lateInHours = $lateInMinutes > 0 ? sprintf('%d:%02d', floor($lateInMinutes / 60), $lateInMinutes % 60) : '---';
+            $earlyOutHours = $earlyOutMinutes > 0 ? sprintf('%d:%02d', floor($earlyOutMinutes / 60), $earlyOutMinutes % 60) : '---';
+
             return [
                 'system_user_id' => (int) $row->system_user_id,
                 'employee_code' => (string) ($row->employee_code ?? ''),
@@ -995,8 +1010,8 @@ class AttendanceController extends Controller
                 'days_leave' => $daysLeave,
                 'manual_logs' => $manualLogs,
                 'total_days' => $totalDays,
-                'late_in_count' => $lateInCount,
-                'early_out_count' => $earlyOutCount,
+                'late_in_hours' => $lateInHours,
+                'early_out_hours' => $earlyOutHours,
                 'avg_checkin' => $avgCheckin,
                 'avg_checkout' => $avgCheckout,
                 'avg_working_hrs' => $avgWorkingHrs,
