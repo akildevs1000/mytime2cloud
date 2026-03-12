@@ -1426,10 +1426,16 @@ class AttendanceController extends Controller
             $requiredHours = $totalDays * $requiredHoursBase;
             $performance = $requiredHours > 0 ? min(100, round(($totalHours / $requiredHours) * 100)) : 0;
 
+            // Resolve profile picture as in High Absenteeism section
+            $img = null;
+            if (!empty($row->profile_picture)) {
+                $img = $row->profile_picture;
+            }
+
             return [
                 'name' => $name,
                 'department' => (string) ($row->department_name ?? '---'),
-                'img' => $row->profile_picture ?: null,
+                'img' => $img,
                 'present' => $daysPresent,
                 'absent' => $daysAbsent,
                 'leave' => $daysLeave,
