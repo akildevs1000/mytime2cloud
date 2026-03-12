@@ -486,9 +486,7 @@ class AttendanceController extends Controller
             $label = str_pad((string) $hour, 2, '0', STR_PAD_LEFT) . ':00';
             $hourlyData[$hour] = [
                 'label' => $label,
-                'present' => 0,
-                'late' => 0,
-                'absent' => 0,
+                'punches' => 0,
             ];
         }
 
@@ -497,26 +495,13 @@ class AttendanceController extends Controller
                 ->where('company_id', $companyId)
                 ->whereIn('employee_id', $employeeSystemUserIds)
                 ->whereBetween('date', [$currentStart, $currentEnd])
-                ->get(['status', 'late_coming', 'in']);
+                ->whereNotNull('in')
+                ->where('in', '!=', '---')
+                ->get(['in']);
 
             foreach ($attendanceRows as $row) {
                 $hour = $this->resolveAttendanceHour($row->in ?? null);
-                $status = strtoupper((string) ($row->status ?? ''));
-                $isLate = is_string($row->late_coming ?? null) && $row->late_coming !== '---';
-
-                if ($status === 'A') {
-                    $hourlyData[$hour]['absent']++;
-                    continue;
-                }
-
-                if ($isLate) {
-                    $hourlyData[$hour]['late']++;
-                    continue;
-                }
-
-                if ($status === 'P') {
-                    $hourlyData[$hour]['present']++;
-                }
+                $hourlyData[$hour]['punches']++;
             }
         }
 
