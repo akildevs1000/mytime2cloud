@@ -305,8 +305,24 @@ export default function ExecutiveAttendanceDashboardPage() {
           employeeCode: item?.employee_code || '---',
           name: item?.name || 'Unknown',
           department: item?.department || '---',
-          daysPresent: Number(item?.days_present ?? item?.daysPresent ?? 0),
+          daysPresent: Number(item?.days_present ?? 0),
+          daysAbsent: Number(item?.days_absent ?? 0),
+          daysLeave: Number(item?.days_leave ?? 0),
+          manualMogs: Number(item?.manual_logs ?? 0),
+          daysMissing: Number(item?.days_missing ?? 0),
+          daysWeekoff: Number(item?.days_weekoff ?? 0),
           totalDays: Number(item?.total_days ?? item?.totalDays ?? 0),
+
+          avgIn: item?.avg_checkin ?? item?.avgIn ?? 0,
+          avgOut: (item?.avg_checkout ?? item?.avgOut ?? 0),
+
+          lateIn: Number(item?.late_in_count ?? item?.lateIn ?? 0),
+          EarlyGo: Number(item?.early_out_count ?? item?.EarlyGo ?? 0),
+
+          avgHrs: (item?.avg_working_hrs ?? item?.avgHrs ?? 0),
+          totalHrs: (item?.total_hours ?? item?.totalHrs ?? 0),
+          expectedHrs: (item?.required_hours ?? item?.expectedHrs ?? 0),
+
           rate: Number(item?.rate || 0),
           trend: Number(item?.trend || 0),
           status: item?.status || 'CRITICAL',
@@ -364,7 +380,7 @@ export default function ExecutiveAttendanceDashboardPage() {
       }
 
       // Open the standalone HTML template
-      const templateUrl = `https://summary-report-v1.netlify.app/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
+      const templateUrl = `https://summaryreport.mytime2cloud.com/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
       window.open(templateUrl, '_blank');
 
     } catch (error) {
@@ -398,45 +414,10 @@ export default function ExecutiveAttendanceDashboardPage() {
     { offset: 0, segments: [] }
   ).segments;
 
-  const getAttendanceStatusUi = (row) => {
-    const status = (row.status || '').toUpperCase();
-
-    if (status === 'GOOD') {
-      return {
-        label: 'GOOD',
-        className: 'bg-emerald-100 border-emerald-200 text-emerald-700 dark:bg-emerald-900/30 dark:border-emerald-800/40 dark:text-emerald-300',
-      };
-    }
-
-    if (status === 'WARNING') {
-      return {
-        label: 'WARNING',
-        className: 'bg-amber-100 border-amber-200 text-amber-700 dark:bg-amber-900/30 dark:border-amber-800/40 dark:text-amber-300',
-      };
-    }
-
-    return {
-      label: 'CRITICAL',
-      className: 'bg-red-100 border-red-200 text-red-700 dark:bg-red-900/30 dark:border-red-800/40 dark:text-red-300',
-    };
-  };
-
   const getRateUi = (rate) => {
-    if (rate >= 90) return { barClass: 'bg-emerald-500' };
-    if (rate >= 75) return { barClass: 'bg-amber-500' };
-    return { barClass: 'bg-red-500' };
-  };
-
-  const getTrendUi = (trend) => {
-    const trendValue = Math.round(Number(trend || 0));
-
-    if (trendValue > 0) {
-      return { label: `↗ +${trendValue}%`, className: 'text-emerald-600 dark:text-emerald-400' };
-    }
-    if (trendValue < 0) {
-      return { label: `↘ ${trendValue}%`, className: 'text-red-600 dark:text-red-400' };
-    }
-    return { label: '— 0%', className: 'text-slate-600 dark:text-slate-300' };
+    if (rate >= 90) return 'text-emerald-500';
+    if (rate >= 75) return 'text-amber-500';
+    return 'text-red-500';
   };
 
   const currentAttendancePage = attendanceMeta.page || attendancePage;
@@ -657,6 +638,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                       borderRadius: '8px',
                       fontSize: '12px'
                     }}
+                    labelStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
                     itemStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
                   />
                   {reportType === 'daily' ? (
@@ -777,100 +759,52 @@ export default function ExecutiveAttendanceDashboardPage() {
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                    Employee
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                    Department
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
-                    Days Present
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
-                    Rate
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
-                    Trend
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right w-32">
-                    Action
-                  </th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">P</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">A</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">L</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">M</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CI</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CO</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">LI</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">EO</th>
+                  <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg WH</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">WH</th>
+                  <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">Perf</th>
                 </tr>
               </thead>
 
               <tbody className="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900">
-                {dailyAttendanceRows.length > 0 ? dailyAttendanceRows.map((row) => {
-                  const statusUi = getAttendanceStatusUi(row);
-                  const trendUi = getTrendUi(row.trend);
-                  const rateUi = getRateUi(row.rate);
-                  const daysPresentValue = Number.isFinite(Number(row.daysPresent)) ? Number(row.daysPresent) : 0;
-                  const totalDaysValue = Number.isFinite(Number(row.totalDays)) ? Number(row.totalDays) : 0;
-                  const initials = row.name
-                    .split(' ')
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .map((part) => part[0]?.toUpperCase())
-                    .join('') || 'NA';
-
-                  return (
-                    <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group relative">
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-3">
-                          <ProfilePicture src={row.img} />
-                          <div>
-                            <p className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
-                              {row.name}
-                            </p>
-                            <p className="text-xs text-slate-600 dark:text-slate-300">
-                              #{row.employeeCode}
-                            </p>
-                          </div>
+                {dailyAttendanceRows.length > 0 ? dailyAttendanceRows.map((row) => (
+                  <tr key={row.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors group relative">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <ProfilePicture src={row.img} />
+                        <div>
+                          <p className="text-sm font-bold text-slate-800 dark:text-slate-100 group-hover:text-slate-950 dark:group-hover:text-white transition-colors">
+                            {row.name}
+                          </p>
+                          <p className="text-xs text-slate-600 dark:text-slate-300">
+                            #{row.employeeCode}
+                          </p>
                         </div>
-                      </td>
-
-                      <td className="px-4 py-3 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300">
-                        {row.department}
-                      </td>
-
-                      <td className="px-4 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                        {daysPresentValue}/{totalDaysValue}
-                      </td>
-
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="h-2 w-20 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${rateUi.barClass}`}
-                              style={{ width: `${Math.max(0, Math.min(100, row.rate))}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{Math.round(Number(row.rate || 0))}%</span>
-                        </div>
-                      </td>
-
-                      <td className={`px-4 py-3 whitespace-nowrap text-center text-sm font-semibold ${trendUi.className}`}>
-                        {trendUi.label}
-                      </td>
-
-                      <td className="px-4 py-3 whitespace-nowrap text-center">
-                        <span className={`inline-flex items-center px-3 py-1 rounded-md text-[11px] font-semibold border ${statusUi.className}`}>
-                          {statusUi.label}
-                        </span>
-                      </td>
-
-                      <td className="px-4 py-3 whitespace-nowrap text-right">
-                        <button className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 px-2">
-                          <span className="material-symbols-outlined text-[20px]">more_vert</span>
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                }) : (
+                      </div>
+                    </td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysPresent}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysAbsent}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysLeave}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.daysMissing}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgIn}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgOut}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.lateIn}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.EarlyGo}</td>
+                    <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">{row.avgHrs}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">{row.totalHrs} / {row.expectedHrs}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">{row.rate} %</td>
+                  </tr>
+                )) : (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
+                    <td colSpan={12} className="px-4 py-8 text-center text-sm text-slate-600 dark:text-slate-300">
                       No attendance detail found for selected filters.
                     </td>
                   </tr>
