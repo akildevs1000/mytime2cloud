@@ -534,6 +534,113 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function companyStatsDayTrends(Request $request)
+    {
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+
+        $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        // Build day-by-day buckets
+        $dayData = [];
+        $cursor = Carbon::parse($currentStart);
+        $endDate = Carbon::parse($currentEnd);
+        while ($cursor->lte($endDate)) {
+            $dateKey = $cursor->toDateString();
+            $dayData[$dateKey] = [
+                'label' => $cursor->format('d M'),
+                'date' => $dateKey,
+                'present' => 0,
+                'late' => 0,
+                'absent' => 0,
+            ];
+            $cursor->addDay();
+        }
+
+        if ($employeeSystemUserIds->isNotEmpty()) {
+            $attendanceRows = Attendance::query()
+                ->where('company_id', $companyId)
+                ->whereIn('employee_id', $employeeSystemUserIds)
+                ->whereBetween('date', [$currentStart, $currentEnd])
+                ->get(['status', 'late_coming', 'date']);
+
+            foreach ($attendanceRows as $row) {
+                $dateKey = Carbon::parse($row->date)->toDateString();
+                if (!isset($dayData[$dateKey])) {
+                    continue;
+                }
+
+                $status = strtoupper((string) ($row->status ?? ''));
+                $isLate = is_string($row->late_coming ?? null) && $row->late_coming !== '---';
+
+                if ($status === 'A') {
+                    $dayData[$dateKey]['absent']++;
+                    continue;
+                }
+
+                if ($isLate) {
+                    $dayData[$dateKey]['late']++;
+                    continue;
+                }
+
+                if ($status === 'P') {
+                    $dayData[$dateKey]['present']++;
+                }
+            }
+        }
+
+        return response()->json([
+            'data' => array_values($dayData),
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+            ],
+        ]);
+    }
+
     public function companyStatsDepartmentBreakdown(Request $request)
     {
         $request->validate([

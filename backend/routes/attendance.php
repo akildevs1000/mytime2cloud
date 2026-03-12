@@ -8,6 +8,7 @@ Route::post('seed_default_data', [AttendanceController::class, "seedDefaultDataM
 Route::get('attendance_avg_clock', [AttendanceController::class, "attendance_avg_clock"]);
 Route::get('company_stats', [AttendanceController::class, "companyStats"]);
 Route::get('company_stats_hourly_trends', [AttendanceController::class, "companyStatsHourlyTrends"]);
+Route::get('company_stats_day_trends', [AttendanceController::class, "companyStatsDayTrends"]);
 Route::get('company_stats_department_breakdown', [AttendanceController::class, "companyStatsDepartmentBreakdown"]);
 Route::get('company_stats_punctuality', [AttendanceController::class, "companyStatsPunctuality"]);
 Route::get('company_stats_daily_attendance', [AttendanceController::class, "companyStatsDailyAttendance"]);
