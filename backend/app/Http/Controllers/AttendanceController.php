@@ -1123,11 +1123,17 @@ class AttendanceController extends Controller
                     $name = (string) ($employee?->display_name ?? 'Unknown');
                 }
 
+                // Ensure profile_picture is set correctly
+                $img = null;
+                if (isset($employee) && !empty($employee->profile_picture)) {
+                    $img = $employee->profile_picture;
+                }
+
                 return [
                     'system_user_id' => (int) $row->employee_id,
                     'name' => $name,
                     'department' => (string) ($employee?->department?->name ?? '---'),
-                    'img' => $employee?->profile_picture ?: null,
+                    'img' => $img,
                     'absent_days' => $absentDays,
                     'total_days' => $totalDays,
                     'absent_rate' => $absentRate,
@@ -1148,11 +1154,17 @@ class AttendanceController extends Controller
                     $name = (string) ($employee?->display_name ?? 'Unknown');
                 }
 
+                // Ensure profile_picture is set correctly
+                $img = null;
+                if (isset($employee) && !empty($employee->profile_picture)) {
+                    $img = $employee->profile_picture;
+                }
+
                 return [
                     'system_user_id' => (int) $row->employee_id,
                     'name' => $name,
                     'department' => (string) ($employee?->department?->name ?? '---'),
-                    'img' => $employee?->profile_picture ?: null,
+                    'img' => $img,
                     'late_days' => $lateDays,
                 ];
             })
