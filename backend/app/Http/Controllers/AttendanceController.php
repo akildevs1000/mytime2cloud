@@ -889,6 +889,8 @@ class AttendanceController extends Controller
             employees.profile_picture,
             COALESCE(departments.name, '---') as department_name,
             attendances.date,
+            attendances.shift_type_id,
+            attendances.logs,
             COALESCE(attendances.in, '---') as in_time,
             COALESCE(attendances.out, '---') as out_time,
             COALESCE(attendances.late_coming, '---') as late_in,
