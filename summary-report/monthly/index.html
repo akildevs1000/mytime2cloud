@@ -172,7 +172,7 @@
             <div class="flex items-center justify-between mb-2">
                 <div>
                     <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Attendance Trends</h3>
-                    <p class="text-[10px] text-text-sub">Daily breakdown (Present vs Late vs Absent)</p>
+                    <p class="text-[10px] text-text-sub">Day-wise breakdown (Present vs Late vs Absent)</p>
                 </div>
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-primary"></span><span
@@ -888,7 +888,7 @@
                     console.log('API Response:', data);
 
                     renderStats(data.stats || []);
-                    renderTrendsChart(data.hourly_trends || []);
+                    renderTrendsChart(data.daily_trends || []);
                     renderDepartments(data.department_breakdown || []);
                     renderPunctuality(data.punctuality_top || []);
                     renderAttentionRequired(data.attention_required || {});
