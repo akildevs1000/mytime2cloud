@@ -998,7 +998,7 @@ class AttendanceController extends Controller
                 ->get()
                 ->keyBy('employee_id');
 
-            $data = $rows->map(function ($row) use ($previousSummary) {
+            $data = $rows->map(function ($row) use ($previousSummary, $isSingleDay) {
                 $name = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
                 if ($name === '') {
                     $name = (string) ($row->display_name ?? 'Unknown');
@@ -1091,7 +1091,7 @@ class AttendanceController extends Controller
                     'required_hours' => $requiredHoursFormatted,
                     'rate' => $rate,
                     'trend' => $trend,
-                    'status' => $status,
+                    'status' => $isSingleDay ? $row->status : $status,
                     'img' => $img,
                 ];
             })->values();
