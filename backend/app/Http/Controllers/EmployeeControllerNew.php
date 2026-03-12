@@ -1020,6 +1020,8 @@ class EmployeeControllerNew extends Controller
             ->orderBy('LogTime')
             ->get();
 
+        $attendanceLogs->makeHidden(['device']);
+
         $logCount = $attendanceLogs->count();
 
         return response()->json([
