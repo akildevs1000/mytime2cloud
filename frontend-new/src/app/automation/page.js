@@ -6,15 +6,17 @@ import AutomationAbsent from '@/components/Automation/Absent/page';
 import AutomationDevice from '@/components/Automation/Device/page';
 import AutomationDocumentExpiry from '@/components/Automation/DocumentExpiry/page';
 import AutomationAccessControl from '@/components/Automation/AccessControl/page';
+import AITriggers from '@/components/Automation/AITriggers/page';
 
 // Define the available tabs
-const TABS = ['Attendance', 'Absent', 'Device', 'Document Expiry', 'Access Control'];
+const TABS = ['AI Triggers', 'Attendance', 'Absent', 'Device', 'Document Expiry', 'Access Control'];
 
 export default function AttendancePage() {
     const [activeTab, setActiveTab] = useState('Attendance');
 
     const renderContent = () => {
         switch (activeTab) {
+            case 'AI Triggers': return <AITriggers />;
             case 'Attendance': return <AutomationAttendance />;
             case 'Absent': return <AutomationAbsent />;
             case 'Device': return <AutomationDevice />;

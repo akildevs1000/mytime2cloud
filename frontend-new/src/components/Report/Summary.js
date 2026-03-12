@@ -19,7 +19,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import ProfilePicture from '../ProfilePicture';
-import { Download, MoreVertical } from 'lucide-react';
+import { Download, MoreVertical, RefreshCw } from 'lucide-react';
 import { getUser } from '@/config/index';
 import DatePicker from '../ui/DatePicker';
 import DropDown from '../ui/DropDown';
@@ -44,6 +44,8 @@ export default function ExecutiveAttendanceDashboardPage() {
     return `${year}-${month}-${day}`;
   });
 
+
+  const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [departmentBreakdown, setDepartmentBreakdown] = useState([]);
@@ -230,6 +232,8 @@ export default function ExecutiveAttendanceDashboardPage() {
         company_id: user?.company_id || 0,
       };
 
+      setIsLoading(true);
+
       const [statsResponse, hourlyTrendResponse, departmentResponse, punctualityResponse] = await Promise.all([
         getCompanyStats(payload),
         getCompanyStatsHourlyTrends(payload),
@@ -319,6 +323,8 @@ export default function ExecutiveAttendanceDashboardPage() {
       });
     } catch (error) {
       console.error('Failed to fetch data:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -498,14 +504,9 @@ export default function ExecutiveAttendanceDashboardPage() {
               />
             }
 
-
-
-
-
-            <button onClick={fetchAllData} className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg shadow-primary/25 hover:bg-slate-800 transition-all flex items-center gap-2">
-              Submit
+            <button onClick={fetchAllData} className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap">
+              <RefreshCw className={`w-4 h-4 mr-1 ${isLoading ? 'animate-spin' : ''}`} /> Submit
             </button>
-
 
             <DropdownMenu>
               <DropdownMenuTrigger
@@ -513,9 +514,13 @@ export default function ExecutiveAttendanceDashboardPage() {
                 /* This prevents the dropdown trigger itself from triggering the row click */
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="p-2 rounded-full cursor-pointer w-fit">
-                  <MoreVertical className="w-5 h-5 text-gray-400" />
-                </div>
+
+
+                <button
+                  className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap focus:outline-none focus:ring-0"
+                >
+                  <Download className="w-4 h-4" /> Download
+                </button>
               </DropdownMenuTrigger>
 
               <DropdownMenuContent
@@ -525,9 +530,9 @@ export default function ExecutiveAttendanceDashboardPage() {
               >
                 <DropdownMenuItem
                   onClick={handleExportPdf}
-                  className="flex items-center border border-border gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                  className="flex items-center border border-border gap-2 px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
-                  <span className="text-primary font-medium">PDF</span>
+                  <span className="text-slate-600 dark:text-slate-300 font-medium">PDF</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
