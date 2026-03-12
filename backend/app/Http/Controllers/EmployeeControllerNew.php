@@ -9,6 +9,7 @@ use App\Models\EmiratesInfo;
 use App\Models\Employee;
 use App\Models\Passport;
 use App\Models\Qualification;
+use App\Models\ScheduleEmployee;
 use App\Models\User;
 use App\Models\Visa;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -978,5 +979,40 @@ class EmployeeControllerNew extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+
+    public function employeeAiRelatedInfo(Request $request, $id)
+    {
+        $today = date('Y-m-d');
+
+        $schedule = ScheduleEmployee::query()
+            ->where('company_id', $request->company_id)
+            ->where('employee_id', $id)
+            ->where('from_date', '<=', $today)
+            ->where('to_date', '>=', $today)
+            ->with(['shift:id,name,on_duty_time,off_duty_time', 'shift_type:id,name'])
+            ->orderBy('updated_at', 'desc')
+            ->first();
+
+
+        if (!$schedule) {
+            return response()->json([
+                'status' => false,
+                'message' => 'No active shift found for employee.',
+                'shift' => null,
+                'schedule' => null,
+            ]);
+        }
+
+        $shift = $schedule->shift; // access it first
+
+        $schedule->unsetRelation('shift');
+
+        return response()->json([
+            'status' => true,
+            'shift' => $shift,
+            'schedule' => $schedule,
+        ]);
     }
 }

@@ -67,3 +67,5 @@ Route::post('employee-update-login-new/{id}', [EmployeeControllerNew::class, 'up
 
 Route::get('employee-details/{id}', [EmployeeControllerNew::class, 'show']);
 Route::get('employees-json/{id}', [EmployeeControllerNew::class, 'employeesJson']);
+
+Route::get('/employee-ai-related-info/{id}', [EmployeeControllerNew::class, 'employeeAiRelatedInfo']);
