@@ -27,13 +27,28 @@ class AITrigger extends Model
         return $this->belongsTo(Company::class);
     }
 
+
     public static function buildPrompt($message)
     {
+        $keywords = ['absent', 'late', 'early', 'present', 'leave'];
+        $isAttendance = false;
+
+        foreach ($keywords as $word) {
+            if (str_contains(strtolower($message), $word)) {
+                $isAttendance = true;
+                break;
+            }
+        }
+
+        if (!$isAttendance) {
+            return "Sorry, this message doesn't seem related to attendance. Please provide details about present, absent, late, early, or leave.";
+        }
+
         $prompt = "
 Convert this message into JSON.
 
 Fields:
-type: absent|late|early|present
+type: absent|late|early|present|leave
 days: integer
 time: HH:MM
 frequency: daily|weekly|monthly
@@ -51,7 +66,7 @@ Return ONLY JSON.
 
     public static function parseMessage(string $message): ?array
     {
-        $types = ['absent', 'late', 'early_leave', 'present'];
+        $types = ['absent', 'late', 'early_leave', 'present', 'leave'];
         $type = null;
 
         foreach ($types as $t) {
