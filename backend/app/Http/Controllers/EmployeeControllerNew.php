@@ -1006,12 +1006,14 @@ class EmployeeControllerNew extends Controller
         }
 
         $shift = $schedule->shift; // access it first
+        $shift_type = $schedule->shift_type; // access it first
 
-        $schedule->unsetRelation('shift');
+        $schedule->makeHidden(['shift', 'shift_type']);
 
         return response()->json([
             'status' => true,
             'shift' => $shift,
+            'shift_type' => $shift_type,
             'schedule' => $schedule,
         ]);
     }
