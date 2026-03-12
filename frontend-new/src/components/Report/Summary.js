@@ -364,7 +364,7 @@ export default function ExecutiveAttendanceDashboardPage() {
       }
 
       // Open the standalone HTML template
-      const templateUrl = `https://summary-report.netlify.app/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
+      const templateUrl = `https://summary-report-v1.netlify.app/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
       window.open(templateUrl, '_blank');
 
     } catch (error) {
