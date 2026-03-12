@@ -1011,18 +1011,18 @@ class EmployeeControllerNew extends Controller
 
         $schedule->makeHidden(['shift', 'shift_type']);
 
-        $attendanceLogs = AttendanceLog::where('UserID', $id)
+        $logCount = AttendanceLog::where('UserID', $id)
             ->where('company_id', $request->company_id)
             ->where('LogTime', '>=', $today . ' 00:00:00')
             ->where('LogTime', '<=', $today . ' 23:59:59')
             ->with('device')
             ->distinct('LogTime')
             ->orderBy('LogTime')
-            ->get();
+            ->count();
 
-        $attendanceLogs->makeHidden(['device']);
+        // $attendanceLogs->makeHidden(['device']);
 
-        $logCount = $attendanceLogs->count();
+        // $logCount = $attendanceLogs->count();
 
         return response()->json([
             'status' => true,
@@ -1032,7 +1032,7 @@ class EmployeeControllerNew extends Controller
             'attendance_logs' => [
                 'count' => $logCount,
                 'clock_status' => $logCount === 0 ? false : ($logCount % 2 === 0 ? 'OUT' : 'IN'),
-                'data' => $attendanceLogs,
+                // 'data' => $attendanceLogs,
             ],
         ]);
     }
