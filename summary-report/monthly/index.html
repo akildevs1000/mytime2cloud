@@ -66,7 +66,6 @@
             position: relative;
         }
 
-        /* ✅ IMPORTANT: enforce page breaks AFTER each page to avoid blank pages */
         @media print {
             body {
                 background: none;
@@ -116,7 +115,7 @@
         }
 
         .loading-overlay.hidden {
-            display: none;
+            display: none !important;
         }
     </style>
 </head>
@@ -138,10 +137,6 @@
             class="bg-success text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
             <span class="material-symbols-outlined">download</span> Download PDF
         </button>
-        <!-- <button onclick="takeScreenshot()"
-            class="bg-secondary text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all flex items-center gap-2">
-            <span class="material-symbols-outlined">photo_camera</span> Screenshot
-        </button> -->
     </div>
 
     <!-- PAGE 1 -->
@@ -158,10 +153,10 @@
                 <p class="text-text-sub text-xs" id="generatedDate">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
-                    <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
+                <div class="">
+                    <span class="">Reporting
                         Period</span>
-                    <span class="block text-base font-bold text-primary" id="reportingPeriod">October 2023</span>
+                    <span class="block text-base font-bold text-primary" id="reportingPeriod">Loading...</span>
                 </div>
             </div>
         </header>
@@ -177,16 +172,13 @@
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-primary"></span><span
                             class="text-[10px] uppercase font-bold text-text-sub">Present</span></div>
-                    <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-secondary"></span><span
-                            class="text-[10px] uppercase font-bold text-text-sub">Late</span></div>
                     <div class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-sm bg-slate-200"></span><span
                             class="text-[10px] uppercase font-bold text-text-sub">Absent</span></div>
                 </div>
             </div>
             <div class="h-28 w-full flex items-end justify-between gap-1 px-1 border-l border-b border-slate-200"
                 id="trendsChart"></div>
-            <div class="flex justify-between w-full px-1 mt-1 text-[9px] text-text-sub" id="trendsLabels">
-            </div>
+            <div class="flex justify-between w-full px-1 mt-1 text-[9px] text-text-sub" id="trendsLabels"></div>
         </section>
 
         <section class="flex-1 min-h-0 grid grid-cols-2 gap-4">
@@ -248,8 +240,8 @@
                 <p class="text-text-sub text-xs" id="generatedDate2">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
-                    <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
+                <div class="">
+                    <span class="">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod2">October 2023</span>
                 </div>
@@ -303,8 +295,8 @@
                 <p class="text-text-sub text-xs" id="generatedDate3">Generated on November 1st, 2023</p>
             </div>
             <div class="text-right">
-                <div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">
-                    <span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting
+                <div class="">
+                    <span class="">Reporting
                         Period</span>
                     <span class="block text-base font-bold text-primary" id="reportingPeriod3">October 2023</span>
                 </div>
@@ -404,9 +396,15 @@
         function renderStats(stats) {
             var container = document.getElementById('statsContainer');
             var icons = {
-                'Total Staff': 'groups', 'Attendance': 'donut_large', 'Total Absent': 'person_off',
-                'Total Leave': 'flight_takeoff', 'Overtime': 'schedule', 'Late In': 'warning',
-                'EO': 'logout', 'Avg Hrs': 'timelapse', 'Manual Logs': 'edit_note',
+                'Total Staff': 'groups',
+                'Attendance': 'donut_large',
+                'Total Absent': 'person_off',
+                'Total Leave': 'flight_takeoff',
+                'Overtime': 'schedule',
+                'Late In': 'warning',
+                'EO': 'logout',
+                'Avg Hrs': 'timelapse',
+                'Manual Logs': 'edit_note',
             };
             container.innerHTML = (stats || []).slice(0, 9).map(function (stat) {
                 var trendUp = stat.trendUp;
@@ -439,23 +437,21 @@
                 labelsContainer.innerHTML = '';
                 return;
             }
+
             var maxTotal = Math.max.apply(null, trends.map(function (t) {
-                return (t.present || 0) + (t.late || 0) + (t.absent || 0);
+                return (Number(t.present || 0) + Number(t.absent || 0));
             })) || 1;
 
             container.innerHTML = trends.map(function (t) {
                 var present = Number(t.present || 0);
-                var late = Number(t.late || 0);
                 var absent = Number(t.absent || 0);
 
                 var presentPct = Math.round((present / maxTotal) * 100);
-                var latePct = Math.round((late / maxTotal) * 100);
                 var absentPct = Math.round((absent / maxTotal) * 100);
 
                 return (
                     '<div class="w-full flex flex-col-reverse h-full gap-[1px]">' +
                     '<div class="bg-primary w-full" style="height:' + presentPct + '%"></div>' +
-                    '<div class="bg-secondary w-full" style="height:' + latePct + '%"></div>' +
                     '<div class="bg-slate-200 w-full" style="height:' + absentPct + '%"></div>' +
                     '</div>'
                 );
@@ -477,7 +473,7 @@
             var topDepartments = list.slice(0, 3);
 
             var overallPct = topDepartments.length > 0
-                ? Math.round(topDepartments.reduce(function (sum, d) { return sum + (d.percentage || 0); }, 0) / topDepartments.length)
+                ? Math.round(topDepartments.reduce(function (sum, d) { return sum + Number(d.percentage || 0); }, 0) / topDepartments.length)
                 : 0;
 
             document.getElementById('overallPercentage').textContent = overallPct + '%';
@@ -486,14 +482,15 @@
             var offset = 0;
 
             var donutSegments = topDepartments.map(function (dept, i) {
+                var percentage = Number(dept.percentage || 0);
                 var seg =
                     '<path class="' + textColors[i] + '" ' +
                     'd="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" ' +
                     'fill="none" stroke="currentColor" ' +
-                    'stroke-dasharray="' + (dept.percentage || 0) + ', 100" ' +
+                    'stroke-dasharray="' + percentage + ', 100" ' +
                     'stroke-dashoffset="' + (-offset) + '" ' +
                     'stroke-width="4.5"></path>';
-                offset += (dept.percentage || 0);
+                offset += percentage;
                 return seg;
             }).join('');
 
@@ -502,6 +499,7 @@
                 donutSegments;
 
             barsContainer.innerHTML = topDepartments.map(function (dept, i) {
+                var percentage = Number(dept.percentage || 0);
                 return (
                     '<div class="flex flex-col gap-1">' +
                     '<div class="flex items-center justify-between text-[10px] mb-0.5">' +
@@ -509,10 +507,10 @@
                     '<span class="w-2 h-2 rounded-full ' + colors[i] + '"></span>' +
                     '<span class="font-bold text-text-main">' + (dept.name || 'Unknown') + '</span>' +
                     '</div>' +
-                    '<span class="text-text-sub">' + (dept.percentage || 0) + '%</span>' +
+                    '<span class="text-text-sub">' + percentage + '%</span>' +
                     '</div>' +
                     '<div class="w-full bg-slate-100 rounded-full h-1.5">' +
-                    '<div class="' + colors[i] + ' h-1.5 rounded-full" style="width:' + (dept.percentage || 0) + '%"></div>' +
+                    '<div class="' + colors[i] + ' h-1.5 rounded-full" style="width:' + percentage + '%"></div>' +
                     '</div>' +
                     '</div>'
                 );
@@ -615,11 +613,13 @@
                 var rateColor = getPerformanceColor(rate);
                 var avgIn = emp.avg_checkin || '---';
                 var avgOut = emp.avg_checkout || '---';
-                var avgHrs = emp.avg_working_hrs ? Number(emp.avg_working_hrs || 0) : '---';
+
                 var avgHrsNum = Number(emp.avg_working_hrs);
                 var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
+
                 var totalHrsNum = Number(emp.total_working_hrs);
                 var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
+
                 var expectedHrsNum = Number(emp.total_days) * 9;
                 var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
 
@@ -651,9 +651,12 @@
             }).join('') || '<tr><td colspan="12" class="py-4 text-center text-text-sub">No employee data available</td></tr>';
 
             var remaining = list.slice(maxRowsPage3);
-            if (remaining.length > 0) createAdditionalPages(remaining, maxRowsPerPage);
+            if (remaining.length > 0) {
+                createAdditionalPages(remaining, maxRowsPerPage);
+            } else {
+                document.getElementById('additionalPagesContainer').innerHTML = '';
+            }
 
-            // ✅ update totals (3 base pages + extra pages)
             var totalPages = 3 + Math.ceil(remaining.length / maxRowsPerPage);
             document.getElementById('totalPages1').textContent = totalPages;
             document.getElementById('totalPages2').textContent = totalPages;
@@ -671,7 +674,8 @@
             var pageHtml = '';
             for (var i = 0; i < employees.length; i += maxPerPage) {
                 var pageEmployees = employees.slice(i, i + maxPerPage);
-                if (pageEmployees.length === 0) continue; // Skip empty pages
+                if (pageEmployees.length === 0) continue;
+
                 var pageNum = 4 + Math.floor(i / maxPerPage);
 
                 var rowsHtml = pageEmployees.map(function (emp) {
@@ -679,10 +683,13 @@
                     var rateColor = getPerformanceColor(rate);
                     var avgIn = emp.avg_checkin || '---';
                     var avgOut = emp.avg_checkout || '---';
+
                     var avgHrsNum = Number(emp.avg_working_hrs);
                     var avgHrs = (!isNaN(avgHrsNum) && avgHrsNum > 0) ? avgHrsNum : '---';
+
                     var totalHrsNum = Number(emp.total_working_hrs);
                     var totalHrs = (!isNaN(totalHrsNum) && totalHrsNum > 0) ? Math.round(totalHrsNum) : '---';
+
                     var expectedHrsNum = Number(emp.total_days) * 9;
                     var expectedHrs = (!isNaN(expectedHrsNum) && expectedHrsNum > 0) ? expectedHrsNum : '---';
 
@@ -725,7 +732,7 @@
                     '<p class="text-text-sub text-xs">Generated on ' + generatedDate + '</p>' +
                     '</div>' +
                     '<div class="text-right">' +
-                    '<div class="inline-block bg-slate-100 px-4 py-1.5 rounded border border-slate-200">' +
+                    '<div class="inline-flex flex-col bg-slate-100 px-4 py-1.5 rounded border border-slate-200">' +
                     '<span class="block text-[10px] font-semibold text-text-sub uppercase tracking-wider">Reporting Period</span>' +
                     '<span class="block text-base font-bold text-primary">' + periodLabel + '</span>' +
                     '</div>' +
@@ -769,86 +776,146 @@
 
             container.innerHTML = pageHtml;
 
-            // ✅ update totals on base pages too
             document.getElementById('totalPages1').textContent = totalPages;
             document.getElementById('totalPages2').textContent = totalPages;
             document.getElementById('totalPages3').textContent = totalPages;
         }
 
-        /* ✅ FIXED: no pagebreak.before selector (causes blank pages) */
+        async function waitForImages(container) {
+            const images = Array.from(container.querySelectorAll('img'));
+            await Promise.all(images.map(function (img) {
+                if (img.complete) return Promise.resolve();
+                return new Promise(function (resolve) {
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                });
+            }));
+        }
+
+        async function waitForBackgroundImages(container) {
+            const elements = Array.from(container.querySelectorAll('*'));
+            const urlRegex = /url\((['"]?)(.*?)\1\)/g;
+            const urls = [];
+
+            elements.forEach(function (el) {
+                const bg = getComputedStyle(el).backgroundImage;
+                if (bg && bg !== 'none') {
+                    let match;
+                    while ((match = urlRegex.exec(bg)) !== null) {
+                        if (match[2]) urls.push(match[2]);
+                    }
+                }
+            });
+
+            await Promise.all(urls.map(function (url) {
+                return new Promise(function (resolve) {
+                    const img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = resolve;
+                    img.onerror = resolve;
+                    img.src = url;
+                });
+            }));
+        }
+
+        async function preparePagesForCapture(pages) {
+            if (document.fonts && document.fonts.ready) {
+                await document.fonts.ready;
+            }
+
+            await new Promise(function (resolve) {
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(resolve);
+                });
+            });
+
+            await Promise.all(pages.map(function (page) {
+                return Promise.all([
+                    waitForImages(page),
+                    waitForBackgroundImages(page)
+                ]);
+            }));
+
+            await new Promise(function (resolve) {
+                setTimeout(resolve, 150);
+            });
+        }
+
         async function downloadPdf() {
             const buttons = document.querySelector(".no-print");
             const overlay = document.getElementById("loadingOverlay");
-
-            // Show loading overlay
-            if (overlay) overlay.classList.remove("hidden");
-            // hide UI controls
-            if (buttons) buttons.style.display = "none";
-
             const pages = Array.from(document.querySelectorAll(".page-container"));
 
-            // ✅ Temporarily remove overflow issues during capture (very important)
-            const restore = pages.map((p) => {
-                return {
-                    el: p,
-                    overflow: p.style.overflow,
-                    height: p.style.height,
-                    boxShadow: p.style.boxShadow,
-                };
-            });
+            try {
+                if (buttons) buttons.style.display = "none";
+                if (overlay) overlay.classList.add("hidden");
 
-            pages.forEach((p) => {
-                p.style.overflow = "hidden";     // avoid blank canvas splits
-                p.style.boxShadow = "none";      // optional
-            });
+                await preparePagesForCapture(pages);
 
-            // ✅ Use jsPDF directly (no html2pdf auto-pagebreak)
-            const pdf = new window.jspdf.jsPDF({
-                orientation: "landscape",
-                unit: "mm",
-                format: "a4",
-            });
-
-            // A4 landscape in mm
-            const pageW = 297;
-            const pageH = 210;
-
-            for (let i = 0; i < pages.length; i++) {
-                const el = pages[i];
-
-                // ✅ render each page separately
-                const canvas = await html2canvas(el, {
-                    scale: 3,
-                    useCORS: true,
-                    backgroundColor: "#ffffff",
-                    logging: false,
-                    windowWidth: el.scrollWidth,
-                    windowHeight: el.scrollHeight,
+                const restore = pages.map(function (p) {
+                    return {
+                        el: p,
+                        overflow: p.style.overflow,
+                        boxShadow: p.style.boxShadow,
+                        transform: p.style.transform
+                    };
                 });
 
-                const imgData = canvas.toDataURL("image/jpeg", 1.0);
+                pages.forEach(function (p) {
+                    p.style.overflow = "hidden";
+                    p.style.boxShadow = "none";
+                    p.style.transform = "translateZ(0)";
+                });
 
-                if (i > 0) pdf.addPage("a4", "landscape");
+                const pdf = new window.jspdf.jsPDF({
+                    orientation: "landscape",
+                    unit: "mm",
+                    format: "a4",
+                    compress: true
+                });
 
-                // ✅ Fit image exactly to A4 landscape
-                pdf.addImage(imgData, "JPEG", 0, 0, pageW, pageH, undefined, "FAST");
+                const pageW = 297;
+                const pageH = 210;
+
+                for (let i = 0; i < pages.length; i++) {
+                    const el = pages[i];
+
+                    const canvas = await html2canvas(el, {
+                        scale: 2.5,
+                        useCORS: true,
+                        allowTaint: false,
+                        backgroundColor: "#ffffff",
+                        logging: false,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: el.scrollWidth,
+                        windowHeight: el.scrollHeight
+                    });
+
+                    const imgData = canvas.toDataURL("image/jpeg", 0.98);
+
+                    if (i > 0) {
+                        pdf.addPage("a4", "landscape");
+                    }
+
+                    pdf.addImage(imgData, "JPEG", 0, 0, pageW, pageH, undefined, "FAST");
+                }
+
+                pdf.save("attendance_report.pdf");
+
+                restore.forEach(function (r) {
+                    r.el.style.overflow = r.overflow;
+                    r.el.style.boxShadow = r.boxShadow;
+                    r.el.style.transform = r.transform;
+                });
+            } catch (error) {
+                console.error("PDF generation failed:", error);
+                alert("Failed to generate PDF: " + error.message);
+            } finally {
+                if (buttons) buttons.style.display = "flex";
+                if (overlay) overlay.classList.add("hidden");
             }
-
-            pdf.save("attendance_report.pdf");
-
-            // restore styles
-            restore.forEach((r) => {
-                r.el.style.overflow = r.overflow;
-                r.el.style.height = r.height;
-                r.el.style.boxShadow = r.boxShadow;
-            });
-
-            // restore UI controls
-            if (buttons) buttons.style.display = "flex";
-            // Hide loading overlay after generation
-            if (overlay) overlay.classList.add("hidden");
         }
-
 
         async function init() {
             var params = getUrlParams();
@@ -861,7 +928,8 @@
             document.getElementById('generatedDate2').textContent = 'Generated on ' + generatedDate;
             document.getElementById('generatedDate3').textContent = 'Generated on ' + generatedDate;
 
-            document.getElementById('reportingPeriod').textContent = periodLabel;
+            var reportingPeriodEl = document.getElementById('reportingPeriod');
+            if (reportingPeriodEl) reportingPeriodEl.textContent = periodLabel;
             document.getElementById('reportingPeriod2').textContent = periodLabel;
             document.getElementById('reportingPeriod3').textContent = periodLabel;
 
@@ -882,10 +950,21 @@
             if (params.department_ids) dayTrendUrl += '&department_ids=' + encodeURIComponent(params.department_ids);
 
             try {
-                // Fetch both APIs in parallel
                 const [summaryRes, dayTrendRes] = await Promise.all([
-                    fetch(apiUrl, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } }),
-                    fetch(dayTrendUrl, { method: 'GET', headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } })
+                    fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    }),
+                    fetch(dayTrendUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        }
+                    })
                 ]);
 
                 if (!summaryRes.ok) throw new Error('Summary API error! status: ' + summaryRes.status);
@@ -914,16 +993,16 @@
         }
 
         document.addEventListener('DOMContentLoaded', init);
+
         function takeScreenshot() {
             const page = document.body;
-            // Hide overlay and buttons for screenshot
             const overlay = document.getElementById('loadingOverlay');
             const controls = document.querySelector('.no-print');
+
             if (overlay) overlay.classList.add('hidden');
             if (controls) controls.style.display = 'none';
+
             html2canvas(page, { useCORS: true, backgroundColor: null, scale: 2 }).then(canvas => {
-                // Restore overlay and controls
-                if (overlay) overlay.classList.remove('hidden');
                 if (controls) controls.style.display = '';
                 const link = document.createElement('a');
                 link.download = 'monthly-summary-screenshot.png';
