@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateEmployeeContactsRequest;
+use App\Models\AttendanceLog;
 use App\Models\BankInfo;
 use App\Models\DocumentInfo;
 use App\Models\EmiratesInfo;
@@ -1010,11 +1011,21 @@ class EmployeeControllerNew extends Controller
 
         $schedule->makeHidden(['shift', 'shift_type']);
 
+        $attendanceLogs = AttendanceLog::where('UserID', $id)
+            ->where('company_id', $request->company_id)
+            ->where('LogTime', '>=', $today . ' 00:00:00')
+            ->where('LogTime', '<=', $today . ' 23:59:59')
+            ->with('device')
+            ->distinct('LogTime')
+            ->orderBy('LogTime')
+            ->get();
+
         return response()->json([
             'status' => true,
             'shift' => $shift,
             'shift_type' => $shift_type,
             'schedule' => $schedule,
+            'attendance_logs' => $attendanceLogs,
         ]);
     }
 }
