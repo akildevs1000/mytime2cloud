@@ -1025,7 +1025,10 @@ class EmployeeControllerNew extends Controller
             'shift' => $shift,
             'shift_type' => $shift_type,
             'schedule' => $schedule,
-            'attendance_logs' => $attendanceLogs,
+            'attendance_logs' => [
+                'count' => $attendanceLogs->count(),
+                'data' => $attendanceLogs,
+            ],
         ]);
     }
 }
