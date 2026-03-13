@@ -477,9 +477,19 @@ class AttendanceLogController extends Controller
             "log_type"     => $request->log_type ?? "Unknown",
             "log_date"     => date("Y-m-d"),
             "gps_location" => $request->gps_location ?? "Unknown",
+            "reason"       => $request->reason ?? null,
+            "note"         => $request->note ?? null,
         ];
 
         try {
+            // Handle attachment upload
+            if ($request->hasFile('attachment')) {
+                $file = $request->file('attachment');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('/ManualLog/attachments'), $fileName);
+                $payload['attachment'] = $fileName;
+            }
+
             $exists = AttendanceLog::where('UserID', $payload['UserID'])
                 ->where('LogTime', $payload['LogTime'])
                 ->where('DeviceID', $payload['DeviceID'])
