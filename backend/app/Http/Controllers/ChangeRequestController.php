@@ -8,6 +8,7 @@ use App\Models\Attendance;
 use App\Models\ChangeRequest;
 use App\Models\Employee;
 use App\Models\Notification;
+use App\Services\Notify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -122,6 +123,10 @@ class ChangeRequestController extends Controller
                     "company_id" => $data['company_id'],
                     "redirect_url" => "change_requests"
                 ]);
+
+                $clientId = $data['company_id'] . "_" . $employee->id;
+
+                 Notify::push($clientId, "change_request", "Attendance request has been updated");
 
                 return $this->response('ChangeRequest updated.', $record, true);
             } else {
