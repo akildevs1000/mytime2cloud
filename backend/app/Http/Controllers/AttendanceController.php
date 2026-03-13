@@ -866,6 +866,7 @@ class AttendanceController extends Controller
                     ->where('employees.company_id', '=', $companyId);
             })
             ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
+            ->leftJoin('shift', 'shift.id', '=', 'attendances.shift_id')
             ->where('attendances.company_id', $companyId)
             ->whereBetween('attendances.date', [$currentStart, $currentEnd])
             ->when(!empty($branchIds), fn($q) => $q->whereIn('employees.branch_id', $branchIds))
@@ -887,6 +888,8 @@ class AttendanceController extends Controller
             employees.last_name,
             employees.display_name,
             employees.profile_picture,
+            shift.on_duty_time,
+            shift.off_duty_time,
             COALESCE(departments.name, '---') as department_name,
             attendances.date,
             attendances.shift_type_id,
