@@ -85,19 +85,6 @@ class FiloShiftController extends Controller
         $items = [];
         $message = "";
 
-        $dayMap = [
-            'Mon' => 'M',
-            'Tue' => 'T',
-            'Wed' => 'W',
-            'Thu' => 'Th',
-            'Fri' => 'F',
-            'Sat' => 'S',
-            'Sun' => 'Su'
-        ];
-
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = $dayMap[$dayOfWeekThreeLetter] ?? '';
-
         foreach ($logsEmployees as $key => $logsGroup) {
             $logsArray = $logsGroup->toArray() ?? [];
 
@@ -137,12 +124,6 @@ class FiloShiftController extends Controller
                 return !in_array(strtolower($record['log_type']), ['in'], true);
             });
 
-            $status = "M"; // Default to Missing
-
-            if ($params["company_id"] == 65) {
-                return $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $key, $firstLog) ?? "M";
-            }
-
             // 3. Prepare the Item
             $item = [
                 "roster_id" => 0,
@@ -157,7 +138,7 @@ class FiloShiftController extends Controller
                 "employee_id" => $key,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => $status, // Default to Missing
+                "status" => "M", // Default to Missing
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
@@ -185,6 +166,7 @@ class FiloShiftController extends Controller
                         $hours = floor($totalMinutes / 60);
                         $minutes = $totalMinutes % 60;
                         $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+
                     } else {
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                     }
