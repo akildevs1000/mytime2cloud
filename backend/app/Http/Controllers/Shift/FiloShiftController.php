@@ -296,8 +296,6 @@ class FiloShiftController extends Controller
 
             if (!$shift) continue;
 
-            $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
-
             $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $employeeId, $firstLog);
 
             // 4. Initialize Item
