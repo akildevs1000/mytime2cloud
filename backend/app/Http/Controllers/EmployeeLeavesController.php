@@ -363,7 +363,10 @@ class EmployeeLeavesController extends Controller
                     "redirect_url" => "leaves"
                 ]);
 
-                Notify::push($request->user_id, "leave_request", "Leave application has been $status_text");
+                $company_id = $request->company_id;
+                $employee_id = $model->employee_id;
+
+                Notify::push($company_id . "_" . $employee_id, "leave_request", "Leave application has been $status_text");
 
                 return $this->response("Employee Leave $status_text Successfully.", $record, true);
             } else {
