@@ -128,7 +128,7 @@ class ChangeRequestController extends Controller
 
                  Notify::push($clientId, "change_request", "Attendance request has been updated");
 
-                return $this->response('ChangeRequest updated.', $record, true);
+                return $this->response('ChangeRequest updated.', $employee, true);
             } else {
                 return $this->response('ChangeRequest cannot update.', null, false);
             }
