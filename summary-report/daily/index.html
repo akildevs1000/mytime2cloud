@@ -560,7 +560,7 @@
                     '</div>' +
                     '</div>' +
                     '<div class="text-right">' +
-                    '<span class="block text-base font-bold text-danger">' + (person.absent_days || 0) + ' Days</span>' +
+                    '<span class="block text-base font-bold text-text-main text-xs text-danger">' + (person.absent_days || 0) + ' Days</span>' +
                     '<span class="block text-[9px] text-red-600/70 font-medium">ABSENT</span>' +
                     '</div>' +
                     '</div>'
@@ -583,7 +583,7 @@
                     '</div>' +
                     '</div>' +
                     '<div class="text-right">' +
-                    '<span class="block text-base font-bold text-secondary">' + (person.late_days || 0) + ' Times</span>' +
+                    '<span class="block text-base font-bold text-text-main text-xs text-danger">' + (person.late_days || 0) + ' Times</span>' +
                     '<span class="block text-[9px] text-amber-600/70 font-medium">LATE IN</span>' +
                     '</div>' +
                     '</div>'
@@ -623,6 +623,9 @@
         }
 
         function buildEmployeeRow(emp) {
+
+            console.log(emp);
+
             var avatarHtml = emp.img
                 ? '<div class="h-8 w-8 rounded-full bg-cover bg-center ring-1 ring-slate-200" ' +
                 'style="background-image:url(\'' + emp.img + '\')" ' +
@@ -634,11 +637,11 @@
             var shiftTypeId = String(emp.shift_type_id || '');
             var isMultiShift = (shiftTypeId === '2' || shiftTypeId === '5');
 
-            var shiftTime = emp.shift_time || emp.shift || '---';
-            var checkIn = emp.check_in || emp.in_time || '---';
-            var checkInDevice = emp.check_in_device || emp.in_device || '';
-            var checkOut = emp.check_out || emp.out_time || '---';
-            var checkOutDevice = emp.check_out_device || emp.out_device || '';
+            var shiftTime = emp.on_duty_time + " - " + emp.off_duty_time;
+            var checkIn = emp.check_in || emp.in_time || emp.in || '---';
+            var checkInDevice = emp.device_in || '';
+            var checkOut = emp.check_out || emp.out_time || emp.out || '---';
+            var checkOutDevice = emp.device_out || '';
             var lateIn = emp.late_in || '-';
             var earlyOut = emp.early_out || '-';
             var ot = emp.ot || '-';
@@ -686,7 +689,7 @@
                 ) +
 
                 // OT
-                '<td class="px-2 py-2 text-center text-success font-bold">' + ot + '</td>' +
+                '<td class="px-2 py-2 text-center text-text-sub">' + ot + '</td>' +
 
                 // Total Hours
                 '<td class="px-2 py-2 text-center font-bold">' + totalHrs + '</td>' +
