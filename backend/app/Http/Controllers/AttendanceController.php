@@ -880,25 +880,34 @@ class AttendanceController extends Controller
             });
 
         if ($isSingleDay) {
-            $baseQuery->selectRaw("
-            employees.system_user_id,
-            employees.employee_id as employee_code,
-            employees.first_name,
-            employees.last_name,
-            employees.display_name,
-            employees.profile_picture,
-            COALESCE(departments.name, '---') as department_name,
-            attendances.date,
-            attendances.shift_type_id,
-            attendances.logs,
-            COALESCE(attendances.in, '---') as in_time,
-            COALESCE(attendances.out, '---') as out_time,
-            COALESCE(attendances.late_coming, '---') as late_in,
-            COALESCE(attendances.early_going, '---') as early_out,
-            COALESCE(attendances.ot, '---') as ot,
-            COALESCE(attendances.total_hrs, '---') as total_hrs,
-            COALESCE(attendances.status, '---') as attendance_status
-        ");
+            $baseQuery
+                ->with([
+                    'shift' => function ($q) use ($companyId) {
+                        $q->where('company_id', $companyId)
+                            ->select('id', 'company_id', 'name', 'on_duty_time', 'off_duty_time');
+                    }
+                ])
+                ->selectRaw("
+                attendances.id,
+                attendances.shift_id,
+                attendances.employee_id,
+                employees.system_user_id,
+                employees.employee_id as employee_code,
+                employees.first_name,
+                employees.last_name,
+                employees.display_name,
+                employees.profile_picture,
+                COALESCE(departments.name, '---') as department_name,
+                attendances.date,
+                attendances.logs,
+                COALESCE(attendances.in, '---') as in_time,
+                COALESCE(attendances.out, '---') as out_time,
+                COALESCE(attendances.late_coming, '---') as late_in,
+                COALESCE(attendances.early_going, '---') as early_out,
+                COALESCE(attendances.ot, '---') as ot,
+                COALESCE(attendances.total_hrs, '---') as total_hrs,
+                COALESCE(attendances.status, '---') as attendance_status
+            ");
 
             $total = (clone $baseQuery)->count();
 
@@ -931,8 +940,11 @@ class AttendanceController extends Controller
                     'name' => $name,
                     'department' => (string) ($row->department_name ?? '---'),
                     'date' => (string) ($row->date ?? '---'),
-                    'shift_type_id' => (string) ($row->shift_type_id ?? '---'),
-                    'logs' => ($row->logs ?? []),
+                    'shift_id' => (int) ($row->shift_id ?? 0),
+                    'shift_name' => (string) ($row->shift?->name ?? '---'),
+                    'on_duty_time' => (string) ($row->shift?->on_duty_time ?? '---'),
+                    'off_duty_time' => (string) ($row->shift?->off_duty_time ?? '---'),
+                    'logs' => $row->logs ?? [],
                     'in' => (string) ($row->in_time ?? '---'),
                     'out' => (string) ($row->out_time ?? '---'),
                     'late_in' => (string) ($row->late_in ?? '---'),
