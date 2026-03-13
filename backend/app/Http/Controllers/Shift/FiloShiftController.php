@@ -48,6 +48,8 @@ class FiloShiftController extends Controller
 
     public function renderRequest(Request $request)
     {
+        Log::info("FiloShiftController@renderRequest called with data: " . json_encode($request->all()));
+        
         if ($request->company_id == 65) {
             Log::info("FiloShiftController@renderRequest called with data: " . json_encode($request->all()));
             return $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, $request->channel ?? "unknown");
