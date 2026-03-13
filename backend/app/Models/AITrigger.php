@@ -19,6 +19,7 @@ class AITrigger extends Model
         'month_day',
         'message_hash',
         'fingerprint',
+        'description',
         'company_id'
     ];
 
@@ -177,6 +178,7 @@ Return ONLY JSON.
             'month_day' => $aiData['month_day'] ?? null,
             'message_hash' => $hash,
             'fingerprint' => $fingerprint,
+            'description' => $message,
             'company_id' => $companyId
         ]);
     }
