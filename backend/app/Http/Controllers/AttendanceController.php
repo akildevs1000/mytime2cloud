@@ -949,6 +949,8 @@ class AttendanceController extends Controller
                     'shift_name' => (string) ($row->shift?->name ?? '---'),
                     'on_duty_time' => (string) ($row->shift?->on_duty_time ?? '---'),
                     'off_duty_time' => (string) ($row->shift?->off_duty_time ?? '---'),
+                    'device_in' => (string) ($row->device_in?->name ?? '---'),
+                    'device_out' => (string) ($row->device_out?->name ?? '---'),
                     'logs' => $row->logs ?? [],
                     'in' => (string) ($row->in_time ?? '---'),
                     'out' => (string) ($row->out_time ?? '---'),
