@@ -495,15 +495,27 @@ class Attendance extends Model
         }
     }
 
-
-
     public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog)
     {
         $type = $weekoff_rules['type'] ?? 'Fixed';
 
+        // Log the initial entry and parameters
+        Log::info("Processing Week Off", [
+            'employee_id' => $employeeId,
+            'date' => $date,
+            'day_key' => $currentDayKey,
+            'rule_type' => $type,
+            'has_first_log' => (bool)$firstLog
+        ]);
+
         // 1. FIXED TYPE
-        if ($type === 'Fixed' && in_array($currentDayKey, $weekoff_rules['days'] ?? [])) {
-            return "O";
+        if ($type === 'Fixed') {
+            $fixedDays = $weekoff_rules['days'] ?? [];
+            $isOff = in_array($currentDayKey, $fixedDays);
+
+            Log::info("Fixed Week Off Check", ['allowed_days' => $fixedDays, 'is_match' => $isOff]);
+
+            if ($isOff) return "O";
         }
 
         // 2. ALTERNATING TYPE
@@ -512,9 +524,16 @@ class Attendance extends Model
             $isEvenWeek = ($weekNumber % 2 === 0);
             $targetDays = $isEvenWeek ? ($weekoff_rules['even'] ?? []) : ($weekoff_rules['odd'] ?? []);
 
-            if (in_array($currentDayKey, $targetDays)) {
-                return "O";
-            }
+            $isOff = in_array($currentDayKey, $targetDays);
+
+            Log::info("Alternating Week Off Check", [
+                'week_number' => $weekNumber,
+                'is_even' => $isEvenWeek,
+                'target_days' => $targetDays,
+                'is_match' => $isOff
+            ]);
+
+            if ($isOff) return "O";
         }
 
         // 3. FLEXIBLE TYPE
@@ -522,28 +541,39 @@ class Attendance extends Model
             $cycle = $weekoff_rules['cycle'] ?? 'Weekly';
             $allowedCount = $weekoff_rules['count'] ?? 0;
 
-            $startDate =  date("Y-m-d");
-
             if ($cycle === 'Monthly') {
                 $startDate = date("Y-m-01", strtotime($date));
             } else {
-                // Monday to Sunday Slot
                 $startDate = date("Y-m-d", strtotime('monday this week', strtotime($date)));
             }
 
+            $endDate = date("Y-m-d", strtotime($date . " -1 day"));
+
             $offDaysTaken = Attendance::where('employee_id', $employeeId)
                 ->where('company_id', $company_id)
-                ->whereBetween('date', [$startDate, date("Y-m-d", strtotime($date . " -1 day"))])
+                ->whereBetween('date', [$startDate, $endDate])
                 ->where('status', 'O')
                 ->count();
 
+            Log::info("Flexible Week Off Check", [
+                'cycle' => $cycle,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
+                'allowed_count' => $allowedCount,
+                'days_already_taken' => $offDaysTaken
+            ]);
+
             // Check if logs exist today - If they worked, it's not a Week Off
             if ($offDaysTaken < $allowedCount && !$firstLog) {
+                Log::info("Flexible Week Off Granted", ['employee_id' => $employeeId]);
                 return "O";
+            } else if ($firstLog) {
+                Log::info("Flexible Week Off Denied: Employee has logs for today.");
             }
         }
 
-        return null; // Return null if none of the week-off conditions are met
+        Log::info("No Week Off applied for date: $date");
+        return null;
     }
 
     public static function processHalfDay($currentDayKey, $halfday_rules, $shift)
