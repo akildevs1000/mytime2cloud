@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDarkMode } from '@/context/DarkModeContext';
 import { getBgColor, setStatusLabel } from '@/lib/utils';
+import { downloadReport } from '@/lib/endpoint/report';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -66,8 +67,6 @@ export default function ExecutiveAttendanceDashboardPage() {
   const [selectedBranchIds, setSelectedBranchIds] = useState([]);
   const [selectedDepartmentIds, setSelectedDepartmentIds] = useState([]);
   const [isExporting, setIsExporting] = useState(false);
-  const [pdfData, setPdfData] = useState(null);
-  const pdfContainerRef = useRef(null);
   const [selectedMonthRange, setSelectedMonthRange] = useState(() => {
     const now = new Date();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -413,7 +412,8 @@ export default function ExecutiveAttendanceDashboardPage() {
 
       // Open the standalone HTML template
       const templateUrl = `https://summaryreport.mytime2cloud.com/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
-      window.open(templateUrl, '_blank');
+
+      await downloadReport(templateUrl, `${reportType == 'daily' ? "Daily-Summary-Report" : "Monthly-Summary-Report"}.pdf`);
 
     } catch (error) {
       console.error('Failed to export PDF:', error);
@@ -537,7 +537,9 @@ export default function ExecutiveAttendanceDashboardPage() {
                 <button
                   className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap focus:outline-none focus:ring-0"
                 >
-                  <Download className="w-4 h-4" /> Download
+                  {isExporting ? <RefreshCw className="w-4 h-4 animate-spin mr-1" /> : <Download className="w-4 h-4 mr-1" />}
+
+                  Download
                 </button>
               </DropdownMenuTrigger>
 

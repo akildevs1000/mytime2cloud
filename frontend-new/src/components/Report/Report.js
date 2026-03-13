@@ -33,11 +33,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { downloadReport } from '@/lib/endpoint/report';
 
 const reportTemplates = [
   // { id: `Template1`, name: `Monthly Report Format A` },
-  { id: `Template2`, name: `Monthly Report Format A` },
-  { id: 'Template4', name: 'Monthly Report Format C' },
+  { id: 'Template4', name: 'Monthly Report Format A' },
+  { id: `Template2`, name: `Monthly Report Format B` },
+
   { id: `Template3`, name: `Daily` },
 ];
 
@@ -347,7 +349,10 @@ export default function AttendanceTable() {
           company_name: "Hilal & Co",
         });
 
-        window.open(`https://summary-report.netlify.app/attendance-report/?${t4Params.toString()}`, "_blank");
+        let templateUrl = `https://summary-report.netlify.app/attendance-report/?${t4Params.toString()}`;
+
+        // await downloadReport(templateUrl, `Attendance-Report-Template-A.pdf`);
+        window.open(templateUrl, "_blank");
         return;
       }
 
@@ -634,93 +639,93 @@ export default function AttendanceTable() {
                 No logs found for this date.
               </div>
             ) : (
-               <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-100 dark:bg-slate-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Log Time
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Device
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Log Type
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Reason
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Note
-                        </th>
-                        <th className="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
-                          Attachment
-                        </th>
-                      </tr>
-                    </thead>
+              <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-100 dark:bg-slate-800">
+                    <tr>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                        Log Time
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                        Device
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                        Log Type
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                        Reason
+                      </th>
+                      <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                        Note
+                      </th>
+                      <th className="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
+                        Attachment
+                      </th>
+                    </tr>
+                  </thead>
 
-                    <tbody>
-                      {logDetails.map((log, index) => (
-                        <tr
-                          key={`${log?.LogTime || "log"}-${index}`}
-                          className="border-t border-slate-200 dark:border-slate-800"
+                  <tbody>
+                    {logDetails.map((log, index) => (
+                      <tr
+                        key={`${log?.LogTime || "log"}-${index}`}
+                        className="border-t border-slate-200 dark:border-slate-800"
+                      >
+                        <td
+                          className={`px-4 py-3 ${log?.device?.name === "Manual"
+                            ? "text-red-600 dark:text-red-400 font-medium"
+                            : "text-slate-700 dark:text-slate-200"
+                            }`}
                         >
-                          <td
-                            className={`px-4 py-3 ${log?.device?.name === "Manual"
-                                ? "text-red-600 dark:text-red-400 font-medium"
-                                : "text-slate-700 dark:text-slate-200"
-                              }`}
-                          >
-                            {log?.LogTime || "---"}
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                            {log?.device?.name || "---"}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-primary/10 text-primary">
-                              {log?.log_type || "Device"}
+                          {log?.LogTime || "---"}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                          {log?.device?.name || "---"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-primary/10 text-primary">
+                            {log?.log_type || "Device"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                          {log?.reason ? (
+                            <span className="inline-flex items-center gap-1 text-xs">
+                              <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              {log.reason}
                             </span>
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
-                            {log?.reason ? (
-                              <span className="inline-flex items-center gap-1 text-xs">
-                                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                {log.reason}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
-                            {log?.note ? (
-                              <span className="inline-flex items-center gap-1 text-xs">
-                                <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                {log.note}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {log?.attachment ? (
-                              <a
-                                href={`${API_BASE_URL.replace('/api', '')}/ManualLog/attachments/${log.attachment}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                              >
-                                <Paperclip className="w-3.5 h-3.5" />
-                                View
-                              </a>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          ) : (
+                            <span className="text-slate-400">---</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                          {log?.note ? (
+                            <span className="inline-flex items-center gap-1 text-xs">
+                              <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                              {log.note}
+                            </span>
+                          ) : (
+                            <span className="text-slate-400">---</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {log?.attachment ? (
+                            <a
+                              href={`${API_BASE_URL.replace('/api', '')}/ManualLog/attachments/${log.attachment}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                            >
+                              <Paperclip className="w-3.5 h-3.5" />
+                              View
+                            </a>
+                          ) : (
+                            <span className="text-slate-400">---</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </DialogContent>
