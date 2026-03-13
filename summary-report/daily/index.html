@@ -318,17 +318,13 @@
                     <thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">
                         <tr>
                             <th class="px-4 py-2.5 w-[20%] bg-slate-100">Employee</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">P</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">A</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">L</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">M</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Avg CI</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Avg CO</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">LI</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">EO</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Avg WH</th>
-                            <th class="px-4 py-2.5 text-right bg-slate-100">WH</th>
-                            <th class="px-4 py-2.5 text-right bg-slate-100">Perf</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">E.Id</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Punches</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Late In</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Early Out</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">OT</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Total Hrs</th>
+                            <th class="px-4 py-2.5 text-center bg-slate-100">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-text-main" id="employeeTableBody"></tbody>
@@ -531,7 +527,7 @@
                     '</div>' +
                     '</td>' +
                     '<td class="text-right py-2 px-2">' +
-                    '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-success/10 text-success font-bold text-[10px]">' +
+                    '<span class="inline-flex items-center gap-1 font-bold text-[10px] text-text-main">' +
                     (person.score || '100%') + ' On-Time' +
                     '</span>' +
                     '</td>' +
@@ -591,6 +587,75 @@
             }).join('') || '<p class="text-text-sub text-xs">No frequent late-ins detected</p>';
         }
 
+        function getStatusBadge(status) {
+            var s = (status || '---').toUpperCase();
+            if (s === 'P') return '<span class="text-[10px] font-bold text-text-main">Present</span>';
+            if (s === 'A') return '<span class="text-[10px] font-bold text-text-main">Absent</span>';
+            if (s === 'L') return '<span class="text-[10px] font-bold text-text-main">Leave</span>';
+            if (s === 'ME') return '<span class="text-[10px] font-bold text-text-main">Manual</span>';
+            return '<span class="text-[10px] font-bold text-text-main">' + s + '</span>';
+        }
+
+        function parseLogs(logs) {
+            if (!logs) return [];
+            if (Array.isArray(logs)) return logs;
+            if (typeof logs === 'string') {
+                try { return JSON.parse(logs); } catch (e) { return []; }
+            }
+            return [];
+        }
+
+        function buildPunchesCell(emp) {
+            var shiftTypeId = String(emp.shift_type_id || '');
+            var isMultiShift = (shiftTypeId === '2' || shiftTypeId === '5');
+
+            if (isMultiShift) {
+                var logs = parseLogs(emp.logs);
+                if (logs.length === 0) return '<span class="text-text-sub">No Logs</span>';
+                return logs.map(function (log) {
+                    return '<span class="inline-flex items-center gap-0.5 text-[10px]">' +
+                        '<span class="text-text-main font-semibold">' + (log.in || '--') + '</span>' +
+                        '<span class="text-text-sub">→</span>' +
+                        '<span class="text-text-main font-semibold">' + (log.out || '--') + '</span>' +
+                        '</span>';
+                }).join(' ');
+            }
+
+            return '<div class="flex flex-col items-center gap-0.5">' +
+                '<span class="text-[10px] font-semibold text-text-main">In ' + (emp.in || '--') + '</span>' +
+                '<span class="text-[10px] font-semibold text-text-main">Out ' + (emp.out || '--') + '</span>' +
+                '</div>';
+        }
+
+        function buildEmployeeRow(emp) {
+            var avatarHtml = emp.img
+                ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
+                : '<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs ring-1 ring-slate-200">' + getInitials(emp.name) + '</div>';
+
+            var shiftTypeId = String(emp.shift_type_id || '');
+            var isMultiShift = (shiftTypeId === '2' || shiftTypeId === '5');
+
+            return (
+                '<tr class="hover:bg-slate-50/50">' +
+                '<td class="px-4 py-2"><div class="flex items-center gap-3">' +
+                avatarHtml +
+                '<div class="flex flex-col">' +
+                '<span class="font-bold text-text-main">' + (emp.name || 'Unknown') + '</span>' +
+                '<span class="text-[10px] text-text-sub">' + (emp.department || '---') + '</span>' +
+                '</div></div></td>' +
+                '<td class="px-2 py-2 text-center font-medium text-text-main">' + (emp.employee_code || '---') + '</td>' +
+                '<td class="px-2 py-2 text-center">' + buildPunchesCell(emp) + '</td>' +
+                (isMultiShift ? '' :
+                    '<td class="px-2 py-2 text-center"><span class="text-[10px] font-semibold text-text-main">' + (emp.late_in || '---') + '</span></td>' +
+                    '<td class="px-2 py-2 text-center"><span class="text-[10px] font-semibold text-text-main">' + (emp.early_out || '---') + '</span></td>'
+                ) +
+                '<td class="px-2 py-2 text-center font-medium">' + (emp.ot || '---') + '</td>' +
+                '<td class="px-2 py-2 text-center font-medium">' + (emp.total_hrs || '---') + '</td>' +
+                '<td class="px-4 py-2 text-center">' + getStatusBadge(emp.status) + '</td>' +
+                '</tr>'
+            );
+        }
+
         function renderEmployeeTable(employees) {
             var container = document.getElementById('employeeTableBody');
             var maxRowsPage3 = 7;
@@ -600,40 +665,8 @@
             var page3Employees = list.slice(0, maxRowsPage3);
 
             container.innerHTML = page3Employees.map(function (emp) {
-                var rate = Math.round(emp.rate || 0);
-                var rateColor = getPerformanceColor(rate);
-                var avgIn = emp.avg_checkin || '---';
-                var avgOut = emp.avg_checkout || '---';
-                var avgHrs = emp.avg_working_hrs || '---';
-                var totalHrs = emp.total_hours || '---';
-                var expectedHrs = emp.required_hours || '---';
-
-                var avatarHtml = emp.img
-                    ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
-                    : '<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs ring-1 ring-slate-200">' + getInitials(emp.name) + '</div>';
-
-                return (
-                    '<tr class="hover:bg-slate-50/50">' +
-                    '<td class="px-4 py-2"><div class="flex items-center gap-3">' +
-                    avatarHtml +
-                    '<div class="flex flex-col">' +
-                    '<span class="font-bold text-text-main">' + (emp.name || 'Unknown') + '</span>' +
-                    '<span class="text-[10px] text-text-sub">' + (emp.department || '---') + '</span>' +
-                    '</div></div></td>' +
-                    '<td class="px-2 py-2 text-center font-medium">' + (emp.days_present || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center text-text-sub">' + (emp.days_absent || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center text-text-sub">' + (emp.days_leave || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center text-text-sub">' + (emp.manual_logs || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center">' + avgIn + '</td>' +
-                    '<td class="px-2 py-2 text-center">' + avgOut + '</td>' +
-                    '<td class="px-2 py-2 text-center text-text-sub">' + (emp.late_in_hours || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center text-text-sub">' + (emp.early_out_hours || 0) + '</td>' +
-                    '<td class="px-2 py-2 text-center">' + avgHrs + '</td>' +
-                    '<td class="px-4 py-2 text-right font-medium">' + totalHrs + '<span class="text-text-sub font-normal">/' + expectedHrs + '</span></td>' +
-                    '<td class="px-4 py-2 text-right font-bold ' + rateColor + '">' + rate + '%</td>' +
-                    '</tr>'
-                );
-            }).join('') || '<tr><td colspan="12" class="py-4 text-center text-text-sub">No employee data available</td></tr>';
+                return buildEmployeeRow(emp);
+            }).join('') || '<tr><td colspan="8" class="py-4 text-center text-text-sub">No employee data available</td></tr>';
 
             var remaining = list.slice(maxRowsPage3);
             if (remaining.length > 0) createAdditionalPages(remaining, maxRowsPerPage);
@@ -660,39 +693,7 @@
                 var pageNum = 4 + Math.floor(i / maxPerPage);
 
                 var rowsHtml = pageEmployees.map(function (emp) {
-                    var rate = Math.round(emp.rate || 0);
-                    var rateColor = getPerformanceColor(rate);
-                    var avgIn = emp.avg_checkin || '---';
-                    var avgOut = emp.avg_checkout || '---';
-                    var avgHrs = emp.avg_working_hrs || '---';
-                    var totalHrs = emp.total_hours || '---';
-                    var expectedHrs = emp.required_hours || '---';
-
-                    var avatarHtml = emp.img
-                        ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
-                        : '<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs ring-1 ring-slate-200">' + getInitials(emp.name) + '</div>';
-
-                    return (
-                        '<tr class="hover:bg-slate-50/50">' +
-                        '<td class="px-4 py-2"><div class="flex items-center gap-3">' +
-                        avatarHtml +
-                        '<div class="flex flex-col">' +
-                        '<span class="font-bold text-text-main">' + (emp.name || 'Unknown') + '</span>' +
-                        '<span class="text-[10px] text-text-sub">' + (emp.department || '---') + '</span>' +
-                        '</div></div></td>' +
-                        '<td class="px-2 py-2 text-center font-medium">' + (emp.days_present || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center text-text-sub">' + (emp.days_absent || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center text-text-sub">' + (emp.days_leave || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center text-text-sub">' + (emp.manual_logs || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center">' + avgIn + '</td>' +
-                        '<td class="px-2 py-2 text-center">' + avgOut + '</td>' +
-                        '<td class="px-2 py-2 text-center text-text-sub">' + (emp.late_in_count || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center text-text-sub">' + (emp.early_out_count || 0) + '</td>' +
-                        '<td class="px-2 py-2 text-center">' + avgHrs + '</td>' +
-                        '<td class="px-4 py-2 text-right font-medium">' + totalHrs + '<span class="text-text-sub font-normal">/' + expectedHrs + '</span></td>' +
-                        '<td class="px-4 py-2 text-right font-bold ' + rateColor + '">' + rate + '%</td>' +
-                        '</tr>'
-                    );
+                    return buildEmployeeRow(emp);
                 }).join('');
 
                 pageHtml +=
@@ -724,17 +725,13 @@
                     '<thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">' +
                     '<tr>' +
                     '<th class="px-4 py-2.5 w-[20%] bg-slate-100">Employee</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">P</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">A</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">L</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">ML</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Avg CI</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Avg CO</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">LI</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">EO</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Avg WH</th>' +
-                    '<th class="px-4 py-2.5 text-right bg-slate-100">WH</th>' +
-                    '<th class="px-4 py-2.5 text-right bg-slate-100">Perf</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">E.Id</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Punches</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Late In</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Early Out</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">OT</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Total Hrs</th>' +
+                    '<th class="px-4 py-2.5 text-center bg-slate-100">Status</th>' +
                     '</tr>' +
                     '</thead>' +
                     '<tbody class="divide-y divide-slate-100 text-text-main">' + rowsHtml + '</tbody>' +
@@ -784,6 +781,15 @@
                 p.style.boxShadow = "none";      // optional
             });
 
+            // ✅ Tighten table td padding for PDF (removes extra spacing)
+            const allTds = document.querySelectorAll(".page-container table td, .page-container table th");
+            const tdRestore = Array.from(allTds).map((td) => {
+                const orig = { el: td, pt: td.style.paddingTop, pb: td.style.paddingBottom };
+                td.style.paddingTop = "5px";
+                td.style.paddingBottom = "5px";
+                return orig;
+            });
+
             // ✅ Use jsPDF directly (no html2pdf auto-pagebreak)
             const pdf = new window.jspdf.jsPDF({
                 orientation: "landscape",
@@ -823,6 +829,12 @@
                 r.el.style.overflow = r.overflow;
                 r.el.style.height = r.height;
                 r.el.style.boxShadow = r.boxShadow;
+            });
+
+            // ✅ Restore table td/th padding
+            tdRestore.forEach((r) => {
+                r.el.style.paddingTop = r.pt;
+                r.el.style.paddingBottom = r.pb;
             });
 
             // restore UI controls
