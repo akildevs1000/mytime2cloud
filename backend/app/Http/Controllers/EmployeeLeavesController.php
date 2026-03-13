@@ -366,7 +366,11 @@ class EmployeeLeavesController extends Controller
                 $company_id = $request->company_id;
                 $employee_id = $model->employee_id;
 
-                Notify::push($company_id . "_" . $employee_id, "leave_request", "Leave application has been $status_text");
+                $clientId = $company_id . "_" . $employee_id;
+
+                Notify::push($clientId, "leave_request", "Leave application has been $status_text");
+
+                $record->clientId = $clientId;
 
                 return $this->response("Employee Leave $status_text Successfully.", $record, true);
             } else {
