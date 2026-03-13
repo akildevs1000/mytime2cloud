@@ -1127,6 +1127,193 @@ class AttendanceController extends Controller
         ]);
     }
 
+    public function companyStatsSummaryPayload(Request $request)
+    {
+        $request->merge([
+            'company_id' => $request->input('company_id', $request->input('companyId')),
+            'branch_id' => $request->input('branch_id', $request->input('branchId')),
+            'branch_ids' => $request->input('branch_ids', $request->input('branchIds')),
+            'department_ids' => $request->input('department_ids', $request->input('departmentIds')),
+            'from_date' => $request->input('from_date', $request->input('fromDate')),
+            'to_date' => $request->input('to_date', $request->input('toDate')),
+            'absent_threshold' => $request->input('absent_threshold', $request->input('absentThreshold')),
+            'late_threshold' => $request->input('late_threshold', $request->input('lateThreshold')),
+            'per_page' => $request->input('per_page', $request->input('perPage')),
+        ]);
+
+        $request->validate([
+            'company_id' => 'required|integer|exists:companies,id',
+            'branch_id' => 'nullable',
+            'branch_ids' => 'nullable',
+            'department_ids' => 'nullable',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date',
+            'search' => 'nullable|string',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:1000',
+            'absent_threshold' => 'nullable|numeric|min:0|max:100',
+            'late_threshold' => 'nullable|integer|min:1',
+        ]);
+
+        $companyId = (int) $request->company_id;
+        $branchIds = array_values(array_unique(array_merge(
+            $this->normalizeIds($request->input('branch_ids')),
+            $this->normalizeIds($request->input('branch_id'))
+        )));
+        $departmentIds = $this->normalizeIds($request->input('department_ids'));
+
+        $now = Carbon::now();
+        $selectedStart = $request->filled('from_date')
+            ? Carbon::parse($request->input('from_date'))->startOfDay()
+            : $now->copy()->startOfMonth()->startOfDay();
+        $selectedEnd = $request->filled('to_date')
+            ? Carbon::parse($request->input('to_date'))->endOfDay()
+            : $now->copy()->endOfDay();
+
+        if ($selectedEnd->lt($selectedStart)) {
+            $selectedEnd = $selectedStart->copy()->endOfDay();
+        }
+
+        $currentStart = $selectedStart->toDateString();
+        $currentEnd = $selectedEnd->toDateString();
+
+        $employeeQuery = Employee::query()->where('company_id', $companyId);
+        if (!empty($branchIds)) {
+            $employeeQuery->whereIn('branch_id', $branchIds);
+        }
+        if (!empty($departmentIds)) {
+            $employeeQuery->whereIn('department_id', $departmentIds);
+        }
+
+        $employeeIds = $employeeQuery->pluck('system_user_id')->filter()->values();
+
+        $stats = $this->companyStats($request)->getData(true);
+        $hourlyTrends = $this->companyStatsHourlyTrends($request)->getData(true);
+        $departmentBreakdown = $this->companyStatsDepartmentBreakdown($request)->getData(true);
+        $punctuality = $this->companyStatsPunctuality($request)->getData(true);
+
+        $dailyRequest = clone $request;
+        if (!$dailyRequest->filled('per_page')) {
+            $dailyRequest->merge(['per_page' => 50]);
+        }
+        $dailyAttendance = $this->companyStatsDailyAttendance($dailyRequest)->getData(true);
+
+        $absentThreshold = (float) $request->input('absent_threshold', 15);
+        $lateThreshold = (int) $request->input('late_threshold', 3);
+
+        $attentionRows = collect();
+
+        if ($employeeIds->isNotEmpty()) {
+            $attentionRows = Attendance::query()
+                ->where('company_id', $companyId)
+                ->whereIn('employee_id', $employeeIds)
+                ->whereBetween('date', [$currentStart, $currentEnd])
+                ->selectRaw("employee_id,
+                    SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) as total_days,
+                    SUM(CASE WHEN status = 'A' THEN 1 ELSE 0 END) as absent_days,
+                    SUM(CASE WHEN late_coming != '---' THEN 1 ELSE 0 END) as late_days")
+                ->groupBy('employee_id')
+                ->havingRaw("SUM(CASE WHEN status != '---' THEN 1 ELSE 0 END) > 0")
+                ->get();
+        }
+
+        $employeeMap = Employee::query()
+            ->where('company_id', $companyId)
+            ->whereIn('system_user_id', $attentionRows->pluck('employee_id')->toArray())
+            ->with(['department'])
+            ->get(['system_user_id', 'first_name', 'last_name', 'display_name', 'profile_picture', 'department_id'])
+            ->keyBy('system_user_id');
+
+        $highAbsenteeism = $attentionRows
+            ->map(function ($row) use ($employeeMap) {
+                $employee = $employeeMap->get((int) $row->employee_id);
+                $totalDays = (int) $row->total_days;
+                $absentDays = (int) $row->absent_days;
+                $absentRate = $totalDays > 0 ? round(($absentDays / $totalDays) * 100, 1) : 0;
+
+                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($employee?->display_name ?? 'Unknown');
+                }
+
+                return [
+                    'system_user_id' => (int) $row->employee_id,
+                    'name' => $name,
+                    'department' => (string) ($employee?->department?->name ?? '---'),
+                    'img' => $employee?->profile_picture ?: null,
+                    'absent_days' => $absentDays,
+                    'total_days' => $totalDays,
+                    'absent_rate' => $absentRate,
+                ];
+            })
+            ->filter(fn($item) => $item['absent_rate'] >= $absentThreshold)
+            ->sortByDesc('absent_rate')
+            ->take(10)
+            ->values();
+
+        $frequentLateIns = $attentionRows
+            ->map(function ($row) use ($employeeMap) {
+                $employee = $employeeMap->get((int) $row->employee_id);
+                $lateDays = (int) $row->late_days;
+
+                $name = trim(($employee?->first_name ?? '') . ' ' . ($employee?->last_name ?? ''));
+                if ($name === '') {
+                    $name = (string) ($employee?->display_name ?? 'Unknown');
+                }
+
+                return [
+                    'system_user_id' => (int) $row->employee_id,
+                    'name' => $name,
+                    'department' => (string) ($employee?->department?->name ?? '---'),
+                    'img' => $employee?->profile_picture ?: null,
+                    'late_days' => $lateDays,
+                ];
+            })
+            ->filter(fn($item) => $item['late_days'] > 0)
+            ->sortByDesc('late_days')
+            ->filter(fn($item) => $item['late_days'] >= $lateThreshold)
+            ->take(10)
+            ->values();
+
+        return response()->json([
+            'stats' => $stats['stats'] ?? [],
+            'hourly_trends' => $hourlyTrends['data'] ?? [],
+            'department_breakdown' => $departmentBreakdown['data'] ?? [],
+            'punctuality_top' => $punctuality['data'] ?? [],
+            'daily_attendance' => $dailyAttendance['data'] ?? [],
+            'daily_attendance_meta' => $dailyAttendance['meta'] ?? [
+                'total' => 0,
+                'page' => 1,
+                'per_page' => (int) $dailyRequest->input('per_page', 50),
+                'last_page' => 1,
+                'from' => 0,
+                'to' => 0,
+            ],
+            'attention_required' => [
+                'high_absenteeism' => $highAbsenteeism,
+                'frequent_late_ins' => $frequentLateIns,
+                'thresholds' => [
+                    'absent_rate_percent' => $absentThreshold,
+                    'late_ins_count' => $lateThreshold,
+                ],
+            ],
+            'filters' => [
+                'company_id' => $companyId,
+                'branch_ids' => $branchIds,
+                'department_ids' => $departmentIds,
+                'range' => [
+                    'from' => $currentStart,
+                    'to' => $currentEnd,
+                ],
+                'search' => (string) $dailyRequest->input('search', ''),
+                'page' => (int) $dailyRequest->input('page', 1),
+                'per_page' => (int) $dailyRequest->input('per_page', 50),
+            ],
+        ])->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
+    }
+
     public function companyStatsSummaryPdf(Request $request)
     {
         $request->merge([
