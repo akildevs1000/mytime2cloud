@@ -290,7 +290,7 @@ class FiloShiftController extends Controller
             $logs = isset($logsEmployees[$employeeId]) ? $logsEmployees[$employeeId]->toArray() : [];
 
             // 1. Identify first/last logs
-            $firstLog = $logs->first(function ($record) {
+            $firstLog = collect($logs)->first(function ($record) {
                 return !in_array(strtolower($record['log_type']), ['out'], true);
             });
 
