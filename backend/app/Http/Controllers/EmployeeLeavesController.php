@@ -363,6 +363,8 @@ class EmployeeLeavesController extends Controller
                     "redirect_url" => "leaves"
                 ]);
 
+                Notify::push($request->company_id, "leave", "Leave application has been $status_text");
+
                 return $this->response("Employee Leave $status_text Successfully.", $record, true);
             } else {
                 return $this->response("Employee Leave not $status_text.", null, false);
