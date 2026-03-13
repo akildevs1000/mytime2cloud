@@ -50,11 +50,13 @@ class SingleShiftController extends Controller
     public function renderRequest(Request $request)
     {
         $version = env("VERSION");
+        
         Log::info("Using: $version");
 
-        if (env("VERSION") == "V1") {
+        if ($request->company_id == 65) {
             return $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
         }
+
         return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
     }
 
@@ -201,9 +203,7 @@ class SingleShiftController extends Controller
 
                     if ($shift["overtime_type"] === "Both") {
                         $item["ot"] = $otTime;
-                    }
-
-                    else if ($shift["overtime_type"] === "After") {
+                    } else if ($shift["overtime_type"] === "After") {
                         $earlyMinutes = 0;
                         if ($inTime < $onDutyTime) {
                             $earlyDiff = $onDutyTime->diff($inTime);
@@ -211,9 +211,7 @@ class SingleShiftController extends Controller
                         }
 
                         $totalOtMinutes = max(0, $totalOtMinutes - $earlyMinutes);
-                    }
-
-                    else if ($shift["overtime_type"] === "Before") {
+                    } else if ($shift["overtime_type"] === "Before") {
                         $lateMinutes = 0;
                         if ($offDutyTime && $outTime > $offDutyTime) {
                             $lateDiff = $outTime->diff($offDutyTime);
