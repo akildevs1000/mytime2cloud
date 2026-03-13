@@ -29,7 +29,15 @@ export const updateRequest = async (id, payload = {}) => {
 };
 
 export const generateManualLog = async (payload = {}) => {
-    const { data } = await api.post(`/generate_log`, payload);
+    const formData = new FormData();
+    Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            formData.append(key, value);
+        }
+    });
+    const { data } = await api.post(`/generate_log`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+    });
     return data;
 };
 

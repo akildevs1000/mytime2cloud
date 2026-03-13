@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download } from 'lucide-react';
+import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download, Paperclip, FileText, MessageSquare } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
@@ -20,6 +20,14 @@ import { getUser } from "@/config/index";
 import ManualAttendanceCorrectionModal from '../Attendance/ManualAttendanceCorrectionModal';
 
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2, X } from "lucide-react";
+
+import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
@@ -34,6 +42,11 @@ const reportTemplates = [
 ];
 
 export default function AttendanceTable() {
+
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [selectedLogRow, setSelectedLogRow] = useState(null);
+  const [logDetails, setLogDetails] = useState([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(false);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -153,6 +166,45 @@ export default function AttendanceTable() {
       setError(parseApiError(error));
     }
   };
+
+  const handleViewLogs = useCallback(async (item) => {
+    try {
+      setSelectedLogRow(item);
+      setLogDetails([]);
+      setIsLogsOpen(true);
+      setIsLogsLoading(true);
+
+      const user = getUser();
+      const companyId = user?.company_id ?? 0;
+
+      const query = new URLSearchParams({
+        per_page: "500",
+        UserID: String(item.employee_id ?? ""),
+        LogTime: String(item.edit_date ?? ""),
+        company_id: String(companyId),
+      });
+
+      const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch log details");
+      }
+
+
+      const data = await res.json();
+      setLogDetails(Array.isArray(data?.data) ? data.data : []);
+    } catch (error) {
+      console.error(error);
+      notify("Error", parseApiError(error), "error");
+    } finally {
+      setIsLogsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     fetchAttendanceTabs();
@@ -370,7 +422,7 @@ export default function AttendanceTable() {
       <div className='flex flex-wrap items-center gap-2 my-2'>
         <div className="flex flex-col min-w-[180px]">
           <MultiDropDown
-            placeholder={'Select Status'}
+            placeholder={'Status'}
             items={statusses}
             value={selectedStatusIds}
             onChange={setSelectedStatusIds}
@@ -380,7 +432,7 @@ export default function AttendanceTable() {
 
         <div className="flex flex-col min-w-[180px]">
           <MultiDropDown
-            placeholder={'Select Branch'}
+            placeholder={'Branch'}
             items={branches}
             value={selectedBranchIds}
             onChange={setSelectedBranchIds}
@@ -390,7 +442,7 @@ export default function AttendanceTable() {
 
         <div className="flex flex-col min-w-[180px]">
           <MultiDropDown
-            placeholder={'Select Department'}
+            placeholder={'Department'}
             items={departments}
             value={selectedDepartmentIds}
             onChange={setSelectedDepartment}
@@ -400,7 +452,7 @@ export default function AttendanceTable() {
 
         <div className="flex flex-col min-w-[220px]">
           <MultiDropDown
-            placeholder={'Select Employees'}
+            placeholder={'Employees'}
             items={scheduledEmployees}
             value={selectedEmployeeIds}
             onChange={setSelectedEmployeeIds}
@@ -410,7 +462,7 @@ export default function AttendanceTable() {
 
         <div className="flex flex-col min-w-[200px]">
           <DropDown
-            placeholder={'Select Report Template'}
+            placeholder={'Report Template'}
             onChange={setSelectedReportTemplate}
             value={selectedReportTemplate}
             items={reportTemplates}
@@ -516,7 +568,9 @@ export default function AttendanceTable() {
           {tabs.map((tab) => (
             <TabsContent key={tab.id} value={tab.id} className="space-y-2 rounded-lg">
               <DataTable
-                columns={Columns(tab.id)} // Pass the specific tab ID
+                columns={Columns(tab.id, {
+                  onViewLogs: handleViewLogs,
+                })}
                 data={records}
                 isLoading={isLoading}
                 error={error}
@@ -539,6 +593,138 @@ export default function AttendanceTable() {
           ))}
         </Tabs>
       </div>
+
+
+      <Dialog open={isLogsOpen} onOpenChange={setIsLogsOpen}>
+        <DialogContent className="min-w-[900px] max-w-[900px] p-0 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+          <DialogHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-primary text-white">
+            <div className="flex items-center justify-between gap-3">
+              <DialogTitle className="text-base font-semibold">
+                Log Details
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+
+          <div className="px-6 py-2 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm">
+            <div className="text-slate-600 dark:text-slate-300">
+              Employee Id:{" "}
+              <span className="font-semibold text-slate-900 dark:text-white">
+                {selectedLogRow?.employee?.system_user_id ||
+                  selectedLogRow?.employee_id ||
+                  "---"}
+              </span>
+            </div>
+
+            <div className="ml-auto text-slate-600 dark:text-slate-300">
+              Total logs:{" "}
+              <span className="font-semibold text-primary">
+                ({logDetails.length})
+              </span>
+            </div>
+          </div>
+
+          <div className="px-6 py-5">
+            {isLogsLoading ? (
+              <div className="flex items-center justify-center py-16 text-slate-500 dark:text-slate-300">
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Loading log details...
+              </div>
+            ) : logDetails.length === 0 ? (
+              <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
+                No logs found for this date.
+              </div>
+            ) : (
+               <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-100 dark:bg-slate-800">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Log Time
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Device
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Log Type
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Reason
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Note
+                        </th>
+                        <th className="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
+                          Attachment
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {logDetails.map((log, index) => (
+                        <tr
+                          key={`${log?.LogTime || "log"}-${index}`}
+                          className="border-t border-slate-200 dark:border-slate-800"
+                        >
+                          <td
+                            className={`px-4 py-3 ${log?.device?.name === "Manual"
+                                ? "text-red-600 dark:text-red-400 font-medium"
+                                : "text-slate-700 dark:text-slate-200"
+                              }`}
+                          >
+                            {log?.LogTime || "---"}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {log?.device?.name || "---"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-primary/10 text-primary">
+                              {log?.log_type || "Device"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                            {log?.reason ? (
+                              <span className="inline-flex items-center gap-1 text-xs">
+                                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                {log.reason}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                            {log?.note ? (
+                              <span className="inline-flex items-center gap-1 text-xs">
+                                <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                {log.note}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {log?.attachment ? (
+                              <a
+                                href={`${API_BASE_URL.replace('/api', '')}/ManualLog/attachments/${log.attachment}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                              >
+                                <Paperclip className="w-3.5 h-3.5" />
+                                View
+                              </a>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* --- ADD THE DIALOG COMPONENT HERE --- */}
       <LoadingProgressDialog

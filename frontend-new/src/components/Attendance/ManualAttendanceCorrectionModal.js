@@ -15,6 +15,7 @@ const defaultEmployee = {
     department: "---",
     avatar: "",
     issueLabel: "Clock-out Missing",
+    shift_type_id: 1,
 };
 
 const defaultForm = {
@@ -137,8 +138,14 @@ export default function ManualAttendanceCorrectionModal({
                 code: item?.employee_id || item?.code || "---",
                 branchId: item?.branch_id ?? 0,
                 department: item?.department?.name || item?.department || "---",
-                avatar: item?.picture || item?.avatar || "",
+                avatar: item?.profile_picture || item?.avatar || "",
                 issueLabel: item?.issueLabel || "Clock-out Missing",
+                shift_type_id: Number(pickFirst(
+                    activeShift?.shift_type_id,
+                    scheduleShift?.shift_type_id,
+                    item?.shift?.shift_type_id,
+                    1
+                )),
                 shiftName: pickFirst(
                     activeShift?.name,
                     activeShift?.shift_name,
@@ -215,6 +222,10 @@ export default function ManualAttendanceCorrectionModal({
             isDisposed = true;
         };
     }, [selectedEmployeeId]);
+
+    // LOGIC: Check current shift_type_id
+    const currentShiftTypeId = Number(relatedShift?.shift_type_id || activeEmployee?.shift_type_id || 1);
+    const showSecondPair = [2, 5].includes(currentShiftTypeId);
 
     useEffect(() => {
         const shiftName = pickFirst(relatedShift?.shift_name, activeEmployee?.shiftName, "Standard");
@@ -355,7 +366,16 @@ export default function ManualAttendanceCorrectionModal({
                 DeviceID: "Manual",
                 company_id: user?.company_id,
                 log_type,
+                shift_type_id: currentShiftTypeId,
+                reason: form?.reason || null,
+                note: form?.note || null,
             };
+
+            // Attach evidence file if selected
+            const file = fileInputRef.current?.files?.[0];
+            if (file) {
+                log_payload.attachment = file;
+            }
 
             const response = await generateManualLog(log_payload);
 
@@ -498,10 +518,12 @@ export default function ManualAttendanceCorrectionModal({
                                     <TimeField label="In 1" value={form.in1} onChange={(v) => setField("in1", v)} isMissing={missingFieldKey === "in1"} />
                                     <TimeField label="Out 1" value={form.out1} onChange={(v) => setField("out1", v)} isMissing={missingFieldKey === "out1"} />
                                 </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <TimeField label="In 2" value={form.in2} onChange={(v) => setField("in2", v)} isMissing={missingFieldKey === "in2"} />
-                                    <TimeField label="Out 2" value={form.out2} onChange={(v) => setField("out2", v)} isMissing={missingFieldKey === "out2"} />
-                                </div>
+                                {showSecondPair && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <TimeField label="In 2" value={form.in2} onChange={(v) => setField("in2", v)} isMissing={missingFieldKey === "in2"} />
+                                        <TimeField label="Out 2" value={form.out2} onChange={(v) => setField("out2", v)} isMissing={missingFieldKey === "out2"} />
+                                    </div>
+                                )}
                             </div>
 
                         </div>

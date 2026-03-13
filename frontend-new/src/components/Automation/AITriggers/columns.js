@@ -45,6 +45,18 @@ function OptionsMenu({ admin, onSuccess = () => { } }) {
 export default function Columns({ onSuccess = () => { } } = {}) {
   return [
     {
+      key: "Description",
+      header: "Description",
+      render: (admin) => (
+        <span
+          className="text-sm w-[150px] text-slate-600 dark:text-slate-300 hidden xl:table-cell"
+          title={admin.description || "—"}
+        >
+          {admin.description || "—"}
+        </span>
+      ),
+    },
+    {
       key: "type",
       header: "Type",
       render: (admin) => (

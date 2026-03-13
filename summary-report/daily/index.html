@@ -215,7 +215,7 @@
                     </div>
                     <span class="material-symbols-outlined text-secondary text-lg">hotel_class</span>
                 </div>
-                <div class="flex-1 overflow-auto p-2">
+                <div class="flex-1 overflow-visible p-2">
                     <table class="w-full text-left text-xs">
                         <tbody class="divide-y divide-slate-100" id="punctualityList"></tbody>
                     </table>
@@ -313,18 +313,18 @@
                 <span class="text-[10px] text-text-sub font-medium">Full report for active employees</span>
             </div>
 
-            <div class="flex-1 overflow-auto">
+            <div class="flex-1 overflow-visible">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">
+                    <thead class="bg-slate-100 text-primary font-bold border-b border-slate-200">
                         <tr>
-                            <th class="px-4 py-2.5 w-[20%] bg-slate-100">Employee</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">E.Id</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Punches</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Late In</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Early Out</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">OT</th>
-                            <th class="px-2 py-2.5 text-center bg-slate-100">Total Hrs</th>
-                            <th class="px-4 py-2.5 text-center bg-slate-100">Status</th>
+                            <th class="px-4 py-1.5 w-[20%] bg-slate-100">Employee</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">E.Id</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">Punches</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">Late In</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">Early Out</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">OT</th>
+                            <th class="px-2 py-1.5 text-center bg-slate-100">Total Hrs</th>
+                            <th class="px-4 py-1.5 text-center bg-slate-100">Status</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100 text-text-main" id="employeeTableBody"></tbody>
@@ -587,15 +587,6 @@
             }).join('') || '<p class="text-text-sub text-xs">No frequent late-ins detected</p>';
         }
 
-        function getStatusBadge(status) {
-            var s = (status || '---').toUpperCase();
-            if (s === 'P') return '<span class="text-[10px] font-bold text-text-main">Present</span>';
-            if (s === 'A') return '<span class="text-[10px] font-bold text-text-main">Absent</span>';
-            if (s === 'L') return '<span class="text-[10px] font-bold text-text-main">Leave</span>';
-            if (s === 'ME') return '<span class="text-[10px] font-bold text-text-main">Manual</span>';
-            return '<span class="text-[10px] font-bold text-text-main">' + s + '</span>';
-        }
-
         function parseLogs(logs) {
             if (!logs) return [];
             if (Array.isArray(logs)) return logs;
@@ -651,7 +642,7 @@
                 ) +
                 '<td class="px-2 py-2 text-center font-medium">' + (emp.ot || '---') + '</td>' +
                 '<td class="px-2 py-2 text-center font-medium">' + (emp.total_hrs || '---') + '</td>' +
-                '<td class="px-4 py-2 text-center">' + getStatusBadge(emp.status) + '</td>' +
+                '<td class="px-4 py-2 text-center">' + emp.status + '</td>' +
                 '</tr>'
             );
         }
@@ -720,7 +711,7 @@
                     '<h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Detailed Employee Statistics (Continued)</h3>' +
                     '<span class="text-[10px] text-text-sub font-medium">Page ' + pageNum + ' of ' + totalPages + '</span>' +
                     '</div>' +
-                    '<div class="flex-1 overflow-auto">' +
+                    '<div class="flex-1 overflow-visible">' +
                     '<table class="w-full text-left text-xs">' +
                     '<thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">' +
                     '<tr>' +
@@ -805,13 +796,18 @@
                 const el = pages[i];
 
                 // ✅ render each page separately
+
+                const rect = el.getBoundingClientRect();
+
                 const canvas = await html2canvas(el, {
-                    scale: 3,
+                    scale: 2,
                     useCORS: true,
                     backgroundColor: "#ffffff",
                     logging: false,
-                    windowWidth: el.scrollWidth,
-                    windowHeight: el.scrollHeight,
+                    width: Math.round(rect.width),
+                    height: Math.round(rect.height),
+                    windowWidth: Math.round(rect.width),
+                    windowHeight: Math.round(rect.height),
                 });
 
                 const imgData = canvas.toDataURL("image/jpeg", 1.0);

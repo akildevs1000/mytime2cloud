@@ -1,10 +1,11 @@
 import ProfilePicture from "@/components/ProfilePicture";
 import { getBgColor, getTextColor, setStatusLabel } from "@/lib/utils";
+import { Eye } from "lucide-react";
 
-export default (shiftTypeId) => {
+export default (shiftTypeId, { onViewLogs } = {}) => {
     // Base columns
     const columns = [
-       
+
         {
             key: "name",
             header: "Name",
@@ -15,7 +16,7 @@ export default (shiftTypeId) => {
 
                     <div>
                         <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{employee?.first_name}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-slate-600 dark:text-slate-300">
                             ID: {employee.employee_id}
                         </p>
                     </div>
@@ -23,21 +24,21 @@ export default (shiftTypeId) => {
             ),
         },
 
- {
+        {
             key: "date", header: "Date",
-            render: (log) => (<p className="text-sm text-gray-500">{log.day.toString().substring(0,3)}, {log.date}</p>)
+            render: (log) => (<p className="text-sm text-slate-600 dark:text-slate-300">{log.day.toString().substring(0, 3)}, {log.date}</p>)
         },
         {
             key: "department", header: "Dept",
             render: ({ employee }) => (
-                <p className="text-sm text-gray-500">{employee?.department?.name}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{employee?.department?.name}</p>
             ),
         },
         {
             key: "shift", header: "Shift",
             render: (log) => (
 
-                <p className="text-sm text-gray-500">{log.shift?.name}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{log.shift?.name}</p>
             ),
         },
 
@@ -51,20 +52,20 @@ export default (shiftTypeId) => {
         inOutColumns.push({
             key: `in${i}`,
             header: `In${i}`,
-            render: (log) => (<p className="text-sm text-gray-500">{`${log[`in${i}`] || "—"}`}</p>)
+            render: (log) => (<p className="text-sm text-slate-600 dark:text-slate-300">{`${log[`in${i}`] || "—"}`}</p>)
 
         });
         inOutColumns.push({
             key: `out${i}`,
             header: `Out${i}`,
-            render: (log) => (<p className="text-sm text-gray-500">{`${log[`out${i}`] || "—"}`}</p>)
+            render: (log) => (<p className="text-sm text-slate-600 dark:text-slate-300">{`${log[`out${i}`] || "—"}`}</p>)
         });
     }
 
     // Other columns
     const otherColumns = [
-        { key: "ot", header: "OT", render: (log) => (<p className="text-sm text-gray-500">{log.ot}</p>) },
-        { key: "total_hrs", header: "Total Hrs", render: (log) => (<p className="text-sm text-gray-500">{log.total_hrs}</p>) },
+        { key: "ot", header: "OT", render: (log) => (<p className="text-sm text-slate-600 dark:text-slate-300">{log.ot}</p>) },
+        { key: "total_hrs", header: "Total Hrs", render: (log) => (<p className="text-sm text-slate-600 dark:text-slate-300">{log.total_hrs}</p>) },
         {
             key: "status",
             header: "Status",
@@ -79,6 +80,24 @@ export default (shiftTypeId) => {
                 </span>
             ),
         },
+        {
+            accessorKey: "actions",
+            header: "Actions",
+            render: (item) => {
+                return (
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onViewLogs?.(item)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-primary shadow-sm hover:bg-primary/5 dark:border-slate-700 dark:bg-slate-900"
+                            title="View Logs"
+                        >
+                            <Eye className="w-4 h-4" />
+                        </button>
+                    </div>
+                );
+            },
+        },
     ];
 
     // If shiftTypeId == 2, use dynamic in/out columns
@@ -89,22 +108,22 @@ export default (shiftTypeId) => {
             {
                 key: "in",
                 header: "In",
-                render: (log) => (<p className={`text-sm text-${log?.device_in?.name !== "---" ? "red" : ''}-400`}>{`${log?.in}`}</p>) ,
+                render: (log) => (<p className={`text-sm text-slate-600 dark:text-slate-300`}>{`${log?.in}`}</p>),
             },
             {
                 key: "out",
                 header: "Out",
-                render: (log) => (<p className={`text-sm text-${log?.device_out?.name !== "---" ? "red" : ''}-400`}>{`${log?.out}`}</p>),
+                render: (log) => (<p className={`text-sm text-slate-600 dark:text-slate-300`}>{`${log?.out}`}</p>),
             },
             {
                 key: "late_coming",
                 header: "Late In",
-                render: (log) => `${log?.late_coming}`,
+                render: (log) => (<p className={`text-sm text-slate-600 dark:text-slate-300`}>{`${log?.late_coming}`}</p>),
             },
             {
                 key: "early_going",
                 header: "Early Out",
-                render: (log) => `${log?.early_going}`,
+                render: (log) => (<p className={`text-sm text-slate-600 dark:text-slate-300`}>{`${log?.early_going}`}</p>),
             },
             ...otherColumns,
         ];
