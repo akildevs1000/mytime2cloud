@@ -885,8 +885,11 @@ class AttendanceController extends Controller
                     'shift' => function ($q) use ($companyId) {
                         $q->where('company_id', $companyId)
                             ->select('id', 'company_id', 'name', 'on_duty_time', 'off_duty_time');
-                    }
+                    },
+                    'device_in:device_id,name',
+                    'device_out:device_id,name',
                 ])
+
                 ->selectRaw("
                 attendances.id,
                 attendances.shift_id,
@@ -896,6 +899,8 @@ class AttendanceController extends Controller
                 employees.first_name,
                 employees.last_name,
                 employees.display_name,
+                attendances.device_id_in,
+                attendances.device_id_out,
                 employees.profile_picture,
                 COALESCE(departments.name, '---') as department_name,
                 attendances.date,
