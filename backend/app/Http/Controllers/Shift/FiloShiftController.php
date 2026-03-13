@@ -140,7 +140,7 @@ class FiloShiftController extends Controller
             $status = "M"; // Default to Missing
 
             if ($params["company_id"] == 65) {
-                $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $key, $firstLog) ?? "M";
+                return $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $key, $firstLog) ?? "M";
             }
 
             // 3. Prepare the Item
