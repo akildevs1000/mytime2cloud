@@ -41,7 +41,7 @@ class FiloShiftController extends Controller
 
             if ($request->company_id == 65) {
                 Log::info("FiloShiftController@renderRequest called with data: " . json_encode($request->all()));
-                $response[] = $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, $request->channel ?? "unknown");
+                $response[] = $this->renderV1($company_id, $startDate->format("Y-m-d"), 1, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
             } else {
                 $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 1, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
             }
