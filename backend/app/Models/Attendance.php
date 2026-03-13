@@ -499,15 +499,6 @@ class Attendance extends Model
 
     public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog)
     {
-
-        Log::info("--- Week Off Processing Start ---", [
-            'employee_id'    => $employeeId,
-            'date'           => $date,
-            'day_key'        => $currentDayKey,
-            'has_logs_today' => (bool)$firstLog,
-            'full_rules'     => json_encode($weekoff_rules)
-        ]);
-
         $type = $weekoff_rules['type'] ?? 'Fixed';
 
         // 1. FIXED TYPE
