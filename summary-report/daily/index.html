@@ -309,28 +309,32 @@
 
         <section class="flex-1 min-h-0 border border-slate-200 rounded p-0 overflow-hidden flex flex-col">
             <div class="px-4 py-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Detailed Employee Statistics</h3>
-                <span class="text-[10px] text-text-sub font-medium">Full report for active employees</span>
+                <h3 class="text-xs font-bold uppercase tracking-wide text-text-main">Daily Employee Statistics</h3>
+                <span class="text-[10px] text-text-sub font-medium">Detailed logs for October 24, 2023</span>
             </div>
-
-            <div class="flex-1 overflow-visible">
+            <div class="flex-1 overflow-auto">
                 <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-100 text-primary font-bold border-b border-slate-200">
+                    <thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">
                         <tr>
-                            <th class="px-4 py-1.5 w-[20%] bg-slate-100">Employee</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">E.Id</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">Punches</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">Late In</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">Early Out</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">OT</th>
-                            <th class="px-2 py-1.5 text-center bg-slate-100">Total Hrs</th>
-                            <th class="px-4 py-1.5 text-center bg-slate-100">Status</th>
+                            <th class="px-4 py-2.5 w-[20%] bg-slate-100">Employee</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Schedule</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Clock In</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Clock Out</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Late (mins)</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Early Go (mins)</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Overtime</th>
+                            <th class="px-2 py-2.5 text-center bg-slate-100">Total Hrs</th>
+                            <th class="px-4 py-2.5 text-right bg-slate-100">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-text-main" id="employeeTableBody"></tbody>
+                    <tbody class="divide-y divide-slate-100 text-text-main" id="employeeTableBody">
+
+                    </tbody>
                 </table>
             </div>
         </section>
+
+
 
         <footer
             class="mt-auto pt-2 border-t border-slate-200 flex justify-between items-center text-[10px] text-text-sub shrink-0">
@@ -620,29 +624,78 @@
 
         function buildEmployeeRow(emp) {
             var avatarHtml = emp.img
-                ? '<img src="' + emp.img + '" onerror="this.onerror=null;this.src=\'https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + '\'" class="h-8 w-8 rounded-full ring-1 ring-slate-200 object-cover object-center" />'
-                : '<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs ring-1 ring-slate-200">' + getInitials(emp.name) + '</div>';
+                ? '<div class="h-8 w-8 rounded-full bg-cover bg-center ring-1 ring-slate-200" ' +
+                'style="background-image:url(\'' + emp.img + '\')" ' +
+                'onerror="this.style.backgroundImage=\'url(https://ui-avatars.com/api/?name=' + encodeURIComponent(emp.name || 'Employee') + ')\'"></div>'
+                : '<div class="h-8 w-8 rounded-full flex items-center justify-center bg-primary/10 text-primary font-bold text-xs ring-1 ring-slate-200">' +
+                getInitials(emp.name) +
+                '</div>';
 
             var shiftTypeId = String(emp.shift_type_id || '');
             var isMultiShift = (shiftTypeId === '2' || shiftTypeId === '5');
 
+            var shiftTime = emp.shift_time || emp.shift || '---';
+            var checkIn = emp.check_in || emp.in_time || '---';
+            var checkInDevice = emp.check_in_device || emp.in_device || '';
+            var checkOut = emp.check_out || emp.out_time || '---';
+            var checkOutDevice = emp.check_out_device || emp.out_device || '';
+            var lateIn = emp.late_in || '-';
+            var earlyOut = emp.early_out || '-';
+            var ot = emp.ot || '-';
+            var totalHrs = emp.total_hrs || '-';
+            var status = emp.status || '-';
+
             return (
                 '<tr class="hover:bg-slate-50/50">' +
-                '<td class="px-4 py-2"><div class="flex items-center gap-3">' +
+
+                // Employee
+                '<td class="px-4 py-2">' +
+                '<div class="flex items-center gap-3">' +
                 avatarHtml +
                 '<div class="flex flex-col">' +
                 '<span class="font-bold text-text-main">' + (emp.name || 'Unknown') + '</span>' +
                 '<span class="text-[10px] text-text-sub">' + (emp.department || '---') + '</span>' +
-                '</div></div></td>' +
-                '<td class="px-2 py-2 text-center font-medium text-text-main">' + (emp.employee_code || '---') + '</td>' +
-                '<td class="px-2 py-2 text-center">' + buildPunchesCell(emp) + '</td>' +
-                (isMultiShift ? '' :
-                    '<td class="px-2 py-2 text-center"><span class="text-[10px] font-semibold text-text-main">' + (emp.late_in || '---') + '</span></td>' +
-                    '<td class="px-2 py-2 text-center"><span class="text-[10px] font-semibold text-text-main">' + (emp.early_out || '---') + '</span></td>'
+                '</div>' +
+                '</div>' +
+                '</td>' +
+
+                // Shift
+                '<td class="px-2 py-2 text-center text-text-sub">' + shiftTime + '</td>' +
+
+                // Check In
+                '<td class="px-2 py-2 text-center">' +
+                '<div class="flex flex-col">' +
+                '<span class="text-text-sub">' + checkIn + '</span>' +
+                '<span class="text-[9px] text-text-sub font-light">' + (checkInDevice || '-') + '</span>' +
+                '</div>' +
+                '</td>' +
+
+                // Check Out
+                '<td class="px-2 py-2 text-center">' +
+                '<div class="flex flex-col">' +
+                '<span class="text-text-sub">' + checkOut + '</span>' +
+                '<span class="text-[9px] text-text-sub font-light">' + (checkOutDevice || '-') + '</span>' +
+                '</div>' +
+                '</td>' +
+
+                // Late In / Early Out
+                (isMultiShift
+                    ? ''
+                    : '<td class="px-2 py-2 text-center text-text-sub">' + lateIn + '</td>' +
+                    '<td class="px-2 py-2 text-center text-text-sub">' + earlyOut + '</td>'
                 ) +
-                '<td class="px-2 py-2 text-center font-medium">' + (emp.ot || '---') + '</td>' +
-                '<td class="px-2 py-2 text-center font-medium">' + (emp.total_hrs || '---') + '</td>' +
-                '<td class="px-4 py-2 text-center">' + emp.status + '</td>' +
+
+                // OT
+                '<td class="px-2 py-2 text-center text-success font-bold">' + ot + '</td>' +
+
+                // Total Hours
+                '<td class="px-2 py-2 text-center font-bold">' + totalHrs + '</td>' +
+
+                // Status
+                '<td class="px-4 py-2 text-center">' +
+                '<span class="text-text-sub">' + status + '</span>' +
+                '</td>' +
+
                 '</tr>'
             );
         }
@@ -716,12 +769,13 @@
                     '<thead class="bg-slate-100 text-primary font-bold border-b border-slate-200 sticky top-0 z-10">' +
                     '<tr>' +
                     '<th class="px-4 py-2.5 w-[20%] bg-slate-100">Employee</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">E.Id</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Punches</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Late In</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Early Out</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">OT</th>' +
-                    '<th class="px-2 py-2.5 text-center bg-slate-100">Total Hrs</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Schedule</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Clock In</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Clock Out</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Late (mins)</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Early Go (mins)</th>' +
+                    '<th class="px-2 py-2.5 text-center bg-slate-100">Overtime</th>' +
+                    '<th class="px-4 py-2.5 text-center bg-slate-100">Total Hrs</th>' +
                     '<th class="px-4 py-2.5 text-center bg-slate-100">Status</th>' +
                     '</tr>' +
                     '</thead>' +
