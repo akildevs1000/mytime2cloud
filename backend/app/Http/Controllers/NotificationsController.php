@@ -78,24 +78,33 @@ class NotificationsController extends Controller
         // Log the incoming request to see what's happening
         FacadesLog::info("Incoming Payload:", $request->all());
 
-        // FIX: Change 'type' to 'map'
-        if ($request->type == 'map') {
-            $created = UserLocation::create([
-                'company_id'  => $request->clientId,
-                'user_id'     => $request->input('data.user_id'),
-                'user_name'   => $request->input('data.name'),
-                'avatar'      => $request->input('data.avatar'),
-                'lat'         => $request->input('data.lat'),
-                'lon'         => $request->input('data.lon'),
-                'recorded_at' => $request->input('data.timestamp'),
-            ]);
+        $userId = $request->input('data.user_id');
+        $timestamp = $request->input('data.timestamp');
 
-            FacadesLog::info("Location Saved Successfully", $created->toArray());
+        $exists = UserLocation::where('user_id', $userId)
+            ->where('recorded_at', $timestamp)
+            ->exists();
 
-            return response()->json(['status' => 'success'], 201);
+        if (!$exists) {
+            // FIX: Change 'type' to 'map'
+            if ($request->type == 'map') {
+                $created = UserLocation::create([
+                    'company_id'  => $request->clientId,
+                    'user_id'     => $request->input('data.user_id'),
+                    'user_name'   => $request->input('data.name'),
+                    'avatar'      => $request->input('data.avatar'),
+                    'lat'         => $request->input('data.lat'),
+                    'lon'         => $request->input('data.lon'),
+                    'recorded_at' => $request->input('data.timestamp'),
+                ]);
+
+                FacadesLog::info("Location Saved Successfully", $created->toArray());
+
+                return response()->json(['status' => 'success'], 201);
+            }
+
+            FacadesLog::warning("Request type mismatch: " . $request->type);
+            return response()->json(['status' => 'ignored'], 200);
         }
-
-        FacadesLog::warning("Request type mismatch: " . $request->type);
-        return response()->json(['status' => 'ignored'], 200);
     }
 }
