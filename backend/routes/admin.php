@@ -369,4 +369,4 @@ Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
 
 Route::post('/contact-form', [SendMailController::class, 'send']);
 
-Route::get('/store-notifications', [NotificationsController::class, 'storeNotifications']);
+Route::post('/store-notifications', [NotificationsController::class, 'storeNotifications']);
