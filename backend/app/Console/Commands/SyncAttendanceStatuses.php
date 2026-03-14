@@ -58,13 +58,11 @@ class SyncAttendanceStatuses extends Command
 
         $employeeQuery->chunkById(500, function ($employees) use ($date, $dateString, $holidayCompanyIds) {
             $batch = [];
-            $counts = ['H' => 0, 'O' => 0, 'A' => 0];
+            $counts = ['H' => 0, 'A' => 0];
 
             foreach ($employees as $employee) {
                 if (isset($holidayCompanyIds[$employee->company_id])) {
                     $status = "H";
-                } elseif ($date->isWeekend()) {
-                    $status = "O";
                 } else {
                     $status = "A";
                 }
