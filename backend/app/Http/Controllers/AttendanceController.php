@@ -900,6 +900,7 @@ class AttendanceController extends Controller
 
                 ->selectRaw("
                 attendances.id,
+                attendances.date,
                 attendances.shift_type_id,
                 attendances.shift_id,
                 attendances.employee_id,
@@ -951,6 +952,7 @@ class AttendanceController extends Controller
                 return [
                     'system_user_id' => (int) $row->system_user_id,
                     'employee_code' => (string) ($row->employee_code ?? ''),
+                    'date' => (string) ($row->date ?? ''),
                     'name' => $name,
                     'department' => (string) ($row->department_name ?? '---'),
                     'date' => (string) ($row->date ?? '---'),
