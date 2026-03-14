@@ -53,7 +53,7 @@ class SingleShiftController extends Controller
         
         Log::info("Using: $version");
 
-        if ($request->company_id == 65) {
+        if ($request->company_id == 60 || $request->company_id == 65) {
             return $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
         }
 
