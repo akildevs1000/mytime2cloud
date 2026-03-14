@@ -26,11 +26,21 @@ class SyncAttendanceStatuses extends Command
         $dateString = $date->toDateString();
 
         $this->info("--- Initializing Sync: $dateString ---");
+
+        // 1. Delete Previous Records for this date
+        $deleteQuery = Attendance::whereDate('date', $dateString);
+
         if ($companyArgument) {
-            $this->warn("Targeting Company ID: $companyArgument");
+            $deleteQuery->where('company_id', $companyArgument);
+            $this->warn("Clearing existing records for Company ID: $companyArgument on $dateString");
+        } else {
+            $this->warn("Clearing ALL existing records for $dateString");
         }
 
-        // 1. Fetch Holidays
+        $deletedCount = $deleteQuery->delete();
+        $this->info("Deleted $deletedCount existing records.");
+
+        // 2. Fetch Holidays (O(1) lookup preparation)
         $holidayQuery = DB::table('holidays')
             ->whereDate('start_date', '<=', $dateString)
             ->whereDate('end_date', '>=', $dateString);
@@ -40,33 +50,23 @@ class SyncAttendanceStatuses extends Command
         }
 
         $holidayCompanyIds = $holidayQuery->pluck('company_id')->flip()->toArray();
-        $this->info("Found " . count($holidayCompanyIds) . " companies with active holidays.");
 
-        // 2. Identify employees who already have logs
-        $alreadyLoggedIds = Attendance::whereDate('date', $dateString)->pluck('employee_id');
-        $this->info(count($alreadyLoggedIds) . " employees already have attendance records. Skipping them...");
-
-        // 3. Process missing employees
-        $employeeQuery = Employee::whereNotIn('employee_id', $alreadyLoggedIds);
+        // 3. Process All Employees (Since we deleted previous logs, we don't need whereNotIn)
+        $employeeQuery = Employee::query();
 
         if ($companyArgument) {
             $employeeQuery->where('company_id', $companyArgument);
         }
 
         $totalEmployees = $employeeQuery->count();
-        $this->info("Identified $totalEmployees employees with missing logs.");
+        $this->info("Processing $totalEmployees employees.");
 
-        $employeeQuery->chunkById(500, function ($employees) use ($date, $dateString, $holidayCompanyIds) {
+        $employeeQuery->chunkById(500, function ($employees) use ($dateString, $holidayCompanyIds) {
             $batch = [];
             $counts = ['H' => 0, 'A' => 0];
 
             foreach ($employees as $employee) {
-                if (isset($holidayCompanyIds[$employee->company_id])) {
-                    $status = "H";
-                } else {
-                    $status = "A";
-                }
-
+                $status = isset($holidayCompanyIds[$employee->company_id]) ? "H" : "A";
                 $counts[$status]++;
 
                 $batch[] = [
@@ -91,8 +91,7 @@ class SyncAttendanceStatuses extends Command
 
             if (!empty($batch)) {
                 Attendance::insert($batch);
-                // Log exactly what happened in this batch
-                $this->line("<fg=cyan>Batch Inserted:</> H: {$counts['H']} | O: {$counts['O']} | A: {$counts['A']}");
+                $this->line("<fg=cyan>Batch Inserted:</> H: {$counts['H']} | A: {$counts['A']}");
             }
         });
 
