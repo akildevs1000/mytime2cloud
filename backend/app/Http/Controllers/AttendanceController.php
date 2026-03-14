@@ -981,9 +981,11 @@ class AttendanceController extends Controller
             employees.display_name,
             employees.profile_picture,
             COALESCE(departments.name, '---') as department_name,
-            SUM(CASE WHEN attendances.status = 'P' THEN 1 ELSE 0 END) as days_present,
+            SUM(CASE WHEN attendances.status IN ('P', 'LC', 'EG', 'ME') THEN 1 ELSE 0 END) as days_present,
             SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as days_absent,
             SUM(CASE WHEN attendances.status = 'L' THEN 1 ELSE 0 END) as days_leave,
+            SUM(CASE WHEN attendances.status = 'O' THEN 1 ELSE 0 END) as days_weekoff,
+            SUM(CASE WHEN attendances.status = 'M' THEN 1 ELSE 0 END) as days_missing,
             SUM(CASE WHEN attendances.status = 'ME' THEN 1 ELSE 0 END) as manual_logs,
             SUM(CASE WHEN attendances.status != '---' THEN 1 ELSE 0 END) as total_days,
             " . $this->buildSumMinutesSelect('attendances.late_coming', 'late_in_minutes') . ",
@@ -1040,6 +1042,8 @@ class AttendanceController extends Controller
                 $daysPresent = (int) ($row->days_present ?? 0);
                 $daysAbsent = (int) ($row->days_absent ?? 0);
                 $daysLeave = (int) ($row->days_leave ?? 0);
+                $daysWeekoff = (int) ($row->days_weekoff ?? 0);
+                $daysMissing = (int) ($row->days_missing ?? 0);
                 $manualLogs = (int) ($row->manual_logs ?? 0);
                 $totalDays = (int) ($row->total_days ?? 0);
                 $lateInMinutes = (int) ($row->late_in_minutes ?? 0);
@@ -1113,6 +1117,8 @@ class AttendanceController extends Controller
                     'days_present' => $daysPresent,
                     'days_absent' => $daysAbsent,
                     'days_leave' => $daysLeave,
+                    'days_weekoff' => $daysWeekoff,
+                    'days_missing' => $daysMissing,
                     'manual_logs' => $manualLogs,
                     'total_days' => $totalDays,
                     'late_in_hours' => $lateInHours,
