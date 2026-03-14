@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\HostCompany;
 use App\Models\Notification as NotificationModel;
+use App\Models\UserLocation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Notification;
@@ -75,7 +76,21 @@ class NotificationsController extends Controller
 
     public function storeNotifications(Request $request)
     {
-        FacadesLog::info("Store Notifications Cron Job Triggered");
-        FacadesLog::info(json_encode($request->all(), JSON_PRETTY_PRINT));
+
+        if ($request->type == 'type') {
+            UserLocation::create([
+                'company_id'  => $request->clientId,
+                'user_id'     => $request->input('data.user_id'),
+                'user_name'   => $request->input('data.name'),
+                'avatar'      => $request->input('data.avatar'), // Mapping the avatar URL
+                'lat'         => $request->input('data.lat'),
+                'lon'         => $request->input('data.lon'),
+                'recorded_at' => $request->input('data.timestamp'),
+            ]);
+
+            FacadesLog::info("Store Notifications Cron Job Triggered");
+
+            FacadesLog::info(json_encode($request->all(), JSON_PRETTY_PRINT));
+        }
     }
 }
