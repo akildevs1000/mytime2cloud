@@ -73,24 +73,29 @@ class NotificationsController extends Controller
         }
     }
 
-
     public function storeNotifications(Request $request)
     {
+        // Log the incoming request to see what's happening
+        FacadesLog::info("Incoming Payload:", $request->all());
 
-        if ($request->type == 'type') {
+        // FIX: Change 'type' to 'map'
+        if ($request->type == 'map') {
             $created = UserLocation::create([
                 'company_id'  => $request->clientId,
                 'user_id'     => $request->input('data.user_id'),
                 'user_name'   => $request->input('data.name'),
-                'avatar'      => $request->input('data.avatar'), // Mapping the avatar URL
+                'avatar'      => $request->input('data.avatar'),
                 'lat'         => $request->input('data.lat'),
                 'lon'         => $request->input('data.lon'),
                 'recorded_at' => $request->input('data.timestamp'),
             ]);
 
-            FacadesLog::info("Store Notifications Cron Job Triggered");
+            FacadesLog::info("Location Saved Successfully", $created->toArray());
 
-            FacadesLog::info(json_encode($created->toArray(), JSON_PRETTY_PRINT));
+            return response()->json(['status' => 'success'], 201);
         }
+
+        FacadesLog::warning("Request type mismatch: " . $request->type);
+        return response()->json(['status' => 'ignored'], 200);
     }
 }
