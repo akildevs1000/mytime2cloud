@@ -13,6 +13,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\HolidaysController;
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\ModuleController;
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ResetPasswordController;
 use App\Http\Controllers\RoleController;
@@ -367,3 +368,5 @@ Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
 });
 
 Route::post('/contact-form', [SendMailController::class, 'send']);
+
+Route::get('/store-notifications', [NotificationsController::class, 'storeNotifications']);

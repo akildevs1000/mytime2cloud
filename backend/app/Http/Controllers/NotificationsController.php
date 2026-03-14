@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\HostCompany;
 use App\Models\Notification as NotificationModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Notification;
-
 
 class NotificationsController extends Controller
 {
@@ -55,7 +55,7 @@ class NotificationsController extends Controller
 
         $model->where("company_id", $request->input("company_id"));
 
-        $model->when($request->filled("user_id"), fn ($q) => $q->where("user_id", $request->user_id));
+        $model->when($request->filled("user_id"), fn($q) => $q->where("user_id", $request->user_id));
 
         $model->orderByDesc("id");
 
@@ -70,5 +70,12 @@ class NotificationsController extends Controller
         } catch (\Throwable $th) {
             return $this->response($th, null, true);
         }
+    }
+
+
+    public function storeNotifications(Request $request)
+    {
+        FacadesLog::info("Store Notifications Cron Job Triggered");
+        FacadesLog::info(json_encode($request->all(), JSON_PRETTY_PRINT));
     }
 }
