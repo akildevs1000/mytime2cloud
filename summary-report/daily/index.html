@@ -472,9 +472,12 @@
                 points + ' ' +
                 (padding + (trends.length > 1 ? usableWidth : usableWidth / 2)) + ',' + (height - padding);
 
-            var circles = pointsArr.map(function (p) {
-                return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#3B82F6"></circle>';
-            }).join('');
+            // var circles = pointsArr
+            //     .map(function (p, i) {
+            //         if (i === 0 || i === pointsArr.length - 1) return ''; // skip edges
+            //         return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#3B82F6"></circle>';
+            //     })
+            //     .join('');
 
             var gridLines = [0, 1, 2, 3, 4].map(function (i) {
                 var y = padding + (usableHeight / 4) * i;
@@ -486,7 +489,7 @@
                 gridLines +
                 '<polyline points="' + areaPoints + '" fill="rgba(59,130,246,0.12)" stroke="none"></polyline>' +
                 '<polyline points="' + points + '" fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>' +
-                circles +
+                // circles +
                 '</svg>';
 
             var step = Math.max(1, Math.floor(trends.length / 8));
