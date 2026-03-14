@@ -368,7 +368,13 @@ class EmployeeLeavesController extends Controller
 
                 $clientId = $company_id . "_" . $employee_id;
 
-                Notify::push($clientId, "leave_request", "Leave application has been $status_text");
+                Notify::push($clientId, "leave_request", "Leave application has been $status_text", [
+                    "reason" => $request->approve_reject_notes,
+                    "leave_id" => $leaveId,
+                    "status" => $status_text,
+                    "timestamp" => now()->format("Y-m-d H:i"),
+                    "leave_payload" => $model->toArray()
+                ]);
 
                 // $record->clientId = $clientId;
 
