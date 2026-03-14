@@ -88,7 +88,10 @@ class SyncAttendanceStatuses extends Command
                     'updated_at'    => now(),
                 ];
 
-                $this->info("Prepared: EmpID {$employee->employee_id} | Status: $status | shift_type_id: {$employee->schedule->shift->shift_type_id}");
+                if ($employee->employee_id == 1068) {
+                    $this->info("Prepared: EmpID {$employee->employee_id} | Status: $status | shift_type_id: {$employee->schedule->shift->shift_type_id}");
+                }
+
 
                 $batch[] = $payload;
             }
