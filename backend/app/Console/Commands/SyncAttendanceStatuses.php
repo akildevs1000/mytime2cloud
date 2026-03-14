@@ -46,8 +46,7 @@ class SyncAttendanceStatuses extends Command
             ->pluck('employee_id');
 
         // 4. Chunk employees
-        $employeeQuery = Employee::where('is_active', true)
-            ->whereNotIn('system_user_id', $alreadyLoggedIds);
+        $employeeQuery = Employee::whereNotIn('system_user_id', $alreadyLoggedIds);
 
         // Filter by company if requested
         if ($companyArgument) {
