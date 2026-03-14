@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import DropDown from "@/components/ui/DropDown";
 import DatePicker from "@/components/ui/DatePicker";
 import TimePicker from "@/components/ui/TimePicker";
-import { getDeviceLogs, getScheduledEmployeeList } from "@/lib/api";
+import { getDeviceLogs, getScheduledEmployeeList, regenerateReport } from "@/lib/api";
 import { generateManualLog, getEmployeeRelatedShift } from "@/lib/endpoint/attendance";
 import { notify, parseApiError } from "@/lib/utils";
 import { getUser } from "@/config";
@@ -385,6 +385,22 @@ export default function ManualAttendanceCorrectionModal({
             }
 
             notify("Saved", response?.message || "Correction submitted successfully.", "success");
+
+            try {
+                await regenerateReport({
+                    dates: [date, date],
+                    UserIds: [user_id],
+                    company_ids: [user?.company_id],
+                    user_id: user?.id,
+                    updated_by: user?.id,
+                    reason: form?.reason || null,
+                    employee_ids: [user_id],
+                    shift_type_id: currentShiftTypeId,
+                });
+            } catch (_) {
+                // Regeneration failure should not block the success flow
+            }
+
             onClose?.();
             onSuccess?.();
         } catch (error) {
