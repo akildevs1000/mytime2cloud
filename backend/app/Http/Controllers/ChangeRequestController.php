@@ -91,13 +91,15 @@ class ChangeRequestController extends Controller
             // Validate the request data using the UpdateRequest rules
             $data = $request->all();
 
+            $status = $data['status'];
+
             // Start a database transaction
             DB::beginTransaction();
 
             // Update Attendance records
 
             // A status = Approve from change request table
-            if ($data['status'] == "A") {
+            if ($status == "A") {
 
                 Attendance::where('company_id', $data['company_id'])
                     ->where('employee_id', $data['employee_device_id'])
@@ -106,7 +108,7 @@ class ChangeRequestController extends Controller
             }
 
             // Update the ChangeRequest
-            $record = ChangeRequest::where('id', $id)->update(['status' => $data['status']]);
+            $record = ChangeRequest::where('id', $id)->update(['status' => $status]);
 
             // Commit the transaction if all operations are successful
             DB::commit();
@@ -126,7 +128,9 @@ class ChangeRequestController extends Controller
 
                 $clientId = $data['company_id'] . "_" . $employee->id;
 
-                 Notify::push($clientId, "change_request", "Attendance request has been updated");
+                $statusResult = $status == "A" ? "Approved" : "Rejected";
+
+                Notify::push($clientId, "change_request", "Attendance request has been $statusResult");
 
                 return $this->response('ChangeRequest updated.', $clientId, true);
             } else {
