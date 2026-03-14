@@ -47,7 +47,7 @@ class SyncAttendanceStatuses extends Command
         $this->info(count($alreadyLoggedIds) . " employees already have attendance records. Skipping them...");
 
         // 3. Process missing employees
-        $employeeQuery = Employee::whereNotIn('system_user_id', $alreadyLoggedIds);
+        $employeeQuery = Employee::whereNotIn('employee_id', $alreadyLoggedIds);
 
         if ($companyArgument) {
             $employeeQuery->where('company_id', $companyArgument);
