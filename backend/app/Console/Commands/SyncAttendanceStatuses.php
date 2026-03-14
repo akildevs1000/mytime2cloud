@@ -58,7 +58,7 @@ class SyncAttendanceStatuses extends Command
             $employeeQuery->where('company_id', $companyArgument);
 
             $employeeQuery->with(['schedule' => function ($q) use ($companyArgument) {
-                $q->select('company_id', $companyArgument);
+                $q->where('company_id', $companyArgument);
             }]);
         }
 
