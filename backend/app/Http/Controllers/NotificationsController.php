@@ -78,7 +78,7 @@ class NotificationsController extends Controller
     {
 
         if ($request->type == 'type') {
-            UserLocation::create([
+            $created = UserLocation::create([
                 'company_id'  => $request->clientId,
                 'user_id'     => $request->input('data.user_id'),
                 'user_name'   => $request->input('data.name'),
@@ -90,7 +90,7 @@ class NotificationsController extends Controller
 
             FacadesLog::info("Store Notifications Cron Job Triggered");
 
-            FacadesLog::info(json_encode($request->all(), JSON_PRETTY_PRINT));
+            FacadesLog::info(json_encode($created->toArray(), JSON_PRETTY_PRINT));
         }
     }
 }
