@@ -84,7 +84,7 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule
-            ->command('attendance:fix-today')
+            ->command('attendance:rectify')
             ->everyMinute()
             ->runInBackground();
 
