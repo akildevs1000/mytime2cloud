@@ -19,45 +19,49 @@ class SyncAttendanceStatuses extends Command
 
     public function handle()
     {
-        // 1. Parse Arguments
         $dateArgument = $this->argument('date');
         $companyArgument = $this->argument('company_id');
-        
+
         $date = $dateArgument ? Carbon::parse($dateArgument) : Carbon::yesterday();
         $dateString = $date->toDateString();
 
-        $this->info("--- Starting Sync for Date: $dateString" . ($companyArgument ? " | Company ID: $companyArgument" : "") . " ---");
+        $this->info("--- Initializing Sync: $dateString ---");
+        if ($companyArgument) {
+            $this->warn("Targeting Company ID: $companyArgument");
+        }
 
-        // 2. Fetch Holidays ONCE (Filtered by Company if argument exists)
+        // 1. Fetch Holidays
         $holidayQuery = DB::table('holidays')
             ->whereDate('start_date', '<=', $dateString)
             ->whereDate('end_date', '>=', $dateString);
-            
+
         if ($companyArgument) {
             $holidayQuery->where('company_id', $companyArgument);
         }
 
-        $holidayCompanyIds = $holidayQuery->pluck('company_id')
-            ->flip() 
-            ->toArray();
+        $holidayCompanyIds = $holidayQuery->pluck('company_id')->flip()->toArray();
+        $this->info("Found " . count($holidayCompanyIds) . " companies with active holidays.");
 
-        // 3. Get IDs of employees who already have logs (to avoid overwriting)
-        $alreadyLoggedIds = Attendance::whereDate('date', $dateString)
-            ->pluck('employee_id');
+        // 2. Identify employees who already have logs
+        $alreadyLoggedIds = Attendance::whereDate('date', $dateString)->pluck('employee_id');
+        $this->info(count($alreadyLoggedIds) . " employees already have attendance records. Skipping them...");
 
-        // 4. Chunk employees
-        $employeeQuery = Employee::whereNotIn('system_user_id', $alreadyLoggedIds);
+        // 3. Process missing employees
+        $employeeQuery = Employee::where('is_active', true)
+            ->whereNotIn('system_user_id', $alreadyLoggedIds);
 
-        // Filter by company if requested
         if ($companyArgument) {
             $employeeQuery->where('company_id', $companyArgument);
         }
 
+        $totalEmployees = $employeeQuery->count();
+        $this->info("Identified $totalEmployees employees with missing logs.");
+
         $employeeQuery->chunkById(500, function ($employees) use ($date, $dateString, $holidayCompanyIds) {
             $batch = [];
+            $counts = ['H' => 0, 'O' => 0, 'A' => 0];
 
             foreach ($employees as $employee) {
-                // Logic Priority: Holiday > Weekend (Off) > Absent
                 if (isset($holidayCompanyIds[$employee->company_id])) {
                     $status = "H";
                 } elseif ($date->isWeekend()) {
@@ -65,6 +69,8 @@ class SyncAttendanceStatuses extends Command
                 } else {
                     $status = "A";
                 }
+
+                $counts[$status]++;
 
                 $batch[] = [
                     'employee_id'   => $employee->system_user_id,
@@ -88,7 +94,8 @@ class SyncAttendanceStatuses extends Command
 
             if (!empty($batch)) {
                 Attendance::insert($batch);
-                $this->comment("Synced a batch of " . count($batch) . " records.");
+                // Log exactly what happened in this batch
+                $this->line("<fg=cyan>Batch Inserted:</> H: {$counts['H']} | O: {$counts['O']} | A: {$counts['A']}");
             }
         });
 
