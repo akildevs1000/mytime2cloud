@@ -56,6 +56,10 @@ class SyncAttendanceStatuses extends Command
 
         if ($companyArgument) {
             $employeeQuery->where('company_id', $companyArgument);
+
+            $employeeQuery->with(['schedule' => function ($q) use ($companyArgument) {
+                $q->select('company_id', $companyArgument);
+            }]);
         }
 
         $totalEmployees = $employeeQuery->count();
