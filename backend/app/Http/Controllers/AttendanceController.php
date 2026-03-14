@@ -827,6 +827,7 @@ class AttendanceController extends Controller
         ]);
 
         $companyId = (int) $request->company_id;
+        $shiftTypeId = (int) $request->shift_type_id;
         $branchIds = array_values(array_unique(array_merge(
             $this->normalizeIds($request->input('branch_ids')),
             $this->normalizeIds($request->input('branch_id'))
@@ -879,6 +880,13 @@ class AttendanceController extends Controller
                 });
             });
 
+
+        if (request("shift_type_id", 0) > 0) {
+            $baseQuery->where('shift_type_id',  request("shift_type_id"));
+        } else {
+            $baseQuery->whereNotIn('shift_type_id', [2, 5]);
+        }
+
         if ($isSingleDay) {
             $baseQuery
                 ->with([
@@ -892,6 +900,7 @@ class AttendanceController extends Controller
 
                 ->selectRaw("
                 attendances.id,
+                attendances.shift_type_id,
                 attendances.shift_id,
                 attendances.employee_id,
                 employees.system_user_id,
@@ -946,6 +955,7 @@ class AttendanceController extends Controller
                     'department' => (string) ($row->department_name ?? '---'),
                     'date' => (string) ($row->date ?? '---'),
                     'shift_id' => (int) ($row->shift_id ?? 0),
+                    'shift_type_id' => (int) ($row->shift_type_id ?? 0),
                     'shift_name' => (string) ($row->shift?->name ?? '---'),
                     'on_duty_time' => (string) ($row->shift?->on_duty_time ?? '---'),
                     'off_duty_time' => (string) ($row->shift?->off_duty_time ?? '---'),
