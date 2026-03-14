@@ -83,7 +83,7 @@ class SyncAttendanceStatuses extends Command
                     'device_id_in'  => '---',
                     'device_id_out' => '---',
                     'shift_id'      => $employee->schedule->shift->id,
-                    'shift_type_id'      => $employee->schedule->shift_type_id,
+                    'shift_type_id'      => $employee->schedule->shift->shift_type_id,
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ];
