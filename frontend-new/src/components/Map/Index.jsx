@@ -195,7 +195,7 @@ export default function LiveTeamStatus() {
 
   useSse({ clientId: companyId, onMessage: handleSseMapMessage, storeMessages: false });
 
-  
+
 
 
 
@@ -323,7 +323,7 @@ export default function LiveTeamStatus() {
       if (maps && mapContainerRef.current) {
         try {
           ensureMapInstance(maps);
-        } catch (e) {}
+        } catch (e) { }
       }
       attempts += 1;
       if (attempts >= maxAttempts) clearInterval(iv);
@@ -409,7 +409,46 @@ export default function LiveTeamStatus() {
   }, [bwMode]);
 
   // no-op panel opener now that side panel is removed
-  const openPanel = () => {};
+  const openPanel = () => { };
+
+  useEffect(() => {
+    const targetCompanyId = companyId || 2;
+
+    const fetchInitialLocations = async () => {
+      try {
+        const response = await fetch(`http://192.168.1.205:8000/api/user-locations?company_id=${targetCompanyId}`);
+        if (!response.ok) throw new Error("Failed to fetch initial locations");
+
+        const result = await response.json();
+
+        if (Array.isArray(result)) {
+          const initialEmployees = result.map(item => ({
+            // Converting string IDs/Coords to Numbers to ensure map math works
+            id: item.user_id,
+            name: item.user_name || `Employee ${item.user_id}`,
+            location: "Last known location",
+            mapPos: { top: "50%", left: "50%" },
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon), // Note: your API uses "lon"
+            avatar: item.avatar || "",
+            timestamp: item.recorded_at,
+          }));
+
+          setEmployeesData(initialEmployees);
+
+          // Update the lastPositionsRef so the movement logic doesn't 
+          // trigger a "flicker" immediately on load
+          initialEmployees.forEach(emp => {
+            lastPositionsRef.current[emp.id] = { lat: emp.lat, lng: emp.lng };
+          });
+        }
+      } catch (error) {
+        console.error("Error loading default entries:", error);
+      }
+    };
+
+    fetchInitialLocations();
+  }, [companyId]);
 
 
   return (
@@ -421,7 +460,7 @@ export default function LiveTeamStatus() {
       <main className="relative flex-1 overflow-hidden">
         {/* Background Map (Google Maps will mount here) */}
         <div className="absolute inset-0 bg-[#0a0c10]">
-            <div ref={mapContainerRef} className="w-full h-full min-h-0" />
+          <div ref={mapContainerRef} className="w-full h-full min-h-0" />
           <div className="absolute inset-0 map-gradient-overlay pointer-events-none" />
           {!mapReady && !mapError && (
             <div className="absolute top-4 left-4 z-20 rounded-md bg-black/70 px-3 py-1 text-xs text-slate-200">
