@@ -427,33 +427,76 @@
             }).join('');
         }
 
+
         function renderTrendsChart(trends) {
             var container = document.getElementById('trendsChart');
             var labelsContainer = document.getElementById('trendsLabels');
+
+            if (!container || !labelsContainer) return;
+
             if (!trends || trends.length === 0) {
                 container.innerHTML = '<p class="text-text-sub text-center w-full py-8">No trend data available</p>';
                 labelsContainer.innerHTML = '';
                 return;
             }
-            var maxPunches = Math.max.apply(null, trends.map(function (t) {
+
+            var width = container.clientWidth || 800;
+            var height = 130;
+            var padding = 20;
+
+            var values = trends.map(function (t) {
                 return Number(t.punches || 0);
-            })) || 1;
+            });
 
-            container.innerHTML = trends.map(function (t) {
+            var maxPunches = Math.max.apply(null, values);
+            if (maxPunches <= 0) maxPunches = 1;
+
+            var usableWidth = width - padding * 2;
+            var usableHeight = height - padding * 2;
+
+            var stepX = trends.length > 1 ? usableWidth / (trends.length - 1) : usableWidth / 2;
+
+            var pointsArr = trends.map(function (t, i) {
                 var punches = Number(t.punches || 0);
-                var punchPct = Math.round((punches / maxPunches) * 100);
+                var x = padding + (trends.length > 1 ? i * stepX : usableWidth / 2);
+                var y = height - padding - ((punches / maxPunches) * usableHeight);
+                return { x: x, y: y, value: punches, label: t.label || '' };
+            });
 
-                return (
-                    '<div class="w-full flex flex-col-reverse h-full">' +
-                    '<div class="bg-primary w-full rounded-t" style="height:' + punchPct + '%"></div>' +
-                    '</div>'
-                );
+            var points = pointsArr.map(function (p) {
+                return p.x + ',' + p.y;
+            }).join(' ');
+
+            var areaPoints =
+                padding + ',' + (height - padding) + ' ' +
+                points + ' ' +
+                (padding + (trends.length > 1 ? usableWidth : usableWidth / 2)) + ',' + (height - padding);
+
+            var circles = pointsArr.map(function (p) {
+                return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#3B82F6"></circle>';
             }).join('');
 
-            var step = Math.max(1, Math.floor(trends.length / 13));
+            var gridLines = [0, 1, 2, 3, 4].map(function (i) {
+                var y = padding + (usableHeight / 4) * i;
+                return '<line x1="' + padding + '" y1="' + y + '" x2="' + (width - padding) + '" y2="' + y + '" stroke="#E2E8F0" stroke-width="1" />';
+            }).join('');
+
+            container.innerHTML =
+                '<svg width="100%" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="none">' +
+                gridLines +
+                '<polyline points="' + areaPoints + '" fill="rgba(59,130,246,0.12)" stroke="none"></polyline>' +
+                '<polyline points="' + points + '" fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>' +
+                circles +
+                '</svg>';
+
+            var step = Math.max(1, Math.floor(trends.length / 8));
             labelsContainer.innerHTML = trends
-                .filter(function (_, i) { return i % step === 0 || i === trends.length - 1; })
-                .map(function (t) { return '<span>' + (t.label || '') + '</span>'; })
+                .filter(function (_, i) {
+                    return i % step === 0 || i === trends.length - 1;
+                })
+                .map(function (t) {
+                    return '<span>' + (t.label || '') + '</span>';
+                })
                 .join('');
         }
 
