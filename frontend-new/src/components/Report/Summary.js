@@ -4,7 +4,7 @@
 // Next.js App Router page component (React)
 // If you prefer a reusable component, move JSX into /components and import it here.
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDayTrends, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, getCompanyStatsSummaryPayload } from '@/lib/endpoint/dashboard';
 import MonthPicker from '@/components/ui/MonthPicker';
 import MultiDropDown from '@/components/ui/MultiDropDown';
@@ -19,12 +19,17 @@ import {
   CartesianGrid,
 } from 'recharts';
 import ProfilePicture from '../ProfilePicture';
-import { Download, MoreVertical, RefreshCw } from 'lucide-react';
-import { getUser } from '@/config/index';
+import { Download, Eye, FileText, Loader2, MoreVertical, RefreshCw } from 'lucide-react';
+import { API_BASE_URL, getUser } from '@/config/index';
 import DatePicker from '../ui/DatePicker';
 import DropDown from '../ui/DropDown';
 import { set } from 'date-fns';
-
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -34,6 +39,9 @@ import {
 import { useDarkMode } from '@/context/DarkModeContext';
 import { getBgColor, setStatusLabel } from '@/lib/utils';
 import { downloadReport } from '@/lib/endpoint/report';
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { getAttendanceTabs } from '@/lib/endpoint/attendance';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
@@ -51,6 +59,10 @@ export default function ExecutiveAttendanceDashboardPage() {
     return `${year}-${month}-${day}`;
   });
 
+  const [isLogsOpen, setIsLogsOpen] = useState(false);
+  const [selectedLogRow, setSelectedLogRow] = useState(null);
+  const [logDetails, setLogDetails] = useState([]);
+  const [isLogsLoading, setIsLogsLoading] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState([]);
@@ -296,6 +308,7 @@ export default function ExecutiveAttendanceDashboardPage() {
         department_ids: selectedDepartmentIds,
         search: attendanceSearchText.trim(),
         page: attendancePage,
+        shift_type_id: shiftTypeId,
         per_page: attendanceMeta.per_page || 10,
       };
 
@@ -308,14 +321,19 @@ export default function ExecutiveAttendanceDashboardPage() {
 
       const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
         ? dailyAttendanceResponse.data.map((item) => {
+          console.log(item);
           const baseRow = {
             id: item?.system_user_id,
             employeeCode: item?.employee_code || '---',
+            date: item?.date || '---',
             name: item?.name || 'Unknown',
             department: item?.department || '---',
             shift_type_id: item?.shift_type_id || '---',
             logs: item?.logs || '---',
             img: item?.img || null,
+            duty_time: (item?.on_duty_time || '') + " - " + (item?.off_duty_time || ''),
+            device_in: item.device_in || '---',
+            device_out: item.device_out || '---',
           };
 
           if (resolvedAttendanceReportType === 'daily') {
@@ -334,6 +352,9 @@ export default function ExecutiveAttendanceDashboardPage() {
 
           return {
             ...baseRow,
+            daysPresent: Number(item?.days_present ?? 0),
+            daysWeekOff: Number(item?.days_weekoff ?? 0),
+            daysMissing: Number(item?.days_missing ?? 0),
             daysPresent: Number(item?.days_present ?? 0),
             daysAbsent: Number(item?.days_absent ?? 0),
             daysLeave: Number(item?.days_leave ?? 0),
@@ -360,8 +381,8 @@ export default function ExecutiveAttendanceDashboardPage() {
       setAttendancePage(1);
       setAttendanceMeta({
         total: Number(dailyAttendanceResponse?.meta?.total || 0),
-        page: 1,
-        per_page: Number(dailyAttendanceResponse?.meta?.per_page || 10),
+        page: selectedDate,
+        per_page: 100,
         last_page: Number(dailyAttendanceResponse?.meta?.last_page || 1),
         from: Number(dailyAttendanceResponse?.meta?.from || 0),
         to: Number(dailyAttendanceResponse?.meta?.to || 0),
@@ -373,10 +394,46 @@ export default function ExecutiveAttendanceDashboardPage() {
     }
   };
 
+  const [shiftTypeId, setShiftTypeId] = useState(`0`);
+  const [tabs, setTabs] = useState([]);
+  const [orginalTabSet, setOriginalTabSet] = useState({ single: true, double: true, multi: true });
+  const fetchAttendanceTabs = async () => {
+    try {
+      const response = await getAttendanceTabs(); // e.g., { single: true, double: true, multi: false }
+
+      // Define the mapping between JSON keys and your numeric IDs
+      const shiftMapping = [
+        { key: 'single', id: "0", name: 'Single Shift' },
+        { key: 'double', id: "5", name: 'Double Shift' },
+        { key: 'multi', id: "2", name: 'Multi Shift' }
+      ];
+
+      // Filter based on the API response
+      const activeTabs = shiftMapping
+        .filter(item => response[item.key] === true)
+        .map(({ id, name }) => ({ id, name }));
+
+      setTabs(activeTabs);
+
+      setOriginalTabSet(response)
+
+      // Optional: Auto-select the first available tab if current selection is empty
+      if (activeTabs.length > 0) {
+        setShiftTypeId(activeTabs[0].id);
+      }
+    } catch (error) {
+      setError(parseApiError(error));
+    }
+  };
+
+  useEffect(() => {
+    fetchAttendanceTabs();
+  }, []);
+
 
   useEffect(() => {
     fetchAllData();
-  }, [attendancePage]);
+  }, [attendancePage, shiftTypeId]);
 
   const handleExportPdf = async () => {
     try {
@@ -445,6 +502,50 @@ export default function ExecutiveAttendanceDashboardPage() {
     },
     { offset: 0, segments: [] }
   ).segments;
+
+
+   const handleViewLogs = useCallback(async (item) => {
+
+    console.log(item);
+    
+      try {
+        setSelectedLogRow(item);
+        setLogDetails([]);
+        setIsLogsOpen(true);
+        setIsLogsLoading(true);
+  
+        const user = getUser();
+        const companyId = user?.company_id ?? 0;
+  
+        const query = new URLSearchParams({
+          per_page: "500",
+          UserID: String(selectedDate ?? ""),
+          LogTime: String(item.date ?? ""),
+          company_id: String(companyId),
+        });
+  
+        const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+  
+        if (!res.ok) {
+          throw new Error("Failed to fetch log details");
+        }
+  
+  
+        const data = await res.json();
+        setLogDetails(Array.isArray(data?.data) ? data.data : []);
+      } catch (error) {
+        console.error(error);
+        notify("Error", parseApiError(error), "error");
+      } finally {
+        setIsLogsLoading(false);
+      }
+    }, []);
+  
 
   const getRateUi = (rate) => {
     if (rate >= 90) return 'text-emerald-500';
@@ -679,11 +780,11 @@ export default function ExecutiveAttendanceDashboardPage() {
                     itemStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
                   />
                   {reportType === 'daily' ? (
-                    <Bar dataKey="punches" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={50} />
+                    <Bar dataKey="punches" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={30} />
                   ) : (
                     <>
-                      <Bar dataKey="present" stackId="attendance" fill="#3b82f6" barSize={50} />
-                      <Bar dataKey="absent" stackId="attendance" fill="#fb7185" radius={[3, 3, 0, 0]} barSize={50} />
+                      <Bar dataKey="present" stackId="attendance" fill="#3b82f6" barSize={30} />
+                      <Bar dataKey="absent" stackId="attendance" fill="#fb7185" radius={[3, 3, 0, 0]} barSize={30} />
                     </>
                   )}
                 </BarChart>
@@ -766,9 +867,37 @@ export default function ExecutiveAttendanceDashboardPage() {
         {/* Table */}
         <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white self-start sm:self-center">
+
+            <Tabs
+              value={shiftTypeId || '0'}
+              onValueChange={(value) => setShiftTypeId(value)}
+              className="w-full"
+            >
+              {/* --- Tabs Header --- */}
+              <div className="">
+                {
+                  tabs.length > 0 && <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 p-2 w-full  ">
+                    <TabsList className="flex flex-wrap bg-white dark:bg-slate-700 p-1">
+                      {tabs.map((tab) => (
+                        <TabsTrigger
+                          key={tab.id}
+                          value={tab.id}
+                          className="px-4 py-2 text-sm font-medium rounded-md data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all duration-200"
+                        >
+                          {tab.name}
+                        </TabsTrigger>
+                      ))}
+                    </TabsList>
+                  </div>
+                }
+
+              </div>
+            </Tabs>
+
+
+            {/* <h3 className="text-lg font-bold text-slate-900 dark:text-white self-start sm:self-center">
               {reportType === 'daily' ? 'Daily' : 'Monthly'} Attendance Detail
-            </h3>
+            </h3> */}
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none">
@@ -783,12 +912,6 @@ export default function ExecutiveAttendanceDashboardPage() {
                   type="text"
                 />
               </div>
-
-              <button className="flex items-center justify-center size-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-white/5 hover:bg-slate-50 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 transition-colors">
-                <span className="material-symbols-outlined text-[20px]">
-                  filter_list
-                </span>
-              </button>
             </div>
           </div>
 
@@ -797,12 +920,29 @@ export default function ExecutiveAttendanceDashboardPage() {
               <thead>
                 {reportType === 'daily' ? (
                   <tr className="bg-slate-100 dark:bg-slate-800  border-y border-slate-200 dark:border-slate-700">
-                    <th className="px-4 py-3 w-[20%] text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
+                    <th className="px-4 py-3 w-[20%] text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee </th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Schedule</th>
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock In</th>
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock Out</th>
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Late (mins)</th>
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Early Go (mins)</th>
+                    {
+                      shiftTypeId != 2 && shiftTypeId != 5 ?
+                        <>
+                          <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock In</th>
+                          <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock Out</th>
+                          <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Late (mins)</th>
+                          <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Early Go (mins)</th>
+                        </>
+                        :
+                        <>
+                          {Array.from({ length: 5 }).map((_, idx) => (
+                            <th
+                              key={idx}
+                              className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center"
+                            >
+                              Log {idx + 1}
+                            </th>
+                          ))}
+                        </>
+                    }
+
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Overtime</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Total Hrs</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Status</th>
@@ -848,16 +988,16 @@ export default function ExecutiveAttendanceDashboardPage() {
                       {reportType === 'daily' ? (
                         <>
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                            {row.employeeCode}
+                            {row.duty_time}
                           </td>
                           {
                             row.shift_type_id != 2 && row.shift_type_id != 5 ? (
                               <>
                                 <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  {row.in || '--'}
+                                  {row.in || '--'}  <br /> <span className='text-[11px]'>{row.device_in}</span>
                                 </td>
                                 <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  {row.out || '--'}
+                                  {row.out || '--'} <br /> <span className='text-[11px]'>{row.device_out}</span>
                                 </td>
                                 <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
                                   {row.lateIn || '--'}
@@ -868,30 +1008,30 @@ export default function ExecutiveAttendanceDashboardPage() {
                               </>
                             ) : (
                               <>
-                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  <div className="flex flex-wrap justify-center gap-1 text-xs">
-                                    {(row.logs || []).length > 0 ? (
-                                      row.logs.map((log, idx) => (
-                                        <span
-                                          key={idx}
-                                          className="flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                                        >
-                                          <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
-                                            {log.in || "--"}
-                                          </span>
+                                {Array.from({ length: 5 }).map((_, idx) => {
+                                  const log = row.logs?.[idx];
 
-                                          <span className="text-slate-400">→</span>
+                                  console.log(log);
 
-                                          <span className="text-blue-600 dark:text-blue-400 font-semibold">
-                                            {log.out || "--"}
-                                          </span>
+                                  return (
+                                    <td
+                                      key={idx}
+                                      className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200"
+                                    >
+                                      <div className="flex flex-wrap justify-center gap-1 text-xs">
+                                        <span className="font-semibold">
+                                          {log?.in || "--"} <br />
                                         </span>
-                                      ))
-                                    ) : (
-                                      <span className="text-slate-400">No Logs</span>
-                                    )}
-                                  </div>
-                                </td>
+                                        <span className="font-semibold">
+                                          {" "}
+                                        </span>
+                                        <span className="font-semibold">
+                                          {log?.out || "--"}
+                                        </span>
+                                      </div>
+                                    </td>
+                                  );
+                                })}
                               </>
                             )
                           }
@@ -904,14 +1044,29 @@ export default function ExecutiveAttendanceDashboardPage() {
                             {row.totalHrs}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-center">
-                            <span className={`text-sm ${getBgColor(row.status)}`}
-                              style={{
-                                padding: "2px 10px",
-                                borderRadius: "50px",
-                              }}
+                            {
+                              row.status
+                                ?
+                                <span className={`text-sm ${getBgColor(row.status)}`}
+                                  style={{
+                                    padding: "2px 10px",
+                                    borderRadius: "50px",
+                                  }}
+                                >
+                                  {setStatusLabel(row?.status)}
+                                </span>
+                                : "---"
+                            }
+                          </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            <button
+                              type="button"
+                              onClick={() => handleViewLogs?.(row)}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md   text-primary  hover:bg-primary/5"
+                              title="View Logs"
                             >
-                              {setStatusLabel(row?.status)}
-                            </span>
+                              <Eye className="w-4 h-4" />
+                            </button>
                           </td>
                         </>
                       ) : (
@@ -926,7 +1081,10 @@ export default function ExecutiveAttendanceDashboardPage() {
                             {row.daysLeave}
                           </td>
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                            {row.manualLogs}
+                            {row.daysWeekOff}
+                          </td>
+                          <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            {row.daysMissing}
                           </td>
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
                             {row.avgIn}
@@ -948,6 +1106,16 @@ export default function ExecutiveAttendanceDashboardPage() {
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
                             {row.rate} %
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                            <button
+                              type="button"
+                              onClick={() => handleViewLogs?.(row)}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md   text-primary  hover:bg-primary/5"
+                              title="View Logs"
+                            >
+                              <Eye className="w-4 h-4" />
+                            </button>
                           </td>
                         </>
                       )}
@@ -1001,6 +1169,137 @@ export default function ExecutiveAttendanceDashboardPage() {
             </div>
           </div>
         </div>
+
+        <Dialog open={isLogsOpen} onOpenChange={setIsLogsOpen}>
+          <DialogContent className="min-w-[900px] max-w-[900px] p-0 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
+            <DialogHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-primary text-white">
+              <div className="flex items-center justify-between gap-3">
+                <DialogTitle className="text-base font-semibold">
+                  Log Details
+                </DialogTitle>
+              </div>
+            </DialogHeader>
+
+            <div className="px-6 py-2 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm">
+              <div className="text-slate-600 dark:text-slate-300">
+                Employee Id:{" "}
+                <span className="font-semibold text-slate-900 dark:text-white">
+                  {selectedLogRow?.employee?.system_user_id ||
+                    selectedLogRow?.employee_id ||
+                    "---"}
+                </span>
+              </div>
+
+              <div className="ml-auto text-slate-600 dark:text-slate-300">
+                Total logs:{" "}
+                <span className="font-semibold text-primary">
+                  ({logDetails.length})
+                </span>
+              </div>
+            </div>
+
+            <div className="px-6 py-5">
+              {isLogsLoading ? (
+                <div className="flex items-center justify-center py-16 text-slate-500 dark:text-slate-300">
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Loading log details...
+                </div>
+              ) : logDetails.length === 0 ? (
+                <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
+                  No logs found for this date.
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-100 dark:bg-slate-800">
+                      <tr>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Log Time
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Device
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Log Type
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Reason
+                        </th>
+                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
+                          Note
+                        </th>
+                        <th className="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
+                          Attachment
+                        </th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {logDetails.map((log, index) => (
+                        <tr
+                          key={`${log?.LogTime || "log"}-${index}`}
+                          className="border-t border-slate-200 dark:border-slate-800"
+                        >
+                          <td
+                            className={`px-4 py-3 ${log?.device?.name === "Manual"
+                              ? "text-red-600 dark:text-red-400 font-medium"
+                              : "text-slate-700 dark:text-slate-200"
+                              }`}
+                          >
+                            {log?.LogTime || "---"}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                            {log?.device?.name || "---"}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-primary/10 text-primary">
+                              {log?.log_type || "Device"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                            {log?.reason ? (
+                              <span className="inline-flex items-center gap-1 text-xs">
+                                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                {log.reason}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
+                            {log?.note ? (
+                              <span className="inline-flex items-center gap-1 text-xs">
+                                <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                {log.note}
+                              </span>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            {log?.attachment ? (
+                              <a
+                                href={`${API_BASE_URL.replace('/api', '')}/ManualLog/attachments/${log.attachment}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+                              >
+                                <Paperclip className="w-3.5 h-3.5" />
+                                View
+                              </a>
+                            ) : (
+                              <span className="text-slate-400">---</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

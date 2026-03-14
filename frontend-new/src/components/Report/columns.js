@@ -89,7 +89,7 @@ export default (shiftTypeId, { onViewLogs } = {}) => {
                         <button
                             type="button"
                             onClick={() => onViewLogs?.(item)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 bg-white text-primary shadow-sm hover:bg-primary/5 dark:border-slate-700 dark:bg-slate-900"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md   text-primary  hover:bg-primary/5"
                             title="View Logs"
                         >
                             <Eye className="w-4 h-4" />

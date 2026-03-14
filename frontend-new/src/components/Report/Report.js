@@ -170,6 +170,7 @@ export default function AttendanceTable() {
   };
 
   const handleViewLogs = useCallback(async (item) => {
+     console.log(item);
     try {
       setSelectedLogRow(item);
       setLogDetails([]);
