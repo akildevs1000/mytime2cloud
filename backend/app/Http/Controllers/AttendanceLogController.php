@@ -220,6 +220,8 @@ class AttendanceLogController extends Controller
             ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
             ->toArray();
 
+        $inTypeValues = ['in', 'auto', 'entry', null]; // Define this once outside the loop
+
         $records = [];
 
         foreach ($result["data"] as $row) {
@@ -227,6 +229,24 @@ class AttendanceLogController extends Controller
 
             $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
             $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+
+
+            $deviceId = $columns[1] ?? null;
+
+            // 2. Look up the function from your map (normalized to lowercase)
+            $deviceFunction = isset($deviceFunctionMap[$deviceId])
+                ? strtolower($deviceFunctionMap[$deviceId])
+                : '';
+
+            // 3. Determine the LogType based on your requirements
+            if (in_array($deviceFunction, $inTypeValues)) {
+                $logType = 'In';
+            } elseif ($deviceFunction === 'out') {
+                $logType = 'Out';
+            } else {
+                // Fallback: check if 'in' is part of the DeviceID string itself
+                $logType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Out';
+            }
 
             $records[] = [
                 "UserID"              => $columns[0] ?? null,
@@ -240,7 +260,7 @@ class AttendanceLogController extends Controller
                 "index_serial_number" => $columns[3] ?? null,
                 "log_date"            => $logDate,
 
-                "log_type" => (str_contains(strtolower($columns[1]), 'in')) ? 'In' : 'Out'
+                "log_type" => $logType
             ];
         }
 
