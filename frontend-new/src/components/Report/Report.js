@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download, Paperclip, FileText, MessageSquare } from 'lucide-react';
+import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download, Paperclip, FileText, MessageSquare, Sheet } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
@@ -510,7 +510,7 @@ export default function AttendanceTable() {
               onClick={() => { process_file_in_child_comp('monthly_download_pdf', 'PDF'); setIsMenuOpen(false); }}
               className="flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >
-              <Pencil className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              <img src="/icons/pdf.png" alt="PDF Icon" className="w-4 h-4" />
               <span className="text-slate-600 dark:text-slate-300 font-medium">PDF</span>
             </DropdownMenuItem>
 
@@ -518,7 +518,7 @@ export default function AttendanceTable() {
               onClick={() => { process_file_in_child_comp('monthly_download_csv', 'EXCEL'); setIsMenuOpen(false); }}
               className="flex items-center gap-2 px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
             >
-              <File className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              <img src="/icons/excel.png" alt="Excel Icon" className="w-4 h-4" />
               <span className="text-slate-600 dark:text-slate-300 font-medium">Excel</span>
             </DropdownMenuItem>
           </DropdownMenuContent>

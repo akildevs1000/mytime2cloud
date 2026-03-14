@@ -552,6 +552,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                   onClick={handleExportPdf}
                   className="flex items-center border border-border gap-2 px-3 py-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                 >
+                  <img src="/icons/pdf.png" alt="PDF Icon" className="w-4 h-4" />
                   <span className="text-slate-600 dark:text-slate-300 font-medium">PDF</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -795,16 +796,14 @@ export default function ExecutiveAttendanceDashboardPage() {
             <table className="w-full text-left border-collapse min-w-[800px]">
               <thead>
                 {reportType === 'daily' ? (
-                  <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
-                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Department</th>
-                    <>
-                      <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Punches</th>
-                      <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Late In</th>
-                      <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Early Out</th>
-                    </>
-
-                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">OT</th>
+                  <tr className="bg-slate-100 dark:bg-slate-800  border-y border-slate-200 dark:border-slate-700">
+                    <th className="px-4 py-3 w-[20%] text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300">Employee</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Schedule</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock In</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Clock Out</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Late (mins)</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Early Go (mins)</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Overtime</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Total Hrs</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Status</th>
                   </tr>
@@ -814,6 +813,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">P</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">A</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">L</th>
+                    <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">WO</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">M</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CI</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg CO</th>
@@ -838,7 +838,8 @@ export default function ExecutiveAttendanceDashboardPage() {
                               {row.name}
                             </p>
                             <p className="text-xs text-slate-600 dark:text-slate-300">
-                              #{row.employeeCode}
+
+                              {row.department}
                             </p>
                           </div>
                         </div>
@@ -847,33 +848,22 @@ export default function ExecutiveAttendanceDashboardPage() {
                       {reportType === 'daily' ? (
                         <>
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                            {row.department}
+                            {row.employeeCode}
                           </td>
                           {
                             row.shift_type_id != 2 && row.shift_type_id != 5 ? (
                               <>
-                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  <div className="flex flex-col items-center gap-1 text-xs">
-                                    <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                                      In {row.in || '--'}
-                                    </span>
-
-                                    <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-                                      Out {row.out || '--'}
-                                    </span>
-                                  </div>
+                                <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  {row.in || '--'}
                                 </td>
-
-                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                                    {row.lateIn || '--'}
-                                  </span>
+                                <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  {row.out || '--'}
                                 </td>
-
-                                <td className="px-2 py-3 text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                                  <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                                    {row.earlyOut || '--'}
-                                  </span>
+                                <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  {row.lateIn || '--'}
+                                </td>
+                                <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
+                                  {row.earlyOut || '--'}
                                 </td>
                               </>
                             ) : (
@@ -908,7 +898,7 @@ export default function ExecutiveAttendanceDashboardPage() {
 
 
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
-                            {row.ot}
+                            {row.ot || "--"}
                           </td>
                           <td className="px-2 py-3 whitespace-nowrap text-center text-sm font-semibold text-slate-700 dark:text-slate-200">
                             {row.totalHrs}
