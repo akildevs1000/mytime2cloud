@@ -69,8 +69,8 @@ class SyncAttendanceStatuses extends Command
                 $status = isset($holidayCompanyIds[$employee->company_id]) ? "H" : "A";
                 $counts[$status]++;
 
-                $batch[] = [
-                    'employee_id'   => $employee->system_user_id,
+                $payload = [
+                    'employee_id'   => $employee->employee_id,
                     'company_id'    => $employee->company_id,
                     'branch_id'     => $employee->branch_id,
                     'date'          => $dateString,
@@ -87,6 +87,10 @@ class SyncAttendanceStatuses extends Command
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ];
+
+                $this->info("Prepared: EmpID {$employee->employee_id} | Status: $status | shift_type_id: {$employee->schedule->shift_type_id}");
+
+                $batch[] = $payload;
             }
 
             if (!empty($batch)) {
