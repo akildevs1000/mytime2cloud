@@ -14,7 +14,7 @@ class RectifyAttendanceLogs extends Command
      * Usage: php artisan attendance:rectify 2024-03-14
      */
     protected $signature = 'attendance:rectify {date? : The date to start fixing from (YYYY-MM-DD)}';
-    
+
     protected $description = 'Re-evaluates and fixes incorrect log_types starting from a specific date';
 
     public function handle()
@@ -43,11 +43,13 @@ class RectifyAttendanceLogs extends Command
         $this->info("Found {$total} total logs to check in this range.");
 
         $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, $inTypeValues, &$correctedCount, &$processedCount) {
+            // ... inside the loop ...
             foreach ($logs as $log) {
-                $deviceId = $log->DeviceID;
-                
-                // Logic to determine what it SHOULD be
-                $deviceFunction = isset($deviceFunctionMap[$deviceId]) ? strtolower($deviceFunctionMap[$deviceId]) : '';
+                $deviceId = trim($log->DeviceID); // Added trim
+
+                $deviceFunction = isset($deviceFunctionMap[$deviceId])
+                    ? strtolower(trim($deviceFunctionMap[$deviceId]))
+                    : '';
 
                 if (in_array($deviceFunction, $inTypeValues)) {
                     $expectedType = 'In';
@@ -57,17 +59,21 @@ class RectifyAttendanceLogs extends Command
                     $expectedType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Out';
                 }
 
-                // 4. Fix if mismatched
-                if ($log->log_type !== $expectedType) {
+                // DEBUG: Let's see why it's not correcting
+                if ($processedCount < 5) {
+                    $this->info("Log ID: {$log->id} | Device: {$deviceId} | Func: {$deviceFunction} | Current: '{$log->log_type}' | Expected: '{$expectedType}'");
+                }
+
+                if (trim($log->log_type) !== $expectedType) {
                     DB::table('attendance_logs')
                         ->where('id', $log->id)
                         ->update(['log_type' => $expectedType]);
-                    
+
                     $correctedCount++;
                 }
                 $processedCount++;
             }
-            $this->output->write("<info>.</info>"); 
+            $this->output->write("<info>.</info>");
         });
 
         $this->newline();
@@ -75,7 +81,7 @@ class RectifyAttendanceLogs extends Command
             ['Total Processed', 'Total Corrected'],
             [[$processedCount, $correctedCount]]
         );
-        
+
         $this->info("Done!");
     }
 }
