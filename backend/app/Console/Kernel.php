@@ -83,6 +83,12 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->runInBackground();
 
+        $schedule
+            ->command('attendance:fix-today')
+            ->everyMinute()
+            ->runInBackground();
+
+
         // $schedule->command("render:weekoff --month={$month}")
         //     ->when(fn() => now()->isLastOfMonth())
         //     ->withoutOverlapping();
