@@ -185,6 +185,8 @@ export default function LiveTeamStatus() {
           user_id: payloadData.user_id ?? payloadData.employee_id ?? payloadData.employeeId ?? payloadData.id,
         };
 
+        console.log(normalizedPayload);
+
         mergePayloadIntoEmployees(normalizedPayload);
       });
     },
