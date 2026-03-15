@@ -1168,6 +1168,7 @@ class AttendanceController extends Controller
     {
         $request->merge([
             'company_id' => $request->input('company_id', $request->input('companyId')),
+            'shift_type_id' => $request->input('shift_type_id', $request->input('shift_type_id')),
             'branch_id' => $request->input('branch_id', $request->input('branchId')),
             'branch_ids' => $request->input('branch_ids', $request->input('branchIds')),
             'department_ids' => $request->input('department_ids', $request->input('departmentIds')),
