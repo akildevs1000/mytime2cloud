@@ -504,9 +504,9 @@ export default function ExecutiveAttendanceDashboardPage() {
 
 
   const handleViewLogs = useCallback(async (item) => {
-    
-    console.log(item);
 
+    console.log(item);
+    
     try {
       setSelectedLogRow(item);
       setLogDetails([]);
@@ -945,6 +945,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Overtime</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Total Hrs</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Status</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Action</th>
                   </tr>
                 ) : (
                   <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
@@ -961,6 +962,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg WH</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">WH</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">Perf</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Action</th>
                   </tr>
                 )}
               </thead>
