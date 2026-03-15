@@ -69,14 +69,15 @@ class SplitShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
         $items = [];
-        $debugInfo = [];
+        $debugSummary = [];
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
 
-            // Get raw logs for the day
-            $allLogs = AttendanceLog::where("company_id", $id)
+            // Fetch logs and load device relationship to avoid "Undefined key" errors later
+            $allLogs = AttendanceLog::with('device')
+                ->where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
                 ->whereDate('LogTime', $date)
                 ->orderBy("LogTime", 'asc')
@@ -84,47 +85,62 @@ class SplitShiftController extends Controller
 
             $totalMinutes = 0;
             $logsJson = [];
-            $processedThisUser = [];
+            $userSummary = [];
 
-            // Define Session Windows
-            $windows = [
-                ['n' => 'S1', 'in_s' => $shift->beginning_in, 'in_e' => $shift->ending_in, 'out_s' => $shift->beginning_out, 'out_e' => $shift->ending_out],
-                ['n' => 'S2', 'in_s' => $shift->beginning_in1, 'in_e' => $shift->ending_in1, 'out_s' => $shift->beginning_out1, 'out_e' => $shift->ending_out1],
+            // Define the two sessions from your shift object
+            $sessions = [
+                [
+                    'name' => 'S1',
+                    'in_s' => $shift["beginning_in"],
+                    'in_e' => $shift["ending_in"],
+                    'out_s' => $shift["beginning_out"],
+                    'out_e' => $shift["ending_out"]
+                ],
+                [
+                    'name' => 'S2',
+                    'in_s' => $shift["beginning_in1"],
+                    'in_e' => $shift["ending_in1"],
+                    'out_s' => $shift["beginning_out1"],
+                    'out_e' => $shift["ending_out1"]
+                ]
             ];
 
-            foreach ($windows as $w) {
-                // STRICT FILTERING: Only logs that fall EXACTLY within the defined clock-in/out windows
-                $validIn = $allLogs->filter(function ($log) use ($w) {
+            foreach ($sessions as $ses) {
+                // STRICT WINDOW FILTERING
+                $validInLog = $allLogs->filter(function ($log) use ($ses) {
                     $time = Carbon::parse($log->LogTime)->format('H:i');
-                    return $time >= $w['in_s'] && $time <= $w['in_e'];
+                    return $time >= $ses['in_s'] && $time <= $ses['in_e'];
                 })->first();
 
-                $validOut = $allLogs->filter(function ($log) use ($w) {
+                $validOutLog = $allLogs->filter(function ($log) use ($ses) {
                     $time = Carbon::parse($log->LogTime)->format('H:i');
-                    return $time >= $w['out_s'] && $time <= $w['out_e'];
+                    return $time >= $ses['out_s'] && $time <= $ses['out_e'];
                 })->last();
 
                 $min = 0;
-                if ($validIn && $validOut) {
-                    $min = Carbon::parse($validIn->LogTime)->diffInMinutes(Carbon::parse($validOut->LogTime));
+                if ($validInLog && $validOutLog) {
+                    $min = Carbon::parse($validInLog->LogTime)->diffInMinutes(Carbon::parse($validOutLog->LogTime));
                     $totalMinutes += $min;
                 }
 
-                // Only add to the JSON if a valid log was actually found
-                if ($validIn || $validOut) {
-                    $inTime = $validIn ? Carbon::parse($validIn->LogTime)->format('H:i') : "---";
-                    $outTime = $validOut ? Carbon::parse($validOut->LogTime)->format('H:i') : "---";
+                // Include device keys to fix the "Undefined array key" error
+                if ($validInLog || $validOutLog) {
+                    $inTime = $validInLog ? Carbon::parse($validInLog->LogTime)->format('H:i') : "---";
+                    $outTime = $validOutLog ? Carbon::parse($validOutLog->LogTime)->format('H:i') : "---";
 
                     $logsJson[] = [
-                        "in" => $inTime,
-                        "out" => $outTime,
+                        "in"            => $inTime,
+                        "out"           => $outTime,
+                        "device_in"     => $validInLog ? ($validInLog->device->name ?? "Device") : "---",
+                        "device_out"    => $validOutLog ? ($validOutLog->device->name ?? "Device") : "---",
                         "total_minutes" => $min,
                     ];
-                    $processedThisUser[] = "({$w['n']}: In $inTime, Out $outTime)";
+
+                    $userSummary[] = "({$ses['name']}: In $inTime, Out $outTime)";
                 }
             }
 
-            $debugInfo[] = "User {$row->system_user_id}: " . (empty($processedThisUser) ? "No valid logs" : implode(" ", $processedThisUser));
+            $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
 
             $items[] = [
                 "employee_id"   => $row->system_user_id,
@@ -138,7 +154,7 @@ class SplitShiftController extends Controller
             ];
         }
 
-        // Database Update
+        // DB Update
         if (count($items) > 0) {
             Attendance::whereIn("employee_id", array_column($items, "employee_id"))
                 ->where("date", $date)
@@ -147,7 +163,7 @@ class SplitShiftController extends Controller
             Attendance::insert($items);
         }
 
-        return "Done for $date. Log Summary: " . implode(" | ", $debugInfo);
+        return "Done for $date. Log Summary: " . implode(" | ", $debugSummary);
     }
 
 
