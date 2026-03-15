@@ -53,6 +53,7 @@ class SplitShiftController extends Controller
         return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
+
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
         $params = [
@@ -69,52 +70,32 @@ class SplitShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
         $items = [];
-        $message = "";
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
+            if (!$shift) continue;
 
-            if (!$shift || !$shift->id) {
-                $message .= "{$row->system_user_id} : No shift configured on date: $date; ";
-                continue;
-            }
-
-            // 1. Fetch raw logs for the specific user and date
-            $allLogs = AttendanceLog::where("company_id", $params["company_id"])
+            // 1. Get all raw logs for the day
+            $allLogs = AttendanceLog::where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
-                ->whereBetween('LogTime', [
-                    Carbon::parse($date)->startOfDay(),
-                    Carbon::parse($date)->endOfDay()
-                ])
+                ->whereDate('LogTime', $date)
                 ->orderBy("LogTime", 'asc')
                 ->get();
-
-            if ($allLogs->isEmpty()) {
-                // Log as Absent if no activity
-                Attendance::where("employee_id", $row->system_user_id)
-                    ->where("date", $date)
-                    ->where("company_id", $id)
-                    ->update(["status" => "A", "shift_id" => $shift->id]);
-                continue;
-            }
 
             $totalMinutes = 0;
             $logsJson = [];
 
-            /** * 2. DEFINE SESSION WINDOWS FROM YOUR SHIFT OBJECT
-             * Session 1: beginning_in -> ending_out
-             * Session 2: beginning_in1 -> ending_out1
-             */
-            $sessions = [
+            // 2. Define the Sessions strictly from your shift object
+            $sessionConfigs = [
                 [
-                    'name'      => 'Morning',
+                    'name' => 'Morning',
                     'in_start'  => $shift["beginning_in"],
                     'in_end'    => $shift["ending_in"],
                     'out_start' => $shift["beginning_out"],
                     'out_end'   => $shift["ending_out"]
                 ],
                 [
-                    'name'      => 'Afternoon',
+                    'name' => 'Afternoon',
                     'in_start'  => $shift["beginning_in1"],
                     'in_end'    => $shift["ending_in1"],
                     'out_start' => $shift["beginning_out1"],
@@ -122,84 +103,67 @@ class SplitShiftController extends Controller
                 ]
             ];
 
-            foreach ($sessions as $session) {
-                // Validate that we have window times defined for this session
-                if (!$session['in_start'] || !$session['out_end']) continue;
+            foreach ($sessionConfigs as $conf) {
+                // Check if this session is even configured
+                if (!$conf['in_start'] || !$conf['out_end']) continue;
 
-                // Find valid IN (First punch within the specific IN window)
-                $validInLog = $allLogs->filter(function ($log) use ($date, $session) {
-                    $time = Carbon::parse($log->LogTime);
-                    return $time->between(
-                        Carbon::parse($date . ' ' . $session['in_start']),
-                        Carbon::parse($date . ' ' . $session['in_end'])
-                    );
+                // --- STRICT FILTERING ---
+
+                // Find valid IN: Must be >= in_start AND <= in_end
+                $validIn = $allLogs->filter(function ($log) use ($date, $conf) {
+                    $logTime = Carbon::parse($log->LogTime)->format('H:i');
+                    return $logTime >= $conf['in_start'] && $logTime <= $conf['in_end'];
                 })->first();
 
-                // Find valid OUT (Last punch within the specific OUT window)
-                $validOutLog = $allLogs->filter(function ($log) use ($date, $session) {
-                    $time = Carbon::parse($log->LogTime);
-                    return $time->between(
-                        Carbon::parse($date . ' ' . $session['out_start']),
-                        Carbon::parse($date . ' ' . $session['out_end'])
-                    );
+                // Find valid OUT: Must be >= out_start AND <= out_end
+                $validOut = $allLogs->filter(function ($log) use ($date, $conf) {
+                    $logTime = Carbon::parse($log->LogTime)->format('H:i');
+                    return $logTime >= $conf['out_start'] && $logTime <= $conf['out_end'];
                 })->last();
 
-                $sessionMinutes = 0;
-                if ($validInLog && $validOutLog) {
-                    $sessionMinutes = Carbon::parse($validInLog->LogTime)->diffInMinutes(Carbon::parse($validOutLog->LogTime));
-                    $totalMinutes += $sessionMinutes;
+                // Calculate duration ONLY if both are found
+                $m = 0;
+                if ($validIn && $validOut) {
+                    $m = Carbon::parse($validIn->LogTime)->diffInMinutes(Carbon::parse($validOut->LogTime));
+                    $totalMinutes += $m;
                 }
 
-                $logsJson[] = [
-                    "session"    => $session['name'],
-                    "in"         => $validInLog ? Carbon::parse($validInLog->LogTime)->format('H:i') : "---",
-                    "out"        => $validOutLog ? Carbon::parse($validOutLog->LogTime)->format('H:i') : "---",
-                    "total_minutes" => $sessionMinutes,
-                ];
+                // Only add to logsJson if at least ONE valid punch was found in a window
+                if ($validIn || $validOut) {
+                    $logsJson[] = [
+                        "session" => $conf['name'],
+                        "in"      => $validIn ? Carbon::parse($validIn->LogTime)->format('H:i') : "---",
+                        "out"     => $validOut ? Carbon::parse($validOut->LogTime)->format('H:i') : "---",
+                        "minutes" => $m
+                    ];
+                }
             }
 
-            // 3. Prepare data for the Attendance table
-            $item = [
+            // 3. Prepare result
+            $items[] = [
                 "employee_id"   => $row->system_user_id,
-                "company_id"    => $params["company_id"],
+                "company_id"    => $id,
                 "date"          => $date,
                 "shift_id"      => $shift->id,
                 "shift_type_id" => $shift->shift_type_id,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "status"        => ($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING,
+                "status"        => (count($logsJson) > 0) ? Attendance::PRESENT : Attendance::ABSENT,
                 "logs"          => json_encode($logsJson),
             ];
-
-            // Handle Overtime logic if enabled
-            if ($row->schedule->isOverTime) {
-                $item["ot"] = $this->calculatedOT(
-                    $item["total_hrs"],
-                    $shift->working_hours,
-                    $shift->overtime_interval
-                );
-            }
-
-            $items[] = $item;
         }
 
-        // 4. Batch Delete and Re-insert (Standard practice for re-rendering)
-        try {
-            if (count($items) > 0) {
-                Attendance::whereIn("employee_id", array_column($items, "employee_id"))
-                    ->where("date", $date)
-                    ->where("company_id", $id)
-                    ->delete();
-
-                foreach (array_chunk($items, 100) as $chunk) {
-                    Attendance::insert($chunk);
-                }
-            }
-        } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, "Render Error: " . $e->getMessage());
+        // 4. Save to Database
+        if (count($items) > 0) {
+            Attendance::whereIn("employee_id", array_column($items, "employee_id"))
+                ->where("date", $date)
+                ->where("company_id", $id)
+                ->delete();
+            Attendance::insert($items);
         }
 
-        return "[" . $date . "] Processed " . count($items) . " records for Dual Shift.";
+        return "Done for $date";
     }
+
 
     public function render_old($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
