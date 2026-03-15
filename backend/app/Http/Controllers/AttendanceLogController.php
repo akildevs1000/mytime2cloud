@@ -447,6 +447,22 @@ class AttendanceLogController extends Controller
             ->paginate($request->per_page ?? 100);
     }
 
+
+    public function singleViewById(AttendanceLog $model, Request $request)
+    {
+        $query = $model->where('id', $request->id);
+
+        if ($request->filled('LogTime') && strtotime($request->LogTime)) {
+            $query->where('LogTime', ">=", Carbon::parse($request->LogTime)->toDateString() . " 00:00:00");
+            $query->where('LogTime', "<=", Carbon::parse($request->LogTime)->toDateString() . " 23:59:59");
+        }
+
+        return $query->with("device")
+            ->distinct("LogTime")
+            ->orderBy('LogTime')
+            ->paginate($request->per_page ?? 100);
+    }
+
     public function GenerateManualLog(Request $request)
     {
         try {
