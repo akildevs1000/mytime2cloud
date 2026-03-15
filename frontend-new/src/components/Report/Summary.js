@@ -458,16 +458,25 @@ export default function ExecutiveAttendanceDashboardPage() {
       params.append('company_id', user?.company_id || 0);
       params.append('from_date', dateRange.from_date);
       params.append('to_date', dateRange.to_date);
+      params.append('per_page', dateRange.per_page);
+      params.append('shift_type_id', shiftTypeId);
 
-      if (selectedBranchIds && selectedBranchIds.length > 0) {
-        params.append('branch_ids', selectedBranchIds.join(','));
-      }
-      if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
-        params.append('department_ids', selectedDepartmentIds.join(','));
-      }
+
+      // Function to append arrays safely
+      const appendArray = (key, array) => {
+        if (Array.isArray(array)) {
+          array.forEach(value => params.append(key, value));
+        }
+      };
+
+      appendArray('branch_ids', selectedBranchIds);
+      appendArray('department_ids', selectedDepartmentIds);
 
       // Open the standalone HTML template
       const templateUrl = `https://summaryreport.mytime2cloud.com/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
+
+      // window.open(`http://127.0.0.1:5500/summary-report/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`, '_blank');
+      // return;
 
       await downloadReport(templateUrl, `${reportType == 'daily' ? "Daily-Summary-Report" : "Monthly-Summary-Report"}.pdf`);
 
@@ -506,7 +515,7 @@ export default function ExecutiveAttendanceDashboardPage() {
   const handleViewLogs = useCallback(async (item) => {
 
     console.log(item);
-    
+
     try {
       setSelectedLogRow(item);
       setLogDetails([]);
