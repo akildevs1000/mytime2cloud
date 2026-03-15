@@ -817,6 +817,7 @@ class AttendanceController extends Controller
         $request->validate([
             'company_id' => 'required|integer|exists:companies,id',
             'branch_id' => 'nullable',
+            'shift_type_id' => 'nullable',
             'branch_ids' => 'nullable',
             'department_ids' => 'nullable',
             'from_date' => 'nullable|date',
@@ -862,6 +863,7 @@ class AttendanceController extends Controller
         $previousEnd = $previousEndDate->toDateString();
 
         $baseQuery = Attendance::query()
+            ->where("shift_type_id", $shiftTypeId > 0 ? $shiftTypeId : null)
             ->join('employees', function ($join) use ($companyId) {
                 $join->on('employees.system_user_id', '=', 'attendances.employee_id')
                     ->where('employees.company_id', '=', $companyId);
@@ -1182,6 +1184,7 @@ class AttendanceController extends Controller
         $request->validate([
             'company_id' => 'required|integer|exists:companies,id',
             'branch_id' => 'nullable',
+            'shift_type_id' => 'nullable',
             'branch_ids' => 'nullable',
             'department_ids' => 'nullable',
             'from_date' => 'nullable|date',
