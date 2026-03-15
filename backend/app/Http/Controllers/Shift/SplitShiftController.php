@@ -142,6 +142,11 @@ class SplitShiftController extends Controller
 
             $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
 
+
+            $dayOfWeekThreeLetter = date('D', strtotime($date));
+            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
+
             $items[] = [
                 "employee_id"   => $row->system_user_id,
                 "company_id"    => $id,
@@ -149,7 +154,7 @@ class SplitShiftController extends Controller
                 "shift_id"      => $shift->id,
                 "shift_type_id" => $shift->shift_type_id,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "status"        => ($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING,
+                "status"        => $status ?? (($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING),
                 "logs"          => json_encode($logsJson),
             ];
         }

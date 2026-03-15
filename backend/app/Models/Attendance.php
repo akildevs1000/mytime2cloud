@@ -16,6 +16,17 @@ class Attendance extends Model
     const PRESENT = "P"; //2;
     const MISSING = "M"; //3;
 
+
+    const DAY_MAP = [
+        'Mon' => 'M',
+        'Tue' => 'T',
+        'Wed' => 'W',
+        'Thu' => 'Th',
+        'Fri' => 'F',
+        'Sat' => 'S',
+        'Sun' => 'Su'
+    ];
+
     protected $guarded = [];
 
     protected $appends = [
