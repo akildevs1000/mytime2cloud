@@ -125,12 +125,18 @@ class MultiShiftController extends Controller
                 })
                 ->values();
 
+
+            $dayOfWeekThreeLetter = date('D', strtotime($date));
+            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
+
+
             if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
                         "shift_id"      => $row->schedule->shift["id"],
                         "shift_type_id" => $row->schedule->shift["shift_type_id"],
-                        "status"        => "A",
+                        "status"        => $status ?? "A",
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
@@ -157,7 +163,7 @@ class MultiShiftController extends Controller
                 "company_id"    => $params["company_id"],
                 "shift_id"      => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "status"        => count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT,
+                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
 
             ];
 
@@ -278,7 +284,7 @@ class MultiShiftController extends Controller
                 }
             }
 
-            $item["status"] = (count($logsJson)) ? Attendance::PRESENT : Attendance::MISSING;
+            $item["status"] = $status ?? (count($logsJson) ? Attendance::PRESENT : Attendance::MISSING);
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
@@ -321,7 +327,7 @@ class MultiShiftController extends Controller
                     ->whereIn("UserID", $UserIds ?? [])
                     ->where("LogTime", ">=", $date)
                     ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                // ->where("checked", false)
+                    // ->where("checked", false)
                     ->update([
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
