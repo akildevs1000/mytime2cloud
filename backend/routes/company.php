@@ -140,6 +140,7 @@ Route::post('generate_log', [AttendanceLogController::class, 'GenerateLog'])->mi
 Route::get('logs', [AttendanceLogController::class, 'getAttendanceLogs']);
 
 Route::get('attendance_single_list', [AttendanceLogController::class, 'singleView']);
+Route::get('attendance_single_list_by_id', [AttendanceLogController::class, 'singleViewById']);
 
 // policy
 Route::apiResource('policy', policyController::class);
