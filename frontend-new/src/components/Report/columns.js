@@ -12,7 +12,7 @@ export default (shiftTypeId, { onViewLogs } = {}) => {
                 <div className="flex items-center space-x-3">
                     <ProfilePicture src={employee.profile_picture} />
                     <div>
-                        <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{employee?.first_name}</p>
+                        <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{employee?.first_name} ({employee?.system_user_id})</p>
                         <p className="text-sm text-slate-600 dark:text-slate-300">
                             {employee?.department?.name}
                         </p>
