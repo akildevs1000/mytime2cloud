@@ -298,6 +298,8 @@ class MultiShiftController extends Controller
 
         // return json_encode($items, JSON_PRETTY_PRINT);
 
+        $items = collect($items)->unique('employee_id')->values()->all();
+
         try {
 
             if (count($items) > 0) {
