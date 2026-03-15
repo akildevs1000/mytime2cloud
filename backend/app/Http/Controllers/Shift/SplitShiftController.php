@@ -60,7 +60,6 @@ class SplitShiftController extends Controller
             "company_id" => $id,
             "date" => $date,
             "shift_type_id" => $shift_type_id,
-            "custom_render" => $custom_render,
             "UserIds" => $UserIds,
         ];
 
@@ -70,12 +69,13 @@ class SplitShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
         $items = [];
+        $debugInfo = [];
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
 
-            // 1. Get all raw logs for the day
+            // Get raw logs for the day
             $allLogs = AttendanceLog::where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
                 ->whereDate('LogTime', $date)
@@ -84,62 +84,48 @@ class SplitShiftController extends Controller
 
             $totalMinutes = 0;
             $logsJson = [];
+            $processedThisUser = [];
 
-            // 2. Define the Sessions strictly from your shift object
-            $sessionConfigs = [
-                [
-                    'name' => 'Morning',
-                    'in_start'  => $shift["beginning_in"],
-                    'in_end'    => $shift["ending_in"],
-                    'out_start' => $shift["beginning_out"],
-                    'out_end'   => $shift["ending_out"]
-                ],
-                [
-                    'name' => 'Afternoon',
-                    'in_start'  => $shift["beginning_in1"],
-                    'in_end'    => $shift["ending_in1"],
-                    'out_start' => $shift["beginning_out1"],
-                    'out_end'   => $shift["ending_out1"]
-                ]
+            // Define Session Windows
+            $windows = [
+                ['n' => 'S1', 'in_s' => $shift->beginning_in, 'in_e' => $shift->ending_in, 'out_s' => $shift->beginning_out, 'out_e' => $shift->ending_out],
+                ['n' => 'S2', 'in_s' => $shift->beginning_in1, 'in_e' => $shift->ending_in1, 'out_s' => $shift->beginning_out1, 'out_e' => $shift->ending_out1],
             ];
 
-            foreach ($sessionConfigs as $conf) {
-                // Check if this session is even configured
-                if (!$conf['in_start'] || !$conf['out_end']) continue;
-
-                // --- STRICT FILTERING ---
-
-                // Find valid IN: Must be >= in_start AND <= in_end
-                $validIn = $allLogs->filter(function ($log) use ($date, $conf) {
-                    $logTime = Carbon::parse($log->LogTime)->format('H:i');
-                    return $logTime >= $conf['in_start'] && $logTime <= $conf['in_end'];
+            foreach ($windows as $w) {
+                // STRICT FILTERING: Only logs that fall EXACTLY within the defined clock-in/out windows
+                $validIn = $allLogs->filter(function ($log) use ($w) {
+                    $time = Carbon::parse($log->LogTime)->format('H:i');
+                    return $time >= $w['in_s'] && $time <= $w['in_e'];
                 })->first();
 
-                // Find valid OUT: Must be >= out_start AND <= out_end
-                $validOut = $allLogs->filter(function ($log) use ($date, $conf) {
-                    $logTime = Carbon::parse($log->LogTime)->format('H:i');
-                    return $logTime >= $conf['out_start'] && $logTime <= $conf['out_end'];
+                $validOut = $allLogs->filter(function ($log) use ($w) {
+                    $time = Carbon::parse($log->LogTime)->format('H:i');
+                    return $time >= $w['out_s'] && $time <= $w['out_e'];
                 })->last();
 
-                // Calculate duration ONLY if both are found
-                $m = 0;
+                $min = 0;
                 if ($validIn && $validOut) {
-                    $m = Carbon::parse($validIn->LogTime)->diffInMinutes(Carbon::parse($validOut->LogTime));
-                    $totalMinutes += $m;
+                    $min = Carbon::parse($validIn->LogTime)->diffInMinutes(Carbon::parse($validOut->LogTime));
+                    $totalMinutes += $min;
                 }
 
-                // Only add to logsJson if at least ONE valid punch was found in a window
+                // Only add to the JSON if a valid log was actually found
                 if ($validIn || $validOut) {
+                    $inTime = $validIn ? Carbon::parse($validIn->LogTime)->format('H:i') : "---";
+                    $outTime = $validOut ? Carbon::parse($validOut->LogTime)->format('H:i') : "---";
+
                     $logsJson[] = [
-                        "session" => $conf['name'],
-                        "in"      => $validIn ? Carbon::parse($validIn->LogTime)->format('H:i') : "---",
-                        "out"     => $validOut ? Carbon::parse($validOut->LogTime)->format('H:i') : "---",
-                        "minutes" => $m
+                        "in" => $inTime,
+                        "out" => $outTime,
+                        "total_minutes" => $min,
                     ];
+                    $processedThisUser[] = "({$w['n']}: In $inTime, Out $outTime)";
                 }
             }
 
-            // 3. Prepare result
+            $debugInfo[] = "User {$row->system_user_id}: " . (empty($processedThisUser) ? "No valid logs" : implode(" ", $processedThisUser));
+
             $items[] = [
                 "employee_id"   => $row->system_user_id,
                 "company_id"    => $id,
@@ -147,12 +133,12 @@ class SplitShiftController extends Controller
                 "shift_id"      => $shift->id,
                 "shift_type_id" => $shift->shift_type_id,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "status"        => (count($logsJson) > 0) ? Attendance::PRESENT : Attendance::ABSENT,
+                "status"        => ($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING,
                 "logs"          => json_encode($logsJson),
             ];
         }
 
-        // 4. Save to Database
+        // Database Update
         if (count($items) > 0) {
             Attendance::whereIn("employee_id", array_column($items, "employee_id"))
                 ->where("date", $date)
@@ -161,7 +147,7 @@ class SplitShiftController extends Controller
             Attendance::insert($items);
         }
 
-        return "Done for $date";
+        return "Done for $date. Log Summary: " . implode(" | ", $debugInfo);
     }
 
 
