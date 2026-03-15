@@ -1,5 +1,6 @@
 import ProfilePicture from "@/components/ProfilePicture";
-import { Contact, Edit3, Fingerprint, Hash, Monitor, RefreshCw, ScanFace, Smartphone } from "lucide-react";
+import { Contact, Edit3, Fingerprint, Hash, Monitor, RefreshCw, ScanFace, Smartphone, MapPin, XIcon } from "lucide-react";
+import { useState } from "react";
 
 // 1. Define the base icon mapping
 const baseIcons = {
@@ -105,8 +106,61 @@ export default [
   {
     key: "location",
     header: "Location",
-    render: (log) => (
-      <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell">{log?.device?.location || "—"}</p>
-    ),
+    render: (log) => {
+      // Static lat/lon for now
+      const lat = 25.2629515;
+      const lon = 55.2887737;
+      const [showMap, setShowMap] = useState(false);
+      return (
+        <div className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell flex items-center gap-1">
+          <span
+            className="cursor-pointer hover:text-blue-500"
+            title="View on map"
+            onClick={e => {
+              e.stopPropagation();
+              setShowMap(true);
+            }}
+          >
+            <MapPin size={18} />
+          </span>
+          {log?.device?.location || "—"}
+          {showMap && (
+            <div
+              style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.4)', zIndex: 9999 }}
+              onClick={() => setShowMap(false)}
+            >
+              <div
+                className=" bg-white/5 dark:bg-slate-900 p-3"
+                style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', borderRadius: 8, minWidth: 320 }}
+                onClick={e => e.stopPropagation()}
+              >
+                <style>{`
+                  .rotate-cw-hover {
+                    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1);
+                  }
+                  .rotate-cw-hover:hover {
+                    transform: rotate(360deg);
+                  }
+                `}</style>
+                <div className="flex justify-end items-center mb-4 text-gray-600 dark:text-gray-300">
+                  <XIcon className="bg-primary rounded-full p-1 -mt-9 -mr-7 cursor-pointer rotate-cw-hover" size={24} onClick={() => setShowMap(false)} />
+                </div>
+                <iframe
+                  title="Map"
+                  width="600"
+                  height="600"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://maps.google.com/maps?q=${log?.lat || lat},${log?.lon || lon}&z=16&output=embed`}
+                />
+
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    },
   },
 ];
