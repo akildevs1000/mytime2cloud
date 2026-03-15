@@ -321,7 +321,6 @@ export default function ExecutiveAttendanceDashboardPage() {
 
       const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
         ? dailyAttendanceResponse.data.map((item) => {
-          console.log(item);
           const baseRow = {
             id: item?.system_user_id,
             employeeCode: item?.employee_code || '---',
@@ -504,48 +503,48 @@ export default function ExecutiveAttendanceDashboardPage() {
   ).segments;
 
 
-   const handleViewLogs = useCallback(async (item) => {
-
-    console.log(item);
+  const handleViewLogs = useCallback(async (item) => {
     
-      try {
-        setSelectedLogRow(item);
-        setLogDetails([]);
-        setIsLogsOpen(true);
-        setIsLogsLoading(true);
-  
-        const user = getUser();
-        const companyId = user?.company_id ?? 0;
-  
-        const query = new URLSearchParams({
-          per_page: "500",
-          UserID: String(selectedDate ?? ""),
-          LogTime: String(item.date ?? ""),
-          company_id: String(companyId),
-        });
-  
-        const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-  
-        if (!res.ok) {
-          throw new Error("Failed to fetch log details");
-        }
-  
-  
-        const data = await res.json();
-        setLogDetails(Array.isArray(data?.data) ? data.data : []);
-      } catch (error) {
-        console.error(error);
-        notify("Error", parseApiError(error), "error");
-      } finally {
-        setIsLogsLoading(false);
+    console.log(item);
+
+    try {
+      setSelectedLogRow(item);
+      setLogDetails([]);
+      setIsLogsOpen(true);
+      setIsLogsLoading(true);
+
+      const user = getUser();
+      const companyId = user?.company_id ?? 0;
+
+      const query = new URLSearchParams({
+        per_page: "500",
+        UserID: item.employeeCode,
+        LogTime: new Date(selectedDate).toISOString().split('T')[0],
+        company_id: companyId,
+      });
+
+      const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch log details");
       }
-    }, []);
-  
+
+
+      const data = await res.json();
+      setLogDetails(Array.isArray(data?.data) ? data.data : []);
+    } catch (error) {
+      console.error(error);
+      notify("Error", parseApiError(error), "error");
+    } finally {
+      setIsLogsLoading(false);
+    }
+  }, []);
+
 
   const getRateUi = (rate) => {
     if (rate >= 90) return 'text-emerald-500';
@@ -1058,7 +1057,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                                 : "---"
                             }
                           </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
                             <button
                               type="button"
                               onClick={() => handleViewLogs?.(row)}
