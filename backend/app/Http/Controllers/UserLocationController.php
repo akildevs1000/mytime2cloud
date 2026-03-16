@@ -11,6 +11,7 @@ class UserLocationController extends Controller
     {
         return UserLocation::where("company_id", $request->input("company_id"))
             ->whereDate("created_at", now()->toDateString())
+            ->orderBy("created_at", "desc")
             ->get();
     }
 }
