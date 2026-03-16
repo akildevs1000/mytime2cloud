@@ -809,7 +809,7 @@ class EmployeeControllerNew extends Controller
             // This catches the fail from Employee::findOrFail($id)
             return response()->json([
                 'status' => 'error',
-                'message' => "Sorry, we couldn't find login info. Please ensure the employee exists and has an associated user account before updating login settings."
+                'message' => "Sorry, we couldn't find login info."
             ], 404);
         } catch (\Exception $e) {
             // This catches any other unexpected errors (Database down, syntax errors, etc.)
