@@ -40,6 +40,7 @@ class RectifyAttendanceLogs extends Command
 
         // 3. Query logs in the specified range
         $query = DB::table('attendance_logs')
+            ->whereNotIn("log_type", ['in', 'out']) // Only check logs that are not already 'Auto'
             ->whereDate('log_date', '>=', $startDate);
 
         $totalFound = $query->count();
@@ -54,7 +55,7 @@ class RectifyAttendanceLogs extends Command
         $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount) {
             foreach ($logs as $log) {
                 $deviceId = trim($log->DeviceID);
-                
+
                 // Get the function from the device table
                 $deviceFunction = $deviceFunctionMap[$deviceId] ?? '';
 
@@ -81,14 +82,14 @@ class RectifyAttendanceLogs extends Command
                     DB::table('attendance_logs')
                         ->where('id', $log->id)
                         ->update(['log_type' => $expectedType]);
-                    
+
                     $correctedCount++;
                 }
 
                 $processedCount++;
             }
             // Show progress in console
-            $this->output->write("."); 
+            $this->output->write(".");
         });
 
         $this->newline();
