@@ -211,6 +211,17 @@ class AttendanceController extends Controller
 
         $employeeQuery = Employee::query()->where('company_id', $companyId);
 
+        $shiftTypeIds = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) > 0) {
+            $shiftTypeIds = [request("shift_type_id")];
+        }
+
+        $employeeQuery->whereHas('schedule', function ($q) use ($companyId, $shiftTypeIds) {
+            $q->where('company_id', $companyId);
+            $q->whereIn("shift_type_id", $shiftTypeIds);
+        });
+
         if (!empty($branchIds)) {
             $employeeQuery->whereIn('branch_id', $branchIds);
         }
