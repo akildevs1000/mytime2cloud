@@ -22,52 +22,35 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
     const toggleTrackClass = "block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-300";
     const toggleKnobClass = "absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer transition-all duration-300 ease-in-out left-0 z-10";
 
-    // 3. Effect for Auto-Saving
-    useEffect(() => {
-        if (!id) return;
+    const onSubmit = async () => {
+        // Guard against concurrent overlapping requests
+        if (isUpdating.current) return;
 
-        // Prevent API call on the very first page load
-        if (isInitialMount.current) {
-            isInitialMount.current = false;
-            return;
-        }
+        try {
+            const payload = {};
 
-        const onSubmit = async () => {
-            // Guard against concurrent overlapping requests
-            if (isUpdating.current) return;
+            if (employeeStatus !== status) payload.status = employeeStatus;
+            if (webAccess !== web_login_access) payload.web_login_access = webAccess;
+            if (mobileAccess !== mobile_app_login_access) payload.mobile_app_login_access = mobileAccess;
+            if (location !== tracking_status) payload.tracking_status = location;
+            payload.mobile_punch = mobilePunch;
 
-            try {
-                const payload = {};
+            // If no fields actually changed, don't ping the server
+            if (Object.keys(payload).length === 0) return;
 
-                if (employeeStatus !== status) payload.status = employeeStatus;
-                if (webAccess !== web_login_access) payload.web_login_access = webAccess;
-                if (mobileAccess !== mobile_app_login_access) payload.mobile_app_login_access = mobileAccess;
-                if (location !== tracking_status) payload.tracking_status = location;
-                payload.mobile_punch = mobilePunch;
+            setLoading(true);
 
-                // If no fields actually changed, don't ping the server
-                if (Object.keys(payload).length === 0) return;
+            isUpdating.current = true;
 
-                isUpdating.current = true;
-
-                await updateGeneralSettings(payload, user_id);
-                notify(`Success`, "Settings updated successfully", 'success');
-            } catch (error) {
-                notify(`Error`, parseApiError(error), 'error');
-            } finally {
-                isUpdating.current = false;
+            await updateGeneralSettings(payload, user_id);
+            notify(`Success`, "Settings updated successfully", 'success');
+        } catch (error) {
+            notify(`Error`, parseApiError(error), 'error');
+        } finally {
+            isUpdating.current = false;
+            setLoading(false);
             }
-        };
-
-        // Debounce: Wait 400ms after the last click before saving
-        // This allows the user to toggle multiple items and send them in one request
-        const delayDebounce = setTimeout(() => {
-            onSubmit();
-        }, 400);
-
-        return () => clearTimeout(delayDebounce);
-
-    }, [employeeStatus, webAccess, mobileAccess, location, mobilePunch, id]);
+    };
 
     return (
         <div className="w-full">
@@ -190,8 +173,14 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
                                 />
                             </div>
                         </div>
-
+                      
                     </div>
+                      <button onClick={onSubmit}
+                            className="px-4 py-2 mt-5 bg-primary hover:bg-primary-700 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-lg shadow-primary-200 dark:shadow-none flex items-center gap-2 
+             disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:shadow-none transition-all"
+                        >
+                            {loading ? 'Submitting...' : 'Submit'}
+                        </button>
                 </div>
             </section>
         </div>
