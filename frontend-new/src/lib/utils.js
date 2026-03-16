@@ -55,7 +55,7 @@ export function formatDate(value) {
   return ""; // fallback if something unexpected
 };
 
-export const formatDateDubai = (date) => {
+export const formatDateDubai = (date = new Date()) => {
   if (!date) return "";
   const d = new Date(date);
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -352,22 +352,72 @@ export const getMonths = () => {
  * @returns {number}
  */
 export function calculateYearsOfService(startDate, endDate = new Date()) {
-    let years = endDate.getFullYear() - startDate.getFullYear();
-    let months = endDate.getMonth() - startDate.getMonth();
+  let years = endDate.getFullYear() - startDate.getFullYear();
+  let months = endDate.getMonth() - startDate.getMonth();
 
-    // Adjust if the month/day hasn't been reached yet in the current year
-    if (months < 0 || (months === 0 && endDate.getDate() < startDate.getDate())) {
-        years--;
-        months += 12;
-    }
+  // Adjust if the month/day hasn't been reached yet in the current year
+  if (months < 0 || (months === 0 && endDate.getDate() < startDate.getDate())) {
+    years--;
+    months += 12;
+  }
 
-    // Handle day-level precision for the "months" remainder
-    if (endDate.getDate() < startDate.getDate()) {
-        months--;
-    }
+  // Handle day-level precision for the "months" remainder
+  if (endDate.getDate() < startDate.getDate()) {
+    months--;
+  }
 
-    // Convert months to a decimal (rounded to 1 decimal place)
-    const decimalMonths = Math.round((months / 12) * 10) / 10;
-    
-    return years + decimalMonths;
+  // Convert months to a decimal (rounded to 1 decimal place)
+  const decimalMonths = Math.round((months / 12) * 10) / 10;
+
+  return years + decimalMonths;
 }
+
+
+export const getSelectedMonthLabel = (selectedMonthRange) => {
+  const fromMonth = selectedMonthRange?.from;
+  const toMonth = selectedMonthRange?.to || fromMonth;
+
+  if (!fromMonth || !toMonth) {
+    return 'Select month range';
+  }
+
+  const [fromYear, fromMonthValue] = fromMonth.split('-').map(Number);
+  const [toYear, toMonthValue] = toMonth.split('-').map(Number);
+
+  const fromDate = new Date(fromYear, (fromMonthValue || 1) - 1, 1);
+  const toDate = new Date(toYear, (toMonthValue || 1) - 1, 1);
+
+  const start = fromDate <= toDate ? fromDate : toDate;
+  const end = fromDate <= toDate ? toDate : fromDate;
+
+  const startLabel = start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  const endLabel = end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+  return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
+};
+
+export const getMonthBounds = (monthValueFrom, monthValueTo) => {
+  const [yearFrom, monthFrom] = monthValueFrom.split('-').map(Number);
+  const [yearTo, monthTo] = monthValueTo.split('-').map(Number);
+
+  if (!yearFrom || !monthFrom || !yearTo || !monthTo) {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return {
+      from_date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`,
+      to_date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`,
+    };
+  }
+
+  const fromDate = new Date(yearFrom, monthFrom - 1, 1);
+  const toDate = new Date(yearTo, monthTo, 0);
+
+  const start = fromDate <= toDate ? fromDate : toDate;
+  const end = fromDate <= toDate ? toDate : fromDate;
+
+  return {
+    from_date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`,
+    to_date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`,
+  };
+};

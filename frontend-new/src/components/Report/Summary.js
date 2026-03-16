@@ -1,63 +1,38 @@
 "use client";
 
-// app/executive-attendance/page.tsx
-// Next.js App Router page component (React)
-// If you prefer a reusable component, move JSX into /components and import it here.
-
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { getCompanyStats, getCompanyStatsDailyAttendance, getCompanyStatsDayTrends, getCompanyStatsDepartmentBreakdown, getCompanyStatsHourlyTrends, getCompanyStatsPunctuality, getCompanyStatsSummaryPayload } from '@/lib/endpoint/dashboard';
 import MonthPicker from '@/components/ui/MonthPicker';
 import MultiDropDown from '@/components/ui/MultiDropDown';
 import { getBranches, getDepartmentsByBranchIds } from '@/lib/api';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from 'recharts';
+
 import ProfilePicture from '../ProfilePicture';
-import { Download, Eye, FileText, Loader2, MoreVertical, RefreshCw } from 'lucide-react';
+import { Download, Eye, RefreshCw } from 'lucide-react';
 import { API_BASE_URL, getUser } from '@/config/index';
 import DatePicker from '../ui/DatePicker';
 import DropDown from '../ui/DropDown';
-import { set } from 'date-fns';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { useDarkMode } from '@/context/DarkModeContext';
-import { getBgColor, setStatusLabel } from '@/lib/utils';
+import { formatDateDubai, getBgColor, getMonthBounds, getSelectedMonthLabel, setStatusLabel } from '@/lib/utils';
 import { downloadReport } from '@/lib/endpoint/report';
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { getAttendanceTabs } from '@/lib/endpoint/attendance';
+import LogDetails from '../Logs/Details';
+import KPISection from './SummarySections/KPI';
+import PeakHours from './SummarySections/PeakHours';
 
 export default function ExecutiveAttendanceDashboardPage() {
 
-  const { isDark } = useDarkMode();
 
   const [reportType, setReportType] = useState('daily'); // 'daily' or 'monthly'
 
-  const [attendanceReportType, setAttendanceReportType] = useState('range');
-
-  const [selectedDate, setSelectedDate] = useState(() => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  });
+  const [selectedDate, setSelectedDate] = useState(formatDateDubai());
 
   const [isLogsOpen, setIsLogsOpen] = useState(false);
   const [selectedLogRow, setSelectedLogRow] = useState(null);
@@ -89,55 +64,6 @@ export default function ExecutiveAttendanceDashboardPage() {
       to: currentMonth,
     };
   });
-
-  const getMonthBounds = (monthValueFrom, monthValueTo) => {
-    const [yearFrom, monthFrom] = monthValueFrom.split('-').map(Number);
-    const [yearTo, monthTo] = monthValueTo.split('-').map(Number);
-
-    if (!yearFrom || !monthFrom || !yearTo || !monthTo) {
-      const now = new Date();
-      const start = new Date(now.getFullYear(), now.getMonth(), 1);
-      const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-      return {
-        from_date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`,
-        to_date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`,
-      };
-    }
-
-    const fromDate = new Date(yearFrom, monthFrom - 1, 1);
-    const toDate = new Date(yearTo, monthTo, 0);
-
-    const start = fromDate <= toDate ? fromDate : toDate;
-    const end = fromDate <= toDate ? toDate : fromDate;
-
-    return {
-      from_date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`,
-      to_date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`,
-    };
-  };
-
-  const selectedMonthLabel = (() => {
-    const fromMonth = selectedMonthRange?.from;
-    const toMonth = selectedMonthRange?.to || fromMonth;
-
-    if (!fromMonth || !toMonth) {
-      return 'Select month range';
-    }
-
-    const [fromYear, fromMonthValue] = fromMonth.split('-').map(Number);
-    const [toYear, toMonthValue] = toMonth.split('-').map(Number);
-
-    const fromDate = new Date(fromYear, (fromMonthValue || 1) - 1, 1);
-    const toDate = new Date(toYear, (toMonthValue || 1) - 1, 1);
-
-    const start = fromDate <= toDate ? fromDate : toDate;
-    const end = fromDate <= toDate ? toDate : fromDate;
-
-    const startLabel = start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    const endLabel = end.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-
-    return startLabel === endLabel ? startLabel : `${startLabel} - ${endLabel}`;
-  })();
 
   useEffect(() => {
     let isMounted = true;
@@ -317,8 +243,6 @@ export default function ExecutiveAttendanceDashboardPage() {
       const resolvedAttendanceReportType =
         dailyAttendanceResponse?.report_type === 'daily' ? 'daily' : 'range';
 
-      setAttendanceReportType(resolvedAttendanceReportType);
-
       const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
         ? dailyAttendanceResponse.data.map((item) => {
           const baseRow = {
@@ -487,34 +411,7 @@ export default function ExecutiveAttendanceDashboardPage() {
     }
   };
 
-  // Helper for color logic
-  const colors = {
-    blue: "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400",
-    emerald: "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400",
-    orange: "bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400",
-    purple: "bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400",
-  };
-
-  const departmentSegmentColors = ['text-blue-500', 'text-sky-400', 'text-emerald-500', 'text-orange-500'];
-  const departmentDonutData = departmentBreakdown.slice(0, 4);
-  const departmentDonutSegments = departmentDonutData.reduce(
-    (acc, department, index) => {
-      acc.segments.push({
-        key: `${department.name}-${index}`,
-        dashArray: `${department.percentage} ${100 - department.percentage}`,
-        dashOffset: -acc.offset,
-        colorClass: departmentSegmentColors[index % departmentSegmentColors.length],
-      });
-      acc.offset += department.percentage;
-      return acc;
-    },
-    { offset: 0, segments: [] }
-  ).segments;
-
-
   const handleViewLogs = useCallback(async (item) => {
-
-    console.log(item);
 
     try {
       setSelectedLogRow(item);
@@ -573,7 +470,7 @@ export default function ExecutiveAttendanceDashboardPage() {
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              {selectedMonthLabel}
+              {getSelectedMonthLabel(selectedMonthRange)}
             </h1>
             <p className="text-slate-600 dark:text-slate-300 font-medium text-lg">
               {reportType === 'daily'
@@ -671,206 +568,9 @@ export default function ExecutiveAttendanceDashboardPage() {
         </div>
 
         {/* KPIs */}
-        <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 gap-3">
-          {stats.map((item, idx) => (
-            <div key={idx} className="glass-panel p-4 rounded-xl flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-2 z-10">
-                <p className="text-slate-600 dark:text-slate-300 text-[10px] font-semibold uppercase tracking-wide truncate">
-                  {item.title}
-                </p>
-                <div className={`p-1 rounded-md ${colors[item.color]}`}>
-                  <span className="material-symbols-outlined text-[18px] block">
-                    {item.icon}
-                  </span>
-                </div>
-              </div>
+        <KPISection stats={stats} />
 
-              {/* Bottom Section */}
-              <div className="flex items-end justify-between gap-2 z-10">
-                <div className="flex-1 min-w-0">
-                  <p className="text-xl font-bold text-slate-900 dark:text-white leading-none">
-                    {item.value}
-                  </p>
-
-                  {/* Conditional Trend Badge */}
-                  {item.trend !== "0%" ? (
-                    <div className={`flex items-center text-[9px] font-bold mt-1 px-1 py-0.5 rounded w-fit ${item.trendUp ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20' : 'text-orange-600 bg-orange-50 dark:bg-orange-900/20'
-                      }`}>
-                      <span className="material-symbols-outlined text-[10px]">
-                        {item.trendUp ? 'trending_up' : 'trending_down'}
-                      </span>
-                      <span>{item.trend}</span>
-                    </div>
-                  ) : (
-                    <p className="text-[9px] text-slate-400 mt-1 font-medium">{item.subText}</p>
-                  )}
-                </div>
-
-                {/* Conditional Visuals (Sparkline or Progress) */}
-                {item.type === 'sparkline' && (
-                  <svg className="h-6 w-12 text-blue-500/30" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 100 40">
-                    <path d={item.path} vectorEffect="non-scaling-stroke" />
-                  </svg>
-                )}
-
-                {item.type === 'progress' && (
-                  <div className="h-1.5 w-10 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-1">
-                    <div
-                      className={`h-full rounded-full ${item.color === 'orange' ? 'bg-orange-500' : 'bg-emerald-500'}`}
-                      style={{ width: item.progress }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <section className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-6">
-          {/* LEFT: MAIN TRENDS CHART */}
-          <div className="lg:col-span-3 flex flex-col glass-panel rounded-xl p-5 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-              <div>
-                <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">
-                  {reportType === 'daily' ? 'Peak Hours' : 'Daily Trends'}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
-                  {reportType === 'daily'
-                    ? 'Employee punch-in distribution by hour'
-                    : 'Stacked breakdown by day (Present vs Absent)'}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {reportType === 'daily' ? (
-                  <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                    <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Punches
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-blue-500" /> Present
-                    </div>
-                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                      <span className="h-2.5 w-2.5 rounded-sm bg-rose-400" /> Absent
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="h-64 w-full pt-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barCategoryGap="28%">
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis
-                    dataKey="label"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#94a3b8' }}
-                  />
-                  <YAxis
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#94a3b8' }}
-                  />
-                  <Tooltip
-                    cursor={{ fill: 'rgba(148,163,184,0.1)' }}
-                    contentStyle={{
-                      backgroundColor: isDark ? '#1e293b' : '#ffffff',
-                      borderColor: isDark ? '#334155' : '#e2e8f0',
-                      color: isDark ? '#f8fafc' : '#1e293b',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
-                    labelStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
-                    itemStyle={{ color: isDark ? '#f8fafc' : '#1e293b' }}
-                  />
-                  {reportType === 'daily' ? (
-                    <Bar dataKey="punches" fill="#3b82f6" radius={[3, 3, 0, 0]} barSize={30} />
-                  ) : (
-                    <>
-                      <Bar dataKey="present" stackId="attendance" fill="#3b82f6" barSize={30} />
-                      <Bar dataKey="absent" stackId="attendance" fill="#fb7185" radius={[3, 3, 0, 0]} barSize={30} />
-                    </>
-                  )}
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* RIGHT: INSIGHTS COLUMN */}
-          <div className="flex flex-col gap-4">
-            {/* Dept Donut */}
-            <div className="glass-panel rounded-xl p-5 shadow-sm">
-              <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide mb-4">
-                By Department
-              </h3>
-              {departmentDonutData.length > 0 ? (
-                <div className="flex items-center gap-4">
-                  <div className="relative w-20 h-20 shrink-0">
-                    <svg className="rotate-[-90deg]" viewBox="0 0 42 42">
-                      <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="currentColor" strokeWidth="6" className="text-slate-100 dark:text-slate-800" />
-                      {departmentDonutSegments.map((segment) => (
-                        <circle
-                          key={segment.key}
-                          cx="21"
-                          cy="21"
-                          r="15.9"
-                          fill="transparent"
-                          stroke="currentColor"
-                          strokeWidth="6"
-                          strokeDasharray={segment.dashArray}
-                          strokeDashoffset={segment.dashOffset}
-                          className={segment.colorClass}
-                        />
-                      ))}
-                    </svg>
-                  </div>
-                  <div className="flex flex-col gap-1 w-full">
-                    {departmentDonutData.map((department) => (
-                      <div key={department.name} className="flex items-center justify-between text-xs">
-                        <span className="text-slate-500 truncate max-w-[120px]">{department.name}</span>
-                        <span className="font-bold dark:text-white">{department.percentage}%</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <p className="text-xs text-slate-600 dark:text-slate-300">No department data found for selected filters.</p>
-              )}
-            </div>
-
-            {/* Punctuality List */}
-            <div className="glass-panel rounded-xl p-5 shadow-sm flex-1">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-slate-900 dark:text-white text-sm font-bold uppercase tracking-wide">Punctuality</h3>
-                <button className="text-[10px] text-blue-500 font-bold hover:underline">VIEW ALL</button>
-              </div>
-              <div className="flex flex-col gap-4">
-                {punctualityData.length > 0 ? punctualityData.map((staff, idx) => (
-                  <div key={idx} className="flex items-center gap-3">
-                    {staff.img ? (
-                      <img src={staff.img} className="h-8 w-8 rounded-full ring-2 ring-emerald-500/20" alt="" />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-bold ring-2 ring-blue-500/20">
-                        {staff.initial}
-                      </div>
-                    )}
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <span className="text-xs font-bold truncate dark:text-white">{staff.name}</span>
-                      <span className="text-[10px] text-slate-400">{staff.dept}</span>
-                    </div>
-                    <span className="text-xs font-bold text-emerald-500">{staff.score}</span>
-                  </div>
-                )) : (
-                  <p className="text-xs text-slate-600 dark:text-slate-300">No punctuality data found for selected filters.</p>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
+        <PeakHours reportType={reportType} chartData={chartData} departmentDonutData={departmentBreakdown.slice(0, 4)} punctualityData={punctualityData} />
 
         {/* Table */}
         <div className="glass-panel rounded-2xl p-6 flex flex-col gap-6 mb-8">
@@ -901,11 +601,6 @@ export default function ExecutiveAttendanceDashboardPage() {
 
               </div>
             </Tabs>
-
-
-            {/* <h3 className="text-lg font-bold text-slate-900 dark:text-white self-start sm:self-center">
-              {reportType === 'daily' ? 'Daily' : 'Monthly'} Attendance Detail
-            </h3> */}
 
             <div className="flex items-center gap-3 w-full sm:w-auto">
               <div className="relative flex-1 sm:flex-none">
@@ -1180,136 +875,8 @@ export default function ExecutiveAttendanceDashboardPage() {
           </div>
         </div>
 
-        <Dialog open={isLogsOpen} onOpenChange={setIsLogsOpen}>
-          <DialogContent className="min-w-[900px] max-w-[900px] p-0 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
-            <DialogHeader className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-primary text-white">
-              <div className="flex items-center justify-between gap-3">
-                <DialogTitle className="text-base font-semibold">
-                  Log Details
-                </DialogTitle>
-              </div>
-            </DialogHeader>
+        <LogDetails isLogsOpen={isLogsOpen} setIsLogsOpen={setIsLogsOpen} logDetails={logDetails} isLogsLoading={isLogsLoading} selectedLogRow={selectedLogRow} />
 
-            <div className="px-6 py-2 bg-slate-50 dark:bg-slate-900/40 border-b border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-3 text-sm">
-              <div className="text-slate-600 dark:text-slate-300">
-                Employee Id:{" "}
-                <span className="font-semibold text-slate-900 dark:text-white">
-                  {selectedLogRow?.employee?.system_user_id ||
-                    selectedLogRow?.employee_id ||
-                    "---"}
-                </span>
-              </div>
-
-              <div className="ml-auto text-slate-600 dark:text-slate-300">
-                Total logs:{" "}
-                <span className="font-semibold text-primary">
-                  ({logDetails.length})
-                </span>
-              </div>
-            </div>
-
-            <div className="px-6 py-5">
-              {isLogsLoading ? (
-                <div className="flex items-center justify-center py-16 text-slate-500 dark:text-slate-300">
-                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                  Loading log details...
-                </div>
-              ) : logDetails.length === 0 ? (
-                <div className="py-12 text-center text-sm text-slate-500 dark:text-slate-400">
-                  No logs found for this date.
-                </div>
-              ) : (
-                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-100 dark:bg-slate-800">
-                      <tr>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Log Time
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Device
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Log Type
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Reason
-                        </th>
-                        <th className="px-4 py-3 text-left font-semibold text-slate-700 dark:text-slate-200">
-                          Note
-                        </th>
-                        <th className="px-4 py-3 text-center font-semibold text-slate-700 dark:text-slate-200">
-                          Attachment
-                        </th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {logDetails.map((log, index) => (
-                        <tr
-                          key={`${log?.LogTime || "log"}-${index}`}
-                          className="border-t border-slate-200 dark:border-slate-800"
-                        >
-                          <td
-                            className={`px-4 py-3 ${log?.device?.name === "Manual"
-                              ? "text-red-600 dark:text-red-400 font-medium"
-                              : "text-slate-700 dark:text-slate-200"
-                              }`}
-                          >
-                            {log?.LogTime || "---"}
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
-                            {log?.device?.name || "---"}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold bg-primary/10 text-primary">
-                              {log?.log_type || "Device"}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
-                            {log?.reason ? (
-                              <span className="inline-flex items-center gap-1 text-xs">
-                                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                {log.reason}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-slate-700 dark:text-slate-200 max-w-[150px]">
-                            {log?.note ? (
-                              <span className="inline-flex items-center gap-1 text-xs">
-                                <MessageSquare className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                {log.note}
-                              </span>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {log?.attachment ? (
-                              <a
-                                href={`${API_BASE_URL.replace('/api', '')}/ManualLog/attachments/${log.attachment}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                              >
-                                <Paperclip className="w-3.5 h-3.5" />
-                                View
-                              </a>
-                            ) : (
-                              <span className="text-slate-400">---</span>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
       </main>
     </div>
   );
