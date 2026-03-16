@@ -230,7 +230,7 @@ class AttendanceController extends Controller
             $employeeQuery->whereIn('department_id', $departmentIds);
         }
 
-        $activeEmployeeQuery = (clone $employeeQuery)->where('status', 1);
+        $activeEmployeeQuery = (clone $employeeQuery);
 
         $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
 
