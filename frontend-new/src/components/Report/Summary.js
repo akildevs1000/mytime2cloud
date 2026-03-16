@@ -47,7 +47,7 @@ export default function ExecutiveAttendanceDashboardPage() {
 
   const { isDark } = useDarkMode();
 
-  const [reportType, setReportType] = useState('monthly'); // 'daily' or 'monthly'
+  const [reportType, setReportType] = useState('daily'); // 'daily' or 'monthly'
 
   const [attendanceReportType, setAttendanceReportType] = useState('range');
 
