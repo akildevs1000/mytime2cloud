@@ -883,7 +883,8 @@ class AttendanceController extends Controller
             ->whereIn('shift_type_id', $shiftTypeIds)
             ->join('employees', function ($join) use ($companyId) {
                 $join->on('employees.system_user_id', '=', 'attendances.employee_id')
-                    ->where('employees.company_id', '=', $companyId);
+                    ->where('employees.company_id', '=', $companyId)
+                    ->where('employees.status', 1); // Add this line
             })
             ->leftJoin('departments', 'departments.id', '=', 'employees.department_id')
             ->where('attendances.company_id', $companyId)
@@ -900,11 +901,14 @@ class AttendanceController extends Controller
             });
 
 
+        $shiftTypeIds = [1, 3, 4, 6];
+
         if (request("shift_type_id", 0) > 0) {
-            $baseQuery->where('shift_type_id',  request("shift_type_id"));
-        } else {
-            $baseQuery->whereNotIn('shift_type_id', [2, 5]);
+            $shiftTypeIds = [request("shift_type_id")];
         }
+
+        $baseQuery->whereIn('shift_type_id', $shiftTypeIds);
+
 
         if ($isSingleDay) {
             $baseQuery
