@@ -171,6 +171,7 @@ export default function ExecutiveAttendanceDashboardPage() {
       const payload = {
         ...dateRange,
         branch_ids: selectedBranchIds,
+        shift_type_id: shiftTypeId,
         department_ids: selectedDepartmentIds,
         company_id: user?.company_id || 0,
       };
@@ -382,7 +383,6 @@ export default function ExecutiveAttendanceDashboardPage() {
       params.append('company_id', user?.company_id || 0);
       params.append('from_date', dateRange.from_date);
       params.append('to_date', dateRange.to_date);
-      params.append('per_page', dateRange.per_page);
       params.append('shift_type_id', shiftTypeId);
 
 
@@ -715,9 +715,6 @@ export default function ExecutiveAttendanceDashboardPage() {
                               <>
                                 {Array.from({ length: 5 }).map((_, idx) => {
                                   const log = row.logs?.[idx];
-
-                                  console.log(log);
-
                                   return (
                                     <td
                                       key={idx}
