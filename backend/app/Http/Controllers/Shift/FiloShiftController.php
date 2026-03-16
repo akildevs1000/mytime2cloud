@@ -269,19 +269,9 @@ class FiloShiftController extends Controller
         $schedule = ScheduleEmployee::where("company_id", $params["company_id"])->get();
 
         $items = [];
-
-        // Mapping for Day Keys
-        $dayMap = [
-            'Mon' => 'M',
-            'Tue' => 'T',
-            'Wed' => 'W',
-            'Thu' => 'Th',
-            'Fri' => 'F',
-            'Sat' => 'S',
-            'Sun' => 'Su'
-        ];
+      
         $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = $dayMap[$dayOfWeekThreeLetter] ?? '';
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
         // LOOP THROUGH ALL USERS (This ensures Week-offs and Absentees are processed)
         foreach ($params["UserIds"] as $employeeId) {
@@ -324,7 +314,7 @@ class FiloShiftController extends Controller
                 "employee_id" => $employeeId,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => $status ?? "M",
+                "status" => $status ?? "A",
                 "late_coming" => "---",
                 "early_going" => "---",
             ];

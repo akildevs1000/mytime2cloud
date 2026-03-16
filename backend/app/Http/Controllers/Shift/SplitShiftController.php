@@ -53,7 +53,126 @@ class SplitShiftController extends Controller
         return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
+
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
+    {
+        $params = [
+            "company_id" => $id,
+            "date" => $date,
+            "shift_type_id" => $shift_type_id,
+            "UserIds" => $UserIds,
+        ];
+
+        if (!$custom_render) {
+            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+        }
+
+        $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+        $items = [];
+        $debugSummary = [];
+
+        foreach ($employees as $row) {
+            $shift = $row->schedule->shift ?? null;
+            if (!$shift) continue;
+
+            // Fetch logs and load device relationship to avoid "Undefined key" errors later
+            $allLogs = AttendanceLog::with('device')
+                ->where("company_id", $id)
+                ->where("UserID", $row->system_user_id)
+                ->whereDate('LogTime', $date)
+                ->orderBy("LogTime", 'asc')
+                ->get();
+
+            $totalMinutes = 0;
+            $logsJson = [];
+            $userSummary = [];
+
+            // Define the two sessions from your shift object
+            $sessions = [
+                [
+                    'name' => 'S1',
+                    'in_s' => $shift["beginning_in"],
+                    'in_e' => $shift["ending_in"],
+                    'out_s' => $shift["beginning_out"],
+                    'out_e' => $shift["ending_out"]
+                ],
+                [
+                    'name' => 'S2',
+                    'in_s' => $shift["beginning_in1"],
+                    'in_e' => $shift["ending_in1"],
+                    'out_s' => $shift["beginning_out1"],
+                    'out_e' => $shift["ending_out1"]
+                ]
+            ];
+
+            foreach ($sessions as $ses) {
+                // STRICT WINDOW FILTERING
+                $validInLog = $allLogs->filter(function ($log) use ($ses) {
+                    $time = Carbon::parse($log->LogTime)->format('H:i');
+                    return $time >= $ses['in_s'] && $time <= $ses['in_e'];
+                })->first();
+
+                $validOutLog = $allLogs->filter(function ($log) use ($ses) {
+                    $time = Carbon::parse($log->LogTime)->format('H:i');
+                    return $time >= $ses['out_s'] && $time <= $ses['out_e'];
+                })->last();
+
+                $min = 0;
+                if ($validInLog && $validOutLog) {
+                    $min = Carbon::parse($validInLog->LogTime)->diffInMinutes(Carbon::parse($validOutLog->LogTime));
+                    $totalMinutes += $min;
+                }
+
+                // Include device keys to fix the "Undefined array key" error
+                if ($validInLog || $validOutLog) {
+                    $inTime = $validInLog ? Carbon::parse($validInLog->LogTime)->format('H:i') : "---";
+                    $outTime = $validOutLog ? Carbon::parse($validOutLog->LogTime)->format('H:i') : "---";
+
+                    $logsJson[] = [
+                        "in"            => $inTime,
+                        "out"           => $outTime,
+                        "device_in"     => $validInLog ? ($validInLog->device->name ?? "Device") : "---",
+                        "device_out"    => $validOutLog ? ($validOutLog->device->name ?? "Device") : "---",
+                        "total_minutes" => $min,
+                    ];
+
+                    $userSummary[] = "({$ses['name']}: In $inTime, Out $outTime)";
+                }
+            }
+
+            $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
+
+
+            $dayOfWeekThreeLetter = date('D', strtotime($date));
+            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
+
+            $items[] = [
+                "employee_id"   => $row->system_user_id,
+                "company_id"    => $id,
+                "date"          => $date,
+                "shift_id"      => $shift->id,
+                "shift_type_id" => $shift->shift_type_id,
+                "total_hrs"     => $this->minutesToHours($totalMinutes),
+                "status"        => $status ?? (($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING),
+                "logs"          => json_encode($logsJson),
+            ];
+        }
+
+        // DB Update
+        if (count($items) > 0) {
+            Attendance::whereIn("employee_id", array_column($items, "employee_id"))
+                ->where("date", $date)
+                ->where("company_id", $id)
+                ->delete();
+            Attendance::insert($items);
+        }
+
+        return "Done for $date. Log Summary: " . implode(" | ", $debugSummary);
+    }
+
+
+    public function render_old($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
 
 
@@ -73,7 +192,7 @@ class SplitShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
-       
+
 
         $items = [];
 

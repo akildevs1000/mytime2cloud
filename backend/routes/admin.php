@@ -22,6 +22,7 @@ use App\Http\Controllers\Shift\MultiInOutShiftController;
 use App\Http\Controllers\Shift\SingleShiftController;
 use App\Http\Controllers\TradeLicenseController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserLocationController;
 use App\Http\Controllers\WhatsappProxyHealthCheckController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -370,3 +371,5 @@ Route::get('/test-reverse', function (\Illuminate\Http\Request $request) {
 Route::post('/contact-form', [SendMailController::class, 'send']);
 
 Route::post('/store-notifications', [NotificationsController::class, 'storeNotifications']);
+
+Route::get('/user-locations', [UserLocationController::class, 'index']);

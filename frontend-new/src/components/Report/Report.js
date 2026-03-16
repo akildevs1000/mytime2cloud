@@ -159,9 +159,7 @@ export default function AttendanceTable() {
 
       let result = await getScheduledEmployeeList(selectedDepartmentIds);
 
-      let data = result.map(e => ({ ...e, name: e.full_name }))
-
-      console.log(data);
+      let data = result.map(e => ({ ...e, name: e.full_name + " " + (e.id ? `(${e.id})` : "") }));
 
       setScheduledEmployees(data);
     } catch (error) {
@@ -170,7 +168,6 @@ export default function AttendanceTable() {
   };
 
   const handleViewLogs = useCallback(async (item) => {
-     console.log(item);
     try {
       setSelectedLogRow(item);
       setLogDetails([]);
@@ -225,7 +222,6 @@ export default function AttendanceTable() {
   }, [selectedDepartmentIds]);
 
   useEffect(() => {
-    console.log(selectedEmployeeIds);
   }, [selectedEmployeeIds]);
 
   const [params, setParams] = useState(null);
@@ -263,7 +259,6 @@ export default function AttendanceTable() {
 
 
       setParams(params);
-      console.log('Attendance Report Params:', params);
 
       const result = await getAttendanceReports(params);
 
@@ -375,11 +370,6 @@ export default function AttendanceTable() {
       }
 
       const fullQsUrl = `${baseUrl}?${queryObj.toString()}`;
-
-      // Debug: Log the full URL being used for CSV/PDF download
-      console.log('CSV/PDF Download URL:', fullQsUrl);
-      console.log('Date range:', { from, to, fromDate, toDate });
-      console.log('Employees:', selectedEmployeeIds);
 
       // 3. Handle PDF/Async Generation
       if (actionType !== "EXCEL") {

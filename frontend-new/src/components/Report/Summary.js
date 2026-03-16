@@ -321,7 +321,6 @@ export default function ExecutiveAttendanceDashboardPage() {
 
       const normalizedDailyAttendanceRows = Array.isArray(dailyAttendanceResponse?.data)
         ? dailyAttendanceResponse.data.map((item) => {
-          console.log(item);
           const baseRow = {
             id: item?.system_user_id,
             employeeCode: item?.employee_code || '---',
@@ -459,16 +458,25 @@ export default function ExecutiveAttendanceDashboardPage() {
       params.append('company_id', user?.company_id || 0);
       params.append('from_date', dateRange.from_date);
       params.append('to_date', dateRange.to_date);
+      params.append('per_page', dateRange.per_page);
+      params.append('shift_type_id', shiftTypeId);
 
-      if (selectedBranchIds && selectedBranchIds.length > 0) {
-        params.append('branch_ids', selectedBranchIds.join(','));
-      }
-      if (selectedDepartmentIds && selectedDepartmentIds.length > 0) {
-        params.append('department_ids', selectedDepartmentIds.join(','));
-      }
+
+      // Function to append arrays safely
+      const appendArray = (key, array) => {
+        if (Array.isArray(array)) {
+          array.forEach(value => params.append(key, value));
+        }
+      };
+
+      appendArray('branch_ids', selectedBranchIds);
+      appendArray('department_ids', selectedDepartmentIds);
 
       // Open the standalone HTML template
       const templateUrl = `https://summaryreport.mytime2cloud.com/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`;
+
+      // window.open(`http://127.0.0.1:5500/summary-report/${reportType == 'daily' ? "daily" : "monthly"}/index.html?${params.toString()}`, '_blank');
+      // return;
 
       await downloadReport(templateUrl, `${reportType == 'daily' ? "Daily-Summary-Report" : "Monthly-Summary-Report"}.pdf`);
 
@@ -504,48 +512,48 @@ export default function ExecutiveAttendanceDashboardPage() {
   ).segments;
 
 
-   const handleViewLogs = useCallback(async (item) => {
+  const handleViewLogs = useCallback(async (item) => {
 
     console.log(item);
-    
-      try {
-        setSelectedLogRow(item);
-        setLogDetails([]);
-        setIsLogsOpen(true);
-        setIsLogsLoading(true);
-  
-        const user = getUser();
-        const companyId = user?.company_id ?? 0;
-  
-        const query = new URLSearchParams({
-          per_page: "500",
-          UserID: String(selectedDate ?? ""),
-          LogTime: String(item.date ?? ""),
-          company_id: String(companyId),
-        });
-  
-        const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-  
-        if (!res.ok) {
-          throw new Error("Failed to fetch log details");
-        }
-  
-  
-        const data = await res.json();
-        setLogDetails(Array.isArray(data?.data) ? data.data : []);
-      } catch (error) {
-        console.error(error);
-        notify("Error", parseApiError(error), "error");
-      } finally {
-        setIsLogsLoading(false);
+
+    try {
+      setSelectedLogRow(item);
+      setLogDetails([]);
+      setIsLogsOpen(true);
+      setIsLogsLoading(true);
+
+      const user = getUser();
+      const companyId = user?.company_id ?? 0;
+
+      const query = new URLSearchParams({
+        per_page: "500",
+        UserID: item.employeeCode,
+        LogTime: new Date(selectedDate).toISOString().split('T')[0],
+        company_id: companyId,
+      });
+
+      const res = await fetch(`${API_BASE_URL}/attendance_single_list?${query.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+        },
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch log details");
       }
-    }, []);
-  
+
+
+      const data = await res.json();
+      setLogDetails(Array.isArray(data?.data) ? data.data : []);
+    } catch (error) {
+      console.error(error);
+      notify("Error", parseApiError(error), "error");
+    } finally {
+      setIsLogsLoading(false);
+    }
+  }, []);
+
 
   const getRateUi = (rate) => {
     if (rate >= 90) return 'text-emerald-500';
@@ -946,6 +954,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Overtime</th>
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Total Hrs</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Status</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Action</th>
                   </tr>
                 ) : (
                   <tr className="bg-slate-100 dark:bg-slate-800 border-y border-slate-200 dark:border-slate-700">
@@ -962,6 +971,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                     <th className="px-2 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Avg WH</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">WH</th>
                     <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-right">Perf</th>
+                    <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">Action</th>
                   </tr>
                 )}
               </thead>
@@ -1058,7 +1068,7 @@ export default function ExecutiveAttendanceDashboardPage() {
                                 : "---"
                             }
                           </td>
-                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
+                          <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-semibold text-slate-700 dark:text-slate-200">
                             <button
                               type="button"
                               onClick={() => handleViewLogs?.(row)}

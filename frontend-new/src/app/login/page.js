@@ -111,7 +111,7 @@ const Login = () => {
         <div className="flex flex-col lg:flex-row w-full overflow-hidden font-sans dark:bg-slate-50 dark:bg-slate-950 text-slate-900 antialiased">
 
             {/* Left Side: Branding & Visual (40%) */}
-            <div className="relative hidden lg:flex w-full lg:w-[40%] flex-col justify-between p-12 overflow-hidden bg-slate-900">
+            <div className="relative hidden lg:flex w-full lg:w-[60%] flex-col justify-between p-12 overflow-hidden bg-slate-900">
                 {/* Background Image - Using object-cover for better scaling */}
                 <div className="absolute inset-0 z-0">
                     <img

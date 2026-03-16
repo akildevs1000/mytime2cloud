@@ -102,6 +102,11 @@ class NightShiftController extends Controller
         $items = [];
         $keys = [];
         $message = "";
+
+
+        $dayOfWeekThreeLetter = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
@@ -189,6 +194,9 @@ class NightShiftController extends Controller
                 continue;
             }
 
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $key, $firstLog);
+
+
             $item = [
                 "roster_id" => 0,
                 "total_hrs" => "---",
@@ -202,7 +210,7 @@ class NightShiftController extends Controller
                 "employee_id" => $key,
                 "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
-                "status" => "M",
+                "status" => $status ?? "A",
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
@@ -297,9 +305,7 @@ class NightShiftController extends Controller
 
                     if ($shift["overtime_type"] === "Both") {
                         $item["ot"] = $otTime;
-                    }
-
-                    else if ($shift["overtime_type"] === "After") {
+                    } else if ($shift["overtime_type"] === "After") {
                         $earlyMinutes = 0;
                         if ($inTime < $onDutyTime) {
                             $earlyDiff = $onDutyTime->diff($inTime);
@@ -307,9 +313,7 @@ class NightShiftController extends Controller
                         }
 
                         $totalOtMinutes = max(0, $totalOtMinutes - $earlyMinutes);
-                    }
-
-                    else if ($shift["overtime_type"] === "Before") {
+                    } else if ($shift["overtime_type"] === "Before") {
                         $lateMinutes = 0;
                         if ($offDutyTime && $outTime > $offDutyTime) {
                             $lateDiff = $outTime->diff($offDutyTime);
