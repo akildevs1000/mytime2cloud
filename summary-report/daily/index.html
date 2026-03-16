@@ -355,6 +355,7 @@
                 to_date: params.get('to_date'),
                 branch_ids: params.get('branch_ids'),
                 department_ids: params.get('department_ids'),
+                shift_type_id: params.get('shift_type_id'),
             };
         }
 
@@ -391,6 +392,7 @@
             if (params.company_id) url.searchParams.append('company_id', params.company_id);
             if (params.from_date) url.searchParams.append('from_date', params.from_date);
             if (params.to_date) url.searchParams.append('to_date', params.to_date);
+            if (params.shift_type_id) url.searchParams.append('shift_type_id', params.shift_type_id);
             if (params.branch_ids) url.searchParams.append('branch_ids', params.branch_ids);
             if (params.department_ids) url.searchParams.append('department_ids', params.department_ids);
             url.searchParams.append('per_page', '500');
@@ -471,6 +473,10 @@
                 padding + ',' + (height - padding) + ' ' +
                 points + ' ' +
                 (padding + (trends.length > 1 ? usableWidth : usableWidth / 2)) + ',' + (height - padding);
+
+            // var circles = pointsArr.map(function (p) {
+            //     return '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="#3B82F6"></circle>';
+            // }).join('');
 
             // var circles = pointsArr
             //     .map(function (p, i) {
@@ -669,8 +675,6 @@
         }
 
         function buildEmployeeRow(emp) {
-
-            console.log(emp);
 
             var avatarHtml = emp.img
                 ? '<div class="h-8 w-8 rounded-full bg-cover bg-center ring-1 ring-slate-200" ' +
@@ -967,7 +971,6 @@
             }
 
             var apiUrl = buildApiUrl(params);
-            console.log('Fetching data from:', apiUrl);
 
             fetch(apiUrl, {
                 method: 'GET',
