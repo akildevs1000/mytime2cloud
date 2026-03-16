@@ -83,10 +83,10 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->runInBackground();
 
-        $schedule
-            ->command('attendance:rectify')
-            ->everyMinute()
-            ->runInBackground();
+        // $schedule
+        //     ->command('attendance:rectify')
+        //     ->everyMinute()
+        //     ->runInBackground();
 
 
         // $schedule->command("render:weekoff --month={$month}")
