@@ -758,12 +758,21 @@ class EmployeeControllerNew extends Controller
         }
     }
 
+
     public function updateGeneralSettings(Request $request, $id)
     {
         try {
-            $employee = Employee::findOrFail($id);
+            // 1. Find the employee or catch the specific 404 early
+            $employee = Employee::find($id);
 
-            // Check if the request contains ANY of the user-specific keys
+            if (!$employee) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Employee with ID {$id} not found."
+                ], 404);
+            }
+
+            // 2. Check for User presence
             $hasUserFields = $request->hasAny([
                 'web_login_access',
                 'mobile_app_login_access',
@@ -771,37 +780,43 @@ class EmployeeControllerNew extends Controller
                 'mobile_punch',
             ]);
 
-            $user = User::where('id', $id)->first();
+            $user = User::find($id);
 
-            // If they are trying to update user settings but no user exists
             if ($hasUserFields && !$user) {
                 return response()->json([
-                    'message' => 'User login not created yet',
+                    'status' => 'error',
+                    'message' => 'Login settings cannot be updated because no user account exists for this employee.'
                 ], 404);
             }
 
-            DB::transaction(function () use ($request, $employee, $user, $id) {
-                // Update employee status ONLY if it was sent
+            // 3. Perform Updates
+            DB::transaction(function () use ($request, $employee, $user) {
                 if ($request->has('status')) {
                     $employee->update(['status' => $request->status]);
                 }
 
-                // Update user fields ONLY if user exists and fields were sent
                 if ($user) {
-                    $user = User::where('id', $id)->update([
-                        'web_login_access' => $request->web_login_access ?? false,
-                        'mobile_app_login_access' => $request->mobile_app_login_access ?? false,
-                        'tracking_status' => $request->tracking_status ?? false,
-                        'mobile_punch' => $request->mobile_punch ?? false,
+                    $user->update([
+                        'web_login_access'        => $request->boolean('web_login_access'),
+                        'mobile_app_login_access' => $request->boolean('mobile_app_login_access'),
+                        'tracking_status'         => $request->boolean('tracking_status'),
+                        'mobile_punch'            => $request->boolean('mobile_punch'),
                     ]);
-
-                    Log::info(User::where('id', $id)->first());
                 }
             });
 
-            return response()->json(['message' => 'Updated successfully'], 200);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Settings updated successfully.'
+            ], 200);
         } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            // Log the actual error for debugging
+            Log::error("Settings Update Failed: " . $e->getMessage());
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Something went wrong on our end. Please try again later.'
+            ], 500);
         }
     }
 
