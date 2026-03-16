@@ -168,28 +168,30 @@ function LiveFeed({ branch_ids, department_ids }) {
   useEffect(() => {
     if (!lastAttendanceEvent) return;
 
-    setRecords((prev) => [
-      {
-        id: lastAttendanceEvent.customId,
-        name: lastAttendanceEvent.personName,
-        dept: lastAttendanceEvent.dept,
-        deviceLocation: lastAttendanceEvent.location ?? "Office Location",
-        log_type: lastAttendanceEvent.log_type || "---",
-        punctuality: lastAttendanceEvent.punctuality,
-        punctualityColor: lastAttendanceEvent.punctualityColor,
-        punctualityDot: lastAttendanceEvent.punctualityDot,
-        profile_picture:lastAttendanceEvent.profile_picture,
-        status: lastAttendanceEvent.status,
-        statusType: "neutral",
-        time: lastAttendanceEvent.time,
-        modes: [
-          lastAttendanceEvent.eventId?.includes("Mobile")
-            ? baseIcons.Mobile
-            : baseIcons.Face,
-        ],
-      },
-      ...prev,
-    ]);
+    fetchRecords();
+
+    // setRecords((prev) => [
+    //   {
+    //     id: lastAttendanceEvent.customId,
+    //     name: lastAttendanceEvent.personName,
+    //     dept: lastAttendanceEvent.dept,
+    //     deviceLocation: lastAttendanceEvent.location ?? "Office Location",
+    //     log_type: lastAttendanceEvent.log_type || "---",
+    //     punctuality: lastAttendanceEvent.punctuality,
+    //     punctualityColor: lastAttendanceEvent.punctualityColor,
+    //     punctualityDot: lastAttendanceEvent.punctualityDot,
+    //     profile_picture:lastAttendanceEvent.profile_picture,
+    //     status: lastAttendanceEvent.status,
+    //     statusType: "neutral",
+    //     time: lastAttendanceEvent.time,
+    //     modes: [
+    //       lastAttendanceEvent.eventId?.includes("Mobile")
+    //         ? baseIcons.Mobile
+    //         : baseIcons.Face,
+    //     ],
+    //   },
+    //   ...prev,
+    // ]);
   }, [lastAttendanceEvent]);
 
   return (
@@ -281,7 +283,7 @@ function LiveFeed({ branch_ids, department_ids }) {
               ) : item.log_type === "in" ? (
                 <span style={{ color: "green" }}>{item.log_type}</span>
               ) : (
-                <span>---</span>
+                <span>{item.log_type}</span>
               )}
             </div>
 

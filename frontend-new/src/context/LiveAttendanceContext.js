@@ -167,6 +167,8 @@ export function LiveAttendanceProvider({ children }) {
           ? incoming.data
           : incoming;
 
+      console.info("Raw SSE Payload:", rawPayload);
+
       const payloadList = Array.isArray(rawPayload) ? rawPayload : [rawPayload];
 
       payloadList.forEach((payload) => {
@@ -197,7 +199,8 @@ export function LiveAttendanceProvider({ children }) {
 
         const { punctuality, punctualityColor, punctualityDot } = getPunctualityFromShift(shift, time);
 
-        setLastAttendanceEvent({
+
+        let json = {
           ...payload,
           eventId: `${customId}-${facesluiceId || "sse"}-${time}`,
           source_type: "sse",
@@ -206,6 +209,7 @@ export function LiveAttendanceProvider({ children }) {
           time,
           profile_picture: payload.avatar,
           status: "Allowed",
+          log_type: payload.log_type,
           punctuality,
           punctualityColor,
           punctualityDot,
@@ -216,7 +220,11 @@ export function LiveAttendanceProvider({ children }) {
               : ""
             }`,
           location: payload.location,
-        });
+        }
+
+        console.info("SSE Received:", json);
+
+        setLastAttendanceEvent(json);
       });
     },
   });
@@ -285,11 +293,10 @@ export function LiveAttendanceProvider({ children }) {
             punctuality,
             punctualityColor,
             punctualityDot,
-            dept: `${foundEmployeeInfo?.branch?.branch_name}${
-              foundEmployeeInfo?.branch?.branch_name
+            dept: `${foundEmployeeInfo?.branch?.branch_name}${foundEmployeeInfo?.branch?.branch_name
                 ? " / " + foundEmployeeInfo?.department?.name
                 : ""
-            }`,
+              }`,
             location: foundDeviceInfo?.name || "-",
           });
         } catch (error) {
@@ -303,7 +310,7 @@ export function LiveAttendanceProvider({ children }) {
         }
       };
 
-      ws.onerror = () => {};
+      ws.onerror = () => { };
     };
 
     connect();

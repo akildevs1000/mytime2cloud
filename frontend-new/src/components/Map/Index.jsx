@@ -416,7 +416,7 @@ export default function LiveTeamStatus() {
 
     const fetchInitialLocations = async () => {
       try {
-        const response = await fetch(`http://192.168.1.205:8000/api/user-locations?company_id=${targetCompanyId}`);
+        const response = await fetch(`https://backend.mytime2cloud.com/api/user-locations?company_id=${targetCompanyId}`);
         if (!response.ok) throw new Error("Failed to fetch initial locations");
 
         const result = await response.json();
