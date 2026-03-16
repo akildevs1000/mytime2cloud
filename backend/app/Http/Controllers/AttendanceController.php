@@ -232,8 +232,6 @@ class AttendanceController extends Controller
             $employeeQuery->whereIn('department_id', $departmentIds);
         }
 
-        $activeEmployeeQuery = (clone $employeeQuery);
-
         $employeeSystemUserIds = $employeeQuery->pluck('system_user_id')->filter()->values();
 
         $now = Carbon::now();
@@ -262,12 +260,22 @@ class AttendanceController extends Controller
             ->whereIn('employee_id', $employeeSystemUserIds)
             ->whereBetween('date', [$currentStart, $currentEnd]);
 
+
+        $shiftTypeIds = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) > 0) {
+            $shiftTypeIds = [request("shift_type_id")];
+        }
+
+        $attendanceCurrent->whereIn('shift_type_id', $shiftTypeIds);
+
         $attendancePrevious = Attendance::query()
             ->where('company_id', $companyId)
             ->whereIn('employee_id', $employeeSystemUserIds)
-            ->whereBetween('date', [$previousStart, $previousEnd]);
+            ->whereBetween('date', [$previousStart, $previousEnd])
+            ->whereIn('shift_type_id', $shiftTypeIds);
 
-        $totalStaff = $activeEmployeeQuery->count();
+        $totalStaff = $attendanceCurrent->count();
         $previousTotalStaff = $totalStaff;
 
         $presentCount = (clone $attendanceCurrent)->where('status', 'P')->count();
@@ -298,54 +306,6 @@ class AttendanceController extends Controller
 
         $manualPunchCount = (clone $attendanceCurrent)->where('is_manual_entry', true)->count();
         $previousManualPunchCount = (clone $attendancePrevious)->where('is_manual_entry', true)->count();
-
-        // $top3Punctual = Attendance::query()
-        //     ->join('employees', 'employees.system_user_id', '=', 'attendances.employee_id')
-        //     ->where('attendances.company_id', $companyId)
-        //     ->whereBetween('attendances.date', [$currentStart, $currentEnd])
-        //     ->whereIn('attendances.employee_id', $employeeSystemUserIds)
-        //     ->where('attendances.status', 'P')
-        //     ->where('attendances.late_coming', '---')
-        //     ->selectRaw('attendances.employee_id, employees.employee_id as employee_code, employees.first_name, employees.last_name, COUNT(*) as punctual_days')
-        //     ->groupBy('attendances.employee_id', 'employees.employee_id', 'employees.first_name', 'employees.last_name')
-        //     ->orderByDesc('punctual_days')
-        //     ->limit(3)
-        //     ->get()
-        //     ->map(function ($row) {
-        //         return [
-        //             'system_user_id' => (int) $row->employee_id,
-        //             'employee_id' => (string) ($row->employee_code ?? ''),
-        //             'name' => trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')),
-        //             'punctual_days' => (int) $row->punctual_days,
-        //         ];
-        //     })
-        //     ->values();
-
-        // $top3AbsentLate = Attendance::query()
-        //     ->join('employees', 'employees.system_user_id', '=', 'attendances.employee_id')
-        //     ->where('attendances.company_id', $companyId)
-        //     ->whereBetween('attendances.date', [$currentStart, $currentEnd])
-        //     ->whereIn('attendances.employee_id', $employeeSystemUserIds)
-        //     ->selectRaw("attendances.employee_id, employees.employee_id as employee_code, employees.first_name, employees.last_name,
-        //         SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) as absent_days,
-        //         SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as late_days,
-        //         SUM(CASE WHEN attendances.status = 'A' THEN 1 ELSE 0 END) + SUM(CASE WHEN attendances.late_coming != '---' THEN 1 ELSE 0 END) as issue_days")
-        //     ->groupBy('attendances.employee_id', 'employees.employee_id', 'employees.first_name', 'employees.last_name')
-        //     ->havingRaw('SUM(CASE WHEN attendances.status = ? THEN 1 ELSE 0 END) + SUM(CASE WHEN attendances.late_coming != ? THEN 1 ELSE 0 END) > 0', ['A', '---'])
-        //     ->orderByDesc('issue_days')
-        //     ->limit(3)
-        //     ->get()
-        //     ->map(function ($row) {
-        //         return [
-        //             'system_user_id' => (int) $row->employee_id,
-        //             'employee_id' => (string) ($row->employee_code ?? ''),
-        //             'name' => trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? '')),
-        //             'absent_days' => (int) $row->absent_days,
-        //             'late_days' => (int) $row->late_days,
-        //             'issue_days' => (int) $row->issue_days,
-        //         ];
-        //     })
-        //     ->values();
 
         return response()->json([
             'stats' => [
