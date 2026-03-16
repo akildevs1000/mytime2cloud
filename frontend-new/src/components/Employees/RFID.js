@@ -1,7 +1,7 @@
 "use client";
 
 import { updateAccessSettings } from "@/lib/api";
-import { notify } from "@/lib/utils";
+import { notify, parseApiError } from "@/lib/utils";
 import React, { useState, useEffect, useRef } from "react";
 
 const RFID = ({
@@ -10,7 +10,9 @@ const RFID = ({
     rfid_card_password = "",
 }) => {
 
-    const [isInputChanged, setInputChanged] = useState(false);
+
+    const [loading, setLoading] = useState(false);
+
     const [cardNumber, setCardNumber] = useState(rfid_card_number || "");
     const [password, setPassword] = useState(rfid_card_password || "");
     const [showPassword, setShowPassword] = useState(false);
@@ -18,35 +20,28 @@ const RFID = ({
     // 2. Update state when user actually types
     const handleCardChange = (e) => {
         setCardNumber(e.target.value);
-        setInputChanged(true);
     };
 
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
-        setInputChanged(true);
     };
 
-    useEffect(() => {
-        // 3. Now the check works because it was set during the typing event
-        if (!isInputChanged || !id) return;
+    const onSubmit = async () => {
 
-        const handler = setTimeout(() => {
-            const fetchDropDowns = async () => {
-                try {
-                    await updateAccessSettings({
-                        rfid_card_number: cardNumber,
-                        rfid_card_password: password
-                    }, id);
-                    notify(`Success`, "Record Updated", 'success');
-                } catch (error) {
-                    notify(`Error`, parseApiError(error), 'error');
-                }
-            };
-            fetchDropDowns();
-        }, 500);
+        setLoading(true);
 
-        return () => clearTimeout(handler);
-    }, [cardNumber, password, isInputChanged]);
+        try {
+            await updateAccessSettings({
+                rfid_card_number: cardNumber,
+                rfid_card_password: password
+            }, id);
+            notify(`Success`, "Record Updated", 'success');
+        } catch (error) {
+            notify(`Error`, parseApiError(error), 'error');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const toggleVisibility = () => {
         setShowPassword(!showPassword);
@@ -114,6 +109,13 @@ const RFID = ({
                     </div>
                 </div>
             </div>
+
+            <button onClick={onSubmit}
+                className="px-4 py-2 mt-5 bg-primary hover:bg-primary-700 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-lg shadow-primary-200 dark:shadow-none flex items-center gap-2 
+             disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:shadow-none transition-all"
+            >
+                {loading ? 'Submitting...' : 'Submit'}
+            </button>
         </section>
     );
 };

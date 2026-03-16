@@ -140,9 +140,6 @@ const Login = ({ employee_id, email }) => {
                             </div>
                         </div>
                     )}
-
-
-
                 </div>
                 <button onClick={onSubmit}
                     className="px-4 py-2 bg-primary hover:bg-primary-700 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-lg shadow-primary-200 dark:shadow-none flex items-center gap-2 
@@ -150,7 +147,6 @@ const Login = ({ employee_id, email }) => {
                 >
                     {loading ? 'Submitting...' : 'Submit'}
                 </button>
-
             </div>
         </section>
     );
