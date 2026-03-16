@@ -6,8 +6,8 @@ import { notify, getStrength, parseApiError } from "@/lib/utils";
 import Input from "../Theme/Input";
 
 const Login = ({ employee_id, email }) => {
-    
-    const [isInputChanged, setInputChanged] = useState(false);
+
+    const [loading, setLoading] = useState(false);
 
     const [form, setForm] = useState({
         email: email || "",
@@ -19,65 +19,54 @@ const Login = ({ employee_id, email }) => {
     // 2. Update state when user actually types
     const handleEmailChange = (e) => {
         setForm((prev) => ({ ...prev, email: e.target.value || "" }))
-        setInputChanged(true);
     };
 
     const handlePasswordChange = (e) => {
-        setForm((prev) => ({ ...prev, password: e.target.value || ""  }))
-        setInputChanged(true);
+        setForm((prev) => ({ ...prev, password: e.target.value || "" }))
     };
 
     const handlePasswordConfirmationChange = (e) => {
         setForm((prev) => ({ ...prev, password_confirmation: e.target.value || "" }))
-        setInputChanged(true);
     };
 
     // Derive strength for the UI
     const strength = getStrength(form.password);
 
-    useEffect(() => {
+    const onSubmit = async () => {
+        // Logic Guard: Don't save if password fields are being typed but don't match yet
+        if (form.password && form.password !== form.password_confirmation) {
+            notify("Error", "Passwords do not match", "error");
+            return;
+        }
 
-        if (!isInputChanged || !employee_id) return;
+        // Logic Guard: Don't save if password is too weak (optional, based on your needs)
+        if (form.password && strength.score < 2) {
+            notify("Error", "Password is too weak", "error");
+            return;
+        }
 
-        const autoSave = async () => {
-            // Logic Guard: Don't save if password fields are being typed but don't match yet
-            if (form.password && form.password !== form.password_confirmation) {
-                return;
+        setLoading(true);
+
+        try {
+            const finalPayload = {
+                email: form.email,
+            };
+
+            // Only include password if it's fully validated and confirmed
+            if (form.password && form.password === form.password_confirmation) {
+                finalPayload.password = form.password;
             }
 
-            // Logic Guard: Don't save if password is too weak (optional, based on your needs)
-            if (form.password && strength.score < 2) {
-                return;
-            }
+            await updateLogin(finalPayload, employee_id);
+            notify("Success", "Login details has been added", "success");
+        } catch (error) {
+            notify("Error", parseApiError(error), "error");
 
-            try {
-                setInputChanged(true);
-                const finalPayload = {
-                    email: form.email,
-                };
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                // Only include password if it's fully validated and confirmed
-                if (form.password && form.password === form.password_confirmation) {
-                    finalPayload.password = form.password;
-                }
-
-                await updateLogin(finalPayload, employee_id);
-                notify("Success", "Login details has been added", "success");
-            } catch (error) {
-                notify("Error", parseApiError(error), "error");
-
-            } finally {
-                setInputChanged(false);
-            }
-        };
-
-        // Debounce: Wait 800ms (slightly longer for security fields)
-        const timeout = setTimeout(() => {
-            autoSave();
-        }, 800);
-
-        return () => clearTimeout(timeout);
-    }, [form.email, form.password, form.password_confirmation, isInputChanged]);
 
     return (
         <section
@@ -151,7 +140,17 @@ const Login = ({ employee_id, email }) => {
                             </div>
                         </div>
                     )}
+
+
+
                 </div>
+                <button onClick={onSubmit}
+                    className="px-4 py-2 bg-primary hover:bg-primary-700 text-white text-xs font-bold uppercase tracking-wide rounded-lg shadow-lg shadow-primary-200 dark:shadow-none flex items-center gap-2 
+             disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-400 disabled:shadow-none transition-all"
+                >
+                    {loading ? 'Submitting...' : 'Submit'}
+                </button>
+
             </div>
         </section>
     );

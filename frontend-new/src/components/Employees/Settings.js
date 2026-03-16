@@ -9,6 +9,8 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
     const isInitialMount = useRef(true);
     const isUpdating = useRef(false);
 
+    const [loading, setLoading] = useState(false);
+
     // 2. Local State
     const [employeeStatus, setEmployeeStatus] = useState(status);
     const [webAccess, setWebAccess] = useState(web_login_access);
