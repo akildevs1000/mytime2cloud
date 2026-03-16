@@ -111,10 +111,14 @@ export default function DateRangeSelect({
           <Calendar
             initialFocus
             mode="range"
-            defaultMonth={draftDate?.from}
-            selected={draftDate} // Use the draft state for selection
-            onSelect={setDraftDate} // Update the draft state on day selection
-            numberOfMonths={2} // Show two months for easier range selection
+            defaultMonth={draftDate?.from || new Date()}
+            selected={draftDate}
+            onSelect={setDraftDate}
+            numberOfMonths={2}
+            // --- ADD THESE PROPS ---
+            captionLayout="dropdown" // Enables the dropdowns
+            fromYear={2020} // Set the start of your year range
+            toYear={2035} // Set this to include your 5+ year target
           />
 
           {/* Action Buttons Container */}
