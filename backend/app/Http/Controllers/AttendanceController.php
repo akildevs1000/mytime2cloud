@@ -909,6 +909,11 @@ class AttendanceController extends Controller
 
         $baseQuery->whereIn('shift_type_id', $shiftTypeIds);
 
+        $baseQuery->whereHas('employee.schedule', function ($q) use ($companyId, $shiftTypeIds) {
+            $q->where('company_id', $companyId);
+            $q->whereIn("shift_type_id", $shiftTypeIds);
+        });
+
 
         if ($isSingleDay) {
             $baseQuery
