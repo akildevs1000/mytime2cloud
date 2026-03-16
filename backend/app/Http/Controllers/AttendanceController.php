@@ -222,6 +222,14 @@ class AttendanceController extends Controller
             $q->whereIn("shift_type_id", $shiftTypeIds);
         });
 
+
+        $employeeQuery->whereHas('attendances', function ($q) use ($companyId, $shiftTypeIds) {
+            $q->where('company_id', $companyId);
+            $q->whereIn("shift_type_id", $shiftTypeIds);
+        });
+
+
+
         if (!empty($branchIds)) {
             $employeeQuery->whereIn('branch_id', $branchIds);
         }
