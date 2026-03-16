@@ -1,6 +1,7 @@
 "use client";
 
 import { getDocuments } from '@/lib/api';
+import { calculateYearsOfService } from '@/lib/utils';
 import { FileType, ImageIcon } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 
@@ -238,7 +239,7 @@ const Profile = ({ payload }) => {
           </div>
           <div>
             <span className="text-3xl font-light text-gray-600 dark:text-gray-300 block"
-            >3.2</span
+            >{calculateYearsOfService(new Date(payload.joining_date))}</span
             >
             <span className="text-sm text-gray-600 dark:text-gray-300"
             >Years of Service</span

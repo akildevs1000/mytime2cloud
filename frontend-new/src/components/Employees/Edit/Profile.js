@@ -122,8 +122,6 @@ const Profile = ({ action = "Add", payload }) => {
 
     const onSubmit = async () => {
 
-        alert(form.profile_image_base64)
-
         setLoading(true);
 
         try {

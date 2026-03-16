@@ -50,7 +50,7 @@ export default function DropDown({
 
       <PopoverContent
         align="start"
-        className={`${width} overflow-y-auto max-h-80 p-0`}
+        className={`${width} overflow-y-auto max-h-80 p-0 z-[10001]`}
       >
         <Command>
           <CommandInput placeholder="Search item..." />

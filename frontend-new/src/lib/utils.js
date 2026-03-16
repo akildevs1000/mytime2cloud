@@ -343,3 +343,31 @@ export const getMonths = () => {
     { id: 12, name: "December" },
   ];
 }
+
+
+/**
+ * Calculates years of service as a decimal (e.g., 3.2)
+ * @param {Date} startDate 
+ * @param {Date} endDate 
+ * @returns {number}
+ */
+export function calculateYearsOfService(startDate, endDate = new Date()) {
+    let years = endDate.getFullYear() - startDate.getFullYear();
+    let months = endDate.getMonth() - startDate.getMonth();
+
+    // Adjust if the month/day hasn't been reached yet in the current year
+    if (months < 0 || (months === 0 && endDate.getDate() < startDate.getDate())) {
+        years--;
+        months += 12;
+    }
+
+    // Handle day-level precision for the "months" remainder
+    if (endDate.getDate() < startDate.getDate()) {
+        months--;
+    }
+
+    // Convert months to a decimal (rounded to 1 decimal place)
+    const decimalMonths = Math.round((months / 12) * 10) / 10;
+    
+    return years + decimalMonths;
+}
