@@ -762,17 +762,11 @@ class EmployeeControllerNew extends Controller
     public function updateGeneralSettings(Request $request, $id)
     {
         try {
-            // 1. Find the employee or catch the specific 404 early
-            $employee = Employee::find($id);
+            // 1. Attempt to find the employee
+            // If not found, it throws ModelNotFoundException
+            $employee = Employee::findOrFail($id);
 
-            if (!$employee) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => "Employee with ID {$id} not found."
-                ], 404);
-            }
-
-            // 2. Check for User presence
+            // 2. Check for User presence if login fields are being updated
             $hasUserFields = $request->hasAny([
                 'web_login_access',
                 'mobile_app_login_access',
@@ -785,16 +779,18 @@ class EmployeeControllerNew extends Controller
             if ($hasUserFields && !$user) {
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Login settings cannot be updated because no user account exists for this employee.'
+                    'message' => 'Cannot update login settings because no user account exists for this employee.'
                 ], 404);
             }
 
-            // 3. Perform Updates
+            // 3. Database Transaction
             DB::transaction(function () use ($request, $employee, $user) {
+                // Update employee status if provided
                 if ($request->has('status')) {
                     $employee->update(['status' => $request->status]);
                 }
 
+                // Update user settings if user exists
                 if ($user) {
                     $user->update([
                         'web_login_access'        => $request->boolean('web_login_access'),
@@ -807,15 +803,21 @@ class EmployeeControllerNew extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Settings updated successfully.'
+                'message' => 'General settings have been updated successfully.'
             ], 200);
+        } catch (ModelNotFoundException $e) {
+            // This catches the fail from Employee::findOrFail($id)
+            return response()->json([
+                'status' => 'error',
+                'message' => "Sorry, we couldn't find an employee with ID: {$id}."
+            ], 404);
         } catch (\Exception $e) {
-            // Log the actual error for debugging
-            Log::error("Settings Update Failed: " . $e->getMessage());
+            // This catches any other unexpected errors (Database down, syntax errors, etc.)
+            Log::error("General Settings Update Error: " . $e->getMessage());
 
             return response()->json([
                 'status' => 'error',
-                'message' => 'Something went wrong on our end. Please try again later.'
+                'message' => 'An unexpected error occurred. Please try again later.'
             ], 500);
         }
     }
