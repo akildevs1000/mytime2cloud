@@ -763,18 +763,16 @@ class EmployeeControllerNew extends Controller
     {
         try {
 
-            return $user = User::find($id);
+            $user = User::find($id);
 
-            if ($user) {
+            if (!$user) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Cannot update login settings because no user account exists for this employee.'
                 ], 404);
             }
 
-            if ($user) {
-                $user->update($request->all());
-            }
+            $user->update($request->all());
 
             return response()->json([
                 'status' => 'success',
