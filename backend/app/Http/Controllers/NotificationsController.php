@@ -87,8 +87,8 @@ class NotificationsController extends Controller
 
         if (!$exists) {
             // FIX: Change 'type' to 'map'
-            if (!$request->debug && $request->type == 'map') {
-                
+            if (!$request->boolean('debug') && $request->type == 'map') {
+
                 $created = UserLocation::create([
                     'company_id'  => $request->clientId,
                     'user_id'     => $request->input('data.user_id'),
