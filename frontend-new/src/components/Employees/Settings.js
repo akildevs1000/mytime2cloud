@@ -34,6 +34,7 @@ const Settings = ({ id, user_id, status, web_login_access, mobile_app_login_acce
             if (mobileAccess !== mobile_app_login_access) payload.mobile_app_login_access = mobileAccess;
             if (location !== tracking_status) payload.tracking_status = location;
             payload.mobile_punch = mobilePunch;
+            payload.id = id;
 
             // If no fields actually changed, don't ping the server
             if (Object.keys(payload).length === 0) return;
