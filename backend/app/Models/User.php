@@ -41,6 +41,12 @@ class User extends Authenticatable
         'end_date',
 
         "employee_id",
+
+        "mobile_app_login_access",
+        "mobile_punch",
+        "tracking_status",
+        "web_login_access"
+
     ];
 
     protected $with = ['assigned_permissions'];
