@@ -764,7 +764,7 @@ class EmployeeControllerNew extends Controller
         try {
 
             if ($request->status) {
-                Employee::where('id', $id)->update(['status' => $request->status]);
+                Employee::where('id', $request->id)->update(['status' => $request->status]);
             }
 
             $user = User::find($id);
