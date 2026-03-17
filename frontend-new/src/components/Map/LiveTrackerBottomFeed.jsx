@@ -21,9 +21,9 @@ export default function LiveTrackerBottomFeed({ employees, openPanel }) {
                 </div>
 
                 <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-                    {employees.map((emp) => (
+                    {employees.map((emp,index) => (
                         <button
-                            key={emp.id}
+                            key={index}
                             onClick={() => openPanel(emp)}
                             className="flex-shrink-0 flex items-center gap-3 bg-slate-800/50 p-3 rounded-xl border border-slate-700/50 w-72 hover:border-[#1152d4]/50 transition-all cursor-pointer text-left"
                         >
