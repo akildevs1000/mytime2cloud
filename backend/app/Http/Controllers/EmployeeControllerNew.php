@@ -764,7 +764,11 @@ class EmployeeControllerNew extends Controller
         try {
             // 1. Attempt to find the employee
             // If not found, it throws ModelNotFoundException
-            $employee = Employee::findOrFail($id);
+            // $employee = Employee::where("user_id", $id)->first();
+
+            // if ($request->has('status')) {
+            //     $employee->update(['status' => $request->status]);
+            // }
 
             // 2. Check for User presence if login fields are being updated
             $hasUserFields = $request->hasAny([
@@ -784,12 +788,7 @@ class EmployeeControllerNew extends Controller
             }
 
             // 3. Database Transaction
-            DB::transaction(function () use ($request, $employee, $user) {
-                // Update employee status if provided
-                if ($request->has('status')) {
-                    $employee->update(['status' => $request->status]);
-                }
-
+            DB::transaction(function () use ($request, $user) {
                 // Update user settings if user exists
                 if ($user) {
                     $user->update([
