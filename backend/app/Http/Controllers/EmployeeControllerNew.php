@@ -762,43 +762,19 @@ class EmployeeControllerNew extends Controller
     public function updateGeneralSettings(Request $request, $id)
     {
         try {
-            // 1. Attempt to find the employee
-            // If not found, it throws ModelNotFoundException
-            // $employee = Employee::where("user_id", $id)->first();
-
-            // if ($request->has('status')) {
-            //     $employee->update(['status' => $request->status]);
-            // }
-
-            // 2. Check for User presence if login fields are being updated
-            $hasUserFields = $request->hasAny([
-                'web_login_access',
-                'mobile_app_login_access',
-                'tracking_status',
-                'mobile_punch',
-            ]);
 
             $user = User::find($id);
 
-            if ($hasUserFields && !$user) {
+            if ($user) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Cannot update login settings because no user account exists for this employee.'
                 ], 404);
             }
 
-            // 3. Database Transaction
-            DB::transaction(function () use ($request, $user) {
-                // Update user settings if user exists
-                if ($user) {
-                    $user->update([
-                        'web_login_access'        => $request->boolean('web_login_access'),
-                        'mobile_app_login_access' => $request->boolean('mobile_app_login_access'),
-                        'tracking_status'         => $request->boolean('tracking_status'),
-                        'mobile_punch'            => $request->boolean('mobile_punch'),
-                    ]);
-                }
-            });
+            if ($user) {
+                $user->update($request->all());
+            }
 
             return response()->json([
                 'status' => 'success',
