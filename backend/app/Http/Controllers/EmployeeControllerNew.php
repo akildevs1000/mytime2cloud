@@ -763,7 +763,7 @@ class EmployeeControllerNew extends Controller
     {
         try {
 
-            $user = User::find($id);
+            return $user = User::find($id);
 
             if ($user) {
                 return response()->json([
