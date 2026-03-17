@@ -209,7 +209,7 @@ class AttendanceController extends Controller
         )));
         $departmentIds = $this->normalizeIds($request->input('department_ids'));
 
-        $employeeQuery = Employee::query()->where('company_id', $companyId);
+        $employeeQuery = Employee::query()->where('company_id', $companyId)->where("status", 1);
 
         $shiftTypeIds = [1, 3, 4, 6];
 
@@ -275,7 +275,7 @@ class AttendanceController extends Controller
             ->whereBetween('date', [$previousStart, $previousEnd])
             ->whereIn('shift_type_id', $shiftTypeIds);
 
-        $totalStaff = $attendanceCurrent->count();
+        $totalStaff = $employeeQuery->count();
         $previousTotalStaff = $totalStaff;
 
         $presentCount = (clone $attendanceCurrent)->where('status', 'P')->count();
