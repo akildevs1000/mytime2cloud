@@ -41,7 +41,7 @@ class FiloShiftController extends Controller
 
 
             // Determine which method to call
-            $method = ($request->company_id == 65) ? 'renderV1' : 'render';
+            $method = 'render';
 
             Log::info("Caling method: $method for company_id: $company_id on date: ");
 
