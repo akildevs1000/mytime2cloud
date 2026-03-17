@@ -54,7 +54,7 @@ class SplitShiftController extends Controller
     }
 
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
+    public function render_new($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
         $params = [
             "company_id" => $id,
@@ -172,7 +172,7 @@ class SplitShiftController extends Controller
     }
 
 
-    public function render_old($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
 
 
