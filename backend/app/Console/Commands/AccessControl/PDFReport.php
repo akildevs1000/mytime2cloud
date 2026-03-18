@@ -102,7 +102,7 @@ class PDFReport extends Command
 
             $batchKey = $index + 1;
 
-            GenerateAccessControlReport::dispatchSync($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks));
+            GenerateAccessControlReport::dispatch($chunk, $company_id, $date, $params, $company, $batchKey, count($chunks));
         }
 
         return count($data);
