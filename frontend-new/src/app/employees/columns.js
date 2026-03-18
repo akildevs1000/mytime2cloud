@@ -22,12 +22,10 @@ export default (deleteEmployee, editEmployee) => [
     key: "employee",
     header: "Personnel",
     render: (e) => (
-      <div className="flex items-center space-x-3">
-
+      <div className="flex space-x-3">
         <ProfilePicture src={e.profile_picture} />
-
         <div>
-          <p className="font-medium text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell ">{e?.first_name}</p>
+          <p className=" ">{e?.first_name}</p>
           <p className="text-sm text-gray-500">
             ID: {e.employee_id}
           </p>
@@ -39,16 +37,16 @@ export default (deleteEmployee, editEmployee) => [
     key: "branch",
     header: "Branch / Department",
     render: (employee) => (
-      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell ">
+      <>
         {employee.branch?.branch_name || "N/A"} / {employee.department?.name || "N/A"}
-      </div>
+      </>
     ),
   },
   {
     key: "position",
     header: "Position",
     render: (employee) => (
-      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell ">
+      <div>
         {employee.designation?.name || "N/A"}
       </div>
     ),
@@ -57,10 +55,10 @@ export default (deleteEmployee, editEmployee) => [
     key: "mobile_email",
     header: "Mobile / Email",
     render: (employee) => (
-      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell ">
-        <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{employee.user?.email || "—"}</p>
+      <div>
+        <p className="">{employee.user?.email || "—"}</p>
         <br />
-        <p className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">{employee.phone_number || "—"}</p>
+        <p className="">{employee.phone_number || "—"}</p>
       </div>
     ),
   },
@@ -68,7 +66,7 @@ export default (deleteEmployee, editEmployee) => [
     key: "timezone",
     header: "Join Date",
     render: (employee) => (
-      <div className="text-sm text-slate-600 dark:text-slate-300 hidden xl:table-cell ">
+      <div>
         {employee.show_joining_date || "N/A"}
       </div>
     ),
@@ -88,7 +86,7 @@ export default (deleteEmployee, editEmployee) => [
       const isFace = profile_picture;
 
       return (
-        <div className="flex items-center space-x-2 text-green-500 dark:text-slate-600">
+        <div className="">
           {isFace && <ScanFace className="w-5 h-5 hover:text-indigo-600 transition-colors" title="Face" />}
           {isCardNumberSet && <QrCode className="w-5 h-5 hover:text-indigo-600 transition-colors" title="Card" />}
           {isFingerPrint && <Fingerprint className="w-5 h-5 hover:text-indigo-600 transition-colors" title="Fingerprint" />}
@@ -124,10 +122,10 @@ export default (deleteEmployee, editEmployee) => [
               e.stopPropagation(); // Stop row redirect
               editEmployee(employee.id)
             }}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            className=""
           >
-            <Pencil className="w-4 h-4 text-primary" />
-            <span className="text-primary font-medium">Edit</span>
+            <Pencil className="w-4 h-4 text-gray-300 dark:text-slate-300" />
+            <span className="text-gray-300 dark:text-slate-300 font-medium">Edit</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -135,10 +133,10 @@ export default (deleteEmployee, editEmployee) => [
               e.stopPropagation(); // Stop row redirect
               deleteEmployee(employee.id);
             }}
-            className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+            className=""
           >
-            <Trash className="w-4 h-4 text-red-500" />
-            <span className="text-red-500 font-medium">Delete</span>
+            <Trash className="w-4 h-4 text-gray-300 dark:text-slate-300" />
+            <span className="text-gray-300 dark:text-slate-300 font-medium">Delete</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
