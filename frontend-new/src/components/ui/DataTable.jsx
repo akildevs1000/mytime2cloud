@@ -3,12 +3,8 @@
 export default function DataTable({
   columns = [],
   data = [],
-  isLoading = false,
-  error = null,
-  emptyMessage = "No data found.",
   onRowClick = () => { },
   pagination = null,
-  className = "",
 }) {
 
   return (

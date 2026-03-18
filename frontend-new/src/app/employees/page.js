@@ -174,8 +174,6 @@ export default function EmployeesPage() {
             <DataTable
                 columns={Columns(deleteEmployee, editEmployee)}
                 data={employees}
-                isLoading={isLoading}
-                error={error}
                 onRowClick={(item) => router.push(`/employees/short?id=${item.id}`)}
                 pagination={
                     <Pagination
