@@ -85,28 +85,85 @@ class PDFController extends Controller
 
     public function accessControlReportPrint()
     {
-        $company_id = request("company_id");
-
-        if (!$company_id) {
-            return response()->json(['error' => 'company_id is required'], 422);
-        }
-
-        $from_date = request("from_date", date("Y-m-d"));
-        $to_date = request("to_date", date("Y-m-d"));
-        return $this->PDFMerge("I", $company_id, $from_date, $to_date);
+        return $this->generateAccessControlReport("I");
     }
 
     public function accessControlReportDownload()
     {
-        $company_id = request("company_id");
+        return $this->generateAccessControlReport("D");
+    }
+
+    private function generateAccessControlReport($action = "I")
+    {
+        $request = request();
+        $company_id = $request->company_id;
 
         if (!$company_id) {
             return response()->json(['error' => 'company_id is required'], 422);
         }
 
-        $from_date = request("from_date", date("Y-m-d"));
-        $to_date = request("to_date", date("Y-m-d"));
-        return $this->PDFMerge("D", $company_id, $from_date, $to_date);
+        $company = Company::find($company_id);
+
+        if (!$company) {
+            return response()->json(['error' => 'Company not found'], 404);
+        }
+
+        $data = $this->processFilters($request)->get()->toArray();
+
+        if (empty($data)) {
+            return response()->json(['error' => 'No records found for the given filters'], 404);
+        }
+
+        $chunks = array_chunk($data, 20);
+        $params = ["report_type" => $request->report_type ?? "Date Wise Report"];
+        $from_date = $request->from_date ?? date("Y-m-d");
+        $to_date = $request->to_date ?? date("Y-m-d");
+        $date = $from_date == $to_date ? $from_date : "$from_date - $to_date";
+
+        $pdf = new \setasign\Fpdi\Fpdi();
+
+        foreach ($chunks as $index => $chunk) {
+            $payload = [
+                "chunk" => $chunk,
+                "company" => $company,
+                "params" => $params,
+                "currentPage" => $index + 1,
+                "totalPages" => count($chunks),
+                "date" => $date,
+            ];
+
+            $pagePdf = Pdf::setPaper('a4', 'landscape')
+                ->loadView('pdf.access_control_reports.report', $payload)
+                ->output();
+
+            $tempFile = tempnam(sys_get_temp_dir(), 'pdf_');
+            file_put_contents($tempFile, $pagePdf);
+
+            $pageCount = $pdf->setSourceFile($tempFile);
+            for ($i = 1; $i <= $pageCount; $i++) {
+                $tplId = $pdf->importPage($i);
+                $size = $pdf->getTemplateSize($tplId);
+                $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';
+                $pdf->AddPage($orientation, [$size['width'], $size['height']]);
+                $pdf->useTemplate($tplId);
+            }
+
+            unlink($tempFile);
+        }
+
+        $fileName = "Access-Control-Report.pdf";
+
+        if ($action == "D") {
+            return response($pdf->Output('S'), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => "attachment; filename=\"$fileName\"",
+            ]);
+        }
+
+        return response($pdf->Output('S'), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"$fileName\"",
+        ]);
     }
 
 
