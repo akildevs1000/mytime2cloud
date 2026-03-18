@@ -85,7 +85,12 @@ class PDFController extends Controller
 
     public function accessControlReportPrint()
     {
-        $company_id = request("company_id", 0);
+        $company_id = request("company_id");
+
+        if (!$company_id) {
+            return response()->json(['error' => 'company_id is required'], 422);
+        }
+
         $from_date = request("from_date", date("Y-m-d"));
         $to_date = request("to_date", date("Y-m-d"));
         return $this->PDFMerge("I", $company_id, $from_date, $to_date);
@@ -93,7 +98,12 @@ class PDFController extends Controller
 
     public function accessControlReportDownload()
     {
-        $company_id = request("company_id", 0);
+        $company_id = request("company_id");
+
+        if (!$company_id) {
+            return response()->json(['error' => 'company_id is required'], 422);
+        }
+
         $from_date = request("from_date", date("Y-m-d"));
         $to_date = request("to_date", date("Y-m-d"));
         return $this->PDFMerge("D", $company_id, $from_date, $to_date);
@@ -184,36 +194,29 @@ class PDFController extends Controller
     {
         $filesDirectory = public_path("access_control_reports/companies/$company_id");
 
-        // Check if the directory exists
+        // Create directory if it doesn't exist
         if (!is_dir($filesDirectory)) {
-            return response()->json(['error' => 'Directory not found'], 404);
+            mkdir($filesDirectory, 0777, true);
         }
 
-        // $pdfFiles = glob($filesDirectory . '/*.pdf');
         $pdfFiles = [];
 
-        // Convert start and end dates to DateTime objects
         $startDate = new \DateTime($from_date);
         $endDate = new \DateTime($to_date);
 
         while ($startDate <= $endDate) {
-
             $date = $startDate->format("Y-m-d");
+            $matched = glob($filesDirectory . "/$date.pdf");
 
-            if (glob($filesDirectory . "/$date.pdf")) {
-                $pdfFiles[] = glob($filesDirectory . "/$date.pdf")[0];
+            if (!empty($matched)) {
+                $pdfFiles[] = $matched[0];
             }
 
             $startDate->modify('+1 day');
         }
 
-
         if (empty($pdfFiles)) {
-            return 'No PDF files found';
-        }
-
-        if ($action == "I") {
-            return (new Controller)->mergePdfFiles($pdfFiles, $action, "Access-Control-Report.pdf");
+            return response()->json(['error' => "No PDF reports found for company $company_id between $from_date and $to_date"], 404);
         }
 
         return (new Controller)->mergePdfFiles($pdfFiles, $action, "Access-Control-Report.pdf");
