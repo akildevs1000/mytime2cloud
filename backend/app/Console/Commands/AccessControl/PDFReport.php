@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Console\Commands\AccessControl;
 
 use App\Jobs\GenerateAccessControlReport;
@@ -13,7 +14,7 @@ class PDFReport extends Command
      *
      * @var string
      */
-    protected $signature = 'pdf:access-control-report-generate {date}';
+    protected $signature = 'pdf:access-control-report-generate {date} {company?}';
 
     /**
      * The console command description.
@@ -29,35 +30,38 @@ class PDFReport extends Command
      */
     public function handle()
     {
+        $date = $this->argument("date");
+        $companyId = $this->argument("company"); // Retrieve the optional ID
 
-        $date = $this->argument("date", date("Y-m-d"));
-
-        if (! $date) {
+        if (!$date) {
             $this->error("Date argument is required.");
             return 1;
         }
 
-        $companyIds = Company::get();
+        // Logic to decide if we fetch one company or all
+        $query = Company::query();
 
-        if ($companyIds->isEmpty()) {
-            $this->error("No companies found.");
+        if ($companyId) {
+            $query->where('id', $companyId);
+        }
+
+        $companies = $query->get();
+
+        if ($companies->isEmpty()) {
+            $this->error("No companies found" . ($companyId ? " with ID: $companyId" : "") . ".");
             return 1;
         }
 
         $totalProcessed = 0;
 
-        foreach ($companyIds as $company) {
+        foreach ($companies as $company) {
             $this->info("Processing company ID: {$company->id} for date: $date");
 
-            // $this->info(showJson($company));
-
             $processedCount = $this->processByCompany($company, $date);
-            
             $totalProcessed += $processedCount;
-
         }
 
-        $this->info("Total records processed for all companies: $totalProcessed");
+        $this->info("Total records processed: $totalProcessed");
         return 0;
     }
 
@@ -102,6 +106,5 @@ class PDFReport extends Command
         }
 
         return count($data);
-
     }
 }
