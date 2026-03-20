@@ -508,7 +508,7 @@ class Attendance extends Model
 
 
 
-    public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog)
+    public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog = null)
     {
         $type = $weekoff_rules['type'] ?? 'Fixed';
 
