@@ -164,22 +164,15 @@ class FiloShiftController extends Controller
                 "employee_id" => $key,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => "M", // Default to Missing
+                "status" => "A", // Default to Missing
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
-
-            // Handle Late Coming (Shift Type 6 example)
-            if ($item["shift_type_id"] == 6 && $item["in"] !== "---") {
-                $item["late_coming"] = $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
-                if ($item["late_coming"] != "---") {
-                    $item["status"] = "LC";
-                }
-            }
+           
 
             // Handle Check Out and Total Hours
             if ($lastLog && $filteredLogs->count() > 1) {
-                $item["status"] = ($item["status"] == "LC") ? "LC" : "P";
+                $item["status"] = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                 $item["out"] = $lastLog["time"] ?? "---";
 
@@ -200,14 +193,6 @@ class FiloShiftController extends Controller
                 // OT Calculation
                 if (($schedule["isOverTime"] ?? false) && isset($shift["working_hours"])) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-                }
-
-                // Early Going
-                if ($item["shift_type_id"] == 6 && $item["out"] !== "---") {
-                    $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
-                    if ($item["early_going"] != "---") {
-                        $item["status"] = "EG";
-                    }
                 }
             }
 
