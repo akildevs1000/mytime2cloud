@@ -91,107 +91,110 @@ class FiloShiftController extends Controller
 
         $logsEmployees = (new AttendanceLog)->getLogsForRender($params);
 
-        // Update attendance table with shift ID if shift with employee not found 
-        if (count($logsEmployees) == 0) {
-            $employees = (new Employee())->GetEmployeeWithShiftDetails($params);
-            foreach ($employees as $key => $value) {
-                if (isset($value->schedule->shift) && $value->schedule->shift["id"] > 0) {
-                    $data1 = [
-                        "shift_id" => $value->schedule->shift["id"],
-                        "shift_type_id" => $value->schedule->shift["shift_type_id"]
-                    ];
-                    Attendance::whereIn("employee_id", $UserIds)
-                        ->where("date", $params["date"])
-                        ->where("company_id", $params["company_id"])
-                        ->update($data1);
-                }
-            }
-        }
-
         $items = [];
         $message = "";
 
-        foreach ($logsEmployees as $key => $logsGroup) {
-            $logsArray = $logsGroup->toArray() ?? [];
+        $dayOfWeekThreeLetter = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
-            // 1. Determine the Shift Boundaries
-            $firstValidRecord = collect($logsArray)->first();
-            $schedule = $firstValidRecord["schedule"] ?? false;
-            $shift = $schedule["shift"] ?? false;
+
+        // Fetch all schedules for the relevant employees in one go
+        $schedules = ScheduleEmployee::with('shift')
+            ->whereIn("employee_id", $UserIds)
+            ->where("company_id", $id)
+            ->get()
+            ->keyBy('employee_id');
+
+        foreach ($UserIds as $key) {
+
+            $isData = $logsEmployees[$key] ?? null;
+            $schedule = $schedules[$key] ?? null;
+            $shift = $schedule->shift ?? null;
 
             if (!$shift) {
-                $message .= ". No shift mapped for User: $key on " . $params["date"];
+                $message .= ". No shift for User: $key";
                 continue;
             }
 
+            $status = "A";
+            if ($shift->weekoff_rules) {
+                $status = Attendance::processWeekOffFunc($currentDayKey, $shift->weekoff_rules, $id, $date, $key) ?? "A";
+            }
+
+            $defaultItem = [
+                "employee_id"   => $key,
+                "date"          => $date,
+                "company_id"    => $id,
+                "status"        => $status,
+                "roster_id"     => 0,
+                "total_hrs"     => "---",
+                "in"            => "---",
+                "out"           => "---",
+                "ot"            => "---",
+                "device_id_in"  => "---",
+                "device_id_out" => "---",
+                "shift_id"      => $shift->id ?? 0,
+                "shift_type_id" => $shift->shift_type_id ?? 0,
+                "late_coming"   => "---",
+                "early_going"   => "---",
+            ];
+
+            // If no raw logs at all, add the default and skip to next user
+            if (!$isData) {
+                $items[] = $defaultItem;
+                continue;
+            }
+
+
+            $logsArray = $isData->toArray();
+
+
             // Logic to define shift range (handle overnight shifts)
-            $onDutyStr = $params["date"] . ' ' . $shift["on_duty_time"];
-            $offDutyStr = $params["date"] . ' ' . $shift["off_duty_time"];
+            $onDutyStr = $date . ' ' . $shift["on_duty_time"];
+            $offDutyStr = $date . ' ' . $shift["off_duty_time"];
 
             // If off_duty is earlier than on_duty, it ends the next day
             if (strtotime($shift["off_duty_time"]) < strtotime($shift["on_duty_time"])) {
                 $offDutyStr = date("Y-m-d H:i:s", strtotime($offDutyStr . " +1 day"));
             }
 
-            // 2. Filter logs that only fall within this shift range
-            $filteredLogs = collect($logsArray)->filter(function ($record) use ($onDutyStr, $offDutyStr) {
+            $filteredLogs = collect($isData)->filter(function ($record) use ($onDutyStr, $offDutyStr) {
                 return $record['LogTime'] >= $onDutyStr && $record['LogTime'] <= $offDutyStr;
             });
 
+            // If logs exist but NONE are in shift range, they are effectively Absent
             if ($filteredLogs->isEmpty()) {
+                $items[] = $defaultItem;
                 continue;
             }
 
-            $firstLog = $filteredLogs->first(function ($record) {
-                return !in_array(strtolower($record['log_type']), ['out'], true);
-            });
+            $firstLog = $filteredLogs->first(fn($r) => !in_array(strtolower($r['log_type']), ['out']));
+            $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower($r['log_type']), ['in']));
 
-            $lastLog = $filteredLogs->last(function ($record) {
-                return !in_array(strtolower($record['log_type']), ['in'], true);
-            });
+            // --- Step C: Build the "Present" Item ---
+            $item = $defaultItem; // Start with the defaults
+            $item["in"] = $firstLog["time"] ?? "---";
+            $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
+            $item["status"] = "P";
 
-            // 3. Prepare the Item
-            $item = [
-                "roster_id" => 0,
-                "total_hrs" => "---",
-                "in" => $firstLog["time"] ?? "---",
-                "out" => "---",
-                "ot" => "---",
-                "device_id_in" => $firstLog["DeviceID"] ?? "---",
-                "device_id_out" => "---",
-                "date" => $params["date"],
-                "company_id" => $params["company_id"],
-                "employee_id" => $key,
-                "shift_id" => $shift["id"] ?? 0,
-                "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => "A", // Default to Missing
-                "late_coming" => "---",
-                "early_going" => "---",
-            ];
-           
 
-            // Handle Check Out and Total Hours
             if ($lastLog && $filteredLogs->count() > 1) {
-                $item["status"] = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                 $item["out"] = $lastLog["time"] ?? "---";
 
+                // Total Hours Calculation
                 if ($item["out"] !== "---") {
                     if (strtotime($shift["on_duty_time"]) > strtotime($shift["off_duty_time"])) {
-                        $start = strtotime($firstLog["LogTime"]);
-                        $end = strtotime($lastLog["LogTime"]);
-                        $diffInSeconds = $end - $start;
+                        $diffInSeconds = strtotime($lastLog["LogTime"]) - strtotime($firstLog["LogTime"]);
                         $totalMinutes = round($diffInSeconds / 60);
-                        $hours = floor($totalMinutes / 60);
-                        $minutes = $totalMinutes % 60;
-                        $item["total_hrs"] = sprintf("%02d:%02d", $hours, $minutes);
+                        $item["total_hrs"] = sprintf("%02d:%02d", floor($totalMinutes / 60), ($totalMinutes % 60));
                     } else {
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                     }
                 }
 
                 // OT Calculation
-                if (($schedule["isOverTime"] ?? false) && isset($shift["working_hours"])) {
+                if (($schedule->isOverTime ?? false) && isset($shift["working_hours"])) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
                 }
             }

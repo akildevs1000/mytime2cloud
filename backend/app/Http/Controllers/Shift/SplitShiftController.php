@@ -38,8 +38,8 @@ class SplitShiftController extends Controller
         while ($startDate <= $endDate) {
             //$response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, true);
 
-            $response[] = $this->renderV1($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
-         
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
+
 
             $startDate->modify('+1 day');
         }
@@ -78,7 +78,7 @@ class SplitShiftController extends Controller
             if (!$shift) continue;
 
             // Fetch logs and load device relationship to avoid "Undefined key" errors later
-            $allLogs = AttendanceLog::with('device')
+            return $allLogs = AttendanceLog::with('device')
                 ->where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
                 ->whereDate('LogTime', $date)
@@ -138,6 +138,9 @@ class SplitShiftController extends Controller
                         "total_minutes" => $min,
                     ];
 
+                    info(count($logsJson));
+
+
                     $userSummary[] = "({$ses['name']}: In $inTime, Out $outTime)";
                 }
             }
@@ -147,7 +150,15 @@ class SplitShiftController extends Controller
 
             $dayOfWeekThreeLetter = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
+
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first()) ?? "A";
+
+            return $logsJson;
+
+
+            if ($status === "A" && count($logsJson) === 1) {
+                $status = Attendance::MISSING;
+            }
 
             $items[] = [
                 "employee_id"   => $row->system_user_id,
@@ -156,8 +167,8 @@ class SplitShiftController extends Controller
                 "shift_id"      => $shift->id,
                 "shift_type_id" => $shift->shift_type_id,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "status"        => $status ?? (($totalMinutes > 0) ? Attendance::PRESENT : Attendance::MISSING),
-                "logs"          => json_encode($logsJson),
+                "status"        => $status,
+                "logs"          => json_encode($logsJson, JSON_PRETTY_PRINT),
             ];
         }
 
@@ -174,62 +185,40 @@ class SplitShiftController extends Controller
     }
 
 
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
-
-
         $params = [
-            "company_id" => $id,
-            "date" => $date,
+            "company_id"    => $id,
+            "date"          => $date,
             "shift_type_id" => $shift_type_id,
             "custom_render" => $custom_render,
-            "UserIds" => $UserIds,
+            "UserIds"       => $UserIds,
         ];
 
-        if (!$custom_render) {
-            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+        if (! $custom_render) {
+            //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
 
         // return json_encode($params);
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
+        $items       = [];
+        $message     = "";
+        $logsUpdated = 0;
 
-
-        $items = [];
-
-        $message = "";
         foreach ($employees as $row) {
 
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
-            $params["shift_type_id"]      = $row->schedule->shift->shift_type_id ?? 0;
 
-            //->whereBetween("LogTime", [$params["start"], $params["end"]])
-
-            $logs = AttendanceLog::where("company_id", $params["company_id"])
-                ->where('LogTime', ">=", Carbon::parse($params["date"])->toDateString() . " 00:00:00")
-                ->where('LogTime', "<=", Carbon::parse($params["date"])->toDateString() . " 23:59:59")
-                ->distinct("LogTime", "UserID", "company_id")
-                ->whereHas("schedule", function ($q) use ($params) {
-                    $q->where("shift_type_id", $params["shift_type_id"]);
-                })
-                ->when($params["UserIds"] != null && count($params["UserIds"]) > 0, function ($query) use ($params) {
-                    return $query->whereIn('UserID', $params["UserIds"]);
-                })
-                ->orderBy("LogTime", 'asc')
-                ->get()
-                ->load("device")
-                ->groupBy(['UserID']);
-
+            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
 
             $data = $logs[$row->system_user_id] ?? [];
 
             $data = collect($data)
-                ->unique(function ($item) {
-                    // unique by year-month-day hour:minute
-                    return Carbon::parse($item->LogTime)->format('Y-m-d H:i');
-                })
+                ->unique('LogTime')
                 ->filter(function ($log, $index) use ($data) {
                     $prev = $data[$index - 1] ?? null;
 
@@ -242,7 +231,7 @@ class SplitShiftController extends Controller
                         $prev &&
                         $prev['log_type'] === $log['log_type']
                     ) {
-                        return false;
+                        return false; // skip duplicate consecutive type
                     }
 
                     return true;
@@ -250,22 +239,11 @@ class SplitShiftController extends Controller
                 ->values();
 
 
-            if (! count($data)) {
-                if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
-                    $data1 = [
-                        "shift_id"      => $row->schedule->shift["id"],
-                        "shift_type_id" => $row->schedule->shift["shift_type_id"],
-                        "status"        => "A",
-                    ];
-                    $model1 = Attendance::query();
-                    $model1->where("employee_id", $row->system_user_id);
-                    $model1->where("date", $params["date"]);
-                    $model1->where("company_id", $params["company_id"]);
-                    $model1->update($data1);
-                }
-                $message .= "{$row->system_user_id}   has No Logs to render";
-                continue;
-            }
+            $dayOfWeekThreeLetter = date('D', strtotime($date));
+            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first()) ?? "A";
+
+
             if (! $params["shift"]["id"]) {
                 $message .= "{$row->system_user_id} : No shift configured on date: $date";
                 continue;
@@ -282,7 +260,7 @@ class SplitShiftController extends Controller
                 "company_id"    => $params["company_id"],
                 "shift_id"      => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "status"        => count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT,
+                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
 
             ];
 
@@ -403,7 +381,9 @@ class SplitShiftController extends Controller
                 }
             }
 
-            $item["status"] = (count($logsJson)) ? Attendance::PRESENT : Attendance::MISSING;
+
+            $item["status"] =  count($logsJson) == 1 ? Attendance::MISSING : $status;
+
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
@@ -423,7 +403,7 @@ class SplitShiftController extends Controller
 
         // return json_encode($items, JSON_PRETTY_PRINT);
 
-        $logsUpdated = 0;
+        $items = collect($items)->unique('employee_id')->values()->all();
 
         try {
 
@@ -440,7 +420,7 @@ class SplitShiftController extends Controller
                     $model->insert($chunk);
                 }
 
-                $message = "[" . $date . " " . date("H:i:s") . "] Dual Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
+                $message = "[" . $date . " " . date("H:i:s") . "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
 
                 $logsUpdated = AttendanceLog::where("company_id", $id)
                     ->whereIn("UserID", $UserIds ?? [])
@@ -458,9 +438,15 @@ class SplitShiftController extends Controller
             $this->logOutPut($this->logFilePath, $e->getMessage());
         }
 
+        $this->logOutPut($this->logFilePath, [
+            "UserIds" => $UserIds,
+            "params"  => $params,
+            "items"   => $items,
+        ]);
 
-        $message = "[" . $date . " " . date("H:i:s") . "] Dual Shift. "  . "$logsUpdated " . " updated logs";
-        return $message;
+        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") . "] " . "$logsUpdated " . " updated logs");
+        $this->logOutPut($this->logFilePath, $message);
+        return "[" . $date . " " . date("H:i:s") . "] " . $message;
     }
 
     private function getLogTime($log, $validFunctions, $manualDeviceID)
