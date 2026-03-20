@@ -76,7 +76,7 @@ class Shift extends Model
      */
     public function employee_schedule()
     {
-        return $this->belongsTo(ScheduleEmployee::class, 'shift_id');
+        return $this->belongsTo(ScheduleEmployee::class, 'id', 'shift_id');
     }
 
     public function getAutoShiftsAll($companyId, $branch_id)

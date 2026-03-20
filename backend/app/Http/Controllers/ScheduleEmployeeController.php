@@ -627,7 +627,7 @@ class ScheduleEmployeeController extends Controller
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
-            ->withOut(["user","sub_department", "designation", "role", "schedule"])
+            ->withOut(["user", "sub_department", "designation", "role", "schedule"])
 
             ->with(["schedule" => function ($q) use ($request) {
                 $q->where("company_id", $request->company_id);
@@ -719,46 +719,30 @@ class ScheduleEmployeeController extends Controller
     public function scheduleStats()
     {
         $companyId = request("company_id", 2);
-        $employeeIds = request("employeeIds", []);
 
-        // 1. Total Workforce
-        $totalWorkforceQuery = Employee::where('company_id', $companyId)->where("status", 1);
+        $totalWorkforce = Employee::where('company_id', $companyId)->count();
 
-        // Apply filter only if IDs are provided
-        if (!empty($employeeIds)) {
-            $totalWorkforceQuery->whereIn('system_user_id', $employeeIds);
-        }
-        $totalWorkforce = $totalWorkforceQuery->count();
-
-        // 2. Shift Assigned (Unique Shifts)
-        $assignedQuery = ScheduleEmployee::whereHas('employee', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId)->where('status', 1);
-        });
-
-        if (!empty($employeeIds)) {
-            $assignedQuery->whereIn('employee_id', $employeeIds);
-        }
-        $assignedCount = $assignedQuery->distinct('shift_id')->count('shift_id');
+        $assignedQueryCount = Shift::whereHas('employee_schedule', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId);
+        })
+            ->distinct()
+            ->count('id');
 
         // 3. Unscheduled
-        $unscheduledQuery = Employee::where('company_id', $companyId)->where("status", 1);
+        $unscheduledCount = Employee::where('company_id', $companyId)
+            ->whereDoesntHave('schedule', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId);
+            })->count();
 
-        if (!empty($employeeIds)) {
-            $unscheduledQuery->whereIn('system_user_id', $employeeIds);
-        }
-        $unscheduledCount = $unscheduledQuery->doesntHave('schedule_all')->count();
 
         // 4. Upcoming Expiry
-        $expiryQuery = ScheduleEmployee::whereHas('employee', function ($query) use ($companyId) {
-            $query->where('company_id', $companyId)->where('status', 1);
-        })
+        $expiryCount = ScheduleEmployee::where('company_id', $companyId)
+            ->whereHas('employee', function ($query) use ($companyId) {
+                $query->where('company_id', $companyId);
+            })
             ->where('to_date', '>=', now())
-            ->where('to_date', '<=', now()->addDays(30));
-
-        if (!empty($employeeIds)) {
-            $expiryQuery->whereIn('employee_id', $employeeIds);
-        }
-        $expiryCount = $expiryQuery->distinct('shift_id')->count('shift_id');
+            ->where('to_date', '<=', now()->addDays(30))
+            ->count();
 
         return [
             [
@@ -770,7 +754,7 @@ class ScheduleEmployeeController extends Controller
             ],
             [
                 "label" => "Shift Assigned",
-                "value" => $assignedCount,
+                "value" =>  $assignedQueryCount,
                 "icon"  => "domain_verification",
                 "color" => "indigo",
                 'class' => "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
