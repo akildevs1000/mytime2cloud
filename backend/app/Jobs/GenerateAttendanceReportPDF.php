@@ -76,7 +76,7 @@ class GenerateAttendanceReportPDF implements ShouldQueue
 
         $output = Pdf::loadView("pdf.attendance_reports.{$template}-new", $arr)->output();
 
-        $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->employeeId}.pdf";
+        $filePath = $reportsDirectory . DIRECTORY_SEPARATOR . "Attendance_Report_{$template}_{$this->requestPayload["from_date"]}_{$this->requestPayload["to_date"]}_{$this->employee->id}.pdf";
 
         file_put_contents($filePath, $output);
 

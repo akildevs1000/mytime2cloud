@@ -16,6 +16,7 @@ use App\Models\Shift;
 use App\Models\ShiftType;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -44,51 +45,65 @@ class MonthlyController extends Controller
 
         $companyId    = $requestPayload["company_id"];
         $employee_ids = $requestPayload["employee_ids"];
+        $template     = $requestPayload["template"];
+        $fromDate     = $requestPayload["from_date"];
+        $toDate       = $requestPayload["to_date"];
 
-        $company = Company::whereId($companyId)
-            ->with('contact:id,company_id,number')
-            ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
-
-        $totalEmployees = Employee::where("company_id", $companyId)
+        // 1. Get the employees
+        $employeeIds = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
-            ->count();
+            ->pluck("id")->toArray();
 
-        info($totalEmployees);
-        info($employee_ids);
+        if (empty($employeeIds)) {
+            return response()->json(['status' => 'error', 'message' => 'No employees found.'], 404);
+        }
 
-        Cache::put("batch_total", $totalEmployees, 1800);
-        Cache::put("batch_done", 0, 1800);
-        Cache::put("batch_failed", 0, 1800);
 
-        Employee::with(["schedule" => function ($q) use ($companyId) {
-            $q->where("company_id", $companyId)
-                ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
-                ->withOut(["shift", "shift_type", "branch"]);
-        }])
-            ->withOut(["branch", "designation", "sub_department", "user"])
-            ->where("company_id", $companyId)
-            ->whereIn("system_user_id", $employee_ids)
-            ->chunk(50, function ($employees) use ($company, $requestPayload) {
+        $directory = public_path("reports/{$companyId}/{$template}");
 
-                foreach ($employees as $employee) {
+        if (!File::isDirectory($directory)) {
+            return response()->json(['error' => "Directory not found: {$directory}"], 404);
+        }
 
-                    GenerateAttendanceReportPDF::dispatch(
-                        $employee->system_user_id,
-                        $company,
-                        $employee,
-                        $requestPayload,
-                        optional($employee->schedule)->shift_type_id ?? 0,
-                        $requestPayload["template"] ?? "Template1"
-                    );
+        $pdfFiles = [];
+
+        try {
+            if (!empty($employeeIds)) {
+                // Merge specific employees from the array
+                foreach ($employeeIds as $id) {
+                    $fileName = "Attendance_Report_{$template}_{$fromDate}_{$toDate}_{$id}.pdf";
+                    $fullPath = $directory . DIRECTORY_SEPARATOR . $fileName;
+
+                    if (File::exists($fullPath)) {
+                        $pdfFiles[] = $fullPath;
+                    }
                 }
+            } else {
+                // Merge ALL files in that folder matching the pattern
+                $pattern = "Attendance_Report_{$template}_{$fromDate}_{$toDate}_*.pdf";
+                $pdfFiles = glob($directory . DIRECTORY_SEPARATOR . $pattern);
+            }
 
-                gc_collect_cycles();
-            });
+            if (empty($pdfFiles)) {
+                return response()->json(['error' => "No PDF files found to merge."], 404);
+            }
 
-        return response()->json([
-            'status'  => 'processing',
-            'message' => 'Report generation has started.',
-        ]);
+            // Prepare Output Name
+            $outputFileName = "Attendance_Report_{$fromDate}_to_{$toDate}.pdf";
+            $outputPath = $directory . DIRECTORY_SEPARATOR . $outputFileName;
+
+            // Use "F" to save the file on the server disk
+            $this->mergePdfFiles($pdfFiles, "F", $outputPath);
+
+            // Return the URL so the frontend can download it
+            return response()->json([
+                'status' => 'success',
+                'file_name' => $outputFileName,
+                'download_url' => asset("reports/{$companyId}/{$template}/{$outputFileName}")
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function monthly(Request $request)
