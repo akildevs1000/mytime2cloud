@@ -1,59 +1,63 @@
 <?php
+
 namespace App\Console\Commands;
 
-use App\Http\Controllers\Controller;
-use App\Jobs\GenerateAttendanceReportPDF;
 use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Console\Command;
+use App\Jobs\GenerateAttendanceReportPDF;
+use Opcodes\LogViewer\Facades\Cache;
 
 class pdfGenerate extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
+     * Updated signature with optional company_id and template.
+     * Use {arg?} for optional and {arg=default} for default values.
      */
-    protected $signature = 'pdf:generate {from_date?} {to_date?}';
+    protected $signature = 'pdf:generate {company_id?} {template=Template1}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'pdf:generate';
+    protected $description = 'Generate attendance report PDFs for companies or a specific company';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
+        $fromDate  = date("Y-m-01");
+        $toDate    = date("Y-m-t");
+        $companyId = $this->argument("company_id");
+        $template  = $this->argument("template");
 
-        $fromDate = $this->argument("from_date") ?? date("Y-m-01");
-        $toDate   = $this->argument("to_date") ?? date("Y-m-t");
+        // Logic to decide if we process one company or all
+        $query = Company::query();
 
-        $companyIds = Company::pluck("id");
+        if ($companyId) {
+            $query->where('id', $companyId);
+        }
 
-        $this->info("Total " . count($companyIds) . "companies found");
+        $companyIds = $query->pluck("id");
 
-        foreach ($companyIds as $companyId) {
+        if ($companyIds->isEmpty()) {
+            $this->error("No companies found.");
+            return Command::FAILURE;
+        }
 
+        $this->info("Processing " . $companyIds->count() . " company/companies...");
+
+        foreach ($companyIds as $id) {
             $requestPayload = [
-                'company_id'  => $companyId,
+                'company_id'  => $id,
                 'status'      => "-1",
-                'status_slug' => (new Controller)->getStatusSlug("-1"),
+                'status_slug' => "Summary",
                 'from_date'   => $fromDate,
                 'to_date'     => $toDate,
             ];
 
-            $this->processReportForCompany($requestPayload);
+            $this->processReportForCompany($requestPayload, $template);
         }
 
+        $this->info("Job dispatching completed.");
+        return Command::SUCCESS;
     }
 
-    private function processReportForCompany($requestPayload)
+    private function processReportForCompany($requestPayload, $template)
     {
         $companyId = $requestPayload["company_id"];
 
@@ -61,9 +65,17 @@ class pdfGenerate extends Command
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        // Count total employees for this company
+        if (!$company) {
+            $this->warn("Company ID $companyId not found. Skipping.");
+            return;
+        }
+
         $totalEmployees = Employee::where('company_id', $companyId)->count();
-        $this->info("Total employees for company $companyId: $totalEmployees");
+        $this->info("Dispatching reports for $company->name ($totalEmployees employees) using $template");
+
+        Cache::put("batch_total", $totalEmployees, 1800);
+        Cache::put("batch_done", 0, 1800);
+        Cache::put("batch_failed", 0, 1800);
 
         Employee::with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
@@ -72,21 +84,18 @@ class pdfGenerate extends Command
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
             ->where("company_id", $companyId)
-            ->chunk(50, function ($employees) use ($company, $requestPayload) {
+            ->chunk(50, function ($employees) use ($company, $requestPayload, $template) {
                 foreach ($employees as $employee) {
                     GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
                         $employee,
                         $requestPayload,
-                        $employee->schedule->shift_type_id
+                        $employee->schedule->shift_type_id ?? 0, // Fallback if no schedule
+                        $template
                     );
-
-                    // $this->info("[$processed] Employee processed: {$employee->full_name}");
                 }
-
                 gc_collect_cycles();
             });
-
     }
 }
