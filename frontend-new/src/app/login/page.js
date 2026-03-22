@@ -67,8 +67,8 @@ const Login = () => {
         setLoading(true);
 
         try {
-            let payload = { user_type: role, ...credentials };
-            let endpoint = `${"https://backend.mytime2cloud.com/api"}/login`;
+            let payload = { version: "1", user_type: role, ...credentials };
+            let endpoint = `https://backend.mytime2cloud.com/api/login`;
 
             const { data } = await axios.post(endpoint, payload);
             const token = data?.token;
