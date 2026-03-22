@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Console\Command;
-use App\Jobs\GenerateAttendanceReportPDF;
+use App\Jobs\V1\GenerateAttendanceReportPDF;
 use Opcodes\LogViewer\Facades\Cache;
 
 class pdfGenerate extends Command
@@ -14,7 +14,7 @@ class pdfGenerate extends Command
      * Updated signature with optional company_id and template.
      * Use {arg?} for optional and {arg=default} for default values.
      */
-    protected $signature = 'pdf:generate {company_id?} {template=Template1}';
+    protected $signature = 'pdf:generatev1 {company_id?} {template=Template1}';
 
     protected $description = 'Generate attendance report PDFs for companies or a specific company';
 
