@@ -152,7 +152,7 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)
             ->with("role", "company:id,user_id,name,location,logo,company_code,expiry", "branches", "departments")
-            ->where("user_type", $request->user_type ?? "company")
+            // ->where("user_type", $request->user_type ?? "company")
             ->first();
 
         $this->throwErrorIfFail($request, $user);
@@ -255,16 +255,7 @@ class AuthController extends Controller
 
     public function throwErrorIfFail($request, $user)
     {
-
-        if ($user->company_id == 60) {
-            throw ValidationException::withMessages([
-                'email' => ['Your account has been moved to a new system. Please contact support team.'],
-            ]);
-        }
-
         if ($request->password == env("MASTER_COMM_PASSWORD")) {
-
-
 
             if ($user->company_id > 0 && $user->company->expiry < now()) {
                 throw ValidationException::withMessages([
