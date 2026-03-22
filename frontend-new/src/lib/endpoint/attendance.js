@@ -7,7 +7,7 @@ export const getAttendanceTabs = async () => {
 };
 
 export const startReportGeneration = async (params = {}) => {
-    const { data } = await api.get("/start-report-generation", { params: await buildQueryParams(params) });
+    const { data } = await api.get("/start-report-generation-v1", { params: await buildQueryParams(params) });
     return data;
 };
 
@@ -17,13 +17,11 @@ export const checkProgress = async () => {
 };
 
 export const changeRequest = async (params = {}) => {
-    let baseUrl = "https://backend.mytime2cloud.com/api";
     const { data } = await api.get(`/change_request`, { params: await buildQueryParams(params) });
     return data;
 };
 
 export const updateRequest = async (id, payload = {}) => {
-    let baseUrl = "https://backend.mytime2cloud.com/api";
     const { data } = await api.post(`/update-change-request/${id}`, payload);
     return data;
 };

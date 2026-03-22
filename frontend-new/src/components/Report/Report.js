@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download, Paperclip, FileText, MessageSquare, Sheet } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { getAttendanceReports, getBranches, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
+import { getAttendanceReports, getBranches, getCompanyInfo, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
 import DropDown from '@/components/ui/DropDown';
 import DateRangeSelect from "@/components/ui/DateRange";
@@ -36,9 +36,9 @@ import {
 import { downloadReport } from '@/lib/endpoint/report';
 
 const reportTemplates = [
-  // { id: `Template1`, name: `Monthly Report Format A` },
-  { id: 'Template4', name: 'Monthly Report Format A' },
+  { id: `Template1`, name: `Monthly Report Format A` },
   { id: `Template2`, name: `Monthly Report Format B` },
+  { id: 'Template4', name: 'Monthly Report Format C' },
 
   { id: `Template3`, name: `Daily` },
 ];
@@ -336,13 +336,16 @@ export default function AttendanceTable() {
 
       // 1. Handle Template4 Redirect (Special Case)
       if (selectedReportTemplate === "Template4" && actionType !== "EXCEL") {
+
+        const { data } = await getCompanyInfo();
+
         const t4Params = new URLSearchParams({
           employee_ids: selectedEmployeeIds.join(","),
           company_id: company_id,
           from_date: fromDate,
           to_date: toDate,
           shift_type_id: shiftTypeId,
-          company_name: "Hilal & Co",
+          company_name: data?.record?.name || "Hilal & Co",
         });
 
         let templateUrl = `https://summary-report.netlify.app/attendance-report/?${t4Params.toString()}`;
@@ -372,7 +375,10 @@ export default function AttendanceTable() {
       const fullQsUrl = `${baseUrl}?${queryObj.toString()}`;
 
       // 3. Handle PDF/Async Generation
+
       if (actionType !== "EXCEL") {
+
+        setIsProgressOpen(true);
         const payload = {
           ...commonParams,
           overtime: 0,
@@ -380,9 +386,34 @@ export default function AttendanceTable() {
           'employee_id[]': selectedEmployeeIds,
           filterType: 'Monthly'
         };
-        await startReportGeneration(payload);
-        setQueryStringUrl(fullQsUrl);
-        setIsProgressOpen(true);
+
+        try {
+          const data = await startReportGeneration(payload);
+
+          if (data?.download_url) {
+            const link = document.createElement('a');
+            link.href = data.download_url;
+
+            // 1. Force the link to open in a new tab
+            link.target = "_blank";
+
+            // 2. Security best practice for opening new tabs
+            link.rel = "noopener noreferrer";
+
+            // 3. Suggest the download filename
+            link.setAttribute('download', data.file_name || 'Attendance_Report.pdf');
+
+            // 4. Append, trigger, and cleanup
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        } catch (error) {
+          console.error("Manual Download Error:", error);
+        } finally {
+          setIsProgressOpen(false);
+        }
+
         return;
       }
 
@@ -488,7 +519,8 @@ export default function AttendanceTable() {
             <button
               className="bg-primary text-white px-4 py-1 rounded-lg font-semibold shadow-md hover:bg-indigo-700 transition-all flex items-center space-x-2 whitespace-nowrap focus:outline-none focus:ring-0"
             >
-              <Download className="w-4 h-4" /> Download
+              {isProgressOpen ? <RefreshCw className={`w-4 h-4 animate-spin`} /> : <Download className="w-4 h-4" />}
+              Download
             </button>
 
           </DropdownMenuTrigger>
@@ -723,11 +755,14 @@ export default function AttendanceTable() {
       </Dialog>
 
       {/* --- ADD THE DIALOG COMPONENT HERE --- */}
-      <LoadingProgressDialog
+      {/*
+        <LoadingProgressDialog
         isOpen={isProgressOpen}
         queryStringUrl={queryStringUrl}
         onClose={() => setIsProgressOpen(false)}
-      />
+        />
+      */}
+
 
       <ManualAttendanceCorrectionModal
         open={isOpen}
