@@ -722,10 +722,12 @@ class ScheduleEmployeeController extends Controller
 
         $totalWorkforce = Employee::where('company_id', $companyId)->count();
 
-        return $assignedQueryCount = Shift::whereHas('employee_schedule', function ($q) use ($companyId) {
+        $assignedQueryCount = Shift::whereHas('employee_schedule', function ($q) use ($companyId) {
             $q->where('company_id', $companyId);
+            $q->where('branch_id', ">", 0);
         })
-            ->get();
+            ->distinct()
+            ->count('id');
 
         // 3. Unscheduled
         $unscheduledCount = Employee::where('company_id', $companyId)
