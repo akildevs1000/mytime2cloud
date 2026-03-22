@@ -14,6 +14,7 @@ use App\Http\Controllers\Reports\MonthlyMergeJobController;
 use App\Http\Controllers\Reports\MonthlyMimoController;
 use App\Http\Controllers\Reports\PDFController;
 use App\Http\Controllers\Reports\PDFTestController;
+use App\Http\Controllers\Reports\V1\MonthlyController as V1MonthlyController;
 use App\Http\Controllers\Reports\WeeklyMimoController;
 
 
@@ -120,7 +121,7 @@ Route::get('/weekly_download_csv', [WeeklyController::class, 'weekly_download_cs
 //monthly _OLD without merge 
 Route::get('/monthly', [MonthlyController::class, 'monthly']);
 Route::get('/start-report-generation', [MonthlyController::class, 'startReportGeneration']);
-Route::get('/start-report-generation-v1', [MonthlyController::class, 'startReportGenerationV1']);
+Route::get('/start-report-generation-v1', [V1MonthlyController::class, 'startReportGenerationV1']);
 Route::get('/monthly_download_pdf', [MonthlyController::class, 'monthly_download_pdf']);
 Route::get('/monthly_generate_pdf', [MonthlyController::class, 'monthly_generate_pdf']);
 Route::get('/monthly_download_csv', [MonthlyController::class, 'monthly_download_csv']);
