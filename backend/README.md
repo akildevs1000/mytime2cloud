@@ -1,3 +1,10 @@
+./php/php.exe artisan serve
+./php/php.exe artisan queue:work
+
+
+./php/php.exe artisan pdf:generate-template4 60 "Hilal cleaning company" 2026-03-01 2026-03-31 10000007 100001 100002
+
+
 Commands to genrate pdf in background
 php artisan pdf:generate 22
 php artisan task:generate_daily_report 65
