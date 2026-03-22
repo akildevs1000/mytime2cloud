@@ -6,24 +6,33 @@ use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Console\Command;
 use App\Jobs\V1\GenerateAttendanceReportPDF;
-use Opcodes\LogViewer\Facades\Cache;
+use Illuminate\Support\Facades\Cache; // Fixed the Facade import
+use Carbon\Carbon;
 
 class pdfGenerate extends Command
 {
     /**
-     * Updated signature with optional company_id and template.
-     * Use {arg?} for optional and {arg=default} for default values.
+     * Updated signature with optional company_id, template, from, and to dates.
+     * {from?} and {to?} allow custom date ranges.
      */
-    protected $signature = 'pdf:generatev1 {company_id?} {template=Template1}';
+    protected $signature = 'pdf:generatev1 
+                            {company_id?} 
+                            {template=Template1} 
+                            {from?} 
+                            {to?}';
 
-    protected $description = 'Generate attendance report PDFs for companies or a specific company';
+    protected $description = 'Generate attendance report PDFs for companies with optional date range';
 
     public function handle()
     {
-        $fromDate  = date("Y-m-01");
-        $toDate    = date("Y-m-t");
+        // 1. Determine Dates: Use provided args or default to current month
+        $fromDate = $this->argument("from") ?: Carbon::now()->startOfMonth()->toDateString();
+        $toDate   = $this->argument("to")   ?: Carbon::now()->endOfMonth()->toDateString();
+        
         $companyId = $this->argument("company_id");
         $template  = $this->argument("template");
+
+        $this->info("Period: $fromDate to $toDate");
 
         // Logic to decide if we process one company or all
         $query = Company::query();
@@ -73,6 +82,7 @@ class pdfGenerate extends Command
         $totalEmployees = Employee::where('company_id', $companyId)->count();
         $this->info("Dispatching reports for $company->name ($totalEmployees employees) using $template");
 
+        // Note: Using global Cache or ensure the custom LogViewer Cache supports these calls
         Cache::put("batch_total", $totalEmployees, 1800);
         Cache::put("batch_done", 0, 1800);
         Cache::put("batch_failed", 0, 1800);
@@ -91,7 +101,7 @@ class pdfGenerate extends Command
                         $company,
                         $employee,
                         $requestPayload,
-                        $employee->schedule->shift_type_id ?? 0, // Fallback if no schedule
+                        $employee->schedule->shift_type_id ?? 0,
                         $template
                     );
                 }
