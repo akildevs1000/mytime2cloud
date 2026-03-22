@@ -4,30 +4,15 @@ namespace App\Console\Commands\v1;
 
 use App\Models\Company;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
 
 class PDFGenerateTemplate4 extends Command
 {
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'pdf:generate-template4 {company_id} {employee_ids*}'; // accept multiple employees
+    protected $signature = 'pdf:generate-template4 {company_id}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Generate Attendance PDF Template4 via Node Puppeteer service';
 
-    /**
-     * Execute the console command.
-     *
-     * @return int
-     */
     public function handle()
     {
         $company_id = $this->argument('company_id');
@@ -38,44 +23,54 @@ class PDFGenerateTemplate4 extends Command
 
         if (!$company) {
             $this->warn("Company ID $company_id not found. Skipping.");
-            return;
+            return 0;
         }
 
         $company_name = $company->name ?? "Company_$company_id";
 
-        $employeeIds = $this->argument('employee_ids'); // array
+        // ✅ Get employees
+        $employees = DB::table('employees')
+            ->where('company_id', $company_id)
+            ->select('id', 'system_user_id')
+            ->get();
 
-        $this->info("Generating PDFs for Company: $company_id | Employees: " . implode(',', $employeeIds));
+        if ($employees->isEmpty()) {
+            $this->warn("No employees found for company ID $company_id. Exiting.");
+            return 0;
+        }
 
-        $storagePath = "reports/{$company_id}/Template4";
-        Storage::disk('public')->makeDirectory($storagePath);
+        $this->info("Generating PDFs for Company: $company_id | Employees: " . $employees->pluck('id')->implode(','));
 
-        foreach ($employeeIds as $employee_id) {
+        // ✅ Create directory in public
+        $reportsDirectory = public_path("reports/{$company_id}/Template4");
+
+        if (!is_dir($reportsDirectory)) {
+            mkdir($reportsDirectory, 0777, true);
+        }
+
+        foreach ($employees as $employee) {
             try {
-                $this->info("👤 Employee: $employee_id ...");
+                $this->info("👤 Employee ID: {$employee->id} (system_user_id: {$employee->system_user_id})...");
 
-                // Call Node service
-                $response = Http::withoutVerifying()->post('http://localhost:5000/generate-pdf', [
-                    'company_id' => $company_id,
+                // ✅ Call Node API
+                $response = Http::withoutVerifying()->post(env('ATTENDANCE_REPORT_URL_TEMPLATE4'), [
+                    'company_id'   => $company_id,
                     'company_name' => $company_name,
-                    'from_date' => $from_date,
-                    'to_date' => $to_date,
-                    'employee_id' => $employee_id,
+                    'from_date'    => $from_date,
+                    'to_date'      => $to_date,
+                    'employee_id'  => $employee->system_user_id,
+                    'url'          => env('ATTENDANCE_REPORT_URL_APP_URL'),
+                    'id'           => $employee->id,
                 ]);
 
-                if ($response->ok()) {
-                    $pdfPath = $response->json()['pdf_path'];
-                    $fileName = basename($pdfPath);
-
-                    // Copy PDF to public/reports/company_id/Template4
-                    copy($pdfPath, public_path("$storagePath/$fileName"));
-
-                    $this->info("✅ Saved: $storagePath/$fileName");
-                } else {
-                    $this->error("❌ Failed to generate PDF for $employee_id: " . $response->body());
+                if (!$response->ok()) {
+                    $this->error("❌ API failed for employee {$employee->id}: " . $response->body());
+                    continue;
                 }
+
+                $this->info("❌ PDF URL missing: " . json_encode($response->json()));
             } catch (\Exception $e) {
-                $this->error("❌ Error for $employee_id: " . $e->getMessage());
+                $this->error("❌ Error for employee {$employee->id}: " . $e->getMessage());
             }
         }
 
