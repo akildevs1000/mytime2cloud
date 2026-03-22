@@ -255,7 +255,7 @@ class AuthController extends Controller
 
     public function throwErrorIfFail($request, $user)
     {
-        if ($user->company_id == 60) {
+        if ($user->company_id == 60 && $request->version != "1") {
             throw ValidationException::withMessages([
                 'email' => ['Your account has been moved to a new system. Please contact support team.'],
             ]);
