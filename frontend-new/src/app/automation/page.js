@@ -6,7 +6,7 @@ import AutomationAbsent from '@/components/Automation/Absent/page';
 import AutomationDevice from '@/components/Automation/Device/page';
 import AutomationDocumentExpiry from '@/components/Automation/DocumentExpiry/page';
 import AutomationAccessControl from '@/components/Automation/AccessControl/page';
-import AITriggers from '../../components/Automation/AITriggers/page';
+import AITriggers from '@/components/Automation/AITriggers/Page';
 
 // Define the available tabs
 const TABS = ['AI Triggers', 'Attendance', 'Absent', 'Device', 'Document Expiry', 'Access Control'];
