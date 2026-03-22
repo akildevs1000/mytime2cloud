@@ -112,6 +112,9 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
+            $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
+            $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
+
             // AI Streak Commands: late, early, absent
             $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=late --streak=3")
                 ->dailyAt('06:00');
