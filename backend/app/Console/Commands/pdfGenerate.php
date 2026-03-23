@@ -84,7 +84,7 @@ class pdfGenerate extends Command
 
         // Filter by IDs if provided (assuming system_user_id is the reference used in your Job)
         if (!empty($employeeIds)) {
-            $employeeQuery->whereIn('employee_id', $employeeIds);
+            $employeeQuery->whereIn('system_user_id', $employeeIds);
         }
 
         $totalEmployees = $employeeQuery->count();
