@@ -54,7 +54,7 @@ Route::post('/generate-pdf-after-regeneration', function (Request $request) {
         'template'    => $template,
         '--employees' => $employee_ids,
         'from'        => Carbon::now()->startOfMonth()->toDateString(),
-        'to'          => Carbon::now()->startOfMonth()->toDateString(),
+        'to'          => Carbon::now()->endOfMonth()->toDateString(),
     ]);
 
     // 4. Return the result of the callback
