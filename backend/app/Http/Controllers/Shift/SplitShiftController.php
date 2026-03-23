@@ -205,46 +205,41 @@ class SplitShiftController extends Controller
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
-        // Update shift ID for No logs
+        // If no logs found, try to update shifts for the provided UserIds
         if (count($employees) == 0) {
             $employees = (new Employee)->GetEmployeeWithShiftDetails($params);
-
-            foreach ($employees as $key => $value) {
+            foreach ($employees as $value) {
                 if ($value->schedule->shift && $value->schedule->shift["id"] > 0) {
-                    $data1 = [
-                        "shift_id"      => $value->schedule->shift["id"],
-                        "shift_type_id" => $value->schedule->shift["shift_type_id"],
-                    ];
-                    Attendance::query()
-                        ->whereIn("employee_id", $UserIds)
+                    Attendance::whereIn("employee_id", $UserIds)
                         ->where("date", $params["date"])
                         ->where("company_id", $params["company_id"])
-                        ->update($data1);
+                        ->update([
+                            "shift_id"      => $value->schedule->shift["id"],
+                            "shift_type_id" => $value->schedule->shift["shift_type_id"],
+                        ]);
                 }
             }
         }
 
-        $items       = [];
-        $message     = "";
-        $logsUpdated = 0;
+        $items   = [];
+        $message = "";
 
         foreach ($employees as $row) {
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+            // Fetch logs for this specific employee
+            $allLogs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+            $data = collect($allLogs[$row->system_user_id] ?? [])->values();
 
-            // --- MODIFIED: Keep all logs, no filtering or unique constraints ---
-            $data = collect($logs[$row->system_user_id] ?? [])->values();
-
+            // Check for Weekoff or Holiday status
             $dayOfWeekThreeLetter = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
+            $status = Attendance::processWeekOffFunc($currentDayKey, $params["shift"]['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
 
             if ($data->isEmpty()) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
-                    Attendance::query()
-                        ->where("employee_id", $row->system_user_id)
+                    Attendance::where("employee_id", $row->system_user_id)
                         ->where("date", $params["date"])
                         ->where("company_id", $params["company_id"])
                         ->update([
@@ -253,87 +248,74 @@ class SplitShiftController extends Controller
                             "status"        => $status ?? "A",
                         ]);
                 }
-                $message .= "{$row->system_user_id} has No Logs to render";
                 continue;
             }
-
-            if (!$params["shift"]["id"]) {
-                $message .= "{$row->system_user_id} : No shift configured on date: $date";
-                continue;
-            }
-
-            $item = [
-                "total_hrs"     => 0,
-                "in"            => "---",
-                "out"           => "---",
-                "ot"            => "---",
-                "device_id_in"  => "---",
-                "device_id_out" => "---",
-                "date"          => $params["date"],
-                "company_id"    => $params["company_id"],
-                "shift_id"      => $params["shift"]["id"] ?? 0,
-                "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
-            ];
 
             $totalMinutes = 0;
             $logsJson     = [];
-            $i            = 0;
 
-            // --- MODIFIED: Loop through everything without skipping consecutive types ---
-            while ($i < count($data)) {
-                $currentLog  = $data[$i];
-                $currentTime = $currentLog['time'] ?? '---';
+            // Loop through all logs in pairs (Log 1 = IN, Log 2 = OUT)
+            for ($i = 0; $i < count($data); $i += 2) {
+                $inLog  = $data[$i];
+                $outLog = $data[$i + 1] ?? null;
 
-                // Just treat every log as a potential 'In' and the very next as 'Out'
-                $nextLog = $data[$i + 1] ?? null;
+                $inTime  = $inLog['time'] ?? '---';
+                $outTime = $outLog ? ($outLog['time'] ?? '---') : '---';
 
                 $minutes = 0;
-                if ($nextLog) {
-                    $parsedIn  = strtotime($currentTime);
-                    $parsedOut = strtotime($nextLog['time'] ?? '---');
+                if ($outLog && $inTime !== '---' && $outTime !== '---') {
+                    $parsedIn  = strtotime($inTime);
+                    $parsedOut = strtotime($outTime);
 
                     if ($parsedIn > $parsedOut) {
-                        $parsedOut += 86400; // handle midnight
+                        $parsedOut += 86400; // Handle shifts crossing midnight
                     }
-
                     $minutes = ($parsedOut - $parsedIn) / 60;
                     $totalMinutes += $minutes;
                 }
 
                 $logsJson[] = [
-                    "in"            => $currentTime,
-                    "out"           => $nextLog['time'] ?? "---",
-                    "device_in"     => $this->getDeviceName($currentLog, ["In", "Out", "Auto", "Mobile"]),
-                    "device_out"    => $nextLog ? $this->getDeviceName($nextLog, ["In", "Out", "Auto", "Mobile"]) : "---",
+                    "in"            => $inTime,
+                    "out"           => $outTime,
+                    "device_in"     => $inLog['device']['name'] ?? '---',
+                    "device_out"    => $outLog['device']['name'] ?? '---',
                     "total_minutes" => $minutes,
                 ];
-
-                $i += 2; // Move by pairs
             }
 
-            $item["status"]      = $status ?? (count($logsJson) ? Attendance::PRESENT : Attendance::MISSING);
-            $item["employee_id"] = $row->system_user_id;
-            $item["total_hrs"]   = $this->minutesToHours($totalMinutes);
+            // Prepare Final Record for Database
+            $totalHrs = $this->minutesToHours($totalMinutes);
 
-            if ($params["isOverTime"]) {
+            $item = [
+                "employee_id"   => $row->system_user_id,
+                "date"          => $params["date"],
+                "company_id"    => $params["company_id"],
+                "shift_id"      => $params["shift"]["id"] ?? 0,
+                "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
+                "in"            => $logsJson[0]["in"] ?? "---",
+                "out"           => end($logsJson)["out"] ?? "---",
+                "total_hrs"     => $totalHrs,
+                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
+                "logs"          => json_encode($logsJson),
+            ];
+
+            // Calculate Overtime if applicable
+            if ($params["isOverTime"] && isset($params["shift"]->working_hours)) {
                 $item["ot"] = $this->calculatedOT(
-                    $item["total_hrs"],
+                    $totalHrs,
                     $params["shift"]->working_hours,
                     $params["shift"]->overtime_interval
                 );
             }
 
-            $item["logs"] = json_encode($logsJson, JSON_PRETTY_PRINT);
-            $items[]      = $item;
+            $items[] = $item;
         }
 
-        $items = collect($items)->unique('employee_id')->values()->all();
-
-        try {
-            if (count($items) > 0) {
-                $model = Attendance::query();
-                $model->whereIn("employee_id", array_column($items, "employee_id"))
+        // Database Sync
+        if (count($items) > 0) {
+            try {
+                $empIds = array_column($items, "employee_id");
+                Attendance::whereIn("employee_id", $empIds)
                     ->where("date", $date)
                     ->where("company_id", $id)
                     ->delete();
@@ -342,24 +324,23 @@ class SplitShiftController extends Controller
                     Attendance::insert($chunk);
                 }
 
-                $message = "[" . $date . " " . date("H:i:s") . "] Multi Shift. Affected Ids: " . json_encode($UserIds) . " " . $message;
-
-                $logsUpdated = AttendanceLog::where("company_id", $id)
-                    ->whereIn("UserID", $UserIds ?? [])
-                    ->where("LogTime", ">=", $date)
-                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
+                // Mark logs as processed
+                AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", $UserIds)
+                    ->whereDate("LogTime", $date)
                     ->update([
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
                         "channel"          => $channel,
-                        "log_message"      => substr($message, 0, 200),
                     ]);
+
+                $message = "Rendered " . count($items) . " employees.";
+            } catch (\Throwable $e) {
+                $this->logOutPut($this->logFilePath, $e->getMessage());
+                $message = "Error: " . $e->getMessage();
             }
-        } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, $e->getMessage());
         }
 
-        $this->logOutPut($this->logFilePath, ["UserIds" => $UserIds, "items" => $items]);
         return "[" . $date . " " . date("H:i:s") . "] " . $message;
     }
 
