@@ -551,16 +551,6 @@ class SingleShiftController extends Controller
             Attendance::insert($items);
             DB::commit();
 
-            if (request("request_type") == "manual_render") {
-                Artisan::call('pdf:generatev1', [
-                    'company_id'  => $id,
-                    'template'    => 'Template1', // Or your dynamic template
-                    'from'        => $date,
-                    'to'          => $date,
-                    '--employees' => array_column($items, "employee_id") // Laravel handles the array mapping to the option
-                ]);
-            }
-
             $message = "[$date] Success. Affected Ids: " . json_encode($params["UserIds"]);
         } catch (\Throwable $e) {
             DB::rollback();

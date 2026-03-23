@@ -2,7 +2,12 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\AttendanceLogMissingController;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Route;
+
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 Route::post('seed_default_data', [AttendanceController::class, "seedDefaultDataManual"]);
 Route::get('attendance_avg_clock', [AttendanceController::class, "attendance_avg_clock"]);
@@ -18,3 +23,40 @@ Route::get('get_attendance_tabs', [AttendanceController::class, "getAttendanceTa
 Route::get('regenerate-attendance', [AttendanceController::class, "regenerateAttendance"]);
 
 Route::get('attendance-logs-missing', [AttendanceLogMissingController::class, "GetMissingLogs"]);
+
+Route::post('/generate-pdf-after-regeneration', function (Request $request) {
+    // 1. Prepare your data (simulating your $items array)
+    $id = $request->input('company_id');
+    $template = $request->input('template');
+    $employee_ids = $request->input('employee_ids', []);
+
+    // 2. The "Callback" logic - what happens after execution
+    $onComplete = function ($exitCode, $output) use ($id) {
+        if ($exitCode === 0) {
+            Log::info("PDF Command Success for Company $id");
+            return response()->json([
+                'status' => 'success',
+                'message' => 'PDF generated successfully',
+                'details' => $output
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'PDF generation failed',
+            'exit_code' => $exitCode
+        ], 500);
+    };
+
+    // 3. Execute the Artisan Command
+    $exitCode = Artisan::call('pdf:generatev1', [
+        'company_id'  => $id,
+        'template'    => $template,
+        '--employees' => $employee_ids,
+        'from'        => Carbon::now()->startOfMonth()->toDateString(),
+        'to'          => Carbon::now()->startOfMonth()->toDateString(),
+    ]);
+
+    // 4. Return the result of the callback
+    return $onComplete($exitCode, Artisan::output());
+});
