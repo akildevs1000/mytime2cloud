@@ -54,13 +54,8 @@ class SingleShiftController extends Controller
 
         Log::info("Using: $version");
 
-        if ($request->company_id == 60) {
-            return $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
-        }
-
         return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
     }
-
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
         $params = [
@@ -71,28 +66,52 @@ class SingleShiftController extends Controller
             "UserIds" => $UserIds,
         ];
 
+        // 1. Fetch UserIds if not provided
         if (!$custom_render) {
-            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
-            // return json_encode($params["UserIds"]);
+            $params["UserIds"] = AttendanceLog::where("company_id", $params["company_id"])
+                ->when(!$params["custom_render"], fn($q) => $q->where("checked", false))
+                ->where("LogTime", ">=", $params["date"])
+                ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")))
+                ->whereNotIn('UserID', function ($query) {
+                    $query->select('system_user_id')
+                        ->where('visit_from', "<=", date('Y-m-d'))
+                        ->where('visit_to', ">=", date('Y-m-d'))
+                        ->from('visitors');
+                })
+                ->whereHas("schedule", fn($q) => $q->where("isAutoShift", $isRequestFromAutoshift))
+                ->distinct("UserID")
+                ->pluck('UserID')
+                ->toArray();
         }
-        $logsEmployees = [];
 
-
-        if ($isRequestFromAutoshift) {
-            $logsEmployees =  (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params);
-        } else {
-            //$logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
-            $logsEmployees =  (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
+        if (empty($params["UserIds"])) {
+            return "[" . $date . "] No employees found to render.";
         }
 
-        $items = [];
+        // 2. Pre-fetch Global Data (Fetch Holiday once for the whole company/date)
+        $isHoliday = DB::table('holidays')
+            ->where('company_id', $id)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)
+            ->exists();
 
+        $days = ($params['shift_type_id'] == 4) ? 2 : 1;
+        $logEndDate = date("Y-m-d", strtotime($params["date"] . " +" . $days . " day"));
 
-        // $shifts = Shift::with("employee_schedule")->where("company_id", $params["company_id"])->orderBy("id", "desc")->get()->toArray();
+        $logsEmployees = AttendanceLog::with(["visitor", "device", "schedule.shift"])
+            ->where("company_id", $params["company_id"])
+            ->where("LogTime", ">=", $params["date"])
+            ->where("LogTime", "<=", $logEndDate)
+            ->whereIn("UserID", $params["UserIds"])
+            ->orderBy("LogTime", "asc")
+            ->get()
+            ->groupBy('UserID');
 
-        $schedule = ScheduleEmployee::where("company_id", $params["company_id"])->get();
-
-
+        $allSchedules = ScheduleEmployee::with('shift')
+            ->where("company_id", $params["company_id"])
+            ->whereIn("employee_id", $params["UserIds"])
+            ->get()
+            ->groupBy("employee_id");
 
         $previousShifts = Attendance::where("company_id", $params["company_id"])
             ->whereDate("date", date("Y-m-d", strtotime($params["date"] . " -1 day")))
@@ -100,378 +119,118 @@ class SingleShiftController extends Controller
             ->get()
             ->keyBy("employee_id");
 
-        foreach ($logsEmployees as $key => $logs) {
+        $items = [];
+        $dayOfWeek = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
+        // 3. Process every employee
+        foreach ($params["UserIds"] as $employeeId) {
+            $key = $employeeId;
+            $employeeLogs = $logsEmployees->get($key, collect([]));
+            $empSchedules = $allSchedules->get($key, collect([]));
 
-            $logs = $logs->toArray() ?? [];
+            $matchedSchedule = $empSchedules->first(function ($sch) use ($dayOfWeek) {
+                $days = $sch->shift->days ?? [];
+                return is_array($days) && in_array($dayOfWeek, $days);
+            }) ?: $empSchedules->first();
 
-            // Find the first log based on the schedule and previous shift
-            $firstLog = collect($logs)->first(function ($record) use ($key, $previousShifts) {
-                $previousShift = $previousShifts->get($key);
+            $shiftData = $matchedSchedule->shift ?? null;
 
-                // Validate against previous shift's out time if shift type is 6
-                if ($previousShift && $previousShift->shift_type_id == 6) {
-                    return $previousShift->out != $record["time"];
-                }
-
-                // Validate against schedule timings
-                $beginning_in = $record["schedule"]["shift"]["beginning_in"] ?? false;
-                $beginning_out = $record["schedule"]["shift"]["beginning_out"] ?? false;
-
-                return $beginning_in && $beginning_out && $record["time"] >= $beginning_in && $record["time"] <= $beginning_out;
-            });
-
-            $lastLog = collect($logs)->last(function ($record) {
-                return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
-            });
-
-            $schedules = ScheduleEmployee::where("company_id", $params["company_id"])->where("employee_id", $key)->get()->toArray();
-
-            $schedule = $firstLog["schedule"] ?? false;
-
-            $shift =  $schedule["shift"] ?? false;
-
-            if (!$schedule) continue;
-
-            $dayOfWeek = date('D', strtotime($firstLog["LogTime"])); // Convert to timestamp and get the day
-
-            foreach ($schedules as $singleSchedule) {
-                $day = $singleSchedule["shift"]["days"];
-
-                if (isset($shift["days"]) && is_array($shift["days"]) && in_array($dayOfWeek, $day, true)) {
-                    $schedule = $singleSchedule ?? false;
-                    $shift =  $schedule["shift"] ?? false;
-                    break;
-                }
+            // Determine Default Status (Holiday takes priority over Absent/WeekOff)
+            if ($isHoliday) {
+                $defaultStatus = "H";
+            } else {
+                $defaultStatus = Attendance::processWeekOffFunc(
+                    $currentDayKey,
+                    $shiftData['weekoff_rules'] ?? "A",
+                    $id,
+                    $date,
+                    $key,
+                    null
+                );
             }
 
             $item = [
                 "roster_id" => 0,
                 "total_hrs" => "---",
-                "in" => $firstLog["time"] ?? "---",
-                "out" =>  "---",
+                "in" => "---",
+                "out" => "---",
                 "ot" => "---",
-                "device_id_in" =>  $firstLog["DeviceID"] ?? "---",
+                "device_id_in" => "---",
                 "device_id_out" => "---",
                 "date" => $params["date"],
                 "company_id" => $params["company_id"],
                 "employee_id" => $key,
-                "shift_id" => $shift["id"] ?? 0,
-                "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => "M",
+                "shift_id" => $shiftData->id ?? 0,
+                "shift_type_id" => $shiftData->shift_type_id ?? 0,
+                "status" => $defaultStatus ?? "A",
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
 
-            if ($shift && $item["shift_type_id"] == 6) {
-                $item["late_coming"] =  $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
+            // 4. Override Holiday/Absent/VO if logs are present
+            if ($employeeLogs->isNotEmpty()) {
+                $firstLog = $employeeLogs->first(function ($record) use ($key, $previousShifts) {
+                    $prev = $previousShifts->get($key);
+                    if ($prev && $prev->shift_type_id == 6) return $prev->out != $record->time;
+                    $bIn = $record->schedule->shift->beginning_in ?? false;
+                    $bOut = $record->schedule->shift->beginning_out ?? false;
+                    return $bIn && $bOut && $record->time >= $bIn && $record->time <= $bOut;
+                });
 
-                if ($item["late_coming"] != "---") {
-                    $item["status"] = "LC";
-                }
-            }
+                $lastLog = $employeeLogs->last(fn($record) => in_array(strtolower($record->log_type), ["out", "auto", null]));
 
-            if ($shift && $lastLog && count($logs) > 1 && $firstLog["time"] !== $lastLog["time"]) {
-
-                $item["status"] = "P";
-                $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
-                $item["out"] = $lastLog["time"] ?? "---";
-
-                if ($item["out"] !== "---") {
-                    $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
-                }
-
-                if ($schedule["isOverTime"] ?? false) {
-                    $otTime = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
-
-                    if ($otTime == "---") {
-                        $otTime = "00:00";
-                    }
-
-                    // Convert "HH:MM" to total minutes
-                    [$otHours, $otMinutes] = explode(':', $otTime);
-                    $totalOtMinutes = ($otHours * 60) + $otMinutes;
-
-                    $in = $item["in"];               // e.g. 08:20
-                    $out = $item["out"];             // e.g. 19:00
-                    $on_duty_time = $shift["on_duty_time"];
-                    $off_duty_time = $shift["off_duty_time"] ?? null;
-
-                    $inTime = new DateTime($in);
-                    $onDutyTime = new DateTime($on_duty_time);
-                    $outTime = new DateTime($out);
-                    $offDutyTime = $off_duty_time ? new DateTime($off_duty_time) : null;
-
-                    if ($shift["overtime_type"] === "Both") {
-                        $item["ot"] = $otTime;
-                    } else if ($shift["overtime_type"] === "After") {
-                        $earlyMinutes = 0;
-                        if ($inTime < $onDutyTime) {
-                            $earlyDiff = $onDutyTime->diff($inTime);
-                            $earlyMinutes = ($earlyDiff->h * 60) + $earlyDiff->i;
-                        }
-
-                        $totalOtMinutes = max(0, $totalOtMinutes - $earlyMinutes);
-                    } else if ($shift["overtime_type"] === "Before") {
-                        $lateMinutes = 0;
-                        if ($offDutyTime && $outTime > $offDutyTime) {
-                            $lateDiff = $outTime->diff($offDutyTime);
-                            $lateMinutes = ($lateDiff->h * 60) + $lateDiff->i;
-                        }
-
-                        $totalOtMinutes = max(0, $totalOtMinutes - $lateMinutes);
-                    }
-
-                    // Convert total minutes back to HH:MM
-                    $otHours = floor($totalOtMinutes / 60);
-                    $otMinutes = $totalOtMinutes % 60;
-                    $item["ot"] = str_pad($otHours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($otMinutes, 2, "0", STR_PAD_LEFT);
-                }
-
-                if ($item["shift_type_id"] == 6) {
-                    if ($shift["halfday"] == date("l")) {
-                        $time2 = $shift["on_duty_time"];
-                        $time1 = $shift["halfday_working_hours"];
-                        $shift["off_duty_time"] = gmdate("H:i", (strtotime($time1) - strtotime('00:00')) + strtotime($time2) - strtotime('00:00'));
-                    }
-
-                    $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
-
-                    if ($item["early_going"] != "---") {
-                        $item["status"] = "EG";
-                    }
-                }
-            }
-
-            $items[] = $item;
-        }
-
-        if (!count($items)) {
-            $message = '[' . $date . " " . date("H:i:s") . '] Single Shift: No data found';
-            $this->devLog("render-manual-log", $message);
-            return $message;
-        }
-
-        try {
-
-            DB::beginTransaction();
-            $model = Attendance::query();
-            $model->where("company_id", $id);
-            $model->whereIn("employee_id", array_column($items, "employee_id"));
-            $model->where("date", $date);
-            $model->delete();
-            DB::commit();
-            $model->insert($items);
-            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift.   Affected Ids: " . json_encode($UserIds);
-        } catch (\Throwable $e) {
-            $message = "[" . $date . " " . date("H:i:s") .  "] Single Shift. " . $e->getMessage();
-
-            DB::rollback();
-        }
-
-        $this->devLog("render-manual-log", $message);
-        return $message;
-    }
-
-    public function renderV1($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
-    {
-        $params = [
-            "company_id"    => $id,
-            "date"          => $date,
-            "shift_type_id" => $shift_type_id,
-            "custom_render" => $custom_render,
-            "UserIds"       => $UserIds,
-        ];
-
-        // If no specific users provided, get ALL employees to ensure Absentees/Week-offs are recorded
-        if (empty($params["UserIds"])) {
-            $params["UserIds"] = Employee::where("company_id", $id)
-                ->where('status', 1) // Only active employees
-                ->pluck('system_user_id')
-                ->toArray();
-        }
-
-        $logsEmployees = [];
-        if ($isRequestFromAutoshift) {
-            $logsEmployees = (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params);
-        } else {
-            $logsEmployees = (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
-        }
-
-        $previousShifts = Attendance::where("company_id", $id)
-            ->whereDate("date", date("Y-m-d", strtotime($date . " -1 day")))
-            ->get()
-            ->keyBy("employee_id");
-
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
-        $holidayQuery = DB::table('holidays')
-            ->where("company_id", $id)
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)
-            ->exists();
-
-        $items = [];
-
-        foreach ($params["UserIds"] as $employeeId) {
-            // Get logs for this specific employee (handle empty case)
-            $employeeLogs = $logsEmployees[$employeeId] ?? collect([]);
-            $logsArray = $employeeLogs->toArray();
-
-            // 1. Resolve Schedule and Shift
-            $schedule = ScheduleEmployee::where("company_id", $id)
-                ->where("employee_id", $employeeId)
-                ->with('shift')
-                ->first();
-
-            $shift = $schedule->shift ?? null;
-
-            // Skip if no shift is assigned to this user
-            if (!$shift) {
-                continue;
-            }
-
-            // 2. Identify first/last logs
-            $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
-                $prev = $previousShifts->get($employeeId);
-                // Handle split-shift / overnight logic
-                if ($prev && $prev->shift_type_id == 6) {
-                    return $prev->out != $record["time"];
-                }
-                $bin = $record["schedule"]["shift"]["beginning_in"] ?? null;
-                $bout = $record["schedule"]["shift"]["beginning_out"] ?? null;
-                return $bin && $bout && $record["time"] >= $bin && $record["time"] <= $bout;
-            });
-
-            $lastLog = $employeeLogs->last(function ($record) {
-                return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
-            });
-
-            // 3. Default Status Logic (Absent by default)
-            $status = "A";
-
-            if ($shift->weekoff_rules) {
-                // This checks if the current day is a weekend
-                $status = Attendance::processWeekOffFunc($currentDayKey, $shift->weekoff_rules, $id, $date, $employeeId, $firstLog);
-            }
-
-            if ($holidayQuery) {
-                $status = "H";
-            }
-
-            // 4. Initialize Item structure
-            $item = [
-                "roster_id"     => 0,
-                "total_hrs"     => "---",
-                "in"            => $firstLog["time"] ?? "---",
-                "out"           => "---",
-                "ot"            => "---",
-                "device_id_in"  => $firstLog["DeviceID"] ?? "---",
-                "device_id_out" => "---",
-                "date"          => $date,
-                "company_id"    => $id,
-                "employee_id"   => $employeeId,
-                "shift_id"      => $shift->id ?? 0,
-                "shift_type_id" => $shift->shift_type_id ?? 0,
-                "status"        => $status,
-                "late_coming"   => "---",
-                "early_going"   => "---",
-            ];
-
-            // 5. Process Present/Late/Early if logs exist
-            if ($firstLog) {
-                // Initial Present status if logs exist
-                if ($item["status"] !== "H" && $item["status"] !== "W") {
+                if ($firstLog) {
+                    // IMPORTANT: Status is now overwritten because employee showed up
                     $item["status"] = "P";
-                }
+                    $item["in"] = $firstLog->time;
+                    $item["device_id_in"] = $firstLog->DeviceID;
 
-                // Late Coming Logic
-                if (($shift->attendanc_rule_late_coming ?? 'No Action') !== 'No Action') {
-                    $lcMins = calculateTimeDiff($item["in"], $shift->on_duty_time, 'late', $shift->late_time);
-                    if ($lcMins) {
-                        $item["late_coming"] = formatMinutes($lcMins);
-                        $item["status"] = "LC";
-                    }
-                }
-
-                // Significant Late Coming (Escalation)
-                $sigLateRule = $shift->significant_attendanc_rule_late_coming ?? 'No Action';
-                if ($sigLateRule !== 'No Action') {
-                    $sigLcMins = calculateTimeDiff($item["in"], $shift->on_duty_time, 'late', $shift->absent_min_in);
-                    if ($sigLcMins) {
-                        $item["late_coming"] = formatMinutes($sigLcMins);
-                        $item["status"] = ($sigLateRule === "Half Day") ? "HD" : "A";
-                    }
-                }
-
-                // 6. Process Out Log & Overtime
-                if ($employeeLogs->count() == 1) {
-                    $item["status"] = "M"; // Missing Out Log
-                } elseif ($lastLog && $firstLog["time"] !== $lastLog["time"]) {
-                    $item["out"] = $lastLog["time"];
-                    $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
-                    $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
-
-                    // OT Logic
-                    if (($schedule->isOverTime ?? false) &&
-                        ($shift->weekend_allowed_ot || $item["status"] != "W") &&
-                        ($shift->holiday_allowed_ot || $item["status"] != "H")
-                    ) {
-
-                        $otBefore = calculateTimeDiff($item["in"], $shift->on_duty_time, 'early', '00:00') ?: 0;
-                        $otAfter  = calculateTimeDiff($item["out"], $shift->off_duty_time, 'late', '00:00') ?: 0;
-
-                        $finalOtMins = 0;
-                        switch ($shift->overtime_type) {
-                            case "Before":
-                                $finalOtMins = $otBefore;
-                                break;
-                            case "After":
-                                $finalOtMins = $otAfter;
-                                break;
-                            case "Both":
-                                $finalOtMins = $otBefore + $otAfter;
-                                break;
+                    if ($shiftData) {
+                        if ($item["shift_type_id"] == 6) {
+                            $item["late_coming"] = $this->calculatedLateComing($item["in"], $shiftData->on_duty_time, $shiftData->late_time);
+                            if ($item["late_coming"] != "---") $item["status"] = "LC";
                         }
 
-                        // Apply Interval and Cap
-                        $intervalMins = $this->timeToMinutes($shift->overtime_interval);
-                        if ($finalOtMins < $intervalMins) $finalOtMins = 0;
+                        if ($lastLog && $employeeLogs->count() > 1 && $firstLog->time !== $lastLog->time) {
+                            $item["out"] = $lastLog->time;
+                            $item["device_id_out"] = $lastLog->DeviceID;
+                            $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
 
-                        $allowedCapMins = $this->timeToMinutes($shift->daily_ot_allowed_mins);
-                        if ($allowedCapMins > 0) $finalOtMins = min($finalOtMins, $allowedCapMins);
+                            if ($matchedSchedule->isOverTime) {
+                                $otTime = $this->calculatedOT($item["total_hrs"], $shiftData->working_hours, $shiftData->overtime_interval);
+                                $item["ot"] = ($otTime == "---") ? "00:00" : $otTime;
+                            }
 
-                        $item["ot"] = formatMinutes($finalOtMins);
-                    }
-
-                    // Early Going Logic
-                    if (($shift->attendanc_rule_early_going ?? 'No Action') !== 'No Action') {
-                        $egMins = calculateTimeDiff($item["out"], $shift->off_duty_time, 'early', $shift->early_time);
-                        if ($egMins && !in_array($item["status"], ["HD", "A"])) {
-                            $item["early_going"] = formatMinutes($egMins);
-                            $item["status"] = "EG";
+                            if ($item["shift_type_id"] == 6) {
+                                $offDuty = $shiftData->off_duty_time;
+                                if (($shiftData->halfday ?? '') == $dayOfWeek) {
+                                    $offDuty = gmdate("H:i", (strtotime($shiftData->halfday_working_hours) - strtotime('00:00')) + strtotime($shiftData->on_duty_time) - strtotime('00:00'));
+                                }
+                                $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $offDuty, $shiftData->early_time);
+                                // Only set EG if it's not already LC
+                                if ($item["early_going"] != "---" && $item["status"] != "LC") $item["status"] = "EG";
+                            }
                         }
                     }
                 }
             }
-
             $items[] = $item;
         }
 
-        // Database Sync
-        if (empty($items)) return "No items to process";
-
+        // 5. Batch Update
         try {
             DB::beginTransaction();
             Attendance::where("company_id", $id)
-                ->whereIn("employee_id", array_column($items, "employee_id"))
-                ->whereDate("date", $date)
+                ->whereIn("employee_id", $params["UserIds"])
+                ->where("date", $date)
                 ->delete();
 
-            Attendance::insert($items);
+            foreach (array_chunk($items, 200) as $chunk) {
+                Attendance::insert($chunk);
+            }
             DB::commit();
-            $message = "[$date] Success. Count: " . count($items);
+            $message = "[$date] Render successful. Holiday Mode: " . ($isHoliday ? "Yes" : "No");
         } catch (\Throwable $e) {
             DB::rollback();
             $message = "[$date] Error: " . $e->getMessage();
@@ -479,13 +238,5 @@ class SingleShiftController extends Controller
 
         $this->devLog("render-manual-log", $message);
         return $message;
-    }
-
-    /** Helper to convert HH:mm to minutes **/
-    private function timeToMinutes($time)
-    {
-        if (empty($time) || $time == "00:00") return 0;
-        list($h, $m) = explode(':', $time);
-        return ($h * 60) + (int)$m;
     }
 }
