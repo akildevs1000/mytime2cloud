@@ -106,6 +106,10 @@ class FiloShiftController extends Controller
 
             $isData = $logsEmployees[$key] ?? null;
             $schedule = $schedules[$key] ?? null;
+            if (!$schedule) {
+                continue;
+            }
+            
             $shift = $schedule->shift ?? null;
 
             if (!$shift) {
