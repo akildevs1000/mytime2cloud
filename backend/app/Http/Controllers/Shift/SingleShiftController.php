@@ -12,6 +12,7 @@ use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use DateTime;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -56,9 +57,6 @@ class SingleShiftController extends Controller
 
         return $this->render($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
     }
-
-    use Illuminate\Support\Facades\Cache;
-    use Illuminate\Support\Facades\DB;
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
