@@ -6,6 +6,8 @@ use App\Http\Controllers\DeviceController;
 use App\Http\Controllers\EmployeeAccessController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeControllerNew;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/employee-statistics', [EmployeeDashboard::class, 'statistics']);
@@ -69,3 +71,38 @@ Route::get('employee-details/{id}', [EmployeeControllerNew::class, 'show']);
 Route::get('employees-json/{id}', [EmployeeControllerNew::class, 'employeesJson']);
 
 Route::get('/employee-ai-related-info/{id}', [EmployeeControllerNew::class, 'employeeAiRelatedInfo']);
+
+Route::get('employees-full', function () {
+    // We don't need $q here unless we are passing parameters
+    return DB::table('employees')
+        ->where('company_id', 60)
+        ->get()->toArray(); // Laravel automatically converts Collection to JSON/Array for the response
+});
+
+Route::post('sync-employees', function (Request $request) {
+    // 1. Get the data from the request body
+    $data = $request->all();
+
+    if (empty($data)) {
+        return response()->json(['error' => 'No data provided'], 400);
+    }
+
+    // 2. Wrap in a transaction for safety
+    return DB::transaction(function () use ($data) {
+        $companyId = 60; // Hardcoded as per your requirement
+
+        // 3. Delete existing records for this company
+        DB::table('employees')->where('company_id', $companyId)->delete();
+
+        // 4. Insert the new payload
+        // Note: Using chunk if the data is massive, otherwise a direct insert works
+        DB::table('employees')->insert($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data overridden successfully',
+            'count' => count($data)
+        ]);
+    });
+});
+
