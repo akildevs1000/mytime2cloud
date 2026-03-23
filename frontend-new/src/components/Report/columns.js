@@ -85,7 +85,7 @@ export default (shiftTypeId, { onViewLogs } = {}) => {
                 <span className={`text-sm ${getBgColor(log.status)}`}
                     style={{ padding: "2px 10px", borderRadius: "50px" }}
                 >
-                    {setStatusLabel(log?.status)}
+                    {setStatusLabel(log?.status)} {["LC", "EG"].includes(log?.status) ? " (" + log?.status + ")" : ""}
                 </span>
             ),
         },

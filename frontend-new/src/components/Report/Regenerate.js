@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-import { createDesignations, getBranches, getDepartments, getDepartmentsByBranchIds, getEmployeeList, getScheduledEmployeeList, getScheduleEmployees, getShiftDropDownList, getShifts, regenerateReport, storeSchedule } from "@/lib/api";
+import { createDesignations, getBranches, getDepartments, getDepartmentsByBranchIds, getEmployeeList, getScheduledEmployeeList, getScheduleEmployees, getShiftDropDownList, getShifts, regenerateReport, regenerateReportForPDF, storeSchedule } from "@/lib/api";
 import { SuccessDialog } from "@/components/SuccessDialog";
 import { notify, parseApiError } from "@/lib/utils";
 import Input from "../Theme/Input";
@@ -196,6 +196,18 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
             await notify("Error", parseApiError(error), "error");
         } finally {
+
+            let json = {
+                "request_type": "manual_render",
+                "employee_ids": selectedIds,
+                "company_id": 60, // Added based on your URL example
+                "template": "Template1",
+            };
+
+            let res = await regenerateReportForPDF(json);
+
+            console.log(res);
+
             setLoading(false);
         }
     };

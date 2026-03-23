@@ -300,8 +300,9 @@ export const storeSchedule = async (payload) => {
 };
 
 
-export const regenerateReportForPDF = async (params = {}) => {
-    let { data } = await axios.get(`${API_BASE}/generate-pdf-after-regeneration`, { params: await buildQueryParams(params) });
+export const regenerateReportForPDF = async (payload) => {
+     const user = await getUser();
+    let { data } = await axios.post(`${API_BASE}/generate-pdf-after-regeneration`, { ...payload, company_id: user?.company_id || 0 });
     return data;
 };
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Eye, File, Printer, RefreshCw, RefreshCcw, Pencil, MoreVertical, DownloadCloudIcon, Download, Paperclip, FileText, MessageSquare, Sheet } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { getAttendanceReports, getBranches, getCompanyInfo, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
+import { api, getAttendanceReports, getBranches, getCompanyInfo, getDepartmentsByBranchIds, getScheduledEmployeeList, getStatuses } from '@/lib/api';
 
 import DropDown from '@/components/ui/DropDown';
 import DateRangeSelect from "@/components/ui/DateRange";
@@ -156,10 +156,23 @@ export default function AttendanceTable() {
 
   const fetchScheduledEmployees = async () => {
     try {
-
       let result = await getScheduledEmployeeList(selectedDepartmentIds);
 
-      let data = result.map(e => ({ ...e, name: e.full_name + " " + (e.id ? `(${e.id})` : "") }));
+      let data = result
+        .filter(e => {
+          const id = e.schedule.shift_type_id;
+
+          // Logical Rule: 
+          // If shiftTypeId is 0, return everything EXCEPT 2 and 5.
+          // Otherwise, match the shiftTypeId exactly.
+          return shiftTypeId == 0
+            ? (id != 2 && id != 5)
+            : id == shiftTypeId;
+        })
+        .map(e => ({
+          ...e,
+          name: e.full_name + " " + (e.id ? `(${e.id})` : "")
+        }));
 
       setScheduledEmployees(data);
     } catch (error) {
@@ -219,7 +232,7 @@ export default function AttendanceTable() {
 
   useEffect(() => {
     fetchScheduledEmployees();
-  }, [selectedDepartmentIds]);
+  }, [selectedDepartmentIds,shiftTypeId]);
 
   useEffect(() => {
   }, [selectedEmployeeIds]);
@@ -337,21 +350,9 @@ export default function AttendanceTable() {
       // 1. Handle Template4 Redirect (Special Case)
       if (selectedReportTemplate === "Template4" && actionType !== "EXCEL") {
 
-        const { data } = await getCompanyInfo();
-
-        const t4Params = new URLSearchParams({
-          employee_ids: selectedEmployeeIds.join(","),
-          company_id: company_id,
-          from_date: fromDate,
-          to_date: toDate,
-          shift_type_id: shiftTypeId,
-          company_name: data?.record?.name || "Hilal & Co",
+        await axios.post('https://report.mytime2cloud.com/merge-pdfs', {}, {
+          headers: { 'Content-Type': 'application/json' }
         });
-
-        let templateUrl = `https://summary-report.netlify.app/attendance-report/?${t4Params.toString()}`;
-
-        // await downloadReport(templateUrl, `Attendance-Report-Template-A.pdf`);
-        window.open(templateUrl, "_blank");
         return;
       }
 
