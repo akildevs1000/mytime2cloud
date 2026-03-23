@@ -637,6 +637,7 @@ class ScheduleEmployeeController extends Controller
                 "first_name",
                 "last_name",
                 "system_user_id as id",
+                "system_user_id",
                 "display_name",
                 "profile_picture",
                 "department_id",
