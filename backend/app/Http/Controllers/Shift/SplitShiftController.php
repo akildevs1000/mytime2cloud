@@ -233,6 +233,12 @@ class SplitShiftController extends Controller
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
             $status = Attendance::processWeekOffFunc($currentDayKey, $params["shift"]['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
 
+
+            if ($params["shift"]) {
+                $params["shift"] = Attendance::processHalfDay($currentDayKey,  $params["shift"]['halfday_rules'] ?? null, $params["shift"]);
+            }
+
+
             // If NO logs exist, mark status and skip
             if ($data->isEmpty()) {
                 Attendance::where("employee_id", $row->system_user_id)
