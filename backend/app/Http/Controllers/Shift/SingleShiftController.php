@@ -11,6 +11,7 @@ use App\Models\Employee;
 use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use DateTime;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -53,7 +54,7 @@ class SingleShiftController extends Controller
 
         Log::info("Using: $version");
 
-        if ($request->company_id == 60 || $request->company_id == 65) {
+        if ($request->company_id == 60) {
             return $this->renderV1($request->company_id ?? 0, $request->date ?? date("Y-m-d"), $request->shift_type_id, $request->UserIds, true, false, $request->channel ?? "unknown");
         }
 
@@ -549,6 +550,17 @@ class SingleShiftController extends Controller
 
             Attendance::insert($items);
             DB::commit();
+
+            if (request("request_type") == "manual_render") {
+                Artisan::call('pdf:generatev1', [
+                    'company_id'  => $id,
+                    'template'    => 'Template1', // Or your dynamic template
+                    'from'        => $date,
+                    'to'          => $date,
+                    '--employees' => array_column($items, "employee_id") // Laravel handles the array mapping to the option
+                ]);
+            }
+
             $message = "[$date] Success. Affected Ids: " . json_encode($params["UserIds"]);
         } catch (\Throwable $e) {
             DB::rollback();
