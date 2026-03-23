@@ -913,7 +913,7 @@
                                 <td>
                                     <span class="{{ $statusColor }}">
                                         {{ $statusText }}
-                                        {{ in_array($log->status, ['LC', 'EG']) ? " ({$log->status})" : "" }}
+                                        {{ in_array($statusText, ['LC', 'EG']) ? " ({$statusText})" : "" }}
                                     </span>
                                 </td>
                             </tr>
