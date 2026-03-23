@@ -917,39 +917,6 @@
                                     <span class="{{ $statusColor }}">
                                         {{ $statusText }}
                                         {{ in_array($date->status, ['LC', 'EG']) ? " ({$date->status})" : "" }}
-
-                                        @php
-    $currentDayKey = strtolower(\Carbon\Carbon::parse($date->date ?? now())->format('l'));
-    $shift = $date->schedule?->shift ? $date->schedule->shift->toArray() : [];
-    $halfdayRules = $shift['halfday_rules'] ?? [];
-
-    $processedShift = \App\Helpers\YourHelperClass::processHalfDay($currentDayKey, $halfdayRules, $shift);
-
-    $shiftWorkingHours = $processedShift['working_hours'] ?? "00:00";
-    $employeeHours = $date->total_hrs ?? '';
-    $isShortShift = false;
-
-    if (
-        $shiftWorkingHours !== '' &&
-        $employeeHours !== '' &&
-        $shiftWorkingHours !== '---' &&
-        $employeeHours !== '---' &&
-        str_contains($shiftWorkingHours, ':') &&
-        str_contains($employeeHours, ':')
-    ) {
-        [$shiftHours, $shiftMinutes] = explode(':', $shiftWorkingHours);
-        $shiftWorkingMinutes = ((int) $shiftHours * 60) + (int) $shiftMinutes;
-
-        [$empHours, $empMinutes] = explode(':', $employeeHours);
-        $employeeMinutes = ((int) $empHours * 60) + (int) $empMinutes;
-
-        $isShortShift = $employeeMinutes < $shiftWorkingMinutes;
-    }
-@endphp
-
-@if($isShortShift)
-    Short Shift
-@endif
                                     </span>
                                 </td>
                             </tr>
