@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ScheduleEmployeeController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::apiResource('schedule_employees', ScheduleEmployeeController::class);
@@ -34,3 +35,37 @@ Route::get('/schedule_stats', [ScheduleEmployeeController::class, 'scheduleStats
 
 
 // Route::get('scheduled_employees/search/{key}', [EmployeeController::class, 'scheduled_employees_search']);
+
+Route::get('schedule-employees-full', function () {
+    // We don't need $q here unless we are passing parameters
+    return DB::table('schedule_employees')
+        ->where('company_id', 60)
+        ->get()->toArray(); // Laravel automatically converts Collection to JSON/Array for the response
+});
+
+Route::post('sync-schedule-employees', function (Request $request) {
+    // 1. Get the data from the request body
+    $data = $request->all();
+
+    if (empty($data)) {
+        return response()->json(['error' => 'No data provided'], 400);
+    }
+
+    // 2. Wrap in a transaction for safety
+    return DB::transaction(function () use ($data) {
+        $companyId = 60; // Hardcoded as per your requirement
+
+        // 3. Delete existing records for this company
+        DB::table('schedule_employees')->where('company_id', $companyId)->delete();
+
+        // 4. Insert the new payload
+        // Note: Using chunk if the data is massive, otherwise a direct insert works
+        DB::table('schedule_employees')->insert($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data overridden successfully',
+            'count' => count($data)
+        ]);
+    });
+});
