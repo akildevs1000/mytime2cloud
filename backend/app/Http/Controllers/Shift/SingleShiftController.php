@@ -314,6 +314,11 @@ class SingleShiftController extends Controller
         $dayOfWeekThreeLetter = date('D', strtotime($date));
         $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
+        $holidayQuery = DB::table('holidays')
+            ->where("company_id", $id)
+            ->whereDate('start_date', '<=', $date)
+            ->whereDate('end_date', '>=', $date)->exists();
+
         // LOOP THROUGH ALL USERS (This ensures Week-offs and Absentees are processed)
         foreach ($params["UserIds"] as $employeeId) {
 
@@ -347,7 +352,15 @@ class SingleShiftController extends Controller
 
             $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
 
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $employeeId, $firstLog);
+            $status = "A";
+
+            if ($shift->weekoff_rules) {
+                $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $employeeId, $firstLog);
+            }
+
+            if ($holidayQuery) {
+                $status = "H";
+            }
 
             // 4. Initialize Item
             $item = [
@@ -363,7 +376,7 @@ class SingleShiftController extends Controller
                 "employee_id" => $employeeId,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => $status ?? "A",
+                "status" => $status,
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
@@ -391,6 +404,10 @@ class SingleShiftController extends Controller
             }
 
             // --- 2. OUT LOG & OVERTIME PROCESSING ---
+
+            if ($logs->count() == 1) {
+                $item["status"] = "M";
+            }
 
             if ($firstLog) {
                 // Process Valid Out Log
