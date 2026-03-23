@@ -49,10 +49,10 @@ class MonthlyController extends Controller
         $fromDate     = $requestPayload["from_date"];
         $toDate       = $requestPayload["to_date"];
 
-        // 1. Get the employees
-        $employeeIds = Employee::where("company_id", $companyId)
-            ->whereIn("system_user_id", $employeeIds)
-            ->pluck("id")->toArray();
+        // // 1. Get the employees
+        // $employeeIds = Employee::where("company_id", $companyId)
+        //     ->whereIn("system_user_id", $employeeIds)
+        //     ->pluck("id")->toArray();
 
         if (empty($employeeIds)) {
             return response()->json(['status' => 'error', 'message' => 'No employees found.'], 404);
