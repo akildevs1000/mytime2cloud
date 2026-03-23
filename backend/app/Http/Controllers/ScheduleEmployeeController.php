@@ -627,7 +627,7 @@ class ScheduleEmployeeController extends Controller
             ->when(count($request->department_ids ?? []) > 0, function ($q) use ($request) {
                 $q->whereIn('department_id', $request->department_ids);
             })
-            ->withOut(["user", "sub_department", "designation", "role", "schedule"])
+            ->withOut(["user", "sub_department", "designation", "role"])
 
             ->with(["schedule" => function ($q) use ($request) {
                 $q->where("company_id", $request->company_id);
