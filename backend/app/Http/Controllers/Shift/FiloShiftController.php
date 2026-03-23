@@ -180,6 +180,7 @@ class FiloShiftController extends Controller
 
 
             if ($lastLog && $filteredLogs->count() > 1) {
+                $item["status"] = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                 $item["out"] = $lastLog["time"] ?? "---";
 
