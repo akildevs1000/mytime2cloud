@@ -149,7 +149,7 @@ class SingleShiftController extends Controller
                 return is_array($days) && in_array($dayOfWeek, $days);
             }) ?: $empSchedules->first();
 
-            $shiftData = $matchedSchedule->shift ?? null;
+            return $shiftData = $matchedSchedule->shift ?? null;
 
             // Default Status Logic
             if ($isHoliday) {
@@ -363,20 +363,19 @@ class SingleShiftController extends Controller
                     $item["device_id_in"] = $firstLog->DeviceID;
 
                     if ($shiftData) {
-                        // Check Standard Late Coming
-                        if (($shiftData->attendanc_rule_late_coming ?? 'No Action') !== 'No Action') {
+
+                        if (($shiftData->attendanc_rule_late_coming) !== 'No Action') {
                             $item["late_coming"] = $this->calculatedLateComing($item["in"], $shiftData->on_duty_time, $shiftData->late_time);
                             if ($item["late_coming"] != "---") $item["status"] = "LC";
                         }
 
-                        // Check Significant Late Coming (HD/A)
-                        if (($shiftData->significant_attendanc_rule_late_coming ?? 'No Action') !== 'No Action') {
-                            $sigLcMins = calculateTimeDiff($item["in"], $shiftData->on_duty_time, 'late', $shiftData->absent_min_in);
-                            if ($sigLcMins > 0) {
-                                $item["late_coming"] = formatMinutes($sigLcMins);
+                        if (($shiftData->significant_attendanc_rule_late_coming) !== 'No Action') {
+                            $item["late_coming"] = $this->calculatedLateComing($item["in"], $shiftData->on_duty_time, $shiftData->late_time);
+                            if ($item["late_coming"] != "---") {
                                 $item["status"] = ($shiftData->significant_attendanc_rule_late_coming === "Half Day") ? "HD" : "A";
                             }
                         }
+
 
                         // Check if a second log exists (Check-Out)
                         if ($lastLog && $employeeLogs->count() > 1 && $firstLog->time !== $lastLog->time) {
@@ -401,19 +400,18 @@ class SingleShiftController extends Controller
                             }
 
                             // Check Standard Early Going
-                            if (($shiftData->attendanc_rule_early_going ?? 'No Action') !== 'No Action') {
+                            if (($shiftData->attendanc_rule_early_going) !== 'No Action') {
                                 $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $offDuty, $shiftData->early_time);
                                 // Promote P to EG if leaving early (don't override LC/HD/A)
-                                if ($item["early_going"] != "---" && !in_array($item["status"], ["LC", "HD", "A"])) {
+                                if ($item["early_going"] != "---") {
                                     $item["status"] = "EG";
                                 }
                             }
 
-                            // Check Significant Early Going
-                            if (($shiftData->significant_attendanc_rule_early_going ?? 'No Action') !== 'No Action') {
-                                $sigEgMins = calculateTimeDiff($item["out"], $offDuty, 'early', $shiftData->absent_min_out);
-                                if ($sigEgMins > 0) {
-                                    $item["early_going"] = formatMinutes($sigEgMins);
+                            if (($shiftData->significant_attendanc_rule_early_going) !== 'No Action') {
+                                $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $offDuty, $shiftData->early_time);
+                                // Promote P to EG if leaving early (don't override LC/HD/A)
+                                if ($item["early_going"] != "---") {
                                     $item["status"] = ($shiftData->significant_attendanc_rule_early_going === "Half Day") ? "HD" : "A";
                                 }
                             }
@@ -430,7 +428,7 @@ class SingleShiftController extends Controller
             Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])->where("date", $date)->delete();
             foreach (array_chunk($items, 200) as $chunk) Attendance::insert($chunk);
             DB::commit();
-            $message = "[$date] Render successful. Single logs set to M, complete logs set to P.";
+            $message = "[$date] Regenerate successful.";
         } catch (\Throwable $e) {
             DB::rollback();
             $message = "[$date] Error: " . $e->getMessage();
