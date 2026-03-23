@@ -789,7 +789,10 @@
                                 <td>{{ $date->total_hrs }}</td>
                                 <td>{{ $date->ot }}</td>
                                 <td>
-                                    <span class="{{ $statusColor }}"> {{ $statusText }}</span>
+                                    <span class="{{ $statusColor }}">
+                                        {{ $statusText }}
+                                        {{ in_array($date->status, ['LC', 'EG']) ? " ({$date->status})" : "" }}
+                                    </span>
                                 </td>
                             </tr>
                         @endforeach
@@ -913,7 +916,7 @@
                                 <td>
                                     <span class="{{ $statusColor }}">
                                         {{ $statusText }}
-                                        {{ in_array($statusText, ['LC', 'EG']) ? " ({$statusText})" : "" }}
+                                        {{ in_array($date->status, ['LC', 'EG']) ? " ({$date->status})" : "" }}
                                     </span>
                                 </td>
                             </tr>
