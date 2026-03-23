@@ -99,6 +99,7 @@ class FiloShiftController extends Controller
         $schedules = ScheduleEmployee::with('shift')
             ->whereIn("employee_id", $UserIds)
             ->where("company_id", $id)
+            ->where("shift_type_id", 1)
             ->get()
             ->keyBy('employee_id');
 
@@ -109,7 +110,7 @@ class FiloShiftController extends Controller
             if (!$schedule) {
                 continue;
             }
-            
+
             $shift = $schedule->shift ?? null;
 
             if (!$shift) {
