@@ -351,9 +351,9 @@ class SingleShiftController extends Controller
 
             if (!$shift) continue;
 
-            $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
+            // $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
 
-            $halfDayRules = $shift;
+            // $halfDayRules = $shift;
 
             $status = "A";
 
