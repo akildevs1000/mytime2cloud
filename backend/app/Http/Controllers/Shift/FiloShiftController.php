@@ -136,10 +136,6 @@ class FiloShiftController extends Controller
                 continue;
             }
 
-
-            $logsArray = $isData->toArray();
-
-
             // Logic to define shift range (handle overnight shifts)
             $onDutyStr = $date . ' ' . $shift["on_duty_time"];
             $offDutyStr = $date . ' ' . $shift["off_duty_time"];
@@ -166,7 +162,10 @@ class FiloShiftController extends Controller
             $item = $defaultItem; // Start with the defaults
             $item["in"] = $firstLog["time"] ?? "---";
             $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
-            $item["status"] = "P";
+
+            if($filteredLogs->count() == 1){
+                $item["status"] = "M";
+            }
 
 
             if ($lastLog && $filteredLogs->count() > 1) {
