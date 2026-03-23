@@ -78,11 +78,15 @@ class MonthlyController extends Controller
         $pdfFiles = [];
 
         try {
-                        Log::info('[startReportGenerationV1] merging files', [
-                            'pdfFiles' => $pdfFiles,
-                            'outputFileName' => $outputFileName,
-                            'timestamp' => now()->toDateTimeString(),
-                        ]);
+            // Prepare Output Name
+            $outputFileName = "Attendance_Report_{$fromDate}_to_{$toDate}.pdf";
+            $outputPath = $directory . DIRECTORY_SEPARATOR . $outputFileName;
+
+            Log::info('[startReportGenerationV1] merging files', [
+                'pdfFiles' => $pdfFiles,
+                'outputFileName' => $outputFileName,
+                'timestamp' => now()->toDateTimeString(),
+            ]);
             if (!empty($employeeIds)) {
                 // Merge specific employees from the array
                 foreach ($employeeIds as $id) {
