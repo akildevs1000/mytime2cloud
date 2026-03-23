@@ -300,6 +300,11 @@ export const storeSchedule = async (payload) => {
 };
 
 
+export const regenerateReportForPDF = async (params = {}) => {
+    let { data } = await axios.get(`${API_BASE}/generate-pdf-after-regeneration`, { params: await buildQueryParams(params) });
+    return data;
+};
+
 export const regenerateReport = async (params = {}) => {
     let { data } = await axios.get(`${API_BASE}/render_logs`, { params: await buildQueryParams(params) });
     return data;
