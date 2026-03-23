@@ -38,11 +38,12 @@ class SplitShiftController extends Controller
         while ($startDate <= $endDate) {
             //$response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, true);
 
-            if ($company_id == 60) {
-                $response[] = $this->renderV1($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
-            } else {
-                $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
-            }
+            // if ($company_id == 60) {
+            //     $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
+            // } else {
+            // }
+
+            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
 
             $startDate->modify('+1 day');
         }
