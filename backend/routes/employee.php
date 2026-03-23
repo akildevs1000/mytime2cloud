@@ -7,7 +7,7 @@ use App\Http\Controllers\EmployeeAccessController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeControllerNew;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Request;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/employee-statistics', [EmployeeDashboard::class, 'statistics']);
