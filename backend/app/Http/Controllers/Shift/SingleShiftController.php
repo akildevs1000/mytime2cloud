@@ -353,6 +353,8 @@ class SingleShiftController extends Controller
 
             $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
 
+            $halfDayRules = $shift;
+
             $status = "A";
 
             if ($shift->weekoff_rules) {
@@ -534,6 +536,7 @@ class SingleShiftController extends Controller
                     'sig_lc'  => $sigLateRule ?? 'N/A',
                     'sig_eg'  => $sigEarlyRule ?? 'N/A',
                 ],
+                "halfDayRules" => $halfDayRules,
                 'final_status' => $item["status"]
             ]));
         }
