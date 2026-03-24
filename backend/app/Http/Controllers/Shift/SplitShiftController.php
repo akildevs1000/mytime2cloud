@@ -95,6 +95,15 @@ class SplitShiftController extends Controller
         $items = [];
         $debugSummary = [];
 
+        // Cache Holiday Check for 1 hour (Holidays rarely change mid-day)
+        $isHoliday = Cache::remember("holiday_{$id}_{$date}", 3600, function () use ($id, $date) {
+            return DB::table('holidays')
+                ->where('company_id', $id)
+                ->whereDate('start_date', '<=', $date)
+                ->whereDate('end_date', '>=', $date)
+                ->exists();
+        });
+
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
@@ -173,7 +182,15 @@ class SplitShiftController extends Controller
             $dayOfWeekThreeLetter = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first()) ?? "A";
+
+            $status = "A";
+
+            // Default Status Logic
+            if ($isHoliday) {
+                $status = "H";
+            } else {
+                $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
+            }
 
 
             $isPair = collect($logsJson)
