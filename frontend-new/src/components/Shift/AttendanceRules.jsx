@@ -642,7 +642,7 @@ export default function AttendanceRules({ shift, handleChange }) {
 
                 <div className="flex-1 w-full flex items-center gap-3">
                   <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    Action: {shift.attendanc_rule_late_coming}
+                    Action:
                   </span>
                   <div className="relative flex-1 w-full">
                     <DropDown

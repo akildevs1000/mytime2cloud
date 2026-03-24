@@ -99,15 +99,16 @@ export const setStatusLabel = (status) => {
   const statuses = {
     A: "Absent",
     P: "Present",
-    M: "Incomplete",
+    M: "Missing",
     LC: "Present",
     EG: "Present",
     O: "Week Off",
     L: "Leave",
     H: "Holiday",
     V: "Vacation",
+    V: "Vacation",
   };
-  return statuses[status];
+  return statuses[status] ?? "---";
 };
 
 export const getBgColor = (status) => {
