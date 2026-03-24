@@ -38,7 +38,7 @@ class SplitShiftController extends Controller
         while ($startDate <= $endDate) {
             //$response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, true);
 
-            $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
+            $response[] = $this->renderV1($company_id, $startDate->format("Y-m-d"), 5, $employee_ids, $request->filled("auto_render") ? false : true, $request->channel ?? "unknown");
 
 
             $startDate->modify('+1 day');
@@ -52,7 +52,7 @@ class SplitShiftController extends Controller
         // return $departmentIds = Department::where("company_id",$request->company_id)->pluck("id");
         // $employee_ids = Employee::where("department_id", 31)->pluck("system_user_id");
 
-        return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
+        return $this->renderV1($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
 
@@ -78,7 +78,7 @@ class SplitShiftController extends Controller
             if (!$shift) continue;
 
             // Fetch logs and load device relationship to avoid "Undefined key" errors later
-            return $allLogs = AttendanceLog::with('device')
+            $allLogs = AttendanceLog::with('device')
                 ->where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
                 ->whereDate('LogTime', $date)
