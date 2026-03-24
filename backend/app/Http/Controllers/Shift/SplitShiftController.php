@@ -67,7 +67,7 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
-        // 1. Cache Holiday Check (Optimizes performance for range regeneration)
+        // 1. Holiday Check (Cached)
         $isHoliday = Cache::remember("holiday_{$id}_{$date}", 3600, function () use ($id, $date) {
             return DB::table('holidays')
                 ->where('company_id', $id)
@@ -86,19 +86,19 @@ class SplitShiftController extends Controller
         $message = "";
 
         foreach ($employees as $row) {
+            $employeeId = $row->system_user_id;
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
             if (!$params["shift"]) {
-                $message .= "{$row->system_user_id}: No shift; ";
+                $message .= "{$employeeId}: No shift; ";
                 continue;
             }
 
-            // 2. Determine Day Key (Mon, Tue, etc.)
+            // 2. Default Status (H/W/A)
             $dayOfWeek = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
-            // 3. Define Default Status (Holiday or Weekoff/Absent)
             if ($isHoliday) {
                 $defaultStatus = "H";
             } else {
@@ -107,14 +107,14 @@ class SplitShiftController extends Controller
                     $params["shift"]->weekoff_rules ?? "A",
                     $id,
                     $date,
-                    $row->system_user_id,
-                    null // Pass null because we are checking the default state
+                    $employeeId,
+                    null
                 );
             }
 
-            // 4. Fetch Logs
+            // 3. Fetch Logs & Deduplicate
             $logs = AttendanceLog::where("company_id", $id)
-                ->where("UserID", $row->system_user_id)
+                ->where("UserID", $employeeId)
                 ->where("log_date", $date)
                 ->orderBy("LogTime", 'asc')
                 ->get()
@@ -127,21 +127,24 @@ class SplitShiftController extends Controller
             $logsJson     = [];
             $i = 0;
 
-            // 5. Pairing Logic
+            // 4. Sequential Pairing Logic for the 'logs' column
             while ($i < $count) {
                 $currentLog = $data[$i];
                 $nextLog    = $data[$i + 1] ?? null;
 
                 $inTimeRaw  = $currentLog->LogTime;
-                $outTimeRaw = $nextLog ? $nextLog->LogTime : "---";
+                $outTimeRaw = "---";
                 $minutes    = 0;
 
                 if ($nextLog) {
-                    $parsedIn  = strtotime($inTimeRaw);
-                    $parsedOut = strtotime($outTimeRaw);
+                    $outTimeRaw = $nextLog->LogTime;
+                    $parsedIn   = strtotime($inTimeRaw);
+                    $parsedOut  = strtotime($outTimeRaw);
+
                     if ($parsedOut < $parsedIn) {
                         $parsedOut += 86400;
                     }
+
                     $minutes = ($parsedOut - $parsedIn) / 60;
                     $totalMinutes += $minutes;
 
@@ -154,6 +157,7 @@ class SplitShiftController extends Controller
                     ];
                     $i += 2;
                 } else {
+                    // Single Log - Output '---' for the out time in JSON
                     $logsJson[] = [
                         "in"            => date("H:i", strtotime($inTimeRaw)),
                         "out"           => "---",
@@ -165,30 +169,35 @@ class SplitShiftController extends Controller
                 }
             }
 
-            // 6. Final Item Preparation (Ensures zero-log days are recorded)
+            // 5. Prepare Attendance Row (Setting main IN/OUT to '---' as requested)
             $item = [
-                "employee_id"   => $row->system_user_id,
+                "employee_id"   => $employeeId,
                 "company_id"    => $id,
                 "date"          => $date,
                 "shift_id"      => $params["shift"]->id ?? 0,
                 "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
-                "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "in"            => "---",
-                "out"           =>  "---",
+                "total_hrs"     => ($totalMinutes > 0) ? $this->minutesToHours($totalMinutes) : "00:00",
 
-                // PRIORITY: If logs exist, check if pair is complete. If no logs, use Default Status.
+                // Main columns are kept as '---' for this multi-shift function
+                "in"            => "---",
+                "out"           => "---",
+
+                // Status Logic: 0 logs = Default (H/W/A), Odd = Missing, Even = Present
                 "status"        => ($count == 0) ? $defaultStatus : (($count % 2 !== 0) ? Attendance::MISSING : Attendance::PRESENT),
+
+                // All pair data is stored here
                 "logs"          => json_encode($logsJson),
+                "ot"            => "---",
             ];
 
-            if ($params["isOverTime"]) {
+            if ($params["isOverTime"] && $totalMinutes > 0) {
                 $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
             }
 
             $items[] = $item;
         }
 
-        // 7. Bulk Save logic
+        // 6. Bulk Save
         if (count($items) > 0) {
             Attendance::where("company_id", $id)
                 ->where("date", $date)
@@ -199,14 +208,16 @@ class SplitShiftController extends Controller
                 Attendance::insert($chunk);
             }
 
-            AttendanceLog::where("company_id", $id)
-                ->whereIn("UserID", $UserIds)
-                ->where("log_date", $date)
-                ->update([
-                    "checked" => true,
-                    "checked_datetime" => date('Y-m-d H:i:s'),
-                    "channel" => $channel
-                ]);
+            if (!empty($UserIds)) {
+                AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", $UserIds)
+                    ->where("log_date", $date)
+                    ->update([
+                        "checked"          => true,
+                        "checked_datetime" => date('Y-m-d H:i:s'),
+                        "channel"          => $channel
+                    ]);
+            }
         }
 
         return "[" . $date . " " . date("H:i:s") . "] Processed " . count($items) . " records.";
