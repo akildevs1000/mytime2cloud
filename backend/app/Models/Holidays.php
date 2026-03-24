@@ -60,4 +60,14 @@ class Holidays extends Model
             Cache::forget("holiday_{$this->company_id}_{$dateString}");
         }
     }
+
+    public static function isHoliday(int $companyId, string $date): bool
+    {
+        return Cache::remember("holiday_{$companyId}_{$date}", 3600, function () use ($companyId, $date) {
+            return static::where('company_id', $companyId)
+                ->whereDate('start_date', '<=', $date)
+                ->whereDate('end_date', '>=', $date)
+                ->exists();
+        });
+    }
 }

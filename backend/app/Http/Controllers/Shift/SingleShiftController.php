@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Holidays;
 use App\Models\ScheduleEmployee;
 use App\Models\Shift;
 use DateTime;
@@ -277,16 +278,7 @@ class SingleShiftController extends Controller
 
         if (empty($params["UserIds"])) return "[" . $date . "] No employees found.";
 
-        $isHoliday = Cache::remember(
-            "holiday_{$id}_{$date}",
-            3600,
-            fn() =>
-            DB::table('holidays')
-                ->where('company_id', $id)
-                ->whereDate('start_date', '<=', $date)
-                ->whereDate('end_date', '>=', $date)
-                ->exists()
-        );
+        $isHoliday = Holidays::isHoliday($id, $date);
 
         $allSchedules = Cache::remember(
             "schedules_company_{$id}",

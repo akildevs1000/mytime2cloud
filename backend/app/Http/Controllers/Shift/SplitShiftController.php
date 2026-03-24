@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Holidays;
 use App\Models\ScheduleEmployee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -122,14 +123,7 @@ class SplitShiftController extends Controller
         $items = [];
         $debugSummary = [];
 
-        // Cache Holiday Check for 1 hour (Holidays rarely change mid-day)
-        $isHoliday = Cache::remember("holiday_{$id}_{$date}", 3600, function () use ($id, $date) {
-            return DB::table('holidays')
-                ->where('company_id', $id)
-                ->whereDate('start_date', '<=', $date)
-                ->whereDate('end_date', '>=', $date)
-                ->exists();
-        });
+        $isHoliday = Holidays::isHoliday($id, $date);
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
