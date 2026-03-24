@@ -8,6 +8,9 @@ use App\Models\AttendanceLog;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SplitShiftController extends Controller
 {
@@ -188,8 +191,7 @@ class SplitShiftController extends Controller
         return "Done for $date. Log Summary: " . implode(" | ", $debugSummary);
     }
 
-
-    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
+    public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
         $params = [
             "company_id"    => $id,
@@ -201,71 +203,81 @@ class SplitShiftController extends Controller
 
         // 1. Fetch User IDs if not provided
         if (!$custom_render) {
-            $UserIds = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
-            $params["UserIds"] = $UserIds;
+            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
 
-        // 2. ABSOLUTE DELETE: Clear existing records for these users on this date first
-        // This ensures that even if the new render produces 0 logs, the old "In" is gone.
-        if (!empty($UserIds)) {
-            Attendance::where("company_id", $id)
-                ->where("date", $date)
-                ->whereIn("employee_id", $UserIds)
-                ->delete();
+        if (empty($params["UserIds"])) {
+            return "[" . $date . "] No employees found to render.";
         }
 
+        // 2. CACHING & PRE-FETCHING (Performance)
+        $isHoliday = Cache::remember(
+            "holiday_{$id}_{$date}",
+            3600,
+            fn() =>
+            DB::table('holidays')->where('company_id', $id)->whereDate('start_date', '<=', $date)->whereDate('end_date', '>=', $date)->exists()
+        );
+
+        // Fetch All logs for the range in one go
+        $allLogs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+
+        // Fetch Employees with their schedules
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
-
-        // Fallback: If no logs found, we still need to show they were Absent/Weekoff
         if (count($employees) == 0) {
             $employees = (new Employee)->GetEmployeeWithShiftDetails($params);
         }
 
         $items = [];
-        $message = "";
-        $logsUpdated = 0;
+        $dayOfWeek = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
+        // 3. MAIN LOOP
         foreach ($employees as $row) {
-            $params["isOverTime"] = $row->schedule->isOverTime;
-            $params["shift"]      = $row->schedule->shift ?? false;
+            $systemUserId = $row->system_user_id;
+            $shift = $row->schedule->shift ?? false;
+            $isOverTime = $row->schedule->isOverTime ?? false;
 
-            // Fetch logs (current day + next day morning)
-            $allLogs = (new AttendanceLog)->getLogsWithInRangeNew($params);
-            $userLogs = $allLogs[$row->system_user_id] ?? [];
+            // Determine Default Status (Holiday or WeekOff)
+            $defaultStatus = $isHoliday ? "H" : Attendance::processWeekOffFunc(
+                $currentDayKey,
+                $shift['weekoff_rules'] ?? "A",
+                $id,
+                $date,
+                $systemUserId,
+                null
+            );
 
-            // Sort strictly by full timestamp to handle 00:33 correctly
-            $data = collect($userLogs)
+            // Fetch User Logs from pre-fetched collection
+            $userLogs = collect($allLogs[$systemUserId] ?? [])
                 ->unique('LogTime')
                 ->sortBy('LogTime')
                 ->values();
 
-            $dayOfWeek = date('D', strtotime($date));
-            $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
-            $status = Attendance::processWeekOffFunc($currentDayKey, $params["shift"]['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
-
-            // If no logs after sorting, insert as Absent/Weekoff
-            if ($data->isEmpty()) {
+            // 4. ABSENT / HOLIDAY RECORD (GAP FILLING)
+            if ($userLogs->isEmpty()) {
                 $items[] = [
-                    "employee_id"   => $row->system_user_id,
+                    "employee_id"   => $systemUserId,
                     "date"          => $date,
                     "company_id"    => $id,
-                    "shift_id"      => $params["shift"]["id"] ?? 0,
-                    "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
+                    "shift_id"      => $shift["id"] ?? 0,
+                    "shift_type_id" => $shift["shift_type_id"] ?? 0,
                     "total_hrs"     => "00:00",
-                    "status"        => $status ?? "A",
+                    "status"        => $defaultStatus ?? "A",
                     "logs"          => json_encode([]),
                     "ot"            => "---"
                 ];
                 continue;
             }
 
-            // Pairing Logic
+            // 5. PAIRING LOGIC (PRESENT / MULTI-LOG)
             $logsJson = [];
             $totalMinutes = 0;
+            $firstInTime = $userLogs[0]['time'] ?? '---';
+            $lastOutTime = '---';
 
-            for ($i = 0; $i < count($data); $i += 2) {
-                $inLog = $data[$i];
-                $outLog = $data[$i + 1] ?? null;
+            for ($i = 0; $i < count($userLogs); $i += 2) {
+                $inLog = $userLogs[$i];
+                $outLog = $userLogs[$i + 1] ?? null;
 
                 $inTime = $inLog['time'] ?? '---';
                 $outTime = "---";
@@ -273,6 +285,7 @@ class SplitShiftController extends Controller
 
                 if ($outLog) {
                     $outTime = $outLog['time'] ?? '---';
+                    $lastOutTime = $outTime; // Keep track of the final out
                     $startTS = strtotime($inLog['LogTime']);
                     $endTS   = strtotime($outLog['LogTime']);
 
@@ -292,90 +305,87 @@ class SplitShiftController extends Controller
             }
 
             $totalHrs = $this->minutesToHours($totalMinutes);
+
+            // Determine Final Status
+            // Default: Even logs = P, Odd logs = M
+            $finalStatus = (count($userLogs) % 2 !== 0) ? "M" : "P";
+
+            // Override if there are significant attendance rules
+            if ($shift) {
+                // Significant Late Coming (Absent/Half Day Rule)
+                if (($shift->significant_attendanc_rule_late_coming ?? 'No Action') !== 'No Action') {
+                    $sigLcMins = calculateTimeDiff($firstInTime, $shift->on_duty_time, 'late', $shift->absent_min_in);
+                    if ($sigLcMins > 0) {
+                        $finalStatus = ($shift->significant_attendanc_rule_late_coming === "Half Day") ? "HD" : "A";
+                    }
+                }
+
+                // Significant Early Going (Only if an out log exists)
+                if ($lastOutTime !== "---" && ($shift->significant_attendanc_rule_early_going ?? 'No Action') !== 'No Action') {
+                    $offDuty = $shift->off_duty_time;
+                    if (($shift->halfday ?? '') == $dayOfWeek) {
+                        $offDuty = gmdate("H:i", (strtotime($shift->halfday_working_hours) - strtotime('00:00')) + strtotime($shift->on_duty_time) - strtotime('00:00'));
+                    }
+                    $sigEgMins = calculateTimeDiff($lastOutTime, $offDuty, 'early', $shift->absent_min_out);
+                    if ($sigEgMins > 0) {
+                        $finalStatus = ($shift->significant_attendanc_rule_early_going === "Half Day") ? "HD" : "A";
+                    }
+                }
+            }
+
             $items[] = [
-                "employee_id"   => $row->system_user_id,
+                "employee_id"   => $systemUserId,
                 "date"          => $date,
                 "company_id"    => $id,
-                "shift_id"      => $params["shift"]["id"] ?? 0,
-                "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
+                "shift_id"      => $shift["id"] ?? 0,
+                "shift_type_id" => $shift["shift_type_id"] ?? 0,
                 "total_hrs"     => $totalHrs,
-                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
+                "status"        => $finalStatus,
                 "logs"          => json_encode($logsJson),
-                "ot"            => ($params["isOverTime"] && isset($params["shift"]->working_hours))
-                    ? $this->calculatedOT($totalHrs, $params["shift"]->working_hours, $params["shift"]->overtime_interval)
+                "ot"            => ($isOverTime && isset($shift->working_hours))
+                    ? $this->calculatedOT($totalHrs, $shift->working_hours, $shift->overtime_interval)
                     : "---"
             ];
         }
 
-        // 3. Final Sync
-        if (count($items) > 0) {
+        // 6. FINAL SYNC & DATABASE OPERATIONS
+        if (!empty($items)) {
             try {
-                // Chunked insert
+                DB::beginTransaction();
+
+                // Clear old records to avoid duplicates
+                Attendance::where("company_id", $id)
+                    ->where("date", $date)
+                    ->whereIn("employee_id", array_column($items, 'employee_id'))
+                    ->delete();
+
+                // Chunked insert for speed
                 foreach (array_chunk($items, 100) as $chunk) {
                     Attendance::insert($chunk);
                 }
 
                 // Update Log table status
-                $logsUpdated = AttendanceLog::where("company_id", $id)
-                    ->whereIn("UserID", $UserIds)
-                    ->where("LogTime", ">=", $date)
-                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
+                AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", $params["UserIds"])
+                    ->whereDate("LogTime", $date)
                     ->update([
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
                         "channel"          => $channel,
-                        "log_message"      => "Rendered on " . date('Y-m-d H:i:s')
+                        "log_message"      => "Multi-Rendered on " . date('Y-m-d H:i:s')
                     ]);
+
+                DB::commit();
             } catch (\Throwable $e) {
-                $this->logOutPut($this->logFilePath, "Critical Error: " . $e->getMessage());
+                DB::rollback();
+                Log::error("Multi-Render Error: " . $e->getMessage());
+                return "Error: " . $e->getMessage();
             }
         }
 
-        return "[" . $date . "] Render Complete. Users: " . count($items);
+        return "[" . $date . "] Multi-Render Complete. Records: " . count($items);
     }
 
-    /**
-     * Helper to update record when no logs are found
-     */
-    private function updateAbsentRecord($row, $params, $status)
-    {
-        if ($params["shift"] && $params["shift"]["id"] > 0) {
-            Attendance::where("employee_id", $row->system_user_id)
-                ->where("date", $params["date"])
-                ->where("company_id", $params["company_id"])
-                ->update([
-                    "shift_id"      => $params["shift"]["id"],
-                    "shift_type_id" => $params["shift"]["shift_type_id"],
-                    "status"        => $status ?? "A",
-                ]);
-        }
-    }
-
-    /**
-     * Helper to keep the log array structure clean
-     */
-    private function formatLogPair($in, $out, $devIn, $devOut, $mins)
-    {
-        return [
-            "in"            => $in,
-            "out"           => $out,
-            "device_in"     => $devIn,
-            "device_out"    => $devOut,
-            "total_minutes" => $mins,
-        ];
-    }
-    private function getLogTime($log, $validFunctions, $manualDeviceID)
-    {
-        // return $log && $log['time'] ? $log['time'] : "---";
-
-        if (isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)) {
-            return $log['time'];
-        } else if (in_array($log["DeviceID"], $manualDeviceID)) {
-            return $log['time'];
-        }
-
-        return "---";
-    }
     private function getDeviceName($log, $validFunctions)
     {
         if ($log['device']['name'] == "---") {
