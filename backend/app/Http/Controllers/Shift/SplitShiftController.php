@@ -59,6 +59,12 @@ class SplitShiftController extends Controller
 
 
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
+            \Log::info('SplitShift render', [
+                'date' => $date,
+                'employee_ids' => $params["UserIds"],
+                'company_id' => $id,
+                'shift_type_id' => $shift_type_id,
+            ]);
     {
         $params = [
             "company_id"    => $id,
@@ -252,6 +258,11 @@ class SplitShiftController extends Controller
             }
         }
 
+        \Log::info('SplitShift items', [
+            'date' => $date,
+            'count' => count($items),
+            'items' => $items,
+        ]);
         return $items;
     }
 }
