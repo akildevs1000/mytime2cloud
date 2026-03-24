@@ -149,7 +149,7 @@ class SingleShiftController extends Controller
                 return is_array($days) && in_array($dayOfWeek, $days);
             }) ?: $empSchedules->first();
 
-            return $shiftData = $matchedSchedule->shift ?? null;
+            $shiftData = $matchedSchedule->shift ?? null;
 
             // Default Status Logic
             if ($isHoliday) {
