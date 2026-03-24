@@ -149,6 +149,8 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
     };
 
     const onSubmit = async () => {
+
+
         if (!selectedIds.length) {
             notify("Error", "Employee must be selected", "error");
             return;
@@ -160,66 +162,59 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
         }
 
         setResponse(["Regenerating..."]);
+
         setLoading(true);
 
-        let success = false; // 👈 track whether the main block succeeded
-
         try {
+            // 1. Generate the list of individual dates
             const dateArray = [];
             let currentDate = new Date(from);
             const stopDate = new Date(to);
 
             while (currentDate <= stopDate) {
-                dateArray.push(currentDate.toISOString().split("T")[0]);
+                // Format as YYYY-MM-DD
+                dateArray.push(currentDate.toISOString().split('T')[0]);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            const results = await Promise.allSettled(
-                dateArray.map((targetDate) =>
-                    regenerateReport({
-                        dates: [targetDate, targetDate],
-                        reason: "",
-                        employee_ids: selectedIds,
-                        shift_type_id,
-                        company_id: 60,
-                        company_ids: [60],
-                    })
-                )
-            );
+            const allResponses = [];
 
-            const allLogs = results.flatMap((result, index) => {
-                if (result.status === "fulfilled" && Array.isArray(result.value)) {
-                    return result.value;
+            // 2. Loop through each date and call the API
+            for (const targetDate of dateArray) {
+                let json = {
+                    "dates": [targetDate, targetDate], // Start and end are the same day
+                    "reason": "",
+                    "employee_ids": selectedIds,
+                    "shift_type_id": shift_type_id,
+                    "company_id": 60, // Added based on your URL example
+                    "company_ids": [60]
+                };
+
+                const dayResult = await regenerateReport(json);
+
+                if (Array.isArray(dayResult)) {
+                    setResponse((prev) => [
+                        ...prev,
+                        ...dayResult // This spreads the 4-5 logs into the main list
+                    ]);
+                } else {
+                    // Fallback if the API returns a single object or error message
+                    setResponse((prev) => [...prev, `[${targetDate}] No data returned.`]);
                 }
-                const label = `[${dateArray[index]}]`;
-                return result.status === "rejected"
-                    ? [`${label} Failed: ${result.reason?.message ?? "Unknown error"}`]
-                    : [`${label} No data returned.`];
-            });
 
-            setResponse(allLogs);
-            success = true; // 👈 only set true if we reach this point
-
-        } catch (error) {
-            console.error(error);
-            await notify("Error", parseApiError(error), "error");
-        } finally {
-            if (success) { // 👈 only call PDF API if the main block completed cleanly
-                try {
-                    const res = await regenerateReportForPDF({
-                        request_type: "manual_render",
-                        employee_ids: selectedIds,
-                        company_id: 60,
-                        template: "Template1",
-                    });
-                    // await notify("Success", res.message, "success");
-
-                } catch (pdfError) {
-                    console.error("PDF generation failed:", pdfError);
-                    await notify("Warning", "Report regenerated but PDF render failed.", "warning");
-                }
             }
 
+            await regenerateReportForPDF({
+                "request_type": "manual_render",
+                "employee_ids": selectedIds,
+                "company_id": 60, // Added based on your URL example
+                "template": "Template1",
+            });
+
+        } catch (error) {
+            console.log(error);
+            await notify("Error", parseApiError(error), "error");
+        } finally {
             setLoading(false);
         }
     };
