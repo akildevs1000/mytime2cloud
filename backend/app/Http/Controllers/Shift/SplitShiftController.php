@@ -125,9 +125,16 @@ class SplitShiftController extends Controller
 
         $isHoliday = Holidays::isHoliday($id, $date);
 
+        $dayOfWeekThreeLetter = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
+
+
+            $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
+
 
             // Fetch logs and load device relationship to avoid "Undefined key" errors later
             $allLogs = AttendanceLog::with('device')
@@ -195,11 +202,6 @@ class SplitShiftController extends Controller
             }
 
             $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
-
-
-            $dayOfWeekThreeLetter = date('D', strtotime($date));
-            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
 
             $status = "A";
 
