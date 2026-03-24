@@ -16,7 +16,7 @@ class Attendance extends Model
     const PRESENT = "P"; //2;
     const MISSING = "M"; //3;
     const HOLIDAY = "H"; //4
-
+    const HALFDAY = "HD"; //5
 
     const DAY_MAP = [
         'Mon' => 'M',
