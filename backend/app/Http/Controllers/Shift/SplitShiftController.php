@@ -58,8 +58,6 @@ class SplitShiftController extends Controller
         return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
-
-
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
@@ -70,31 +68,25 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
-        // Fetch UserIds if not provided
         if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
-
         $items = [];
-        $message = "";
-        $logsUpdated = 0;
 
         foreach ($employees as $row) {
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            if (!$params["shift"]) {
-                $message .= "{$row->system_user_id} : No shift configured on date: $date; ";
-                continue;
-            }
+            if (!$params["shift"]) continue;
 
-            // Get logs for this specific employee
+            // 1. Get ALL raw logs for this user
             $all_logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
             $user_logs = $all_logs[$row->system_user_id] ?? [];
 
-            // 1. REMOVE DUPLICATES (Same Time) and SORT chronologically
+            // 2. STICK TO RAW DATA: Unique by time, Sort by time, and Reset Index
+            // This turns [0=>8am, 5=>1pm, 9=>7pm] into [0=>8am, 1=>1pm, 2=>7pm]
             $data = collect($user_logs)
                 ->unique('LogTime')
                 ->sortBy('LogTime')
@@ -102,49 +94,44 @@ class SplitShiftController extends Controller
                 ->toArray();
 
             $logCount = count($data);
-            $totalMinutes = 0;
             $logsJson = [];
+            $totalMinutes = 0;
 
-            // 2. PAIR-WISE PROCESSING (Ignore labels, just pair Log 1 with 2, 3 with 4...)
+            // 3. STEP THROUGH LOGS BY 2 (Sequential Pairing)
             for ($i = 0; $i < $logCount; $i += 2) {
-                $inLog  = $data[$i];
-                $outLog = $data[$i + 1] ?? null; // Null if odd number (e.g., 3rd log)
+                $logA = $data[$i];
+                $logB = $data[$i + 1] ?? null; // Second log in the pair
 
-                $inTime  = $inLog['time'] ?? '---';
-                $outTime = $outLog ? ($outLog['time'] ?? '---') : '---';
+                $timeA = isset($logA['LogTime']) ? date('H:i', strtotime($logA['LogTime'])) : "---";
+                $timeB = ($logB && isset($logB['LogTime'])) ? date('H:i', strtotime($logB['LogTime'])) : "---";
 
-                $minutes = 0;
-                if ($outLog) {
-                    $parsedIn  = strtotime($inLog['LogTime']);
-                    $parsedOut = strtotime($outLog['LogTime']);
-
-                    // Handle potential midnight crossing
-                    if ($parsedIn > $parsedOut) {
-                        $parsedOut += 86400;
-                    }
-
-                    $minutes = ($parsedOut - $parsedIn) / 60;
-                    $totalMinutes += $minutes;
+                $diff = 0;
+                if ($logB) {
+                    $t1 = strtotime($logA['LogTime']);
+                    $t2 = strtotime($logB['LogTime']);
+                    if ($t1 > $t2) $t2 += 86400; // Handle shifts crossing midnight
+                    $diff = ($t2 - $t1) / 60;
+                    $totalMinutes += $diff;
                 }
 
+                // We label them 'in' and 'out' for the JSON structure only
                 $logsJson[] = [
-                    "in"            => $inTime,
-                    "out"           => $outTime,
-                    "device_in"     => $inLog['DeviceID'] ?? "---",
-                    "device_out"    => $outLog ? ($outLog['DeviceID'] ?? "---") : "---",
-                    "total_minutes" => $minutes,
+                    "in"            => $timeA,
+                    "out"           => $timeB,
+                    "device_in"     => $logA['DeviceID'] ?? "---",
+                    "device_out"    => $logB ? ($logB['DeviceID'] ?? "---") : "---",
+                    "total_minutes" => $diff,
                 ];
             }
 
-            // 3. STATUS LOGIC: Missing for 1, 3, 5, 7 logs
+            // 4. STATUS REQUIREMENT: Odd number of logs = MISSING
             $status = ($logCount % 2 !== 0 || $logCount === 0)
                 ? Attendance::MISSING
                 : Attendance::PRESENT;
 
-            // 4. PREPARE ITEM FOR INSERT
             $totalHrs = $this->minutesToHours($totalMinutes);
 
-            $item = [
+            $items[] = [
                 "employee_id"   => $row->system_user_id,
                 "company_id"    => $id,
                 "date"          => $date,
@@ -153,55 +140,34 @@ class SplitShiftController extends Controller
                 "total_hrs"     => $totalHrs,
                 "status"        => $status,
                 "logs"          => json_encode($logsJson),
-                "in"            => $logsJson[0]["in"] ?? "---",
-                "out"           => (count($logsJson) > 0) ? end($logsJson)["out"] : "---",
+                "in"            => $logsJson[0]['in'] ?? "---",
+                "out"           => (count($logsJson) > 0) ? end($logsJson)['out'] : "---",
+                "ot"            => $params["isOverTime"] ? $this->calculatedOT($totalHrs, $params["shift"]->working_hours, $params["shift"]->overtime_interval) : "00:00"
             ];
-
-            // Handle Overtime
-            if ($params["isOverTime"]) {
-                $item["ot"] = $this->calculatedOT(
-                    $totalHrs,
-                    $params["shift"]->working_hours,
-                    $params["shift"]->overtime_interval
-                );
-            }
-
-            $items[] = $item;
         }
 
-        // 5. DATABASE SYNC
-        try {
-            if (count($items) > 0) {
-                $model = Attendance::query();
+        // 5. CLEAN AND INSERT
+        if (count($items) > 0) {
+            Attendance::whereIn("employee_id", array_column($items, "employee_id"))
+                ->where("date", $date)
+                ->where("company_id", $id)
+                ->delete();
 
-                // Clean up existing records for these users on this date
-                $model->whereIn("employee_id", array_column($items, "employee_id"))
-                    ->where("date", $date)
-                    ->where("company_id", $id)
-                    ->delete();
-
-                // Insert new processed records in chunks
-                foreach (array_chunk($items, 100) as $chunk) {
-                    Attendance::insert($chunk);
-                }
-
-                // Mark logs as checked
-                $logsUpdated = AttendanceLog::where("company_id", $id)
-                    ->whereIn("UserID", array_column($items, "employee_id"))
-                    ->where("LogTime", ">=", $date)
-                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                    ->update([
-                        "checked"          => true,
-                        "checked_datetime" => date('Y-m-d H:i:s'),
-                        "channel"          => $channel,
-                        "log_message"      => "Multi-render processed: " . count($items) . " records",
-                    ]);
+            foreach (array_chunk($items, 100) as $chunk) {
+                Attendance::insert($chunk);
             }
-        } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, "Error in render: " . $e->getMessage());
+
+            AttendanceLog::where("company_id", $id)
+                ->whereIn("UserID", array_column($items, "employee_id"))
+                ->whereDate("LogTime", $date)
+                ->update([
+                    "checked" => true,
+                    "checked_datetime" => date('Y-m-d H:i:s'),
+                    "channel" => $channel
+                ]);
         }
 
-        return "[" . $date . " " . date("H:i:s") . "] " . count($items) . " employees rendered. Status: " . $message;
+        return "Processed " . count($items) . " records for " . $date;
     }
 
 
