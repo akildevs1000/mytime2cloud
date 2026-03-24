@@ -185,6 +185,7 @@ class SplitShiftController extends Controller
     }
 
 
+
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
@@ -195,12 +196,9 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
-        if (! $custom_render) {
-            //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+        if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
-
-        // return json_encode($params);
 
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
@@ -209,185 +207,109 @@ class SplitShiftController extends Controller
         $logsUpdated = 0;
 
         foreach ($employees as $row) {
-
             $params["isOverTime"] = $row->schedule->isOverTime;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
-
-            $data = $logs[$row->system_user_id] ?? [];
-
-            $data = collect($data)
-                ->unique('LogTime')
-                ->filter(function ($log, $index) use ($data) {
-                    $prev = $data[$index - 1] ?? null;
-
-                    if (isset($log['device']) && ($log['device']['model_number'] ?? null) != 'OX-900') {
-                        return true;
-                    }
-
-                    if (
-                        in_array($log['log_type'], ['In', 'Out']) &&
-                        $prev &&
-                        $prev['log_type'] === $log['log_type']
-                    ) {
-                        return false; // skip duplicate consecutive type
-                    }
-
-                    return true;
-                })
-                ->values();
-
-
-            $dayOfWeekThreeLetter = date('D', strtotime($date));
-            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first()) ?? "A";
-
-
-            if (! $params["shift"]["id"]) {
-                $message .= "{$row->system_user_id} : No shift configured on date: $date";
+            if (!$params["shift"]) {
+                $message .= "{$row->system_user_id} : No shift configured on date: $date; ";
                 continue;
             }
 
-            $item = [
-                "total_hrs"     => 0,
-                "in"            => "---",
-                "out"           => "---",
-                "ot"            => "---",
-                "device_id_in"  => "---",
-                "device_id_out" => "---",
-                "date"          => $params["date"],
-                "company_id"    => $params["company_id"],
-                "shift_id"      => $params["shift"]["id"] ?? 0,
-                "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
+            // Define the time window for the shift
+            if ($params["shift"]->off_duty_time < $params["shift"]->on_duty_time) {
+                $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+                $params["end"]   = date("Y-m-d", strtotime($params["date"] . " +1 day")) . " " . $params["shift"]->off_duty_time;
+            } else {
+                $params["start"] = $params["date"] . " " . $params["shift"]->on_duty_time;
+                $params["end"]   = $params["date"] . " " . $params["shift"]->off_duty_time;
+            }
 
-            ];
+            // Fetch logs WITHOUT filtering by LogType (In/Out)
+            $logs = AttendanceLog::where("company_id", $params["company_id"])
+                ->where("LogTime", ">=", $params["start"])
+                ->where("LogTime", "<=", $params["end"])
+                ->where("UserID", $row->system_user_id)
+                ->whereHas("schedule", function ($q) use ($params) {
+                    $q->where("shift_type_id", $params["shift_type_id"]);
+                })
+                ->orderBy("LogTime", 'asc')
+                ->get()
+                ->load("device");
+
+            // Convert to array and reset keys to ensure sequential access
+            $data = $logs->values()->toArray();
+
+            $dayOfWeekThreeLetter = date('D', strtotime($date));
+            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+
+            // Use the first log to determine status, or default to Absent
+            $status = Attendance::processWeekOffFunc($currentDayKey, $params["shift"]->weekoff_rules ?? "A", $id, $date, $row->system_user_id, $logs->first()) ?? "A";
 
             $totalMinutes = 0;
             $logsJson     = [];
-            $previousOut  = null;
+            $i = 0;
+            $count = count($data);
 
-            // ✅ Special case: only 1 log
-            if (count($data) === 1) {
-                $log  = $data[0];
-                $time = $log['time'] ?? '---';
+            // --- PAIRING LOGIC ---
+            // This takes every log sequentially. 
+            // Log 0 (In) -> Log 1 (Out)
+            // Log 2 (In) -> Log 3 (Out)
+            while ($i < $count) {
+                $currentLog = $data[$i];
+                $nextLog    = $data[$i + 1] ?? null;
 
-                $validInTime = $this->getLogTime(
-                    $log,
-                    ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"],
-                    ["Manual", "manual", "MANUAL"]
-                );
+                $inTime  = $currentLog['LogTime'] ?? "---";
+                $outTime = "---";
+                $minutes = 0;
 
-                if (strtolower($log['log_type']) == "in") {
-                    $validInTime = $time;
-                }
+                if ($nextLog) {
+                    $outTime = $nextLog['LogTime'] ?? "---";
 
-                $logsJson[] = [
-                    "in"            => $validInTime !== "---" ? $validInTime : "---",
-                    "out"           => "---",
-                    "device_in"     => $this->getDeviceName($log, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                    "device_out"    => "---",
-                    "total_minutes" => 0,
-                ];
-            } else {
+                    $parsedIn  = strtotime($inTime);
+                    $parsedOut = strtotime($outTime);
 
-                // ✅ Normal multiple-log processing
-                $i             = 0;
-                $validLogCount = 0;
-
-                while ($i < count($data)) {
-                    $currentLog  = $data[$i];
-                    $currentTime = $currentLog['time'] ?? '---';
-
-                    if (
-                        isset($data[$i + 1]) &&
-                        in_array(strtolower($currentLog['log_type']), ['in', 'out']) &&
-                        strtolower($currentLog['log_type']) === strtolower($data[$i + 1]['log_type'])
-                    ) {
-                        $i++; // Jump to the next iteration, skipping the current log
-                        continue;
+                    // Handle crossing midnight
+                    if ($parsedIn > $parsedOut) {
+                        $parsedOut += 86400;
                     }
 
-                    $validIn = $currentTime !== '---' && $currentTime !== $previousOut;
+                    $minutes = ($parsedOut - $parsedIn) / 60;
+                    $totalMinutes += $minutes;
 
-                    $validInTime = $validIn
-                        ? $this->getLogTime($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                        : "---";
-
-                    if (strtolower($currentLog['log_type']) == "in") {
-                        $validInTime = $currentTime;
-                    }
-
-                    if (! $validIn || $validInTime === "---") {
-                        $i++;
-                        continue;
-                    }
-
-                    $validLogCount++;
-
-                    // Try to find a valid OUT log after this IN
-                    $nextLog      = null;
-                    $validOutTime = "---";
-
-                    for ($j = $i + 1; $j < count($data); $j++) {
-                        $candidateLog  = $data[$j];
-                        $candidateTime = $candidateLog['time'] ?? '---';
-
-                        $validOut = $candidateTime !== '---' && $candidateTime !== $currentTime;
-
-                        $validOutTime = $validOut
-                            ? $this->getLogTime($candidateLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"], ["Manual", "manual", "MANUAL"])
-                            : "---";
-
-                        if (strtolower($candidateLog['log_type']) == "out") {
-                            $validOutTime = $candidateTime;
-                        }
-
-                        if ($validOut && $validOutTime !== "---") {
-                            $nextLog = $candidateLog;
-                            $i       = $j; // jump to OUT log
-                            $validLogCount++;
-                            break;
-                        }
-                    }
-
-                    $minutes = 0;
-
-                    if ($nextLog) {
-                        $parsedIn  = strtotime($currentTime);
-                        $parsedOut = strtotime($nextLog['time'] ?? '---');
-
-                        if ($parsedIn > $parsedOut) {
-                            $parsedOut += 86400; // handle midnight
-                        }
-
-                        $minutes = ($parsedOut - $parsedIn) / 60;
-                        $totalMinutes += $minutes;
-                    }
-
+                    // Move pointer by 2 because we used a pair
                     $logsJson[] = [
-                        "in"            => $validInTime,
-                        "out"           => $nextLog ? $validOutTime : "---",
-                        "device_in"     => $this->getDeviceName($currentLog, ["In", "Auto", "Option", "in", "auto", "option", "Mobile", "mobile"]),
-                        "device_out"    => $nextLog
-                            ? $this->getDeviceName($nextLog, ["Out", "Auto", "Option", "out", "auto", "option", "Mobile", "mobile"])
-                            : "---",
-                        "total_minutes" => $minutes,
+                        "in"            => date("H:i", $parsedIn),
+                        "out"           => date("H:i", $parsedOut),
+                        "device_in"     => $currentLog['device']['name'] ?? "---",
+                        "device_out"    => $nextLog['device']['name'] ?? "---",
+                        "total_minutes" => (int)$minutes,
                     ];
-
-                    $previousOut = $nextLog['time'] ?? null;
-                    $i++; // move forward
+                    $i += 2;
+                } else {
+                    // Odd log out (In with no Out)
+                    $logsJson[] = [
+                        "in"            => $inTime != "---" ? date("H:i", strtotime($inTime)) : "---",
+                        "out"           => "---",
+                        "device_in"     => $currentLog['device']['name'] ?? "---",
+                        "device_out"    => "---",
+                        "total_minutes" => 0,
+                    ];
+                    $i += 1;
                 }
             }
 
-
-            $item["status"] =  count($logsJson) == 1 ? Attendance::MISSING : $status;
-
-
-            // ✅ Final summary per employee
-            $item["employee_id"] = $row->system_user_id;
-            $item["total_hrs"]   = $this->minutesToHours($totalMinutes);
+            $item = [
+                "employee_id"   => $row->system_user_id,
+                "company_id"    => $id,
+                "date"          => $date,
+                "shift_id"      => $params["shift"]->id ?? 0,
+                "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
+                "total_hrs"     => $this->minutesToHours($totalMinutes),
+                "in"            => isset($logsJson[0]) ? $logsJson[0]['in'] : "---",
+                "out"           => count($logsJson) > 0 ? end($logsJson)['out'] : "---",
+                "status"        => (count($logs) > 0 && count($logs) % 2 !== 0) ? Attendance::MISSING : ($count > 0 ? Attendance::PRESENT : $status),
+                "logs"          => json_encode($logsJson),
+            ];
 
             if ($params["isOverTime"]) {
                 $item["ot"] = $this->calculatedOT(
@@ -397,55 +319,39 @@ class SplitShiftController extends Controller
                 );
             }
 
-            $item["logs"]   = json_encode($logsJson, JSON_PRETTY_PRINT);
             $items[] = $item;
         }
 
-        // return json_encode($items, JSON_PRETTY_PRINT);
-
-        $items = collect($items)->unique('employee_id')->values()->all();
-
+        // Bulk Database Operations
         try {
-
             if (count($items) > 0) {
-                $model = Attendance::query();
-                $model->whereIn("employee_id", array_column($items, "employee_id"));
-                $model->where("date", $date);
-                $model->where("company_id", $id);
-                $model->delete();
+                $employeeIds = array_column($items, "employee_id");
+
+                Attendance::where("company_id", $id)
+                    ->where("date", $date)
+                    ->whereIn("employee_id", $employeeIds)
+                    ->delete();
 
                 $chunks = array_chunk($items, 100);
-
                 foreach ($chunks as $chunk) {
-                    $model->insert($chunk);
+                    Attendance::insert($chunk);
                 }
 
-                $message = "[" . $date . " " . date("H:i:s") . "] Multi Shift.   Affected Ids: " . json_encode($UserIds) . " " . $message;
-
                 $logsUpdated = AttendanceLog::where("company_id", $id)
-                    ->whereIn("UserID", $UserIds ?? [])
-                    ->where("LogTime", ">=", $date)
-                    ->where("LogTime", "<=", date("Y-m-d", strtotime($date . "+1 day")))
-                    // ->where("checked", false)
+                    ->whereIn("UserID", $UserIds)
+                    ->whereDate("LogTime", $date)
                     ->update([
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
                         "channel"          => $channel,
-                        "log_message"      => substr($message, 0, 200),
                     ]);
+
+                $message = "[$date] Rendered " . count($items) . " employees. Logs updated: $logsUpdated";
             }
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, $e->getMessage());
+            $this->logOutPut($this->logFilePath, "Render Error: " . $e->getMessage());
         }
 
-        $this->logOutPut($this->logFilePath, [
-            "UserIds" => $UserIds,
-            "params"  => $params,
-            "items"   => $items,
-        ]);
-
-        $this->logOutPut($this->logFilePath, "[" . $date . " " . date("H:i:s") . "] " . "$logsUpdated " . " updated logs");
-        $this->logOutPut($this->logFilePath, $message);
         return "[" . $date . " " . date("H:i:s") . "] " . $message;
     }
 
