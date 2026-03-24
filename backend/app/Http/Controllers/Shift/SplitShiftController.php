@@ -142,7 +142,7 @@ class SplitShiftController extends Controller
                     "total_hrs"     => "00:00",
                     "in"            => "---",
                     "out"           => "---",
-                    "status"        => $defaultStatus,
+                    "status"        => $defaultStatus ?? 'A',
                     "logs"          => json_encode([]),
                     "ot"            => "---",
                 ];
