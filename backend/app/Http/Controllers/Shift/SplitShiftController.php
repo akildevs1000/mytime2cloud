@@ -88,8 +88,8 @@ class SplitShiftController extends Controller
             ->withOut(["department", "sub_department", "designation"])
             ->with(["schedule" => function ($q) use ($id, $date, $shift_type_id) {
                 $q->where("company_id", $id);
-                $q->where("from_date", "<=", $date);  // ✅ schedule must have started
-                $q->where("to_date", ">=", $date);    // ✅ schedule must not have ended
+                $q->where("from_date", "<=", $date);
+                $q->where("to_date", ">=", $date);
                 $q->where("shift_type_id", $shift_type_id);
                 $q->withOut("shift_type");
                 $q->orderBy("to_date", "asc");
@@ -113,13 +113,7 @@ class SplitShiftController extends Controller
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            // Skip if no shift is assigned
-            if (!$params["shift"]) {
-                $message .= "{$employeeId}: No shift; ";
-                continue;
-            }
-
-            // 4. Default Status (H/W/A) for days with NO logs
+            // 4. Resolve default status regardless of shift
             $dayOfWeek     = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
@@ -134,6 +128,25 @@ class SplitShiftController extends Controller
                     $employeeId,
                     null
                 );
+            }
+
+            // ✅ No shift — insert default record and skip log processing
+            if (!$params["shift"]) {
+                $message .= "{$employeeId}: No shift, inserting default; ";
+                $items[] = [
+                    "employee_id"   => $employeeId,
+                    "company_id"    => $id,
+                    "date"          => $date,
+                    "shift_id"      => 0,
+                    "shift_type_id" => 0,
+                    "total_hrs"     => "00:00",
+                    "in"            => "---",
+                    "out"           => "---",
+                    "status"        => $defaultStatus,
+                    "logs"          => json_encode([]),
+                    "ot"            => "---",
+                ];
+                continue;
             }
 
             // 5. Fetch and Deduplicate Logs
