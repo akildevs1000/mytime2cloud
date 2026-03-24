@@ -67,7 +67,7 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
-        // 1. Holiday Check (Cached)
+        // 1. Cache Holiday Check (Crucial for performance during range regeneration)
         $isHoliday = Cache::remember("holiday_{$id}_{$date}", 3600, function () use ($id, $date) {
             return DB::table('holidays')
                 ->where('company_id', $id)
@@ -77,25 +77,31 @@ class SplitShiftController extends Controller
         });
 
         if (!$custom_render) {
-            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
+            // If we are regenerating a range, we MUST ensure UserIds is not empty
+            // If it's empty, we get all employees for the company
+            $params["UserIds"] = $UserIds ?: (new Employee)->where("company_id", $id)->pluck("system_user_id")->toArray();
         }
 
+        // 2. Get the target employees 
+        // We use a simple pluck if the multi-render query is skipping people with no logs
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
 
         $items = [];
         $message = "";
 
+        // 3. Loop through EVERY employee found
         foreach ($employees as $row) {
             $employeeId = $row->system_user_id;
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
+            // Skip if no shift is assigned (you can't render attendance without a shift)
             if (!$params["shift"]) {
                 $message .= "{$employeeId}: No shift; ";
                 continue;
             }
 
-            // 2. Default Status (H/W/A)
+            // 4. Default Status (H/W/A) for days with NO logs
             $dayOfWeek = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
@@ -112,7 +118,7 @@ class SplitShiftController extends Controller
                 );
             }
 
-            // 3. Fetch Logs & Deduplicate
+            // 5. Fetch and Deduplicate Logs
             $logs = AttendanceLog::where("company_id", $id)
                 ->where("UserID", $employeeId)
                 ->where("log_date", $date)
@@ -127,14 +133,13 @@ class SplitShiftController extends Controller
             $logsJson     = [];
             $i = 0;
 
-            // 4. Sequential Pairing Logic for the 'logs' column
+            // 6. Pairing Logic (Handles incomplete pairs with ---)
             while ($i < $count) {
                 $currentLog = $data[$i];
                 $nextLog    = $data[$i + 1] ?? null;
 
                 $inTimeRaw  = $currentLog->LogTime;
                 $outTimeRaw = "---";
-                $minutes    = 0;
 
                 if ($nextLog) {
                     $outTimeRaw = $nextLog->LogTime;
@@ -157,7 +162,6 @@ class SplitShiftController extends Controller
                     ];
                     $i += 2;
                 } else {
-                    // Single Log - Output '---' for the out time in JSON
                     $logsJson[] = [
                         "in"            => date("H:i", strtotime($inTimeRaw)),
                         "out"           => "---",
@@ -169,7 +173,7 @@ class SplitShiftController extends Controller
                 }
             }
 
-            // 5. Prepare Attendance Row (Setting main IN/OUT to '---' as requested)
+            // 7. PREPARE RECORD (Even if $count is 0, we push this item)
             $item = [
                 "employee_id"   => $employeeId,
                 "company_id"    => $id,
@@ -178,14 +182,12 @@ class SplitShiftController extends Controller
                 "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
                 "total_hrs"     => ($totalMinutes > 0) ? $this->minutesToHours($totalMinutes) : "00:00",
 
-                // Main columns are kept as '---' for this multi-shift function
+                // Per your request: main table shows ---
                 "in"            => "---",
                 "out"           => "---",
 
-                // Status Logic: 0 logs = Default (H/W/A), Odd = Missing, Even = Present
+                // Status: 0 logs = Default (H/W/A), Odd = MISSING, Even = PRESENT
                 "status"        => ($count == 0) ? $defaultStatus : (($count % 2 !== 0) ? Attendance::MISSING : Attendance::PRESENT),
-
-                // All pair data is stored here
                 "logs"          => json_encode($logsJson),
                 "ot"            => "---",
             ];
@@ -194,10 +196,11 @@ class SplitShiftController extends Controller
                 $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
             }
 
+            // Pushing to items ensures the row is created even for empty dates
             $items[] = $item;
         }
 
-        // 6. Bulk Save
+        // 8. Bulk Persistence
         if (count($items) > 0) {
             Attendance::where("company_id", $id)
                 ->where("date", $date)
@@ -208,9 +211,9 @@ class SplitShiftController extends Controller
                 Attendance::insert($chunk);
             }
 
-            if (!empty($UserIds)) {
+            if (!empty($params["UserIds"])) {
                 AttendanceLog::where("company_id", $id)
-                    ->whereIn("UserID", $UserIds)
+                    ->whereIn("UserID", $params["UserIds"])
                     ->where("log_date", $date)
                     ->update([
                         "checked"          => true,
