@@ -68,7 +68,29 @@ class SplitShiftController extends Controller
         ];
 
         if (!$custom_render) {
-            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+
+
+            $params["UserIds"] = AttendanceLog::where("company_id", $params["company_id"])
+                ->when(!$params["custom_render"], fn($q) => $q->where("checked", false))
+                ->where("company_id", $params["company_id"])
+                ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
+                ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
+                ->whereNotIn('UserID', function ($query) {
+                    $query->select('system_user_id')
+                        ->where('visit_from', "<=", date('Y-m-d'))
+                        ->where('visit_to', ">=", date('Y-m-d'))
+
+                        ->from('visitors');
+                })
+
+                ->whereHas("schedule", function ($q) use ($params) {
+                    $q->where("company_id", $params["company_id"]);
+                    $q->where("shift_type_id", 5); // Check for logs on or after the current date
+                    $q->where("isAutoShift", false); // Check for logs on or after the current date
+                })
+
+                ->distinct("UserID", "company_id")
+                ->pluck('UserID');
         }
 
         $employees = Employee::query();
@@ -84,7 +106,7 @@ class SplitShiftController extends Controller
         $employees->with(["schedule" => function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
             $q->where("to_date", ">=", $params["date"]);
-            $q->where("shift_type_id", $params["shift_type_id"]);
+            $q->where("shift_type_id", 5);
             $q->withOut("shift_type");
             $q->orderBy("to_date", "asc");
         }]);
@@ -174,9 +196,6 @@ class SplitShiftController extends Controller
                         "total_minutes" => $min,
                     ];
 
-                    info(count($logsJson));
-
-
                     $userSummary[] = "({$ses['name']}: In $inTime, Out $outTime)";
                 }
             }
@@ -207,7 +226,9 @@ class SplitShiftController extends Controller
                     return $count;
                 }) % 2 === 0;
 
-            if (!$isPair) {
+            $total_hour = $this->minutesToHours($totalMinutes);
+
+            if (!$isPair || $total_hour == "00:00") {
                 $status = Attendance::MISSING;
             } else {
                 $status = Attendance::PRESENT;
