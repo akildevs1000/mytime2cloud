@@ -70,6 +70,7 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
+        // Fetch UserIds if not provided
         if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
@@ -81,44 +82,47 @@ class SplitShiftController extends Controller
         $logsUpdated = 0;
 
         foreach ($employees as $row) {
-            $params["isOverTime"] = $row->schedule->isOverTime;
+            $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            $logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
-
-            // 1. Get logs and REMOVE duplicates based on time only
-            $data = $logs[$row->system_user_id] ?? [];
-            $data = collect($data)->unique('LogTime')->values()->toArray();
-
-            $logCount = count($data);
-
-            // 2. Determine Status: Missing if log count is odd (1, 3, 5...)
-            $status = ($logCount % 2 !== 0) ? Attendance::MISSING : Attendance::PRESENT;
-
-            if (!$params["shift"]["id"]) {
-                $message .= "{$row->system_user_id} : No shift configured on date: $date";
+            if (!$params["shift"]) {
+                $message .= "{$row->system_user_id} : No shift configured on date: $date; ";
                 continue;
             }
 
+            // Get logs for this specific employee
+            $all_logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
+            $user_logs = $all_logs[$row->system_user_id] ?? [];
+
+            // 1. REMOVE DUPLICATES (Same Time) and SORT chronologically
+            $data = collect($user_logs)
+                ->unique('LogTime')
+                ->sortBy('LogTime')
+                ->values()
+                ->toArray();
+
+            $logCount = count($data);
             $totalMinutes = 0;
             $logsJson = [];
 
-            // 3. Pair-wise processing without log_type filtering
+            // 2. PAIR-WISE PROCESSING (Ignore labels, just pair Log 1 with 2, 3 with 4...)
             for ($i = 0; $i < $logCount; $i += 2) {
-                $inLog = $data[$i];
-                $outLog = $data[$i + 1] ?? null; // May be null if odd number
+                $inLog  = $data[$i];
+                $outLog = $data[$i + 1] ?? null; // Null if odd number (e.g., 3rd log)
 
-                $inTime = $inLog['time'] ?? '---';
+                $inTime  = $inLog['time'] ?? '---';
                 $outTime = $outLog ? ($outLog['time'] ?? '---') : '---';
 
                 $minutes = 0;
                 if ($outLog) {
-                    $parsedIn = strtotime($inTime);
-                    $parsedOut = strtotime($outTime);
+                    $parsedIn  = strtotime($inLog['LogTime']);
+                    $parsedOut = strtotime($outLog['LogTime']);
 
+                    // Handle potential midnight crossing
                     if ($parsedIn > $parsedOut) {
-                        $parsedOut += 86400; // Handle midnight crossing
+                        $parsedOut += 86400;
                     }
+
                     $minutes = ($parsedOut - $parsedIn) / 60;
                     $totalMinutes += $minutes;
                 }
@@ -132,21 +136,31 @@ class SplitShiftController extends Controller
                 ];
             }
 
-            // 4. Build the final item
+            // 3. STATUS LOGIC: Missing for 1, 3, 5, 7 logs
+            $status = ($logCount % 2 !== 0 || $logCount === 0)
+                ? Attendance::MISSING
+                : Attendance::PRESENT;
+
+            // 4. PREPARE ITEM FOR INSERT
+            $totalHrs = $this->minutesToHours($totalMinutes);
+
             $item = [
                 "employee_id"   => $row->system_user_id,
-                "date"          => $params["date"],
-                "company_id"    => $params["company_id"],
+                "company_id"    => $id,
+                "date"          => $date,
                 "shift_id"      => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "total_hrs"     => $this->minutesToHours($totalMinutes),
+                "total_hrs"     => $totalHrs,
                 "status"        => $status,
-                "logs"          => json_encode($logsJson, JSON_PRETTY_PRINT),
+                "logs"          => json_encode($logsJson),
+                "in"            => $logsJson[0]["in"] ?? "---",
+                "out"           => (count($logsJson) > 0) ? end($logsJson)["out"] : "---",
             ];
 
+            // Handle Overtime
             if ($params["isOverTime"]) {
                 $item["ot"] = $this->calculatedOT(
-                    $item["total_hrs"],
+                    $totalHrs,
                     $params["shift"]->working_hours,
                     $params["shift"]->overtime_interval
                 );
@@ -155,19 +169,23 @@ class SplitShiftController extends Controller
             $items[] = $item;
         }
 
-        // Database operations
+        // 5. DATABASE SYNC
         try {
             if (count($items) > 0) {
                 $model = Attendance::query();
+
+                // Clean up existing records for these users on this date
                 $model->whereIn("employee_id", array_column($items, "employee_id"))
                     ->where("date", $date)
                     ->where("company_id", $id)
                     ->delete();
 
+                // Insert new processed records in chunks
                 foreach (array_chunk($items, 100) as $chunk) {
                     Attendance::insert($chunk);
                 }
 
+                // Mark logs as checked
                 $logsUpdated = AttendanceLog::where("company_id", $id)
                     ->whereIn("UserID", array_column($items, "employee_id"))
                     ->where("LogTime", ">=", $date)
@@ -176,13 +194,14 @@ class SplitShiftController extends Controller
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
                         "channel"          => $channel,
+                        "log_message"      => "Multi-render processed: " . count($items) . " records",
                     ]);
             }
         } catch (\Throwable $e) {
-            $this->logOutPut($this->logFilePath, $e->getMessage());
+            $this->logOutPut($this->logFilePath, "Error in render: " . $e->getMessage());
         }
 
-        return "[" . $date . " " . date("H:i:s") . "] Processed " . count($items) . " employees.";
+        return "[" . $date . " " . date("H:i:s") . "] " . count($items) . " employees rendered. Status: " . $message;
     }
 
 
