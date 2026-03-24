@@ -57,6 +57,7 @@ class SplitShiftController extends Controller
         return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
+
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
@@ -80,14 +81,15 @@ class SplitShiftController extends Controller
             $params["UserIds"] = $UserIds ?: (new Employee)->where("company_id", $id)->pluck("system_user_id")->toArray();
         }
 
-        // 2. Build Employee Query (inlined from attendanceEmployeeForMultiRender)
+        // 2. Build Employee Query
         $employees = Employee::query()
             ->where("company_id", $id)
             ->whereIn("system_user_id", $params["UserIds"] ?? [])
             ->withOut(["department", "sub_department", "designation"])
             ->with(["schedule" => function ($q) use ($id, $date, $shift_type_id) {
                 $q->where("company_id", $id);
-                $q->where("to_date", ">=", $date);
+                $q->where("from_date", "<=", $date);  // ✅ schedule must have started
+                $q->where("to_date", ">=", $date);    // ✅ schedule must not have ended
                 $q->where("shift_type_id", $shift_type_id);
                 $q->withOut("shift_type");
                 $q->orderBy("to_date", "asc");
@@ -102,12 +104,12 @@ class SplitShiftController extends Controller
             }])
             ->get(["system_user_id"]);
 
-        $items = [];
+        $items   = [];
         $message = "";
 
         // 3. Loop through every employee
         foreach ($employees as $row) {
-            $employeeId = $row->system_user_id;
+            $employeeId           = $row->system_user_id;
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
@@ -154,8 +156,7 @@ class SplitShiftController extends Controller
                 $currentLog = $data[$i];
                 $nextLog    = $data[$i + 1] ?? null;
 
-                $inTimeRaw  = $currentLog->LogTime;
-                $outTimeRaw = "---";
+                $inTimeRaw = $currentLog->LogTime;
 
                 if ($nextLog) {
                     $outTimeRaw = $nextLog->LogTime;
