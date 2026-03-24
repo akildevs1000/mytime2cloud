@@ -187,6 +187,13 @@ class SplitShiftController extends Controller
 
             if (!$isPair) {
                 $status = Attendance::MISSING;
+            } else {
+                $status = Attendance::PRESENT;
+            }
+
+
+            if (count($logsJson) === 0) {
+                $status = Attendance::ABSENT;
             }
 
             $items[] = [
