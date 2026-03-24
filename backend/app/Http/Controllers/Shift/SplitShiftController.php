@@ -225,12 +225,13 @@ class SplitShiftController extends Controller
             }
 
             // Fetch logs WITHOUT filtering by LogType (In/Out)
-            $logs = AttendanceLog::where("company_id", $params["company_id"])
+            return $logs = AttendanceLog::where("company_id", $params["company_id"])
                 ->where("LogTime", ">=", $params["start"])
                 ->where("LogTime", "<=", $params["end"])
                 ->where("UserID", $row->system_user_id)
                 ->whereHas("schedule", function ($q) use ($params) {
                     $q->where("shift_type_id", $params["shift_type_id"]);
+                    $q->where("company_id", $params["company_id"]);
                 })
                 ->orderBy("LogTime", 'asc')
                 ->get()
