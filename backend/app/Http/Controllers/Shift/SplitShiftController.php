@@ -58,6 +58,7 @@ class SplitShiftController extends Controller
         return $this->render($request->company_id, $request->date, $request->shift_type_id, $request->UserIds, $request->custom_render ?? true, $request->channel ?? "unknown");
     }
 
+
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel)
     {
         $params = [
@@ -69,24 +70,32 @@ class SplitShiftController extends Controller
         ];
 
         if (!$custom_render) {
+            // Use the Night version specifically
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
         }
 
+        // This is the query you shared. If it returns an empty collection, 
+        // nothing below will execute.
         $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+
         $items = [];
+        $message = "";
 
         foreach ($employees as $row) {
+            // Safety check for schedule
+            if (!$row->schedule || !$row->schedule->shift) {
+                $message .= "ID: {$row->system_user_id} skipped - No Schedule/Shift found; ";
+                continue;
+            }
+
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
-            $params["shift"]      = $row->schedule->shift ?? false;
+            $params["shift"]      = $row->schedule->shift;
 
-            if (!$params["shift"]) continue;
-
-            // 1. Get ALL raw logs for this user
+            // Fetch logs - Ensure this method returns ALL logs for the user
             $all_logs = (new AttendanceLog)->getLogsWithInRangeNew($params);
             $user_logs = $all_logs[$row->system_user_id] ?? [];
 
-            // 2. STICK TO RAW DATA: Unique by time, Sort by time, and Reset Index
-            // This turns [0=>8am, 5=>1pm, 9=>7pm] into [0=>8am, 1=>1pm, 2=>7pm]
+            // 1. UNIQUE BY TIME & SORT CHRONOLOGICALLY
             $data = collect($user_logs)
                 ->unique('LogTime')
                 ->sortBy('LogTime')
@@ -97,10 +106,10 @@ class SplitShiftController extends Controller
             $logsJson = [];
             $totalMinutes = 0;
 
-            // 3. STEP THROUGH LOGS BY 2 (Sequential Pairing)
+            // 2. PAIR-WISE PROCESSING (Ignore LogType)
             for ($i = 0; $i < $logCount; $i += 2) {
                 $logA = $data[$i];
-                $logB = $data[$i + 1] ?? null; // Second log in the pair
+                $logB = $data[$i + 1] ?? null;
 
                 $timeA = isset($logA['LogTime']) ? date('H:i', strtotime($logA['LogTime'])) : "---";
                 $timeB = ($logB && isset($logB['LogTime'])) ? date('H:i', strtotime($logB['LogTime'])) : "---";
@@ -109,12 +118,11 @@ class SplitShiftController extends Controller
                 if ($logB) {
                     $t1 = strtotime($logA['LogTime']);
                     $t2 = strtotime($logB['LogTime']);
-                    if ($t1 > $t2) $t2 += 86400; // Handle shifts crossing midnight
+                    if ($t1 > $t2) $t2 += 86400; // Midnight handle
                     $diff = ($t2 - $t1) / 60;
                     $totalMinutes += $diff;
                 }
 
-                // We label them 'in' and 'out' for the JSON structure only
                 $logsJson[] = [
                     "in"            => $timeA,
                     "out"           => $timeB,
@@ -124,7 +132,8 @@ class SplitShiftController extends Controller
                 ];
             }
 
-            // 4. STATUS REQUIREMENT: Odd number of logs = MISSING
+            // 3. THE "MISSING" RULE: Any odd count (1, 3, 5) = Missing
+            // We also check if logsJson is empty
             $status = ($logCount % 2 !== 0 || $logCount === 0)
                 ? Attendance::MISSING
                 : Attendance::PRESENT;
@@ -146,9 +155,11 @@ class SplitShiftController extends Controller
             ];
         }
 
-        // 5. CLEAN AND INSERT
+        // 4. SYNC TO DATABASE
         if (count($items) > 0) {
-            Attendance::whereIn("employee_id", array_column($items, "employee_id"))
+            $affectedIds = array_column($items, "employee_id");
+
+            Attendance::whereIn("employee_id", $affectedIds)
                 ->where("date", $date)
                 ->where("company_id", $id)
                 ->delete();
@@ -158,16 +169,16 @@ class SplitShiftController extends Controller
             }
 
             AttendanceLog::where("company_id", $id)
-                ->whereIn("UserID", array_column($items, "employee_id"))
+                ->whereIn("UserID", $affectedIds)
                 ->whereDate("LogTime", $date)
                 ->update([
-                    "checked" => true,
+                    "checked"          => true,
                     "checked_datetime" => date('Y-m-d H:i:s'),
-                    "channel" => $channel
+                    "channel"          => $channel
                 ]);
         }
 
-        return "Processed " . count($items) . " records for " . $date;
+        return "Processed " . count($items) . " records for " . $date . ". Errors: " . $message;
     }
 
 
