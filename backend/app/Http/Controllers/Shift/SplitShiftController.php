@@ -67,7 +67,7 @@ class SplitShiftController extends Controller
             "UserIds"       => $UserIds,
         ];
 
-        // 1. Cache Holiday Check (Crucial for performance during range regeneration)
+        // 1. Cache Holiday Check
         $isHoliday = Cache::remember("holiday_{$id}_{$date}", 3600, function () use ($id, $date) {
             return DB::table('holidays')
                 ->where('company_id', $id)
@@ -77,32 +77,48 @@ class SplitShiftController extends Controller
         });
 
         if (!$custom_render) {
-            // If we are regenerating a range, we MUST ensure UserIds is not empty
-            // If it's empty, we get all employees for the company
             $params["UserIds"] = $UserIds ?: (new Employee)->where("company_id", $id)->pluck("system_user_id")->toArray();
         }
 
-        // 2. Get the target employees 
-        // We use a simple pluck if the multi-render query is skipping people with no logs
-        $employees = (new Employee)->attendanceEmployeeForMultiRender($params);
+        // 2. Build Employee Query (inlined from attendanceEmployeeForMultiRender)
+        $employees = Employee::query()
+            ->where("company_id", $id)
+            ->whereIn("system_user_id", $params["UserIds"] ?? [])
+            ->withOut(["department", "sub_department", "designation"])
+            ->with(["schedule" => function ($q) use ($id, $date, $shift_type_id) {
+                $q->where("company_id", $id);
+                $q->where("to_date", ">=", $date);
+                $q->where("shift_type_id", $shift_type_id);
+                $q->withOut("shift_type");
+                $q->orderBy("to_date", "asc");
+                $q->whereHas("shift", function ($shiftQuery) use ($date) {
+                    $day = Carbon::parse($date)->format("D");
+                    if (DB::getDriverName() === 'pgsql') {
+                        $shiftQuery->whereJsonContains("days", $day);
+                    } else {
+                        $shiftQuery->where("days", "LIKE", '%"' . $day . '"%');
+                    }
+                });
+            }])
+            ->get(["system_user_id"]);
 
         $items = [];
         $message = "";
 
-        // 3. Loop through EVERY employee found
+        // 3. Loop through every employee
         foreach ($employees as $row) {
             $employeeId = $row->system_user_id;
             $params["isOverTime"] = $row->schedule->isOverTime ?? false;
             $params["shift"]      = $row->schedule->shift ?? false;
 
-            // Skip if no shift is assigned (you can't render attendance without a shift)
+            // Skip if no shift is assigned
             if (!$params["shift"]) {
                 $message .= "{$employeeId}: No shift; ";
                 continue;
             }
 
             // 4. Default Status (H/W/A) for days with NO logs
-            $dayOfWeek = date('D', strtotime($date));
+            $dayOfWeek     = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
 
             if ($isHoliday) {
@@ -126,14 +142,14 @@ class SplitShiftController extends Controller
                 ->get()
                 ->load("device");
 
-            $data = collect($logs)->unique('LogTime')->values();
+            $data  = collect($logs)->unique('LogTime')->values();
             $count = $data->count();
 
             $totalMinutes = 0;
             $logsJson     = [];
-            $i = 0;
+            $i            = 0;
 
-            // 6. Pairing Logic (Handles incomplete pairs with ---)
+            // 6. Pairing Logic
             while ($i < $count) {
                 $currentLog = $data[$i];
                 $nextLog    = $data[$i + 1] ?? null;
@@ -150,7 +166,7 @@ class SplitShiftController extends Controller
                         $parsedOut += 86400;
                     }
 
-                    $minutes = ($parsedOut - $parsedIn) / 60;
+                    $minutes       = ($parsedOut - $parsedIn) / 60;
                     $totalMinutes += $minutes;
 
                     $logsJson[] = [
@@ -173,7 +189,7 @@ class SplitShiftController extends Controller
                 }
             }
 
-            // 7. PREPARE RECORD (Even if $count is 0, we push this item)
+            // 7. Prepare Record
             $item = [
                 "employee_id"   => $employeeId,
                 "company_id"    => $id,
@@ -181,22 +197,21 @@ class SplitShiftController extends Controller
                 "shift_id"      => $params["shift"]->id ?? 0,
                 "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
                 "total_hrs"     => ($totalMinutes > 0) ? $this->minutesToHours($totalMinutes) : "00:00",
-
-                // Per your request: main table shows ---
                 "in"            => "---",
                 "out"           => "---",
-
-                // Status: 0 logs = Default (H/W/A), Odd = MISSING, Even = PRESENT
                 "status"        => ($count == 0) ? $defaultStatus : (($count % 2 !== 0) ? Attendance::MISSING : Attendance::PRESENT),
                 "logs"          => json_encode($logsJson),
                 "ot"            => "---",
             ];
 
             if ($params["isOverTime"] && $totalMinutes > 0) {
-                $item["ot"] = $this->calculatedOT($item["total_hrs"], $params["shift"]->working_hours, $params["shift"]->overtime_interval);
+                $item["ot"] = $this->calculatedOT(
+                    $item["total_hrs"],
+                    $params["shift"]->working_hours,
+                    $params["shift"]->overtime_interval
+                );
             }
 
-            // Pushing to items ensures the row is created even for empty dates
             $items[] = $item;
         }
 
@@ -218,7 +233,7 @@ class SplitShiftController extends Controller
                     ->update([
                         "checked"          => true,
                         "checked_datetime" => date('Y-m-d H:i:s'),
-                        "channel"          => $channel
+                        "channel"          => $channel,
                     ]);
             }
         }
