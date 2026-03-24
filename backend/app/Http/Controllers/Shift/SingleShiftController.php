@@ -355,10 +355,16 @@ class SingleShiftController extends Controller
 
                 $lastLog = $employeeLogs->last(fn($record) => in_array(strtolower($record->log_type), ["out", "auto", null]));
 
+
+                $logCount = $employeeLogs->count();
+
+                if ($logCount === 1) {
+                    $item["status"] = "M";
+                }
+
                 if ($firstLog) {
                     // If log exists, we override Holiday/Absent/WeekOff
                     // Default to "M" (Missing Out) if only 1 log exists
-                    $item["status"] = "M";
                     $item["in"] = $firstLog->time;
                     $item["device_id_in"] = $firstLog->DeviceID;
 
