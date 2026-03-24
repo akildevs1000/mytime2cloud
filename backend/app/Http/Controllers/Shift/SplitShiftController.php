@@ -209,24 +209,28 @@ class SplitShiftController extends Controller
             $params["shift"]      = $row->schedule->shift ?? false;
 
             if (!$params["shift"]) {
-                $message .= "{$row->system_user_id}: No shift; ";
+                $message .= "{$row->system_user_id}: No shift configured; ";
                 continue;
             }
 
-            /** * 1. Fetch ALL logs using log_date.
-             * We remove whereHas("schedule") to ensure no logs are hidden.
+            /**
+             * 1. Fetch ALL logs for the user on this log_date.
              */
             $logs = AttendanceLog::where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
-                ->where("log_date", $date) // Using log_date column as requested
+                ->where("log_date", $date)
                 ->orderBy("LogTime", 'asc')
                 ->get()
                 ->load("device");
 
-            $data = $logs->values();
+            /**
+             * 2. Apply Unique Filter
+             * This removes exact duplicate timestamps to keep the pairing sequence clean.
+             */
+            $data = collect($logs)->unique('LogTime')->values();
             $count = $data->count();
 
-            // Standard Week-off / Holiday check
+            // Attendance Status (Week-off/Holiday check)
             $dayOfWeekThreeLetter = date('D', strtotime($date));
             $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
             $status = Attendance::processWeekOffFunc($currentDayKey, $params["shift"]->weekoff_rules ?? "A", $id, $date, $row->system_user_id, $data->first()) ?? "A";
@@ -236,10 +240,8 @@ class SplitShiftController extends Controller
             $i = 0;
 
             /**
-             * 2. Sequential Pairing
-             * Takes every log found. If 3 exist:
-             * Pair 1: Log 1 (In) - Log 2 (Out)
-             * Pair 2: Log 3 (In) - "---" (Out)
+             * 3. Sequential Pairing Logic
+             * Mapping logs to pairs (In/Out) regardless of LogType.
              */
             while ($i < $count) {
                 $currentLog = $data[$i];
@@ -253,7 +255,7 @@ class SplitShiftController extends Controller
                     $parsedIn  = strtotime($inTimeRaw);
                     $parsedOut = strtotime($outTimeRaw);
 
-                    // Handle midnight cross if log_date is the same but times wrap
+                    // Handle midnight wrap
                     if ($parsedOut < $parsedIn) {
                         $parsedOut += 86400;
                     }
@@ -270,7 +272,7 @@ class SplitShiftController extends Controller
                     ];
                     $i += 2;
                 } else {
-                    // Odd numbered log (Entry with no Exit)
+                    // Standalone punch (Missing Out)
                     $logsJson[] = [
                         "in"            => date("H:i", strtotime($inTimeRaw)),
                         "out"           => "---",
@@ -282,7 +284,7 @@ class SplitShiftController extends Controller
                 }
             }
 
-            // 3. Prepare result item
+            // 4. Prepare the Attendance Record
             $item = [
                 "employee_id"   => $row->system_user_id,
                 "company_id"    => $id,
@@ -290,8 +292,18 @@ class SplitShiftController extends Controller
                 "shift_id"      => $params["shift"]->id ?? 0,
                 "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "in"            => isset($logsJson[0]) ? $logsJson[0]['in'] : "---",
-                "out"           => count($logsJson) > 0 ? (end($logsJson)['out'] !== "---" ? end($logsJson)['out'] : "---") : "---",
+
+                // Map table columns
+                "in"            => $logsJson[0]['in'] ?? "---",
+                "out"           => count($logsJson) > 0 ? end($logsJson)['out'] : "---",
+                "in1"           => $logsJson[0]['in'] ?? "---",
+                "out1"          => $logsJson[0]['out'] ?? "---",
+                "in2"           => $logsJson[1]['in'] ?? "---",
+                "out2"          => $logsJson[1]['out'] ?? "---",
+                "in3"           => $logsJson[2]['in'] ?? "---",
+                "out3"          => $logsJson[2]['out'] ?? "---",
+
+                // Status: If punch count is odd, mark as MISSING/Incomplete
                 "status"        => ($count > 0 && $count % 2 !== 0) ? Attendance::MISSING : ($count > 0 ? Attendance::PRESENT : $status),
                 "logs"          => json_encode($logsJson),
             ];
@@ -303,18 +315,20 @@ class SplitShiftController extends Controller
             $items[] = $item;
         }
 
-        // 4. Bulk Save
+        // 5. Bulk Database Update
         if (count($items) > 0) {
+            // Remove existing records for this day to avoid duplicates
             Attendance::where("company_id", $id)
                 ->where("date", $date)
                 ->whereIn("employee_id", array_column($items, "employee_id"))
                 ->delete();
 
+            // Batch insert new records
             foreach (array_chunk($items, 100) as $chunk) {
                 Attendance::insert($chunk);
             }
 
-            // Update logs to checked
+            // Mark raw logs as checked
             AttendanceLog::where("company_id", $id)
                 ->whereIn("UserID", $UserIds)
                 ->where("log_date", $date)
@@ -326,26 +340,5 @@ class SplitShiftController extends Controller
         }
 
         return "[" . $date . " " . date("H:i:s") . "] Processed " . count($items) . " records.";
-    }
-
-    private function getLogTime($log, $validFunctions, $manualDeviceID)
-    {
-        // return $log && $log['time'] ? $log['time'] : "---";
-
-        if (isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions)) {
-            return $log['time'];
-        } else if (in_array($log["DeviceID"], $manualDeviceID)) {
-            return $log['time'];
-        }
-
-        return "---";
-    }
-    private function getDeviceName($log, $validFunctions)
-    {
-        if ($log['device']['name'] == "---") {
-            return "Manual";
-        }
-
-        return isset($log["device"]["function"]) && in_array($log["device"]["function"], $validFunctions) ? $log["device"]["function"] : "---";
     }
 }
