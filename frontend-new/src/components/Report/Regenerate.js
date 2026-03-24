@@ -149,9 +149,6 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
     };
 
     const onSubmit = async () => {
-
-        setResponse(["Regenerating..."]);
-
         if (!selectedIds.length) {
             notify("Error", "Employee must be selected", "error");
             return;
@@ -162,61 +159,66 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
             return;
         }
 
+        setResponse(["Regenerating..."]);
         setLoading(true);
 
+        let success = false; // 👈 track whether the main block succeeded
+
         try {
-            // 1. Generate the list of individual dates
             const dateArray = [];
             let currentDate = new Date(from);
             const stopDate = new Date(to);
 
             while (currentDate <= stopDate) {
-                // Format as YYYY-MM-DD
-                dateArray.push(currentDate.toISOString().split('T')[0]);
+                dateArray.push(currentDate.toISOString().split("T")[0]);
                 currentDate.setDate(currentDate.getDate() + 1);
             }
 
-            const allResponses = [];
+            const results = await Promise.allSettled(
+                dateArray.map((targetDate) =>
+                    regenerateReport({
+                        dates: [targetDate, targetDate],
+                        reason: "",
+                        employee_ids: selectedIds,
+                        shift_type_id,
+                        company_id: 60,
+                        company_ids: [60],
+                    })
+                )
+            );
 
-            // 2. Loop through each date and call the API
-            for (const targetDate of dateArray) {
-                let json = {
-                    "dates": [targetDate, targetDate], // Start and end are the same day
-                    "reason": "",
-                    "employee_ids": selectedIds,
-                    "shift_type_id": shift_type_id,
-                    "company_id": 60, // Added based on your URL example
-                    "company_ids": [60]
-                };
-
-                const dayResult = await regenerateReport(json);
-
-                if (Array.isArray(dayResult)) {
-                    setResponse((prev) => [
-                        ...prev,
-                        ...dayResult // This spreads the 4-5 logs into the main list
-                    ]);
-                } else {
-                    // Fallback if the API returns a single object or error message
-                    setResponse((prev) => [...prev, `[${targetDate}] No data returned.`]);
+            const allLogs = results.flatMap((result, index) => {
+                if (result.status === "fulfilled" && Array.isArray(result.value)) {
+                    return result.value;
                 }
+                const label = `[${dateArray[index]}]`;
+                return result.status === "rejected"
+                    ? [`${label} Failed: ${result.reason?.message ?? "Unknown error"}`]
+                    : [`${label} No data returned.`];
+            });
 
-            }
+            setResponse(allLogs);
+            success = true; // 👈 only set true if we reach this point
+
         } catch (error) {
-            console.log(error);
+            console.error(error);
             await notify("Error", parseApiError(error), "error");
         } finally {
+            if (success) { // 👈 only call PDF API if the main block completed cleanly
+                try {
+                    const res = await regenerateReportForPDF({
+                        request_type: "manual_render",
+                        employee_ids: selectedIds,
+                        company_id: 60,
+                        template: "Template1",
+                    });
+                    // await notify("Success", res.message, "success");
 
-            let json = {
-                "request_type": "manual_render",
-                "employee_ids": selectedIds,
-                "company_id": 60, // Added based on your URL example
-                "template": "Template1",
-            };
-
-            let res = await regenerateReportForPDF(json);
-
-            console.log(res);
+                } catch (pdfError) {
+                    console.error("PDF generation failed:", pdfError);
+                    await notify("Warning", "Report regenerated but PDF render failed.", "warning");
+                }
+            }
 
             setLoading(false);
         }
@@ -437,12 +439,12 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
                                                         {/* Status Indicator */}
                                                         <div
                                                             className={`mt-1 w-2.5 h-2.5 rounded-full ${hasNoData
-                                                                    ? "bg-amber-400"
-                                                                    : isSync
-                                                                        ? "bg-blue-400"
-                                                                        : isShift
-                                                                            ? "bg-green-400"
-                                                                            : "bg-gray-400"
+                                                                ? "bg-amber-400"
+                                                                : isSync
+                                                                    ? "bg-blue-400"
+                                                                    : isShift
+                                                                        ? "bg-green-400"
+                                                                        : "bg-gray-400"
                                                                 }`}
                                                         />
 

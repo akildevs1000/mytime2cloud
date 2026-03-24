@@ -232,7 +232,7 @@ export default function AttendanceTable() {
 
   useEffect(() => {
     fetchScheduledEmployees();
-  }, [selectedDepartmentIds,shiftTypeId]);
+  }, [selectedDepartmentIds, shiftTypeId]);
 
 
   // Clear selectedEmployeeIds when shiftTypeId (tab) changes
@@ -441,6 +441,13 @@ export default function AttendanceTable() {
     setIsButtonclicked(true);
     fetchRecords(shiftTypeId);
   }
+
+  // Refresh data when pagination changes and submit has been clicked
+  useEffect(() => {
+    if (isButtonclicked) {
+      fetchRecords(shiftTypeId);
+    }
+  }, [currentPage, perPage]);
 
   useEffect(() => {
     fetchRecords(shiftTypeId)
