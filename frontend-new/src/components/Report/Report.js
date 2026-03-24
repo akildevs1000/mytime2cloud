@@ -234,9 +234,15 @@ export default function AttendanceTable() {
     fetchScheduledEmployees();
   }, [selectedDepartmentIds,shiftTypeId]);
 
-  useEffect(() => {
-  }, [selectedEmployeeIds]);
 
+  // Clear selectedEmployeeIds when shiftTypeId (tab) changes
+  useEffect(() => {
+    setSelectedEmployeeIds([]);
+  }, [shiftTypeId]);
+
+  useEffect(() => {
+    // ...existing code...
+  }, [selectedEmployeeIds]);
   const [params, setParams] = useState(null);
 
   const fetchRecords = async (shiftTypeId) => {
@@ -387,6 +393,8 @@ export default function AttendanceTable() {
           'employee_id[]': selectedEmployeeIds,
           filterType: 'Monthly'
         };
+
+        console.log("Generating report", payload, new Date().toISOString());
 
         try {
           const data = await startReportGeneration(payload);

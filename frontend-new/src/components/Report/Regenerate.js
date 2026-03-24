@@ -93,7 +93,10 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
 
     const [form, setForm] = useState(defaultPayload);
-    const toggleModal = () => setOpen(!open);
+    const toggleModal = () => {
+        if (!open) setSelectedIds([]); // Clear selected employee IDs when opening
+        setOpen(!open);
+    };
 
     useEffect(() => {
         if (open) {
@@ -115,15 +118,23 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
         const fetchEmployees = async (selectedDepartmentIds) => {
             try {
-                console.log(`await getScheduledEmployeeList()`);
                 let emp = await getScheduledEmployeeList(selectedDepartmentIds);
-                let data = emp.map(e => ({
+
+                let data = emp.filter(e => {
+                    const id = e.schedule.shift_type_id;
+
+                    // Logical Rule: 
+                    // If shiftTypeId is 0, return everything EXCEPT 2 and 5.
+                    // Otherwise, match the shiftTypeId exactly.
+                    return shift_type_id == 0
+                        ? (id != 2 && id != 5)
+                        : id == shift_type_id;
+                }).map(e => ({
                     ...e,
                     name: e.full_name || e.name
                 }));
                 setEmployees(data || []);
                 setFilteredEmployees(data || []);
-                console.log(`await getScheduledEmployeeList()`);
             } catch (error) {
                 setError(parseApiError(error));
             }
@@ -193,7 +204,6 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
             }
         } catch (error) {
             console.log(error);
-
             await notify("Error", parseApiError(error), "error");
         } finally {
 
@@ -247,7 +257,6 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
         );
 
         setFilteredEmployees(filtered);
-        console.log("Searching API for:", value);
     }, 500);
 
     const handleSearch = (e) => {
@@ -258,7 +267,7 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
     return (
         <>
-            <button onClick={() => setOpen(true)}
+            <button onClick={toggleModal}
                 className="bg-primary hover:bg-blue-600 text-white text-sm font-semibold py-2 px-3 rounded-lg flex items-center gap-1 transition-all shadow-lg shadow-primary/20"
             >
                 <RefreshCcw size={15} />
@@ -408,12 +417,17 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
 
                                 <div className="grid grid-cols-1 gap-6">
                                     <section className="bg-surface-light dark:bg-surface-dark rounded-3xl p-6 shadow-elevation-1 border border-gray-200 dark:border-white/5 h-full">
-
                                         <div className="flex flex-col gap-3">
-                                            {response.map((row, index) => {
-                                                const hasNoData = row.toLowerCase().includes("no data") || row.toLowerCase().includes("No valid");
-                                                const isShift = row.toLowerCase().includes("shift");
-                                                const isSync = row.toLowerCase().includes("sync");
+                                            {/* Ensure response is an array before mapping */}
+                                            {Array.isArray(response) && response.map((row, index) => {
+                                                // Convert row to string safely. If it's an object, we take a fallback string.
+                                                const rowText = typeof row === 'string' ? row : JSON.stringify(row);
+
+                                                const lowerRow = rowText.toLowerCase();
+
+                                                const hasNoData = lowerRow.includes("no logs") || lowerRow.includes("no valid") || lowerRow.includes("no data");
+                                                const isShift = lowerRow.includes("shift");
+                                                const isSync = lowerRow.includes("updated logs") || lowerRow.includes("sync");
 
                                                 return (
                                                     <div
@@ -423,19 +437,19 @@ const RegenerateReport = ({ shift_type_id, onSuccess = () => { } }) => {
                                                         {/* Status Indicator */}
                                                         <div
                                                             className={`mt-1 w-2.5 h-2.5 rounded-full ${hasNoData
-                                                                ? "bg-amber-400"
-                                                                : isSync
-                                                                    ? "bg-blue-400"
-                                                                    : isShift
-                                                                        ? "bg-green-400"
-                                                                        : "bg-gray-400"
+                                                                    ? "bg-amber-400"
+                                                                    : isSync
+                                                                        ? "bg-blue-400"
+                                                                        : isShift
+                                                                            ? "bg-green-400"
+                                                                            : "bg-gray-400"
                                                                 }`}
                                                         />
 
                                                         {/* Log Text */}
                                                         <div className="flex-1">
                                                             <p className="font-mono text-sm text-gray-800 dark:text-gray-200 leading-relaxed">
-                                                                {row}
+                                                                {rowText}
                                                             </p>
                                                         </div>
                                                     </div>
