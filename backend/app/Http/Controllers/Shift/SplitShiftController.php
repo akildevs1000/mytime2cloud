@@ -89,6 +89,11 @@ class SplitShiftController extends Controller
             $q->orderBy("to_date", "asc");
         }]);
 
+        $employees->whereHas("schedule", function ($q) use ($params) {
+            $q->where("company_id", $params["company_id"]);
+            $q->where("shift_type_id", 5); // Check for logs on or after the current date
+        });
+
         $employees = $employees->get(["system_user_id"]);
 
 
