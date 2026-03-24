@@ -173,12 +173,8 @@ class SplitShiftController extends Controller
                 "shift_id"      => $params["shift"]->id ?? 0,
                 "shift_type_id" => $params["shift"]->shift_type_id ?? 0,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
-                "in"            => $logsJson[0]['in'] ?? "---",
-                "out"           => count($logsJson) > 0 ? end($logsJson)['out'] : "---",
-                "in1"           => $logsJson[0]['in'] ?? "---",
-                "out1"          => $logsJson[0]['out'] ?? "---",
-                "in2"           => $logsJson[1]['in'] ?? "---",
-                "out2"          => $logsJson[1]['out'] ?? "---",
+                "in"            => "---",
+                "out"           =>  "---",
 
                 // PRIORITY: If logs exist, check if pair is complete. If no logs, use Default Status.
                 "status"        => ($count == 0) ? $defaultStatus : (($count % 2 !== 0) ? Attendance::MISSING : Attendance::PRESENT),
