@@ -252,6 +252,6 @@ class SplitShiftController extends Controller
             }
         }
 
-        return "[" . $date . " " . date("H:i:s") . "] Processed " . count($items) . " records.";
+        return $items;
     }
 }
