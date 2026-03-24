@@ -75,6 +75,8 @@ class MonthlyController extends Controller
             return response()->json(['error' => "Directory not found: {$directory}"], 404);
         }
 
+        $employeeIds = array_unique(array_filter($employeeIds));
+
         $pdfFiles = [];
 
         try {
