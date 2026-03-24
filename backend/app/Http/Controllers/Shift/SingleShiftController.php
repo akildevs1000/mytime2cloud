@@ -328,6 +328,10 @@ class SingleShiftController extends Controller
             $matchedSchedule = $empSchedules->first(fn($sch) => in_array($dayOfWeek, $sch->shift->days ?? [])) ?: $empSchedules->first();
             $shiftData = $matchedSchedule->shift ?? null;
 
+
+            $shiftData = Attendance::processHalfDay($currentDayKey, $shiftData['halfday_rules'] ?? null, $shiftData);
+
+
             $defaultStatus = $isHoliday
                 ? "H"
                 : Attendance::processWeekOffFunc($currentDayKey, $shiftData['weekoff_rules'] ?? "A", $id, $date, $employeeId, null);
