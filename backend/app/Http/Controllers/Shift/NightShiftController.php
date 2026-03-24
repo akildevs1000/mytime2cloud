@@ -74,41 +74,8 @@ class NightShiftController extends Controller
         if ($isRequestFromAutoshift) {
             $logsEmployees =  (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params);
         } else {
-            // $logsEmployees =  (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
-
-
-            $days = 1;
-            if ($params['shift_type_id'] == 4) {
-                $days = 2;
-            }
-
-
-            $logsEmployees = AttendanceLog::with("visitor")->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
-                ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +" . $days . " day")))
-                //->whereIn("UserID", $params["UserIds"])
-                ->when($params["UserIds"] != null, function ($q) use ($params) {
-
-                    return $q->whereIn("UserID", $params["UserIds"]);
-                })
-                ->where("company_id", $params["company_id"])
-                ->whereHas("schedule", fn($q) => $q->where("isAutoShift", false))
-                ->distinct("LogTime", "UserID", "company_id")
-                ->orderBy("LogTime", "asc")
-                ->get()
-                ->load("device")
-                ->load(["schedule" => function ($q) use ($params) {
-                    $q->where("company_id", $params["company_id"]);
-                    $q->where("to_date", ">=", $params["date"]);
-                    $q->where("shift_type_id", $params["shift_type_id"]);
-                    $q->withOut("shift_type");
-                    // $q->select("shift_id", "isOverTime", "employee_id", "shift_type_id", "shift_id", "shift_id");
-                    $q->orderBy("to_date", "asc");
-                }])
-                ->whereHas("schedule", function ($q) use ($params) {
-                    $q->where("company_id", $params["company_id"]);
-                    $q->where("shift_type_id", $params["shift_type_id"]);
-                })
-                ->groupBy(['UserID']);
+            //$logsEmployees =  (new AttendanceLog)->getLogsForRender($params);
+            $logsEmployees =  (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
         }
 
         //update atendance table with shift ID if shift with employee not found 
