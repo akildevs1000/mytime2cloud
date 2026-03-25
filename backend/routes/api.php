@@ -64,3 +64,5 @@ include('manager-login.php');
 include('ai_feeds.php');
 
 include('ai_trigger.php');
+
+include('reports_monthly_pdf.php');
