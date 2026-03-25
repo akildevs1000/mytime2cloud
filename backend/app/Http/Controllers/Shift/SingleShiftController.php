@@ -221,7 +221,7 @@ class SingleShiftController extends Controller
                             );
 
                             if ($item["late_coming"] != "---") {
-                                $item["status"] = "LC";
+                                // $item["status"] = "LC";
                             }
                         }
 
@@ -270,7 +270,7 @@ class SingleShiftController extends Controller
                                 );
 
                                 if ($item["early_going"] != "---") {
-                                    $item["status"] = "EG";
+                                    // $item["status"] = "EG";
                                 }
                             }
 
@@ -476,7 +476,7 @@ class SingleShiftController extends Controller
                             );
 
                             if ($item["late_coming"] != "---") {
-                                $item["status"] = "LC";
+                                // $item["status"] = "LC";
                             }
                         }
 
@@ -525,7 +525,7 @@ class SingleShiftController extends Controller
                                 );
 
                                 if ($item["early_going"] != "---") {
-                                    $item["status"] = "EG";
+                                    // $item["status"] = "EG";
                                 }
                             }
 
