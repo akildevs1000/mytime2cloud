@@ -153,7 +153,7 @@ class FiloShiftController extends Controller
             }
 
             // Logic to define shift range (handle overnight shifts)
-            $onDutyStr = $date . ' ' . $shift["on_duty_time"];
+            $onDutyStr = $date . ' ' . $shift["on_duty_time"] . ":00";
             $offDutyStr = $date . ' ' . $shift["off_duty_time"];
 
             // If off_duty is earlier than on_duty, it ends the next day
