@@ -47,8 +47,8 @@ class EmployeeControllerNew extends Controller
                 'last_name'            => 'required|string|max:100',
                 'full_name'            => 'required|string|max:255',
                 'display_name'         => 'nullable|string|max:255',
-                'employee_id'          => ['required', 'max:6', $controller->uniqueRecord("employees", $employee)],
-                'system_user_id'       => ['required', 'digits_between:1,6', 'numeric', $controller->uniqueRecord('employees', $employeeDevice)],
+                'employee_id'          => ['required', 'max:10', $controller->uniqueRecord("employees", $employee)],
+                'system_user_id'       => ['required', 'digits_between:1,10', 'numeric', $controller->uniqueRecord('employees', $employeeDevice)],
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
                 'department_id'        => 'required|integer|exists:departments,id', // Assumes a 'departments' table
                 'designation_id'        => 'required|integer|exists:designations,id', // Assumes a 'departments' table
@@ -279,8 +279,8 @@ class EmployeeControllerNew extends Controller
                 'full_name'            => 'required|string|max:255',
                 'display_name'         => 'nullable|string|max:255',
 
-                'employee_id'          => 'required|string|max:6',
-                'system_user_id'       => 'required|string|max:6',
+                'employee_id'          => 'required|string|max:10',
+                'system_user_id'       => 'required|string|max:10',
 
 
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
