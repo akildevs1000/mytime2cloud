@@ -102,7 +102,19 @@ class SingleShiftController extends Controller
             ->get()
             ->keyBy("employee_id");
 
+
+        $dayOfWeek = date('D', strtotime($date));
+        $currentDayKey = Attendance::DAY_MAP[$dayOfWeek] ?? '';
+
+        $isHoliday = Holidays::isHoliday($id, $date);
+
         foreach ($logsEmployees as $key => $logs) {
+
+
+            $defaultStatus = $isHoliday
+                ? "H"
+                : Attendance::processWeekOffFunc($currentDayKey, $shiftData['weekoff_rules'] ?? "A", $id, $date, $key, null);
+
 
 
             $logs = $logs->toArray() ?? [];
@@ -160,7 +172,7 @@ class SingleShiftController extends Controller
                 "employee_id" => $key,
                 "shift_id" => $shift["id"] ?? 0,
                 "shift_type_id" => $shift["shift_type_id"] ?? 0,
-                "status" => "M",
+                "status" =>  $defaultStatus ?? "A",
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
