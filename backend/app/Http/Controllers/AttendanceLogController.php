@@ -220,8 +220,6 @@ class AttendanceLogController extends Controller
             ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
             ->toArray();
 
-        $inTypeValues = ['in', 'auto', 'entry']; // Define this once outside the loop
-
         $records = [];
 
         foreach ($result["data"] as $row) {
@@ -238,14 +236,16 @@ class AttendanceLogController extends Controller
                 ? strtolower($deviceFunctionMap[$deviceId])
                 : '';
 
-            // 3. Determine the LogType based on your requirements
-            if (in_array($deviceFunction, $inTypeValues)) {
+            if ($deviceFunction === 'auto' || $deviceFunction === 'Auto') {
+                // If the device is set to Auto, store it as 'Auto'
+                $logType = 'Auto';
+            } elseif ($deviceFunction === 'in' || $deviceFunction === 'In') {
                 $logType = 'In';
-            } elseif ($deviceFunction === 'out') {
+            } elseif ($deviceFunction === 'out' || $deviceFunction === 'Out') {
                 $logType = 'Out';
             } else {
-                // Fallback: check if 'in' is part of the DeviceID string itself
-                $logType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Out';
+                // Fallback: check if 'in' is part of the DeviceID string
+                $logType = null;
             }
 
             $records[] = [
