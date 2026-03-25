@@ -37,8 +37,7 @@ import { downloadReport } from '@/lib/endpoint/report';
 
 const reportTemplates = [
   { id: `Template1`, name: `Monthly Report Format A` },
-  { id: `Template2`, name: `Monthly Report Format B` },
-  { id: 'Template4', name: 'Monthly Report Format C' },
+  { id: 'Template4', name: 'Monthly Report Format B' },
 
   { id: `Template3`, name: `Daily` },
 ];
