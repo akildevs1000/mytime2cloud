@@ -51,7 +51,7 @@ class EmployeeControllerNew extends Controller
                 'system_user_id'       => ['required', 'digits_between:1,10', 'numeric', $controller->uniqueRecord('employees', $employeeDevice)],
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
                 'department_id'        => 'required|integer|exists:departments,id', // Assumes a 'departments' table
-                'designation_id'        => 'required|integer|exists:designations,id', // Assumes a 'departments' table
+                'designation_id'        => 'nullable|integer|exists:designations,id', // Assumes a 'departments' table
                 'joining_date'         => 'required|date',
                 'phone_number'         => 'nullable|string|max:20',
                 'whatsapp_number'      => 'nullable|string|max:20',
@@ -285,7 +285,7 @@ class EmployeeControllerNew extends Controller
 
                 'branch_id'            => 'required|integer',                       // Assumes a 'branches' table
                 'department_id'        => 'required|integer|exists:departments,id', // Assumes a 'departments' table
-                'designation_id'        => 'required|integer|exists:designations,id', // Assumes a 'departments' table
+                'designation_id'        => 'nullable|integer|exists:designations,id', // Assumes a 'departments' table
                 'joining_date'         => 'required|date',
                 'phone_number'         => 'nullable|string|max:20',
                 'whatsapp_number'      => 'nullable|string|max:20',
