@@ -277,6 +277,25 @@ class SingleShiftController extends Controller
                 ->distinct("UserID")
                 ->pluck('UserID')
                 ->toArray();
+        } else {
+            $params["UserIds"] = AttendanceLog::where("company_id", $params["company_id"])
+                ->when(!$params["custom_render"], fn($q) => $q->where("checked", false))
+                ->where("LogTime", ">=", $params["date"])
+                ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day")))
+                ->whereNotIn('UserID', function ($query) {
+                    $query->select('system_user_id')
+                        ->where('visit_from', "<=", date('Y-m-d'))
+                        ->where('visit_to', ">=", date('Y-m-d'))
+                        ->from('visitors');
+                })
+                ->whereHas("employee.schedule", function ($q) use ($params, $isRequestFromAutoshift) {
+                    $q->where("company_id", $params["company_id"]);
+                    $q->where("shift_type_id", 6);
+                    $q->where("isAutoShift", $isRequestFromAutoshift);
+                })
+                ->distinct("UserID")
+                ->pluck('UserID')
+                ->toArray();
         }
 
         if (empty($params["UserIds"])) return "[" . $date . "] No employees found.";
