@@ -98,11 +98,11 @@ class SplitShiftController extends Controller
         $employees->where("company_id", $params["company_id"]);
         $employees->whereIn("system_user_id", $params["UserIds"] ?? []);
         $employees->withOut(["department", "sub_department", "designation"]);
-        $employees->whereHas("attendance_logs", function ($q) use ($params) {
-            $q->where("company_id", $params["company_id"]);
-            $q->where("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
-            $q->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
-        });
+        // $employees->whereHas("attendance_logs", function ($q) use ($params) {
+        //     $q->where("company_id", $params["company_id"]);
+        //     $q->where("LogTime", ">=", $params["date"]); // Check for logs on or after the current date
+        //     $q->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))); // Check for logs on or before the next date
+        // });
 
         $employees->with(["schedule" => function ($q) use ($params) {
             $q->where("company_id", $params["company_id"]);
