@@ -235,7 +235,7 @@ class SingleShiftController extends Controller
             DB::beginTransaction();
             Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])
                 ->where("date", $date)
-                ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
+                // ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
                 ->delete();
             foreach (array_chunk($items, 200) as $chunk) {
                 Attendance::insert($chunk);
@@ -471,7 +471,7 @@ class SingleShiftController extends Controller
             DB::beginTransaction();
             Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])
                 ->where("date", $date)
-                ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
+                // ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
                 ->delete();
             foreach (array_chunk($items, 200) as $chunk) {
                 Attendance::insert($chunk);
