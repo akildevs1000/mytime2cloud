@@ -233,7 +233,10 @@ class SingleShiftController extends Controller
 
         try {
             DB::beginTransaction();
-            Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])->where("date", $date)->delete();
+            Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])
+                ->where("date", $date)
+                ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
+                ->delete();
             foreach (array_chunk($items, 200) as $chunk) {
                 Attendance::insert($chunk);
             }
@@ -463,27 +466,24 @@ class SingleShiftController extends Controller
             $items[] = $item;
         }
 
+
         try {
             DB::beginTransaction();
-
-            Attendance::where("company_id", $id)
-                ->whereIn("employee_id", $params["UserIds"])
+            Attendance::where("company_id", $id)->whereIn("employee_id", $params["UserIds"])
                 ->where("date", $date)
+                ->where("shift_type_id", $params["shift_type_id"]) // use the param passed in
                 ->delete();
-
             foreach (array_chunk($items, 200) as $chunk) {
                 Attendance::insert($chunk);
             }
-
             DB::commit();
-            $message = "[$date] Regenerate successful.";
+            $message = "[$date] Render successful. Cached Data Used.";
         } catch (\Throwable $e) {
             DB::rollback();
             $message = "[$date] Error: " . $e->getMessage();
         }
 
         $this->devLog("render-manual-log", $message);
-
         return $message;
     }
 }

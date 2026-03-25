@@ -100,14 +100,11 @@ class RenderController extends Controller
             }
         }
 
-
-        return (new FiloShiftController)->renderData($request);
-
         return array_merge(
-            // (new AutoShiftController)->renderData($request),
+            (new AutoShiftController)->renderData($request),
             (new FiloShiftController)->renderData($request),
-            // (new SingleShiftController)->renderData($request),
-            // (new NightShiftController)->renderData($request),
+            (new SingleShiftController)->renderData($request),
+            (new NightShiftController)->renderData($request),
         );
     }
 
