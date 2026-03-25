@@ -438,12 +438,12 @@ class SingleShiftController extends Controller
 
                     $item["in"] = $firstLog->time;
                     $item["device_id_in"] = $firstLog->DeviceID;
+                    $item["status"] = "M";
 
                     $hasValidCheckout = $lastLog && $logCount > 1 && $firstLog->time !== $lastLog->time;
 
-                    // ✅ Missing
-                    if (!$hasValidCheckout) {
-                        $item["status"] = "M";
+                    if ($hasValidCheckout) {
+                        $item["status"] = "P";
                     }
 
                     if ($shiftData) {
