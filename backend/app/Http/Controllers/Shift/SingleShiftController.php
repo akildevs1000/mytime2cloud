@@ -456,8 +456,8 @@ class SingleShiftController extends Controller
                                 $shiftData->late_time
                             );
 
-                            if ($item["late_coming"] != "---") {
-                                // $item["status"] = "LC";
+                            if ($item["late_coming"] != "---" && $logCount > 1) {
+                                $item["status"] = "LC";
                             }
                         }
 
@@ -505,8 +505,8 @@ class SingleShiftController extends Controller
                                     $shiftData->early_time
                                 );
 
-                                if ($item["early_going"] != "---") {
-                                    // $item["status"] = "EG";
+                                if ($item["early_going"] != "---" && $logCount > 1) {
+                                    $item["status"] = "EG";
                                 }
                             }
 
