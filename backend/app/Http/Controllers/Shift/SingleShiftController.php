@@ -326,15 +326,20 @@ class SingleShiftController extends Controller
 
         $isHoliday = Holidays::isHoliday($id, $date);
 
-        $allSchedules = Cache::remember(
-            "schedules_company_{$id}",
-            600,
-            fn() =>
-            ScheduleEmployee::with('shift')
-                ->where("company_id", $id)
-                ->get()
-                ->groupBy("employee_id")
-        );
+        // $allSchedules = Cache::remember(
+        //     "schedules_company_{$id}",
+        //     600,
+        //     fn() =>
+        //     ScheduleEmployee::with('shift')
+        //         ->where("company_id", $id)
+        //         ->get()
+        //         ->groupBy("employee_id")
+        // );
+
+        $allSchedules =  ScheduleEmployee::with('shift')
+            ->where("company_id", $id)
+            ->get()
+            ->groupBy("employee_id");
 
         $days = ($params['shift_type_id'] == 4) ? 2 : 1;
         $logEndDate = date("Y-m-d", strtotime($params["date"] . " +" . $days . " day"));
