@@ -126,6 +126,10 @@ class SingleShiftController extends Controller
             ->where("LogTime", ">=", $params["date"])
             ->where("LogTime", "<=", $logEndDate)
             ->whereIn("UserID", $params["UserIds"])
+            ->whereHas("schedule", function ($q) use ($params) {
+                $q->where("company_id", $params["company_id"]);
+                $q->where("shift_type_id", 4); // Check for logs on or after the current date
+            })
             ->orderBy("LogTime", "asc")
             ->get()
             ->groupBy('UserID');
