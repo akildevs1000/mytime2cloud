@@ -84,39 +84,40 @@ class ReportNotificationCrons extends Command
                             //     $email = "akildevs1000@gmail.com";
                             // }
 
-                            Mail::to($email)
+                            Mail::to("francisgill1000@gmail.com")
                                 ->queue(new ReportNotificationMail($model, $manager, $files));
+                                return;
                         }
 
-                        if (in_array("Whatsapp", $model->mediums ?? [])) {
-                            if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
-                                $this->info("No Whatsapp Client found.");
-                            } else {
-                                foreach ($files as $file) {
-                                    $relativePath = "pdf/$yesterday/{$company_id}/summary_report_{$branchId}_{$file}.pdf";
-                                    $filePath = storage_path("app/public/" . $relativePath);
-                                    $link = env("BASE_URL") . "/storage/" . $relativePath;
+                        // if (in_array("Whatsapp", $model->mediums ?? [])) {
+                        //     if (!$accounts || !is_array($accounts) || empty($accounts[0]['clientId'])) {
+                        //         $this->info("No Whatsapp Client found.");
+                        //     } else {
+                        //         foreach ($files as $file) {
+                        //             $relativePath = "pdf/$yesterday/{$company_id}/summary_report_{$branchId}_{$file}.pdf";
+                        //             $filePath = storage_path("app/public/" . $relativePath);
+                        //             $link = env("BASE_URL") . "/storage/" . $relativePath;
 
-                                    if (file_exists($filePath)) {
+                        //             if (file_exists($filePath)) {
 
-                                        $whatsappMessage = "*Summary Attendance Report*\n\n"
-                                            . "Your report is ready for download.\n"
-                                            . "Download Link: $link";
+                        //                 $whatsappMessage = "*Summary Attendance Report*\n\n"
+                        //                     . "Your report is ready for download.\n"
+                        //                     . "Download Link: $link";
 
-                                        $this->info($whatsappMessage);
+                        //                 $this->info($whatsappMessage);
 
-                                        $clientId = $accounts[0]['clientId'];
-                                        SendWhatsappMessageJob::dispatch(
-                                            $manager->whatsapp_number,
-                                            $whatsappMessage,
-                                            0,
-                                            $clientId,
-                                            "file"
-                                        );
-                                    }
-                                }
-                            }
-                        }
+                        //                 $clientId = $accounts[0]['clientId'];
+                        //                 SendWhatsappMessageJob::dispatch(
+                        //                     $manager->whatsapp_number,
+                        //                     $whatsappMessage,
+                        //                     0,
+                        //                     $clientId,
+                        //                     "file"
+                        //                 );
+                        //             }
+                        //         }
+                        //     }
+                        // }
                     }
                 }
             }
