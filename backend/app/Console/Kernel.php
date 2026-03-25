@@ -67,13 +67,6 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_alarm_logs')
             ->everyFifteenMinutes()->runInBackground();
 
-        // --------------------Daily Report Generation for automation-------------------- //
-        $schedule
-            ->command("task:generate_daily_report")
-            ->dailyAt('05:00')
-            ->runInBackground();
-        // --------------------Daily Report Generation for automation-------------------- //
-
         // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
         // $schedule->command('logs:process-gps')->everyMinute();
@@ -114,6 +107,11 @@ class Kernel extends ConsoleKernel
 
             // $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
             // $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
+
+            $schedule
+                ->command("task:generate_daily_report $companyId")
+                ->dailyAt('03:00')
+                ->runInBackground();
 
             // AI Streak Commands: late, early, absent
             $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=late --streak=3")
