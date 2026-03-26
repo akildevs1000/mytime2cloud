@@ -657,18 +657,18 @@ class Attendance extends Model
      * @param string $date (Y-m-d)
      * @param array|object $shift
      * @param array $logs (The logs for this specific employee)
-     * @param bool $isHoliday
      * @return string (H, W, O, A, P, etc.)
      */
-    public static function determineStatus($company_id, $employee_id, $date, $shift, $logs, $isHoliday)
+    public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
     {
+        if (Holidays::isHoliday($company_id, $date)) {
+            return "H";
+        }
+
         $dayOfWeek = date('D', strtotime($date)); // e.g., "Mon"
         $fullDayName = date('l', strtotime($date)); // e.g., "Monday"
 
-        // 1. Check Public Holiday
-        if ($isHoliday) {
-            return "H";
-        }
+
 
         // 2. Check Fixed Weekends (from your dropdown: Monday, Tuesday, etc.)
         $w1 = $shift['weekend1'] ?? 'Not Applicable';
