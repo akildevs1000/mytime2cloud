@@ -85,16 +85,6 @@ class FiloShiftController extends Controller
         $items = [];
         $message = "";
 
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
-
-        $holidayQuery = DB::table('holidays')
-            ->where("company_id", $id)
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)->exists();
-
-
         // Fetch all schedules for the relevant employees in one go
         $schedules = ScheduleEmployee::with('shift')
             ->whereIn("employee_id", $UserIds)
@@ -118,15 +108,8 @@ class FiloShiftController extends Controller
                 continue;
             }
 
-            $status = "A";
+            $status = Attendance::determineStatus($id, $key, $date, $shift, []);
 
-            if ($shift->weekoff_rules) {
-                $status = Attendance::processWeekOffFunc($currentDayKey, $shift->weekoff_rules, $id, $date, $key) ?? "A";
-            }
-
-            if ($holidayQuery) {
-                $status = "H";
-            }
 
             $defaultItem = [
                 "employee_id"   => $key,
