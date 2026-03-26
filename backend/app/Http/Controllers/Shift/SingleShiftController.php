@@ -671,7 +671,7 @@ class SingleShiftController extends Controller
                     }
                 } else {
                     // If logs exist but none match the "beginning_in" window
-                    $item["status"] = "M";
+                    $item["status"] = "A";
                 }
             }
 
