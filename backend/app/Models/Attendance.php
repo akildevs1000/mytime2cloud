@@ -648,4 +648,64 @@ class Attendance extends Model
 
         return str_pad($finalHours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($finalMins, 2, "0", STR_PAD_LEFT);
     }
+
+    /**
+     * Determines the attendance status based on shift settings and logs.
+     * Priority: Holiday > Fixed Weekend > Scheduled Day > Flexi Override > Absent
+     * * @param int $company_id
+     * @param int $employee_id
+     * @param string $date (Y-m-d)
+     * @param array|object $shift
+     * @param array $logs (The logs for this specific employee)
+     * @param bool $isHoliday
+     * @return string (H, W, O, A, P, etc.)
+     */
+    public static function determineStatus($company_id, $employee_id, $date, $shift, $logs, $isHoliday)
+    {
+        $dayOfWeek = date('D', strtotime($date)); // e.g., "Mon"
+        $fullDayName = date('l', strtotime($date)); // e.g., "Monday"
+
+        // 1. Check Public Holiday
+        if ($isHoliday) {
+            return "H";
+        }
+
+        // 2. Check Fixed Weekends (from your dropdown: Monday, Tuesday, etc.)
+        $w1 = $shift['weekend1'] ?? 'Not Applicable';
+        $w2 = $shift['weekend2'] ?? 'Not Applicable';
+
+        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
+            ($w2 !== 'Not Applicable' && $fullDayName === $w2)
+        ) {
+            return "O";
+        }
+
+        // 3. Check Scheduled Work Days (from the "days" array)
+        $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
+
+        if (!$isWorkDay) {
+            return "O";
+        }
+
+        // 4. Handle Present Status (If logs exist)
+        if (!empty($logs)) {
+            return "P"; // This will be further refined to LC/EG in the render loop
+        }
+
+        // 5. Handle Flexible Holiday Override (O)
+        // Triggered if it's a work day, no logs, and Flexi options are enabled
+        $hasFlexi = ($w1 === 'Flexi' || $w2 === 'Flexi' || (int)($shift['monthly_flexi_holidays'] ?? 0) > 0);
+
+        if ($hasFlexi) {
+            $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+            $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
+
+            if ($taken < $limit) {
+                return "O";
+            }
+        }
+
+        // 6. Default to Absent
+        return "A";
+    }
 }
