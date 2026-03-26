@@ -198,38 +198,40 @@ class AttendanceLogCameraController extends Controller
             $columns = explode(',', $row);
 
             // $isDuplicateLogTime = $this->verifyDuplicateLog($columns);
-           // $isDuplicateLogTime = false;
+            // $isDuplicateLogTime = false;
             // if (!$isDuplicateLogTime) {
-                $datetime = substr(str_replace("T", " ", $columns[2]), 0, 16);
+            $datetime = substr(str_replace("T", " ", $columns[2]), 0, 16);
 
 
-                if ($datetime != 'undefined') {
-                    $baseRecord = [
-                        "UserID" => $columns[0],
-                        "DeviceID" => $columns[1],
-                        "LogTime" => str_replace("T", " ", $columns[2]),
-                        "SerialNumber" => $columns[3],
-                        "log_date_time" => str_replace("T", " ", $columns[2]),
-                        "index_serial_number" => $columns[3],
-                        "log_date" =>  explode('T', $columns[2])[0] ?? date("Y-m-d"),
+            if ($datetime != 'undefined') {
+                $baseRecord = [
+                    "UserID" => $columns[0],
+                    "DeviceID" => $columns[1],
+                    "LogTime" => str_replace("T", " ", $columns[2]),
+                    "SerialNumber" => $columns[3],
+                    "log_date_time" => str_replace("T", " ", $columns[2]),
+                    "index_serial_number" => $columns[3],
+                    "log_date" =>  explode('T', $columns[2])[0] ?? date("Y-m-d"),
 
-                        "source_info" => "Attendanc Log Camerea -> store",
-                        "log_type" => null,
-                    ];
+                    "source_info" => "Attendanc Log Camerea -> store",
+                    "log_type" => null,
+                ];
 
 
-                    if (trim($columns[4])  == "Out" || trim($columns[4])  == "In") {
-                        $baseRecord["log_type"] = $columns[4];
-                    }
-
-                    // Add the record to the $records array
-                    $records[] = $baseRecord;
+                if (trim($columns[4])  == "Out" || trim($columns[4])  == "In") {
+                    $baseRecord["log_type"] = $columns[4];
                 }
+
+                // Add the record to the $records array
+                $records[] = $baseRecord;
+            }
             // }
         }
 
         try {
-            AttendanceLog::insert($records);
+            // AttendanceLog::insert($records);
+            // ✅ skips duplicates based on unique index: (DeviceID, LogTime, UserID)
+            DB::table('attendance_logs')->insertOrIgnore($records);
             // Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
             Storage::put("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             ///Storage::append("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
