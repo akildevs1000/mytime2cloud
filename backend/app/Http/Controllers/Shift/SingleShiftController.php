@@ -255,10 +255,10 @@ class SingleShiftController extends Controller
                         $item["status"] = "EG";
                     }
                 }
+            }
 
-                if (count($logs) == 1) {
-                    $item["status"] = "M";
-                }
+            if (count($logs) == 1) {
+                $item["status"] = "M";
             }
 
             $items[] = $item;
