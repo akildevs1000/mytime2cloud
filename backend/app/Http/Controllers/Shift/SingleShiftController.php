@@ -553,8 +553,6 @@ class SingleShiftController extends Controller
         return $message;
     }
 
-
-
     public function renderFresh($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
         $params = [
@@ -574,7 +572,7 @@ class SingleShiftController extends Controller
             return "[" . $date . "] No employees found to render.";
         }
 
-        // 2. Bulk Fetch Data (Optimization to avoid N+1 queries)
+        // 2. Bulk Fetch Data (Logs, Schedules, and Previous Shifts)
         $logsEmployees = $isRequestFromAutoshift
             ? (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params)
             : (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
@@ -595,14 +593,15 @@ class SingleShiftController extends Controller
 
         // 3. Main Processing Loop
         foreach ($params["UserIds"] as $employeeId) {
-            $employeeLogs = isset($logsEmployees[$employeeId]) ? $logsEmployees[$employeeId] : collect([]);
+            $employeeLogs = $logsEmployees[$employeeId] ?? collect([]);
             $logsArray = $employeeLogs->toArray();
 
-            // Get the active schedule/shift for this employee
+            // Get the active schedule/shift
             $activeSchedule = $allSchedules->get($employeeId)?->first();
             $shift = $activeSchedule?->shift ?? null;
 
-            // Determine Initial Status via Model (Priority: Holiday > Weekend > WorkDay > Flexi > Absent)
+            // Determine Initial Status (Priority: Log > Holiday > Fixed Weekend > Flexi > Absent)
+            // Note: Using "O" for all types of Week Offs/Off Days
             $status = Attendance::determineStatus($id, $employeeId, $date, $shift, $logsArray);
 
             $item = [
@@ -623,10 +622,10 @@ class SingleShiftController extends Controller
                 "early_going" => "---",
             ];
 
-            // 4. If logs exist (Status P), refine the details
-            if (!empty($logsArray)) {
+            // 4. Refine status if logs exist (Status "P")
+            if ($status === "P" && !empty($logsArray)) {
 
-                // Find First Log (In)
+                // STRICT WINDOW CHECK: Find "In" log within shift window
                 $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
                     $prev = $previousShifts->get($employeeId);
                     if ($prev && $prev->shift_type_id == 6) {
@@ -637,17 +636,18 @@ class SingleShiftController extends Controller
                     return $bin && $bout && $record["time"] >= $bin && $record["time"] <= $bout;
                 });
 
-                // Find Last Log (Out)
-                $lastLog = $employeeLogs->last(function ($record) {
-                    return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
-                });
-
                 if ($firstLog) {
                     $item["in"] = $firstLog["time"];
                     $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
 
-                    // Check for valid Check-Out
+                    // Find Last Log (Out)
+                    $lastLog = $employeeLogs->last(function ($record) {
+                        return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
+                    });
+
+                    // Rule: 1 Log = Missing (M). More than 1 Log = Present (P)
                     if ($lastLog && count($logsArray) > 1 && $item["in"] !== $lastLog["time"]) {
+                        $item["status"] = "P";
                         $item["out"] = $lastLog["time"];
                         $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
@@ -667,11 +667,12 @@ class SingleShiftController extends Controller
                             if ($item["early_going"] != "---") $item["status"] = "EG";
                         }
                     } else {
-                        $item["status"] = "M"; // Missing Out Log
+                        $item["status"] = "M"; // 1 log found in range = Missing
                     }
                 } else {
-                    // If logs exist but none match the "beginning_in" window
-                    $item["status"] = "A";
+                    // LOGS EXIST BUT OUT OF RANGE (e.g. 14:57)
+                    // Fallback to what status would be without logs (H, O, or A)
+                    $item["status"] = Attendance::determineStatus($id, $employeeId, $date, $shift, []);
                 }
             }
 
@@ -682,13 +683,11 @@ class SingleShiftController extends Controller
         try {
             DB::beginTransaction();
 
-            // Remove old records for this batch/date to prevent duplicates
             Attendance::where("company_id", $id)
                 ->whereIn("employee_id", array_column($items, "employee_id"))
                 ->where("date", $date)
                 ->delete();
 
-            // Batch Insert
             Attendance::insert($items);
 
             DB::commit();
