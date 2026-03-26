@@ -572,7 +572,7 @@ class SingleShiftController extends Controller
             return "[" . $date . "] No employees found to render.";
         }
 
-        // 2. Bulk Fetch Data (Logs, Schedules, and Previous Shifts)
+        // 2. Bulk Fetch Data (Optimization to avoid N+1 queries)
         $logsEmployees = $isRequestFromAutoshift
             ? (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params)
             : (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
@@ -596,12 +596,11 @@ class SingleShiftController extends Controller
             $employeeLogs = $logsEmployees[$employeeId] ?? collect([]);
             $logsArray = $employeeLogs->toArray();
 
-            // Get the active schedule/shift
             $activeSchedule = $allSchedules->get($employeeId)?->first();
             $shift = $activeSchedule?->shift ?? null;
 
             // Determine Initial Status (Priority: Log > Holiday > Fixed Weekend > Flexi > Absent)
-            // Note: Using "O" for all types of Week Offs/Off Days
+            // Using "O" for all types of Week Offs/Off Days as requested.
             $status = Attendance::determineStatus($id, $employeeId, $date, $shift, $logsArray);
 
             $item = [
@@ -622,10 +621,10 @@ class SingleShiftController extends Controller
                 "early_going" => "---",
             ];
 
-            // 4. Refine status if logs exist (Status "P")
+            // 4. Log Refinement Logic
             if ($status === "P" && !empty($logsArray)) {
 
-                // STRICT WINDOW CHECK: Find "In" log within shift window
+                // STRICT WINDOW CHECK: Only capture "In" logs within the shift's window
                 $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
                     $prev = $previousShifts->get($employeeId);
                     if ($prev && $prev->shift_type_id == 6) {
@@ -645,20 +644,20 @@ class SingleShiftController extends Controller
                         return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
                     });
 
-                    // Rule: 1 Log = Missing (M). More than 1 Log = Present (P)
+                    // Rule: Exactly 1 log in range = Missing (M). More than 1 = Present (P).
                     if ($lastLog && count($logsArray) > 1 && $item["in"] !== $lastLog["time"]) {
                         $item["status"] = "P";
                         $item["out"] = $lastLog["time"];
                         $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
 
-                        // Overtime Calculation
+                        // Overtime
                         if ($activeSchedule["isOverTime"] ?? false) {
                             $rawOt = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
                             $item["ot"] = Attendance::applyOvertimePolicy($rawOt, $item, $shift);
                         }
 
-                        // Shift Type 6: Late Coming / Early Going Logic
+                        // Shift Type 6: Late/Early Logic
                         if ($item["shift_type_id"] == 6 && $shift) {
                             $item["late_coming"] = $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
                             if ($item["late_coming"] != "---") $item["status"] = "LC";
@@ -667,11 +666,10 @@ class SingleShiftController extends Controller
                             if ($item["early_going"] != "---") $item["status"] = "EG";
                         }
                     } else {
-                        $item["status"] = "M"; // 1 log found in range = Missing
+                        $item["status"] = "M"; // 1 log = Missing
                     }
                 } else {
-                    // LOGS EXIST BUT OUT OF RANGE (e.g. 14:57)
-                    // Fallback to what status would be without logs (H, O, or A)
+                    // LOGS OUT OF RANGE (e.g. 14:57): Revert to base status (H, O, or A)
                     $item["status"] = Attendance::determineStatus($id, $employeeId, $date, $shift, []);
                 }
             }
@@ -679,7 +677,7 @@ class SingleShiftController extends Controller
             $items[] = $item;
         }
 
-        // 5. Database Synchronization
+        // 5. Database Update
         try {
             DB::beginTransaction();
 
@@ -691,7 +689,7 @@ class SingleShiftController extends Controller
             Attendance::insert($items);
 
             DB::commit();
-            $message = "[$date] RenderFresh Success. Processed " . count($items) . " employees.";
+            $message = "[$date] RenderFresh completed. Total processed: " . count($items);
         } catch (\Throwable $e) {
             DB::rollback();
             $message = "[$date] RenderFresh Error: " . $e->getMessage();
