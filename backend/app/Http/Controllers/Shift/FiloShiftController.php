@@ -137,7 +137,7 @@ class FiloShiftController extends Controller
 
             // Logic to define shift range (handle overnight shifts)
             $onDutyStr = $date . ' ' . $shift["on_duty_time"] . ":00";
-            $offDutyStr = $date . ' ' . $shift["off_duty_time"];
+            $offDutyStr = $date . ' ' . $shift["off_duty_time"] . ":00";
 
             // If off_duty is earlier than on_duty, it ends the next day
             if (strtotime($shift["off_duty_time"]) < strtotime($shift["on_duty_time"])) {
@@ -154,8 +154,8 @@ class FiloShiftController extends Controller
                 continue;
             }
 
-            $firstLog = $filteredLogs->first(fn($r) => !in_array(strtolower($r['log_type']), ['out']));
-            $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower($r['log_type']), ['in']));
+            $firstLog = $filteredLogs->first(fn($r) => !in_array(strtolower(trim($r['log_type'])), ['out']));
+            $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower(trim($r['log_type'])), ['in']));
 
             // --- Step C: Build the "Present" Item ---
             $item = $defaultItem; // Start with the defaults
