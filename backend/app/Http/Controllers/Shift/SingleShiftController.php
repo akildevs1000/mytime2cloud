@@ -624,7 +624,7 @@ class SingleShiftController extends Controller
             ];
 
             // 4. If logs exist (Status P), refine the details
-            if ($status === "P" && !empty($logsArray)) {
+            if (!empty($logsArray)) {
 
                 // Find First Log (In)
                 $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
