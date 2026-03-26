@@ -123,17 +123,17 @@ class SplitShiftController extends Controller
         $items = [];
         $debugSummary = [];
 
-        $isHoliday = Holidays::isHoliday($id, $date);
+        // $isHoliday = Holidays::isHoliday($id, $date);
 
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
+        // $dayOfWeekThreeLetter = date('D', strtotime($date));
+        // $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
 
 
-            $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
+            // $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
 
 
             // Fetch logs and load device relationship to avoid "Undefined key" errors later
@@ -203,14 +203,18 @@ class SplitShiftController extends Controller
 
             $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
 
-            $status = "A";
+            // $status = "A";
 
-            // Default Status Logic
-            if ($isHoliday) {
-                $status = "H";
-            } else {
-                $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
-            }
+            // // Default Status Logic
+            // if ($isHoliday) {
+            //     $status = "H";
+            // } else {
+            //     $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
+            // }
+
+
+            $status = Attendance::determineStatus($id, $row->system_user_id, $date, $shift, []);
+
 
 
             $isPair = collect($logsJson)
