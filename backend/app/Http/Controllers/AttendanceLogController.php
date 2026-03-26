@@ -238,7 +238,7 @@ class AttendanceLogController extends Controller
 
             if ($deviceFunction === 'auto' || $deviceFunction === 'Auto') {
                 // If the device is set to Auto, store it as 'Auto'
-                $logType = 'Auto';
+                $logType = 'auto';
             } elseif ($deviceFunction === 'in' || $deviceFunction === 'In') {
                 $logType = 'In';
             } elseif ($deviceFunction === 'out' || $deviceFunction === 'Out') {
