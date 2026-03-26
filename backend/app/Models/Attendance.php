@@ -661,39 +661,32 @@ class Attendance extends Model
      */
     public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
     {
+        // 1. TOP PRIORITY: If any logs exist, they override everything (Holiday/Weekend)
+        if (!empty($logs)) {
+            return "P"; // Refined to 'M', 'LC', 'EG' in renderFresh
+        }
+
+        // 2. SECOND PRIORITY: Public Holiday
         if (Holidays::isHoliday($company_id, $date)) {
             return "H";
         }
 
-        $dayOfWeek = date('D', strtotime($date)); // e.g., "Mon"
-        $fullDayName = date('l', strtotime($date)); // e.g., "Monday"
-
-
-
-        // 2. Check Fixed Weekends (from your dropdown: Monday, Tuesday, etc.)
+        $dayOfWeek = date('D', strtotime($date));
+        $fullDayName = date('l', strtotime($date));
         $w1 = $shift['weekend1'] ?? 'Not Applicable';
         $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
-        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
-            ($w2 !== 'Not Applicable' && $fullDayName === $w2)
-        ) {
-            return "O";
-        }
-
-        // 3. Check Scheduled Work Days (from the "days" array)
+        // 3. THIRD PRIORITY: Fixed Weekends or Non-scheduled "days"
         $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
 
-        if (!$isWorkDay) {
-            return "O";
+        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
+            ($w2 !== 'Not Applicable' && $fullDayName === $w2) ||
+            (!$isWorkDay)
+        ) {
+            return "O"; // Using 'O' as requested
         }
 
-        // 4. Handle Present Status (If logs exist)
-        if (!empty($logs)) {
-            return "P"; // This will be further refined to LC/EG in the render loop
-        }
-
-        // 5. Handle Flexible Holiday Override (O)
-        // Triggered if it's a work day, no logs, and Flexi options are enabled
+        // 4. FOURTH PRIORITY: Flexible Holiday Override (O)
         $hasFlexi = ($w1 === 'Flexi' || $w2 === 'Flexi' || (int)($shift['monthly_flexi_holidays'] ?? 0) > 0);
 
         if ($hasFlexi) {
@@ -705,7 +698,7 @@ class Attendance extends Model
             }
         }
 
-        // 6. Default to Absent
+        // 5. LAST PRIORITY: Absent
         return "A";
     }
 }
