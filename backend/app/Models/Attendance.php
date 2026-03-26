@@ -580,4 +580,72 @@ class Attendance extends Model
 
         return $shift;
     }
+
+    public static function getMonthlyFlexiDaysTaken($company_id, $employee_id, $date)
+    {
+        $startDate = date("Y-m-01", strtotime($date));
+        $yesterday = date("Y-m-d", strtotime($date . " -1 day"));
+
+        // If it's the 1st of the month, yesterday was in the previous month, 
+        // so we return 0.
+        if (strtotime($yesterday) < strtotime($startDate)) {
+            return 0;
+        }
+
+        return self::where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->whereBetween('date', [$startDate, $yesterday])
+            ->where('status', 'O')
+            ->count();
+    }
+
+    /**
+     * Deducts unwanted OT based on shift policy (Before/After/Both)
+     * * @param string $otTime (e.g., "02:30")
+     * @param array $item (Must contain 'in' and 'out' times)
+     * @param array|object $shift (Must contain duty times and overtime_type)
+     * @return string
+     */
+    public static function applyOvertimePolicy($otTime, $item, $shift)
+    {
+        if ($otTime == "---" || $otTime == "00:00" || empty($otTime)) return "00:00";
+
+        $overtimeType = $shift["overtime_type"] ?? "Both";
+        if ($overtimeType === "Both") return $otTime;
+
+        // Convert total OT to minutes
+        [$h, $m] = explode(':', $otTime);
+        $totalMinutes = ($h * 60) + $m;
+
+        try {
+            $inTime = new \DateTime($item["in"]);
+            $onDuty = new \DateTime($shift["on_duty_time"]);
+            $outTime = new \DateTime($item["out"]);
+            $offDuty = isset($shift["off_duty_time"]) ? new \DateTime($shift["off_duty_time"]) : null;
+
+            if ($overtimeType === "After") {
+                // "After" means we only count OT after off_duty. 
+                // So we deduct any "Early In" minutes from the total OT.
+                $earlyMinutes = ($inTime < $onDuty)
+                    ? ($onDuty->diff($inTime)->h * 60) + $onDuty->diff($inTime)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $earlyMinutes);
+            } else if ($overtimeType === "Before" && $offDuty) {
+                // "Before" means we only count OT before on_duty.
+                // So we deduct any "Late Out" minutes from the total OT.
+                $lateMinutes = ($outTime > $offDuty)
+                    ? ($outTime->diff($offDuty)->h * 60) + $outTime->diff($offDuty)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $lateMinutes);
+            }
+        } catch (\Exception $e) {
+            // Fallback if dates are invalid
+            return $otTime;
+        }
+
+        $finalHours = floor($totalMinutes / 60);
+        $finalMins = $totalMinutes % 60;
+
+        return str_pad($finalHours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($finalMins, 2, "0", STR_PAD_LEFT);
+    }
 }
