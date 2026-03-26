@@ -42,7 +42,7 @@ class SingleShiftController extends Controller
         // while ($startDate <= $currentDate && $startDate <= $endDate) {
         while ($startDate <= $endDate) {
             if ($company_id == 60) {
-                $response[] = $this->render_new($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, $request->filled("auto_render") ? false : true, false, $request->channel ?? "unknown");
+                $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, $request->filled("auto_render") ? false : true, false, $request->channel ?? "unknown");
             } else {
                 $response[] = $this->render($company_id, $startDate->format("Y-m-d"), 6, $employee_ids, $request->filled("auto_render") ? false : true, false, $request->channel ?? "unknown");
             }
