@@ -45,15 +45,22 @@ class MonthlyController extends Controller
         $companyId    = $requestPayload["company_id"];
         $employee_ids = $requestPayload["employee_ids"];
 
+        $shift_type_id = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_id = [request("shift_type_id", 0)];
+        }
+
         $company = Company::whereId($companyId)
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
+
         return $totalEmployees = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
-            ->whereHas('schedule', function ($q) use ($companyId) {
+            ->whereHas('schedule', function ($q) use ($companyId, $shift_type_id) {
                 $q->where('company_id', $companyId)
-                    ->whereIn('shift_type_id', [request("shift_type_id", 0)]);
+                    ->whereIn('shift_type_id', $shift_type_id);
             })
             ->count();
 
