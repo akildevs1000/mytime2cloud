@@ -49,35 +49,38 @@ class MonthlyController extends Controller
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $totalEmployees = Employee::where("company_id", $companyId)
-            ->whereIn("system_user_id", $employee_ids)
-            ->count();
 
-        info($totalEmployees);
-        info($employee_ids);
+
+        $query = Employee::where("company_id", $companyId)
+            ->whereIn("system_user_id", $employee_ids)
+            ->whereHas('schedule', function ($q) use ($companyId) {
+                $q->where('company_id', $companyId)
+                    ->where(function ($sub) {
+                        $sub->whereIn('shift_type_id', [request("shift_type_id", 0)])
+                            ->orWhereIn('shift_type_id', [1, 3, 4, 6]);
+                    });
+            });
+
+        // NOW the count matches the actual records that will be processed
+        $totalEmployees = $query->count();
+
+        if ($totalEmployees === 0) {
+            return response()->json(['status' => 'error', 'message' => 'No employees found with matching schedules.']);
+        }
+
 
         Cache::put("batch_total", $totalEmployees, 1800);
         Cache::put("batch_done", 0, 1800);
         Cache::put("batch_failed", 0, 1800);
 
-        Employee::whereHas('schedule', function ($q) use ($companyId) {
-            $q->where('company_id', $companyId)
-                ->where(function ($sub) {
-                    $sub->whereIn('shift_type_id', [request("shift_type_id", 0)])
-                        ->orWhereIn('shift_type_id', [1, 3, 4, 6]);
-                });
-        })->with(["schedule" => function ($q) use ($companyId) {
+        $query->with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
                 ->withOut(["shift", "shift_type", "branch"]);
         }])
             ->withOut(["branch", "designation", "sub_department", "user"])
-            ->where("company_id", $companyId)
-            ->whereIn("system_user_id", $employee_ids)
             ->chunk(50, function ($employees) use ($company, $requestPayload) {
-
                 foreach ($employees as $employee) {
-
                     GenerateAttendanceReportPDF::dispatch(
                         $employee->system_user_id,
                         $company,
@@ -87,8 +90,6 @@ class MonthlyController extends Controller
                         $requestPayload["template"] ?? "Template1"
                     );
                 }
-
-                gc_collect_cycles();
             });
 
         return response()->json([
