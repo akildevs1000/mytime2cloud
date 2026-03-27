@@ -64,9 +64,6 @@ class MonthlyController extends Controller
             })
             ->count();
 
-        info($totalEmployees);
-        info($employee_ids);
-
         Cache::put("batch_total", $totalEmployees, 1800);
         Cache::put("batch_done", 0, 1800);
         Cache::put("batch_failed", 0, 1800);
@@ -1085,16 +1082,23 @@ class MonthlyController extends Controller
         $from_date = $company["from_date"] ?? date("Y-m-d");
         $to_date   = $company["to_date"] ?? date("Y-m-d");
 
+        $shift_type_ids = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_ids = [request("shift_type_id", 0)];
+        }
+
         $model = Attendance::query();
         $model->where('company_id', $company_id);
         $model->whereBetween("date", [$from_date . " 00:00:00", $to_date . " 23:59:59"]);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-        $model->whereHas('employee', function ($q) use ($company_id) {
+        $model->whereHas('employee', function ($q) use ($company_id, $shift_type_ids) {
             $q->where('company_id', $company_id);
             $q->where('status', 1);
-            $q->whereHas("schedule", function ($q) use ($company_id) {
+            $q->whereHas("schedule", function ($q) use ($company_id, $shift_type_ids) {
                 $q->where('company_id', $company_id);
+                $q->whereIn('shift_type_id', $shift_type_ids);
             });
         });
 
