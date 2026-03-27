@@ -58,10 +58,10 @@ class MonthlyController extends Controller
 
         $totalEmployees = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
-            ->whereHas('schedule', function ($q) use ($companyId, $shift_type_id) {
-                $q->where('company_id', $companyId)
-                    ->whereIn('shift_type_id', $shift_type_id);
-            })
+            // ->whereHas('schedule', function ($q) use ($companyId, $shift_type_id) {
+            //     $q->where('company_id', $companyId)
+            //         ->whereIn('shift_type_id', $shift_type_id);
+            // })
             ->count();
 
         info($totalEmployees);
