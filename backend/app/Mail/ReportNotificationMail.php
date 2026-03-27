@@ -12,15 +12,21 @@ class ReportNotificationMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public $model, public $manager, public $files) {}
+    public function __construct(
+        public $model,
+        public $manager,
+        public $files,
+        public $branchId,
+        public $reportDate
+    ) {}
 
     public function build()
     {
         $this->subject($this->model->subject);
 
         $companyId = $this->model->company_id;
-        $branchId = $this->model->branch_id;
-        $date = date("Y-m-d", strtotime("-1 day"));
+        $branchId = $this->branchId;
+        $date = $this->reportDate;
 
         // Attach PDF files if they exist
         foreach ($this->files as $file) {
