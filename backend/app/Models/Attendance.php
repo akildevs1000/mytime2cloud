@@ -674,44 +674,39 @@ class Attendance extends Model
             return "H";
         }
 
+        // 3. THIRD PRIORITY: Monthly Flexible Holidays (The Master Bank)
+        // Check this before Fixed Weekends or Workdays
+        $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
+        if ($limit > 0) {
+            $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+
+            if ($taken < $limit) {
+                return "O"; // Deduct from the flexible bank first
+            }
+        }
+
         $dayOfWeek = date('D', strtotime($date));
         $fullDayName = date('l', strtotime($date));
         $w1 = $shift['weekend1'] ?? 'Not Applicable';
         $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
-        // Check if it's a fixed weekend
-        $isFixedWeekend = ($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
-            ($w2 !== 'Not Applicable' && $fullDayName === $w2);
+        // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
+        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
+            ($w2 !== 'Not Applicable' && $fullDayName === $w2)
+        ) {
+            return "O";
+        }
 
-        // Check if it's a workday
+        // 5. LAST PRIORITY: Working Days
         $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
 
-        // 3. THIRD PRIORITY: Fixed Weekends 
-        // We only return "O" here if it's explicitly a Saturday/Sunday (or whatever is set in w1/w2)
-        if ($isFixedWeekend) {
-            return "O";
-        }
-
-        // 4. FOURTH PRIORITY: Flexible Holiday Override (O)
-        // If it's NOT a workday (like Friday in your case), we check the Flexi Limit
         if (!$isWorkDay) {
-            $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
-
-            if ($limit > 0) {
-                $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
-
-                if ($taken < $limit) {
-                    return "O"; // Only give "O" if they have flexi days left
-                } else {
-                    return "A"; // If they used all 5, the extra non-workdays become "Absent"
-                }
-            }
-
-            // If no flexi limit is set, default non-workdays to "O"
-            return "O";
+            // If it's Friday (not in 'days') AND the 5 Flexi days are used up, 
+            // AND it's not a Fixed Weekend (W1/W2), it must be Absent.
+            return "A";
         }
 
-        // 5. LAST PRIORITY: Absent
+        // Default for missed workdays
         return "A";
     }
 }
