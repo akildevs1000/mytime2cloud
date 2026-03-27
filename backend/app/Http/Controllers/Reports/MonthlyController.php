@@ -1093,12 +1093,11 @@ class MonthlyController extends Controller
         $model->whereBetween("date", [$from_date . " 00:00:00", $to_date . " 23:59:59"]);
         $model->with(['shift_type', 'last_reason', 'branch']);
 
-        $model->whereHas('employee', function ($q) use ($company_id, $shift_type_ids) {
+        $model->whereHas('employee', function ($q) use ($company_id) {
             $q->where('company_id', $company_id);
             $q->where('status', 1);
-            $q->whereHas("schedule", function ($q) use ($company_id, $shift_type_ids) {
+            $q->whereHas("schedule", function ($q) use ($company_id) {
                 $q->where('company_id', $company_id);
-                $q->whereIn('shift_type_id', $shift_type_ids);
             });
         });
 
