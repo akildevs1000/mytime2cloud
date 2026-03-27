@@ -226,7 +226,7 @@ class SplitShiftController extends Controller
 
             $total_hour = $this->minutesToHours($totalMinutes);
 
-            if (!$isPair || $total_hour == "00:00") {
+            if (!$isPair) {
                 $status = Attendance::MISSING;
             }
 
