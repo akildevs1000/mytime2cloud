@@ -215,19 +215,24 @@ class SplitShiftController extends Controller
 
             $status = Attendance::determineStatus($id, $row->system_user_id, $date, $shift, []);
 
-            $isPair = collect($logsJson)
+            $pairCount = collect($logsJson)
                 ->sum(function ($log) {
                     $count = 0;
                     if (($log['in'] ?? '---') !== '---') $count++;
                     if (($log['out'] ?? '---') !== '---') $count++;
 
                     return $count;
-                }) % 2 === 0;
+                });
 
             $total_hour = $this->minutesToHours($totalMinutes);
 
-            if (!$isPair && $total_hour == "00:00") {
+            if ($pairCount == 1) {
                 $status = Attendance::MISSING;
+            }
+
+
+            if ($pairCount > 1) {
+                $status = Attendance::PRESENT;
             }
 
             $items[] = [
