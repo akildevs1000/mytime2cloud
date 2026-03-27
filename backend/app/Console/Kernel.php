@@ -61,7 +61,8 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyMinute()
+            ->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
