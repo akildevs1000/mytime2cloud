@@ -596,7 +596,7 @@ class Attendance extends Model
             ->where('employee_id', $employee_id)
             ->whereBetween('date', [$startDate, $yesterday])
             ->where('status', 'O')
-            ->where('date', '!=', $date)
+            // ->where('date', '!=', $date)
             ->count();
     }
 
@@ -660,11 +660,13 @@ class Attendance extends Model
      * @param array $logs (The logs for this specific employee)
      * @return string (H, W, O, A, P, etc.)
      */
+
+
     public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
     {
-        // 1. TOP PRIORITY: If any logs exist, they override everything (Holiday/Weekend)
+        // 1. TOP PRIORITY: Logs override everything
         if (!empty($logs)) {
-            return "P"; // Refined to 'M', 'LC', 'EG' in renderFresh
+            return "P";
         }
 
         // 2. SECOND PRIORITY: Public Holiday
@@ -677,26 +679,36 @@ class Attendance extends Model
         $w1 = $shift['weekend1'] ?? 'Not Applicable';
         $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
-        // 3. THIRD PRIORITY: Fixed Weekends or Non-scheduled "days"
+        // Check if it's a fixed weekend
+        $isFixedWeekend = ($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
+            ($w2 !== 'Not Applicable' && $fullDayName === $w2);
+
+        // Check if it's a workday
         $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
 
-        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
-            ($w2 !== 'Not Applicable' && $fullDayName === $w2) ||
-            (!$isWorkDay)
-        ) {
-            return "O"; // Using 'O' as requested
+        // 3. THIRD PRIORITY: Fixed Weekends 
+        // We only return "O" here if it's explicitly a Saturday/Sunday (or whatever is set in w1/w2)
+        if ($isFixedWeekend) {
+            return "O";
         }
 
         // 4. FOURTH PRIORITY: Flexible Holiday Override (O)
-        $hasFlexi = ($w1 === 'Flexi' || $w2 === 'Flexi' || (int)($shift['monthly_flexi_holidays'] ?? 0) > 0);
-
-        if ($hasFlexi) {
-            $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+        // If it's NOT a workday (like Friday in your case), we check the Flexi Limit
+        if (!$isWorkDay) {
             $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
 
-            if ($taken < $limit) {
-                return "O";
+            if ($limit > 0) {
+                $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+
+                if ($taken < $limit) {
+                    return "O"; // Only give "O" if they have flexi days left
+                } else {
+                    return "A"; // If they used all 5, the extra non-workdays become "Absent"
+                }
             }
+
+            // If no flexi limit is set, default non-workdays to "O"
+            return "O";
         }
 
         // 5. LAST PRIORITY: Absent
