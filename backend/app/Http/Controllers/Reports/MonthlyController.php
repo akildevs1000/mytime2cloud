@@ -105,8 +105,6 @@ class MonthlyController extends Controller
     public function monthly(Request $request)
     {
 
-        return $request->shift_type_id;
-
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
@@ -1017,6 +1015,22 @@ class MonthlyController extends Controller
         if (! empty($employee_id)) {
             $employeeIds = is_array($employee_id) ? $employee_id : explode(",", $employee_id);
         }
+
+        $shift_type_id = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_id = [request("shift_type_id", 0)];
+        }
+
+
+        $employeeIds = Employee::where("company_id", $company_id)
+            ->whereIn("system_user_id", $employeeIds)
+            ->whereHas('schedule', function ($q) use ($company_id, $shift_type_id) {
+                $q->where('company_id', $company_id)
+                    ->whereIn('shift_type_id', $shift_type_id);
+            })
+            ->pluck('system_user_id');
+
 
         // if (count($employeeIds) > 100) {
         //     return 'Only 100 Employee allowed';
