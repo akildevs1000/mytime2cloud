@@ -105,6 +105,8 @@ class MonthlyController extends Controller
     public function monthly(Request $request)
     {
 
+        return $request->shift_type_id;
+
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 300); // Increase to 5 minutes
 
