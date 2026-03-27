@@ -32,7 +32,6 @@ class MonthlyController extends Controller
 
     public function startReportGeneration(Request $request)
     {
-        return ;
         $requestPayload = [
             'company_id'   => $request->company_id,
             'status'       => "-1",
@@ -50,7 +49,7 @@ class MonthlyController extends Controller
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
-        $totalEmployees = Employee::where("company_id", $companyId)
+        return $totalEmployees = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
             ->whereHas('schedule', function ($q) use ($companyId) {
                 $q->where('company_id', $companyId)
