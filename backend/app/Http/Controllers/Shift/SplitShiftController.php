@@ -128,15 +128,11 @@ class SplitShiftController extends Controller
         // $dayOfWeekThreeLetter = date('D', strtotime($date));
         // $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
 
+
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
             if (!$shift) continue;
 
-
-            // $shift = Attendance::processHalfDay($currentDayKey, $shift['halfday_rules'] ?? null, $shift);
-
-
-            // Fetch logs and load device relationship to avoid "Undefined key" errors later
             $allLogs = AttendanceLog::with('device')
                 ->where("company_id", $id)
                 ->where("UserID", $row->system_user_id)
@@ -149,7 +145,6 @@ class SplitShiftController extends Controller
             $userSummary = [];
             $allSessionPunches = [];
 
-            // Define the two sessions from your shift object
             $sessions = [
                 [
                     'name' => 'S1',
@@ -168,7 +163,6 @@ class SplitShiftController extends Controller
             ];
 
             foreach ($sessions as $ses) {
-                // STRICT WINDOW FILTERING
                 $validInLog = $allLogs->filter(function ($log) use ($ses) {
                     $time = Carbon::parse($log->LogTime)->format('H:i');
                     return $time >= $ses['in_s'] && $time <= $ses['in_e'];
@@ -179,75 +173,47 @@ class SplitShiftController extends Controller
                     return $time >= $ses['out_s'] && $time <= $ses['out_e'];
                 })->last();
 
-                // Collect all valid LogTimes found in S1 and S2
                 if ($validInLog) $allSessionPunches[] = Carbon::parse($validInLog->LogTime);
                 if ($validOutLog) $allSessionPunches[] = Carbon::parse($validOutLog->LogTime);
 
-                $min = 0;
-                if ($validInLog && $validOutLog) {
-                    $min = Carbon::parse($validInLog->LogTime)->diffInMinutes(Carbon::parse($validOutLog->LogTime));
-                    $totalMinutes += $min;
-                }
+                $inTime = $validInLog ? Carbon::parse($validInLog->LogTime)->format('H:i') : "---";
+                $outTime = $validOutLog ? Carbon::parse($validOutLog->LogTime)->format('H:i') : "---";
 
-                // Include device keys to fix the "Undefined array key" error
                 if ($validInLog || $validOutLog) {
-                    $inTime = $validInLog ? Carbon::parse($validInLog->LogTime)->format('H:i') : "---";
-                    $outTime = $validOutLog ? Carbon::parse($validOutLog->LogTime)->format('H:i') : "---";
-
                     $logsJson[] = [
-                        "in"            => $inTime,
-                        "out"           => $outTime,
-                        "device_in"     => $validInLog ? ($validInLog->device->name ?? "Device") : "---",
-                        "device_out"    => $validOutLog ? ($validOutLog->device->name ?? "Device") : "---",
-                        "total_minutes" => $min,
+                        "in"        => $inTime,
+                        "out"       => $outTime,
+                        "device_in" => $validInLog->device->name ?? "---",
+                        "device_out" => $validOutLog->device->name ?? "---",
                     ];
-
                     $userSummary[] = "({$ses['name']}: In $inTime, Out $outTime)";
                 }
             }
 
-            $debugSummary[] = "User {$row->system_user_id}: " . (empty($userSummary) ? "No valid logs" : implode(" ", $userSummary));
+            // --- IMPROVED TOTAL HOURS LOGIC ---
+            $s1_in = $logsJson[0]['in'] ?? '---';
+            $s1_out = $logsJson[0]['out'] ?? '---';
+            $s2_in = $logsJson[1]['in'] ?? '---';
+            $s2_out = $logsJson[1]['out'] ?? '---';
 
-            // $status = "A";
-
-            // // Default Status Logic
-            // if ($isHoliday) {
-            //     $status = "H";
-            // } else {
-            //     $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $allLogs->first());
-            // }
-
-
-            $status = Attendance::determineStatus($id, $row->system_user_id, $date, $shift, []);
-
-            $pairCount = collect($logsJson)
-                ->sum(function ($log) {
-                    $count = 0;
-                    if (($log['in'] ?? '---') !== '---') $count++;
-                    if (($log['out'] ?? '---') !== '---') $count++;
-
-                    return $count;
-                });
-
-            // $total_hour = $this->minutesToHours($totalMinutes);
-
-            // TOTAL HOURS CALCULATION (In1 to Out2)
-            if (count($allSessionPunches) >= 2) {
-                // Sort to ensure we have the earliest and latest
-                $sortedPunches = collect($allSessionPunches)->sort();
-
-                $firstPunch = $sortedPunches->first(); // 10:16
-                $lastPunch = $sortedPunches->last();   // 22:04
-
-                $totalMinutes = $firstPunch->diffInMinutes($lastPunch);
+            // 1. If we have all 4 logs, subtract the break
+            if ($s1_in !== '---' && $s1_out !== '---' && $s2_in !== '---' && $s2_out !== '---') {
+                $m1 = Carbon::parse($s1_in)->diffInMinutes(Carbon::parse($s1_out));
+                $m2 = Carbon::parse($s2_in)->diffInMinutes(Carbon::parse($s2_out));
+                $totalMinutes = $m1 + $m2;
             }
+            // 2. Otherwise, calculate the total span (e.g., 10:16 to 22:04)
+            elseif (count($allSessionPunches) >= 2) {
+                $sorted = collect($allSessionPunches)->sort();
+                $totalMinutes = $sorted->first()->diffInMinutes($sorted->last());
+            }
+
+            $pairCount = count($allSessionPunches);
+            $status = Attendance::determineStatus($id, $row->system_user_id, $date, $shift, []);
 
             if ($pairCount == 1) {
                 $status = Attendance::MISSING;
-            }
-
-
-            if ($pairCount > 1) {
+            } elseif ($pairCount > 1) {
                 $status = Attendance::PRESENT;
             }
 
@@ -259,7 +225,7 @@ class SplitShiftController extends Controller
                 "shift_type_id" => $shift->shift_type_id,
                 "total_hrs"     => $this->minutesToHours($totalMinutes),
                 "status"        => $status,
-                "logs"          => json_encode($logsJson, JSON_PRETTY_PRINT),
+                "logs"          => json_encode($logsJson),
             ];
         }
 
