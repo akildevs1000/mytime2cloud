@@ -60,7 +60,13 @@ class MonthlyController extends Controller
         Cache::put("batch_done", 0, 1800);
         Cache::put("batch_failed", 0, 1800);
 
-        Employee::with(["schedule" => function ($q) use ($companyId) {
+        Employee::whereHas('schedule', function ($q) use ($companyId) {
+            $q->where('company_id', $companyId)
+                ->where(function ($sub) {
+                    $sub->whereIn('shift_type_id', [2, 5])
+                        ->orWhereIn('shift_type_id', [1, 3, 4, 6]);
+                });
+        })->with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
                 ->withOut(["shift", "shift_type", "branch"]);
