@@ -100,6 +100,10 @@ class RenderController extends Controller
             }
         }
 
+        if ($request->company_id == 43 && $request->shift_type_id == 0) {
+            return (new FiloShiftController)->renderData($request);
+        }
+
         if ($request->company_id == 49 && $request->shift_type_id == 0) {
             return (new FiloShiftController)->renderData($request);
         }
