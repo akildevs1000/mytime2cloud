@@ -215,8 +215,6 @@ class SplitShiftController extends Controller
 
             $status = Attendance::determineStatus($id, $row->system_user_id, $date, $shift, []);
 
-
-
             $isPair = collect($logsJson)
                 ->sum(function ($log) {
                     $count = 0;
@@ -230,13 +228,6 @@ class SplitShiftController extends Controller
 
             if (!$isPair || $total_hour == "00:00") {
                 $status = Attendance::MISSING;
-            } else {
-                $status = Attendance::PRESENT;
-            }
-
-
-            if (count($logsJson) === 0) {
-                $status = Attendance::ABSENT;
             }
 
             $items[] = [
