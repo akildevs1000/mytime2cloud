@@ -46,6 +46,7 @@ class ReportNotificationCrons extends Command
 
         $date = date("Y-m-d H:i:s");
         $yesterday = date("Y-m-d", strtotime("-1 day"));
+        $currentTime = date("H:i"); // Capture current time (e.g., "18:40")
 
         $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
 
@@ -66,6 +67,7 @@ class ReportNotificationCrons extends Command
                     $query->where("company_id", $company_id);
                 })->where("company_id", $company_id)
                 // ->whereIn("id", [136, 137, 138, 139])
+                ->where("time", $currentTime)
                 ->get();
 
             foreach ($models as $model) {
