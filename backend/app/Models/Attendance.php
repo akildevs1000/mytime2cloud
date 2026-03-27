@@ -664,6 +664,19 @@ class Attendance extends Model
 
     public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
     {
+        // 1. TOP PRIORITY: Check if the user is on Leave (L)
+        // We check the attendance table to see if a leave was already pushed/approved
+        $isLeave = self::where([
+            "company_id" => $company_id,
+            "employee_id" => $employee_id,
+            "date" => $date,
+            "status" => "L"
+        ])->exists();
+
+        if ($isLeave) {
+            return "L";
+        }
+
         // 1. TOP PRIORITY: Logs override everything
         if (!empty($logs)) {
             return "P";
