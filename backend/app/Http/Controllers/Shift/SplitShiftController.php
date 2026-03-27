@@ -147,6 +147,7 @@ class SplitShiftController extends Controller
             $totalMinutes = 0;
             $logsJson = [];
             $userSummary = [];
+            $allSessionPunches = [];
 
             // Define the two sessions from your shift object
             $sessions = [
@@ -177,6 +178,10 @@ class SplitShiftController extends Controller
                     $time = Carbon::parse($log->LogTime)->format('H:i');
                     return $time >= $ses['out_s'] && $time <= $ses['out_e'];
                 })->last();
+
+                // Collect all valid LogTimes found in S1 and S2
+                if ($validInLog) $allSessionPunches[] = Carbon::parse($validInLog->LogTime);
+                if ($validOutLog) $allSessionPunches[] = Carbon::parse($validOutLog->LogTime);
 
                 $min = 0;
                 if ($validInLog && $validOutLog) {
@@ -224,7 +229,18 @@ class SplitShiftController extends Controller
                     return $count;
                 });
 
-            $total_hour = $this->minutesToHours($totalMinutes);
+            // $total_hour = $this->minutesToHours($totalMinutes);
+
+            // TOTAL HOURS CALCULATION (In1 to Out2)
+            if (count($allSessionPunches) >= 2) {
+                // Sort to ensure we have the earliest and latest
+                $sortedPunches = collect($allSessionPunches)->sort();
+
+                $firstPunch = $sortedPunches->first(); // 10:16
+                $lastPunch = $sortedPunches->last();   // 22:04
+
+                $totalMinutes = $firstPunch->diffInMinutes($lastPunch);
+            }
 
             if ($pairCount == 1) {
                 $status = Attendance::MISSING;
