@@ -13,6 +13,7 @@ use App\Models\WhatsappClient;
 use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log as Logger;
 
 
@@ -93,13 +94,22 @@ class ReportNotificationCrons extends Command
                             // Mail::to($email)
                             //     ->queue(new ReportNotificationMail($model, $manager, $files));
 
-                            Mail::to($email)->queue(new ReportNotificationMail(
-                                $model,
-                                $manager,
-                                $files,
-                                $model->branch_id, // Explicit branch
-                                $yesterday
-                            ));
+                            $cacheKey = "sent_mail_{$model->id}_{$manager->id}_" . date('YmdHi');
+
+                            if (!Cache::has($cacheKey)) {
+                                // 1. Send the email
+
+                                Mail::to($email)->queue(new ReportNotificationMail(
+                                    $model,
+                                    $manager,
+                                    $files,
+                                    $model->branch_id, // Explicit branch
+                                    $yesterday
+                                ));
+
+                                // 2. Remember it was sent so the next cron run this minute ignores it
+                                Cache::put($cacheKey, true, 60); // Keep for 60 seconds
+                            }
                         }
 
                         if (in_array("Whatsapp", $model->mediums ?? [])) {
