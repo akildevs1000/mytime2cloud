@@ -32,6 +32,7 @@ class MonthlyController extends Controller
 
     public function startReportGeneration(Request $request)
     {
+        return ;
         $requestPayload = [
             'company_id'   => $request->company_id,
             'status'       => "-1",
