@@ -53,10 +53,7 @@ class MonthlyController extends Controller
             ->whereIn("system_user_id", $employee_ids)
             ->whereHas('schedule', function ($q) use ($companyId) {
                 $q->where('company_id', $companyId)
-                    ->where(function ($sub) {
-                        $sub->whereIn('shift_type_id', [request("shift_type_id", 0)])
-                            ->orWhereIn('shift_type_id', [1, 3, 4, 6]);
-                    });
+                    ->whereIn('shift_type_id', [request("shift_type_id", 0)]);
             })
             ->count();
 
