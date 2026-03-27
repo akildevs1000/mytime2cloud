@@ -596,6 +596,7 @@ class Attendance extends Model
             ->where('employee_id', $employee_id)
             ->whereBetween('date', [$startDate, $yesterday])
             ->where('status', 'O')
+            ->where('date', '!=', $date)
             ->count();
     }
 
