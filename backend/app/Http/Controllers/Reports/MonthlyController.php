@@ -56,7 +56,7 @@ class MonthlyController extends Controller
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
 
-        return $totalEmployees = Employee::where("company_id", $companyId)
+        $totalEmployees = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
             ->whereHas('schedule', function ($q) use ($companyId, $shift_type_id) {
                 $q->where('company_id', $companyId)
