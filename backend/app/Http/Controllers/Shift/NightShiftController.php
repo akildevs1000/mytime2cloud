@@ -61,6 +61,12 @@ class NightShiftController extends Controller
             "UserIds" => $UserIds,
         ];
 
+        $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
+
+        if (empty($params["UserIds"])) {
+            return "[" . $date . "] SingleShift: All employees already rendered by another shift. IDs: " . json_encode($UserIds);
+        }
+
         if (!$custom_render) {
             //$params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsNightToRender($params);
