@@ -77,12 +77,6 @@ class FiloShiftController extends Controller
             "exclude_shift_type_ids" => [6, 4], // Single and Night
         ];
 
-        $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
-
-        if (empty($params["UserIds"])) {
-            return "[" . $date . "] FiloShift: All employees already rendered by another shift.";
-        }
-
         if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
         }
