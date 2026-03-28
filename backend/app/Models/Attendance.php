@@ -717,12 +717,15 @@ class Attendance extends Model
 
     public static function getAlreadyRenderedEmployeeIds(array $params): array
     {
-        $alreadyRendered = self::where("company_id", $params["company_id"])
+        $query = self::where("company_id", $params["company_id"])
             ->where("date", $params["date"])
-            ->whereIn("employee_id", $params["UserIds"])
-            ->whereIn("shift_type_id", $params["exclude_shift_type_ids"])
-            ->pluck("employee_id")
-            ->toArray();
+            ->whereIn("employee_id", $params["UserIds"]);
+
+        if (!empty($params["exclude_shift_type_ids"])) {
+            $query->whereIn("shift_type_id", $params["exclude_shift_type_ids"]);
+        }
+
+        $alreadyRendered = $query->pluck("employee_id")->toArray();
 
         return array_values(array_diff($params["UserIds"], $alreadyRendered));
     }
