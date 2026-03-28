@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class Attendance extends Model
@@ -664,22 +665,13 @@ class Attendance extends Model
 
     public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
     {
-        // 1. TOP PRIORITY: Check if the user is on Leave (L)
-        // We check the attendance table to see if a leave was already pushed/approved
-        $isLeave = self::where([
-            "company_id" => $company_id,
-            "employee_id" => $employee_id,
-            "date" => $date,
-            "status" => "L"
-        ])->exists();
 
-        if ($isLeave) {
-            return "L";
-        }
-
-        // 1. TOP PRIORITY: Logs override everything
         if (!empty($logs)) {
             return "P";
+        }
+
+        if (self::isLeave($company_id, $employee_id, $date)) {
+            return "L";
         }
 
         // 2. SECOND PRIORITY: Public Holiday
@@ -733,5 +725,17 @@ class Attendance extends Model
             ->toArray();
 
         return array_values(array_diff($params["UserIds"], $alreadyRendered));
+    }
+
+    public static function isLeave(int $companyId, int $employeeId, string $date): bool
+    {
+        return Cache::rememberForever("leave_{$companyId}_{$employeeId}_{$date}", function () use ($companyId, $employeeId, $date) {
+            return static::where([
+                'company_id'  => $companyId,
+                'employee_id' => $employeeId,
+                'date'        => $date,
+                'status'      => 'L',
+            ])->exists();
+        });
     }
 }
