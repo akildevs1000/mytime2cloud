@@ -207,7 +207,6 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
-        // 1. Handle file and get new data
         $result = $this->handleFile();
 
         if (array_key_exists("error", $result)) {
