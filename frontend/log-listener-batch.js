@@ -40,12 +40,12 @@ function logError(message) {
 
 // ========== POSTGRESQL ==========
 const dbPool = new Pool({
-  host: process.env.PGHOST || "127.0.0.1",
-  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
-  user: process.env.PGUSER || "postgres",
-  password: process.env.PGPASSWORD || "test123",
-  database: process.env.PGDATABASE || "hrms",
-  max: process.env.PGPOOL_MAX ? Number(process.env.PGPOOL_MAX) : 10,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  max: 20,
   idleTimeoutMillis: 0,
 });
 
