@@ -70,10 +70,24 @@ async function getCompanyIdForDevice(deviceId) {
       `SELECT company_id FROM devices WHERE serial_number = $1::text OR device_id = $1::text LIMIT 1`,
       [key]
     );
-    const cid = r.rows[0]?.company_id ?? null;
+
+    // ── Device not found in devices table ──
+    if (r.rows.length === 0) {
+      logError(`Device not registered in devices table → DeviceID: ${key}`);
+      return null;
+    }
+
+    // ── Device found but company_id is null ──
+    if (r.rows[0].company_id === null) {
+      logError(`Device found but company_id is NULL in devices table → DeviceID: ${key}`);
+      return null;
+    }
+
+    const cid = r.rows[0].company_id;
     deviceCompanyCache.set(key, cid);
     deviceCompanyCacheTS.set(key, Date.now());
     return cid;
+
   } catch (err) {
     logError(`getCompanyIdForDevice failed (${key}): ${err.message}`);
     return null;
