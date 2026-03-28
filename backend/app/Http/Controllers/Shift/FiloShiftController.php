@@ -69,12 +69,19 @@ class FiloShiftController extends Controller
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
         $params = [
-            "company_id" => $id,
-            "date" => $date,
-            "shift_type_id" => $shift_type_id,
-            "custom_render" => $custom_render,
-            "UserIds" => $UserIds,
+            "company_id"             => $id,
+            "date"                   => $date,
+            "shift_type_id"          => $shift_type_id,
+            "custom_render"          => $custom_render,
+            "UserIds"                => $UserIds,
+            "exclude_shift_type_ids" => [6, 4], // Single and Night
         ];
+
+        $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
+
+        if (empty($params["UserIds"])) {
+            return "[" . $date . "] FiloShift: All employees already rendered by another shift.";
+        }
 
         if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
@@ -87,17 +94,35 @@ class FiloShiftController extends Controller
 
         // Fetch all schedules for the relevant employees in one go
         $schedules = ScheduleEmployee::with('shift')
-            ->whereIn("employee_id", $UserIds)
+            ->whereIn("employee_id", $params["UserIds"])
             ->where("company_id", $id)
             ->where("shift_type_id", 1)
             ->get()
             ->keyBy('employee_id');
 
-        foreach ($UserIds as $key) {
+        foreach ($params["UserIds"] as $key) {
 
             $isData = $logsEmployees[$key] ?? null;
             $schedule = $schedules[$key] ?? null;
+
             if (!$schedule) {
+                $items[] = [
+                    "employee_id"   => $key,
+                    "date"          => $date,
+                    "company_id"    => $id,
+                    "status"        => $status,
+                    "roster_id"     => 0,
+                    "total_hrs"     => "---",
+                    "in"            => "---",
+                    "out"           => "---",
+                    "ot"            => "---",
+                    "device_id_in"  => "---",
+                    "device_id_out" => "---",
+                    "shift_id"      => 0,
+                    "shift_type_id" => 1,
+                    "late_coming"   => "---",
+                    "early_going"   => "---",
+                ];
                 continue;
             }
 
@@ -158,8 +183,8 @@ class FiloShiftController extends Controller
             $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower(trim($r['log_type'])), ['in']));
 
             // --- Step C: Build the "Present" Item ---
-            $item = $defaultItem; // Start with the defaults
-            $item["in"] = $firstLog["time"] ?? "---";
+            $item                 = $defaultItem;
+            $item["in"]           = $firstLog["time"] ?? "---";
             $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
 
             if ($filteredLogs->count() == 1) {
@@ -168,15 +193,15 @@ class FiloShiftController extends Controller
 
 
             if ($lastLog && $filteredLogs->count() > 1) {
-                $item["status"] = "P";
+                $item["status"]        = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
-                $item["out"] = $lastLog["time"] ?? "---";
+                $item["out"]           = $lastLog["time"] ?? "---";
 
                 // Total Hours Calculation
                 if ($item["out"] !== "---") {
                     if (strtotime($shift["on_duty_time"]) > strtotime($shift["off_duty_time"])) {
-                        $diffInSeconds = strtotime($lastLog["LogTime"]) - strtotime($firstLog["LogTime"]);
-                        $totalMinutes = round($diffInSeconds / 60);
+                        $diffInSeconds    = strtotime($lastLog["LogTime"]) - strtotime($firstLog["LogTime"]);
+                        $totalMinutes     = round($diffInSeconds / 60);
                         $item["total_hrs"] = sprintf("%02d:%02d", floor($totalMinutes / 60), ($totalMinutes % 60));
                     } else {
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
@@ -206,9 +231,9 @@ class FiloShiftController extends Controller
                 ->delete();
 
             Attendance::insert($items);
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
+            $message = "[" . $date . " " . date("H:i:s") . "] Filo Shift. Affected Ids: " . json_encode($params["UserIds"]) . " " . $message;
         } catch (\Throwable $e) {
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
+            $message = "[" . $date . " " . date("H:i:s") . "] Filo Shift. " . $e->getMessage();
         }
 
         $this->devLog("render-manual-log", $message);
