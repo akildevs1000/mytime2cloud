@@ -227,9 +227,9 @@ class AttendanceLogController extends Controller
 
             $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
             $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+            $company_id = Device::where("device_id", $columns[1])->pluck("company_id")->first();
 
-
-            $deviceId = $columns[1] ?? null;  // 
+            $deviceId = $columns[1] ?? null;  //  
 
             // 2. Look up the function from your map (normalized to lowercase)
             $deviceFunction = isset($deviceFunctionMap[$deviceId])
@@ -249,6 +249,7 @@ class AttendanceLogController extends Controller
             }
 
             $records[] = [
+                "company_id"              => $company_id ?? null,
                 "UserID"              => $columns[0] ?? null,
                 "DeviceID"            => $columns[1] ?? null,
                 "LogTime"             => $logTime,
@@ -279,7 +280,7 @@ class AttendanceLogController extends Controller
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
-            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n" . $th);
         }
     }
 
