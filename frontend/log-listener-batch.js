@@ -34,18 +34,18 @@ function getErrorFile() {
 
 function logError(message) {
   const line = `[${nowGMT4().toISOString()}] ${message}\n`;
-  try { fs.appendFileSync(getErrorFile(), line); } catch {}
+  try { fs.appendFileSync(getErrorFile(), line); } catch { }
   console.error("❌ ERROR:", message);
 }
 
 // ========== POSTGRESQL ==========
 const dbPool = new Pool({
-  host:     process.env.PGHOST     || "127.0.0.1",
-  port:     process.env.PGPORT     ? Number(process.env.PGPORT) : 5432,
-  user:     process.env.PGUSER     || "postgres",
+  host: process.env.PGHOST || "127.0.0.1",
+  port: process.env.PGPORT ? Number(process.env.PGPORT) : 5432,
+  user: process.env.PGUSER || "postgres",
   password: process.env.PGPASSWORD || "test123",
   database: process.env.PGDATABASE || "hrms",
-  max: 10,
+  max: process.env.PGPOOL_MAX ? Number(process.env.PGPOOL_MAX) : 10,
   idleTimeoutMillis: 0,
 });
 
@@ -54,9 +54,9 @@ dbPool.connect()
   .catch(err => logError("PostgreSQL connection error: " + err.message));
 
 // ========== DEVICE COMPANY CACHE ==========
-const deviceCompanyCache   = new Map();
+const deviceCompanyCache = new Map();
 const deviceCompanyCacheTS = new Map();
-const DEVICE_CACHE_TTL_MS  = 10 * 60 * 1000;
+const DEVICE_CACHE_TTL_MS = 10 * 60 * 1000;
 
 async function getCompanyIdForDevice(deviceId) {
   const key = String(deviceId || "").trim();
@@ -81,14 +81,14 @@ async function getCompanyIdForDevice(deviceId) {
 }
 
 // ========== BULK INSERT ==========
-// ✅ Requires (run once in PostgreSQL):
+// ✅ Run once in PostgreSQL before starting:
 //   CREATE UNIQUE INDEX IF NOT EXISTS attendance_logs_uniq
 //   ON attendance_logs ("DeviceID", "LogTime", "UserID");
 
 const attendanceQueue = [];
 const MAX_QUEUE = 5000;
 const MAX_BATCH = 300;
-const FLUSH_MS  = 300;
+const FLUSH_MS = 300;
 
 const logDir = process.env.MYTIME_LOG_DIR || path.join(__dirname, "logs");
 if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
@@ -129,7 +129,6 @@ async function flushAttendanceQueue() {
     console.log(`✅ Flushed ${batch.length} rows | inserted: ${result.rowCount}`);
   } catch (err) {
     logError("Bulk attendance insert failed: " + err.message);
-    // Fallback: write failed batch to .jsonl for later reprocessing
     try {
       const fallbackFile = path.join(logDir, `failed-attendance-${nowGMT4().toISOString().slice(0, 10)}.jsonl`);
       fs.appendFileSync(fallbackFile, batch.map(b => JSON.stringify(b)).join("\n") + "\n");
@@ -139,15 +138,10 @@ async function flushAttendanceQueue() {
   }
 }
 
-// Periodic flush
+// Periodic flush every 300ms
 setInterval(() => {
   flushAttendanceQueue().catch(err => logError("flushAttendanceQueue error: " + err.message));
 }, FLUSH_MS);
-
-// ========== IN-MEMORY DUPLICATE GUARD ==========
-// Mirrors your existing existingEntries[] logic — prevents double-queueing
-// within the same process session before the DB unique index catches it.
-const existingEntries = new Set(); // Set is faster than Array.includes()
 
 // ========== WEBSOCKET ==========
 let socket;
@@ -170,7 +164,7 @@ function connectWebSocket() {
 
   socket.onopen = () => {
     const { date, time } = getFormattedDate();
-    console.log(`📡 Connected to ${SOCKET_ENDPOINT} at ${date}${time}`);
+    console.log(`📡 Connected to ${SOCKET_ENDPOINT} at ${date} ${time}`);
   };
 
   socket.onerror = (error) => {
@@ -191,36 +185,29 @@ function connectWebSocket() {
 
       if (!UserCode || UserCode <= 0) return;
 
-      // ── Duplicate guard (in-memory, same as your original logic) ──
-      const uniqueKey = `${UserCode}_${SN}_${RecordDate.slice(0, -3).replace(" ", "")}`;
-      if (existingEntries.has(uniqueKey)) {
-        console.log("Duplicate Key:", uniqueKey);
-        return;
-      }
-      existingEntries.add(uniqueKey);
-      console.log("New Key:", uniqueKey);
+      console.log(`📥 Received: ${UserCode}_${SN}_${RecordDate}`);
 
       // ── Build row ──
-      const status    = RecordCode > 15 ? "Access Denied" : "Allowed";
-      const mode      = verification_methods[RecordCode] ?? "---";
-      const reason    = reasons[RecordCode] ?? "---";
-      const logDate   = RecordDate.split(" ")[0];
+      const status = RecordCode > 15 ? "Access Denied" : "Allowed";
+      const mode = verification_methods[RecordCode] ?? "---";
+      const reason = reasons[RecordCode] ?? "---";
+      const logDate = RecordDate.split(" ")[0];
       const companyId = await getCompanyIdForDevice(SN);
 
       const row = {
-        UserID:               UserCode,
-        DeviceID:             String(SN),
-        company_id:           companyId,
-        LogTime:              RecordDate,
-        SerialNumber:         RecordNumber || null,
+        UserID: UserCode,
+        DeviceID: String(SN),
+        company_id: companyId,
+        LogTime: RecordDate,
+        SerialNumber: RecordNumber || null,
         status,
         mode,
         reason,
-        log_date_time:        RecordDate,
-        index_serial_number:  RecordNumber || null,
-        log_date:             logDate,
-        created_at:           nowGMT4(),
-        updated_at:           nowGMT4(),
+        log_date_time: RecordDate,
+        index_serial_number: RecordNumber || null,
+        log_date: logDate,
+        created_at: nowGMT4(),
+        updated_at: nowGMT4(),
       };
 
       // ── Queue with overflow protection ──
@@ -241,7 +228,6 @@ function connectWebSocket() {
       if (attendanceQueue.length >= MAX_BATCH) {
         flushAttendanceQueue().catch(err => logError("flushAttendanceQueue (immediate): " + err.message));
       }
-
     } catch (error) {
       console.error("Error processing message:", error.message);
     }
