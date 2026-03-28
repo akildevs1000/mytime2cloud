@@ -556,13 +556,24 @@ class SingleShiftController extends Controller
 
     public function renderFresh($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
+
         $params = [
-            "company_id" => $id,
-            "date" => $date,
-            "shift_type_id" => $shift_type_id,
-            "custom_render" => $custom_render,
-            "UserIds" => $UserIds,
+            "company_id"             => $id,
+            "date"                   => $date,
+            "shift_type_id"          => $shift_type_id,
+            "custom_render"          => $custom_render,
+            "UserIds"                => $UserIds,
+            "exclude_shift_type_ids" => [1, 4], // for Single
         ];
+
+        if ($id == 63) {
+            
+            $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
+
+            if (empty($params["UserIds"])) {
+                return "[" . $date . "] SingleShift: All employees already rendered by another shift.";
+            }
+        }
 
         // 1. Resolve which employees to process
         if (!$custom_render) {
