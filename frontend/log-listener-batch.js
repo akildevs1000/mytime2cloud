@@ -185,7 +185,7 @@ function connectWebSocket() {
 
       if (!UserCode || UserCode <= 0) return;
 
-      console.log(`📥 Received: ${UserCode}_${SN}_${RecordDate}`);
+      console.log(`📥 Received: ${UserCode}_${SN}_${RecordDate} for ${companyId}`);
 
       // ── Build row ──
       const status = RecordCode > 15 ? "Access Denied" : "Allowed";
