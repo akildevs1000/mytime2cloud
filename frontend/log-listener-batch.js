@@ -185,7 +185,6 @@ function connectWebSocket() {
 
       if (!UserCode || UserCode <= 0) return;
 
-      console.log(`📥 Received: ${UserCode}_${SN}_${RecordDate} for ${companyId}`);
 
       // ── Build row ──
       const status = RecordCode > 15 ? "Access Denied" : "Allowed";
@@ -193,6 +192,8 @@ function connectWebSocket() {
       const reason = reasons[RecordCode] ?? "---";
       const logDate = RecordDate.split(" ")[0];
       const companyId = await getCompanyIdForDevice(SN);
+
+      console.log(`📥 Received: ${UserCode}_${SN}_${RecordDate} for ${companyId}`);
 
       const row = {
         UserID: UserCode,
