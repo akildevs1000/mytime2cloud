@@ -736,13 +736,6 @@ class Attendance extends Model
 
     public static function isLeave(int $companyId, int $employeeId, string $date): bool
     {
-        return static::where([
-            'company_id'  => $companyId,
-            'employee_id' => $employeeId,
-            'date'        => $date,
-            'status'      => 'L',
-        ])->exists();
-
         return Cache::rememberForever("leave_{$companyId}_{$employeeId}_{$date}", function () use ($companyId, $employeeId, $date) {
             return static::where([
                 'company_id'  => $companyId,
