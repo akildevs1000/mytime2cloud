@@ -722,4 +722,14 @@ class Attendance extends Model
         // Default for missed workdays
         return "A";
     }
+
+    public static function getAlreadyRenderedEmployeeIds(array $params): array
+    {
+        return self::where("company_id", $params["company_id"])
+            ->where("date", $params["date"])
+            ->whereIn("employee_id", $params["UserIds"])
+            ->whereIn("shift_type_id", $params["exclude_shift_type_ids"])
+            ->pluck("employee_id")
+            ->toArray();
+    }
 }
