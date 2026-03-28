@@ -207,6 +207,8 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
+
+        // sdlfjk
         $result = $this->handleFile();
 
         if (array_key_exists("error", $result)) {
