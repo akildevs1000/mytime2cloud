@@ -162,8 +162,12 @@ class Attendance extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('order', function (Builder $builder) {
-            //$builder->orderBy('id', 'desc');
+        static::saved(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
+        });
+
+        static::deleted(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
         });
     }
 
