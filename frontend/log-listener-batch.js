@@ -140,7 +140,17 @@ async function flushAttendanceQueue() {
   try {
     const { sql, params } = buildAttendanceBulkInsert(batch);
     const result = await dbPool.query(sql, params);
-    console.log(`✅ Flushed ${batch.length} rows | inserted: ${result.rowCount}`);
+
+    const inserted = result.rowCount;
+    const skipped = batch.length - inserted;
+
+    if (skipped > 0) {
+      batch.forEach(r => {
+        console.log(`⏭️  Skipped duplicate → UserID: ${r.UserID} | DeviceID: ${r.DeviceID} | LogTime: ${r.LogTime}`);
+      });
+    }
+
+    console.log(`✅ Flushed ${batch.length} rows | inserted: ${inserted} | skipped: ${skipped}`);
   } catch (err) {
     logError("Bulk attendance insert failed: " + err.message);
     try {
