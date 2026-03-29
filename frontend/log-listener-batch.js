@@ -7,6 +7,21 @@ require("dotenv").config();
 // ========== CONFIG ==========
 const { SOCKET_ENDPOINT } = process.env;
 
+console.table({
+  SOCKET_ENDPOINT,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_USERNAME: process.env.DB_USERNAME,
+  DB_PASSWORD: process.env.DB_PASSWORD ? "***hidden***" : "NOT SET",
+  DB_DATABASE: process.env.DB_DATABASE,
+  PGPOOL_MAX: process.env.PGPOOL_MAX || 20,
+  DEVICE_CACHE_TTL: process.env.DEVICE_CACHE_TTL_MS || "30000 (default)",
+  MYTIME_LOG_DIR: process.env.MYTIME_LOG_DIR || "logs/ (default)",
+  MAX_QUEUE: 5000,
+  MAX_BATCH: 300,
+  FLUSH_MS: 300,
+});
+
 const verification_methods = {
   1: "Card", 2: "Fing", 3: "Face", 4: "Fing + Card",
   5: "Face + Fing", 6: "Face + Card", 7: "Card + Pin",
@@ -45,7 +60,7 @@ const dbPool = new Pool({
   user: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
-  max: 20,
+  max: process.env.PGPOOL_MAX ? Number(process.env.PGPOOL_MAX) : 20,
   idleTimeoutMillis: 0,
 });
 
@@ -54,14 +69,23 @@ dbPool.connect()
   .catch(err => logError("PostgreSQL connection error: " + err.message));
 
 // ========== DEVICE COMPANY CACHE ==========
+// Registered devices → cached forever (until process restart)
+// Unregistered devices → retried every DEVICE_CACHE_TTL_MS
 const deviceCompanyCache = new Map();
 const deviceCompanyCacheTS = new Map();
-const DEVICE_CACHE_TTL_MS = 10 * 60 * 1000;
+const PERMANENT_CACHE = new Set();
+const DEVICE_CACHE_TTL_MS = process.env.DEVICE_CACHE_TTL_MS
+  ? Number(process.env.DEVICE_CACHE_TTL_MS)
+  : 30 * 1000; // 30 sec for unregistered/null devices
 
 async function getCompanyIdForDevice(deviceId) {
   const key = String(deviceId || "").trim();
   if (!key) return null;
 
+  // permanently cached registered device — never hit DB again
+  if (PERMANENT_CACHE.has(key)) return deviceCompanyCache.get(key);
+
+  // short TTL cache for unregistered/null devices
   const fresh = Date.now() - (deviceCompanyCacheTS.get(key) || 0) < DEVICE_CACHE_TTL_MS;
   if (fresh && deviceCompanyCache.has(key)) return deviceCompanyCache.get(key);
 
@@ -71,21 +95,27 @@ async function getCompanyIdForDevice(deviceId) {
       [key]
     );
 
-    // ── Device not found in devices table ──
+    // device not found in devices table
     if (r.rows.length === 0) {
       logError(`Device not registered in devices table → DeviceID: ${key}`);
+      deviceCompanyCache.set(key, null);
+      deviceCompanyCacheTS.set(key, Date.now());
       return null;
     }
 
-    // ── Device found but company_id is null ──
+    // device found but company_id is null
     if (r.rows[0].company_id === null) {
-      logError(`Device found but company_id is NULL in devices table → DeviceID: ${key}`);
+      logError(`Device found but company_id is NULL → DeviceID: ${key}`);
+      deviceCompanyCache.set(key, null);
+      deviceCompanyCacheTS.set(key, Date.now());
       return null;
     }
 
+    // fully registered — cache forever
     const cid = r.rows[0].company_id;
     deviceCompanyCache.set(key, cid);
-    deviceCompanyCacheTS.set(key, Date.now());
+    PERMANENT_CACHE.add(key);
+    console.log(`📌 Device permanently cached → DeviceID: ${key} | company_id: ${cid}`);
     return cid;
 
   } catch (err) {
@@ -137,6 +167,15 @@ async function flushAttendanceQueue() {
   if (attendanceQueue.length === 0) return;
 
   const batch = attendanceQueue.splice(0, MAX_BATCH);
+
+  // log any null company_id rows before insert
+  const nullCompanyRows = batch.filter(r => !r.company_id);
+  if (nullCompanyRows.length > 0) {
+    nullCompanyRows.forEach(r => {
+      logError(`NULL company_id → UserID: ${r.UserID} | DeviceID: ${r.DeviceID} | LogTime: ${r.LogTime}`);
+    });
+  }
+
   try {
     const { sql, params } = buildAttendanceBulkInsert(batch);
     const result = await dbPool.query(sql, params);
