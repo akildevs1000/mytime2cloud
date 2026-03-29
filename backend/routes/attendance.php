@@ -26,12 +26,12 @@ Route::get('attendance-logs-missing', [AttendanceLogMissingController::class, "G
 
 Route::post('/generate-pdf-after-regeneration', function (Request $request) {
 
-    // only temporary for testing, to be removed after testing is done
-    return response()->json([
-        'status' => 'success',
-        'message' => 'PDF generated successfully',
-        'details' => "This is a placeholder response. The actual PDF generation logic is executed in the background and will return the real result once completed."
-    ]);
+    // // only temporary for testing, to be removed after testing is done
+    // return response()->json([
+    //     'status' => 'success',
+    //     'message' => 'PDF generated successfully',
+    //     'details' => "This is a placeholder response. The actual PDF generation logic is executed in the background and will return the real result once completed."
+    // ]);
 
     // 1. Prepare your data (simulating your $items array)
     $id = $request->input('company_id');
