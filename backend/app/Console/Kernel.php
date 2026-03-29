@@ -109,6 +109,25 @@ class Kernel extends ConsoleKernel
             // $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
             // $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
 
+
+            // $schedule->command(
+            //     "pdf:generatev1 $companyId Template1 " .
+            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
+            //         now()->subMonth()->endOfMonth()->toDateString()
+            // )
+            //     ->monthlyOn(1, '03:35')
+            //     ->withoutOverlapping()
+            //     ->runInBackground();
+
+            // $schedule->command(
+            //     "pdf:generatev1 $companyId Template4 " .
+            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
+            //         now()->subMonth()->endOfMonth()->toDateString()
+            // )
+            //     ->monthlyOn(1, '04:00')
+            //     ->withoutOverlapping()
+            //     ->runInBackground();
+
             $schedule
                 ->command("task:generate_daily_report $companyId")
                 ->dailyAt('03:00')
