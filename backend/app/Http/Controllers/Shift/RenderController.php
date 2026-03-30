@@ -71,7 +71,7 @@ class RenderController extends Controller
         //     return ["Limit 20 Employees only"];
         // }
 
-        if ($request->company_id == 63 || $request->company_id == 49) {
+        if ($request->company_id == 65 || $request->company_id == 63 || $request->company_id == 49) {
             return (new FiloShiftController)->renderData($request);
         }
 
