@@ -566,11 +566,11 @@ class SingleShiftController extends Controller
             "exclude_shift_type_ids" => [1, 4], // for Single
         ];
 
-        $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
+        // $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
 
-        if (empty($params["UserIds"])) {
-            return "[" . $date . "] SingleShift: All employees already rendered by another shift. IDs: " . json_encode($UserIds);
-        }
+        // if (empty($params["UserIds"])) {
+        //     return "[" . $date . "] SingleShift: All employees already rendered by another shift. IDs: " . json_encode($UserIds);
+        // }
 
         // 1. Resolve which employees to process
         if (!$custom_render) {
