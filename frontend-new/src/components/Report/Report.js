@@ -37,8 +37,7 @@ import { downloadReport } from '@/lib/endpoint/report';
 
 const reportTemplates = [
   { id: `Template1`, name: `Monthly Report Format A` },
-  { id: `Template2`, name: `Monthly Report Format B` },
-  { id: 'Template4', name: 'Monthly Report Format C' },
+  { id: 'Template4', name: 'Monthly Report Format B' },
 
   { id: `Template3`, name: `Daily` },
 ];
@@ -232,11 +231,17 @@ export default function AttendanceTable() {
 
   useEffect(() => {
     fetchScheduledEmployees();
-  }, [selectedDepartmentIds,shiftTypeId]);
+  }, [selectedDepartmentIds, shiftTypeId]);
+
+
+  // Clear selectedEmployeeIds when shiftTypeId (tab) changes
+  useEffect(() => {
+    setSelectedEmployeeIds([]);
+  }, [shiftTypeId]);
 
   useEffect(() => {
+    // ...existing code...
   }, [selectedEmployeeIds]);
-
   const [params, setParams] = useState(null);
 
   const fetchRecords = async (shiftTypeId) => {
@@ -350,12 +355,56 @@ export default function AttendanceTable() {
       // 1. Handle Template4 Redirect (Special Case)
       if (selectedReportTemplate === "Template4" && actionType !== "EXCEL") {
 
-        await axios.post('https://report.mytime2cloud.com/merge-pdfs', {}, {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        if (
+          !selectedEmployeeIds?.length
+        ) {
+          notify("Warning", "Employee not selected", "warning");
+          return;
+        }
+
+        setIsProgressOpen(true);
+
+        // Map the IDs to the exact filename format on your server
+        const filesToMerge = selectedEmployeeIds.map(id =>
+          `Attendance_Report_Template4_${fromDate}_${toDate}_${id}.pdf`
+        );
+
+        try {
+          const response = await api.post('https://report.mytime2cloud.com/merge-pdfs',
+            {
+              filenames: filesToMerge // <--- Passing the data here
+            }, {
+            headers: { 'Content-Type': 'application/json' },
+            responseType: 'blob' // CRITICAL: Tells Axios to handle binary data
+          });
+
+          // 1. Create a URL for the blob data
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+
+          // 2. Create a temporary anchor element
+          const link = document.createElement('a');
+          link.href = url;
+
+          // 3. Set the filename
+          link.setAttribute('download', 'Attendance_Report_TemplateB.pdf');
+
+          // 4. Append to body, click, and remove
+          document.body.appendChild(link);
+          link.click();
+          link.parentNode.removeChild(link);
+
+          // 5. Clean up the URL object
+          window.URL.revokeObjectURL(url);
+
+        } catch (error) {
+          console.error("Download failed:", error);
+          // Handle error (e.g., show a notification)
+        }
+        finally {
+          setIsProgressOpen(false);
+        }
         return;
       }
-
       // 2. Prepare the Query String for other actions (matching Vue frontend format)
       const queryObj = new URLSearchParams(commonParams);
 
@@ -379,6 +428,13 @@ export default function AttendanceTable() {
 
       if (actionType !== "EXCEL") {
 
+        if (
+          !selectedEmployeeIds?.length
+        ) {
+          notify("Warning", "Employee not selected", "warning");
+          return;
+        }
+
         setIsProgressOpen(true);
         const payload = {
           ...commonParams,
@@ -387,6 +443,8 @@ export default function AttendanceTable() {
           'employee_id[]': selectedEmployeeIds,
           filterType: 'Monthly'
         };
+
+        console.log("Generating report", payload, new Date().toISOString());
 
         try {
           const data = await startReportGeneration(payload);
@@ -433,6 +491,13 @@ export default function AttendanceTable() {
     setIsButtonclicked(true);
     fetchRecords(shiftTypeId);
   }
+
+  // Refresh data when pagination changes and submit has been clicked
+  useEffect(() => {
+    if (isButtonclicked) {
+      fetchRecords(shiftTypeId);
+    }
+  }, [currentPage, perPage]);
 
   useEffect(() => {
     fetchRecords(shiftTypeId)

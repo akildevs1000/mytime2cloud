@@ -11,12 +11,12 @@ const DEFAULT_HALFDAY = {
   enabled: false,
   day: "S",
   onDuty: "09:00",
-  offDuty: "01:00",
-  minHours: 4,
+  offDuty: "13:00",
+  minHours: "04:00", // Changed from 4 to "04:00" to match DB
   beginStart: "08:30",
   beginEnd: "09:30",
   endStart: "12:30",
-  endEnd: "02:00",
+  endEnd: "13:30",
 };
 
 const DEFAULT_WEEKOFF = {
@@ -32,7 +32,7 @@ const DAYS = [
   { key: "M", label: "M" },
   { key: "T", label: "T" },
   { key: "W", label: "W" },
-  { key: "Th", label: "T" }, // keeps your original UI (2nd T = Thursday)
+  { key: "Th", label: "Th" }, // keeps your original UI (2nd T = Thursday)
   { key: "F", label: "F" },
   { key: "S", label: "S" },
   { key: "Su", label: "S" },
@@ -104,27 +104,82 @@ export default function AttendanceRules({ shift, handleChange }) {
   console.log(shift?.weekoff_rules);
 
   const [halfDay, setHalfDay] = useState(DEFAULT_HALFDAY);
+
+  // Debug: Log incoming halfday_rules and hydrated state
+  useEffect(() => {
+    console.log('Received shift.halfday_rules:', shift?.halfday_rules);
+  }, [shift?.halfday_rules]);
+
+  useEffect(() => {
+    console.log('Hydrated halfDay state:', halfDay);
+  }, [halfDay]);
   const [weekOffRules, setWeekOffRules] = useState(DEFAULT_WEEKOFF);
+
 
   useEffect(() => {
     if (!shift) return;
-    setHalfDay({ ...DEFAULT_HALFDAY, ...(shift.halfday_rules || {}) });
-    setWeekOffRules({ ...DEFAULT_WEEKOFF, ...(shift.weekoff_rules || {}) });
-    setHydrated(true);
-  }, [shift?.id]); // <-- IMPORTANT: stable dependency
 
+    // Hydrate Half Day Rules
+    if (shift.halfday_rules) {
+      setHalfDay({
+        ...DEFAULT_HALFDAY,
+        ...shift.halfday_rules
+      });
+    }
+
+    // Hydrate Week Off Rules
+    if (shift.weekoff_rules) {
+      const rules = { ...DEFAULT_WEEKOFF, ...shift.weekoff_rules };
+      setWeekOffRules(rules);
+      if (rules.days) setFixedDays(rules.days);
+    }
+
+    // Set hydration to true AFTER states are set
+    setHydrated(true);
+  }, [shift?.id]);
+
+
+  useEffect(() => {
+    if (hydrated) {
+      handleChange("halfday_rules", halfDay);
+    }
+  }, [halfDay, hydrated]);
+
+  useEffect(() => {
+    if (hydrated) {
+      handleChange("weekoff_rules", weekOffRules);
+    }
+  }, [weekOffRules, hydrated]);
 
   useEffect(() => {
     setWeekOffRules((p) => ({ ...p, days: fixedDays }));
   }, [fixedDays]);
 
-  useEffect(() => {
-    handleChange("weekoff_rules", weekOffRules);
-  }, [weekOffRules]);
+    // Utility to calculate difference in HH:MM format
+  function getTimeDiffHHMM(start, end) {
+    if (!start || !end) return "00:00";
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    let startMins = sh * 60 + sm;
+    let endMins = eh * 60 + em;
+    let diff = endMins - startMins;
+    if (diff < 0) diff += 24 * 60; // handle overnight
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+  }
 
+  // Auto-calculate minHours for halfDay
   useEffect(() => {
-    handleChange("halfday_rules", halfDay);
-  }, [halfDay]);
+    if (halfDay.enabled && halfDay.onDuty && halfDay.offDuty) {
+      const autoMin = getTimeDiffHHMM(halfDay.onDuty, halfDay.offDuty);
+      if (halfDay.minHours !== autoMin) {
+        setHalfDay((p) => ({ ...p, minHours: autoMin }));
+      }
+    }
+  }, [halfDay.enabled, halfDay.onDuty, halfDay.offDuty]);
+
+
 
   useEffect(() => {
     if (beforeDuty && afterDuty) {
@@ -353,7 +408,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                   </label>
                   <div className="relative">
                     <TimePicker
-                      defaultValue={halfDay.onDuty}
+                      value={halfDay.onDuty}
                       onChange={(e) => setHalfDay((p) => ({ ...p, onDuty: e }))}
                       disabled={!halfDay.enabled}
                     />
@@ -366,7 +421,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                   </label>
                   <div className="relative">
                     <TimePicker
-                      defaultValue={halfDay.offDuty}
+                      value={halfDay.offDuty}
                       onChange={(e) =>
                         setHalfDay((p) => ({ ...p, offDuty: e }))
                       }
@@ -381,7 +436,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                   </label>
                   <div className="relative">
                     <TimePicker
-                      defaultValue={halfDay.minHours}
+                      value={halfDay.minHours}
                       onChange={(e) =>
                         setHalfDay((p) => ({ ...p, minHours: e }))
                       }
@@ -402,7 +457,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                         Start
                       </label>
                       <TimePicker
-                        defaultValue={halfDay.beginStart}
+                        value={halfDay.beginStart}
                         onChange={(e) =>
                           setHalfDay((p) => ({ ...p, beginStart: e }))
                         }
@@ -414,7 +469,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                         End
                       </label>
                       <TimePicker
-                        defaultValue={halfDay.beginEnd}
+                        value={halfDay.beginEnd}
                         onChange={(e) =>
                           setHalfDay((p) => ({ ...p, beginEnd: e }))
                         }
@@ -434,7 +489,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                         Start
                       </label>
                       <TimePicker
-                        defaultValue={halfDay.endStart}
+                        value={halfDay.endStart}
                         onChange={(e) =>
                           setHalfDay((p) => ({ ...p, endStart: e }))
                         }
@@ -446,7 +501,7 @@ export default function AttendanceRules({ shift, handleChange }) {
                         End
                       </label>
                       <TimePicker
-                        defaultValue={halfDay.endEnd}
+                        value={halfDay.endEnd}
                         onChange={(e) =>
                           setHalfDay((p) => ({ ...p, endEnd: e }))
                         }
@@ -587,7 +642,7 @@ export default function AttendanceRules({ shift, handleChange }) {
 
                 <div className="flex-1 w-full flex items-center gap-3">
                   <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                    Action: {shift.attendanc_rule_late_coming}
+                    Action:
                   </span>
                   <div className="relative flex-1 w-full">
                     <DropDown

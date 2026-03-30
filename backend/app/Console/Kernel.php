@@ -61,18 +61,12 @@ class Kernel extends ConsoleKernel
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
-            ->everyFifteenMinutes()->runInBackground();
+            ->everyMinute()
+            ->runInBackground();
 
         $schedule
             ->command('task:sync_alarm_logs')
             ->everyFifteenMinutes()->runInBackground();
-
-        // --------------------Daily Report Generation for automation-------------------- //
-        $schedule
-            ->command("task:generate_daily_report")
-            ->dailyAt('05:00')
-            ->runInBackground();
-        // --------------------Daily Report Generation for automation-------------------- //
 
         // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
 
@@ -112,8 +106,32 @@ class Kernel extends ConsoleKernel
 
         foreach ($companyIds as $companyId) {
 
-            $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
-            $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
+            // $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
+            // $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
+
+
+            // $schedule->command(
+            //     "pdf:generatev1 $companyId Template1 " .
+            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
+            //         now()->subMonth()->endOfMonth()->toDateString()
+            // )
+            //     ->monthlyOn(1, '03:35')
+            //     ->withoutOverlapping()
+            //     ->runInBackground();
+
+            // $schedule->command(
+            //     "pdf:generatev1 $companyId Template4 " .
+            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
+            //         now()->subMonth()->endOfMonth()->toDateString()
+            // )
+            //     ->monthlyOn(1, '04:00')
+            //     ->withoutOverlapping()
+            //     ->runInBackground();
+
+            $schedule
+                ->command("task:generate_daily_report $companyId")
+                ->dailyAt('03:00')
+                ->runInBackground();
 
             // AI Streak Commands: late, early, absent
             $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=late --streak=3")

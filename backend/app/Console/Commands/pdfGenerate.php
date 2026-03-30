@@ -6,8 +6,10 @@ use App\Models\Company;
 use App\Models\Employee;
 use Illuminate\Console\Command;
 use App\Jobs\V1\GenerateAttendanceReportPDF;
-use Illuminate\Support\Facades\Cache;
+use App\Jobs\V1\GenerateAttendanceReportPDFTemplate4;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class pdfGenerate extends Command
 {
@@ -96,29 +98,32 @@ class pdfGenerate extends Command
 
         $this->info("Dispatching reports for $company->name ($totalEmployees employees) using $template");
 
-        // Set Cache for progress tracking
-        Cache::put("batch_total", $totalEmployees, 1800);
-        Cache::put("batch_done", 0, 1800);
-        Cache::put("batch_failed", 0, 1800);
-
         $employeeQuery->with(["schedule" => function ($q) use ($companyId) {
             $q->where("company_id", $companyId)
                 ->select("id", "shift_id", "shift_type_id", "company_id", "employee_id")
                 ->withOut(["shift", "shift_type"]);
         }])
-        ->withOut(["branch", "designation", "sub_department", "user"])
-        ->chunk(50, function ($employees) use ($company, $requestPayload, $template) {
-            foreach ($employees as $employee) {
-                GenerateAttendanceReportPDF::dispatch(
-                    $employee->system_user_id,
-                    $company,
-                    $employee,
-                    $requestPayload,
-                    $employee->schedule->shift_type_id ?? 0,
-                    $template
-                );
-            }
-            gc_collect_cycles();
-        });
+            ->withOut(["branch", "designation", "sub_department", "user"])
+            ->chunk(50, function ($employees) use ($company, $requestPayload, $template) {
+                foreach ($employees as $employee) {
+
+                    GenerateAttendanceReportPDF::dispatch(
+                        $employee->system_user_id,
+                        $company,
+                        $employee,
+                        $requestPayload,
+                        $employee->schedule->shift_type_id ?? 0,
+                        $template
+                    );
+
+                    GenerateAttendanceReportPDFTemplate4::dispatch(
+                        $employee->system_user_id,
+                        $company,
+                        $employee,
+                        $requestPayload
+                    );
+                }
+                gc_collect_cycles();
+            });
     }
 }

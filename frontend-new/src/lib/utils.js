@@ -99,15 +99,16 @@ export const setStatusLabel = (status) => {
   const statuses = {
     A: "Absent",
     P: "Present",
-    M: "Incomplete",
+    M: "Missing",
     LC: "Present",
     EG: "Present",
     O: "Week Off",
     L: "Leave",
     H: "Holiday",
     V: "Vacation",
+    V: "Vacation",
   };
-  return statuses[status];
+  return statuses[status] ?? "---";
 };
 
 export const getBgColor = (status) => {
@@ -420,4 +421,29 @@ export const getMonthBounds = (monthValueFrom, monthValueTo) => {
     from_date: `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, '0')}-${String(start.getDate()).padStart(2, '0')}`,
     to_date: `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`,
   };
+};
+
+
+export const isShortShift = (workingHours, totalHours) => {
+  if (!workingHours || !totalHours) return false;
+  if (totalHours === "---" || workingHours === "---") return false;
+
+  const toMinutes = (time) => {
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
+  };
+
+  return toMinutes(totalHours) < toMinutes(workingHours);
+};
+
+
+// Map full day names → your DAYS keys
+export const DAY_NAME_TO_KEY = {
+  Monday:    "M",
+  Tuesday:   "T",
+  Wednesday: "W",
+  Thursday:  "Th",
+  Friday:    "F",
+  Saturday:  "S",
+  Sunday:    "Su",
 };

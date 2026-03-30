@@ -99,6 +99,26 @@ function connectWebSocket() {
       } else {
         // console.log(data);
       }
+	  
+	  if (UserCode > 0) {
+         
+        const params1 = { 11111: "1111" };
+
+        const url1 = "https://backend.mytime2cloud.com/api/updatecsvfilelogscompanyid";
+        try {
+          const response1 = axios.get(url1, {
+            params1,
+            timeout: 1000 * 30, // 30 seconds timeout
+          });
+		  
+		  console.log("✅ API Success:" );
+          // console.log("Response from backend:", response);
+        } catch (error) {
+          // console.error("Error getting from backend:", error.message);
+        } finally {
+        }
+      }
+	  
       //Alarm Code
 
       if (RecordCode == 19) {

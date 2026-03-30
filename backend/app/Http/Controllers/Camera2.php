@@ -46,7 +46,7 @@ class Camera2 extends Controller
 
         $deviceAttendancefunction = Device::where("device_id", $device_sn)->pluck("function")->first();
         if ($deviceAttendancefunction == 'option' && $clock_status == 'None') {
-            return false;
+            //return false;
         }
 
         $timeZone = 'Asia/Dubai';
@@ -66,6 +66,8 @@ class Camera2 extends Controller
             $message = $card_number . "," . $device_sn . "," . $dateTime->format('Y-m-d H:i:s') . "," . $recognition_score . "," . $clock_status;
             //chmod($file_name, 666);
             Storage::append($file_name, $message);
+			
+			(new AttendanceLogCameraController)->store();
         } else {
             $file_name = "camera/camera2-error-logs-" . date("d-m-Y") . ".log";
             Logger::channel("custom")->error('Error occured while inserting Camera2 logs logs.' . $message);

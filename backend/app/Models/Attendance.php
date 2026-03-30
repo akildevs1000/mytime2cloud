@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class Attendance extends Model
@@ -15,7 +16,10 @@ class Attendance extends Model
     const ABSENT = "A"; //1;
     const PRESENT = "P"; //2;
     const MISSING = "M"; //3;
-
+    const HOLIDAY = "H"; //4
+    const HALFDAY = "HD"; //5
+    const LATE_COMING = "LC"; //6
+    const EARLY_GOING = "EG"; //7
 
     const DAY_MAP = [
         'Mon' => 'M',
@@ -158,8 +162,12 @@ class Attendance extends Model
     {
         parent::boot();
 
-        static::addGlobalScope('order', function (Builder $builder) {
-            //$builder->orderBy('id', 'desc');
+        static::saved(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
+        });
+
+        static::deleted(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
         });
     }
 
@@ -576,5 +584,165 @@ class Attendance extends Model
         }
 
         return $shift;
+    }
+
+    public static function getMonthlyFlexiDaysTaken($company_id, $employee_id, $date)
+    {
+        $startDate = date("Y-m-01", strtotime($date));
+        $yesterday = date("Y-m-d", strtotime($date . " -1 day"));
+
+        // If it's the 1st of the month, yesterday was in the previous month, 
+        // so we return 0.
+        if (strtotime($yesterday) < strtotime($startDate)) {
+            return 0;
+        }
+
+        return self::where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->whereBetween('date', [$startDate, $yesterday])
+            ->where('status', 'O')
+            // ->where('date', '!=', $date)
+            ->count();
+    }
+
+    /**
+     * Deducts unwanted OT based on shift policy (Before/After/Both)
+     * * @param string $otTime (e.g., "02:30")
+     * @param array $item (Must contain 'in' and 'out' times)
+     * @param array|object $shift (Must contain duty times and overtime_type)
+     * @return string
+     */
+    public static function applyOvertimePolicy($otTime, $item, $shift)
+    {
+        if ($otTime == "---" || $otTime == "00:00" || empty($otTime)) return "00:00";
+
+        $overtimeType = $shift["overtime_type"] ?? "Both";
+        if ($overtimeType === "Both") return $otTime;
+
+        // Convert total OT to minutes
+        [$h, $m] = explode(':', $otTime);
+        $totalMinutes = ($h * 60) + $m;
+
+        try {
+            $inTime = new \DateTime($item["in"]);
+            $onDuty = new \DateTime($shift["on_duty_time"]);
+            $outTime = new \DateTime($item["out"]);
+            $offDuty = isset($shift["off_duty_time"]) ? new \DateTime($shift["off_duty_time"]) : null;
+
+            if ($overtimeType === "After") {
+                // "After" means we only count OT after off_duty. 
+                // So we deduct any "Early In" minutes from the total OT.
+                $earlyMinutes = ($inTime < $onDuty)
+                    ? ($onDuty->diff($inTime)->h * 60) + $onDuty->diff($inTime)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $earlyMinutes);
+            } else if ($overtimeType === "Before" && $offDuty) {
+                // "Before" means we only count OT before on_duty.
+                // So we deduct any "Late Out" minutes from the total OT.
+                $lateMinutes = ($outTime > $offDuty)
+                    ? ($outTime->diff($offDuty)->h * 60) + $outTime->diff($offDuty)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $lateMinutes);
+            }
+        } catch (\Exception $e) {
+            // Fallback if dates are invalid
+            return $otTime;
+        }
+
+        $finalHours = floor($totalMinutes / 60);
+        $finalMins = $totalMinutes % 60;
+
+        return str_pad($finalHours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($finalMins, 2, "0", STR_PAD_LEFT);
+    }
+
+    /**
+     * Determines the attendance status based on shift settings and logs.
+     * Priority: Holiday > Fixed Weekend > Scheduled Day > Flexi Override > Absent
+     * * @param int $company_id
+     * @param int $employee_id
+     * @param string $date (Y-m-d)
+     * @param array|object $shift
+     * @param array $logs (The logs for this specific employee)
+     * @return string (H, W, O, A, P, etc.)
+     */
+
+
+    public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
+    {
+
+        if (!empty($logs)) {
+            return "P";
+        }
+
+        if (self::isLeave($company_id, $employee_id, $date)) {
+            return "L";
+        }
+
+        // 2. SECOND PRIORITY: Public Holiday
+        if (Holidays::isHoliday($company_id, $date)) {
+            return "H";
+        }
+
+        // 3. THIRD PRIORITY: Monthly Flexible Holidays (The Master Bank)
+        // Check this before Fixed Weekends or Workdays
+        $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
+        if ($limit > 0) {
+            $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+
+            if ($taken < $limit) {
+                return "O"; // Deduct from the flexible bank first
+            }
+        }
+
+        $dayOfWeek = date('D', strtotime($date));
+        $fullDayName = date('l', strtotime($date));
+        $w1 = $shift['weekend1'] ?? 'Not Applicable';
+        $w2 = $shift['weekend2'] ?? 'Not Applicable';
+
+        // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
+        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
+            ($w2 !== 'Not Applicable' && $fullDayName === $w2)
+        ) {
+            return "O";
+        }
+
+        // 5. LAST PRIORITY: Working Days
+        $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
+
+        if (!$isWorkDay) {
+            // If it's Friday (not in 'days') AND the 5 Flexi days are used up, 
+            // AND it's not a Fixed Weekend (W1/W2), it must be Absent.
+            return "A";
+        }
+
+        // Default for missed workdays
+        return "A";
+    }
+
+    public static function getAlreadyRenderedEmployeeIds(array $params): array
+    {
+        $query = self::where("company_id", $params["company_id"])
+            ->where("date", $params["date"])
+            ->whereIn("employee_id", $params["UserIds"]);
+
+        if (!empty($params["exclude_shift_type_ids"])) {
+            $query->whereIn("shift_type_id", $params["exclude_shift_type_ids"]);
+        }
+
+        $alreadyRendered = $query->pluck("employee_id")->toArray();
+
+        return array_values(array_diff($params["UserIds"], $alreadyRendered));
+    }
+
+    public static function isLeave(int $companyId, int $employeeId, string $date): bool
+    {
+        return Cache::rememberForever("leave_{$companyId}_{$employeeId}_{$date}", function () use ($companyId, $employeeId, $date) {
+            return static::where([
+                'company_id'  => $companyId,
+                'employee_id' => $employeeId,
+                'date'        => $date,
+                'status'      => 'L',
+            ])->exists();
+        });
     }
 }

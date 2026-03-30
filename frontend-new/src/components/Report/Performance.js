@@ -407,7 +407,7 @@ export default function PerformanceReport() {
                     Absent
                   </th>
                   <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
-                    Incomplete
+                    Missing
                   </th>
                   <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 text-center">
                     Late In

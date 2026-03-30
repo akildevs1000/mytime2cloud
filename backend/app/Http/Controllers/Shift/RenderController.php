@@ -60,16 +60,16 @@ class RenderController extends Controller
             return ["Employee must be selected"];
         }
 
-        $exemptCompanies = [60, 65];
+        // $exemptCompanies = [60, 65];
 
-        if (
-            !in_array($request->company_id, $exemptCompanies) &&
-            isset($request->employee_ids) &&
-            count($request->employee_ids) > 20
-        ) {
+        // if (
+        //     !in_array($request->company_id, $exemptCompanies) &&
+        //     isset($request->employee_ids) &&
+        //     count($request->employee_ids) > 20
+        // ) {
 
-            return ["Limit 20 Employees only"];
-        }
+        //     return ["Limit 20 Employees only"];
+        // }
 
 
         if ($request->shift_type_id == 2) {

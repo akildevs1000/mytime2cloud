@@ -1,5 +1,5 @@
 import ProfilePicture from "@/components/ProfilePicture";
-import { getBgColor, getTextColor, setStatusLabel } from "@/lib/utils";
+import { DAY_NAME_TO_KEY, getBgColor, getTextColor, isShortShift, setStatusLabel } from "@/lib/utils";
 import { Eye } from "lucide-react";
 
 export default (shiftTypeId, { onViewLogs } = {}) => {
@@ -27,7 +27,7 @@ export default (shiftTypeId, { onViewLogs } = {}) => {
         {
             key: "shift", header: "Shift",
             render: (log) => (
-                <p className="text-sm text-slate-600 dark:text-slate-300">{log.shift?.name}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">{log.shift?.name} {log?.shift?.halfday_rules?.day == DAY_NAME_TO_KEY[log.day] ? "(HD)" : ""}</p>
             ),
         },
     ];
@@ -83,10 +83,16 @@ export default (shiftTypeId, { onViewLogs } = {}) => {
             header: "Status",
             render: (log) => (
                 <span className={`text-sm ${getBgColor(log.status)}`}
-                    style={{ padding: "2px 10px", borderRadius: "50px" }}
+                    style={{
+                        padding: "2px 10px",
+                        borderRadius: "50px",
+                    }}
                 >
-                    {setStatusLabel(log?.status)} {["LC", "EG"].includes(log?.status) ? " (" + log?.status + ")" : ""}
-                </span>
+                    {setStatusLabel(log?.status)}{" "}
+                    {(
+                        log?.shift?.halfday_rules?.day === DAY_NAME_TO_KEY[log?.day] &&
+                        isShortShift(log?.working_hours, log?.total_hrs)
+                    ) ? "(SH)" : ""}                </span>
             ),
         },
         {
