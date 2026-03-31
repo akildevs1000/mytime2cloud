@@ -712,7 +712,7 @@ class Attendance extends Model
         if (!$isWorkDay) {
             // If it's Friday (not in 'days') AND the 5 Flexi days are used up, 
             // AND it's not a Fixed Weekend (W1/W2), it must be Absent.
-            return "A";
+            return "O";
         }
 
         // Default for missed workdays
