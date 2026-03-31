@@ -306,3 +306,10 @@
 .bell-shake {
   animation: shake 0.5s ease-in-out;
 }
+
+
+/* Inside your global CSS or the styles created in createAvatarOverlay */
+.custom-avatar-overlay-container {
+  transition: transform 0.5s ease-out; /* This makes the move smooth */
+  will-change: transform;
+}

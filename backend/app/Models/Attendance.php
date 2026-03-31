@@ -699,6 +699,16 @@ class Attendance extends Model
         $w1 = $shift['weekend1'] ?? 'Not Applicable';
         $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
+
+        info([
+            'date' => $date,
+            'dayOfWeek' => $dayOfWeek,
+            'fullDayName' => $fullDayName,
+            'weekend1' => $shift['weekend1'] ?? null,
+            'weekend2' => $shift['weekend2'] ?? null,
+            'days' => $shift['days'] ?? null,
+        ]);
+
         // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
         if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
             ($w2 !== 'Not Applicable' && $fullDayName === $w2)
