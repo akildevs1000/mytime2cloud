@@ -75,6 +75,10 @@ class RenderController extends Controller
             return (new FiloShiftController)->renderData($request);
         }
 
+        if ($request->company_id == 62) {
+            return (new FiloShiftController)->renderData($request);
+        }
+
         if ($request->shift_type_id == 2) {
             return (new MultiShiftController)->renderData($request);
         }
