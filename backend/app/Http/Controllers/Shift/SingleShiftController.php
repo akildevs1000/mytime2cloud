@@ -631,7 +631,7 @@ class SingleShiftController extends Controller
             ];
 
             // 4. Log Refinement Logic
-            if ($status === "P" && !empty($logsArray)) {
+            if (!empty($logsArray)) {
 
                 // STRICT WINDOW CHECK: Only capture "In" logs within the shift's window
                 $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
@@ -679,7 +679,7 @@ class SingleShiftController extends Controller
                     }
                 } else {
                     // LOGS OUT OF RANGE (e.g. 14:57): Revert to base status (H, O, or A)
-                    $item["status"] = Attendance::determineStatus($id, $employeeId, $date, $shift, []);
+                    $item["status"] = Attendance::determineStatus($id, $employeeId, $date, $shift, $logsArray);
                 }
             }
 
