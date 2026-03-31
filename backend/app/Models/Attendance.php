@@ -722,16 +722,16 @@ class Attendance extends Model
         $currentShort = strtolower($dayOfWeek);     // sun
         $currentFull  = strtolower($fullDayName);   // sunday
 
-        Log::info([
-            'date' => $date,
-            'dayOfWeek' => $dayOfWeek,
-            'fullDayName' => $fullDayName,
-            'weekend1' => $shift['weekend1'] ?? null,
-            'weekend2' => $shift['weekend2'] ?? null,
-            'days' => $days,
-            'currentShort' => $currentShort,
-            'currentFull' => $currentFull,
-        ]);
+        // Log::info([
+        //     'date' => $date,
+        //     'dayOfWeek' => $dayOfWeek,
+        //     'fullDayName' => $fullDayName,
+        //     'weekend1' => $shift['weekend1'] ?? null,
+        //     'weekend2' => $shift['weekend2'] ?? null,
+        //     'days' => $days,
+        //     'currentShort' => $currentShort,
+        //     'currentFull' => $currentFull,
+        // ]);
 
         // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
         // Supports both "Sun" and "Sunday"
