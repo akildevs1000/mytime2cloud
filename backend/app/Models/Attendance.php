@@ -700,7 +700,7 @@ class Attendance extends Model
         $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
 
-        info([
+        Log::info([
             'date' => $date,
             'dayOfWeek' => $dayOfWeek,
             'fullDayName' => $fullDayName,
