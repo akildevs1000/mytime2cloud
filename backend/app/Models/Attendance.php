@@ -694,11 +694,33 @@ class Attendance extends Model
             }
         }
 
-        $dayOfWeek = date('D', strtotime($date));
-        $fullDayName = date('l', strtotime($date));
-        $w1 = $shift['weekend1'] ?? 'Not Applicable';
-        $w2 = $shift['weekend2'] ?? 'Not Applicable';
 
+        $dayOfWeek   = date('D', strtotime($date));   // Sun
+        $fullDayName = date('l', strtotime($date));   // Sunday
+
+        $w1 = trim($shift['weekend1'] ?? '');
+        $w2 = trim($shift['weekend2'] ?? '');
+        $days = $shift['days'] ?? [];
+
+        // If days is stored as JSON string in DB, decode it
+        if (is_string($days)) {
+            $decodedDays = json_decode($days, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedDays)) {
+                $days = $decodedDays;
+            } else {
+                $days = [];
+            }
+        }
+
+        if (!is_array($days)) {
+            $days = [];
+        }
+
+        // Normalize weekend values
+        $w1Normalized = strtolower(trim($w1));
+        $w2Normalized = strtolower(trim($w2));
+        $currentShort = strtolower($dayOfWeek);     // sun
+        $currentFull  = strtolower($fullDayName);   // sunday
 
         Log::info([
             'date' => $date,
@@ -706,22 +728,31 @@ class Attendance extends Model
             'fullDayName' => $fullDayName,
             'weekend1' => $shift['weekend1'] ?? null,
             'weekend2' => $shift['weekend2'] ?? null,
-            'days' => $shift['days'] ?? null,
+            'days' => $days,
+            'currentShort' => $currentShort,
+            'currentFull' => $currentFull,
         ]);
 
         // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
-        if (($w1 !== 'Not Applicable' && $fullDayName === $w1) ||
-            ($w2 !== 'Not Applicable' && $fullDayName === $w2)
+        // Supports both "Sun" and "Sunday"
+        if (
+            ($w1Normalized !== '' && $w1Normalized !== 'not applicable' &&
+                ($w1Normalized === $currentShort || $w1Normalized === $currentFull)) ||
+            ($w2Normalized !== '' && $w2Normalized !== 'not applicable' &&
+                ($w2Normalized === $currentShort || $w2Normalized === $currentFull))
         ) {
             return "O";
         }
 
+        // Normalize working days too
+        $normalizedDays = array_map(function ($day) {
+            return ucfirst(strtolower(trim($day)));
+        }, $days);
+
         // 5. LAST PRIORITY: Working Days
-        $isWorkDay = isset($shift['days']) && is_array($shift['days']) && in_array($dayOfWeek, $shift['days']);
+        $isWorkDay = in_array(ucfirst($currentShort), $normalizedDays); // compares like Sun, Mon, Tue
 
         if (!$isWorkDay) {
-            // If it's Friday (not in 'days') AND the 5 Flexi days are used up, 
-            // AND it's not a Fixed Weekend (W1/W2), it must be Absent.
             return "O";
         }
 
