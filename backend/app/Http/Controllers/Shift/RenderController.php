@@ -76,7 +76,49 @@ class RenderController extends Controller
         }
 
         if ($request->company_id == 62) {
-            // return (new FiloShiftController)->renderData($request);
+            // When shift_type_id=0, group employees by their real shift type
+            if ($request->shift_type_id == 0) {
+                $grouped = ScheduleEmployee::where("company_id", $request->company_id)
+                    ->whereIn("employee_id", $request->employee_ids)
+                    ->get(["employee_id", "shift_type_id"])
+                    ->groupBy("shift_type_id");
+
+                $controllerMap = [
+                    1 => FiloShiftController::class,    // Flexi
+                    4 => NightShiftController::class,   // Night
+                    6 => SingleShiftController::class,  // Single
+                ];
+
+                $results = [];
+
+                foreach ($grouped as $shiftTypeId => $employees) {
+                    if (!isset($controllerMap[$shiftTypeId])) {
+                        continue;
+                    }
+
+                    // Clone request, override only shift_type_id and employee_ids
+                    $clonedRequest = clone $request;
+                    $clonedRequest->merge([
+                        'shift_type_id' => $shiftTypeId,
+                        'employee_ids'  => $employees->pluck('employee_id')->toArray(),
+                    ]);
+
+                    $results = array_merge(
+                        $results,
+                        (array) (new $controllerMap[$shiftTypeId])->renderData($clonedRequest)
+                    );
+                }
+
+                return $results;
+            }
+
+            // Specific shift_type_id passed — original behavior
+            return array_merge(
+                (new AutoShiftController)->renderData($request),
+                (new FiloShiftController)->renderData($request),
+                (new SingleShiftController)->renderData($request),
+                (new NightShiftController)->renderData($request),
+            );            // return (new FiloShiftController)->renderData($request);
         }
 
         if ($request->shift_type_id == 2) {
