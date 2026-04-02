@@ -75,7 +75,7 @@ class RenderController extends Controller
             return (new FiloShiftController)->renderData($request);
         }
 
-        if (in_array($request->company_id, [62, 71])) {
+        if (in_array($request->company_id, [62, 70, 71])) {
             // When shift_type_id=0, group employees by their real shift type
             if ($request->shift_type_id == 0) {
                 $grouped = ScheduleEmployee::where("company_id", $request->company_id)
