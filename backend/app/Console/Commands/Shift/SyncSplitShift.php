@@ -12,7 +12,7 @@ use DateTime;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rules\Unique;
 
-class SyncDoubleShift extends Command
+class SyncSplitShift extends Command
 {
     /**
      * The name and signature of the console command.
