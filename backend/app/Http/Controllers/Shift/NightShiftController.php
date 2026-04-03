@@ -109,30 +109,11 @@ class NightShiftController extends Controller
         $keys = [];
         $message = "";
 
-
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
         foreach ($logsEmployees as $key => $logs) {
 
             $logs = $logs->toArray() ?? [];
 
-            // $firstLog = collect($logs)->filter(function ($record) {
-            //     return isset($record["device"]["function"]) && ($record["device"]["function"] != "Out");
-            // })->first();
-
-            /*$firstLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "In";
-            })->first();
-
-
-            if ($firstLog == null) {
-
-                $firstLog = collect($logs)->filter(function ($record) {
-                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "Out"));
-                })->first();
-            }
-*/
+        
             $firstLog = null;
             $lastLog = null;
 
@@ -200,8 +181,7 @@ class NightShiftController extends Controller
                 continue;
             }
 
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $key, $firstLog);
-
+            $status = Attendance::determineStatus($id, $key, $date, $params["shift"], []);
 
             $item = [
                 "roster_id" => 0,
@@ -216,7 +196,7 @@ class NightShiftController extends Controller
                 "employee_id" => $key,
                 "shift_id" => $firstLog["schedule"]["shift_id"] ?? 0,
                 "shift_type_id" => $firstLog["schedule"]["shift_type_id"] ?? 0,
-                "status" => $status ?? "A",
+                "status" => $status,
                 "late_coming" => "---",
                 "early_going" => "---",
             ];
@@ -228,26 +208,7 @@ class NightShiftController extends Controller
                     $item["status"] = "LC";
                 }
             }
-            //commented because last log is not exist dual to device type is manual
-            // $lastLog = $this->getLogsForOutOnly(
-            //     $item["company_id"],
-            //     $key,
-            //     $item["date"],
-            //     $shift,
-            //     $custom_render
-            // );
-            /*
-            $lastLog = collect($logs)->filter(function ($record) {
-                return $record["log_type"] == "Out";
-            })->last();
-
-
-            if ($lastLog == null) {
-
-                $lastLog = collect($logs)->filter(function ($record) {
-                    return (isset($record["device"]["function"]) && ($record["device"]["function"] != "In"));
-                })->last();
-            }*/
+           
 
             if ($lastLog) {
 
