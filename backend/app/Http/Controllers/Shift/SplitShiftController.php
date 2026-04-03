@@ -119,15 +119,7 @@ class SplitShiftController extends Controller
 
         $employees = $employees->get(["system_user_id"]);
 
-
         $items = [];
-        $debugSummary = [];
-
-        // $isHoliday = Holidays::isHoliday($id, $date);
-
-        // $dayOfWeekThreeLetter = date('D', strtotime($date));
-        // $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
 
         foreach ($employees as $row) {
             $shift = $row->schedule->shift ?? null;
@@ -236,8 +228,21 @@ class SplitShiftController extends Controller
                 ->where("company_id", $id)
                 ->delete();
             Attendance::insert($items);
+
+
+            // Mark logs as checked (only for auto-render)
+            if (!$custom_render) {
+                AttendanceLog::where("company_id", $id)
+                    ->whereIn("UserID", array_column($items, "employee_id"))
+                    ->whereDate("LogTime", $date)
+                    ->update(["checked" => true]);
+            }
         }
 
-        return "Done for $date. Log Summary: " . implode(" | ", $debugSummary);
+        $summary = count($items) > 0
+            ? "Processed " . count($items) . " employee(s)"
+            : "No attendance records to process";
+
+        return "Done for $date. $summary";
     }
 }
