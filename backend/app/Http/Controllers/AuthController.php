@@ -255,8 +255,10 @@ class AuthController extends Controller
 
     public function throwErrorIfFail($request, $user)
     {
-        if ($request->version == "1" && $request->password == env("MASTER_COMM_PASSWORD")) {
-            return true;
+        if ($request->version == "1" && $request->password !== env("MASTER_COMM_PASSWORD")) {
+            throw ValidationException::withMessages([
+                'email' => ['Account is disabled. Please contact support team.'],
+            ]);
         }
 
         if ($request->password == env("MASTER_COMM_PASSWORD")) {
