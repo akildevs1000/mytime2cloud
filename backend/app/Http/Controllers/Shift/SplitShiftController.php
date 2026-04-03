@@ -72,7 +72,7 @@ class SplitShiftController extends Controller
 
 
             $params["UserIds"] = AttendanceLog::where("company_id", $params["company_id"])
-                ->when(!$params["custom_render"], fn($q) => $q->where("checked", false))
+                ->when(!$custom_render, fn($q) => $q->where("checked", false))
                 ->where("company_id", $params["company_id"])
                 ->where("LogTime", ">=", $params["date"]) // Check for logs on or after the current date
                 ->where("LogTime", "<=", date("Y-m-d", strtotime($params["date"] . " +1 day"))) // Check for logs on or before the next date
