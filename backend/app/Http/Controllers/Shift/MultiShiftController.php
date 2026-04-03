@@ -292,6 +292,8 @@ class MultiShiftController extends Controller
                 }
             }
 
+            info($actualLogCount);
+
             $item["status"] = ($actualLogCount) == 0 ? $status : (($actualLogCount) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT);
 
             // ✅ Final summary per employee
