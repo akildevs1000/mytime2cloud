@@ -207,6 +207,8 @@ class AttendanceLogController extends Controller
 
     public function store()
     {
+
+        // sdlfjk
         $result = $this->handleFile();
 
         if (array_key_exists("error", $result)) {
@@ -220,8 +222,6 @@ class AttendanceLogController extends Controller
             ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
             ->toArray();
 
-        $inTypeValues = ['in', 'auto', 'entry']; // Define this once outside the loop
-
         $records = [];
 
         foreach ($result["data"] as $row) {
@@ -229,26 +229,29 @@ class AttendanceLogController extends Controller
 
             $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
             $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+            $company_id = Device::where("device_id", $columns[1])->pluck("company_id")->first();
 
-
-            $deviceId = $columns[1] ?? null;  // 
+            $deviceId = $columns[1] ?? null;  //  
 
             // 2. Look up the function from your map (normalized to lowercase)
             $deviceFunction = isset($deviceFunctionMap[$deviceId])
                 ? strtolower($deviceFunctionMap[$deviceId])
                 : '';
 
-            // 3. Determine the LogType based on your requirements
-            if (in_array($deviceFunction, $inTypeValues)) {
+            if ($deviceFunction === 'auto' || $deviceFunction === 'Auto') {
+                // If the device is set to Auto, store it as 'Auto'
+                $logType = 'auto';
+            } elseif ($deviceFunction === 'in' || $deviceFunction === 'In') {
                 $logType = 'In';
-            } elseif ($deviceFunction === 'out') {
+            } elseif ($deviceFunction === 'out' || $deviceFunction === 'Out') {
                 $logType = 'Out';
             } else {
-                // Fallback: check if 'in' is part of the DeviceID string itself
-                $logType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Out';
+                // Fallback: check if 'in' is part of the DeviceID string
+                $logType = null;
             }
 
             $records[] = [
+                "company_id"              => $company_id ?? null,
                 "UserID"              => $columns[0] ?? null,
                 "DeviceID"            => $columns[1] ?? null,
                 "LogTime"             => $logTime,
@@ -279,7 +282,7 @@ class AttendanceLogController extends Controller
         } catch (\Throwable $th) {
             Logger::channel("custom")->error('Error occured while inserting logs.');
             Logger::channel("custom")->error('Error Details: ' . $th);
-            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+            return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n" . $th);
         }
     }
 

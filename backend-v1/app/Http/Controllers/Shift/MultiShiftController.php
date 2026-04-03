@@ -126,17 +126,14 @@ class MultiShiftController extends Controller
                 ->values();
 
 
-            $dayOfWeekThreeLetter = date('D', strtotime($date));
-            $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-            $status = Attendance::processWeekOffFunc($currentDayKey, $shift['weekoff_rules'] ?? "A", $id, $date, $row->system_user_id, $data->first());
-
+            $status = Attendance::determineStatus($id, $row->system_user_id, $date, $params["shift"], []);
 
             if (! count($data)) {
                 if ($row->schedule->shift && $row->schedule->shift["id"] > 0) {
                     $data1 = [
                         "shift_id"      => $row->schedule->shift["id"],
                         "shift_type_id" => $row->schedule->shift["shift_type_id"],
-                        "status"        => $status ?? "A",
+                        "status"        => $status,
                     ];
                     $model1 = Attendance::query();
                     $model1->where("employee_id", $row->system_user_id);
@@ -163,8 +160,7 @@ class MultiShiftController extends Controller
                 "company_id"    => $params["company_id"],
                 "shift_id"      => $params["shift"]["id"] ?? 0,
                 "shift_type_id" => $params["shift"]["shift_type_id"] ?? 0,
-                "status"        => $status ?? (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
-
+                "status"        => count($data) == 0 ? $status : (count($data) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT),
             ];
 
             $totalMinutes = 0;
@@ -284,7 +280,7 @@ class MultiShiftController extends Controller
                 }
             }
 
-            $item["status"] = $status ?? (count($logsJson) ? Attendance::PRESENT : Attendance::MISSING);
+            $item["status"] = count($logsJson) == 0 ? $status : (count($logsJson) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT);
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;

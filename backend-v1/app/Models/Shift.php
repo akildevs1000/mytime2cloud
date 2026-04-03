@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Shift extends Model
 {
@@ -55,6 +56,16 @@ class Shift extends Model
 
         static::addGlobalScope('order', function (Builder $builder) {
             $builder->orderBy('id', 'desc');
+        });
+
+        // Triggered on created, updated, and saved
+        static::saved(function ($model) {
+            Cache::forget("schedules_company_" . $model->company_id);
+        });
+
+        // Triggered on delete
+        static::deleted(function ($model) {
+            Cache::forget("schedules_company_" . $model->company_id);
         });
     }
 

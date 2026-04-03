@@ -13,6 +13,7 @@ use App\Models\WhatsappClient;
 use Illuminate\Support\Facades\Mail;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log as Logger;
 
 
@@ -46,6 +47,7 @@ class ReportNotificationCrons extends Command
 
         $date = date("Y-m-d H:i:s");
         $yesterday = date("Y-m-d", strtotime("-1 day"));
+        $currentTime = date("H:i"); // Capture current time (e.g., "18:40")
 
         $accounts = WhatsappClient::where("company_id", $company_id)->value("accounts");
 
@@ -64,7 +66,10 @@ class ReportNotificationCrons extends Command
                 ->with(["managers", "company.company_mail_content"])
                 ->with("managers", function ($query) use ($company_id) {
                     $query->where("company_id", $company_id);
-                })->where("company_id", $company_id)->get();
+                })->where("company_id", $company_id)
+                // ->whereIn("id", [136, 137, 138, 139])
+                ->where("time", $currentTime)
+                ->get();
 
             foreach ($models as $model) {
 
@@ -80,12 +85,31 @@ class ReportNotificationCrons extends Command
                         if (in_array("Email", $model->mediums ?? [])) {
                             $email = $manager->email;
 
+                            // $email = "francisgill1000@gmail.com";
+
                             // if ($company_id == 60) {
                             //     $email = "akildevs1000@gmail.com";
                             // }
 
-                            Mail::to($email)
-                                ->queue(new ReportNotificationMail($model, $manager, $files));
+                            // Mail::to($email)
+                            //     ->queue(new ReportNotificationMail($model, $manager, $files));
+
+                            $cacheKey = "sent_mail_{$model->id}_{$manager->id}_" . date('YmdHi');
+
+                            if (!Cache::has($cacheKey)) {
+                                // 1. Send the email
+
+                                Mail::to($email)->queue(new ReportNotificationMail(
+                                    $model,
+                                    $manager,
+                                    $files,
+                                    $model->branch_id, // Explicit branch
+                                    $yesterday
+                                ));
+
+                                // 2. Remember it was sent so the next cron run this minute ignores it
+                                Cache::put($cacheKey, true, 60); // Keep for 60 seconds
+                            }
                         }
 
                         if (in_array("Whatsapp", $model->mediums ?? [])) {

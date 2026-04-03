@@ -60,18 +60,6 @@ class RenderController extends Controller
             return ["Employee must be selected"];
         }
 
-        $exemptCompanies = [60, 65];
-
-        if (
-            !in_array($request->company_id, $exemptCompanies) &&
-            isset($request->employee_ids) &&
-            count($request->employee_ids) > 20
-        ) {
-
-            return ["Limit 20 Employees only"];
-        }
-
-
         if ($request->shift_type_id == 2) {
             return (new MultiShiftController)->renderData($request);
         }
@@ -98,6 +86,47 @@ class RenderController extends Controller
             } else if ($request->shift_type_id == 4) {
                 return (new NightShiftController)->renderData($request);
             }
+        }
+
+        if (in_array($request->company_id, [65, 63, 49])) {
+            return (new FiloShiftController)->renderData($request);
+        }
+
+        // if (in_array($request->company_id, [62, 70, 71])) {
+        // When shift_type_id=0, group employees by their real shift type
+        if ($request->shift_type_id == 0) {
+            $grouped = ScheduleEmployee::where("company_id", $request->company_id)
+                ->whereIn("employee_id", $request->employee_ids)
+                ->get(["employee_id", "shift_type_id"])
+                ->groupBy("shift_type_id");
+
+            $controllerMap = [
+                1 => FiloShiftController::class,    // Flexi
+                4 => NightShiftController::class,   // Night
+                6 => SingleShiftController::class,  // Single
+            ];
+
+            $results = [];
+
+            foreach ($grouped as $shiftTypeId => $employees) {
+                if (!isset($controllerMap[$shiftTypeId])) {
+                    continue;
+                }
+
+                // Clone request, override only shift_type_id and employee_ids
+                $clonedRequest = clone $request;
+                $clonedRequest->merge([
+                    'shift_type_id' => $shiftTypeId,
+                    'employee_ids'  => $employees->pluck('employee_id')->toArray(),
+                ]);
+
+                $results = array_merge(
+                    $results,
+                    (array) (new $controllerMap[$shiftTypeId])->renderData($clonedRequest)
+                );
+            }
+
+            return $results;
         }
 
         return array_merge(

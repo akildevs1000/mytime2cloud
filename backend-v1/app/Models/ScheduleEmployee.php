@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class ScheduleEmployee extends Model
 {
@@ -88,5 +89,20 @@ class ScheduleEmployee extends Model
     public function getEmployeesByType($shift_type_id)
     {
         return self::with("shift")->get()->groupBy(["company_id", "employee_id"]);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Triggered on created, updated, and saved
+        static::saved(function ($model) {
+            Cache::forget("schedules_company_" . $model->company_id);
+        });
+
+        // Triggered on delete
+        static::deleted(function ($model) {
+            Cache::forget("schedules_company_" . $model->company_id);
+        });
     }
 }

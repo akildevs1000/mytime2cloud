@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -33,6 +34,15 @@ class MonthlyController extends Controller
 
     public function startReportGenerationV1(Request $request)
     {
+        Log::info('[startReportGenerationV1] called', [
+            'company_id' => $request->company_id,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
+            'employee_id' => $request->input('employee_id', []),
+            'template' => $request->input('report_template'),
+            'timestamp' => now()->toDateTimeString(),
+        ]);
+
         $requestPayload = [
             'company_id'   => $request->company_id,
             'status'       => "-1",
@@ -65,9 +75,20 @@ class MonthlyController extends Controller
             return response()->json(['error' => "Directory not found: {$directory}"], 404);
         }
 
+        $employeeIds = array_unique(array_filter($employeeIds));
+
         $pdfFiles = [];
 
         try {
+            // Prepare Output Name
+            $outputFileName = "Attendance_Report_{$fromDate}_to_{$toDate}.pdf";
+            $outputPath = $directory . DIRECTORY_SEPARATOR . $outputFileName;
+
+            Log::info('[startReportGenerationV1] merging files', [
+                'pdfFiles' => $pdfFiles,
+                'outputFileName' => $outputFileName,
+                'timestamp' => now()->toDateTimeString(),
+            ]);
             if (!empty($employeeIds)) {
                 // Merge specific employees from the array
                 foreach ($employeeIds as $id) {

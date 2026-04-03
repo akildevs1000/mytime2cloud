@@ -179,6 +179,13 @@ return [
             'level' => 'info',
             'days' => 10, // keep 30 days, adjust as you like
         ],
+
+        'camera_OX_900' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ox900/events.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
     ],
 
 ];

@@ -463,6 +463,11 @@
                 'class' => 'bg-green-100',
                 'color' => 'text-green-600',
             ],
+            'HD' => [
+                'text' => 'Present',
+                'class' => 'bg-green-100',
+                'color' => 'text-green-600',
+            ],
             'LC' => [
                 'text' => 'Present',
                 'class' => 'bg-green-100',
@@ -475,7 +480,7 @@
             ],
             'A' => ['text' => 'Absent', 'class' => 'bg-red-100', 'color' => 'text-red-600'],
             'M' => [
-                'text' => 'Incomplete',
+                'text' => 'Missing',
                 'class' => 'bg-gray-100',
                 'color' => 'text-gray-600',
             ],
@@ -712,7 +717,7 @@
                     <thead>
                         <tr>
                             <th style="text-align: left">Date</th>
-                             <!--  // Multi, Double, General -->
+                            <!--  // Multi, Double, General -->
                             @if ($shift_type == 'General')
                                 <th style="text-align: left">Shift</th>
                                 <th style="text-align: left">In Time</th>
@@ -791,7 +796,7 @@
                                 <td>
                                     <span class="{{ $statusColor }}">
                                         {{ $statusText }}
-                                        {{ in_array($date->status, ['LC', 'EG']) ? " ({$date->status})" : "" }}
+                                        {{ in_array($date->status, ['LC', 'EG', 'HD']) ? " ({$date->status})" : '' }}
                                     </span>
                                 </td>
                             </tr>
@@ -916,7 +921,7 @@
                                 <td>
                                     <span class="{{ $statusColor }}">
                                         {{ $statusText }}
-                                        {{ in_array($date->status, ['LC', 'EG']) ? " ({$date->status})" : "" }}
+                                        {{ in_array($date->status, ['LC', 'EG', 'HD']) ? " ({$date->status})" : '' }}
                                     </span>
                                 </td>
                             </tr>

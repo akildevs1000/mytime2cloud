@@ -69,11 +69,12 @@ class FiloShiftController extends Controller
     public function render($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $channel = "unknown")
     {
         $params = [
-            "company_id" => $id,
-            "date" => $date,
-            "shift_type_id" => $shift_type_id,
-            "custom_render" => $custom_render,
-            "UserIds" => $UserIds,
+            "company_id"             => $id,
+            "date"                   => $date,
+            "shift_type_id"          => $shift_type_id,
+            "custom_render"          => $custom_render,
+            "UserIds"                => $UserIds,
+            "exclude_shift_type_ids" => [6, 4], // Single and Night
         ];
 
         if (!$custom_render) {
@@ -82,57 +83,28 @@ class FiloShiftController extends Controller
 
         $logsEmployees = (new AttendanceLog)->getLogsForRender($params);
 
-        $items = [];
+        $items   = [];
         $message = "";
-
-        $dayOfWeekThreeLetter = date('D', strtotime($date));
-        $currentDayKey = Attendance::DAY_MAP[$dayOfWeekThreeLetter] ?? '';
-
-
-        $holidayQuery = DB::table('holidays')
-            ->where("company_id", $id)
-            ->whereDate('start_date', '<=', $date)
-            ->whereDate('end_date', '>=', $date)->exists();
-
 
         // Fetch all schedules for the relevant employees in one go
         $schedules = ScheduleEmployee::with('shift')
-            ->whereIn("employee_id", $UserIds)
+            ->whereIn("employee_id", $params["UserIds"])
             ->where("company_id", $id)
             ->where("shift_type_id", 1)
             ->get()
             ->keyBy('employee_id');
 
-        foreach ($UserIds as $key) {
+        foreach ($params["UserIds"] as $key) {
 
-            $isData = $logsEmployees[$key] ?? null;
+            $isData   = $logsEmployees[$key] ?? null;
             $schedule = $schedules[$key] ?? null;
-            if (!$schedule) {
-                continue;
-            }
-
-            $shift = $schedule->shift ?? null;
-
-            if (!$shift) {
-                $message .= ". No shift for User: $key";
-                continue;
-            }
-
-            $status = "A";
-
-            if ($shift->weekoff_rules) {
-                $status = Attendance::processWeekOffFunc($currentDayKey, $shift->weekoff_rules, $id, $date, $key) ?? "A";
-            }
-
-            if ($holidayQuery) {
-                $status = "H";
-            }
+            $shift  = $schedule->shift ?? null;
 
             $defaultItem = [
                 "employee_id"   => $key,
                 "date"          => $date,
                 "company_id"    => $id,
-                "status"        => $status,
+                "status"        => Attendance::determineStatus($id, $key, $date, $shift, []),
                 "roster_id"     => 0,
                 "total_hrs"     => "---",
                 "in"            => "---",
@@ -141,22 +113,21 @@ class FiloShiftController extends Controller
                 "device_id_in"  => "---",
                 "device_id_out" => "---",
                 "shift_id"      => $shift->id ?? 0,
-                "shift_type_id" => $shift->shift_type_id ?? 0,
+                "shift_type_id" => $shift->shift_type_id ?? 1,
                 "late_coming"   => "---",
                 "early_going"   => "---",
             ];
 
-            // If no raw logs at all, add the default and skip to next user
-            if (!$isData) {
+            // No schedule, no shift, or no logs — add default and move on
+            if (!$schedule || !$shift || !$isData) {
                 $items[] = $defaultItem;
                 continue;
             }
 
-            // Logic to define shift range (handle overnight shifts)
-            $onDutyStr = $date . ' ' . $shift["on_duty_time"];
-            $offDutyStr = $date . ' ' . $shift["off_duty_time"];
+            // Define shift range (handle overnight shifts)
+            $onDutyStr  = $date . ' ' . $shift["on_duty_time"] . ":00";
+            $offDutyStr = $date . ' ' . $shift["off_duty_time"] . ":00";
 
-            // If off_duty is earlier than on_duty, it ends the next day
             if (strtotime($shift["off_duty_time"]) < strtotime($shift["on_duty_time"])) {
                 $offDutyStr = date("Y-m-d H:i:s", strtotime($offDutyStr . " +1 day"));
             }
@@ -165,42 +136,38 @@ class FiloShiftController extends Controller
                 return $record['LogTime'] >= $onDutyStr && $record['LogTime'] <= $offDutyStr;
             });
 
-            // If logs exist but NONE are in shift range, they are effectively Absent
+            // Logs exist but none fall within shift range — add default and move on
             if ($filteredLogs->isEmpty()) {
                 $items[] = $defaultItem;
                 continue;
             }
 
-            $firstLog = $filteredLogs->first(fn($r) => !in_array(strtolower($r['log_type']), ['out']));
-            $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower($r['log_type']), ['in']));
+            $firstLog = $filteredLogs->first(fn($r) => !in_array(strtolower(trim($r['log_type'])), ['out']));
+            $lastLog  = $filteredLogs->last(fn($r) => !in_array(strtolower(trim($r['log_type'])), ['in']));
 
-            // --- Step C: Build the "Present" Item ---
-            $item = $defaultItem; // Start with the defaults
-            $item["in"] = $firstLog["time"] ?? "---";
+            $item                 = $defaultItem;
+            $item["in"]           = $firstLog["time"] ?? "---";
             $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
 
             if ($filteredLogs->count() == 1) {
                 $item["status"] = "M";
             }
 
-
             if ($lastLog && $filteredLogs->count() > 1) {
-                $item["status"] = "P";
+                $item["status"]        = "P";
                 $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
-                $item["out"] = $lastLog["time"] ?? "---";
+                $item["out"]           = $lastLog["time"] ?? "---";
 
-                // Total Hours Calculation
                 if ($item["out"] !== "---") {
                     if (strtotime($shift["on_duty_time"]) > strtotime($shift["off_duty_time"])) {
-                        $diffInSeconds = strtotime($lastLog["LogTime"]) - strtotime($firstLog["LogTime"]);
-                        $totalMinutes = round($diffInSeconds / 60);
+                        $diffInSeconds     = strtotime($lastLog["LogTime"]) - strtotime($firstLog["LogTime"]);
+                        $totalMinutes      = round($diffInSeconds / 60);
                         $item["total_hrs"] = sprintf("%02d:%02d", floor($totalMinutes / 60), ($totalMinutes % 60));
                     } else {
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
                     }
                 }
 
-                // OT Calculation
                 if (($schedule->isOverTime ?? false) && isset($shift["working_hours"])) {
                     $item["ot"] = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
                 }
@@ -223,9 +190,9 @@ class FiloShiftController extends Controller
                 ->delete();
 
             Attendance::insert($items);
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift.  Affected Ids: " . json_encode($UserIds) . " " . $message;
+            $message = "[" . $date . " " . date("H:i:s") . "] Filo Shift. Affected Ids: " . json_encode($params["UserIds"]) . " " . $message;
         } catch (\Throwable $e) {
-            $message = "[" . $date . " " . date("H:i:s") .  "] Filo Shift. " . $e->getMessage();
+            $message = "[" . $date . " " . date("H:i:s") . "] Filo Shift. " . $e->getMessage();
         }
 
         $this->devLog("render-manual-log", $message);

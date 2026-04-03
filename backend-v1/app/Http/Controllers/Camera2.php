@@ -20,8 +20,19 @@ class Camera2 extends Controller
 
     public function camera2PushEvents(Request $request)
     {
+
+        $payload = $request->all();
+
+        // 1. Immediate Log of the incoming request
+        Logger::channel('camera_OX_900')->info("New Push Event from {$request->ip()}", [
+            'device_sn' => $request->device_sn,
+            'payload' => $payload
+        ]);
+
         //Sample Data
         // {"json_flag":"pass_record","blur":0.8,"device_ip":"192.168.1.66","device_token":"846411f5a1ed419c9b920ebe0965bc9d","device_sn":"M014200892110002761","liveness_score":99,"liveness_type":1,"pass_type":1,"person_code":"4000","person_id":"15760676","person_name":"Venu Jakku","card_number":null,"qr_code":null,"recognition_score":92,"recognition_type":1,"timestamp":1718178317000,"verification_mode":0,"temperature":0,"temperature_type":0,"mask_type":0,"healthy_state":0,"idcard_number":null,"server_verify":0,"verification_type":0,"clock_status":"Clock On"}
+
+        
 
         //try {
         $device_sn = $request->device_sn;
@@ -46,7 +57,7 @@ class Camera2 extends Controller
 
         $deviceAttendancefunction = Device::where("device_id", $device_sn)->pluck("function")->first();
         if ($deviceAttendancefunction == 'option' && $clock_status == 'None') {
-            return false;
+            //return false;
         }
 
         $timeZone = 'Asia/Dubai';
@@ -66,6 +77,8 @@ class Camera2 extends Controller
             $message = $card_number . "," . $device_sn . "," . $dateTime->format('Y-m-d H:i:s') . "," . $recognition_score . "," . $clock_status;
             //chmod($file_name, 666);
             Storage::append($file_name, $message);
+
+            (new AttendanceLogCameraController)->store();
         } else {
             $file_name = "camera/camera2-error-logs-" . date("d-m-Y") . ".log";
             Logger::channel("custom")->error('Error occured while inserting Camera2 logs logs.' . $message);

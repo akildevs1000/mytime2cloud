@@ -52,6 +52,8 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use SimpleSoftwareIO\QrCode\QrCodeServiceProvider;
 use WebSocket\Client;
 
+use App\Http\Controllers\AttendanceLogCameraController;
+
 Route::get("update-alarm-logs-company-ids", function (Request $request) {
 
     try {
@@ -65,6 +67,16 @@ Route::get("update-alarm-logs-company-ids", function (Request $request) {
     } catch (\Throwable $th) {
         //throw $th;
     }
+});
+
+
+Route::get("testox900logs", function (Request $request) {
+
+    (new AttendanceLogCameraController)->store();
+});
+Route::get("updatecsvfilelogscompanyid", function (Request $request) {
+
+   return  (new AttendanceLogController)->store();
 });
 
 Route::get("test900device1", function (Request $request) {

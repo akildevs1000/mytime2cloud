@@ -76,30 +76,61 @@ class ThemeController extends Controller
         $companyId = $request->input('company_id', 0);
         $branch_id = $request->input('branch_id', 0);
 
-        $model = Attendance::where('company_id', $companyId)
-            ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+        // $model = Attendance::where('company_id', $companyId)
+        //     ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
 
-            ->when($request->filled("branch_ids"), function ($q) use ($request) {
-                $q->whereHas("employee", fn($q) => $q->whereIn("branch_id", $request->branch_ids));
-            })
-            ->when($request->filled("department_ids"), function ($q) use ($request) {
-                $q->whereHas("employee", fn($q) => $q->whereIn("department_id", $request->department_ids));
-            })
+        //     ->when($request->filled("branch_ids"), function ($q) use ($request) {
+        //         $q->whereHas("employee", fn($q) => $q->whereIn("branch_id", $request->branch_ids));
+        //     })
+        //     ->when($request->filled("department_ids"), function ($q) use ($request) {
+        //         $q->whereHas("employee", fn($q) => $q->whereIn("department_id", $request->department_ids));
+        //     })
 
-            ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
-            })
-            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                $q->where("department_id", $request->department_id);
-            })
-            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
-            ->whereDate('date', date('Y-m-d'))
-            ->select(
-                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
-                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
-                DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
-                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
-            )->first();
+        //     ->when($branch_id, function ($q) use ($branch_id) {
+        //         $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+        //     })
+        //     ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+        //         $q->where("department_id", $request->department_id);
+        //     })
+        //     // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+        //     ->whereDate('date', date('Y-m-d'))
+        //     ->select(
+        //         DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
+        //         DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
+        //         DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
+        //         DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
+        //     )->first();
+
+
+             // ✅ Get total employees
+    $totalEmployees = Employee::where('company_id', $companyId)
+        ->when($branch_id, fn($q) => $q->where('branch_id', $branch_id))
+        ->when($request->filled("department_id") && $request->department_id > 0, fn($q) => $q->where("department_id", $request->department_id))
+        ->count();
+
+    $logs = AttendanceLog::where('company_id', $companyId)
+        ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+        ->when($branch_id, fn($q) => $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id)))
+        ->when($request->filled("department_id") && $request->department_id > 0, fn($q) => $q->where("department_id", $request->department_id))
+        ->whereDate('LogTime', date('Y-m-d'))
+        ->get()
+        ->groupBy('UserID');
+
+    $clockedin  = 0;
+    $clockedout = 0;
+    $inside     = 0;
+
+    foreach ($logs as $userId => $userLogs) {
+        $types = $userLogs->map(fn($l) => strtolower($l->log_type))->toArray();
+
+        $hasIn  = in_array('in', $types);
+        $hasOut = count(array_intersect(['out', 'auto'], $types)) > 0;
+
+        if ($hasIn)             $clockedin++;
+        if ($hasOut)            $clockedout++;
+        if ($hasIn && !$hasOut) $inside++;
+    }
+
 
         //  #bd2e4a Clock In
         // #005edf Clock Out
@@ -111,56 +142,99 @@ class ThemeController extends Controller
                 'bgColor' => '#bd2e4a',
                 'color'   => '#bd2e4a',
                 'icon'    => '1.png',
-                'value'   => $model->clockedin,
+                'value'   => $clockedin,
                 'text'    => 'Clocked In',
             ],
             [
                 'bgColor' => '#005edf',
                 'color'   => '#005edf',
                 'icon'    => '2.png',
-                'value'   => $model->clockedout,
+                'value'   => $clockedout,
                 'text'    => 'Clocked Out',
             ],
             [
                 'bgColor' => '#38336b',
                 'color'   => '#38336b',
                 'icon'    => '3.png',
-                'value'   => $model->inside,
+                'value'   => $inside,
                 'text'    => 'Inside',
             ],
             [
                 'bgColor' => '#35b568',
                 'color'   => '#35b568',
                 'icon'    => '4.png',
-                'value'   => $model->noshow,
+                'value'   => $totalEmployees - $clockedin,
                 'text'    => 'No Show',
             ],
         ];
     }
 
+    // public function getAdditionalCount(Request $request)
+    // {
+    //     $companyId = $request->input('company_id', 0);
+    //     $branch_id = $request->input('branch_id', 0);
+
+    //     return Attendance::where('company_id', $companyId)
+    //         ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+
+    //         ->when($branch_id, function ($q) use ($branch_id) {
+    //             $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
+    //         })
+    //         ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
+    //             $q->where("department_id", $request->department_id);
+    //         })
+    //         // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
+    //         ->whereDate('date', date('Y-m-d'))
+    //         ->select(
+    //             DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
+    //             DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
+    //             DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
+    //             DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
+    //         )->first();
+    // }
+
+ 
     public function getAdditionalCount(Request $request)
-    {
-        $companyId = $request->input('company_id', 0);
-        $branch_id = $request->input('branch_id', 0);
+{
+    $companyId = $request->input('company_id', 0);
+    $branch_id = $request->input('branch_id', 0);
 
-        return Attendance::where('company_id', $companyId)
-            ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+    // ✅ Get total employees
+    $totalEmployees = Employee::where('company_id', $companyId)
+        ->when($branch_id, fn($q) => $q->where('branch_id', $branch_id))
+        ->when($request->filled("department_id") && $request->department_id > 0, fn($q) => $q->where("department_id", $request->department_id))
+        ->count();
 
-            ->when($branch_id, function ($q) use ($branch_id) {
-                $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id));
-            })
-            ->when($request->filled("department_id") && $request->department_id > 0, function ($q) use ($request) {
-                $q->where("department_id", $request->department_id);
-            })
-            // ->whereHas("schedule", fn($q) => $q->where("company_id", $companyId))
-            ->whereDate('date', date('Y-m-d'))
-            ->select(
-                DB::raw("COUNT(CASE WHEN status in ('P','M','LC','EG') THEN 1 END) AS clockedin"),
-                DB::raw("COUNT(CASE WHEN status in ('P','EG') THEN 1 END) AS clockedout"),
-                DB::raw("COUNT(CASE WHEN status in ('M','LC') THEN 1 END) AS inside"),
-                DB::raw("COUNT(CASE WHEN status = 'A' THEN 1 END) AS noshow"),
-            )->first();
+    $logs = AttendanceLog::where('company_id', $companyId)
+        ->whereHas('employee', fn(Builder $query) => $query->where('company_id', $companyId))
+        ->when($branch_id, fn($q) => $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id', $branch_id)))
+        ->when($request->filled("department_id") && $request->department_id > 0, fn($q) => $q->where("department_id", $request->department_id))
+        ->whereDate('LogTime', date('Y-m-d'))
+        ->get()
+        ->groupBy('UserID');
+
+    $clockedin  = 0;
+    $clockedout = 0;
+    $inside     = 0;
+
+    foreach ($logs as $userId => $userLogs) {
+        $types = $userLogs->map(fn($l) => strtolower($l->log_type))->toArray();
+
+        $hasIn  = in_array('in', $types);
+        $hasOut = count(array_intersect(['out', 'auto'], $types)) > 0;
+
+        if ($hasIn)             $clockedin++;
+        if ($hasOut)            $clockedout++;
+        if ($hasIn && !$hasOut) $inside++;
     }
+
+    return [
+        'clockedin'  => $clockedin,
+        'clockedout' => $clockedout,
+        'inside'     => $inside,
+        'noshow'     => $totalEmployees - $clockedin, // ✅ employees with no logs at all
+    ];
+}
 
     public function getCounts($companyId = 0, $request)
     {
@@ -355,34 +429,6 @@ class ThemeController extends Controller
         });
 
         return $finalarray;
-    }
-
-    public function dashboardGetCountslast7DaysChart(Request $request)
-    {
-        $colors = [
-            "#14b8a6",
-            "#06b6d4",
-            "#10b981",
-            "#6366f1",
-            "#a855f7",
-            "#f59e0b",
-            "#ef4444",
-        ];
-
-        $rows = $this->dashboardGetCountslast7Days($request);
-
-        $data = [];
-        foreach ($rows as $index => $row) {
-            $dayLetter = substr((new DateTime($row["date"]))->format("D"), 0, 1);
-
-            $data[] = [
-                "day"   => $dayLetter,
-                "value" => (int) ($row["presentCount"] == 0 ? 100 : $row["presentCount"]),
-                "fill"  => $colors[$index % count($colors)],
-            ];
-        }
-
-        return $data;
     }
 
     public function createDateRangeArray($startDate, $endDate)

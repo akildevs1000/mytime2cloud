@@ -45,16 +45,24 @@ class MonthlyController extends Controller
         $companyId    = $requestPayload["company_id"];
         $employee_ids = $requestPayload["employee_ids"];
 
+        $shift_type_id = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_id = [request("shift_type_id", 0)];
+        }
+
         $company = Company::whereId($companyId)
             ->with('contact:id,company_id,number')
             ->first(["logo", "name", "company_code", "location", "p_o_box_no", "id"]);
 
+
         $totalEmployees = Employee::where("company_id", $companyId)
             ->whereIn("system_user_id", $employee_ids)
+            ->whereHas('schedule', function ($q) use ($companyId, $shift_type_id) {
+                $q->where('company_id', $companyId)
+                    ->whereIn('shift_type_id', $shift_type_id);
+            })
             ->count();
-
-        info($totalEmployees);
-        info($employee_ids);
 
         Cache::put("batch_total", $totalEmployees, 1800);
         Cache::put("batch_done", 0, 1800);
@@ -1005,6 +1013,22 @@ class MonthlyController extends Controller
             $employeeIds = is_array($employee_id) ? $employee_id : explode(",", $employee_id);
         }
 
+        $shift_type_id = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_id = [request("shift_type_id", 0)];
+        }
+
+
+        $employeeIds = Employee::where("company_id", $company_id)
+            ->whereIn("system_user_id", $employeeIds)
+            ->whereHas('schedule', function ($q) use ($company_id, $shift_type_id) {
+                $q->where('company_id', $company_id)
+                    ->whereIn('shift_type_id', $shift_type_id);
+            })
+            ->pluck('system_user_id');
+
+
         // if (count($employeeIds) > 100) {
         //     return 'Only 100 Employee allowed';
         // }
@@ -1057,6 +1081,12 @@ class MonthlyController extends Controller
 
         $from_date = $company["from_date"] ?? date("Y-m-d");
         $to_date   = $company["to_date"] ?? date("Y-m-d");
+
+        $shift_type_ids = [1, 3, 4, 6];
+
+        if (request("shift_type_id", 0) == 2 || request("shift_type_id", 0) == 5) {
+            $shift_type_ids = [request("shift_type_id", 0)];
+        }
 
         $model = Attendance::query();
         $model->where('company_id', $company_id);

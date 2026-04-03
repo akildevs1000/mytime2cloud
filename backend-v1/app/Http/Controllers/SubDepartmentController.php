@@ -62,7 +62,7 @@ class SubDepartmentController extends Controller
             ->union($subDepartments)
             ->orderBy('group_id', 'desc')
             ->orderBy('sort_weight', 'asc')
-            ->paginate($request->per_page);
+            ->paginate(200);
     }
 
     public function search(SubDepartment $model, Request $request, $key)

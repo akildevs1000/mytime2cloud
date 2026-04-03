@@ -31,8 +31,7 @@ class PDFGenerateTemplate4 extends Command
         // ✅ Get employees
         $employees = DB::table('employees')
             ->where('company_id', $company_id)
-            ->select('id', 'system_user_id')
-            ->get();
+            ->pluck('system_user_id');
 
         if ($employees->isEmpty()) {
             $this->warn("No employees found for company ID $company_id. Exiting.");
@@ -48,9 +47,9 @@ class PDFGenerateTemplate4 extends Command
             mkdir($reportsDirectory, 0777, true);
         }
 
-        foreach ($employees as $employee) {
+        foreach ($employees as $employeeId) {
             try {
-                $this->info("👤 Employee ID: {$employee->id} (system_user_id: {$employee->system_user_id})...");
+                $this->info("👤 Employee ID: {$employeeId} (system_user_id: {$employeeId})...");
 
                 // ✅ Call Node API
                 $response = Http::withoutVerifying()->post(env('ATTENDANCE_REPORT_URL_TEMPLATE4'), [
@@ -58,19 +57,19 @@ class PDFGenerateTemplate4 extends Command
                     'company_name' => $company_name,
                     'from_date'    => $from_date,
                     'to_date'      => $to_date,
-                    'employee_id'  => $employee->system_user_id,
+                    'employee_id'  => $employeeId,
                     'url'          => env('ATTENDANCE_REPORT_URL_APP_URL'),
-                    'id'           => $employee->id,
+                    'id'           => $employeeId,
                 ]);
 
                 if (!$response->ok()) {
-                    $this->error("❌ API failed for employee {$employee->id}: " . $response->body());
+                    $this->error("❌ API failed for employee {$employeeId}: " . $response->body());
                     continue;
                 }
 
                 $this->info("❌ PDF URL missing: " . json_encode($response->json()));
             } catch (\Exception $e) {
-                $this->error("❌ Error for employee {$employee->id}: " . $e->getMessage());
+                $this->error("❌ Error for employee {$employeeId}: " . $e->getMessage());
             }
         }
 
