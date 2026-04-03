@@ -1,0 +1,789 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+
+class Attendance extends Model
+{
+    use HasFactory;
+
+    const ABSENT = "A"; //1;
+    const PRESENT = "P"; //2;
+    const MISSING = "M"; //3;
+    const HOLIDAY = "H"; //4
+    const HALFDAY = "HD"; //5
+    const LATE_COMING = "LC"; //6
+    const EARLY_GOING = "EG"; //7
+
+    const DAY_MAP = [
+        'Mon' => 'M',
+        'Tue' => 'T',
+        'Wed' => 'W',
+        'Thu' => 'Th',
+        'Fri' => 'F',
+        'Sat' => 'S',
+        'Sun' => 'Su'
+    ];
+
+    protected $guarded = [];
+
+    protected $appends = [
+        "edit_date",
+        "day",
+    ];
+
+    protected $casts = [
+        'date' => 'date',
+        'logs' => 'array',
+        'shift_type_id' => 'integer',
+    ];
+
+    protected $hidden = ["branch_id", "created_at", "updated_at"];
+    // protected $hidden = ["company_id", "branch_id", "created_at", "updated_at"];
+
+    public function shift()
+    {
+        return $this->belongsTo(Shift::class)->withOut("shift_type");
+    }
+
+    public function shift_type()
+    {
+        return $this->belongsTo(ShiftType::class);
+    }
+
+    public function getDateAttribute($value)
+    {
+        return date("d M y", strtotime($value));
+    }
+
+    public function getDayAttribute()
+    {
+        // return date("D", strtotime($this->date));
+        return date("l", strtotime($this->date));
+    }
+    public function getHrsMins($difference)
+    {
+        $h = floor($difference / 3600);
+        $h = $h < 0 ? "0" : $h;
+        $m = floor($difference % 3600) / 60;
+        $m = $m < 0 ? "0" : $m;
+
+        return (($h < 10 ? "0" . $h : $h) . ":" . ($m < 10 ? "0" . $m : $m));
+    }
+
+    // public function getTotalHrsAttribute($value)
+    // {
+    //     return strtotime($value) < strtotime('18:00') ? $value : '00:00';
+    // }
+
+    /**
+     * Get the user that owns the Attendance
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function device_in()
+    {
+        return $this->belongsTo(Device::class, 'device_id_in', 'device_id')->withDefault([
+            'name' => '---',
+        ]);
+    }
+
+    /**
+     * Get the user that owns the Attendance
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function device_out()
+    {
+        return $this->belongsTo(Device::class, 'device_id_out', 'device_id')->withDefault([
+            'name' => '---',
+        ]);
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut("schedule")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---",
+            ],
+        ]);
+    }
+
+    public function employee_report_only()
+    {
+        return $this->belongsTo(EmployeeReportOnly::class, "employee_id", "system_user_id")->withOut("schedule")->withDefault([
+            'first_name' => '---',
+            "department" => [
+                "name" => "---",
+            ],
+        ]);
+    }
+
+    public function employeeapi()
+    {
+        return $this->belongsTo(Employee::class, "employee_id", "system_user_id")->withOut(["schedule", "department", "designation", "sub_department", "branch"]);
+    }
+    public function employeeAttendance()
+    {
+        return $this->belongsTo(Employee::class, "employee_id");
+    }
+
+    public function getEditDateAttribute()
+    {
+        return date("Y-m-d", strtotime($this->date));
+    }
+    public function branch()
+    {
+        return $this->belongsTo(CompanyBranch::class, "branch_id");
+    }
+    public function AttendanceLogs()
+    {
+        return $this->hasMany(AttendanceLog::class, "UserID", "employee_id");
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(ScheduleEmployee::class, "employee_id", "employee_id")->withOut(["shift_type"]);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saved(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
+        });
+
+        static::deleted(function ($model) {
+            Cache::forget("leave_{$model->company_id}_{$model->employee_id}_{$model->date}");
+        });
+    }
+
+    public function last_reason()
+    {
+        return $this->hasOne(Reason::class, 'reasonable_id', 'id')->latest();
+    }
+
+    public function processAttendanceModel($request)
+    {
+
+        $company_id = $request->company_id;
+
+        $model = self::query();
+
+        $model->where('company_id', $request->company_id);
+
+        $showTabs = json_decode(request("showTabs") ?? '[]', true);
+
+        $filteredTabs = array_filter($showTabs, fn($value) => $value === true);
+
+        if (count($filteredTabs) > 1) {
+            if (($showTabs['multi'] == true || $showTabs['double'] == true) && request("shift_type_id", 0) > 0) {
+                $model->where('shift_type_id',  request("shift_type_id"));
+            } else {
+                $model->whereNotIn('shift_type_id', [2, 5]);
+            }
+        }
+
+        $model->with(['shift_type', 'last_reason', 'branch']);
+
+        if (!empty($request->employee_id)) {
+            $employeeIds = is_array($request->employee_id) ? $request->employee_id : explode(",", $request->employee_id);
+            $model->whereIn('employee_id', $employeeIds);
+        }
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $model->when($request->filled('department_ids') && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
+            $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
+        });
+
+        $model->when($request->filled('status') && $request->status != "-1", function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+
+        $model->when(count($request->statuses ?? []) > 0, fn($q) => $q->whereIn('status', request("statuses")));
+
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "LC", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "EG", function ($q) {
+            $q->where('early_going', "!=", "---");
+        });
+
+        $model->when($request->overtime == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
+        $model->when($request->filled('branch_id'), function ($q) use ($request) {
+            $key = strtolower($request->branch_id);
+            $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id',   $key));
+        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->where('branch_id',   $request->branch_id);
+        // });
+
+
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+        });
+
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->from_date, $request->to_date]);
+        });
+
+        $model->whereHas('employee', function ($q) use ($company_id) {
+
+
+
+            $q->where('company_id', $company_id);
+            $q->where('status', 1);
+            $q->whereHas(
+                "schedule",
+                function ($q) use ($company_id) {
+                    $q->where('company_id', $company_id);
+
+                    $showTabs = json_decode(request("showTabs") ?? '[]', true);
+
+                    $filteredTabs = array_filter($showTabs, fn($value) => $value === true);
+
+                    if (count($filteredTabs) > 1) {
+                        if (($showTabs['multi'] == true || $showTabs['double'] == true) && request("shift_type_id", 0) > 0) {
+                            $q->where('shift_type_id',  request("shift_type_id"));
+                        } else {
+                            $q->whereIn('shift_type_id',  [1, 3, 4, 6]);
+                        }
+                    }
+                }
+            );
+        });
+
+        $model->with([
+            'employee' => function ($q) use ($company_id) {
+                $q->where('company_id', $company_id);
+                $q->where('status', 1);
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "designation_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id", "joining_date");
+                $q->with(['department', 'branch', "designation"]);
+                $q->with([
+                    "schedule"       => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
+                        $q->select("id", "shift_id", "employee_id");
+                        $q->withOut("shift_type");
+                    },
+                    "schedule.shift" => function ($q) use ($company_id) {
+                        $q->where('company_id', $company_id);
+                        $q->select("id", "name", "shift_type_id", "working_hours", "on_duty_time", "off_duty_time", "days", "weekend1", "weekend2", "monthly_flexi_holidays", "halfday", "halfday_working_hours");
+                    },
+                ]);
+            },
+        ]);
+
+        $model->with('device_in', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_out', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        //$model->with('schedule');
+
+        $model->when($request->filled('date'), function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
+        });
+
+        $model->when($request->filled('sortBy'), function ($q) use ($request) {
+            $sortDesc = $request->input('sortDesc');
+
+            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+
+        $model->when(!$request->filled('sortBy'), function ($q) use ($request) {
+
+            if ($request->from_date == $request->to_date) {
+                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id")->limit(0, 1),   'asc');
+            } else {
+                $q->orderBy('date', 'asc');
+            }
+        });
+
+        $model->whereDoesntHave('device_in', fn($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn($q) => $q->where('device_type', 'Access Control'));
+
+
+
+        return $model;
+    }
+    public function processAttendanceModelPDFJob($request)
+    {
+
+        $model = self::query();
+
+        $model->where('company_id', $request->company_id);
+        $model->with(['shift_type', 'last_reason', 'branch']);
+
+        $model->when($request->employee_id, function ($q) use ($request) {
+            $q->where('employee_id', $request->employee_id);
+        });
+
+
+        $model->when($request->shift_type_id && $request->shift_type_id == 2, function ($q) use ($request) {
+            $q->where('shift_type_id', 2);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   2)
+            //         ->orWhere('shift_type_id', '---');
+            // });
+        });
+
+        $model->when($request->shift_type_id && $request->shift_type_id == 5, function ($q) {
+            $q->where('shift_type_id', 5);
+            // $q->where(function ($query) {
+            //     $query->where('shift_type_id',   5)
+            //         ->orWhere('shift_type_id', '---');
+            // });
+        });
+
+        $model->when($request->shift_type_id && in_array($request->shift_type_id, [1, 3, 4, 6]), function ($q) {
+            //$q->whereIn('shift_type_id', [1, 3, 4, 6]);
+            $q->where(function ($query) {
+                $query->whereIn('shift_type_id', [1, 3, 4, 6])
+                    ->orWhere('shift_type_id', '---');
+            });
+        });
+
+        $department_ids = $request->department_ids;
+
+        if (gettype($department_ids) !== "array") {
+            $department_ids = explode(",", $department_ids);
+        }
+
+        $model->when($request->department_ids && count($department_ids) > 0, function ($q) use ($request, $department_ids) {
+            $q->whereIn('employee_id', Employee::whereIn("department_id", $department_ids)->where('company_id', $request->company_id)->pluck("system_user_id"));
+        });
+
+        $model->when($request->status && $request->status != "-1", function ($q) use ($request) {
+            $q->where('status', $request->status);
+        });
+
+
+        $model->when($request->status == "ME", function ($q) {
+            $q->where('is_manual_entry', true);
+        });
+
+        $model->when($request->late_early == "LC", function ($q) {
+            $q->where('late_coming', "!=", "---");
+        });
+
+        $model->when($request->late_early == "EG", function ($q) {
+            $q->where('early_going', "!=", "---");
+        });
+
+        $model->when($request->overtime == 1, function ($q) {
+            $q->where('ot', "!=", "---");
+        });
+
+        $model->when($request->branch_id, function ($q) use ($request) {
+            $key = strtolower($request->branch_id);
+            $q->whereHas('employee', fn(Builder $query) => $query->where('branch_id',   $key));
+        });
+        // $model->when($request->filled('branch_id'), function ($q) use ($request) {
+        //     $q->where('branch_id',   $request->branch_id);
+        // });
+
+
+        $model->when($request->daily_date && $request->report_type == 'Daily', function ($q) use ($request) {
+            $q->whereDate('date', $request->daily_date);
+        });
+
+        $model->when($request->from_date && $request->to_date && $request->report_type != 'Daily', function ($q) use ($request) {
+            $q->whereBetween("date", [$request->from_date, $request->to_date]);
+        });
+
+        // $model->whereBetween("date", [$request->from_date, $request->to_date]);
+
+        $model->whereHas('employee', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+            $q->where('status', 1);
+            $q->select('system_user_id', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+            $q->with(['department', 'branch']);
+        });
+
+        $model->with([
+            'employee' => function ($q) use ($request) {
+                $q->where('company_id', $request->company_id);
+                $q->where('status', 1);
+                $q->select('system_user_id', 'full_name', 'display_name', "department_id", "first_name", "last_name", "profile_picture", "employee_id", "branch_id");
+                $q->with(['department', 'branch']);
+            }
+        ]);
+
+        $model->with('device_in', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('device_out', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('shift', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        $model->with('schedule', function ($q) use ($request) {
+            $q->where('company_id', $request->company_id);
+        });
+
+        //$model->with('schedule');
+
+        $model->when($request->date, function ($q) use ($request) {
+            $q->whereDate('date', '=', $request->date);
+        });
+
+        $model->when($request->sortBy, function ($q) use ($request) {
+            $sortDesc = $request->sortDesc;
+
+            $q->orderBy($request->sortBy, $sortDesc == 'true' ? 'desc' : 'asc');
+        });
+
+        $model->when(!$request->sortBy, function ($q) use ($request) {
+
+            if ($request->from_date == $request->to_date) {
+                $q->orderBy(Employee::select("first_name")->whereColumn("employees.company_id", "attendances.company_id")->whereColumn("employees.system_user_id", "attendances.employee_id")->limit(0, 1),   'asc');
+            } else {
+                $q->orderBy('date', 'asc');
+            }
+        });
+
+        $model->whereDoesntHave('device_in', fn($q) => $q->where('device_type', 'Access Control'));
+        $model->whereDoesntHave('device_out', fn($q) => $q->where('device_type', 'Access Control'));
+
+
+
+        return $model;
+    }
+
+
+    public function startDBOperation($date, $script, $payload)
+    {
+        if (!count($payload)) {
+            return "($script Shift) {$date->format('d-M-y')}: No Data Found";
+        }
+
+        $employee_ids = array_column($payload, "employee_id");
+        $company_ids = array_column($payload, "company_id");
+
+        try {
+            $model = self::query();
+            $model->where("date", $date->format('Y-m-d'));
+            $model->whereIn("employee_id", $employee_ids);
+            $model->whereIn("company_id", $company_ids);
+            $model->delete();
+            $model->insert($payload);
+            AttendanceLog::whereIn("UserID", $employee_ids)->whereIn("company_id", $company_ids)->update(["checked" => true]);
+            return "($script Shift) " . $date->format('d-M-y') . ": Log(s) has been render. Affected Ids: " . json_encode($employee_ids) . " Affected Company_id Ids: " . json_encode($company_ids);
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
+    }
+
+
+
+    public static function processWeekOffFunc($currentDayKey, $weekoff_rules, $company_id, $date, $employeeId, $firstLog = null)
+    {
+        $type = $weekoff_rules['type'] ?? 'Fixed';
+
+        // 1. FIXED TYPE
+        if ($type === 'Fixed' && in_array($currentDayKey, $weekoff_rules['days'] ?? [])) {
+            return "O";
+        }
+
+        // 2. ALTERNATING TYPE
+        if ($type === 'Alternating') {
+            $weekNumber = (int)date('W', strtotime($date));
+            $isEvenWeek = ($weekNumber % 2 === 0);
+            $targetDays = $isEvenWeek ? ($weekoff_rules['even'] ?? []) : ($weekoff_rules['odd'] ?? []);
+
+            if (in_array($currentDayKey, $targetDays)) {
+                return "O";
+            }
+        }
+
+        // 3. FLEXIBLE TYPE
+        if ($type === 'Flexible') {
+            $cycle = $weekoff_rules['cycle'] ?? 'Weekly';
+            $allowedCount = $weekoff_rules['count'] ?? 0;
+
+            $startDate =  date("Y-m-d");
+
+            if ($cycle === 'Monthly') {
+                $startDate = date("Y-m-01", strtotime($date));
+            } else {
+                // Monday to Sunday Slot
+                $startDate = date("Y-m-d", strtotime('monday this week', strtotime($date)));
+            }
+
+            $offDaysTaken = Attendance::where('employee_id', $employeeId)
+                ->where('company_id', $company_id)
+                ->whereBetween('date', [$startDate, date("Y-m-d", strtotime($date . " -1 day"))])
+                ->where('status', 'O')
+                ->count();
+
+            // Check if logs exist today - If they worked, it's not a Week Off
+            if ($offDaysTaken < $allowedCount && !$firstLog) {
+                return "O";
+            }
+        }
+
+        return null; // Return null if none of the week-off conditions are met
+    }
+
+    public static function processHalfDay($currentDayKey, $halfday_rules, $shift)
+    {
+        // Check Half Day Rules (If not a week off)
+        if (($halfday_rules['enabled'] ?? false) && $halfday_rules['day'] === $currentDayKey) {
+            $fieldMap = [
+                'on_duty_time'  => 'onDuty',
+                'off_duty_time' => 'offDuty',
+                'working_hours' => 'minHours',
+                'beginning_in'  => 'beginStart',
+                'beginning_out' => 'beginEnd',
+                'ending_in'     => 'endStart',
+                'ending_out'    => 'endEnd',
+            ];
+            foreach ($fieldMap as $shiftKey => $ruleKey) {
+                $shift[$shiftKey] = $halfday_rules[$ruleKey] ?? $shift[$shiftKey];
+            }
+        }
+
+        return $shift;
+    }
+
+    public static function getMonthlyFlexiDaysTaken($company_id, $employee_id, $date)
+    {
+        $startDate = date("Y-m-01", strtotime($date));
+        $yesterday = date("Y-m-d", strtotime($date . " -1 day"));
+
+        // If it's the 1st of the month, yesterday was in the previous month, 
+        // so we return 0.
+        if (strtotime($yesterday) < strtotime($startDate)) {
+            return 0;
+        }
+
+        return self::where('company_id', $company_id)
+            ->where('employee_id', $employee_id)
+            ->whereBetween('date', [$startDate, $yesterday])
+            ->where('status', 'O')
+            // ->where('date', '!=', $date)
+            ->count();
+    }
+
+    /**
+     * Deducts unwanted OT based on shift policy (Before/After/Both)
+     * * @param string $otTime (e.g., "02:30")
+     * @param array $item (Must contain 'in' and 'out' times)
+     * @param array|object $shift (Must contain duty times and overtime_type)
+     * @return string
+     */
+    public static function applyOvertimePolicy($otTime, $item, $shift)
+    {
+        if ($otTime == "---" || $otTime == "00:00" || empty($otTime)) return "00:00";
+
+        $overtimeType = $shift["overtime_type"] ?? "Both";
+        if ($overtimeType === "Both") return $otTime;
+
+        // Convert total OT to minutes
+        [$h, $m] = explode(':', $otTime);
+        $totalMinutes = ($h * 60) + $m;
+
+        try {
+            $inTime = new \DateTime($item["in"]);
+            $onDuty = new \DateTime($shift["on_duty_time"]);
+            $outTime = new \DateTime($item["out"]);
+            $offDuty = isset($shift["off_duty_time"]) ? new \DateTime($shift["off_duty_time"]) : null;
+
+            if ($overtimeType === "After") {
+                // "After" means we only count OT after off_duty. 
+                // So we deduct any "Early In" minutes from the total OT.
+                $earlyMinutes = ($inTime < $onDuty)
+                    ? ($onDuty->diff($inTime)->h * 60) + $onDuty->diff($inTime)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $earlyMinutes);
+            } else if ($overtimeType === "Before" && $offDuty) {
+                // "Before" means we only count OT before on_duty.
+                // So we deduct any "Late Out" minutes from the total OT.
+                $lateMinutes = ($outTime > $offDuty)
+                    ? ($outTime->diff($offDuty)->h * 60) + $outTime->diff($offDuty)->i
+                    : 0;
+                $totalMinutes = max(0, $totalMinutes - $lateMinutes);
+            }
+        } catch (\Exception $e) {
+            // Fallback if dates are invalid
+            return $otTime;
+        }
+
+        $finalHours = floor($totalMinutes / 60);
+        $finalMins = $totalMinutes % 60;
+
+        return str_pad($finalHours, 2, "0", STR_PAD_LEFT) . ":" . str_pad($finalMins, 2, "0", STR_PAD_LEFT);
+    }
+
+    /**
+     * Determines the attendance status based on shift settings and logs.
+     * Priority: Holiday > Fixed Weekend > Scheduled Day > Flexi Override > Absent
+     * * @param int $company_id
+     * @param int $employee_id
+     * @param string $date (Y-m-d)
+     * @param array|object $shift
+     * @param array $logs (The logs for this specific employee)
+     * @return string (H, W, O, A, P, etc.)
+     */
+
+
+    public static function determineStatus($company_id, $employee_id, $date, $shift, $logs)
+    {
+
+        if (!empty($logs)) {
+            return "P";
+        }
+
+        if (self::isLeave($company_id, $employee_id, $date)) {
+            return "L";
+        }
+
+        // 2. SECOND PRIORITY: Public Holiday
+        if (Holidays::isHoliday($company_id, $date)) {
+            return "H";
+        }
+
+        // 3. THIRD PRIORITY: Monthly Flexible Holidays (The Master Bank)
+        // Check this before Fixed Weekends or Workdays
+        $limit = (int)($shift['monthly_flexi_holidays'] ?? 0);
+        if ($limit > 0) {
+            $taken = self::getMonthlyFlexiDaysTaken($company_id, $employee_id, $date);
+
+            if ($taken < $limit) {
+                return "O"; // Deduct from the flexible bank first
+            }
+        }
+
+
+        $dayOfWeek   = date('D', strtotime($date));   // Sun
+        $fullDayName = date('l', strtotime($date));   // Sunday
+
+        $w1 = trim($shift['weekend1'] ?? '');
+        $w2 = trim($shift['weekend2'] ?? '');
+        $days = $shift['days'] ?? [];
+
+        // If days is stored as JSON string in DB, decode it
+        if (is_string($days)) {
+            $decodedDays = json_decode($days, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decodedDays)) {
+                $days = $decodedDays;
+            } else {
+                $days = [];
+            }
+        }
+
+        if (!is_array($days)) {
+            $days = [];
+        }
+
+        // Normalize weekend values
+        $w1Normalized = strtolower(trim($w1));
+        $w2Normalized = strtolower(trim($w2));
+        $currentShort = strtolower($dayOfWeek);     // sun
+        $currentFull  = strtolower($fullDayName);   // sunday
+
+        // Log::info([
+        //     'date' => $date,
+        //     'dayOfWeek' => $dayOfWeek,
+        //     'fullDayName' => $fullDayName,
+        //     'weekend1' => $shift['weekend1'] ?? null,
+        //     'weekend2' => $shift['weekend2'] ?? null,
+        //     'days' => $days,
+        //     'currentShort' => $currentShort,
+        //     'currentFull' => $currentFull,
+        // ]);
+
+        // 4. FOURTH PRIORITY: Fixed Weekends (W1 and W2)
+        // Supports both "Sun" and "Sunday"
+        if (
+            ($w1Normalized !== '' && $w1Normalized !== 'not applicable' &&
+                ($w1Normalized === $currentShort || $w1Normalized === $currentFull)) ||
+            ($w2Normalized !== '' && $w2Normalized !== 'not applicable' &&
+                ($w2Normalized === $currentShort || $w2Normalized === $currentFull))
+        ) {
+            return "O";
+        }
+
+        // Normalize working days too
+        $normalizedDays = array_map(function ($day) {
+            return ucfirst(strtolower(trim($day)));
+        }, $days);
+
+        // 5. LAST PRIORITY: Working Days
+        $isWorkDay = in_array(ucfirst($currentShort), $normalizedDays); // compares like Sun, Mon, Tue
+
+        if (!$isWorkDay) {
+            return "O";
+        }
+
+        // Default for missed workdays
+        return "A";
+    }
+
+    public static function getAlreadyRenderedEmployeeIds(array $params): array
+    {
+        $query = self::where("company_id", $params["company_id"])
+            ->where("date", $params["date"])
+            ->whereIn("employee_id", $params["UserIds"]);
+
+        if (!empty($params["exclude_shift_type_ids"])) {
+            $query->whereIn("shift_type_id", $params["exclude_shift_type_ids"]);
+        }
+
+        $alreadyRendered = $query->pluck("employee_id")->toArray();
+
+        return array_values(array_diff($params["UserIds"], $alreadyRendered));
+    }
+
+    public static function isLeave(int $companyId, int $employeeId, string $date): bool
+    {
+        return Cache::rememberForever("leave_{$companyId}_{$employeeId}_{$date}", function () use ($companyId, $employeeId, $date) {
+            return static::where([
+                'company_id'  => $companyId,
+                'employee_id' => $employeeId,
+                'date'        => $date,
+                'status'      => 'L',
+            ])->exists();
+        });
+    }
+}
