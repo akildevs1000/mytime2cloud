@@ -19,7 +19,7 @@ class SyncDoubleShift extends Command
      *
      * @var string
      */
-    protected $signature = 'task:sync_double_shift {company_id} {date}';
+    protected $signature = 'task:sync_split_shift {company_id} {date}';
 
     /**
      * The console command description.

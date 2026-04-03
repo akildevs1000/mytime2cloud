@@ -167,7 +167,7 @@ class Kernel extends ConsoleKernel
                 ->between('5:00', '23:59')
                 ->runInBackground();
 
-            $schedule->command("task:sync_double_shift {$companyId} " . date("Y-m-d"))
+            $schedule->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
                 ->everyThirtyMinutes()
                 ->between('5:00', '23:59')
                 ->withoutOverlapping()
