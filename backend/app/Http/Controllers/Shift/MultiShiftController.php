@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Shift;
 
 use App\Http\Controllers\Controller;
@@ -280,7 +281,18 @@ class MultiShiftController extends Controller
                 }
             }
 
-            $item["status"] = count($logsJson) == 0 ? $status : (count($logsJson) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT);
+
+            $actualLogCount = 0;
+            foreach ($logsJson as $logBlock) {
+                if ($logBlock['in'] !== '---') {
+                    $actualLogCount++;
+                }
+                if ($logBlock['out'] !== '---') {
+                    $actualLogCount++;
+                }
+            }
+
+            $item["status"] = ($actualLogCount) == 0 ? $status : (($actualLogCount) % 2 !== 0 ? Attendance::MISSING : Attendance::PRESENT);
 
             // ✅ Final summary per employee
             $item["employee_id"] = $row->system_user_id;
