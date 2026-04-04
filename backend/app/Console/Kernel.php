@@ -94,7 +94,6 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->runInBackground();
 
-
         $schedule->command('company:sync-shifts')
             ->everyThirtyMinutes()
             ->runInBackground()
@@ -105,6 +104,10 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->withoutOverlapping();
 
+        $schedule->command('company:sync-alerts')
+            ->everyFiveMinutes()
+            ->runInBackground()
+            ->withoutOverlapping();
 
         $companyIds = Company::pluck("id");
 
@@ -193,15 +196,15 @@ class Kernel extends ConsoleKernel
                 ->monthlyOn(1, "00:00")
                 ->runInBackground();
 
-            $schedule
-                ->command("alert:access_control {$companyId}")
-                ->everyFifteenMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("alert:access_control {$companyId}")
+            //     ->everyFifteenMinutes()
+            //     ->runInBackground();
 
-            $schedule
-                ->command("alert:attendance {$companyId}")
-                ->everyFifteenMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("alert:attendance {$companyId}")
+            //     ->everyFifteenMinutes()
+            //     ->runInBackground();
 
             $schedule
                 ->command("task:sync_leaves $companyId")
