@@ -57,11 +57,11 @@ class SyncMultiShift extends Command
             return;
         }
 
-        SyncMultiShiftJob::dispatch($id, $date);
+        // SyncMultiShiftJob::dispatch($id, $date);
 
-        $this->info("SyncMultiShiftJob dispatched for Company: $id Date: $date");
+        // $this->info("SyncMultiShiftJob dispatched for Company: $id Date: $date");
 
-        return;
+        // return;
 
         $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
