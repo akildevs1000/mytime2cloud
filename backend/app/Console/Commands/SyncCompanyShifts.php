@@ -20,6 +20,7 @@ class SyncCompanyShifts extends Command
 
         foreach ($companyIds as $id) {
             info("Processing Shifts for Company ID: $id");
+            $this->info("Processing Shifts for Company ID: $id");
 
             $hour = (int)date('H');
 
@@ -30,8 +31,10 @@ class SyncCompanyShifts extends Command
             }
 
             info("Done with Company $id");
+            $this->info("Done with Company $id");
         }
 
         info('All company shifts synchronized successfully.');
+        $this->info('All company shifts synchronized successfully.');
     }
 }
