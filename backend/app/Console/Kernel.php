@@ -55,9 +55,9 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->runInBackground();
 
-        $schedule
-            ->command('task:sync_attendance_logs')
-            ->everyFifteenMinutes()->runInBackground();
+        // $schedule
+        //     ->command('task:sync_attendance_logs')
+        //     ->everyFifteenMinutes()->runInBackground();
 
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
@@ -68,10 +68,10 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_alarm_logs')
             ->everyFifteenMinutes()->runInBackground();
 
-        $schedule
-            ->command('task:update_company_ids')
-            ->everyMinute()
-            ->runInBackground();
+        // $schedule
+        //     ->command('task:update_company_ids')
+        //     ->everyMinute()
+        //     ->runInBackground();
 
         $schedule
             ->command('attendance:rectify')
