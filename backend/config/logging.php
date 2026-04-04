@@ -186,6 +186,13 @@ return [
             'level' => 'debug',
             'days' => 30,
         ],
+
+        'multi' => [
+            'driver' => 'daily',
+            'path' => storage_path('shifts/multi/events.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
     ],
 
 ];
