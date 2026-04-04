@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands\Shift;
 
-use App\Http\Controllers\MultiShiftController;
+use App\Http\Controllers\Shift\MultiShiftController;
 use App\Jobs\SendWhatsappMessageJob;
 use App\Models\Shift;
 use Illuminate\Console\Command;
@@ -163,14 +163,14 @@ class SyncMultiShiftV1 extends Command
             'message' => $message
         ]);
 
-        if ($companyId == 22 && env("APP_ENV") == 'production') {
-            SendWhatsappMessageJob::dispatch(
-                env("ADMIN_WHATSAPP_NUMBER"),
-                $message,
-                0,
-                env("WHATSAPP_CLIENT_ID"),
-                $logFilePath
-            );
-        }
+        // if ($companyId == 22 && env("APP_ENV") == 'production') {
+        //     SendWhatsappMessageJob::dispatch(
+        //         env("ADMIN_WHATSAPP_NUMBER"),
+        //         $message,
+        //         0,
+        //         env("WHATSAPP_CLIENT_ID"),
+        //         $logFilePath
+        //     );
+        // }
     }
 }
