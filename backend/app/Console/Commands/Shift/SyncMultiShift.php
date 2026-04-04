@@ -4,7 +4,6 @@ namespace App\Console\Commands\Shift;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SendWhatsappMessageJob;
-use App\Jobs\Shift\SyncMultiShiftJob;
 use App\Models\Attendance;
 use App\Models\Shift;
 use Illuminate\Console\Command;
@@ -56,12 +55,6 @@ class SyncMultiShift extends Command
         if ($found == 0) {
             return;
         }
-
-        // SyncMultiShiftJob::dispatch($id, $date);
-
-        // $this->info("SyncMultiShiftJob dispatched for Company: $id Date: $date");
-
-        // return;
 
         $responseMessage = "*****Cron started at $formattedDate for task:sync_multi_shift*****\n";
 
