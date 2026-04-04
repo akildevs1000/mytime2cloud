@@ -94,6 +94,12 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->runInBackground();
 
+
+        $schedule->command('company:sync-shifts')
+            ->everyThirtyMinutes()
+            ->runInBackground()
+            ->withoutOverlapping();
+
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
@@ -154,31 +160,22 @@ class Kernel extends ConsoleKernel
                 ->everyThirtyMinutes()
                 ->runInBackground();
 
-            $schedule->command("task:sync_multi_shift_v1 {$companyId} " . date("Y-m-d"))
-                ->everyThirtyMinutes()
-                ->between('5:00', '23:59')
-                ->runInBackground();
+            // $schedule->command("task:sync_multi_shift_v1 {$companyId} " . date("Y-m-d"))
+            //     ->everyThirtyMinutes()
+            //     ->between('5:00', '23:59')
+            //     ->runInBackground();
 
-            $schedule->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
-                ->everyThirtyMinutes()
-                ->between('5:00', '23:59')
-                ->withoutOverlapping()
-                ->runInBackground();
+            // $schedule->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
+            //     ->everyThirtyMinutes()
+            //     ->between('5:00', '23:59')
+            //     ->withoutOverlapping()
+            //     ->runInBackground();
 
 
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
                 // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
                 ->runInBackground();
-
-            // $schedule->command("task:sync_multishift_includes_two_datesonly")
-            //     ->everySixHours()
-            //     ->runInBackground();
-
-            // $schedule
-            //     ->command("task:sync_multi_shift {$companyId} " . date("Y-m-d", strtotime("yesterday")))
-            //     ->dailyAt('3:50')
-            //     ->runInBackground();
 
             $schedule
                 ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
