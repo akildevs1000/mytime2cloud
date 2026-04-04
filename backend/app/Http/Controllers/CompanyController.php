@@ -506,6 +506,8 @@ class CompanyController extends Controller
     public function UpdateCompanyIds()
     {
         $date = now();
+        $processedDetails = [];
+        $totalUpdatedRows = 0;
 
         // Step 1: Get 10 distinct DeviceIDs with related device info
         $rows = AttendanceLog::query()
@@ -520,31 +522,38 @@ class CompanyController extends Controller
             ->get();
 
         if ($rows->isEmpty()) {
-            return "[$date] Cron: UpdateCompanyIds. No new record found while updating company ids for device.\n";
+            return "[$date] Cron: UpdateCompanyIds. No records found to update.\n";
         }
 
-        $i = 0;
-
         foreach ($rows as $log) {
-            if (! $log->device) {
+            if (!$log->device) {
                 continue;
             }
 
             try {
-                $i++;
-
-                AttendanceLog::where("DeviceID", $log->DeviceID)
+                // Capture the number of rows updated for this specific device
+                $updatedCount = AttendanceLog::where("DeviceID", $log->DeviceID)
                     ->where("company_id", 0)
                     ->update([
                         "company_id"   => $log->device->company_id,
                         "gps_location" => $log->device->location,
                     ]);
+
+                if ($updatedCount > 0) {
+                    $totalUpdatedRows += $updatedCount;
+                    $processedDetails[] = "Dev: {$log->DeviceID} -> Co: {$log->device->company_id} ({$updatedCount} rows)";
+                }
             } catch (\Throwable $th) {
-                Logger::channel('custom')->error('Cron: UpdateCompanyIds. Error Details: ' . $th->getMessage());
+                Logger::channel('custom')->error("Cron: UpdateCompanyIds. Device {$log->DeviceID} Error: " . $th->getMessage());
             }
         }
 
-        return "[$date] Cron: UpdateCompanyIds. $i Logs have been processed.\n";
+        // Format the summary for the return message
+        $detailsString = implode(', ', $processedDetails);
+
+        return "[$date] Cron: UpdateCompanyIds Completed.\n" .
+            "Total Logs Updated: $totalUpdatedRows\n" .
+            "Breakdown: " . ($detailsString ?: "None") . ".\n";
     }
 
     public function UpdateCompanyIdsForVisitor()
