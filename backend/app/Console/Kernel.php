@@ -139,15 +139,15 @@ class Kernel extends ConsoleKernel
             $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=absent --streak=3")
                 ->dailyAt('06:20');
 
-            $schedule
-                ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
-                ->everyThirtyMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
+            //     ->everyThirtyMinutes()
+            //     ->runInBackground();
 
-            $schedule
-                ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
-                ->everyThirtyMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
+            //     ->everyThirtyMinutes()
+            //     ->runInBackground();
 
             $schedule
                 ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
@@ -155,10 +155,10 @@ class Kernel extends ConsoleKernel
                 ->between('03:00', '10:00')
                 ->runInBackground();
 
-            $schedule
-                ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
-                ->everyThirtyMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
+            //     ->everyThirtyMinutes()
+            //     ->runInBackground();
 
             // $schedule->command("task:sync_multi_shift_v1 {$companyId} " . date("Y-m-d"))
             //     ->everyThirtyMinutes()

@@ -24,6 +24,10 @@ class SyncCompanyShifts extends Command
 
             $hour = (int)date('H');
 
+            Artisan::call("task:sync_attendance_missing_shift_ids $id $today");
+            Artisan::call("task:sync_auto_shift $id $today");
+            Artisan::call("task:sync_except_auto_shift $id $today");
+
             // 5. Multi & Split Shifts (30 mins - between 5:00 and 23:59)
             if ($hour >= 5) {
                 Artisan::call("task:sync_multi_shift_v1 $id $today");
