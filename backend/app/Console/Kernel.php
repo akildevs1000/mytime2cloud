@@ -68,24 +68,16 @@ class Kernel extends ConsoleKernel
             ->command('task:sync_alarm_logs')
             ->everyFifteenMinutes()->runInBackground();
 
-        // (new DeviceController())->deviceAccessControllAllwaysOpen($schedule);
-
-        // $schedule->command('logs:process-gps')->everyMinute();
-
         $schedule
             ->command('task:update_company_ids')
             ->everyMinute()
             ->runInBackground();
 
-        // $schedule
-        //     ->command('attendance:rectify')
-        //     ->everyMinute()
-        //     ->runInBackground();
+        $schedule
+            ->command('attendance:rectify')
+            ->everyMinute()
+            ->runInBackground();
 
-
-        // $schedule->command("render:weekoff --month={$month}")
-        //     ->when(fn() => now()->isLastOfMonth())
-        //     ->withoutOverlapping();
 
         $schedule->command("render:weekoff --month={$month}")
             ->mondays()
