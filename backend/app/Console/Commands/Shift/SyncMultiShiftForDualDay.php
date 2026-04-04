@@ -29,7 +29,7 @@ class SyncMultiShiftForDualDay extends Command
      *
      * @var int
      */
-    protected $chunkSize = 100;
+    protected $chunkSize = 10;
 
     /**
      * Execute the console command.
