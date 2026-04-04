@@ -18,7 +18,7 @@ class RectifyAttendanceLogs extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Syncs attendance log_types with device function settings (Auto, In, Out)';
+    protected $description = 'Syncs attendance log_types with device function settings (Auto, In, Out, Option)';
 
     public function handle()
     {
@@ -37,11 +37,10 @@ class RectifyAttendanceLogs extends Command
 
         $correctedCount = 0;
         $processedCount = 0;
+        $skippedCount = 0;
 
         // 3. Query logs in the specified range
-        $query = DB::table('attendance_logs')
-            ->whereNotIn("log_type", ['in', 'out']) // Only check logs that are not already 'Auto'
-            ->whereDate('log_date', '>=', $startDate);
+        $query = DB::table('attendance_logs')->whereDate('log_date', '>=', $startDate);
 
         $totalFound = $query->count();
         $this->info("Found {$totalFound} logs to verify.");
@@ -52,28 +51,39 @@ class RectifyAttendanceLogs extends Command
         }
 
         // 4. Process in chunks for memory efficiency
-        $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount) {
+        $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount, &$skippedCount) {
             foreach ($logs as $log) {
                 $deviceId = trim($log->DeviceID);
 
                 // Get the function from the device table
-                $deviceFunction = $deviceFunctionMap[$deviceId] ?? '';
+                $deviceFunction = $deviceFunctionMap[$deviceId] ?? null;
+
+                // Skip if device not found or function not set
+                if (!$deviceFunction) {
+                    $skippedCount++;
+                    $processedCount++;
+                    continue;
+                }
 
                 /**
                  * LOGIC MAPPING 
                  * Matches your FUNCTIONS constant: 
-                 * { id: 'auto', name: 'Auto' }, { id: 'In', name: 'In' }, { id: 'Out', name: 'Out' }
+                 * { id: 'auto', name: 'Auto' }, { id: 'In', name: 'In' }, 
+                 * { id: 'Out', name: 'Out' }, { id: 'option', name: 'Option' }
                  */
-                if ($deviceFunction === 'auto') {
-                    $expectedType = 'Auto';
-                } elseif ($deviceFunction === 'In') {
-                    $expectedType = 'In';
-                } elseif ($deviceFunction === 'Out') {
-                    $expectedType = 'Out';
-                } else {
-                    // Fallback: If 'in' is in DeviceID string, use 'In'. 
-                    // Otherwise, default to 'Auto' (NOT 'Out')
-                    $expectedType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Auto';
+                $expectedType = match($deviceFunction) {
+                    'auto' => 'Auto',
+                    'In' => 'In',
+                    'Out' => 'Out',
+                    'option' => 'Option',
+                    default => null,
+                };
+
+                // Skip if function type is unrecognized
+                if ($expectedType === null) {
+                    $skippedCount++;
+                    $processedCount++;
+                    continue;
                 }
 
                 // 5. Check for mismatch and update
@@ -92,12 +102,12 @@ class RectifyAttendanceLogs extends Command
             $this->output->write(".");
         });
 
-        $this->newline();
+        $this->newLine();
         $this->table(
-            ['Total Processed', 'Total Corrected', 'Start Date'],
-            [[$processedCount, $correctedCount, $startDate]]
+            ['Total Processed', 'Total Corrected', 'Total Skipped', 'Start Date'],
+            [[$processedCount, $correctedCount, $skippedCount, $startDate]]
         );
 
-        $this->info("Successfully rectified attendance logs.");
+        $this->info("✓ Successfully rectified attendance logs.");
     }
 }
