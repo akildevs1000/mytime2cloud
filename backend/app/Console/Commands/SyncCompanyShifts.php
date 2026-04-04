@@ -19,7 +19,7 @@ class SyncCompanyShifts extends Command
         $companyIds = Company::pluck('id');
 
         foreach ($companyIds as $id) {
-            $this->info("Processing Shifts for Company ID: $id");
+            info("Processing Shifts for Company ID: $id");
 
             $hour = (int)date('H');
 
@@ -29,9 +29,9 @@ class SyncCompanyShifts extends Command
                 Artisan::call("task:sync_split_shift $id $today");
             }
 
-            $this->comment("Done with Company $id");
+            info("Done with Company $id");
         }
 
-        $this->info('All company shifts synchronized successfully.');
+        info('All company shifts synchronized successfully.');
     }
 }
