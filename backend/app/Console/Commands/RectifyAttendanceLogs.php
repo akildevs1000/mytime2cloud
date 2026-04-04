@@ -18,7 +18,7 @@ class RectifyAttendanceLogs extends Command
     /**
      * The console command description.
      */
-    protected $description = 'Syncs attendance log_types with device function settings (Auto, In, Out, Option)';
+    protected $description = 'Syncs attendance log_types with device function settings (Auto, In, Out, Option) - Only updates NULL log_types';
 
     public function handle()
     {
@@ -26,7 +26,7 @@ class RectifyAttendanceLogs extends Command
         $dateArgument = $this->argument('date');
         $startDate = $dateArgument ? Carbon::parse($dateArgument)->toDateString() : Carbon::today()->toDateString();
 
-        $this->warn("!!! Rectifying logs from: {$startDate} onwards !!!");
+        $this->warn("!!! Rectifying NULL log_types from: {$startDate} onwards !!!");
 
         // 2. Fetch Device Mapping (id -> function)
         // Exclude mobile to focus on hardware devices
@@ -39,14 +39,16 @@ class RectifyAttendanceLogs extends Command
         $processedCount = 0;
         $skippedCount = 0;
 
-        // 3. Query logs in the specified range
-        $query = DB::table('attendance_logs')->whereDate('log_date', '>=', $startDate);
+        // 3. Query logs in the specified range - ONLY NULL log_type
+        $query = DB::table('attendance_logs')
+            ->whereDate('log_date', '>=', $startDate)
+            ->whereNull('log_type'); // ✅ Only process NULL values
 
         $totalFound = $query->count();
-        $this->info("Found {$totalFound} logs to verify.");
+        $this->info("Found {$totalFound} logs with NULL log_type to fix.");
 
         if ($totalFound === 0) {
-            $this->info("Nothing to process.");
+            $this->info("Nothing to process. All logs have log_type set.");
             return;
         }
 
@@ -86,16 +88,12 @@ class RectifyAttendanceLogs extends Command
                     continue;
                 }
 
-                // 5. Check for mismatch and update
-                // Using trim on current log_type to catch hidden spaces
-                if (trim($log->log_type) !== $expectedType) {
-                    DB::table('attendance_logs')
-                        ->where('id', $log->id)
-                        ->update(['log_type' => $expectedType]);
+                // 5. Update the NULL log_type
+                DB::table('attendance_logs')
+                    ->where('id', $log->id)
+                    ->update(['log_type' => $expectedType]);
 
-                    $correctedCount++;
-                }
-
+                $correctedCount++;
                 $processedCount++;
             }
             // Show progress in console
@@ -108,6 +106,6 @@ class RectifyAttendanceLogs extends Command
             [[$processedCount, $correctedCount, $skippedCount, $startDate]]
         );
 
-        $this->info("✓ Successfully rectified attendance logs.");
+        $this->info("✓ Successfully rectified NULL attendance logs.");
     }
 }
