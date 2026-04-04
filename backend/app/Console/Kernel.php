@@ -100,6 +100,12 @@ class Kernel extends ConsoleKernel
             ->runInBackground()
             ->withoutOverlapping();
 
+        $schedule->command('company:sync-visitors')
+            ->everyFiveMinutes()
+            ->runInBackground()
+            ->withoutOverlapping();
+
+
         $companyIds = Company::pluck("id");
 
         foreach ($companyIds as $companyId) {
@@ -177,10 +183,10 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('5:20')
                 ->runInBackground();
 
-            $schedule
-                ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
-                ->everyFiveMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
+            //     ->everyFiveMinutes()
+            //     ->runInBackground();
 
             $schedule
                 ->command("default_attendance_seeder {$companyId}")
@@ -222,10 +228,10 @@ class Kernel extends ConsoleKernel
 
 
 
-            $schedule
-                ->command("task:sync_visitor_set_expire_dates $companyId")
-                ->everyFiveMinutes()
-                ->runInBackground();
+            // $schedule
+            //     ->command("task:sync_visitor_set_expire_dates $companyId")
+            //     ->everyFiveMinutes()
+            //     ->runInBackground();
         }
 
         $schedule
