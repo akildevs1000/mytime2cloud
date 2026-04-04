@@ -78,7 +78,7 @@ class Company extends Model
         return $this->hasMany(Shift::class);
     }
 
-    public function attendancd_logs()
+    public function attendance_logs()
     {
         return $this->hasMany(AttendanceLog::class);
     }

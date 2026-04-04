@@ -17,7 +17,7 @@ class SyncCompanyShifts extends Command
         $today = date("Y-m-d");
         $yesterday = date("Y-m-d", strtotime("yesterday"));
         $companyIds = Company::whereHas('attendance_logs', function ($query) use ($today) {
-            $query->whereDate('LogTime', $today); // Adjust 'LogTime' to your actual column name
+            $query->whereDate('log_date', $today); // Adjust 'log_date' to your actual column name
         })->pluck('id');
 
         foreach ($companyIds as $id) {
