@@ -181,7 +181,7 @@ class NightShiftController extends Controller
                 continue;
             }
 
-            $status = Attendance::determineStatus($id, $key, $date, $params["shift"], []);
+            $status = Attendance::determineStatus($id, $key, $date, $shift, []);
 
             $item = [
                 "roster_id" => 0,
