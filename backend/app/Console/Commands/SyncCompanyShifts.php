@@ -4,12 +4,13 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Company;
+use App\Traits\LogsTable; // 1. Use the Trait
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Console\Helper\Table;
-use Symfony\Component\Console\Output\BufferedOutput;
 
 class SyncCompanyShifts extends Command
 {
+    use LogsTable; // 2. Enable the Trait functionality
+
     protected $signature = 'company:sync-shifts';
     protected $description = 'Sync all shift types for all companies and log as a table';
 
@@ -23,7 +24,6 @@ class SyncCompanyShifts extends Command
         })->pluck('id');
 
         $rows = [];
-        $startTime = microtime(true);
 
         foreach ($companyIds as $id) {
             $this->info("Processing Company ID: $id...");
@@ -40,46 +40,25 @@ class SyncCompanyShifts extends Command
                 $multiShift = 'Synced';
             }
 
-            // Collect data for the table
+            // Collect data for the table (Trait will handle formatting)
             $rows[] = [
-                'ID' => $id,
-                'Date' => $today,
-                'Basic Shifts' => 'Synced',
-                'Multi/Split' => $multiShift,
-                'Timestamp' => date('H:i:s')
+                $id,
+                $today,
+                'Synced',
+                $multiShift,
+                date('H:i:s')
             ];
         }
 
-        $this->logTable($rows);
-        
+        // 3. Call the Trait method 
+        // Usage: logAsTable(headers, rows, title, custom_channel_name)
+        $this->logAsTable(
+            ['Company ID', 'Log Date', 'Standard Sync', 'Multi/Split', 'Finished At'],
+            $rows,
+            'Company Shift Sync Report',
+            'shifts' // You can change this to 'single' or any custom channel
+        );
+
         $this->info('All company shifts synchronized successfully.');
-    }
-
-    /**
-     * Formats the collection into a table string and writes to laravel.log
-     */
-    protected function logTable(array $rows)
-    {
-        if (empty($rows)) {
-            info("SyncCompanyShifts: No companies processed today.");
-            return;
-        }
-
-        // Use BufferedOutput to capture the table as a string
-        $buffer = new BufferedOutput();
-        $table = new Table($buffer);
-
-        $table->setHeaders(['Company ID', 'Log Date', 'Standard Sync', 'Multi/Split', 'Finished At'])
-              ->setRows($rows);
-        
-        $table->render();
-
-        $tableString = $buffer->fetch();
-
-        // Write to Laravel Log
-        info("\n--- Company Shift Sync Report ---\n" . $tableString);
-        
-        // Also show in console
-        $this->line($tableString);
     }
 }
