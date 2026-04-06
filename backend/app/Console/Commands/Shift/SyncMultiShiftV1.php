@@ -24,7 +24,7 @@ class SyncMultiShiftV1 extends Command
         $formattedDate = (new DateTime())->format('d M Y \a\t H:i:s');
         $logFilePath = "logs/shifts/multi_shift/command/$id";
 
-        Log::channel('multi')->info("*****Cron started at $formattedDate for task:sync_multi_shift_v1*****", [
+        Log::channel('shift')->info("*****Cron started at $formattedDate for task:sync_multi_shift_v1*****", [
             'company_id' => $id,
             'date' => $date,
             'checked' => $checked
@@ -37,7 +37,7 @@ class SyncMultiShiftV1 extends Command
 
         if ($found == 0) {
             $this->info("No multi-shift found for company $id");
-            Log::channel('multi')->info("No multi-shift found for company $id");
+            Log::channel('shift')->info("No multi-shift found for company $id");
             return Command::SUCCESS;
         }
 
@@ -58,7 +58,7 @@ class SyncMultiShiftV1 extends Command
 
         if (empty($all_new_employee_ids)) {
             $this->info("No data found");
-            Log::channel('multi')->info("No data found for company $id on date $date");
+            Log::channel('shift')->info("No data found for company $id on date $date");
             $this->sendNotification($id, "No Data Found\n\nThank you!", $logFilePath, $formattedDate);
             return Command::SUCCESS;
         }
@@ -68,7 +68,7 @@ class SyncMultiShiftV1 extends Command
         $this->info("Processing " . count($filtered_employee_ids) . " employees");
         $this->info("Employee IDs: " . json_encode($filtered_employee_ids));
 
-        Log::channel('multi')->info("Processing employees", [
+        Log::channel('shift')->info("Processing employees", [
             'company_id' => $id,
             'date' => $date,
             'employee_count' => count($filtered_employee_ids),
@@ -93,7 +93,7 @@ class SyncMultiShiftV1 extends Command
             );
 
             $this->info("Render Result: " . $result);
-            Log::channel('multi')->info("Render completed", [
+            Log::channel('shift')->info("Render completed", [
                 'company_id' => $id,
                 'date' => $date,
                 'result' => $result
@@ -112,7 +112,7 @@ class SyncMultiShiftV1 extends Command
                 ->where('al.checked', false)
                 ->count();
 
-            Log::channel('multi')->info("Remaining unchecked logs: $remaining_logs", [
+            Log::channel('shift')->info("Remaining unchecked logs: $remaining_logs", [
                 'company_id' => $id,
                 'date' => $date,
                 'remaining_logs' => $remaining_logs
@@ -129,7 +129,7 @@ class SyncMultiShiftV1 extends Command
             $this->sendNotification($id, $message, $logFilePath, $formattedDate);
 
             $this->info("*****Cron ended for task:sync_multi_shift_v1*****");
-            Log::channel('multi')->info("*****Cron ended for task:sync_multi_shift_v1*****", [
+            Log::channel('shift')->info("*****Cron ended for task:sync_multi_shift_v1*****", [
                 'company_id' => $id,
                 'date' => $date,
                 'processed_employees' => count($filtered_employee_ids),
@@ -142,7 +142,7 @@ class SyncMultiShiftV1 extends Command
             $this->error("Error: " . $e->getMessage());
             $this->error("Trace: " . $e->getTraceAsString());
             
-            Log::channel('multi')->error("Error processing attendance", [
+            Log::channel('shift')->error("Error processing attendance", [
                 'company_id' => $id,
                 'date' => $date,
                 'error' => $e->getMessage(),
@@ -158,7 +158,7 @@ class SyncMultiShiftV1 extends Command
 
     private function sendNotification($companyId, $message, $logFilePath, $formattedDate)
     {
-        Log::channel('multi')->info("Sending notification", [
+        Log::channel('shift')->info("Sending notification", [
             'company_id' => $companyId,
             'message' => $message
         ]);
