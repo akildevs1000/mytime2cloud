@@ -56,7 +56,7 @@ class SyncCompanyShifts extends Command
             ['Company ID', 'Log Date', 'Standard Sync', 'Multi/Split', 'Finished At'],
             $rows,
             'Company Shift Sync Report',
-            'shifts' // You can change this to 'single' or any custom channel
+            'shift' // You can change this to 'single' or any custom channel
         );
 
         $this->info('All company shifts synchronized successfully.');

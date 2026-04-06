@@ -14,7 +14,7 @@ trait LogsTable
    * @param string $title Header title for the log
    * @param string|null $channel Optional custom log channel
    */
-  public function logAsTable(array $headers, array $rows, string $title = 'Task Report', string $channel = null)
+  public function logAsTable(array $headers, array $rows, string $title = 'Task Report', $channel = null)
   {
     if (empty($rows)) {
       $this->getWriter($channel)->info("$title: No data to display.");
@@ -44,6 +44,6 @@ trait LogsTable
    */
   protected function getWriter(?string $channel)
   {
-    return Log::channel("shift");
+    return Log::channel($channel ?? 'single');
   }
 }
