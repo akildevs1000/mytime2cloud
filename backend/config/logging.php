@@ -157,9 +157,6 @@ return [
             'handler' => NullHandler::class,
         ],
 
-        'emergency'          => [
-            'path' => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
-        ],
 
         'slowqueries'        => [
             'driver' => 'single',
@@ -190,6 +187,13 @@ return [
         'shift' => [
             'driver' => 'daily',
             'path' => storage_path('shifts/events.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'emergency' => [
+            'driver' => 'daily',
+            'path' => storage_path('shifts/emergency.log'),
             'level' => 'debug',
             'days' => 30,
         ],
