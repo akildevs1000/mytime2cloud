@@ -39,10 +39,17 @@ class RectifyAttendanceLogs extends Command
         $processedCount = 0;
         $skippedCount = 0;
 
+        // 1. Convert your input into a Carbon instance
+        $currentDate = Carbon::parse($startDate);
+
+        // 2. Calculate the "Yesterday" relative to that date
+        $relativeYesterday = $currentDate->copy()->subDay()->toDateString();
+        $relativeToday = $currentDate->toDateString();
+
         // 3. Query logs in the specified range - ONLY NULL log_type
         $query = DB::table('attendance_logs')
-            // ->whereDate('log_date', '>=', $startDate)
-            ->whereDate('log_date', '>=', Carbon::yesterday())
+            ->whereDate('log_date', '>=', $relativeYesterday)
+            ->whereDate('log_date', '<=', $relativeToday)
             ->whereNull('log_type'); // ✅ Only process NULL values
 
         $totalFound = $query->count();
@@ -74,7 +81,7 @@ class RectifyAttendanceLogs extends Command
                  * { id: 'auto', name: 'Auto' }, { id: 'In', name: 'In' }, 
                  * { id: 'Out', name: 'Out' }, { id: 'option', name: 'Option' }
                  */
-                $expectedType = match($deviceFunction) {
+                $expectedType = match ($deviceFunction) {
                     'auto' => 'Auto',
                     'In' => 'In',
                     'Out' => 'Out',
