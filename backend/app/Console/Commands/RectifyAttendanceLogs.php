@@ -41,7 +41,8 @@ class RectifyAttendanceLogs extends Command
 
         // 3. Query logs in the specified range - ONLY NULL log_type
         $query = DB::table('attendance_logs')
-            ->whereDate('log_date', '>=', $startDate)
+            // ->whereDate('log_date', '>=', $startDate)
+            ->whereDate('log_date', '>=', Carbon::yesterday())
             ->whereNull('log_type'); // ✅ Only process NULL values
 
         $totalFound = $query->count();
