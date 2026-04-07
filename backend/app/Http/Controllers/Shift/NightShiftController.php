@@ -341,18 +341,18 @@ class NightShiftController extends Controller
 
 
             //if (!$custom_render)
-            // {
-            //     // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
-            //     AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
-            //         ->where("LogTime", ">=", $date . ' 00:00:00')
-            //         ->where("LogTime", "<=", $date . ' 23:59:00')
-            //         ->update([
-            //             "checked" => true,
-            //             "checked_datetime" => date('Y-m-d H:i:s'),
-            //             "channel" => $channel,
-            //             "log_message" => substr($message, 0, 200)
-            //         ]);
-            // }
+            {
+                // AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)->update(["checked" => true, "checked_datetime" => date('Y-m-d H:i:s')]);
+                AttendanceLog::where("company_id", $id)->whereIn("UserID", $UserIds)
+                    ->where("LogTime", ">=", $date . ' 00:00:00')
+                    ->where("LogTime", "<=", $date . ' 23:59:00')
+                    ->update([
+                        "checked" => true,
+                        "checked_datetime" => date('Y-m-d H:i:s'),
+                        "channel" => $channel,
+                        "log_message" => substr($message, 0, 200)
+                    ]);
+            }
         } catch (\Throwable $e) {
             $message = "[" . $date . " " . date("H:i:s") .  "] Night Shift. " . $e->getMessage();
         }
