@@ -24,13 +24,16 @@ class SyncCompanyShifts extends Command
 
         // 1. Fully Optimized Query: Selecting only 'id' for Company
         $companies = Company::query()
-            ->with(['shifts' => function ($query) {
-                // company_id is mandatory for the relationship to link properly
-                $query->select('id', 'company_id', 'on_duty_time', 'shift_type_id')
-                    ->where('shift_type_id', 1);
-            }])
-            ->whereHas('attendance_logs', function ($query) use ($today) {
-                $query->whereDate('log_date', $today);
+            // ->with(['shifts' => function ($query) {
+            //     // company_id is mandatory for the relationship to link properly
+            //     $query->select('id', 'company_id', 'on_duty_time', 'shift_type_id')
+            //         ->whereIn('shift_type_id', [1, 2]);
+            // }])
+            ->whereHas('attendance_logs', function ($query) use ($yesterday, $today) {
+                $query->whereBetween("LogTime", [
+                    $yesterday . ' 00:00:00',
+                    $today . ' 23:59:59'
+                ]);
             })
             ->get(['id']);
 
@@ -40,13 +43,13 @@ class SyncCompanyShifts extends Command
             $id = $company->id;
 
             // 2. Extract cutoff hour (0-23) from the "HH:MM" string
-            $cutoff = $company->shifts->map(function ($shift) {
-                return (int) explode(':', $shift->on_duty_time)[0];
-            })->min() ?? 6;
+            // $cutoff = $company->shifts->map(function ($shift) {
+            //     return (int) explode(':', $shift->on_duty_time)[0];
+            // })->min() ?? 6;
 
-            $logMsg = "Processing ID: $id (Cutoff: $cutoff:00, Current Hour: $hour)";
-            $this->info($logMsg);
-            \Log::channel('shift')->info($logMsg);
+            // $logMsg = "Processing ID: $id (Cutoff: $cutoff:00, Current Hour: $hour)";
+            // $this->info($logMsg);
+            // Log::channel('shift')->info($logMsg);
 
             // 3. Execution Phase
             Artisan::call("task:sync_attendance_missing_shift_ids $id $today");
@@ -54,7 +57,7 @@ class SyncCompanyShifts extends Command
 
             $multiShift = 'Skipped';
 
-            if ($hour >= $cutoff) {
+            if ($hour >= 6) {
                 Artisan::call("task:sync_multi_shift_v1 $id $today");
                 Artisan::call("task:sync_split_shift $id $today");
                 Artisan::call("task:sync_except_auto_shift $id $today");
