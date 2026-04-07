@@ -95,7 +95,7 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule->command('company:sync-shifts')
-            ->everyThirtyMinutes()
+            ->everyFiveMinutes()
             ->runInBackground()
             ->withoutOverlapping();
 
