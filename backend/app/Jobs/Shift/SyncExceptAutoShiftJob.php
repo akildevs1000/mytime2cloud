@@ -52,6 +52,13 @@ class SyncExceptAutoShiftJob implements ShouldQueue
                     $shiftQuery->whereJsonContains("days", Carbon::parse($date)->format("D"));
                 });
             })
+            ->whereHas("attendance_logs", function ($q) use ($date) {
+                $start = $date . ' 00:00:00';
+                $end = $date . ' 23:59:59';
+
+                $q->whereBetween("LogTime", [$start, $end])
+                    ->where("checked", false);
+            })
             ->pluck("system_user_id");
 
         Logger::channel('custom')->info('Queue: SyncExceptAutoShiftJob Started', [
@@ -91,25 +98,20 @@ class SyncExceptAutoShiftJob implements ShouldQueue
                     ]);
 
                     AttendanceLog::where("company_id", $id)
-                        ->whereIn("UserID", $employeeIds)
-                        ->whereBetween("LogTime", [
-                            $date . ' 00:00:00',
-                            $date . ' 23:59:00'
-                        ])
+                        ->whereIn("UserID", $chunk->toArray()) // Target only this chunk
+                        ->whereBetween("LogTime", [$date . ' 00:00:00', $date . ' 23:59:59'])
                         ->update([
                             "checked" => true,
                             "checked_datetime" => now(),
                             "channel" => "queue",
                             "log_message" => ""
                         ]);
-
                 } else {
                     Logger::channel('custom')->error('Queue request failed', [
                         'status' => $response->status(),
                         'body' => $response->body(),
                     ]);
                 }
-
             } catch (\Exception $e) {
                 Logger::channel('custom')->critical('Queue unexpected error', [
                     'exception' => $e->getMessage(),
