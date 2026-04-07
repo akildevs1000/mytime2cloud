@@ -22,53 +22,59 @@ class SyncCompanyShifts extends Command
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $hour = (int)date('H');
 
-        $companyIds = Company::whereHas('attendance_logs', function ($query) use ($today) {
-            $query->whereDate('log_date', $today);
-        })->pluck('id');
+        // 1. Fully Optimized Query: Selecting only 'id' for Company
+        $companies = Company::query()
+            ->with(['shifts' => function ($query) {
+                // company_id is mandatory for the relationship to link properly
+                $query->select('id', 'company_id', 'on_duty_time', 'shift_type_id')
+                    ->where('shift_type_id', 1);
+            }])
+            ->whereHas('attendance_logs', function ($query) use ($today) {
+                $query->whereDate('log_date', $today);
+            })
+            ->get(['id']);
 
         $rows = [];
 
-        foreach ($companyIds as $id) {
-            $this->info("Processing Company ID: $id...");
+        foreach ($companies as $company) {
+            $id = $company->id;
 
-            // Execute commands
+            // 2. Extract cutoff hour (0-23) from the "HH:MM" string
+            $cutoff = $company->shifts->map(function ($shift) {
+                return (int) explode(':', $shift->on_duty_time)[0];
+            })->min() ?? 6;
+
+            $logMsg = "Processing ID: $id (Cutoff: $cutoff:00, Current Hour: $hour)";
+            $this->info($logMsg);
+            \Log::channel('shift')->info($logMsg);
+
+            // 3. Execution Phase
             Artisan::call("task:sync_attendance_missing_shift_ids $id $today");
             Artisan::call("task:sync_auto_shift $id $today");
 
-            $onDutyTime = $company->shift->on_duty_time ?? '06:00';
-            $cutoff = (int) explode(':', $onDutyTime)[0] ?? "06";
-
-            Log::channel('shift')->info("Company ID: $id - On Duty Time: $onDutyTime - Current Hour: $hour - Cutoff Hour: $cutoff");
-
             $multiShift = 'Skipped';
-            if ($hour >= 6) {
+
+            if ($hour >= $cutoff) {
                 Artisan::call("task:sync_multi_shift_v1 $id $today");
                 Artisan::call("task:sync_split_shift $id $today");
                 Artisan::call("task:sync_except_auto_shift $id $today");
-                $multiShift = 'Synced';
+                $multiShift = "Synced (Today)";
             } else {
                 Artisan::call("task:sync_except_auto_shift $id $yesterday");
+                $multiShift = "Synced (Yesterday)";
             }
 
-            // Collect data for the table (Trait will handle formatting)
-            $rows[] = [
-                $id,
-                $today,
-                'Synced',
-                $multiShift,
-                date('H:i:s')
-            ];
+            $rows[] = [$id, $today, 'Synced', $multiShift, date('H:i:s')];
         }
 
-        // 3. Call the Trait method 
-        // Usage: logAsTable(headers, rows, title, custom_channel_name)
+        // 4. Log the final summary table to the 'shift' channel
         $this->logAsTable(
-            ['Company ID', 'Log Date', 'Standard Sync', 'Multi/Split', 'Finished At'],
+            ['ID', 'Date', 'Std Sync', 'Multi/Split', 'Finished'],
             $rows,
-            'Company Shift Sync Report',
-            'shift' // You can change this to 'single' or any custom channel
+            'Shift Sync Report',
+            'shift' // Directs the Trait to use the 'shift' channel
         );
 
-        $this->info('All company shifts synchronized successfully.');
+        $this->info('Sync process completed and logged to "shift" channel.');
     }
 }
