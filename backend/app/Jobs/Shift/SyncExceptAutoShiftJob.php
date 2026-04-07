@@ -92,20 +92,6 @@ class SyncExceptAutoShiftJob implements ShouldQueue
                 $response = Http::withoutVerifying()->get($url, $params);
 
                 if ($response->successful()) {
-                    $updatedCount = AttendanceLog::where("company_id", $id)
-                        ->whereIn("UserID", $chunk->toArray())
-                        ->whereBetween("LogTime", [$date . ' 00:00:00', $date . ' 23:59:59'])
-                        ->where("checked", false) // Only update if not already checked
-                        ->update([
-                            "checked" => true,
-                            "checked_datetime" => now(),
-                            "channel" => "queue",
-                        ]);
-
-                    Logger::channel('shift')->info("Database Updated", [
-                        'rows_affected' => $updatedCount,
-                        'employee_ids' => $chunk->toArray()
-                    ]);
                 } else {
                     Logger::channel('shift')->error('Queue request failed', [
                         'status' => $response->status(),
