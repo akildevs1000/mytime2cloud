@@ -61,7 +61,7 @@ class SyncExceptAutoShiftJob implements ShouldQueue
             })
             ->pluck("system_user_id");
 
-        Logger::channel('custom')->info('Queue: SyncExceptAutoShiftJob Started', [
+        Logger::channel('shift')->info('Queue: SyncExceptAutoShiftJob Started', [
             'company_id' => $id,
             'date' => $date,
             'url' => $url,
@@ -83,7 +83,7 @@ class SyncExceptAutoShiftJob implements ShouldQueue
                 'channel' => "queue",
             ];
 
-            Logger::channel('custom')->info('Queue request chunk', [
+            Logger::channel('shift')->info('Queue request chunk', [
                 'chunk' => $chunk->toArray(),
                 'params' => $params,
             ]);
@@ -92,33 +92,33 @@ class SyncExceptAutoShiftJob implements ShouldQueue
                 $response = Http::withoutVerifying()->get($url, $params);
 
                 if ($response->successful()) {
-                    Logger::channel('custom')->info('Queue request successful', [
-                        'chunk' => $chunk->toArray(),
-                        'response' => $response->json(),
-                    ]);
-
-                    AttendanceLog::where("company_id", $id)
-                        ->whereIn("UserID", $chunk->toArray()) // Target only this chunk
+                    $updatedCount = AttendanceLog::where("company_id", $id)
+                        ->whereIn("UserID", $chunk->toArray())
                         ->whereBetween("LogTime", [$date . ' 00:00:00', $date . ' 23:59:59'])
+                        ->where("checked", false) // Only update if not already checked
                         ->update([
                             "checked" => true,
                             "checked_datetime" => now(),
                             "channel" => "queue",
-                            "log_message" => ""
                         ]);
+
+                    Logger::channel('shift')->info("Database Updated", [
+                        'rows_affected' => $updatedCount,
+                        'employee_ids' => $chunk->toArray()
+                    ]);
                 } else {
-                    Logger::channel('custom')->error('Queue request failed', [
+                    Logger::channel('shift')->error('Queue request failed', [
                         'status' => $response->status(),
                         'body' => $response->body(),
                     ]);
                 }
             } catch (\Exception $e) {
-                Logger::channel('custom')->critical('Queue unexpected error', [
+                Logger::channel('shift')->critical('Queue unexpected error', [
                     'exception' => $e->getMessage(),
                 ]);
             }
         });
 
-        Logger::channel('custom')->info('Queue: SyncExceptAutoShiftJob Completed Successfully');
+        Logger::channel('shift')->info('Queue: SyncExceptAutoShiftJob Completed Successfully');
     }
 }
