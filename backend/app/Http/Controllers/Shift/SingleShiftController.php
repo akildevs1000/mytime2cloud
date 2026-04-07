@@ -556,32 +556,27 @@ class SingleShiftController extends Controller
 
     public function renderFresh($id, $date, $shift_type_id, $UserIds = [], $custom_render = false, $isRequestFromAutoshift = false, $channel = "unknown")
     {
-
         $params = [
             "company_id"             => $id,
             "date"                   => $date,
             "shift_type_id"          => $shift_type_id,
             "custom_render"          => $custom_render,
             "UserIds"                => $UserIds,
-            "exclude_shift_type_ids" => [1, 4], // for Single
+            "exclude_shift_type_ids" => [1, 4],
         ];
 
-        // $params["UserIds"] = Attendance::getAlreadyRenderedEmployeeIds($params);
-
-        // if (empty($params["UserIds"])) {
-        //     return "[" . $date . "] SingleShift: All employees already rendered by another shift. IDs: " . json_encode($UserIds);
-        // }
-
-        // 1. Resolve which employees to process
         if (!$custom_render) {
             $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
         }
 
         if (empty($params["UserIds"])) {
-            return "[" . $date . "] No employees found to render.";
+            $msg = "[" . $date . "] No employees found to render.";
+            // Log to shift channel
+            Log::channel('shift')->info($msg, ['company_id' => $id, 'count' => 0]);
+            return $msg;
         }
 
-        // 2. Bulk Fetch Data (Optimization to avoid N+1 queries)
+        // 2. Bulk Fetch Data
         $logsEmployees = $isRequestFromAutoshift
             ? (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params)
             : (new AttendanceLog)->getLogsForRenderNotAutoShift($params);
@@ -604,12 +599,9 @@ class SingleShiftController extends Controller
         foreach ($params["UserIds"] as $employeeId) {
             $employeeLogs = $logsEmployees[$employeeId] ?? collect([]);
             $logsArray = $employeeLogs->toArray();
-
             $activeSchedule = $allSchedules->get($employeeId)?->first();
             $shift = $activeSchedule?->shift ?? null;
 
-            // Determine Initial Status (Priority: Log > Holiday > Fixed Weekend > Flexi > Absent)
-            // Using "O" for all types of Week Offs/Off Days as requested.
             $status = Attendance::determineStatus($id, $employeeId, $date, $shift, $logsArray);
 
             $item = [
@@ -630,10 +622,7 @@ class SingleShiftController extends Controller
                 "early_going" => "---",
             ];
 
-            // 4. Log Refinement Logic
             if (!empty($logsArray)) {
-
-                // STRICT WINDOW CHECK: Only capture "In" logs within the shift's window
                 $firstLog = $employeeLogs->first(function ($record) use ($employeeId, $previousShifts) {
                     $prev = $previousShifts->get($employeeId);
                     if ($prev && $prev->shift_type_id == 6) {
@@ -647,42 +636,34 @@ class SingleShiftController extends Controller
                 if ($firstLog) {
                     $item["in"] = $firstLog["time"];
                     $item["device_id_in"] = $firstLog["DeviceID"] ?? "---";
-
-                    // Find Last Log (Out)
                     $lastLog = $employeeLogs->last(function ($record) {
                         return in_array($record["log_type"], ["Out", "out", "Auto", "auto", null], true);
                     });
 
-                    // Rule: Exactly 1 log in range = Missing (M). More than 1 = Present (P).
                     if ($lastLog && count($logsArray) > 1 && $item["in"] !== $lastLog["time"]) {
                         $item["status"] = "P";
                         $item["out"] = $lastLog["time"];
                         $item["device_id_out"] = $lastLog["DeviceID"] ?? "---";
                         $item["total_hrs"] = $this->getTotalHrsMins($item["in"], $item["out"]);
 
-                        // Overtime
                         if ($activeSchedule["isOverTime"] ?? false) {
                             $rawOt = $this->calculatedOT($item["total_hrs"], $shift["working_hours"], $shift["overtime_interval"]);
                             $item["ot"] = Attendance::applyOvertimePolicy($rawOt, $item, $shift);
                         }
 
-                        // Shift Type 6: Late/Early Logic
                         if ($item["shift_type_id"] == 6 && $shift) {
                             $item["late_coming"] = $this->calculatedLateComing($item["in"], $shift["on_duty_time"], $shift["late_time"]);
                             if ($item["late_coming"] != "---") $item["status"] = "LC";
-
                             $item["early_going"] = $this->calculatedEarlyGoing($item["out"], $shift["off_duty_time"], $shift["early_time"]);
                             if ($item["early_going"] != "---") $item["status"] = "EG";
                         }
                     } else {
-                        $item["status"] = "M"; // 1 log = Missing
+                        $item["status"] = "M";
                     }
                 } else {
-                    // LOGS OUT OF RANGE (e.g. 14:57): Revert to base status (H, O, or A)
                     $item["status"] = Attendance::determineStatus($id, $employeeId, $date, $shift, $logsArray);
                 }
             }
-
             $items[] = $item;
         }
 
@@ -698,10 +679,24 @@ class SingleShiftController extends Controller
             Attendance::insert($items);
 
             DB::commit();
-            $message = "[$date] RenderFresh completed. Total processed: " . count($items);
+
+            $processedCount = count($items);
+            $message = "[$date] RenderFresh completed. Total processed: " . $processedCount;
+
+            // Log specifically to 'shift' channel with company metadata
+            Log::channel('shift')->info($message, [
+                'company_id' => $id,
+                'processed_count' => $processedCount,
+                'date' => $date
+            ]);
         } catch (\Throwable $e) {
             DB::rollback();
             $message = "[$date] RenderFresh Error: " . $e->getMessage();
+
+            Log::channel('shift')->error($message, [
+                'company_id' => $id,
+                'exception' => $e->getMessage()
+            ]);
         }
 
         $this->devLog("render-manual-log", $message);
