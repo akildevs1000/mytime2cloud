@@ -35,12 +35,12 @@ class SyncCompanyShifts extends Command
                     $today . ' 23:59:59'
                 ]);
             })
-            ->get(['id']);
+            ->pluck('id');
 
         $rows = [];
 
         foreach ($companies as $company) {
-            $id = $company->id;
+            $id = $company;
 
             // 2. Extract cutoff hour (0-23) from the "HH:MM" string
             // $cutoff = $company->shifts->map(function ($shift) {
