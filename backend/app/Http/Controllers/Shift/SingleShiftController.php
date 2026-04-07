@@ -689,6 +689,15 @@ class SingleShiftController extends Controller
 
             Attendance::insert($items);
 
+            AttendanceLog::where("company_id", $id)
+                ->whereIn("UserID", $params["UserIds"])
+                ->whereBetween("LogTime", [$date . ' 00:00:00', $date . ' 23:59:59'])
+                ->update([
+                    "checked" => true,
+                    "checked_datetime" => now(),
+                    "channel" => "render_fresh_internal"
+                ]);
+
             DB::commit();
 
             $processedCount = count($items);
