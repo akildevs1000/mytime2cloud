@@ -566,16 +566,27 @@ class SingleShiftController extends Controller
         ];
 
         if (!$custom_render) {
-            $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+            // $params["UserIds"] = (new AttendanceLog)->getEmployeeIdsForNewLogsToRender($params);
+            $params["UserIds"] = AttendanceLog::whereIn("UserID", $params["UserIds"])
+                ->where("company_id", $id)
+                ->whereBetween("LogTime", [$date . ' 00:00:00', $date . ' 23:59:59'])
+                ->where("checked", false)
+                ->distinct()
+                ->pluck("UserID")
+                ->toArray();
         }
 
         if (empty($params["UserIds"])) {
-            $msg = "[" . $date . "] No employees found to render.";
-            // Log to shift channel
-            Log::channel('shift')->info($msg, ['company_id' => $id, 'count' => 0]);
-            return $msg;
-        }
+            $message = "[$date] RenderFresh completed. Total processed: 0";
 
+            Log::channel('shift')->info($message, [
+                'company_id' => $id,
+                'processed_count' => 0,
+                'date' => $date
+            ]);
+
+            return $message;
+        }
         // 2. Bulk Fetch Data
         $logsEmployees = $isRequestFromAutoshift
             ? (new AttendanceLog)->getLogsForRenderOnlyAutoShift($params)
