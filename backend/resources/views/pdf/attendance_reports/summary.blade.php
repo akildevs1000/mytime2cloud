@@ -197,9 +197,13 @@
                 @if ($shift_type == 'General')
                     <td>
                         {{ $attendance->in ?? '---' }}
+                        <br>
+                        {{ $attendance?->device_in?->name ?? '---' }}
                     </td>
                     <td>
                         {{ $attendance->out ?? '---' }}
+                        <br>
+                        {{ $attendance?->device_out?->name ?? '---' }}
                     </td>
                     <td>
                         {{ $attendance->late_coming ?? '---' }}
