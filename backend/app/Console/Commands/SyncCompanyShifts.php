@@ -7,6 +7,7 @@ use App\Models\Company;
 use App\Traits\LogsTable; // 1. Use the Trait
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Log;
 
 class SyncCompanyShifts extends Command
 {
@@ -33,6 +34,11 @@ class SyncCompanyShifts extends Command
             // Execute commands
             Artisan::call("task:sync_attendance_missing_shift_ids $id $today");
             Artisan::call("task:sync_auto_shift $id $today");
+
+            $onDutyTime = $company->shift->on_duty_time ?? '06:00';
+            $cutoff = (int) explode(':', $onDutyTime)[0] ?? "06";
+
+            Log::channel('shift')->info("Company ID: $id - On Duty Time: $onDutyTime - Current Hour: $hour - Cutoff Hour: $cutoff");
 
             $multiShift = 'Skipped';
             if ($hour >= 6) {
