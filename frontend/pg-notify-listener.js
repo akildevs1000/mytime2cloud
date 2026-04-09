@@ -12,17 +12,17 @@ function nowGMT4() {
 function logError(message) {
   const file = path.join(__dirname, `error-${nowGMT4().toISOString().slice(0, 10)}.log`);
   const line = `[${nowGMT4().toISOString()}] ${message}\n`;
-  try { fs.appendFileSync(file, line); } catch {}
+  try { fs.appendFileSync(file, line); } catch { }
   console.error("❌ ERROR:", message);
 }
 
 // ========== CONFIG ==========
-const PUSH_URL    = process.env.PUSH_URL    || "https://push.mytime2cloud.com/notify";
+const PUSH_URL = process.env.PUSH_URL || "https://push.mytime2cloud.com/notify";
 const PUSH_SECRET = process.env.PUSH_SECRET || "";
 
 console.table({
-  DB_HOST:     process.env.DB_HOST,
-  DB_PORT:     process.env.DB_PORT,
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
   DB_USERNAME: process.env.DB_USERNAME,
   DB_PASSWORD: process.env.DB_PASSWORD ? "***hidden***" : "NOT SET",
   DB_DATABASE: process.env.DB_DATABASE,
@@ -34,14 +34,14 @@ console.table({
 async function sendPushNotification(row) {
   try {
     const payload = {
-      clientId: row.company_id,
-      type:     "clock",
-      message:  "mobile clock in/out",
+      clientId: `${row.company_id}_${row.UserID}`,
+      type: "clock",
+      message: "mobile clock in/out",
       data: {
-        user_id:   row.UserID,
-        name:      "",
-        avatar:    "",
-        timestamp: row.LogTime,
+        user_id: row.UserID,
+        name: "",
+        avatar: "",
+        timestamp: row.LogTime
       },
     };
 
@@ -49,7 +49,7 @@ async function sendPushNotification(row) {
     console.log(JSON.stringify(payload, null, 2));
 
     const response = await fetch(PUSH_URL, {
-      method:  "POST",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
         ...(PUSH_SECRET ? { "Authorization": `Bearer ${PUSH_SECRET}` } : {}),
@@ -75,9 +75,9 @@ async function sendPushNotification(row) {
 // ========== PG NOTIFY LISTENER ==========
 async function start() {
   const pgClient = new Client({
-    host:     process.env.DB_HOST,
-    port:     process.env.DB_PORT,
-    user:     process.env.DB_USERNAME,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
   });
@@ -96,6 +96,12 @@ async function start() {
         console.log(`📥 DB Notify received:`);
         console.log(JSON.stringify(row, null, 2));
 
+        // if (row.DeviceID.includes("OX-900")) {
+        //   await sendPushNotification(row);
+        // } else {
+        //   console.log(`⚠️ Ignored notification from DeviceID: ${row.DeviceID}`);
+        // }
+
         await sendPushNotification(row);
 
       } catch (err) {
@@ -105,7 +111,7 @@ async function start() {
 
     pgClient.on("error", async (err) => {
       logError(`PG client error: ${err.message}`);
-      try { await pgClient.end(); } catch {}
+      try { await pgClient.end(); } catch { }
       console.log("🔄 Reconnecting in 5 seconds...");
       setTimeout(start, 5000);
     });
