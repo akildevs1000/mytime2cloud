@@ -18,13 +18,11 @@ class SyncCompanyVisitors extends Command
         $companyIds = Company::pluck('id');
 
         foreach ($companyIds as $id) {
-            info("Processing Visitors for Company ID: $id");
             $this->info("Processing Visitors for Company ID: $id");
 
             Artisan::call("task:sync_visitor_set_expire_dates $id");
             Artisan::call("task:sync_visitor_attendance $id $today");
 
-            info("Done with Company $id");
             $this->info("Done with Company $id");
         }
 

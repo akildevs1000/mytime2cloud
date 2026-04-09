@@ -18,13 +18,11 @@ class SyncCompanyAlerts extends Command
         $companyIds = Company::pluck('id');
 
         foreach ($companyIds as $id) {
-            info("Processing Alerts for Company ID: $id");
             $this->info("Processing Alerts for Company ID: $id");
 
             Artisan::call("alert:access_control $id");
             Artisan::call("alert:attendance $id");
 
-            info("Done with Company $id");
             $this->info("Done with Company $id");
         }
 
