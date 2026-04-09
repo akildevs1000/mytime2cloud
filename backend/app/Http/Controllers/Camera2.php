@@ -16,22 +16,6 @@ class Camera2 extends Controller
 
     public function camera2PushEvents(Request $request)
     {
-
-        $payload = $request->all();
-
-        // 1. Immediate Log of the incoming request
-        Logger::channel('camera_OX_900')->info("New Push Event from {$request->ip()}", [
-            'device_sn' => $request->device_sn,
-            'payload' => $payload
-        ]);
-
-        //Sample Data
-        // {"json_flag":"pass_record","blur":0.8,"device_ip":"192.168.1.66","device_token":"846411f5a1ed419c9b920ebe0965bc9d","device_sn":"M014200892110002761","liveness_score":99,"liveness_type":1,"pass_type":1,"person_code":"4000","person_id":"15760676","person_name":"Venu Jakku","card_number":null,"qr_code":null,"recognition_score":92,"recognition_type":1,"timestamp":1718178317000,"verification_mode":0,"temperature":0,"temperature_type":0,"mask_type":0,"healthy_state":0,"idcard_number":null,"server_verify":0,"verification_type":0,"clock_status":"Clock On"}
-        $device = Device::where("device_id", $request->device_sn)->first();
-        if ($device && $device->company_id == 2) {
-            return $this->camera2PushEventsNew($request, $device);
-        }
-
         //try {
         $device_sn = $request->device_sn;
         //$card_number = $request->card_number;
@@ -44,7 +28,23 @@ class Camera2 extends Controller
         if ($request->clock_status == 'Clock On') $clock_status = "In";
         else if ($request->clock_status == 'Clock Off') $clock_status = "Out";
 
+        // 1. Immediate Log of the incoming request
+        Logger::channel('camera_OX_900')->info("New Push Event from {$request->ip()}", [
+            'device_sn' => $request->device_sn,
+            'payload' => [
+                'card_number' => $card_number,
+                'timestamp' => $timestamp,
+                'recognition_score' => $recognition_score,
+                'clock_status' => $clock_status,
+            ]
+        ]);
 
+        //Sample Data
+        // {"json_flag":"pass_record","blur":0.8,"device_ip":"192.168.1.66","device_token":"846411f5a1ed419c9b920ebe0965bc9d","device_sn":"M014200892110002761","liveness_score":99,"liveness_type":1,"pass_type":1,"person_code":"4000","person_id":"15760676","person_name":"Venu Jakku","card_number":null,"qr_code":null,"recognition_score":92,"recognition_type":1,"timestamp":1718178317000,"verification_mode":0,"temperature":0,"temperature_type":0,"mask_type":0,"healthy_state":0,"idcard_number":null,"server_verify":0,"verification_type":0,"clock_status":"Clock On"}
+        $device = Device::where("device_id", $request->device_sn)->first();
+        if ($device && $device->company_id == 2) {
+            return $this->camera2PushEventsNew($request, $device);
+        }
 
         //----Raw--------
         $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";
