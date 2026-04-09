@@ -76,7 +76,7 @@ class NotificationsController extends Controller
     public function storeNotifications(Request $request)
     {
         // Log the incoming request to see what's happening
-        FacadesLog::info("Incoming Payload:", $request->all());
+        // FacadesLog::info("Incoming Payload:", $request->all());
 
         $userId = $request->input('data.user_id');
         $timestamp = $request->input('data.timestamp');
@@ -104,7 +104,7 @@ class NotificationsController extends Controller
                 return response()->json(['status' => 'success'], 201);
             }
 
-            FacadesLog::warning("Request type mismatch: " . $request->type);
+            // FacadesLog::warning("Request type mismatch: " . $request->type);
             return response()->json(['status' => 'ignored'], 200);
         }
     }
