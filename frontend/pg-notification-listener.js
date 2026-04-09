@@ -44,7 +44,8 @@ async function sendPushNotification(row) {
         user_id: row.UserID,
         name: "",
         avatar: "",
-        timestamp: row.LogTime
+        timestamp: row.LogTime,
+        log_type: row.log_type,
       },
     };
 
