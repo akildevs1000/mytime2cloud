@@ -64,7 +64,7 @@ class SyncCompanyShifts extends Command
                 Artisan::call("task:sync_flexible_shift $id $today");
                 $multiShift = "Synced (Today)";
             } else {
-                Artisan::call("task:sync_except_auto_shift $id $yesterday");
+                Artisan::call("task:sync_flexible_shift $id $today");
                 $multiShift = "Synced (Yesterday)";
             }
 
