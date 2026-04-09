@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessCamera2AttendanceLog;
 use App\Models\Device;
 use DateTime;
 use DateTimeZone;
@@ -90,87 +91,49 @@ class Camera2 extends Controller
     }
 
 
-    public function camera2PushEventsNew(Request $request, $device)
+    public function camera2PushEventsNew(Request $request, $device): \Illuminate\Http\JsonResponse
     {
-        try {
-            $device_sn = $request->device_sn;
-            $card_number = $request->person_code;
-            $timestamp = $request->timestamp;
-            $recognition_score = $request->recognition_score;
-            $clock_status = $request->clock_status;
+        // Map clock status early
+        $clockStatus = match ($request->clock_status) {
+            'Clock On'  => 'In',
+            'Clock Off' => 'Out',
+            default     => 'Auto',
+        };
 
-            // Map clock status
-            if ($request->clock_status == 'Clock On') {
-                $clock_status = "In";
-            } elseif ($request->clock_status == 'Clock Off') {
-                $clock_status = "Out";
-            } else {
-                $clock_status = "Auto";
-            }
-
-            // Check device function
-            if (!$device) {
-                Logger::channel("camera_OX_900")->error('Device not found: ' . $device_sn);
-                return response()->json(['error' => 'Device not found'], 404);
-            }
-
-            // Get timezone
-            $timeZone = $device->utc_time_zone ?: 'Asia/Dubai';
-
-            // Convert timestamp
-            $timestamp = $timestamp / 1000; // Convert milliseconds to seconds
-            $dateTime = new DateTime("@$timestamp");
-            $dateTime->setTimezone(new DateTimeZone($timeZone));
-            $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
-            $logDate = $dateTime->format('Y-m-d');
-
-            // Validate required fields
-            if (empty($card_number) || empty($device_sn)) {
-                Logger::channel("camera_OX_900")->error('Invalid data: card_number or device_sn missing', [
-                    'card_number' => $card_number,
-                    'device_sn' => $device_sn
-                ]);
-                return response()->json(['error' => 'Invalid data'], 400);
-            }
-
-            // Prepare attendance log record
-            $attendanceLog = [
-                "UserID" => $card_number,
-                "company_id" => $device->company_id,
-                "DeviceID" => $device_sn,
-                "LogTime" => $formattedDateTime,
-                "SerialNumber" => $recognition_score,
-                "log_date_time" => $formattedDateTime,
-                "index_serial_number" => $recognition_score,
-                "log_date" => $logDate,
-                "source_info" => "Camera2 Push Event",
-                "log_type" => ($clock_status == "In" || $clock_status == "Out") ? $clock_status : null,
-                "created_at" => now(),
-                "updated_at" => now(),
-            ];
-
-            // Insert into database
-            DB::table('attendance_logs')->insertOrIgnore([$attendanceLog]);
-
-            Logger::channel("camera_OX_900")->info('Attendance log inserted successfully', [
-                'UserID' => $card_number,
-                'DeviceID' => $device_sn,
-                'LogTime' => $formattedDateTime
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Attendance log inserted successfully'
-            ], 200);
-        } catch (\Throwable $th) {
-            Logger::channel("camera_OX_900")->error('Error occurred while inserting Camera2 logs');
-            Logger::channel("camera_OX_900")->error('Error Details: ' . $th->getMessage());
-            Logger::channel("camera_OX_900")->error('Stack Trace: ' . $th->getTraceAsString());
-
-            return response()->json([
-                'error' => 'Failed to process attendance log',
-                'message' => $th->getMessage()
-            ], 500);
+        // Device guard
+        if (!$device) {
+            Logger::channel('camera_OX_900')->error('Device not found: ' . $request->device_sn);
+            return response()->json(['error' => 'Device not found'], 404);
         }
+
+        $deviceSn         = $request->device_sn;
+        $cardNumber       = $request->person_code;
+        $timestampMs      = (int) $request->timestamp;
+        $recognitionScore = (float) $request->recognition_score;
+
+        // Validate required fields before dispatching
+        if (empty($cardNumber) || empty($deviceSn)) {
+            Logger::channel('camera_OX_900')->error('Invalid data: card_number or device_sn missing', [
+                'card_number' => $cardNumber,
+                'device_sn'   => $deviceSn,
+            ]);
+            return response()->json(['error' => 'Invalid data'], 400);
+        }
+
+        // Dispatch — controller is done, worker handles the DB insert
+        ProcessCamera2AttendanceLog::dispatch(
+            deviceSn: $deviceSn,
+            companyId: $device->company_id,
+            timeZone: $device->utc_time_zone ?: 'Asia/Dubai',
+            cardNumber: $cardNumber,
+            timestampMs: $timestampMs,
+            recognitionScore: $recognitionScore,
+            clockStatus: $clockStatus,
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Attendance log queued successfully',
+        ], 202); // 202 Accepted — processing is async
     }
 }
