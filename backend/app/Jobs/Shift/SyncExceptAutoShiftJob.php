@@ -47,7 +47,7 @@ class SyncExceptAutoShiftJob implements ShouldQueue
             ->whereHas("schedule", function ($q) use ($id, $date) {
                 $q->where("company_id", $id);
                 $q->where("isAutoShift", false);
-                $q->whereIn("shift_type_id", [1, 4, 6]);
+                $q->whereIn("shift_type_id", [4, 6]);
                 $q->whereHas("shift", function ($shiftQuery) use ($date) {
                     $shiftQuery->whereJsonContains("days", Carbon::parse($date)->format("D"));
                 });
