@@ -100,12 +100,6 @@ return [
             'level'  => env('LOG_LEVEL', 'debug'),
         ],
 
-        'single'             => [
-            'driver' => 'single',
-            'path'   => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
-            'level'  => env('LOG_LEVEL', 'debug'),
-        ],
-
         'daily'              => [
             'driver' => 'daily',
             'path'   => storage_path('logs/laravel_' . date("Y-m-d") . '.log'),
@@ -194,6 +188,13 @@ return [
         'flexible' => [
             'driver' => 'daily',
             'path' => storage_path('shifts/flexible.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
+        'single' => [
+            'driver' => 'daily',
+            'path' => storage_path('shifts/single.log'),
             'level' => 'debug',
             'days' => 30,
         ],
