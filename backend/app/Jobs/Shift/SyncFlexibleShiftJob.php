@@ -34,6 +34,9 @@ class SyncFlexibleShiftJob implements ShouldQueue
         $id = $this->companyId;
         $date = $this->date;
 
+        $start = $date . ' 00:00:00';
+        $end   = $date . ' 23:59:59';
+
         $employeeIds = Employee::where("company_id", $id)
             ->whereHas("schedule", function ($q) use ($id, $date) {
                 $q->where("company_id", $id);
@@ -43,10 +46,7 @@ class SyncFlexibleShiftJob implements ShouldQueue
                     $shiftQuery->whereJsonContains("days", Carbon::parse($date)->format("D"));
                 });
             })
-            ->whereHas("attendance_logs", function ($q) use ($date) {
-                $start = $date . ' 00:00:00';
-                $end = $date . ' 23:59:59';
-
+            ->whereHas("attendance_logs", function ($q) use ($start, $end) {
                 $q->whereBetween("LogTime", [$start, $end])
                     ->where("checked", false);
             })
@@ -54,32 +54,41 @@ class SyncFlexibleShiftJob implements ShouldQueue
 
         Logger::channel('shift')->info('Queue: SyncFlexibleShiftJob Started', [
             'company_id' => $id,
-            'date' => $date,
+            'date'       => $date,
         ]);
 
-        $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date) {
+        $employeeIds->chunk(10)->each(function ($chunk) use ($id, $date, $start, $end) {
 
             $params = [
-                'date' => '',
-                'UserID' => '',
-                'updated_by' => 26,
-                'company_ids' => [$id],
+                'date'         => '',
+                'UserID'       => '',
+                'updated_by'   => 26,
+                'company_ids'  => [$id],
                 'manual_entry' => true,
-                'reason' => '',
+                'reason'       => '',
                 'employee_ids' => $chunk->toArray(),
-                'dates' => [$date, $date],
+                'dates'        => [$date, $date],
                 'shift_type_id' => 0,
-                'company_id' => $id,
-                'channel' => "queue",
+                'company_id'   => $id,
+                'channel'      => "queue",
             ];
 
+            $result = (new FiloShiftController())->render($id, $date, 1, $chunk->toArray());
+
+            // Mark logs as checked so this chunk is skipped on next run
+            $updated = AttendanceLog::whereIn("UserID", $chunk->toArray())
+                ->whereBetween("LogTime", [$start, $end])
+                ->where("checked", false)
+                ->update(["checked" => true]);
+
             Logger::channel('shift')->info('Queue request chunk', [
-                'chunk' => $chunk->toArray(),
-                'params' => $params,
-                'result' => (new FiloShiftController())->render($id, $date, 1, $chunk->toArray())
+                'chunk'           => $chunk->toArray(),
+                'params'          => $params,
+                'result'          => $result,
+                'logs_checked'    => $updated,  // how many rows were marked
             ]);
         });
 
-        Logger::channel('shift')->info('Queue: SyncExceptAutoShiftJob Completed Successfully');
+        Logger::channel('shift')->info('Queue: SyncFlexibleShiftJob Completed Successfully');
     }
 }
