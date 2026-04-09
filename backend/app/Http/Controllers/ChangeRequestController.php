@@ -125,10 +125,9 @@ class ChangeRequestController extends Controller
                     "company_id" => $data['company_id'],
                     "redirect_url" => "change_requests"
                 ]);
-
-                $clientId = $data['company_id'] . "_" . $employee->id;
-
                 $statusResult = $status == "A" ? "Approved" : "Rejected";
+
+                $clientId = ($employee->company_id ?? '0') . "_" . ($employee->system_user_id ?? '0');
 
                 Notify::push($clientId, "change_request", "Attendance request has been $statusResult");
 

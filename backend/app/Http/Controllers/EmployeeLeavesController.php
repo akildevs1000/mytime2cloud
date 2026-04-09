@@ -133,21 +133,20 @@ class EmployeeLeavesController extends Controller
             DB::commit();
 
             // Send realtime notification via central Notify service
-            Notify::push(
-                $record->employee->company_id ?? null,
-                "leave_request",
-                "New Leave Request Came",
-                [
-                    "leave_id" => $record->id,
-                    "employee_id" => $record->employee->id,
-                    "employee_name" => $record->employee->first_name,
-                    "branch_id" => $record->employee->branch_id ?? null,
-                    "department_id" => $record->employee->department_id ?? null,
-                    "source" => "mobile",
-                    "timestamp" => now()->format("Y-m-d H:i"),
-                    "access_url" => "/leaves"
-                ]
-            );
+            $clientId = ($record->employee->company_id ?? '0') . "_" . ($record->employee->system_user_id ?? '0');
+
+            $payload =  [
+                "leave_id" => $record->id,
+                "employee_id" => $record->employee->id,
+                "employee_name" => $record->employee->first_name,
+                "branch_id" => $record->employee->branch_id ?? null,
+                "department_id" => $record->employee->department_id ?? null,
+                "source" => "mobile",
+                "timestamp" => now()->format("Y-m-d H:i"),
+                "access_url" => "/leaves"
+            ];
+
+            Notify::push($clientId, "leave_request", "New Leave Request Came", $payload);
 
             return $this->response('Employee Leave Successfully created.', $record, true);
         } catch (\Throwable $th) {
@@ -363,18 +362,17 @@ class EmployeeLeavesController extends Controller
                     "redirect_url" => "leaves"
                 ]);
 
-                $company_id = $request->company_id;
-                $employee_id = $model->employee_id;
+                $clientId = ($record->employee->company_id ?? '0') . "_" . ($record->employee->system_user_id ?? '0');
 
-                $clientId = $company_id . "_" . $employee_id;
-
-                Notify::push($clientId, "leave_request", "Leave application has been $status_text", [
+                $payload =  [
                     "reason" => $request->approve_reject_notes,
                     "leave_id" => $leaveId,
                     "status" => $status_text,
                     "timestamp" => now()->format("Y-m-d H:i"),
                     "leave_payload" => $model->toArray()
-                ]);
+                ];
+
+                Notify::push($clientId, "leave_request", "Leave application has been $status_text", $payload);
 
                 // $record->clientId = $clientId;
 
