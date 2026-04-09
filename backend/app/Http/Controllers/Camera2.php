@@ -2,14 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Announcement\StoreRequest;
-use App\Http\Requests\Announcement\UpdateRequest;
-use App\Models\Announcement;
 use App\Models\Device;
-use App\Models\Employee;
 use DateTime;
 use DateTimeZone;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log as Logger;
 use Illuminate\Support\Facades\DB;
@@ -31,8 +26,10 @@ class Camera2 extends Controller
 
         //Sample Data
         // {"json_flag":"pass_record","blur":0.8,"device_ip":"192.168.1.66","device_token":"846411f5a1ed419c9b920ebe0965bc9d","device_sn":"M014200892110002761","liveness_score":99,"liveness_type":1,"pass_type":1,"person_code":"4000","person_id":"15760676","person_name":"Venu Jakku","card_number":null,"qr_code":null,"recognition_score":92,"recognition_type":1,"timestamp":1718178317000,"verification_mode":0,"temperature":0,"temperature_type":0,"mask_type":0,"healthy_state":0,"idcard_number":null,"server_verify":0,"verification_type":0,"clock_status":"Clock On"}
-
-        
+        $device = Device::where("device_id", $request->device_sn)->first();
+        if ($device && $device->company_id == 2) {
+            return $this->camera2PushEventsNew($request, $device);
+        }
 
         //try {
         $device_sn = $request->device_sn;
@@ -90,5 +87,90 @@ class Camera2 extends Controller
         //     Logger::channel("custom")->error('Error Details: ' . $th);
         //     return $this->getMeta("Sync Attenance Camera2 Logs", " Error occured." . "\n");
         // }
+    }
+
+
+    public function camera2PushEventsNew(Request $request, $device)
+    {
+        try {
+            $device_sn = $request->device_sn;
+            $card_number = $request->person_code;
+            $timestamp = $request->timestamp;
+            $recognition_score = $request->recognition_score;
+            $clock_status = $request->clock_status;
+
+            // Map clock status
+            if ($request->clock_status == 'Clock On') {
+                $clock_status = "In";
+            } elseif ($request->clock_status == 'Clock Off') {
+                $clock_status = "Out";
+            } else {
+                $clock_status = "Auto";
+            }
+
+            // Check device function
+            if (!$device) {
+                Logger::channel("camera_OX_900")->error('Device not found: ' . $device_sn);
+                return response()->json(['error' => 'Device not found'], 404);
+            }
+
+            // Get timezone
+            $timeZone = $device->utc_time_zone ?: 'Asia/Dubai';
+
+            // Convert timestamp
+            $timestamp = $timestamp / 1000; // Convert milliseconds to seconds
+            $dateTime = new DateTime("@$timestamp");
+            $dateTime->setTimezone(new DateTimeZone($timeZone));
+            $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
+            $logDate = $dateTime->format('Y-m-d');
+
+            // Validate required fields
+            if (empty($card_number) || empty($device_sn)) {
+                Logger::channel("camera_OX_900")->error('Invalid data: card_number or device_sn missing', [
+                    'card_number' => $card_number,
+                    'device_sn' => $device_sn
+                ]);
+                return response()->json(['error' => 'Invalid data'], 400);
+            }
+
+            // Prepare attendance log record
+            $attendanceLog = [
+                "UserID" => $card_number,
+                "company_id" => $device->company_id,
+                "DeviceID" => $device_sn,
+                "LogTime" => $formattedDateTime,
+                "SerialNumber" => $recognition_score,
+                "log_date_time" => $formattedDateTime,
+                "index_serial_number" => $recognition_score,
+                "log_date" => $logDate,
+                "source_info" => "Camera2 Push Event",
+                "log_type" => ($clock_status == "In" || $clock_status == "Out") ? $clock_status : null,
+                "created_at" => now(),
+                "updated_at" => now(),
+            ];
+
+            // Insert into database
+            DB::table('attendance_logs')->insertOrIgnore([$attendanceLog]);
+
+            Logger::channel("camera_OX_900")->info('Attendance log inserted successfully', [
+                'UserID' => $card_number,
+                'DeviceID' => $device_sn,
+                'LogTime' => $formattedDateTime
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Attendance log inserted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            Logger::channel("camera_OX_900")->error('Error occurred while inserting Camera2 logs');
+            Logger::channel("camera_OX_900")->error('Error Details: ' . $th->getMessage());
+            Logger::channel("camera_OX_900")->error('Stack Trace: ' . $th->getTraceAsString());
+
+            return response()->json([
+                'error' => 'Failed to process attendance log',
+                'message' => $th->getMessage()
+            ], 500);
+        }
     }
 }
