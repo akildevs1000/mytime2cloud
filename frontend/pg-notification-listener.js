@@ -36,8 +36,8 @@ console.table({
 async function sendPushNotification(row) {
   try {
     const payload = {
-      // clientId: `${row.company_id}_${row.UserID}`,
-      clientId: `${row.company_id}`,
+      clientId: `${row.company_id}_${row.UserID}`,
+      // clientId: `${row.company_id}`,
       type: "clock",
       message: "mobile clock in/out",
       data: {
