@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
+const allowedDevices = ["OX-900"];
+
 // ========== ERROR LOGGING ==========
 function nowGMT4() {
   const now = new Date();
@@ -92,18 +94,11 @@ async function start() {
     pgClient.on("notification", async (msg) => {
       try {
         const row = JSON.parse(msg.payload);
-
-        console.log(`📥 DB Notify received:`);
-        console.log(JSON.stringify(row, null, 2));
-
-        // if (row.DeviceID.includes("OX-900")) {
-        //   await sendPushNotification(row);
-        // } else {
-        //   console.log(`⚠️ Ignored notification from DeviceID: ${row.DeviceID}`);
-        // }
-
-        await sendPushNotification(row);
-
+        if (allowedDevices.some(id => row.DeviceID.includes(id))) {
+          await sendPushNotification(row);
+        } else {
+          console.log(`⚠️ Ignored notification from DeviceID: ${JSON.stringify(row, null, 2)}`);
+        }
       } catch (err) {
         logError(`Notification parse failed: ${err.message}`);
       }
