@@ -34,10 +34,10 @@ class SyncFlexibleShiftJob implements ShouldQueue
         $id = $this->companyId;
         $date = $this->date;
 
-        Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob Started', [
-            'company_id' => $id,
-            'date'       => $date,
-        ]);
+        // Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob Started', [
+        //     'company_id' => $id,
+        //     'date'       => $date,
+        // ]);
 
         $start = $date . ' 00:00:00';
         $end   = $date . ' 23:59:59';
@@ -60,10 +60,10 @@ class SyncFlexibleShiftJob implements ShouldQueue
 
 
         if ($employeeIds->isEmpty()) {
-            Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob — No employees with unchecked logs found, skipping.', [
-                'company_id' => $id,
-                'date'       => $date,
-            ]);
+            // Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob — No employees with unchecked logs found, skipping.', [
+            //     'company_id' => $id,
+            //     'date'       => $date,
+            // ]);
             return;
         }
 
@@ -99,6 +99,6 @@ class SyncFlexibleShiftJob implements ShouldQueue
             ]);
         });
 
-        Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob Completed Successfully');
+        // Logger::channel('flexible')->info('Queue: SyncFlexibleShiftJob Completed Successfully');
     }
 }
