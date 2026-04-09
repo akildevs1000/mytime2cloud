@@ -191,6 +191,13 @@ return [
             'days' => 30,
         ],
 
+        'flexible' => [
+            'driver' => 'daily',
+            'path' => storage_path('shifts/flexible.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+
         'emergency' => [
             'driver' => 'daily',
             'path' => storage_path('shifts/emergency.log'),
