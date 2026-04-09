@@ -579,7 +579,7 @@ class SingleShiftController extends Controller
         if (empty($params["UserIds"])) {
             $message = "[$date] RenderFresh completed. Total processed: 0";
 
-            Log::channel('shift')->info($message, [
+            Log::channel('single')->info($message, [
                 'company_id' => $id,
                 'processed_count' => 0,
                 'date' => $date
@@ -704,7 +704,7 @@ class SingleShiftController extends Controller
             $message = "[$date] RenderFresh completed. Total processed: " . $processedCount;
 
             // Log specifically to 'shift' channel with company metadata
-            Log::channel('shift')->info($message, [
+            Log::channel('single')->info($message, [
                 'company_id' => $id,
                 'processed_count' => $processedCount,
                 'date' => $date
@@ -713,7 +713,7 @@ class SingleShiftController extends Controller
             DB::rollback();
             $message = "[$date] RenderFresh Error: " . $e->getMessage();
 
-            Log::channel('shift')->error($message, [
+            Log::channel('single')->error($message, [
                 'company_id' => $id,
                 'exception' => $e->getMessage()
             ]);
