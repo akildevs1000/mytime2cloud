@@ -39,11 +39,6 @@ class ProcessCamera2AttendanceLog implements ShouldQueue
         $formattedDateTime = $dateTime->format('Y-m-d H:i:s');
         $logDate           = $dateTime->format('Y-m-d');
 
-        $logType = match ($this->clockStatus) {
-            'In', 'Out' => $this->clockStatus,
-            default     => null,
-        };
-
         DB::table('attendance_logs')->insertOrIgnore([[
             'UserID'               => $this->cardNumber,
             'company_id'           => $this->companyId,
@@ -54,7 +49,7 @@ class ProcessCamera2AttendanceLog implements ShouldQueue
             'index_serial_number'  => $this->recognitionScore,
             'log_date'             => $logDate,
             'source_info'          => 'Camera2 Push Event',
-            'log_type'             => $logType,
+            'log_type'             => $this->clockStatus,
             'created_at'           => now(),
             'updated_at'           => now(),
         ]]);
