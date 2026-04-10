@@ -18,14 +18,38 @@ class Camera2 extends Controller
     public function camera2PushEvents(Request $request)
     {
 
-        return $this->camera2PushEventsNew($request);
+        // return $this->camera2PushEventsNew($request);
 
         $payload = $request->all();
+        $deviceSn = $request->device_sn;
+
 
         // 1. Immediate Log of the incoming request
         Logger::channel('camera_OX_900')->info("New Push Event from {$request->ip()}", [
             'device_sn' => $request->device_sn,
-            'payload' => $payload
+            'payload' => [
+                "json_flag"         => $request->json_flag ?? null,
+                "blur"              => $request->blur ?? null,
+                "device_ip"         => $request->device_ip ?? null,
+                "device_sn"         => $deviceSn,
+                "liveness_score"    => $request->liveness_score ?? null,
+                "liveness_type"     => $request->liveness_type ?? null,
+                "pass_type"         => $request->pass_type ?? null,
+                "person_code"       => $request->person_code ?? null,
+                "person_id"         => $request->person_id ?? null,
+                "person_name"       => $request->person_name ?? null,
+                "card_number"       => $request->card_number ?? null,
+                "recognition_score" => $request->recognition_score ?? null,
+                "recognition_type"  => $request->recognition_type ?? null,
+                "timestamp"         => $request->timestamp ?? null,
+                "verification_mode" => $request->verification_mode ?? null,
+                "mask_type"         => $request->mask_type ?? null,
+                "healthy_state"     => $request->healthy_state ?? null,
+                "idcard_number"     => $request->idcard_number ?? null,
+                "server_verify"     => $request->server_verify ?? null,
+                "verification_type" => $request->verification_type ?? null,
+                "clock_status"      => $request->clock_status ?? null,
+            ]
         ]);
 
         //Sample Data
