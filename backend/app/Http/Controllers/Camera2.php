@@ -18,11 +18,7 @@ class Camera2 extends Controller
     public function camera2PushEvents(Request $request)
     {
 
-        // return $this->camera2PushEventsNew($request);
-
-        $payload = $request->all();
         $deviceSn = $request->device_sn;
-
 
         // 1. Immediate Log of the incoming request
         Logger::channel('camera_OX_900')->info("New Push Event from {$request->ip()}", [
@@ -62,11 +58,12 @@ class Camera2 extends Controller
         $timestamp = $request->timestamp;
         $recognition_score = $request->recognition_score;
 
-        $clock_status = $request->clock_status;
-
-        if ($request->clock_status == 'Clock On') $clock_status = "In";
-        else if ($request->clock_status == 'Clock Off') $clock_status = "Out";
-
+        // 3. Map status
+        $clock_status = match ($request->clock_status) {
+            'Clock On'  => 'In',
+            'Clock Off' => 'Out',
+            default     => 'Auto',
+        };
 
 
         //----Raw--------
@@ -75,11 +72,6 @@ class Camera2 extends Controller
         Storage::append($file_name_raw, json_encode($message));
 
         //------Raw Data-------
-
-        $deviceAttendancefunction = Device::where("device_id", $device_sn)->pluck("function")->first();
-        if ($deviceAttendancefunction == 'option' && $clock_status == 'None') {
-            //return false;
-        }
 
         $timeZone = 'Asia/Dubai';
         $deviceTimezone = Device::where("device_id", $device_sn)->pluck("utc_time_zone")->first();
@@ -111,76 +103,5 @@ class Camera2 extends Controller
         //     Logger::channel("custom")->error('Error Details: ' . $th);
         //     return $this->getMeta("Sync Attenance Camera2 Logs", " Error occured." . "\n");
         // }
-    }
-
-
-
-    public function camera2PushEventsNew(Request $request): \Illuminate\Http\JsonResponse
-    {
-        $deviceSn = $request->device_sn;
-
-        // 1. Immediate validation of critical identifiers
-        if (empty($deviceSn) || empty($request->person_code)) {
-            Logger::channel('camera_OX_900')->error('Invalid payload: missing identifiers', [
-                "json_flag"         => $request->json_flag ?? null,
-                "blur"              => $request->blur ?? null,
-                "device_ip"         => $request->device_ip ?? null,
-                "device_sn"         => $deviceSn,
-                "liveness_score"    => $request->liveness_score ?? null,
-                "liveness_type"     => $request->liveness_type ?? null,
-                "pass_type"         => $request->pass_type ?? null,
-                "person_code"       => $request->person_code ?? null,
-                "person_id"         => $request->person_id ?? null,
-                "person_name"       => $request->person_name ?? null,
-                "card_number"       => $request->card_number ?? null,
-                "recognition_score" => $request->recognition_score ?? null,
-                "recognition_type"  => $request->recognition_type ?? null,
-                "timestamp"         => $request->timestamp ?? null,
-                "verification_mode" => $request->verification_mode ?? null,
-                "mask_type"         => $request->mask_type ?? null,
-                "healthy_state"     => $request->healthy_state ?? null,
-                "idcard_number"     => $request->idcard_number ?? null,
-                "server_verify"     => $request->server_verify ?? null,
-                "verification_type" => $request->verification_type ?? null,
-                "clock_status"      => $request->clock_status ?? null,
-            ]);
-            return response()->json(['error' => 'Invalid data'], 400);
-        }
-
-        // 2. Optimized Device Lookup with Cache
-        // We cache the entire device object (or specific fields) using the SN as the key
-        $device = Cache::remember("device_config_{$deviceSn}", now()->addDay(), function () use ($deviceSn) {
-            return Device::where("device_id", $deviceSn)
-                ->select(['device_id', 'company_id', 'utc_time_zone']) // Only pull what you need
-                ->first();
-        });
-
-        if (!$device) {
-            Logger::channel('camera_OX_900')->error("Device not found: {$deviceSn}");
-            return response()->json(['error' => 'Device not found'], 404);
-        }
-
-        // 3. Map status
-        $clockStatus = match ($request->clock_status) {
-            'Clock On'  => 'In',
-            'Clock Off' => 'Out',
-            default     => 'Auto',
-        };
-
-        // 4. Dispatch to Queue
-        ProcessCamera2AttendanceLog::dispatch(
-            deviceSn: $deviceSn,
-            companyId: $device->company_id,
-            timeZone: $device->utc_time_zone ?: 'Asia/Dubai',
-            cardNumber: $request->person_code,
-            timestampMs: (int) $request->timestamp,
-            recognitionScore: (float) $request->recognition_score,
-            clockStatus: $clockStatus,
-        );
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Attendance log queued successfully',
-        ], 202);
     }
 }
