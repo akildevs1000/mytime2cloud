@@ -16,6 +16,7 @@ class Camera2 extends Controller
 
     public function camera2PushEvents(Request $request)
     {
+
         //try {
         $device_sn = $request->device_sn;
         //$card_number = $request->card_number;
@@ -39,12 +40,10 @@ class Camera2 extends Controller
             ]
         ]);
 
+        return $this->camera2PushEventsNew($request);
+
         //Sample Data
         // {"json_flag":"pass_record","blur":0.8,"device_ip":"192.168.1.66","device_token":"846411f5a1ed419c9b920ebe0965bc9d","device_sn":"M014200892110002761","liveness_score":99,"liveness_type":1,"pass_type":1,"person_code":"4000","person_id":"15760676","person_name":"Venu Jakku","card_number":null,"qr_code":null,"recognition_score":92,"recognition_type":1,"timestamp":1718178317000,"verification_mode":0,"temperature":0,"temperature_type":0,"mask_type":0,"healthy_state":0,"idcard_number":null,"server_verify":0,"verification_type":0,"clock_status":"Clock On"}
-        $device = Device::where("device_id", $request->device_sn)->first();
-        if ($device) {
-            return $this->camera2PushEventsNew($request, $device);
-        }
 
         //----Raw--------
         $file_name_raw = "camera/camera-logs-raw" . date("d-m-Y") . ".txt";
@@ -91,7 +90,7 @@ class Camera2 extends Controller
     }
 
 
-    public function camera2PushEventsNew(Request $request, $device): \Illuminate\Http\JsonResponse
+    public function camera2PushEventsNew(Request $request): \Illuminate\Http\JsonResponse
     {
         // Map clock status early
         $clockStatus = match ($request->clock_status) {
@@ -99,6 +98,8 @@ class Camera2 extends Controller
             'Clock Off' => 'Out',
             default     => 'Auto',
         };
+
+        $device = Device::where("device_id", $request->device_sn)->first();
 
         // Device guard
         if (!$device) {
