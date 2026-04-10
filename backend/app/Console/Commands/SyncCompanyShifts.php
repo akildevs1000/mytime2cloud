@@ -52,19 +52,19 @@ class SyncCompanyShifts extends Command
             // Log::channel('shift')->info($logMsg);
 
             // 3. Execution Phase
-            Artisan::call("task:sync_attendance_missing_shift_ids $id $today");
-            Artisan::call("task:sync_auto_shift $id $today");
+            Artisan::queue("task:sync_attendance_missing_shift_ids $id $today");
+            Artisan::queue("task:sync_auto_shift $id $today");
 
             $multiShift = 'Skipped';
 
             if ($hour >= 6) {
-                Artisan::call("task:sync_multi_shift_v1 $id $today");
-                Artisan::call("task:sync_split_shift $id $today");
-                Artisan::call("task:sync_except_auto_shift $id $today");
-                // Artisan::call("task:sync_flexible_shift $id $today");
+                Artisan::queue("task:sync_multi_shift_v1 $id $today");
+                Artisan::queue("task:sync_split_shift $id $today");
+                Artisan::queue("task:sync_except_auto_shift $id $today");
+                // Artisan::queue("task:sync_flexible_shift $id $today");
                 $multiShift = "Synced (Today)";
             } else {
-                Artisan::call("task:sync_except_auto_shift $id $yesterday");
+                Artisan::queue("task:sync_except_auto_shift $id $yesterday");
                 $multiShift = "Synced (Yesterday)";
             }
 
