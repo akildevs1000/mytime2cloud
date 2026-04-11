@@ -28,7 +28,7 @@ function getSystemResources() {
 
                     // Only include processes using more than 10% CPU or MEM
                     // if (cpuPercent > 10 || memPercent > 10) {
-                    if (cpuPercent > 10) {
+                    if (cpuPercent > 30) {
                         processes.push({
                             pid: line[1],
                             user: line[0],
