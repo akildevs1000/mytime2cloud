@@ -1,69 +1,144 @@
-const { WebSocketServer } = require('ws');
+const net = require('net');
 const { exec } = require('child_process');
 const os = require('os');
 
+const HOST = '0.0.0.0';
 const PORT = 2266;
+const UPDATE_INTERVAL = 2000; // Send updates every 2 seconds
 
-// Binding to 0.0.0.0 allows external connections
-const wss = new WebSocketServer({ 
-    port: PORT, 
-    host: '0.0.0.0' 
-});
+// Get system resource usage
+function getSystemResources() {
+    return new Promise((resolve, reject) => {
+        exec('ps aux --sort=-%cpu,-%mem', (error, stdout, stderr) => {
+            if (error) {
+                reject(error);
+                return;
+            }
 
-const CRITICAL_SERVICES = ['php-fpm', 'postgres', 'node', 'dotnet'];
-
-function getSystemMetrics() {
-    const loadAvg = os.loadavg()[0].toFixed(2);
-    const cpuCores = os.cpus().length;
-    const cmd = "ps -eo %cpu,%mem,args --sort=-%cpu";
-    
-    exec(cmd, (error, stdout) => {
-        if (error) return;
-
-        const lines = stdout.trim().split("\n").slice(1);
-        const serviceStats = {};
-
-        CRITICAL_SERVICES.forEach(s => {
-            serviceStats[s] = { status: 'OFFLINE', cpu: 0, mem: 0 };
-        });
-
-        lines.forEach(line => {
-            const parts = line.trim().split(/\s+/);
-            const cpuVal = parseFloat(parts[0]);
-            const memVal = parseFloat(parts[1]);
-            const fullCommand = parts.slice(2).join(' ').toLowerCase();
-
-            const matchedService = CRITICAL_SERVICES.find(s => 
-                fullCommand.includes(s.toLowerCase())
-            );
+            const lines = stdout.trim().split('\n');
+            const processes = [];
             
-            if (matchedService) {
-                if (serviceStats[matchedService].status === 'ONLINE') {
-                    serviceStats[matchedService].cpu += cpuVal;
-                    serviceStats[matchedService].mem += memVal;
-                } else {
-                    serviceStats[matchedService] = {
-                        status: 'ONLINE',
-                        cpu: cpuVal,
-                        mem: memVal,
-                        spiking: cpuVal > 30
-                    };
+            // Skip header line
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim().split(/\s+/);
+                
+                if (line.length >= 11) {
+                    const cpuPercent = parseFloat(line[2]);
+                    const memPercent = parseFloat(line[3]);
+                    
+                    // Only include processes using more than 50% CPU or MEM
+                    if (cpuPercent > 50 || memPercent > 50) {
+                        processes.push({
+                            pid: line[1],
+                            user: line[0],
+                            cpu: cpuPercent,
+                            mem: memPercent,
+                            vsz: line[4],
+                            rss: line[5],
+                            time: line[9],
+                            command: line.slice(10).join(' ')
+                        });
+                    }
                 }
             }
-        });
-
-        const payload = JSON.stringify({
-            load: loadAvg,
-            services: serviceStats,
-            timestamp: new Date().toLocaleTimeString('en-AE')
-        });
-
-        wss.clients.forEach(client => {
-            if (client.readyState === 1) client.send(payload);
+            
+            resolve(processes);
         });
     });
 }
 
-setInterval(getSystemMetrics, 2266);
+// Get system info
+function getSystemInfo() {
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+    const cpus = os.cpus();
+    
+    return {
+        hostname: os.hostname(),
+        platform: os.platform(),
+        arch: os.arch(),
+        uptime: os.uptime(),
+        totalMemory: (totalMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+        usedMemory: (usedMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+        freeMemory: (freeMem / 1024 / 1024 / 1024).toFixed(2) + ' GB',
+        memoryUsagePercent: ((usedMem / totalMem) * 100).toFixed(2) + '%',
+        cpuCount: cpus.length,
+        cpuModel: cpus[0].model
+    };
+}
 
-console.log(`Monitor listening on all interfaces (0.0.0.0:${PORT})`);
+// Create server
+const server = net.createServer((socket) => {
+    console.log(`Client connected: ${socket.remoteAddress}:${socket.remotePort}`);
+    
+    // Send welcome message
+    socket.write(JSON.stringify({
+        type: 'connected',
+        message: 'Connected to Resource Monitor Server',
+        timestamp: new Date().toISOString()
+    }) + '\n');
+    
+    // Send system info once
+    const sysInfo = getSystemInfo();
+    socket.write(JSON.stringify({
+        type: 'system_info',
+        data: sysInfo,
+        timestamp: new Date().toISOString()
+    }) + '\n');
+    
+    // Set up interval to send process updates
+    const interval = setInterval(async () => {
+        try {
+            const processes = await getSystemResources();
+            
+            const data = {
+                type: 'process_update',
+                count: processes.length,
+                processes: processes,
+                timestamp: new Date().toISOString()
+            };
+            
+            socket.write(JSON.stringify(data) + '\n');
+            
+            if (processes.length > 0) {
+                console.log(`Sent ${processes.length} high-resource processes to client`);
+            }
+        } catch (error) {
+            console.error('Error getting resources:', error);
+        }
+    }, UPDATE_INTERVAL);
+    
+    // Handle client disconnect
+    socket.on('end', () => {
+        console.log('Client disconnected');
+        clearInterval(interval);
+    });
+    
+    socket.on('error', (err) => {
+        console.error('Socket error:', err);
+        clearInterval(interval);
+    });
+});
+
+// Start server
+server.listen(PORT, HOST, () => {
+    console.log(`Resource Monitor Socket Server running on ${HOST}:${PORT}`);
+    console.log(`Monitoring processes with >50% CPU or Memory usage`);
+    console.log(`Updates every ${UPDATE_INTERVAL}ms`);
+    console.log('\nConnect using: telnet <server-ip> 2266 or nc <server-ip> 2266');
+});
+
+server.on('error', (err) => {
+    console.error('Server error:', err);
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+    console.log('\nShutting down server...');
+    server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});
