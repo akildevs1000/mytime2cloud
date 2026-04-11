@@ -57,6 +57,6 @@ function getSystemMetrics() {
 }
 
 // Check every 5 seconds
-setInterval(getSystemMetrics, 5000);
+setInterval(getSystemMetrics, 2266);
 
 console.log('Ultra-light monitor running on ws://localhost:8080');
