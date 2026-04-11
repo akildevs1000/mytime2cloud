@@ -61,57 +61,51 @@ class RectifyAttendanceLogs extends Command
         }
 
         // 4. Process in chunks for memory efficiency
-        $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount, &$skippedCount) {
+        $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount) {
+
+            // Group IDs by their expected log_type
+            $grouped = [
+                'Auto'   => [],
+                'In'     => [],
+                'Out'    => [],
+                'Option' => [],
+            ];
+
             foreach ($logs as $log) {
-                $deviceId = trim($log->DeviceID);
+                $deviceId       = trim($log->DeviceID);
 
-                // Get the function from the device table
-                $deviceFunction = $deviceFunctionMap[$deviceId] ?? null;
+                $deviceFunction = $deviceFunctionMap[$deviceId] ?? 'auto'; // ✅ default to auto
 
-                // Skip if device not found or function not set
-                if (!$deviceFunction) {
-                    $skippedCount++;
-                    $processedCount++;
-                    continue;
-                }
-
-                /**
-                 * LOGIC MAPPING 
-                 * Matches your FUNCTIONS constant: 
-                 * { id: 'auto', name: 'Auto' }, { id: 'In', name: 'In' }, 
-                 * { id: 'Out', name: 'Out' }, { id: 'option', name: 'Option' }
-                 */
                 $expectedType = match ($deviceFunction) {
-                    'auto' => 'Auto',
-                    'In' => 'In',
-                    'Out' => 'Out',
+                    'auto'   => 'Auto',
+                    'In'     => 'In',
+                    'Out'    => 'Out',
                     'option' => 'Option',
-                    default => null,
+                    default  => 'Auto', // ✅ default to Auto instead of null
                 };
 
-                // Skip if function type is unrecognized
-                if ($expectedType === null) {
-                    $skippedCount++;
-                    $processedCount++;
-                    continue;
-                }
-
-                // 5. Update the NULL log_type
-                DB::table('attendance_logs')
-                    ->where('id', $log->id)
-                    ->update(['log_type' => $expectedType]);
-
-                $correctedCount++;
+                $grouped[$expectedType][] = $log->id;
                 $processedCount++;
             }
-            // Show progress in console
+
+            // ✅ 4 queries max per chunk instead of 500
+            foreach ($grouped as $type => $ids) {
+                if (!empty($ids)) {
+                    DB::table('attendance_logs')
+                        ->whereIn('id', $ids)
+                        ->update(['log_type' => $type]);
+
+                    $correctedCount += count($ids);
+                }
+            }
+
             $this->output->write(".");
         });
 
         $this->newLine();
         $this->table(
-            ['Total Processed', 'Total Corrected', 'Total Skipped', 'Start Date'],
-            [[$processedCount, $correctedCount, $skippedCount, $startDate]]
+            ['Total Processed', 'Total Corrected', 'Start Date'],
+            [[$processedCount, $correctedCount, $startDate]]
         );
 
         $this->info("✓ Successfully rectified NULL attendance logs.");
