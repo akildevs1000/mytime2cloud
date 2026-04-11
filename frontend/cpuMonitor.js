@@ -27,7 +27,7 @@ function getSystemResources() {
                     const memPercent = parseFloat(line[3]);
                     
                     // Only include processes using more than 50% CPU or MEM
-                    if (cpuPercent > 50 || memPercent > 50) {
+                    // if (cpuPercent > 50 || memPercent > 50) {
                         processes.push({
                             pid: line[1],
                             user: line[0],
@@ -38,7 +38,7 @@ function getSystemResources() {
                             time: line[9],
                             command: line.slice(10).join(' ')
                         });
-                    }
+                    // }
                 }
             }
             
