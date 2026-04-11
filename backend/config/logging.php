@@ -205,6 +205,12 @@ return [
             'level' => 'debug',
             'days' => 30,
         ],
-    ],
 
+        'attendance_rectify' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/attendance_rectify.log'),
+            'level' => 'debug',
+            'days' => 30,
+        ],
+    ]
 ];
