@@ -191,9 +191,9 @@
   },
   {
     "icon": "mdi mdi-math-log",
-    "title": "Upload Logs",
-    "to": "/employee_photo_upload_logs",
-    "menu": "employee_photo_upload_logs",
+    "title": "Employee Upload OX-900",
+    "to": "/employee_photo_upload_ox900",
+    "menu": "employee_photo_upload_ox900",
     "module": "employees"
   },
   {
