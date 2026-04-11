@@ -1,42 +1,62 @@
-const os = require('os-utils');
+const { WebSocketServer } = require('ws');
 const { exec } = require('child_process');
+const os = require('os');
 
-// Function to monitor overall CPU usage
-function monitorCPU() {
-    os.cpuUsage((usage) => {
-        console.log(`CPU Usage: ${(usage * 100).toFixed(2)}%`);
-        // getTopProcesses(); // Fetch top CPU-consuming processes
-    });
-}
+const wss = new WebSocketServer({ port: 2266 });
 
-// Function to get top CPU-consuming processes (filtering those > 30%)
-function getTopProcesses() {
-    exec("ps -eo pid,%cpu,cmd --sort=-%cpu | head -10", (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing command: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.error(`Error output: ${stderr}`);
-            return;
-        }
+// The whitelist of processes you actually care about
+const CRITICAL_SERVICES = ['php-fpm', 'postgres', 'node', 'dotnet'];
 
-        console.log("Top CPU-Consuming Processes (CPU > 30%):");
+function getSystemMetrics() {
+    // 1. Get overall Load Average (Better than CPU % for "noise" filtering)
+    // Load avg for 1, 5, and 15 mins. If load < cores, you are safe.
+    const loadAvg = os.loadavg()[0].toFixed(2);
 
-        // Split the output into lines, skip the first header line
+    // 2. Get specific process stats (Lightweight ps call)
+    // we only ask for %cpu, %mem, and the command name
+    const cmd = "ps -eo %cpu,%mem,comm --sort=-%cpu";
+    
+    exec(cmd, (error, stdout) => {
+        if (error) return;
+
         const lines = stdout.trim().split("\n").slice(1);
+        const serviceStats = {};
 
-        // Loop through each line and filter based on CPU usage
+        // Initialize whitelist as DOWN
+        CRITICAL_SERVICES.forEach(s => serviceStats[s] = { status: 'OFFLINE', cpu: 0 });
+
         lines.forEach(line => {
-            const parts = line.trim().split(/\s+/);
-            const cpuUsage = parseFloat(parts[1]);
+            const [cpu, mem, ...commParts] = line.trim().split(/\s+/);
+            const name = commParts.join(' ');
+            const cpuVal = parseFloat(cpu);
 
-            if (cpuUsage > 30) {
-                console.log(line); // Print only processes using more than 30% CPU
+            // Check if this process is in our critical list
+            const matchedService = CRITICAL_SERVICES.find(s => name.includes(s));
+            
+            if (matchedService) {
+                serviceStats[matchedService] = {
+                    status: 'ONLINE',
+                    cpu: cpuVal,
+                    mem: parseFloat(mem),
+                    isSpiking: cpuVal > 30 // Your specific threshold
+                };
             }
+        });
+
+        const payload = JSON.stringify({
+            load: loadAvg,
+            services: serviceStats,
+            timestamp: new Date().toLocaleTimeString('en-AE')
+        });
+
+        // Broadcast to your dashboard
+        wss.clients.forEach(client => {
+            if (client.readyState === 1) client.send(payload);
         });
     });
 }
 
-// Monitor CPU every 5 seconds
-setInterval(monitorCPU, 5000);
+// Check every 5 seconds
+setInterval(getSystemMetrics, 5000);
+
+console.log('Ultra-light monitor running on ws://localhost:8080');
