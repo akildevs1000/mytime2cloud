@@ -2,8 +2,7 @@ const { Client } = require("pg");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
-const PQueue = require("p-queue").default;
-
+const PQueue = require("p-queue");
 
 const pushQueue = new PQueue({
   concurrency: 10, // Max 10 parallel pushes
