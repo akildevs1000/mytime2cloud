@@ -70,10 +70,10 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
 
-        $schedule->command("render:weekoff --month={$month}")
-            ->mondays()
-            ->at('05:00') // Or '05:00'
-            ->withoutOverlapping();
+        // $schedule->command("render:weekoff --month={$month}")
+        //     ->mondays()
+        //     ->at('05:00') // Or '05:00'
+        //     ->withoutOverlapping();
 
         $schedule
             ->command("alert:offline_device_all")
@@ -91,12 +91,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('company:sync-visitors')
             ->everyFiveMinutes()
-            ->runInBackground()
             ->withoutOverlapping();
 
         $schedule->command('company:sync-alerts')
             ->everyFiveMinutes()
-            ->runInBackground()
             ->withoutOverlapping();
 
         $companyIds = Company::pluck("id");
