@@ -55,10 +55,6 @@ class Kernel extends ConsoleKernel
             ->everyFiveMinutes()
             ->runInBackground();
 
-        // $schedule
-        //     ->command('task:sync_attendance_logs')
-        //     ->everyFifteenMinutes()->runInBackground();
-
         $schedule
             ->command('task:sync_attendance_ox900_logs') //OX900
             ->everyMinute()
@@ -67,11 +63,6 @@ class Kernel extends ConsoleKernel
         $schedule
             ->command('task:sync_alarm_logs')
             ->everyFifteenMinutes()->runInBackground();
-
-        // $schedule
-        //     ->command('task:update_company_ids')
-        //     ->everyMinute()
-        //     ->runInBackground();
 
         $schedule
             ->command('attendance:rectify')
@@ -115,25 +106,6 @@ class Kernel extends ConsoleKernel
             // $schedule->command("pdf:generatev1 $companyId Template1")->dailyAt('08:00');
             // $schedule->command("pdf:generatev1 $companyId Template2")->dailyAt('08:15');
 
-
-            // $schedule->command(
-            //     "pdf:generatev1 $companyId Template1 " .
-            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
-            //         now()->subMonth()->endOfMonth()->toDateString()
-            // )
-            //     ->monthlyOn(1, '03:35')
-            //     ->withoutOverlapping()
-            //     ->runInBackground();
-
-            // $schedule->command(
-            //     "pdf:generatev1 $companyId Template4 " .
-            //         now()->subMonth()->startOfMonth()->toDateString() . " " .
-            //         now()->subMonth()->endOfMonth()->toDateString()
-            // )
-            //     ->monthlyOn(1, '04:00')
-            //     ->withoutOverlapping()
-            //     ->runInBackground();
-
             $schedule
                 ->command("task:generate_daily_report $companyId")
                 ->dailyAt('03:00')
@@ -147,63 +119,21 @@ class Kernel extends ConsoleKernel
             $schedule->command("ai:check-consecutive-attendanc-issue --company_id={$companyId} --type=absent --streak=3")
                 ->dailyAt('06:20');
 
-            // $schedule
-            //     ->command("task:sync_attendance_missing_shift_ids {$companyId} " . date("Y-m-d") . "  ")
-            //     ->everyThirtyMinutes()
-            //     ->runInBackground();
-
-            // $schedule
-            //     ->command("task:sync_auto_shift $companyId " . date("Y-m-d"))
-            //     ->everyThirtyMinutes()
-            //     ->runInBackground();
-
             $schedule
                 ->command("task:sync_auto_shift $companyId " . date("Y-m-d", strtotime("yesterday")))
                 ->hourly()
                 ->between('03:00', '10:00')
                 ->runInBackground();
 
-            // $schedule
-            //     ->command("task:sync_except_auto_shift $companyId " . date("Y-m-d"))
-            //     ->everyThirtyMinutes()
-            //     ->runInBackground();
-
-            // $schedule->command("task:sync_multi_shift_v1 {$companyId} " . date("Y-m-d"))
-            //     ->everyThirtyMinutes()
-            //     ->between('5:00', '23:59')
-            //     ->runInBackground();
-
-            // $schedule->command("task:sync_split_shift {$companyId} " . date("Y-m-d"))
-            //     ->everyThirtyMinutes()
-            //     ->between('5:00', '23:59')
-            //     ->withoutOverlapping()
-            //     ->runInBackground();
-
-
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
                 // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
                 ->runInBackground();
 
-            // $schedule
-            //     ->command("task:sync_visitor_attendance {$companyId} " . date("Y-m-d"))
-            //     ->everyFiveMinutes()
-            //     ->runInBackground();
-
             $schedule
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
                 ->runInBackground();
-
-            // $schedule
-            //     ->command("alert:access_control {$companyId}")
-            //     ->everyFifteenMinutes()
-            //     ->runInBackground();
-
-            // $schedule
-            //     ->command("alert:attendance {$companyId}")
-            //     ->everyFifteenMinutes()
-            //     ->runInBackground();
 
             $schedule
                 ->command("task:sync_leaves $companyId")
@@ -217,34 +147,13 @@ class Kernel extends ConsoleKernel
                 ->command("task:sync_monthly_flexible_holidays --company_id=$companyId")
                 ->dailyAt('02:00')
                 ->runInBackground();
-
-            // $schedule
-            //     ->command("task:sync_off $companyId")
-            //     ->dailyAt('02:20')
-            //     ->runInBackground();
-
-            // $schedule
-            //     ->command("task:sync_flexible_off $companyId")
-            //     ->dailyAt('04:20')
-            //     ->runInBackground();
-
-
-
-            // $schedule
-            //     ->command("task:sync_visitor_set_expire_dates $companyId")
-            //     ->everyFiveMinutes()
-            //     ->runInBackground();
         }
 
         $schedule
             ->command("task:files-delete-old-log-files")
             ->dailyAt('23:30')
             ->runInBackground();
-
-        // $schedule->call(function () {
-        //     $count = Company::where("is_offline_device_notificaiton_sent", true)->update(["is_offline_device_notificaiton_sent" => false, "offline_notification_last_sent_at" => date('Y-m-d H:i:s')]);
-        // })->dailyAt('05:00');
-        //->withoutOverlapping();
+    
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
             // Artisan::call('cache:clear');
