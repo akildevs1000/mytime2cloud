@@ -2,6 +2,14 @@ const { Client } = require("pg");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
+const PQueue = require("p-queue").default;
+
+
+const pushQueue = new PQueue({
+  concurrency: 10, // Max 10 parallel pushes
+  interval: 1000,  // Time window
+  intervalCap: 100 // Max 100 per time window
+});
 
 const ignoredDevices = ["MYTIME1"];
 
@@ -54,6 +62,7 @@ async function sendPushNotification(row) {
 
     const response = await fetch(PUSH_URL, {
       method: "POST",
+      signal: AbortSignal.timeout(5000), // Stop waiting after 5 seconds
       headers: {
         "Content-Type": "application/json",
         ...(PUSH_SECRET ? { "Authorization": `Bearer ${PUSH_SECRET}` } : {}),
@@ -94,12 +103,32 @@ async function start() {
     console.log("👂 Listening for attendance_inserted notifications...");
 
     pgClient.on("notification", async (msg) => {
+      // try {
+      //   const row = JSON.parse(msg.payload);
+      //   if (!ignoredDevices.some(id => row.DeviceID.includes(id))) {
+      //     await sendPushNotification(row);
+      //   } else {
+      //     console.log(`⚠️ Ignored notification from DeviceID: ${JSON.stringify(row, null, 2)}`);
+      //   }
+      // } catch (err) {
+      //   logError(`Notification parse failed: ${err.message}`);
+      // }
+
       try {
         const row = JSON.parse(msg.payload);
         if (!ignoredDevices.some(id => row.DeviceID.includes(id))) {
-          await sendPushNotification(row);
-        } else {
-          console.log(`⚠️ Ignored notification from DeviceID: ${JSON.stringify(row, null, 2)}`);
+          // Add to queue (non-blocking)
+          pushQueue.add(async () => {
+            console.log(`[Queue] Starting notification for Device: ${row.DeviceID}`);
+            await sendPushNotification(row);
+          }).then(() => {
+            console.log(`[Queue] Successfully processed: ${row.DeviceID}`);
+          }).catch((err) => {
+            console.error(`[Queue] Failed for ${row.DeviceID}: ${err.message}`);
+          });
+
+          // This line runs immediately after adding to the queue
+          console.log(`[Queue] Task buffered. Current size: ${pushQueue.size}`);
         }
       } catch (err) {
         logError(`Notification parse failed: ${err.message}`);
@@ -121,6 +150,14 @@ async function start() {
 }
 
 start();
+
+pushQueue.on('idle', () => {
+  console.log(`✅ Queue is empty. All notifications have been sent.`);
+});
+
+pushQueue.on('error', error => {
+  logError(`Queue error: ${error.message}`);
+});
 
 // ========== GRACEFUL SHUTDOWN ==========
 process.on("SIGTERM", () => {
