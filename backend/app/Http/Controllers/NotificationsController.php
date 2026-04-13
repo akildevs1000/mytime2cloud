@@ -81,13 +81,14 @@ class NotificationsController extends Controller
         $userId = $request->input('data.user_id');
         $timestamp = $request->input('data.timestamp');
 
-        $exists = UserLocation::where('user_id', $userId)
-            ->where('recorded_at', $timestamp)
-            ->exists();
+        // FIX: Change 'type' to 'map'
+        if (!$request->boolean('debug') && $request->type == 'map') {
 
-        if (!$exists) {
-            // FIX: Change 'type' to 'map'
-            if (!$request->boolean('debug') && $request->type == 'map') {
+            $exists = UserLocation::where('user_id', $userId)
+                ->where('recorded_at', $timestamp)
+                ->exists();
+
+            if (!$exists) {
 
                 $created = UserLocation::create([
                     'company_id'  => $request->clientId,
