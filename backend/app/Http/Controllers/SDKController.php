@@ -1364,7 +1364,7 @@ class SDKController extends Controller
     private function sendRequest($url, $data = [])
     {
         try {
-            $response = Http::timeout(3600)
+            $response = Http::timeout(0)
                 ->withoutVerifying()
                 ->withHeaders([
                     'Content-Type' => 'application/json',
