@@ -560,7 +560,7 @@ class PayslipController extends Controller
 
         $totalOTMinutes = $Payroll->otHours["minutes"];
 
-        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll->payroll_formula->ot_value;
+        $OTEarning = $Payroll->perHourSalary * $OTHours * $Payroll?->payroll_formula?->ot_value ?? 0;
 
         $Payroll->earnings = array_merge(
             [
