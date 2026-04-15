@@ -530,7 +530,7 @@ class PayslipController extends Controller
         $remainingMinutes = $Payroll->combimedShortHours["minutes"] ?? "00:00"; // Calculate remaining minutes
         $decimalHours = $totalHours + ($remainingMinutes / 60);
         $rate = $Payroll->perHourSalary;
-        $shortHours = $decimalHours * $rate * $Payroll->payroll_formula->deduction_value;
+        $shortHours = $decimalHours * $rate * $Payroll?->payroll_formula?->deduction_value ?? 0;
 
         $grouByStatus = $attendances
             ->groupBy('status')  // Group by 'status'
