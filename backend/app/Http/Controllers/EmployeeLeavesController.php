@@ -269,7 +269,10 @@ class EmployeeLeavesController extends Controller
 
     public function processLeaveStatus($request, $leaveId, $status_id, $status_text)
     {
-        $model = EmployeeLeaves::find($leaveId);
+        $model = EmployeeLeaves::with(["employee" => function ($q) use ($request) {
+            $q->select('id', 'company_id', 'system_user_id');
+            $q->where("company_id", $request->company_id);
+        }])->find($leaveId);
 
         if ($model) {
             $model->status = $status_id;
@@ -315,7 +318,7 @@ class EmployeeLeavesController extends Controller
 
 
                 $company_id = $request->company_id;
-                $employee_id = $model->employee_id;
+                $employee_id = $model->employee->system_user_id;
 
                 $response = null;
 
