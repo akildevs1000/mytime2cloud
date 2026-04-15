@@ -286,7 +286,7 @@ class EmployeeLeavesController extends Controller
 
         $model->approve_reject_notes = $request->approve_reject_notes;
 
-        $model->order = $lastAdmin;
+        $model->order = 0;
 
         $record = $model->save();
 
