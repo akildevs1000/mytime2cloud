@@ -260,70 +260,6 @@ class EmployeeLeavesController extends Controller
     public function approveLeave(Request $request, $leaveId)
     {
         return $this->processLeaveStatus($request, $leaveId, 1, "approved");
-
-        $model = EmployeeLeaves::find($leaveId);
-
-        $company_id = $request->company_id;
-        $employee_id = $model->employee_id;
-        $user_id = $request->user_id;
-
-        if (!$model) {
-            return $this->response('Employee Leave data is not available.', null, false);
-        }
-
-        // $lastAdmin = User::where("company_id", $company_id)
-        //     ->where("order", "<", $request->order)
-        //     ->orderBy("order", "desc")
-        //     ->value("order") ?? 0;
-
-        // if ($model->order == -1) {
-        //     $lastAdmin = $this->getLastAdminInOrder($company_id);
-        // } else if ($model->order == 0) {
-        //     $model->status = 1;
-        // }
-
-        $model->status = 1;
-
-        $model->approve_reject_notes = $request->approve_reject_notes;
-
-        $model->order = $lastAdmin;
-
-        $record = $model->save();
-
-        $status_text = "approved";
-
-        if ($record) {
-            // if ($model->order == 0) {
-
-                Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
-                    ->whereBetWeen("date", [$model->start_date, $model->end_date])
-                    ->update(["status" => "L"]);
-
-                Notification::create([
-                    "data" => "Leave application has been $status_text",
-                    "action" => "Leave Status",
-                    "model" => "EmployeeLeaves",
-                    "user_id" => $user_id ?? 0,
-                    "company_id" => $employee_id,
-                    "redirect_url" => "leaves"
-                ]);
-            // }
-
-            $user_name = $request->user_name ?? 'Super User';
-
-            $reason = $request->approve_reject_notes ? " Reason: <i>{$model->approve_reject_notes}</i>." : "";
-
-            $description = "Leave application has been <span class='primary--text'>$status_text</span> by <b>$user_name</b>.<br>$reason";
-
-            EmployeeLeaveTimeline::create([
-                "employee_leave_id" => $leaveId,
-                "description" => $description,
-            ]);
-
-            return $this->response("Employee Leave $status_text Successfully.", $record, true);
-        } else {
-            return $this->response("Employee Leave not $status_text.", null, false);
-        }
     }
 
     public function rejectLeave(Request $request, $leaveId)
@@ -376,6 +312,16 @@ class EmployeeLeavesController extends Controller
                 Notify::push($clientId, "leave_request", "Leave application has been $status_text", $payload);
 
                 // $record->clientId = $clientId;
+
+
+                $company_id = $request->company_id;
+                $employee_id = $model->employee_id;
+
+                if ($status_id == 1) {
+                    Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
+                        ->whereBetWeen("date", [$model->start_date, $model->end_date])
+                        ->update(["status" => "L"]);
+                }
 
                 return $this->response("Employee Leave $status_text Successfully.", $clientId, true);
             } else {
