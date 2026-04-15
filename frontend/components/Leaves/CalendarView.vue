@@ -73,7 +73,7 @@ export default {
   methods: {
     async getLeaveEvents(id) {
       let { data } = await this.$axios.get(
-        `https://mytime2cloud-backend.test/api/employee_leaves_events?company_id=${id}`
+        `https://backend.mytime2cloud.com/api/employee_leaves_events?company_id=${id}`
       );
       this.events = data;
     },
