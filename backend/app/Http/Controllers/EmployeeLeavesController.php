@@ -271,18 +271,18 @@ class EmployeeLeavesController extends Controller
             return $this->response('Employee Leave data is not available.', null, false);
         }
 
+        // $lastAdmin = User::where("company_id", $company_id)
+        //     ->where("order", "<", $request->order)
+        //     ->orderBy("order", "desc")
+        //     ->value("order") ?? 0;
 
+        // if ($model->order == -1) {
+        //     $lastAdmin = $this->getLastAdminInOrder($company_id);
+        // } else if ($model->order == 0) {
+        //     $model->status = 1;
+        // }
 
-        $lastAdmin = User::where("company_id", $company_id)
-            ->where("order", "<", $request->order)
-            ->orderBy("order", "desc")
-            ->value("order") ?? 0;
-
-        if ($model->order == -1) {
-            $lastAdmin = $this->getLastAdminInOrder($company_id);
-        } else if ($model->order == 0) {
-            $model->status = 1;
-        }
+        $model->status = 1;
 
         $model->approve_reject_notes = $request->approve_reject_notes;
 
