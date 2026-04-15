@@ -224,7 +224,7 @@ class AttendanceLogCameraController extends Controller
                     "index_serial_number"  => $columns[3],
                     "log_date"             => explode('T', $columns[2])[0] ?? date("Y-m-d"),
                     "source_info"          => "Attendanc Log Camerea -> store",
-                    "log_type"             => null,
+                    "log_type"             => "Auto",
                 ];
 
                 if (trim($columns[4]) == "Out" || trim($columns[4]) == "In") {
