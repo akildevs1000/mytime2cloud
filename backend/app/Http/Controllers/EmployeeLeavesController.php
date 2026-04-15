@@ -317,13 +317,15 @@ class EmployeeLeavesController extends Controller
                 $company_id = $request->company_id;
                 $employee_id = $model->employee_id;
 
+                $response = null;
+
                 if ($status_id == 1) {
-                    Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
+                    $response = Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
                         ->whereBetWeen("date", [$model->start_date, $model->end_date])
                         ->update(["status" => "L"]);
                 }
 
-                return $this->response("Employee Leave $status_text Successfully.", $clientId, true);
+                return $this->response("Employee Leave $status_text Successfully.",  $response, true);
             } else {
                 return $this->response("Employee Leave not $status_text.", null, false);
             }
