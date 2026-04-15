@@ -293,7 +293,7 @@ class EmployeeLeavesController extends Controller
         $status_text = "approved";
 
         if ($record) {
-            if ($model->order == 0) {
+            // if ($model->order == 0) {
 
                 Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
                     ->whereBetWeen("date", [$model->start_date, $model->end_date])
@@ -307,7 +307,7 @@ class EmployeeLeavesController extends Controller
                     "company_id" => $employee_id,
                     "redirect_url" => "leaves"
                 ]);
-            }
+            // }
 
             $user_name = $request->user_name ?? 'Super User';
 
