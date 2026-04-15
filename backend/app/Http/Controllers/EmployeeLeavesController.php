@@ -323,9 +323,20 @@ class EmployeeLeavesController extends Controller
                 $response = null;
 
                 if ($status_id == 1) {
-                    $response = Attendance::where(["company_id" => $company_id, "employee_id" => $employee_id])
-                        ->whereBetWeen("date", [$model->start_date, $model->end_date])
-                        ->update(["status" => "L"]);
+                    // Get the date range
+                    $startDate = $model->start_date;
+                    $endDate = $model->end_date;
+
+                    // Count the number of days between start and end date (inclusive)
+                    $dateCount = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
+
+                    // Update attendance records
+                    $response = Attendance::where([
+                        "company_id" => $company_id,
+                        "employee_id" => $employee_id
+                    ])
+                        ->whereBetween("date", [$startDate, $endDate])
+                        ->update(["status" => ($dateCount > 2) ? "V" : "L"]);
                 }
 
                 return $this->response("Employee Leave $status_text Successfully.",  $response, true);
