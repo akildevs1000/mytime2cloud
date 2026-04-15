@@ -235,15 +235,15 @@ class AttendanceLogCameraController extends Controller
             }
         }
 
-        Logger::channel("custom")->info(count($records) . ' new logs has been inserted.');
+        Logger::channel("camera_OX_900")->info(count($records) . ' new logs has been inserted.');
 
         try {
             DB::table('attendance_logs')->insertOrIgnore($records);
             Storage::put("camera/camera-logs-count-" . $result['date'] . ".txt", $result['totalLines']);
             return $this->getMeta("Sync Attenance Camera Logs", count($records) . " new logs has been inserted.\n");
         } catch (\Throwable $th) {
-            Logger::channel("custom")->error('Error occured while inserting logs.');
-            Logger::channel("custom")->error('Error Details: ' . $th);
+            Logger::channel("camera_OX_900")->error('Error occured while inserting logs.');
+            Logger::channel("camera_OX_900")->error('Error Details: ' . $th);
             return $this->getMeta("Sync Attenance Camera Logs", " Error occured.\n");
         }
     }
