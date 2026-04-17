@@ -512,6 +512,14 @@ class AutoShiftController extends Controller
 
                 $result = $this->renderRelatedShiftype($nearestShift['shift_type_id'], $UserID, $params, $channel);
 
+                // Reset back to auto shift type so employee stays in auto-shift pool
+                ScheduleEmployee::where("company_id", $params['company_id'])
+                    ->where("employee_id", $UserID)
+                    ->where("isAutoShift", true)
+                    ->update([
+                        "shift_type_id" => 3,
+                    ]);
+
                 $message .= "[" . $date . "] Cron:SyncAuto The Log(s) has been rendered against " . $UserID . " SYSTEM USER ID.\n";
 
                 $message .= " Nearest shift ({$nearestShift['name']})";

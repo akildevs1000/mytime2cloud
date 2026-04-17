@@ -1,0 +1,9 @@
+CREATE INDEX idx_attendance_logtime ON public.attendance_logs ("LogTime");
+CREATE INDEX idx_safe_attendance_check ON public.attendance_logs ("UserID", id DESC);
+CREATE INDEX branch_contacts_branch_id_index ON public.branch_contacts (branch_id);
+CREATE INDEX companies_user_id_index ON public.companies (user_id);
+CREATE INDEX company_contacts_company_id_index ON public.company_contacts (company_id);
+CREATE INDEX password_resets_email_index ON public.password_resets (email);
+CREATE INDEX jobs_queue_index ON public.jobs (queue);
+CREATE UNIQUE INDEX user_branches_user_id_branch_id_unique ON public.user_branches (user_id, branch_id);
+CREATE UNIQUE INDEX user_departments_user_id_department_id_unique ON public.user_departments (user_id, department_id);
