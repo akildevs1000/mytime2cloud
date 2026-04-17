@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class BranchGroupLoginController extends Controller
@@ -21,7 +22,7 @@ class BranchGroupLoginController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
+            'email' => 'required|string|email|max:255', // Removed 'unique' because we handle it manually
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
             'company_id' => 'required',
@@ -29,31 +30,48 @@ class BranchGroupLoginController extends Controller
             'branch_ids.*' => 'numeric|exists:company_branches,id',
         ]);
 
-        $userData = [
-            "name" => $validatedData['name'],
-            "email" => $validatedData['email'],
-            "password" => Hash::make($validatedData['password']),
-            "role_id" => $validatedData['role_id'],
-            "company_id" => $validatedData['company_id'],
-            "is_master" => 1,
-            "first_login" => 1,
-            "user_type" => "branch_group",
-        ];
-
         try {
-            $user = User::updateOrCreate(
-                ['email' => $validatedData['email']], // Condition to find an existing record
-                $userData // Data to update or insert
-            );
+            return DB::transaction(function () use ($validatedData) {
 
-            if (!empty($validatedData['branch_ids'])) {
-                $user->branches()->sync($validatedData['branch_ids']);
-            }
+                // 1. Check if a Master user exists with this email
+                $masterExists = User::where('email', $validatedData['email'])
+                    ->where('is_master', 1)
+                    ->exists();
 
+                // 2. Guard Clause: If it's a master account, we don't touch it
+                if ($masterExists) {
+                    return response()->json([
+                        'error' => 'Action denied: This email belongs to a Master account.'
+                    ], 403);
+                }
 
-            return $user;
+                // 3. Wipe the old Non-Master configuration
+                // We use forceDelete to ensure the email is freed up in the DB
+                User::where('email', $validatedData['email'])
+                    ->where('is_master', 0)
+                    ->delete();
+
+                // 4. Create the brand new user with new configuration
+                $user = User::create([
+                    "name"       => $validatedData['name'],
+                    "email"      => $validatedData['email'],
+                    "password"   => Hash::make($validatedData['password']),
+                    "role_id"    => $validatedData['role_id'],
+                    "company_id" => $validatedData['company_id'],
+                    "is_master"  => 1,
+                    "first_login" => 1,
+                    "user_type"  => "branch_group",
+                ]);
+
+                // 5. Re-sync branches
+                if (!empty($validatedData['branch_ids'])) {
+                    $user->branches()->sync($validatedData['branch_ids']);
+                }
+
+                return $user;
+            });
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Override failed: ' . $e->getMessage()], 500);
         }
     }
 
