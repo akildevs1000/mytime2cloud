@@ -21,7 +21,7 @@ class BranchGroupLoginController extends Controller
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users|max:255',
+            'email' => 'required|string|email|max:255',
             'password' => 'required|string|min:8|confirmed',
             'role_id' => 'required|numeric',
             'company_id' => 'required',
