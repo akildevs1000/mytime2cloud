@@ -80,7 +80,7 @@ class DeviceController extends Controller
 
         $cols = $request->cols;
 
-        $model->with(['status', 'company', 'branch']);
+        $model->with(['status', 'company', 'branch', 'company_branch']);
 
         if (!$request->source)
             $model->where('company_id', $request->company_id);
