@@ -43,6 +43,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('birthday:wish')->dailyAt('00:00');
 
+        $schedule->command('company:notify-expiry')
+            ->dailyAt('08:30')
+            ->runInBackground();
+
         $schedule->command('delete_old_records')->monthlyOn(1, '00:00');
 
         $schedule
@@ -126,10 +130,6 @@ class Kernel extends ConsoleKernel
             $schedule->command("task:sync_multi_shift_dual_day {$companyId} " . date("Y-m-d", strtotime("yesterday")) . " true")
                 // ->everyThirtyMinutes()
                 ->dailyAt('5:20')
-                ->runInBackground();
-
-            $schedule->command("company:notify-expiry")
-                ->dailyAt('8:30')
                 ->runInBackground();
 
             $schedule
