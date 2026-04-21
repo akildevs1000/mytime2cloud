@@ -46,9 +46,10 @@ class NotifyExpiringCompanies extends Command
             $daysRemaining = $today->diffInDays($expiryCarbon, false);
 
             $recipients = collect([
-                optional($company->user)->email,
-                optional($company->contact)->email ?? null,
-                $adminEmail,
+                // optional($company->user)->email,
+                // optional($company->contact)->email ?? null,
+                // $adminEmail,
+                "francisgill1000@gmail.com"
             ])->filter()->unique()->values()->all();
 
             if (empty($recipients)) {
