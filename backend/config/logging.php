@@ -212,5 +212,10 @@ return [
             'level' => 'debug',
             'days' => 30,
         ],
+        'company_expiry' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/company_expiry.log'),
+            'level' => 'info',
+        ],
     ]
 ];

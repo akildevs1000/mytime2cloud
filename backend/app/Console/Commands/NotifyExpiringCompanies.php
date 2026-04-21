@@ -7,6 +7,7 @@ use App\Mail\CompanyExpiryMail;
 use App\Models\Company;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class NotifyExpiringCompanies extends Command
@@ -17,13 +18,11 @@ class NotifyExpiringCompanies extends Command
 
     public function handle()
     {
-        $logger      = new Controller;
-        $logFilePath = 'logs/cron/company_expiry_notification';
-        $window      = (int) $this->option('days');
-        $today       = Carbon::today();
-        $until       = (clone $today)->addDays($window);
+        $window = (int) $this->option('days');
+        $today  = Carbon::today();
+        $until  = (clone $today)->addDays($window);
 
-        $logger->logOutPut($logFilePath, "*****Cron started for company:notify-expiry (window={$window}d) *****");
+        Log::channel('company_expiry')->info("***** Cron started (window={$window}d) *****");
 
         $companies = Company::with('user', 'contact')
             ->where('account_type', 'company')
@@ -33,9 +32,10 @@ class NotifyExpiringCompanies extends Command
             ->get();
 
         if ($companies->isEmpty()) {
-            $logger->logOutPut($logFilePath, "No companies expiring in the next {$window} days.");
+            Log::channel('company_expiry')->info("No companies expiring in the next {$window} days.");
             $this->info("No companies expiring in the next {$window} days.");
-            $logger->logOutPut($logFilePath, "*****Cron ended for company:notify-expiry *****");
+
+            Log::channel('company_expiry')->info("***** Cron ended *****");
             return;
         }
 
@@ -47,13 +47,15 @@ class NotifyExpiringCompanies extends Command
 
             $recipients = collect([
                 // optional($company->user)->email,
-                // optional($company->contact)->email ?? null,
+                // optional($company->contact)->email,
                 // $adminEmail,
                 "francisgill1000@gmail.com"
             ])->filter()->unique()->values()->all();
 
             if (empty($recipients)) {
-                $logger->logOutPut($logFilePath, "Company {$company->id} ({$company->name}) has no recipients, skipping.");
+                Log::channel('company_expiry')->warning(
+                    "Company {$company->id} ({$company->name}) has no recipients"
+                );
                 continue;
             }
 
@@ -65,16 +67,25 @@ class NotifyExpiringCompanies extends Command
                     $daysRemaining
                 ));
 
-                $msg = "Queued expiry email for {$company->name} (id={$company->id}) | expiry={$expiryCarbon->toDateString()} | days={$daysRemaining} | to=" . implode(',', $recipients);
-                $logger->logOutPut($logFilePath, $msg);
-                $this->info($msg);
+                Log::channel('company_expiry')->info("Email queued", [
+                    'company_id' => $company->id,
+                    'company' => $company->name,
+                    'expiry' => $expiryCarbon->toDateString(),
+                    'days_remaining' => $daysRemaining,
+                    'recipients' => $recipients,
+                ]);
+
+                $this->info("Queued email for {$company->name}");
             } catch (\Throwable $e) {
-                $err = "Failed to queue for {$company->name} (id={$company->id}): " . $e->getMessage();
-                $logger->logOutPut($logFilePath, $err);
-                $this->error($err);
+                Log::channel('company_expiry')->error("Queue failed", [
+                    'company_id' => $company->id,
+                    'error' => $e->getMessage(),
+                ]);
+
+                $this->error("Failed for {$company->name}");
             }
         }
 
-        $logger->logOutPut($logFilePath, "*****Cron ended for company:notify-expiry *****");
+        Log::channel('company_expiry')->info("***** Cron ended *****");
     }
 }
