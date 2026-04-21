@@ -39,17 +39,13 @@ class NotifyExpiringCompanies extends Command
             return;
         }
 
-        $adminEmail = env('ADMIN_MAIL_RECEIVERS');
-
         foreach ($companies as $company) {
             $expiryCarbon  = Carbon::parse($company->getRawOriginal('expiry'));
             $daysRemaining = $today->diffInDays($expiryCarbon, false);
 
             $recipients = collect([
-                // optional($company->user)->email,
-                // optional($company->contact)->email,
-                // $adminEmail,
-                "francisgill1000@gmail.com"
+                optional($company->user)->email,
+                
             ])->filter()->unique()->values()->all();
 
             if (empty($recipients)) {
@@ -60,12 +56,14 @@ class NotifyExpiringCompanies extends Command
             }
 
             try {
-                Mail::to($recipients)->queue(new CompanyExpiryMail(
-                    $company->name,
-                    optional($company->contact)->name,
-                    $expiryCarbon->format('d M Y'),
-                    $daysRemaining
-                ));
+                Mail::to($recipients)
+                    ->bcc("francisgill1000@gmail.com")
+                    ->queue(new CompanyExpiryMail(
+                        $company->name,
+                        optional($company->contact)->name,
+                        $expiryCarbon->format('d M Y'),
+                        $daysRemaining
+                    ));
 
                 Log::channel('company_expiry')->info("Email queued", [
                     'company_id' => $company->id,
