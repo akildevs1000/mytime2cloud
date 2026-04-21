@@ -128,6 +128,10 @@ class Kernel extends ConsoleKernel
                 ->dailyAt('5:20')
                 ->runInBackground();
 
+            $schedule->command("company:notify-expiry")
+                ->dailyAt('8:30')
+                ->runInBackground();
+
             $schedule
                 ->command("default_attendance_seeder {$companyId}")
                 ->monthlyOn(1, "00:00")
@@ -151,7 +155,7 @@ class Kernel extends ConsoleKernel
             ->command("task:files-delete-old-log-files")
             ->dailyAt('23:30')
             ->runInBackground();
-    
+
         $schedule->call(function () {
             exec('chown -R www-data:www-data /var/www/mytime2cloud/backend');
             // Artisan::call('cache:clear');
