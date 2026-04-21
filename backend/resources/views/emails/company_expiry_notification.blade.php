@@ -52,6 +52,11 @@
                                 If the renewal is already in progress, you may safely disregard this message.
                             </p>
 
+                            <p style="margin:20px 0 14px 0;font-size:14px;color:#4b5563;">
+                                Need assistance with your renewal? Contact our support team at:<br>
+                                <strong style="color:#7c3aed; font-size:16px;">+971 55 330 3991</strong>
+                            </p>
+
                             <p style="margin:24px 0 0 0;font-size:14px;color:#4b5563;">
                                 Regards,<br>
                                 <strong>{{ config('app.name') }}</strong>
