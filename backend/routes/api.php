@@ -66,3 +66,4 @@ include('ai_feeds.php');
 include('ai_trigger.php');
 
 include('reports_monthly_pdf.php');
+include('master-billing.php');

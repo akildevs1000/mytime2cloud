@@ -156,4 +156,14 @@ class Company extends Model
         return $this->hasMany(ReportNotification::class);
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
 }
