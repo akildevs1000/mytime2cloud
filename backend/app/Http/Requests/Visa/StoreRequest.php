@@ -28,17 +28,17 @@ class StoreRequest extends FormRequest
     {
         return [
             "visa_no" => "required|min:2|max:20",
-            "place_of_issues" => "required|min:1|max:20",
-            "country" => "required|min:1|max:20",
-            "issue_date" => "required",
-            "expiry_date" => "required",
+            "place_of_issues" => "nullable|min:1|max:20",
+            "country" => "nullable|min:1|max:20",
+            "issue_date" => "nullable",
+            "expiry_date" => "nullable",
 
             "security_amount" => "nullable",
-            "labour_no" => "required",
+            "labour_no" => "nullable",
             "personal_no" => "nullable",
-            "labour_issue_date" => "required",
-            "labour_expiry_date" => "required",
-            "note" => "required",
+            "labour_issue_date" => "nullable",
+            "labour_expiry_date" => "nullable",
+            "note" => "nullable",
 
             "employee_id" => "required",
             "company_id" => "required",
