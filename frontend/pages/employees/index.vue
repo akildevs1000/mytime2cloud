@@ -12,6 +12,89 @@
         </template>
       </v-snackbar>
     </div>
+    <v-dialog v-model="printCardDialog" width="360" content-class="print-card-dialog">
+      <v-card>
+        <v-card-title dense class="popup_background no-print">
+          Access Card
+          <v-spacer></v-spacer>
+          <v-icon @click="printCardDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center pa-4" style="background:#eceff1">
+          <div class="d-flex justify-center">
+            <div
+              id="print-card-area"
+              class="access-card"
+            >
+              <div class="ac-photo-wrap">
+                <img
+                  v-if="printCardItem && printCardItem.profile_picture"
+                  :src="printCardItem.profile_picture"
+                  alt=""
+                  class="ac-photo"
+                />
+                <div v-else class="ac-photo ac-photo-placeholder">
+                  <v-icon size="56" color="#bdbdbd">mdi-account</v-icon>
+                </div>
+              </div>
+
+              <div class="ac-name-block">
+                <div class="ac-name">
+                  {{ printCardItem && printCardItem.first_name }}
+                  {{ printCardItem && printCardItem.last_name }}
+                </div>
+                <div class="ac-designation">
+                  {{
+                    printCardItem &&
+                    printCardItem.designation &&
+                    printCardItem.designation.name
+                      ? printCardItem.designation.name
+                      : "—"
+                  }}
+                </div>
+              </div>
+
+              <div class="ac-row">
+                <div class="ac-meta">
+                  <div>{{ printCardItem && printCardItem.system_user_id }}</div>
+                  <div>DOJ: {{ printCardJoiningDate }}</div>
+                  <div>
+                    Dept:
+                    {{
+                      printCardItem &&
+                      printCardItem.department &&
+                      printCardItem.department.name
+                        ? printCardItem.department.name
+                        : "—"
+                    }}
+                  </div>
+                </div>
+                <div class="ac-qr">
+                  <img v-if="printCardQr" :src="printCardQr" alt="QR" />
+                </div>
+              </div>
+
+              <div class="ac-footer">
+                <div class="ac-brand">
+                  <span class="ac-brand-italic">innovo</span>
+                  <span class="ac-brand-bold">BUILD</span>
+                </div>
+                <div class="ac-brand-sub">innovogroup.com</div>
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="no-print">
+          <v-spacer></v-spacer>
+          <v-btn text @click="printCardDialog = false">Close</v-btn>
+          <v-btn color="primary" @click="printAccessCard">
+            <v-icon left small>mdi-printer</v-icon>
+            Print
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="DialogQrCode" width="300">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -936,6 +1019,15 @@
                   }}</v-icon>
                 </span>
               </template>
+              <template v-slot:item.print_card="{ item }">
+                <v-btn
+                  icon
+                  title="Print Card"
+                  @click="openPrintCard(item)"
+                >
+                  <v-icon  color="primary">mdi-printer</v-icon>
+                </v-btn>
+              </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
@@ -972,6 +1064,12 @@
                           :key="generateRandomId()"
                           :system_user_id="item.system_user_id"
                         />
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="openPrintCard(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small> mdi-printer </v-icon>
+                        Print Card
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item
@@ -1122,6 +1220,9 @@ export default {
     btnLoader: false,
     max_employee: 0,
     qr_codeImage: null,
+    printCardDialog: false,
+    printCardItem: null,
+    printCardQr: null,
     employee: {
       title: "Mr",
       display_name: "",
@@ -1219,6 +1320,14 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
+      // {
+      //   text: "Print",
+      //   align: "center",
+      //   sortable: false,
+      //   key: "print_card",
+      //   value: "print_card",
+      //   width: "60px",
+      // },
       {
         text: "Options",
         align: "left",
@@ -1263,6 +1372,24 @@ export default {
       this.refresh = true;
       await this.getDataFromApi();
     }
+  },
+  computed: {
+    printCardJoiningDate() {
+      const item = this.printCardItem;
+      if (!item) return "—";
+      const raw = item.joining_date || item.show_joining_date;
+      if (!raw) return "—";
+      const iso = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[3]}/${iso[2]}/${iso[1]}`;
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}/${mm}/${yyyy}`;
+      }
+      return String(raw);
+    },
   },
   mounted() {
     //this.getDataFromApi();
@@ -1469,6 +1596,126 @@ export default {
       });
 
       this.DialogQrCode = true;
+    },
+    async openPrintCard(item) {
+      this.printCardItem = item;
+      this.printCardQr = null;
+      this.printCardDialog = true;
+      try {
+        const value = String(item.system_user_id || item.employee_id || "");
+        this.printCardQr = await this.$qrcode.generate(value, {
+          width: 160,
+          margin: 1,
+          color: { dark: "#000000", light: "#FFFFFF" },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    printAccessCard() {
+      const item = this.printCardItem;
+      if (!item) return;
+      const esc = (v) =>
+        String(v == null ? "" : v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      const photo = item.profile_picture || "";
+      const name = `${item.first_name || ""} ${item.last_name || ""}`.trim();
+      const designation =
+        item.designation && item.designation.name
+          ? item.designation.name
+          : "—";
+      const empId = item.system_user_id || "";
+      const dept =
+        item.department && item.department.name ? item.department.name : "—";
+      const doj = this.printCardJoiningDate;
+      const qr = this.printCardQr || "";
+
+      const html = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Access Card - ${esc(empId)}</title>
+<style>
+  @page { size: A4; margin: 10mm; }
+  html, body { margin: 0; padding: 0; background: #fff; }
+  body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #0f172a; -webkit-print-color-adjust: exact; print-color-adjust: exact; display: flex; justify-content: center; }
+  .access-card {
+    width: 140mm; min-height: 220mm; padding: 10mm 12mm;
+    box-sizing: border-box; display: flex; flex-direction: column;
+    border: 1px solid #e2e8f0; border-radius: 6mm;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  }
+  .ac-photo-wrap { display: flex; justify-content: center; margin-top: 4mm; }
+  .ac-photo { width: 75mm; height: 75mm; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; background: #f1f5f9; }
+  .ac-name-block { text-align: center; margin-top: 8mm; padding: 0 3mm; }
+  .ac-name { font-size: 22px; line-height: 1.2; color: #475569; word-break: break-word; }
+  .ac-designation { font-size: 26px; font-weight: 700; line-height: 1.15; margin-top: 3mm; color: #0f172a; }
+  .ac-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12mm; gap: 6mm; }
+  .ac-meta { font-size: 18px; font-weight: 700; line-height: 1.55; }
+  .ac-qr { width: 42mm; height: 42mm; }
+  .ac-qr img { width: 100%; height: 100%; display: block; }
+  .ac-footer { text-align: center; margin-top: auto; padding-top: 5mm; border-top: 1px solid #e2e8f0; }
+  .ac-brand { font-weight: 900; letter-spacing: -0.02em; font-size: 30px; line-height: 1; }
+  .ac-brand-italic { font-style: italic; text-transform: lowercase; margin-right: 4px; }
+  .ac-brand-bold { text-transform: uppercase; }
+  .ac-brand-sub { font-size: 15px; color: #64748b; margin-top: 3mm; }
+</style>
+</head>
+<body>
+  <div class="access-card">
+    <div class="ac-photo-wrap">
+      ${
+        photo
+          ? `<img class="ac-photo" src="${esc(photo)}" alt="" />`
+          : `<div class="ac-photo" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:18px;">●</div>`
+      }
+    </div>
+    <div class="ac-name-block">
+      <div class="ac-name">${esc(name)}</div>
+      <div class="ac-designation">${esc(designation)}</div>
+    </div>
+    <div class="ac-row">
+      <div class="ac-meta">
+        <div>${esc(empId)}</div>
+        <div>DOJ: ${esc(doj)}</div>
+        <div>Dept: ${esc(dept)}</div>
+      </div>
+      <div class="ac-qr">${qr ? `<img src="${esc(qr)}" alt="QR" />` : ""}</div>
+    </div>
+    <div class="ac-footer">
+      <div class="ac-brand"><span class="ac-brand-italic">innovo</span> <span class="ac-brand-bold">BUILD</span></div>
+      <div class="ac-brand-sub">innovogroup.com</div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var imgs = document.images;
+      var pending = imgs.length;
+      function go() { setTimeout(function () { window.focus(); window.print(); }, 50); }
+      if (!pending) { go(); return; }
+      var done = function () { if (--pending <= 0) go(); };
+      for (var i = 0; i < imgs.length; i++) {
+        if (imgs[i].complete) done();
+        else { imgs[i].onload = done; imgs[i].onerror = done; }
+      }
+    })();
+  <\/script>
+</body>
+</html>`;
+
+      const w = window.open("", "_blank", "width=900,height=900");
+      if (!w) {
+        alert("Please allow popups to print the access card.");
+        return;
+      }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
     },
     generateRandomId() {
       const length = 8; // Adjust the length of the ID as needed
@@ -1921,3 +2168,105 @@ export default {
   },
 };
 </script>
+
+<style>
+.access-card {
+  width: 54mm;
+  min-height: 86mm;
+  padding: 4mm 5mm;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+.access-card .ac-photo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 2mm;
+}
+.access-card .ac-photo {
+  width: 28mm;
+  height: 28mm;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #e2e8f0;
+  background: #f1f5f9;
+}
+.access-card .ac-photo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.access-card .ac-name-block {
+  text-align: center;
+  margin-top: 3mm;
+  padding: 0 1mm;
+}
+.access-card .ac-name {
+  font-size: 10px;
+  line-height: 1.1;
+  color: #334155;
+  word-break: break-word;
+}
+.access-card .ac-designation {
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-top: 1mm;
+  color: #0f172a;
+}
+.access-card .ac-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 3mm;
+  gap: 2mm;
+}
+.access-card .ac-meta {
+  font-size: 9px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.access-card .ac-qr {
+  width: 17mm;
+  height: 17mm;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.access-card .ac-qr img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.access-card .ac-footer {
+  text-align: center;
+  margin-top: auto;
+  padding-top: 2mm;
+  border-top: 1px solid #e2e8f0;
+}
+.access-card .ac-brand {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: 13px;
+  line-height: 1;
+}
+.access-card .ac-brand-italic {
+  font-style: italic;
+  text-transform: lowercase;
+  margin-right: 2px;
+}
+.access-card .ac-brand-bold {
+  text-transform: uppercase;
+}
+.access-card .ac-brand-sub {
+  font-size: 8px;
+  color: #64748b;
+  margin-top: 1mm;
+}
+
+</style>
