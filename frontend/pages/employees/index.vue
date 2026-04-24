@@ -55,32 +55,24 @@
                 </div>
               </div>
 
-              <div class="ac-row">
-                <div class="ac-meta">
-                  <div>{{ printCardItem && printCardItem.system_user_id }}</div>
-                  <div>DOJ: {{ printCardJoiningDate }}</div>
-                  <div>
-                    Dept:
-                    {{
-                      printCardItem &&
-                      printCardItem.department &&
-                      printCardItem.department.name
-                        ? printCardItem.department.name
-                        : "—"
-                    }}
-                  </div>
-                </div>
-                <div class="ac-qr">
-                  <img v-if="printCardQr" :src="printCardQr" alt="QR" />
+              <div class="ac-meta">
+                <div>{{ printCardItem && printCardItem.system_user_id }}</div>
+                <div>DOJ: {{ printCardJoiningDate }}</div>
+                <div>
+                  Dept:
+                  {{
+                    printCardItem &&
+                    printCardItem.department &&
+                    printCardItem.department.name
+                      ? printCardItem.department.name
+                      : "—"
+                  }}
                 </div>
               </div>
 
               <div class="ac-footer">
-                <div class="ac-brand">
-                  <span class="ac-brand-italic">innovo</span>
-                  <span class="ac-brand-bold">BUILD</span>
-                </div>
-                <div class="ac-brand-sub">innovogroup.com</div>
+                <div class="ac-brand">mytime2cloud</div>
+                <div class="ac-brand-sub">mytime2cloud.com</div>
               </div>
             </div>
           </div>
@@ -1222,7 +1214,6 @@ export default {
     qr_codeImage: null,
     printCardDialog: false,
     printCardItem: null,
-    printCardQr: null,
     employee: {
       title: "Mr",
       display_name: "",
@@ -1597,20 +1588,9 @@ export default {
 
       this.DialogQrCode = true;
     },
-    async openPrintCard(item) {
+    openPrintCard(item) {
       this.printCardItem = item;
-      this.printCardQr = null;
       this.printCardDialog = true;
-      try {
-        const value = String(item.system_user_id || item.employee_id || "");
-        this.printCardQr = await this.$qrcode.generate(value, {
-          width: 160,
-          margin: 1,
-          color: { dark: "#000000", light: "#FFFFFF" },
-        });
-      } catch (e) {
-        console.log(e);
-      }
     },
     printAccessCard() {
       const item = this.printCardItem;
@@ -1633,7 +1613,6 @@ export default {
       const dept =
         item.department && item.department.name ? item.department.name : "—";
       const doj = this.printCardJoiningDate;
-      const qr = this.printCardQr || "";
 
       const html = `<!doctype html>
 <html>
@@ -1655,10 +1634,7 @@ export default {
   .ac-name-block { text-align: center; margin-top: 8mm; padding: 0 3mm; }
   .ac-name { font-size: 22px; line-height: 1.2; color: #475569; word-break: break-word; }
   .ac-designation { font-size: 26px; font-weight: 700; line-height: 1.15; margin-top: 3mm; color: #0f172a; }
-  .ac-row { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 12mm; gap: 6mm; }
-  .ac-meta { font-size: 18px; font-weight: 700; line-height: 1.55; }
-  .ac-qr { width: 42mm; height: 42mm; }
-  .ac-qr img { width: 100%; height: 100%; display: block; }
+  .ac-meta { font-size: 18px; font-weight: 700; line-height: 1.55; margin-top: 12mm; text-align: center; }
   .ac-footer { text-align: center; margin-top: auto; padding-top: 5mm; border-top: 1px solid #e2e8f0; }
   .ac-brand { font-weight: 900; letter-spacing: -0.02em; font-size: 30px; line-height: 1; }
   .ac-brand-italic { font-style: italic; text-transform: lowercase; margin-right: 4px; }
@@ -1679,17 +1655,14 @@ export default {
       <div class="ac-name">${esc(name)}</div>
       <div class="ac-designation">${esc(designation)}</div>
     </div>
-    <div class="ac-row">
-      <div class="ac-meta">
-        <div>${esc(empId)}</div>
-        <div>DOJ: ${esc(doj)}</div>
-        <div>Dept: ${esc(dept)}</div>
-      </div>
-      <div class="ac-qr">${qr ? `<img src="${esc(qr)}" alt="QR" />` : ""}</div>
+    <div class="ac-meta">
+      <div>${esc(empId)}</div>
+      <div>DOJ: ${esc(doj)}</div>
+      <div>Dept: ${esc(dept)}</div>
     </div>
     <div class="ac-footer">
-      <div class="ac-brand"><span class="ac-brand-italic">innovo</span> <span class="ac-brand-bold">BUILD</span></div>
-      <div class="ac-brand-sub">innovogroup.com</div>
+      <div class="ac-brand">mytime2cloud</div>
+      <div class="ac-brand-sub">mytime2cloud.com</div>
     </div>
   </div>
   <script>
@@ -2218,30 +2191,12 @@ export default {
   margin-top: 1mm;
   color: #0f172a;
 }
-.access-card .ac-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 3mm;
-  gap: 2mm;
-}
 .access-card .ac-meta {
   font-size: 9px;
   font-weight: 600;
   line-height: 1.35;
-}
-.access-card .ac-qr {
-  width: 17mm;
-  height: 17mm;
-  background: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.access-card .ac-qr img {
-  width: 100%;
-  height: 100%;
-  display: block;
+  margin-top: 3mm;
+  text-align: center;
 }
 .access-card .ac-footer {
   text-align: center;
