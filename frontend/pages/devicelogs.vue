@@ -386,9 +386,15 @@
               </div>
             </template>
             <template v-slot:item.inout="{ item }">
-              <span v-if="item.log_type == 'Out' || item.log_type == 'out'" style="color: red">
+              <span
+                v-if="item.log_type == 'Out' || item.log_type == 'out'"
+                style="color: red"
+              >
                 {{ item.log_type || "---" }} </span
-              ><span v-else-if="item.log_type == 'In' || item.log_type == 'in'" style="color: green">
+              ><span
+                v-else-if="item.log_type == 'In' || item.log_type == 'in'"
+                style="color: green"
+              >
                 {{ item.log_type || "---" }} </span
               ><span v-else> --- </span>
             </template>
@@ -409,13 +415,22 @@
               <span
                 :class="`${item?.device?.name == 'Manual' ? 'red' : ''}--text`"
               >
-                {{ item.device ? caps(item.device.name) : "---" }}
+                <div v-if="item?.DeviceID.includes(`Mobile`)">
+                  <div>Mobile</div>
+                </div>
+                <div v-else>
+                  {{
+                    item.device && item.device.name !== "---"
+                      ? caps(item.device.name)
+                      : "---"
+                  }}
+                </div>
               </span>
             </template>
             <template v-slot:item.gps_location="{ item }">
               <!-- {{ item.gps_location || "---" }} -->
 
-              <div v-if="item.device.device_type == 'Mobile'">
+              <div v-if="item?.DeviceID.includes(`Mobile`)">
                 <div>GPS</div>
                 <div class="secondary-value">
                   {{ item.gps_location ? item.gps_location : "---" }}

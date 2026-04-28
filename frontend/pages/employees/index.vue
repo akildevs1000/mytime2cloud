@@ -12,6 +12,100 @@
         </template>
       </v-snackbar>
     </div>
+    <v-dialog v-model="printCardDialog" width="440" content-class="print-card-dialog">
+      <v-card>
+        <v-card-title dense class="popup_background no-print">
+          Access Card
+          <v-spacer></v-spacer>
+          <v-icon @click="printCardDialog = false" outlined dark>
+            mdi mdi-close-circle
+          </v-icon>
+        </v-card-title>
+        <v-card-text class="text-center pa-4" style="background:#eceae3">
+          <div class="d-flex justify-center" v-if="printCardItem">
+            <div class="idc">
+              <div class="header">
+                <div class="company">{{ printCardCompany }}</div>
+                <div class="company-tag">Employee Info</div>
+              </div>
+
+              <div class="portrait-wrap">
+                <div class="portrait">
+                  <img
+                    v-if="printCardItem.profile_picture"
+                    :src="printCardItem.profile_picture"
+                    alt=""
+                    class="portrait-img"
+                  />
+                  <svg
+                    v-else
+                    viewBox="0 0 160 160"
+                    width="122"
+                    height="122"
+                    aria-hidden="true"
+                  >
+                    <rect width="160" height="160" fill="#e7ebf0" />
+                    <circle cx="80" cy="68" r="28" fill="#8d95a1" />
+                    <path
+                      d="M0,160 C 0,116 38,92 80,92 C 122,92 160,116 160,160 Z"
+                      fill="#8d95a1"
+                    />
+                    <path
+                      d="M62,104 L80,122 L98,104 L98,160 L62,160 Z"
+                      fill="#e7ebf0"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div class="body">
+                <div class="name">
+                  {{ printCardItem.first_name }}
+                  {{ printCardItem.last_name }}
+                </div>
+                <div class="phone">{{ printCardItem.phone_number || "—" }}</div>
+
+                <div class="eid">
+                  <div class="eid__label">Employee ID</div>
+                  <div class="eid__num">
+                    {{ printCardItem.system_user_id }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="meta">
+                <div class="row">
+                  <span class="k">Join date</span>
+                  <span class="v">{{ printCardJoiningDate }}</span>
+                </div>
+                <div class="row">
+                  <span class="k">Dept</span>
+                  <span class="v">{{
+                    printCardItem.department && printCardItem.department.name
+                      ? printCardItem.department.name
+                      : "—"
+                  }}</span>
+                </div>
+              </div>
+
+              <div class="qr-wrap">
+                <img v-if="printCardQr" :src="printCardQr" alt="QR" />
+              </div>
+
+              <div class="foot"><span>mytime2cloud.com</span></div>
+            </div>
+          </div>
+        </v-card-text>
+        <v-card-actions class="no-print">
+          <v-spacer></v-spacer>
+          <v-btn text @click="printCardDialog = false">Close</v-btn>
+          <v-btn color="primary" @click="printAccessCard">
+            <v-icon left small>mdi-printer</v-icon>
+            Print
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-dialog v-model="DialogQrCode" width="300">
       <v-card>
         <v-card-title dense class="popup_background">
@@ -936,6 +1030,15 @@
                   }}</v-icon>
                 </span>
               </template>
+              <template v-slot:item.print_card="{ item }">
+                <v-btn
+                  icon
+                  title="Print Card"
+                  @click="openPrintCard(item)"
+                >
+                  <v-icon  color="primary">mdi-printer</v-icon>
+                </v-btn>
+              </template>
               <template v-slot:item.options="{ item }">
                 <v-menu bottom left>
                   <template v-slot:activator="{ on, attrs }">
@@ -972,6 +1075,12 @@
                           :key="generateRandomId()"
                           :system_user_id="item.system_user_id"
                         />
+                      </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="openPrintCard(item)">
+                      <v-list-item-title style="cursor: pointer">
+                        <v-icon color="secondary" small> mdi-printer </v-icon>
+                        Print Card
                       </v-list-item-title>
                     </v-list-item>
                     <v-list-item
@@ -1122,6 +1231,9 @@ export default {
     btnLoader: false,
     max_employee: 0,
     qr_codeImage: null,
+    printCardDialog: false,
+    printCardItem: null,
+    printCardQr: null,
     employee: {
       title: "Mr",
       display_name: "",
@@ -1219,6 +1331,14 @@ export default {
         filterable: true,
         filterSpecial: true,
       },
+      // {
+      //   text: "Print",
+      //   align: "center",
+      //   sortable: false,
+      //   key: "print_card",
+      //   value: "print_card",
+      //   width: "60px",
+      // },
       {
         text: "Options",
         align: "left",
@@ -1263,6 +1383,28 @@ export default {
       this.refresh = true;
       await this.getDataFromApi();
     }
+  },
+  computed: {
+    printCardJoiningDate() {
+      const item = this.printCardItem;
+      if (!item) return "—";
+      const raw = item.joining_date || item.show_joining_date;
+      if (!raw) return "—";
+      const iso = String(raw).match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[3]}·${iso[2]}·${iso[1]}`;
+      const d = new Date(raw);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        return `${dd}·${mm}·${yyyy}`;
+      }
+      return String(raw);
+    },
+    printCardCompany() {
+      const c = this.$auth && this.$auth.user && this.$auth.user.company;
+      return (c && (c.name || c.company_name)) || "Company Name";
+    },
   },
   mounted() {
     //this.getDataFromApi();
@@ -1469,6 +1611,248 @@ export default {
       });
 
       this.DialogQrCode = true;
+    },
+    async openPrintCard(item) {
+      this.printCardItem = item;
+      this.printCardQr = null;
+      this.printCardDialog = true;
+      try {
+        const value = String(item.system_user_id || item.employee_id || "");
+        this.printCardQr = await this.$qrcode.generate(value, {
+          width: 200,
+          margin: 0,
+          color: { dark: "#0f1114", light: "#FFFFFF" },
+        });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    printAccessCard() {
+      const item = this.printCardItem;
+      if (!item) return;
+      const esc = (v) =>
+        String(v == null ? "" : v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+
+      const photo = item.profile_picture || "";
+      const name = `${item.first_name || ""} ${item.last_name || ""}`.trim();
+      const phone = item.phone_number || "—";
+      const empId = item.system_user_id || "";
+      const dept =
+        item.department && item.department.name ? item.department.name : "—";
+      const doj = this.printCardJoiningDate;
+      const qr = this.printCardQr || "";
+      const company = this.printCardCompany;
+
+      const portraitInner = photo
+        ? `<img src="${esc(photo)}" alt="" class="portrait-img" />`
+        : `<svg viewBox="0 0 160 160" width="122" height="122" aria-hidden="true">
+             <rect width="160" height="160" fill="#e7ebf0"/>
+             <circle cx="80" cy="68" r="28" fill="#8d95a1"/>
+             <path d="M0,160 C 0,116 38,92 80,92 C 122,92 160,116 160,160 Z" fill="#8d95a1"/>
+             <path d="M62,104 L80,122 L98,104 L98,160 L62,160 Z" fill="#e7ebf0"/>
+           </svg>`;
+
+      const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Employee ID card - ${esc(empId)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1114;
+    --ink-2:#3a3f46;
+    --ink-3:#6c727b;
+    --rule:#e4e6ea;
+    --card:#ffffff;
+    --tint:#f4f6f9;
+    --brand:#0f4c5c;
+    --brand-2:#166978;
+    --brand-3:#1f8294;
+    --brand-ink:#ffffff;
+    --font-sans:'Inter Tight','SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    --font-mono:'JetBrains Mono','SF Mono',ui-monospace,Menlo,monospace;
+  }
+  *{ box-sizing:border-box; }
+  @page { size: A4; margin: 12mm; }
+  html, body { margin:0; padding:0; background:#fff; }
+  body {
+    font-family:var(--font-sans); color:var(--ink);
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .idc{
+    width: 110mm; height: 194mm;
+    background: var(--card); position: relative; overflow: hidden;
+    border-radius: 5mm;
+    box-shadow: 0 0 0 1px rgba(15,17,20,0.08);
+    letter-spacing: -0.006em;
+  }
+  .header{
+    position: relative; height: 52mm;
+    background: var(--brand); color: var(--brand-ink); overflow: hidden;
+  }
+  .header::before, .header::after{
+    content:""; position:absolute; inset:0;
+    background: var(--brand-2);
+    clip-path: polygon(0 0, 55% 0, 100% 55%, 100% 100%, 45% 100%, 0 45%);
+    opacity: 0.55;
+  }
+  .header::after{
+    background: var(--brand-3);
+    clip-path: polygon(0 0, 35% 0, 100% 70%, 100% 100%, 65% 100%, 0 30%);
+    opacity: 0.35;
+  }
+  .company{
+    position:absolute; top:11mm; left:0; right:0;
+    text-align:center; font-size: 18pt; font-weight:700;
+    letter-spacing: -0.02em; z-index:2;
+  }
+  .company-tag{
+    position:absolute; top:21mm; left:0; right:0;
+    text-align:center; font-family: var(--font-mono);
+    font-size: 8pt; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.78); z-index:2;
+  }
+  .portrait-wrap{
+    position:absolute; left:50%; top:28mm; transform:translateX(-50%);
+    width: 40mm; height: 40mm; border-radius: 50%;
+    padding: 1.6mm; background:#fff;
+    box-shadow: 0 8px 22px -10px rgba(0,0,0,.35);
+    z-index:3;
+  }
+  .portrait{
+    width:100%; height:100%; border-radius:50%;
+    background:#e7ebf0; overflow:hidden;
+    display:flex; align-items:flex-end; justify-content:center;
+  }
+  .portrait-img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .body{ padding: 22mm 8mm 0; text-align:center; }
+  .name{
+    font-size: 18pt; font-weight:700; letter-spacing:-0.028em;
+    line-height: 1.05; color: var(--ink);
+  }
+  .phone{
+    margin-top: 2mm; font-family: var(--font-mono);
+    font-size: 10pt; color: var(--ink-2); letter-spacing: 0.01em;
+  }
+  .eid{
+    margin: 5mm auto 0; width: 56mm; border-radius: 3mm; overflow:hidden;
+    box-shadow: 0 6px 14px -8px rgba(15,76,92,.6);
+  }
+  .eid__label{
+    background: var(--brand); color: var(--brand-ink);
+    font-size: 8.5pt; font-weight:600; letter-spacing: 0.14em;
+    text-transform: uppercase; padding: 2mm 3mm;
+  }
+  .eid__num{
+    background:#fff; color: var(--brand);
+    font-weight:700; font-size: 22pt; letter-spacing:-0.01em;
+    padding: 2.5mm 3mm 3mm; line-height:1;
+    border:1.5px solid var(--brand); border-top:none;
+    border-bottom-left-radius:3mm; border-bottom-right-radius:3mm;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta{
+    margin-top: 5mm; padding: 0 7mm;
+    display:flex; flex-direction:column; gap: 1.5mm; align-items:center;
+  }
+  .meta .row{ display:flex; justify-content:center; gap:2mm; }
+  .meta .k{
+    font-family:var(--font-mono); font-size:8pt;
+    letter-spacing:0.1em; text-transform:uppercase; color: var(--ink-3);
+  }
+  .meta .v{
+    font-family:var(--font-mono); font-size:8.5pt;
+    color: var(--ink); font-weight:500;
+  }
+  .qr-wrap{
+    margin: 5mm auto 6mm; width: 26mm; height: 26mm;
+    background:#fff; border:1px solid var(--rule);
+    border-radius: 2mm; padding: 1.5mm;
+  }
+  .qr-wrap img{ width:100%; height:100%; display:block; }
+  .foot{
+    position:absolute; left:0; right:0; bottom:0;
+    height: 10mm; background: var(--brand); color: var(--brand-ink);
+    display:flex; align-items:center; justify-content:center;
+    font-family: var(--font-mono); font-size: 8pt;
+    letter-spacing: 0.18em; text-transform: uppercase;
+  }
+  .foot::before{
+    content:""; position:absolute; inset:0; background: var(--brand-2);
+    clip-path: polygon(0 0, 22% 0, 14% 100%, 0 100%); opacity:.7;
+  }
+  .foot::after{
+    content:""; position:absolute; inset:0; background: var(--brand-2);
+    clip-path: polygon(78% 0, 100% 0, 100% 100%, 86% 100%); opacity:.7;
+  }
+  .foot span{ position:relative; z-index:1; }
+</style>
+</head>
+<body>
+  <div class="idc">
+    <div class="header">
+      <div class="company">${esc(company)}</div>
+      <div class="company-tag">Employee Info</div>
+    </div>
+
+    <div class="portrait-wrap">
+      <div class="portrait">${portraitInner}</div>
+    </div>
+
+    <div class="body">
+      <div class="name">${esc(name)}</div>
+      <div class="phone">${esc(phone)}</div>
+
+      <div class="eid">
+        <div class="eid__label">Employee ID</div>
+        <div class="eid__num">${esc(empId)}</div>
+      </div>
+    </div>
+
+    <div class="meta">
+      <div class="row"><span class="k">Join date</span><span class="v">${esc(doj)}</span></div>
+      <div class="row"><span class="k">Dept</span><span class="v">${esc(dept)}</span></div>
+    </div>
+
+    <div class="qr-wrap">${qr ? `<img src="${esc(qr)}" alt="QR" />` : ""}</div>
+
+    <div class="foot"><span>mytime2cloud.com</span></div>
+  </div>
+
+  <script>
+    (function () {
+      var imgs = document.images;
+      var pending = imgs.length;
+      function go() { setTimeout(function () { window.focus(); window.print(); }, 80); }
+      if (!pending) { go(); return; }
+      var done = function () { if (--pending <= 0) go(); };
+      for (var i = 0; i < imgs.length; i++) {
+        if (imgs[i].complete) done();
+        else { imgs[i].onload = done; imgs[i].onerror = done; }
+      }
+    })();
+  <\/script>
+</body>
+</html>`;
+
+      const w = window.open("", "_blank", "width=900,height=900");
+      if (!w) {
+        alert("Please allow popups to print the access card.");
+        return;
+      }
+      w.document.open();
+      w.document.write(html);
+      w.document.close();
     },
     generateRandomId() {
       const length = 8; // Adjust the length of the ID as needed
@@ -1921,3 +2305,240 @@ export default {
   },
 };
 </script>
+
+<style>
+.idc {
+  --ink: #0f1114;
+  --ink-2: #3a3f46;
+  --ink-3: #6c727b;
+  --rule: #e4e6ea;
+  --card: #ffffff;
+  --brand: #0f4c5c;
+  --brand-2: #166978;
+  --brand-3: #1f8294;
+  --brand-ink: #ffffff;
+  --font-sans: "Inter Tight", "SF Pro Text", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+
+  width: 340px;
+  height: 600px;
+  background: var(--card);
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 0 0 1px rgba(15, 17, 20, 0.06),
+    0 24px 60px -28px rgba(15, 17, 20, 0.35),
+    0 6px 16px -6px rgba(15, 17, 20, 0.12);
+  letter-spacing: -0.006em;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  text-align: left;
+}
+.idc * {
+  box-sizing: border-box;
+}
+
+.idc .header {
+  position: relative;
+  height: 160px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  overflow: hidden;
+}
+.idc .header::before,
+.idc .header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--brand-2);
+  clip-path: polygon(0 0, 55% 0, 100% 55%, 100% 100%, 45% 100%, 0 45%);
+  opacity: 0.55;
+}
+.idc .header::after {
+  background: var(--brand-3);
+  clip-path: polygon(0 0, 35% 0, 100% 70%, 100% 100%, 65% 100%, 0 30%);
+  opacity: 0.35;
+}
+.idc .company {
+  position: absolute;
+  top: 34px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  z-index: 2;
+}
+.idc .company-tag {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+  z-index: 2;
+}
+.idc .portrait-wrap {
+  position: absolute;
+  left: 50%;
+  top: 86px;
+  transform: translateX(-50%);
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  padding: 5px;
+  background: #fff;
+  box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+}
+.idc .portrait {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #e7ebf0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.idc .portrait-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.idc .body {
+  padding: 68px 24px 0;
+  text-align: center;
+}
+.idc .name {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.028em;
+  line-height: 1.05;
+  color: var(--ink);
+}
+.idc .phone {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-2);
+  letter-spacing: 0.01em;
+}
+.idc .eid {
+  margin: 14px auto 0;
+  width: 164px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 14px -8px rgba(15, 76, 92, 0.6);
+}
+.idc .eid__label {
+  background: var(--brand);
+  color: var(--brand-ink);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+}
+.idc .eid__num {
+  background: #fff;
+  color: var(--brand);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.01em;
+  padding: 8px 10px 10px;
+  line-height: 1;
+  border: 1.5px solid var(--brand);
+  border-top: none;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.idc .meta {
+  margin-top: 14px;
+  padding: 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+.idc .meta .row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--ink-2);
+}
+.idc .meta .k {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.idc .meta .v {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+.idc .qr-wrap {
+  margin: 14px auto 16px;
+  width: 78px;
+  height: 78px;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 4px;
+}
+.idc .qr-wrap img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.idc .foot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 32px;
+  background: var(--brand);
+  color: var(--brand-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.idc .foot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--brand-2);
+  clip-path: polygon(0 0, 22% 0, 14% 100%, 0 100%);
+  opacity: 0.7;
+}
+.idc .foot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--brand-2);
+  clip-path: polygon(78% 0, 100% 0, 100% 100%, 86% 100%);
+  opacity: 0.7;
+}
+.idc .foot span {
+  position: relative;
+  z-index: 1;
+}
+</style>
