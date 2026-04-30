@@ -1,15 +1,18 @@
 const { app, BrowserWindow, ipcMain, screen, } = require('electron');
 
 const path = require('path');
-const { spawn } = require('child_process');
+const http = require('http');
+const { spawn, spawnSync } = require('child_process');
 
 app.setName('MyTime2Desktop');
 app.setAppUserModelId('MyTime2Desktop');
 
-const phpPorts = [9000, 9001, 9002, 9003, 9004];
+// nginx.conf load-balances across these via the `php_workers` upstream block.
+// Keep this list in sync with conf/nginx.conf if you change worker count.
+const phpPorts = [9000, 9001, 9002, 9003];
 const appPort = 3001;
 
-const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address } = require('./helpers');
+const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address, setShuttingDown } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -36,55 +39,9 @@ const dotnetExe = path.join(dotnetSDK, 'dotnet', 'dotnet.exe');
 const javaExe = path.join(javaSDK, 'bin', 'java.exe');
 
 let mainWindow;
-let nginxWindow;
 
 let dotnetSDKProcess;
 
-
-function createWindow() {
-
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-
-  mainWindow = new BrowserWindow({
-    width,
-    height,
-    show: false, // enable to hide the window
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-    },
-  });
-
-  mainWindow.loadFile('index.html');
-
-  mainWindow.webContents.once('did-finish-load', async () => {
-    // const repositories = [
-    //   {
-    //     url: 'https://github.com/akildevs1000/dotnet_sdk',
-    //     folder: 'dotnet_sdk',
-    //   },
-    // ];
-
-    // await cloneMultipleRepos(mainWindow, repositories);
-
-    const repos = [
-      {
-        folder: 'dotnet_sdk',
-        url: 'https://backend.mytime2cloud.com/dotnet_sdk.zip'
-      },
-      {
-        folder: 'java_sdk',
-        url: 'https://backend.mytime2cloud.com/java_sdk.zip'
-      },
-    ];
-
-    downloadMultipleRepos(mainWindow, repos);
-
-    ipUpdaterForDotNetSDK(mainWindow, jsonPath);
-
-    startServices(mainWindow);
-  });
-}
 
 function startServices(mainWindow) {
 
@@ -113,23 +70,49 @@ function startServices(mainWindow) {
 
 function stopServices(mainWindow) {
   const batFile = path.join(appDir, 'kill-processes.bat');
-  spawn('cmd.exe', ['/c', batFile], { windowsHide: true });
-  log(mainWindow, `kill-processes.bat`, ' kill-processes.bat executed.');
+  // Run synchronously so all children are dead before app.quit() exits the process.
+  const result = spawnSync('cmd.exe', ['/c', batFile], { windowsHide: true });
+  log(mainWindow, `kill-processes.bat`, ` kill-processes.bat executed (status ${result.status}).`);
 }
 
-function nginxWorker() {
+// Keep the splash visible for at least this long so the user has time to read tips
+// even when nginx comes up in <1s.
+const MIN_SPLASH_MS = 6000;
+
+function waitForServer(address, onReady) {
+  const startTime = Date.now();
+
+  const finish = () => {
+    const elapsed = Date.now() - startTime;
+    const remaining = Math.max(0, MIN_SPLASH_MS - elapsed);
+    setTimeout(onReady, remaining);
+  };
+
+  const tryOnce = () => {
+    const req = http.get(address, (res) => {
+      res.resume();
+      if (res.statusCode === 200) {
+        finish();
+      } else {
+        setTimeout(tryOnce, 500);
+      }
+    });
+    req.on('error', () => setTimeout(tryOnce, 500));
+    req.setTimeout(2000, () => req.destroy());
+  };
+  tryOnce();
+}
+
+function createMainWindow() {
   spawnWrapper(null, "[Nginx]", nginxPath, { cwd: appDir });
 
   const address = `http://${ipv4Address}:${appPort}`;
-  console.log("🚀 ~ nginxWorker ~ address:", address)
-
   log(null, `APPLICATION`, `started on ${address}`);
 
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
-  // ✅ Only create a new window if it's not already open
-  if (!nginxWindow || nginxWindow.isDestroyed()) {
-    nginxWindow = new BrowserWindow({
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    mainWindow = new BrowserWindow({
       width,
       height,
       frame: true,
@@ -140,15 +123,22 @@ function nginxWorker() {
       }
     });
 
-    nginxWindow.loadURL(address);
+    // Show splash immediately, then navigate to nginx URL once it's serving.
+    mainWindow.loadFile('index.html');
+    mainWindow.maximize();
 
-    nginxWindow.maximize();
+    waitForServer(address, () => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        log(null, `APPLICATION`, `nginx ready, navigating to ${address}`);
+        mainWindow.loadURL(address);
+      }
+    });
 
-    nginxWindow.on('closed', () => {
-      nginxWindow = null;
+    mainWindow.on('closed', () => {
+      mainWindow = null;
     });
   } else {
-    nginxWindow.focus(); // ✅ Bring existing window to front
+    mainWindow.focus();
   }
 }
 
@@ -156,14 +146,21 @@ app.whenReady().then(async () => {
 
   await runInstaller(path.join(appDir, `vs_redist.exe`));
 
+  const repos = [
+    { folder: 'dotnet_sdk', url: 'https://backend.mytime2cloud.com/dotnet_sdk.zip' },
+    { folder: 'java_sdk', url: 'https://backend.mytime2cloud.com/java_sdk.zip' },
+  ];
+
+  downloadMultipleRepos(null, repos);
+  ipUpdaterForDotNetSDK(null, jsonPath);
+
   phpPorts.forEach(port => {
     spawnPhpCgiWorker(phpCGi, port);
-    console.log("🚀 ~ phpCGi, port:", phpCGi, port)
   });
 
-  nginxWorker();
+  startServices(null);
 
-  createWindow();
+  createMainWindow();
 });
 let isQuitting = false;
 
@@ -171,9 +168,10 @@ app.on('before-quit', (e) => {
   if (!isQuitting) {
     e.preventDefault(); // prevent quit
     log(mainWindow, `kill-processes`, "Stopping services before quitting...");
-    stopServices(mainWindow); // assume this is sync or finishes quickly
+    setShuttingDown(true);          // disable php-cgi auto-restart
+    stopServices(mainWindow);       // spawnSync — blocks until bat finishes
     isQuitting = true;
-    app.quit(); // trigger quit again
+    app.quit();                     // now safe to exit
   }
 });
 app.on('window-all-closed', () => {

@@ -12,4 +12,4 @@ taskkill /f /im dotnet.exe >nul 2>&1
 
 echo All specified services have been terminated.
 echo ==========================================
-pause
+exit /b 0

@@ -3,75 +3,79 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>App Server</title>
-  <link rel="stylesheet" href="./assets/style.css" />
+  <title>MyTime2Desktop</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #1e1e2f 0%, #2d1b4e 100%);
+      color: #e8e8f0;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: #4f8cff;
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin-bottom: 24px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .status {
+      font-size: 14px;
+      color: #9ea0b8;
+      min-height: 20px;
+      transition: opacity 0.4s ease;
+    }
+  </style>
 </head>
 
 <body>
-  <h2>App Server</h2>
+  <div class="spinner"></div>
+  <div class="title">Starting MyTime2Desktop</div>
+  <div class="status" id="status">Initializing services…</div>
 
-  <div>
-    <button class="btn" onclick="startServer()">Start Server</button>
-    <button class="btn" onclick="stopServer()">Stop Server</button>
-  </div>
+  <script>
+    const statuses = [
+      'Initializing services…',
+      'Starting web server…',
+      'Booting backend…',
+      'Loading device manager…',
+      'Connecting to attendance hardware…',
+      'Preparing your dashboard…',
+      'Almost ready…'
+    ];
 
-  <div class="search-controls">
-    <!-- these thing should be in one oline -->
-    <input type="text" id="searchInput" placeholder="Search logs..." />
-    <button class="btn" onclick="clearLogs()">Clear</button>
-    <button class="btn" onclick="exportLogs()">Export</button>
-  </div>
+    const statusEl = document.getElementById('status');
 
-
-  <div id="logs"></div>
-
- <script>
-  const { ipcRenderer } = require('electron');
-
-  let allLogs = ''; // Preserve original logs
-
-  function startServer() {
-    ipcRenderer.send('start-server');
-  }
-
-  function stopServer() {
-    ipcRenderer.send('stop-server');
-  }
-
-  ipcRenderer.on('log', (event, message) => {
-    allLogs += message;
-    updateLogDisplay();
-  });
-
-  function updateLogDisplay() {
-    const filter = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = allLogs
-      .split('\n')
-      .filter(line => line.toLowerCase().includes(filter))
-      .join('\n');
-    const logs = document.getElementById('logs');
-    logs.textContent = filtered;
-    logs.scrollTop = logs.scrollHeight;
-  }
-
-  function clearLogs() {
-    allLogs = '';
-    updateLogDisplay();
-  }
-
-  function exportLogs() {
-    const blob = new Blob([allLogs], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'app-server-logs.txt';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  document.getElementById('searchInput').addEventListener('input', updateLogDisplay);
-</script>
-
+    let statusIdx = 0;
+    setInterval(() => {
+      statusEl.style.opacity = '0';
+      setTimeout(() => {
+        statusIdx = (statusIdx + 1) % statuses.length;
+        statusEl.textContent = statuses[statusIdx];
+        statusEl.style.opacity = '1';
+      }, 400);
+    }, 1800);
+  </script>
 </body>
 
 </html>

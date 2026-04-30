@@ -10,6 +10,9 @@ const WebSocket = require("ws");
 
 const isDev = !app.isPackaged;
 
+let isShuttingDown = false;
+function setShuttingDown(v) { isShuttingDown = v; }
+
 let appDir;
 if (isDev) {
     appDir = path.join(__dirname);
@@ -96,6 +99,10 @@ function spawnPhpCgiWorker(phpCGi, port) {
         });
 
         child.on('close', (code) => {
+            if (isShuttingDown) {
+                logger(`APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Shutting down, no restart.`);
+                return;
+            }
             logger(`APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
             setTimeout(start, 2000); // auto-restart after 2 seconds
         });
@@ -543,27 +550,33 @@ function startWebSocketClient(srcDirectory) {
 }
 
 /**
- * Checks if VS Redistributable is already installed
- * @param {string} displayName - Part of the name to check in installed programs
- * @returns {boolean}
+ * Checks if the VC++ 2015-2022 x64 redistributable is installed by looking for the
+ * exact runtime DLLs the bundled apps (nginx, php, dotnet, java SDKs) load. Registry
+ * name matching is unreliable: customers with older versions like VC++ 2010 also have
+ * a "Microsoft Visual C++" entry but lack vcruntime140, causing app launch to fail.
  */
-function isVSRedistInstalled(displayName = 'Microsoft Visual C++') {
-    // Use PowerShell to check registry for installed programs
-    const psScript = `
-    Get-ItemProperty HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*,
-                      HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\* |
-    Where-Object { $_.DisplayName -like "*${displayName}*" } |
-    Select-Object -ExpandProperty DisplayName
-  `;
-
-    const result = spawnSync('powershell.exe', ['-Command', psScript], { encoding: 'utf8' });
-
-    return result.stdout && result.stdout.trim().length > 0;
+function isVSRedistInstalled() {
+    const sys32 = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32');
+    return fs.existsSync(path.join(sys32, 'vcruntime140.dll'))
+        && fs.existsSync(path.join(sys32, 'msvcp140.dll'));
 }
 
 function runInstaller(installerPath) {
     return new Promise((resolve, reject) => {
+        // Cache the redist check. Marker name includes "_2015" so that any stale
+        // marker from the old (registry-name-matching) check is ignored on upgrade.
+        const markerPath = path.join(appDir, '.vs_redist_2015_ok');
+        const writeMarker = () => {
+            try { fs.writeFileSync(markerPath, new Date().toISOString()); } catch (e) {}
+        };
+
+        if (fs.existsSync(markerPath)) {
+            log(null, `VS_REDIST`, '✅ VS Redistributable cached as installed.');
+            return resolve('Cached');
+        }
+
         if (isVSRedistInstalled()) {
+            writeMarker();
             log(null, `VS_REDIST`, '✅ VS Redistributable already installed.');
             return resolve('Already installed');
         }
@@ -581,9 +594,11 @@ function runInstaller(installerPath) {
 
         installer.on('close', (code) => {
             if (code === 0) {
+                writeMarker();
                 log(null, `VS_REDIST`, 'Installed successfully');
                 resolve('Installed successfully');
             } else if (code === 1638) {
+                writeMarker();
                 log(null, `VS_REDIST`, 'Already installed (code 1638)');
                 resolve('Already installed');
             } else {
@@ -598,7 +613,7 @@ module.exports = {
     log, startWebSocketClient, isVSRedistInstalled, runInstaller,
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
-    stopProcess,
+    stopProcess, setShuttingDown,
     getFormattedDate, ipUpdaterForDotNetSDK, notify, cloneMultipleRepos, extractZipIfNeeded, downloadAndExtract, downloadMultipleRepos,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }
