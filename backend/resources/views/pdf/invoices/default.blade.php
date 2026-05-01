@@ -107,6 +107,8 @@
             vertical-align: top;
             padding: 0;
         }
+        .parties td.first { padding-right: 7px; }
+        .parties td.last  { padding-left: 7px; }
         .party-block {
             border: 1px solid #e5e7eb;
             background: #ffffff;
@@ -123,15 +125,12 @@
             color: #4b5563;
             font-size: 11.5px;
         }
-        .gap-cell { width: 14px; padding: 0; }
 
         .items {
             width: 100%;
             margin-top: 18px;
             border-collapse: collapse;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            overflow: hidden;
         }
         .items thead th {
             background: #7c3aed;
@@ -143,20 +142,15 @@
             padding: 10px 12px;
             font-weight: 700;
         }
-        .items thead th.num   { text-align: center; width: 32px; }
-        .items thead th.qty   { text-align: right; width: 60px; }
-        .items thead th.rate  { text-align: right; width: 110px; }
-        .items thead th.amt   { text-align: right; width: 120px; }
-        .items thead th.right { text-align: right; }
+        .items th.num,  .items td.num  { text-align: center; width: 32px;  color: #6b7280; }
+        .items th.qty,  .items td.qty  { text-align: right;  width: 60px;  }
+        .items th.rate, .items td.rate { text-align: right;  width: 110px; }
+        .items th.amt,  .items td.amt  { text-align: right;  width: 120px; }
         .items tbody td {
             padding: 14px 12px;
-            border-bottom: 1px solid #f1f5f9;
             font-size: 12px;
             vertical-align: top;
         }
-        .items tbody tr:last-child td { border-bottom: none; }
-        .items td.num   { text-align: center; color: #6b7280; }
-        .items td.right { text-align: right; }
         .items .desc-title { font-weight: 600; color: #111827; }
 
         .summary-row { width: 100%; margin-top: 14px; }
@@ -260,7 +254,7 @@
 
         <table class="parties">
             <tr>
-                <td>
+                <td class="first">
                     <div class="party-block">
                         <div class="label">From</div>
                         <div class="name">{{ config('app.name') }}</div>
@@ -268,8 +262,7 @@
                         <div class="line muted">mytime2cloud.com</div>
                     </div>
                 </td>
-                <td class="gap-cell"></td>
-                <td>
+                <td class="last">
                     <div class="party-block">
                         <div class="label">Billed To</div>
                         <div class="name">{{ $company->name ?? '—' }}</div>
@@ -307,9 +300,9 @@
                             via {{ ucfirst($payment->method) }}@if ($payment->reference_no) · Ref {{ $payment->reference_no }}@endif
                         </div>
                     </td>
-                    <td class="right">1</td>
-                    <td class="right">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
-                    <td class="right">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
+                    <td class="qty">1</td>
+                    <td class="rate">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
+                    <td class="amt">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
                 </tr>
             </tbody>
         </table>
