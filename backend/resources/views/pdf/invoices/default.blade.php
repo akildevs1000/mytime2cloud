@@ -42,27 +42,29 @@
         }
 
         .meta-card {
-            display: inline-block;
             text-align: left;
             border: 1px solid #ede9fe;
             background: #faf5ff;
             border-radius: 8px;
             padding: 10px 14px;
-            min-width: 180px;
+            float: right;
+            width: 220px;
         }
-        .meta-card .row-line {
-            display: block;
+        .meta-card .meta-line {
             margin-bottom: 6px;
         }
-        .meta-card .row-line:last-child { margin-bottom: 0; }
+        .meta-card .meta-line:last-child { margin-bottom: 0; }
         .meta-card .label {
+            display: block;
             color: #6b7280;
             font-size: 10px;
             font-weight: 600;
             letter-spacing: 0;
             text-transform: none;
+            margin-bottom: 1px;
         }
         .meta-card .value {
+            display: block;
             font-size: 13px;
             color: #111827;
             font-weight: 700;
@@ -235,22 +237,22 @@
                 <div class="tag">Cloud Attendance &amp; Workforce Management</div>
             </div>
             <div class="col-right">
-                <table class="meta-card" cellspacing="0" cellpadding="0">
-                    <tr>
-                        <td class="label">Invoice #</td>
-                        <td class="value">{{ $invoice->number }}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">Issue Date</td>
-                        <td class="value">{{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('d M Y') }}</td>
-                    </tr>
+                <div class="meta-card">
+                    <div class="meta-line">
+                        <span class="label">Invoice #</span>
+                        <span class="value">{{ $invoice->number }}</span>
+                    </div>
+                    <div class="meta-line">
+                        <span class="label">Issue Date</span>
+                        <span class="value">{{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('d M Y') }}</span>
+                    </div>
                     @if ((float) $invoice->tax_percent > 0)
-                        <tr>
-                            <td class="label">VAT</td>
-                            <td class="value">{{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%</td>
-                        </tr>
+                        <div class="meta-line">
+                            <span class="label">VAT</span>
+                            <span class="value">{{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%</span>
+                        </div>
                     @endif
-                </table>
+                </div>
             </div>
         </div>
 
