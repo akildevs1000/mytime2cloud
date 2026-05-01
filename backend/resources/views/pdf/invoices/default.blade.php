@@ -22,11 +22,12 @@
         .col-right { float: right; width: 40%; text-align: right; }
 
         .invoice-title {
+            font-family: "DejaVu Sans", sans-serif;
             text-align: center;
             color: #7c3aed;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 2px;
+            font-size: 26px;
+            font-weight: bold;
+            letter-spacing: 0;
             text-transform: uppercase;
             margin: 0 0 18px 0;
             line-height: 1;
@@ -129,8 +130,10 @@
         .items {
             width: 100%;
             margin-top: 18px;
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             border: 1px solid #e5e7eb;
+            border-radius: 8px;
         }
         .items thead th {
             background: #7c3aed;
@@ -141,7 +144,12 @@
             text-align: left;
             padding: 10px 12px;
             font-weight: 700;
+            border-bottom: 1px solid #6d28d9;
         }
+        .items thead th:first-child { border-top-left-radius: 7px; }
+        .items thead th:last-child  { border-top-right-radius: 7px; }
+        .items tbody tr:last-child td:first-child { border-bottom-left-radius: 7px; }
+        .items tbody tr:last-child td:last-child  { border-bottom-right-radius: 7px; }
         .items th.num,  .items td.num  { text-align: center; width: 32px;  color: #6b7280; }
         .items th.qty,  .items td.qty  { text-align: right;  width: 60px;  }
         .items th.rate, .items td.rate { text-align: right;  width: 110px; }
@@ -164,28 +172,56 @@
             position: relative;
         }
         .stamp-block {
-            margin-top: 22px;
+            margin-top: 18px;
             text-align: center;
         }
-        .stamp-block .seal {
+        .stamp-block .seal-outer {
             display: inline-block;
-            transform: rotate(-10deg);
-            border: 4px solid #047857;
+            transform: rotate(-8deg);
+            padding: 4px;
+            border: 2px solid #047857;
+            border-radius: 6px;
+        }
+        .stamp-block .seal {
+            display: block;
+            border: 2px solid #047857;
             color: #047857;
-            padding: 10px 30px;
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: 8px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0);
+            padding: 8px 24px;
+            font-size: 30px;
+            font-weight: bold;
+            letter-spacing: 4px;
+            border-radius: 4px;
+            font-family: "DejaVu Sans", sans-serif;
+            line-height: 1;
         }
         .stamp-block .seal-meta {
-            margin-top: 14px;
-            color: #6b7280;
+            margin-top: 16px;
+            color: #4b5563;
             font-size: 11px;
             line-height: 1.6;
         }
         .stamp-block .seal-meta strong { color: #111827; }
+
+        .notes {
+            margin-top: 22px;
+        }
+        .notes .label {
+            color: #6b7280;
+            font-size: 9.5px;
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .notes .box {
+            border: 1px dashed #e5e7eb;
+            border-radius: 8px;
+            padding: 12px 14px;
+            background: #fafafa;
+            color: #4b5563;
+            font-size: 11px;
+            line-height: 1.6;
+        }
 
         table.totals {
             float: right;
@@ -228,7 +264,7 @@
         <div class="row">
             <div class="col-left brand">
                 <div class="biz">{{ config('app.name') }}</div>
-                <div class="tag">Cloud Attendance &amp; Workforce Management</div>
+                <div class="tag">Cloud Attendance Management</div>
             </div>
             <div class="col-right">
                 <div class="meta-card">
@@ -311,7 +347,9 @@
             <div class="left-pane">
                 @if ($invoice->sent_at || $payment)
                     <div class="stamp-block">
-                        <div class="seal">PAID</div>
+                        <div class="seal-outer">
+                            <div class="seal">PAID</div>
+                        </div>
                         <div class="seal-meta">
                             <strong>{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</strong> received on
                             {{ \Illuminate\Support\Carbon::parse($payment->payment_date)->format('d M Y') }}<br>
@@ -319,6 +357,13 @@
                         </div>
                     </div>
                 @endif
+
+                <div class="notes">
+                    <div class="label">Notes</div>
+                    <div class="box">
+                        Thank you for your business. This invoice confirms that payment has been received in full. Please retain this document for your records. For any clarifications, reach out to our support team.
+                    </div>
+                </div>
             </div>
 
             <table class="totals">
