@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Invoice {{ $invoice->number }}</title>
     <style>
+        @page { margin: 14mm 12mm; }
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -13,25 +14,34 @@
             font-size: 11.5px;
             line-height: 1.45;
         }
-        .page { padding: 28px 36px 32px; position: relative; }
+        .page { padding: 0; position: relative; }
 
         .row { width: 100%; }
         .row:after { content: ""; display: block; clear: both; }
         .col-left  { float: left;  width: 60%; }
         .col-right { float: right; width: 40%; text-align: right; }
 
-        .brand h1 {
-            font-size: 30px;
-            letter-spacing: 6px;
-            color: #7c3aed;
-            margin: 0 0 4px 0;
+        .brand .mark {
+            display: inline-block;
+            background: #7c3aed;
+            color: #ffffff;
+            padding: 8px 18px;
+            border-radius: 6px;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            font-weight: 800;
+            line-height: 1;
+        }
+        .brand .biz {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
         }
         .brand .tag {
             color: #6b7280;
             font-size: 11px;
-            letter-spacing: .4px;
         }
 
         .meta-card {
@@ -132,7 +142,10 @@
             padding: 10px 12px;
             font-weight: 700;
         }
-        .items thead th.num   { text-align: center; width: 36px; }
+        .items thead th.num   { text-align: center; width: 32px; }
+        .items thead th.qty   { text-align: right; width: 60px; }
+        .items thead th.rate  { text-align: right; width: 110px; }
+        .items thead th.amt   { text-align: right; width: 120px; }
         .items thead th.right { text-align: right; }
         .items tbody td {
             padding: 14px 12px;
@@ -196,15 +209,15 @@
 
         .stamp {
             position: absolute;
-            top: 220px;
-            right: 70px;
+            top: 200px;
+            right: 30px;
             transform: rotate(-14deg);
             border: 3px solid #10b981;
             color: #10b981;
             padding: 6px 22px;
-            font-size: 32px;
+            font-size: 30px;
             font-weight: 800;
-            letter-spacing: 6px;
+            letter-spacing: 4px;
             border-radius: 8px;
             opacity: 0.18;
         }
@@ -218,11 +231,9 @@
 
         <div class="row">
             <div class="col-left brand">
-                <h1>Invoice</h1>
-                <div class="tag">{{ config('app.name') }}</div>
-                <div class="muted" style="margin-top:6px;font-size:11px;">
-                    Cloud Attendance &amp; Workforce Management
-                </div>
+                <span class="mark">Invoice</span>
+                <div class="biz">{{ config('app.name') }}</div>
+                <div class="tag">Cloud Attendance &amp; Workforce Management</div>
                 <div class="badge-paid">Paid</div>
             </div>
             <div class="col-right">
@@ -281,9 +292,9 @@
                 <tr>
                     <th class="num">#</th>
                     <th>Description</th>
-                    <th class="right" style="width:110px;">Qty</th>
-                    <th class="right" style="width:140px;">Rate</th>
-                    <th class="right" style="width:150px;">Amount</th>
+                    <th class="qty">Qty</th>
+                    <th class="rate">Rate</th>
+                    <th class="amt">Amount</th>
                 </tr>
             </thead>
             <tbody>
