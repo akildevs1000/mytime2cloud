@@ -21,20 +21,17 @@
         .col-left  { float: left;  width: 60%; }
         .col-right { float: right; width: 40%; text-align: right; }
 
-        .brand .mark {
-            display: inline-block;
-            background: #7c3aed;
-            color: #ffffff;
-            padding: 8px 18px;
-            border-radius: 6px;
-            font-size: 22px;
-            font-weight: 700;
-            letter-spacing: 1px;
+        .invoice-title {
+            text-align: center;
+            color: #7c3aed;
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 2px;
             text-transform: uppercase;
+            margin: 0 0 18px 0;
             line-height: 1;
         }
         .brand .biz {
-            margin-top: 10px;
             font-size: 16px;
             font-weight: 700;
             color: #111827;
@@ -60,14 +57,16 @@
         .meta-card .row-line:last-child { margin-bottom: 0; }
         .meta-card .label {
             color: #6b7280;
-            font-size: 9.5px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0;
+            text-transform: none;
         }
         .meta-card .value {
-            font-size: 12.5px;
+            font-size: 13px;
             color: #111827;
-            font-weight: 600;
+            font-weight: 700;
+            letter-spacing: 0;
         }
 
         .badge-paid {
@@ -161,19 +160,36 @@
         .summary-row { width: 100%; margin-top: 14px; }
         .summary-row:after { content: ""; display: block; clear: both; }
 
-        .notes {
+        .left-pane {
             float: left;
             width: 55%;
             padding-right: 16px;
+            min-height: 180px;
+            position: relative;
         }
-        .notes .box {
-            border: 1px dashed #e5e7eb;
-            border-radius: 8px;
-            padding: 12px 14px;
-            background: #fafafa;
-            color: #4b5563;
+        .stamp-block {
+            margin-top: 22px;
+            text-align: center;
+        }
+        .stamp-block .seal {
+            display: inline-block;
+            transform: rotate(-10deg);
+            border: 4px solid #047857;
+            color: #047857;
+            padding: 10px 30px;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: 8px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0);
+        }
+        .stamp-block .seal-meta {
+            margin-top: 14px;
+            color: #6b7280;
             font-size: 11px;
+            line-height: 1.6;
         }
+        .stamp-block .seal-meta strong { color: #111827; }
 
         table.totals {
             float: right;
@@ -207,52 +223,34 @@
         }
         .footer strong { color: #6b7280; }
 
-        .stamp {
-            position: absolute;
-            top: 200px;
-            right: 30px;
-            transform: rotate(-14deg);
-            border: 3px solid #10b981;
-            color: #10b981;
-            padding: 6px 22px;
-            font-size: 30px;
-            font-weight: 800;
-            letter-spacing: 4px;
-            border-radius: 8px;
-            opacity: 0.18;
-        }
     </style>
 </head>
 <body>
     <div class="page">
-        @if ($invoice->sent_at || $payment)
-            <div class="stamp">PAID</div>
-        @endif
+        <div class="invoice-title">Invoice</div>
 
         <div class="row">
             <div class="col-left brand">
-                <span class="mark">Invoice</span>
                 <div class="biz">{{ config('app.name') }}</div>
                 <div class="tag">Cloud Attendance &amp; Workforce Management</div>
-                <div class="badge-paid">Paid</div>
             </div>
             <div class="col-right">
-                <div class="meta-card">
-                    <span class="row-line">
-                        <div class="label">Invoice #</div>
-                        <div class="value">{{ $invoice->number }}</div>
-                    </span>
-                    <span class="row-line">
-                        <div class="label">Issue Date</div>
-                        <div class="value">{{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('d M Y') }}</div>
-                    </span>
+                <table class="meta-card" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="label">Invoice #</td>
+                        <td class="value">{{ $invoice->number }}</td>
+                    </tr>
+                    <tr>
+                        <td class="label">Issue Date</td>
+                        <td class="value">{{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('d M Y') }}</td>
+                    </tr>
                     @if ((float) $invoice->tax_percent > 0)
-                        <span class="row-line">
-                            <div class="label">VAT</div>
-                            <div class="value">{{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%</div>
-                        </span>
+                        <tr>
+                            <td class="label">VAT</td>
+                            <td class="value">{{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%</td>
+                        </tr>
                     @endif
-                </div>
+                </table>
             </div>
         </div>
 
@@ -315,11 +313,17 @@
         </table>
 
         <div class="summary-row">
-            <div class="notes">
-                <div class="label">Notes</div>
-                <div class="box">
-                    Thank you for your business. This invoice confirms that payment has been received in full. Please retain this document for your records. For any clarifications, reach out to our support team.
-                </div>
+            <div class="left-pane">
+                @if ($invoice->sent_at || $payment)
+                    <div class="stamp-block">
+                        <div class="seal">PAID</div>
+                        <div class="seal-meta">
+                            <strong>{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</strong> received on
+                            {{ \Illuminate\Support\Carbon::parse($payment->payment_date)->format('d M Y') }}<br>
+                            via {{ ucfirst($payment->method) }}@if ($payment->reference_no) · Ref {{ $payment->reference_no }}@endif
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <table class="totals">
