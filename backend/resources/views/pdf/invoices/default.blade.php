@@ -24,6 +24,7 @@
 
         .logo-row { white-space: nowrap; }
         .logo-mark {
+            font-family: "DejaVu Sans", sans-serif;
             display: inline-block;
             width: 32px;
             height: 32px;
@@ -35,15 +36,17 @@
             border-radius: 6px;
             vertical-align: middle;
             font-weight: bold;
+            letter-spacing: 0;
         }
         .logo-name {
+            font-family: "DejaVu Sans", sans-serif;
             display: inline-block;
             margin-left: 10px;
             font-size: 18px;
             font-weight: bold;
             color: #111827;
             vertical-align: middle;
-            letter-spacing: -.2px;
+            letter-spacing: 0;
         }
         .pill-paid {
             display: inline-block;
