@@ -92,19 +92,6 @@
             font-weight: bold;
         }
 
-        /* ---------- Watermark ---------- */
-        .watermark {
-            position: absolute;
-            top: 4px;
-            right: 0;
-            transform: rotate(-18deg);
-            color: #6b7280;
-            opacity: 0.18;
-            font-size: 36px;
-            font-weight: bold;
-            letter-spacing: 6px;
-        }
-
         /* ---------- Parties ---------- */
         .parties { width: 100%; border-collapse: collapse; margin-top: 30px; }
         .parties td {
@@ -263,10 +250,6 @@
 </head>
 <body>
     <div class="page">
-        @if ($invoice->sent_at || $payment)
-            <div class="watermark">PAID</div>
-        @endif
-
         <table class="header">
             <tr>
                 <td class="left">
