@@ -170,12 +170,37 @@
             font-size: 11px;
         }
 
+        /* ---------- Bottom split: notes (left) + totals (right) ---------- */
+        .summary { width: 100%; margin-top: 22px; border-collapse: collapse; }
+        .summary > tbody > tr > td { vertical-align: top; padding: 0; }
+        .summary .left-col  { width: 50%; padding-right: 24px; }
+        .summary .right-col { width: 50%; }
+
+        .notes-block .title {
+            color: #6b7280;
+            font-size: 10px;
+            font-weight: bold;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+        .notes-block .body {
+            color: #4b5563;
+            font-size: 11px;
+            line-height: 1.65;
+        }
+        .signoff {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px dashed #e5e7eb;
+            color: #6b7280;
+            font-size: 11px;
+        }
+        .signoff strong { color: #111827; }
+
         /* ---------- Totals ---------- */
-        .totals-wrap { width: 100%; margin-top: 18px; }
-        .totals-wrap:after { content: ""; display: block; clear: both; }
         .totals {
-            float: right;
-            width: 320px;
+            width: 100%;
             border-collapse: collapse;
         }
         .totals td {
@@ -201,7 +226,7 @@
         .totals tr.paid td.r { color: #047857; }
 
         .balance-bar {
-            margin-top: 10px;
+            margin-top: 12px;
             background: #7c3aed;
             color: #ffffff;
             border-radius: 8px;
@@ -222,29 +247,14 @@
             font-weight: bold;
         }
 
-        /* ---------- Footer / Notes ---------- */
+        /* ---------- Footer ---------- */
         .footer {
-            margin-top: 36px;
-            padding-top: 18px;
+            margin-top: 28px;
+            padding-top: 14px;
             border-top: 1px solid #e5e7eb;
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .footer td { vertical-align: top; padding: 0; }
-        .footer .left  { width: 65%; padding-right: 18px; }
-        .footer .right { width: 35%; text-align: right; color: #9ca3af; font-size: 10.5px; }
-        .footer .label {
-            color: #6b7280;
-            font-size: 10px;
-            font-weight: bold;
-            letter-spacing: .4px;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-        .footer .body {
-            color: #4b5563;
-            font-size: 11px;
-            line-height: 1.6;
+            text-align: center;
+            color: #9ca3af;
+            font-size: 10.5px;
         }
     </style>
 </head>
@@ -331,55 +341,59 @@
             </tbody>
         </table>
 
-        <div class="totals-wrap">
-            <table class="totals">
-                <tr>
-                    <td class="l">Subtotal</td>
-                    <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
-                </tr>
-                @if ((float) $invoice->tax_percent > 0)
-                    <tr>
-                        <td class="l">VAT ({{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%)</td>
-                        <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->tax_amount, 2) }}</td>
-                    </tr>
-                @endif
-                <tr class="divider total-amount">
-                    <td class="l">Total Amount</td>
-                    <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</td>
-                </tr>
-                <tr class="paid">
-                    <td class="l">Amount Paid</td>
-                    <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</td>
-                </tr>
-            </table>
-            <div style="clear:both;"></div>
-
-            <div style="float:right; width:320px;">
-                <div class="balance-bar">
-                    <table>
-                        <tr>
-                            <td class="l">Balance Due</td>
-                            <td class="r">{{ $invoice->currency }} 0.00</td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div style="clear:both;"></div>
-        </div>
-
-        <table class="footer">
+        <table class="summary">
             <tr>
-                <td class="left">
-                    <div class="label">Notes &amp; Terms</div>
-                    <div class="body">
-                        Thank you for your business. This invoice confirms that payment has been received in full. Please retain this document for your records. For any clarifications, reach out to our support team at support@mytime2cloud.com.
+                <td class="left-col">
+                    <div class="notes-block">
+                        <div class="title">Notes &amp; Terms</div>
+                        <div class="body">
+                            Thank you for your business. This invoice confirms that payment has been received in full. Please retain this document for your records. For any clarifications, reach out to our support team at support@mytime2cloud.com.
+                        </div>
+                    </div>
+
+                    <div class="signoff">
+                        <strong>{{ config('app.name') }}</strong><br>
+                        Issued {{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('M d, Y') }} ·
+                        Invoice {{ $invoice->number }}
                     </div>
                 </td>
-                <td class="right">
-                    &copy; {{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('Y') }} {{ config('app.name') }}
+                <td class="right-col">
+                    <table class="totals">
+                        <tr>
+                            <td class="l">Subtotal</td>
+                            <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->subtotal, 2) }}</td>
+                        </tr>
+                        @if ((float) $invoice->tax_percent > 0)
+                            <tr>
+                                <td class="l">VAT ({{ rtrim(rtrim(number_format((float) $invoice->tax_percent, 2), '0'), '.') }}%)</td>
+                                <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->tax_amount, 2) }}</td>
+                            </tr>
+                        @endif
+                        <tr class="divider total-amount">
+                            <td class="l">Total Amount</td>
+                            <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</td>
+                        </tr>
+                        <tr class="paid">
+                            <td class="l">Amount Paid</td>
+                            <td class="r">{{ $invoice->currency }} {{ number_format((float) $invoice->total, 2) }}</td>
+                        </tr>
+                    </table>
+
+                    <div class="balance-bar">
+                        <table>
+                            <tr>
+                                <td class="l">Balance Due</td>
+                                <td class="r">{{ $invoice->currency }} 0.00</td>
+                            </tr>
+                        </table>
+                    </div>
                 </td>
             </tr>
         </table>
+
+        <div class="footer">
+            &copy; {{ \Illuminate\Support\Carbon::parse($invoice->issue_date)->format('Y') }} {{ config('app.name') }} · This is a computer-generated invoice and does not require a physical signature.
+        </div>
     </div>
 </body>
 </html>
