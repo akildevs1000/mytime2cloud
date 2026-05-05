@@ -9,7 +9,7 @@
         body {
             margin: 0;
             padding: 0;
-            font-family: "DejaVu Sans", sans-serif;
+            font-family: Helvetica, "DejaVu Sans", sans-serif;
             color: #1f2937;
             font-size: 11.5px;
             line-height: 1.5;
@@ -29,7 +29,6 @@
             padding-right: 10px !important;
         }
         .logo-mark {
-            font-family: Helvetica, "DejaVu Sans", sans-serif;
             display: block;
             width: 32px;
             height: 32px;
@@ -42,7 +41,6 @@
             font-weight: bold;
         }
         .logo-name {
-            font-family: Helvetica, "DejaVu Sans", sans-serif;
             font-size: 19px;
             font-weight: bold;
             color: #111827;
@@ -310,7 +308,7 @@
                 <td class="last">
                     <div class="party-block">
                         <div class="label">Billed To</div>
-                        <div class="name">{{ $company->name ?? '—' }}</div>
+                        <div class="name">{{ $company->name ?? '-' }}</div>
                         @if (!empty($company->location))
                             <div class="line">{{ $company->location }}</div>
                         @endif
