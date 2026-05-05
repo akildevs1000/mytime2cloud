@@ -22,31 +22,31 @@
         .header .left  { width: 55%; }
         .header .right { width: 45%; text-align: right; }
 
-        .logo-row { white-space: nowrap; }
+        .logo-table { border-collapse: collapse; }
+        .logo-table td { vertical-align: middle; padding: 0; }
+        .logo-mark-cell {
+            width: 32px;
+            padding-right: 10px !important;
+        }
         .logo-mark {
-            font-family: "DejaVu Sans", sans-serif;
-            display: inline-block;
+            font-family: Helvetica, "DejaVu Sans", sans-serif;
+            display: block;
             width: 32px;
             height: 32px;
             background: #7c3aed;
             color: #ffffff;
             text-align: center;
-            line-height: 30px;
+            line-height: 32px;
             font-size: 18px;
             border-radius: 6px;
-            vertical-align: middle;
             font-weight: bold;
-            letter-spacing: 0;
         }
         .logo-name {
-            font-family: "DejaVu Sans", sans-serif;
-            display: inline-block;
-            margin-left: 10px;
-            font-size: 18px;
+            font-family: Helvetica, "DejaVu Sans", sans-serif;
+            font-size: 19px;
             font-weight: bold;
             color: #111827;
-            vertical-align: middle;
-            letter-spacing: 0;
+            white-space: nowrap;
         }
         .pill-paid {
             display: inline-block;
@@ -266,10 +266,16 @@
         <table class="header">
             <tr>
                 <td class="left">
-                    <div class="logo-row">
-                        <span class="logo-mark">M</span>
-                        <span class="logo-name">{{ config('app.name') }}</span>
-                    </div>
+                    <table class="logo-table">
+                        <tr>
+                            <td class="logo-mark-cell">
+                                <div class="logo-mark">M</div>
+                            </td>
+                            <td>
+                                <span class="logo-name">{{ config('app.name') }}</span>
+                            </td>
+                        </tr>
+                    </table>
                     @if ($invoice->sent_at || $payment)
                         <div class="pill-paid"><span class="dot"></span>PAID</div>
                     @endif
