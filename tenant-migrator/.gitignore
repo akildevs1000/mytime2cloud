@@ -1,0 +1,20 @@
+node_modules/
+dist/
+release/
+out/
+.DS_Store
+
+# Local secrets — DB connection passwords live here
+config/connections.yaml
+config/connections.local.yaml
+
+# Build artefacts
+*.log
+*.tsbuildinfo
+
+# OS / IDE
+.vscode/
+.idea/
+Thumbs.db
+
+config

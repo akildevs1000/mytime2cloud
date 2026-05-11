@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsx *)",
+      "Bash(npm run *)",
+      "Read(//c/Program Files/PostgreSQL//**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Read(//c//**)",
+      "Read(//c/Program Files/**)",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/pg_dump.exe\" --version)",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/pg_dump.exe\" --version)"
+    ]
+  }
+}
