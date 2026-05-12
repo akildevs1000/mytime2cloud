@@ -1,11 +1,8 @@
-const simpleGit = require('simple-git');
 const fs = require('fs');
 const path = require('path');
 const { spawnSync, spawn } = require('child_process');
 const os = require("os");
 const { app, Notification } = require('electron');
-const axios = require('axios');
-const unzipper = require('unzipper');
 const WebSocket = require("ws");
 
 const isDev = !app.isPackaged;
@@ -312,179 +309,6 @@ function notify(title = "", body = "", icon = 'favicon-256x256.png', onClick = n
     notification.show();
 }
 
-async function cloneMultipleRepos(mainWindow, repos) {
-
-    const git = simpleGit();
-
-    for (const repo of repos) {
-        const repoDir = path.join(appDir, repo.folder);
-
-        if (!fs.existsSync(repoDir)) {
-            let logMessage = `🌀 Cloning ${repo.url} into ${repoDir}...`;
-            console.log(logMessage);
-            log(mainWindow, `GIT`, logMessage);
-            try {
-                await git.clone(repo.url, repoDir);
-                let logMessage = `✅ ${repo.folder} cloned successfully!`;
-                console.log(logMessage);
-                log(mainWindow, `GIT`, logMessage);
-            } catch (error) {
-                console.error(`❌ Error cloning ${repo.url}:`, error.message);
-                let logMessage = `❌ Error cloning ${repo.url}:`;
-                console.log(logMessage);
-                log(mainWindow, `GIT`, logMessage);
-            }
-        } else {
-            let logMessage = `📁 ${repo.folder} already exists`;
-            console.log(logMessage);
-            log(mainWindow, `GIT`, logMessage);
-        }
-    }
-}
-
-function extractZipIfNeeded(zipFilePath, targetFolderName) {
-    const extractPath = path.join(appDir, targetFolderName);
-
-    // Check if already extracted
-    if (fs.existsSync(extractPath)) {
-        console.log(`📁 ${targetFolderName} already extracted, skipping...`);
-        return extractPath;
-    }
-
-    console.log(`Extracting ${zipFilePath} → ${extractPath}`);
-
-    try {
-        fs.createReadStream(zipFilePath)
-            .pipe(unzipper.Extract({ path: extractPath }))
-            .promise();
-
-        console.log(`✅ ${targetFolderName} extracted successfully!`);
-        return extractPath;
-    } catch (error) {
-        console.error(`❌ Error extracting ${targetFolderName}:`, error.message);
-    }
-}
-
-async function downloadAndExtract(mainWindow, repo) {
-    const repoDir = path.join(appDir, repo.folder);
-
-    if (!fs.existsSync(repoDir)) {
-        fs.mkdirSync(repoDir, { recursive: true });
-
-        let logMessage = `🌀 Downloading ${repo.url} into ${repoDir}...`;
-        console.log(logMessage);
-        log(mainWindow, `DOWNLOAD`, logMessage);
-
-        try {
-            const response = await axios({
-                method: 'GET',
-                url: repo.url,
-                responseType: 'stream',
-            });
-
-            const directory = unzipper.Parse();
-            response.data.pipe(directory);
-
-            await new Promise((resolve, reject) => {
-                directory.on('entry', async (entry) => {
-                    let entryPath = entry.path;
-                    const type = entry.type; // 'Directory' or 'File'
-
-                    // Remove the top-level folder if exists
-                    const parts = entryPath.split(/[/\\]/).slice(1); // skip first folder
-                    if (parts.length === 0) {
-                        entry.autodrain();
-                        return;
-                    }
-                    entryPath = path.join(repoDir, ...parts);
-
-                    if (type === 'Directory') {
-                        fs.mkdirSync(entryPath, { recursive: true });
-                        entry.autodrain();
-                    } else {
-                        entry.pipe(fs.createWriteStream(entryPath));
-                    }
-                });
-                directory.on('close', resolve);
-                directory.on('error', reject);
-            });
-
-            logMessage = `✅ ${repo.folder} downloaded and extracted successfully!`;
-            console.log(logMessage);
-            log(mainWindow, `DOWNLOAD`, logMessage);
-        } catch (error) {
-            console.error(`❌ Error downloading ${repo.url}:`, error.message);
-            log(mainWindow, `DOWNLOAD`, `❌ Error downloading ${repo.url}: ${error.message}`);
-        }
-    } else {
-        let logMessage = `📁 ${repo.folder} already exists`;
-        console.log(logMessage);
-        log(mainWindow, `DOWNLOAD`, logMessage);
-    }
-}
-
-async function downloadMultipleRepos(mainWindow, repos) {
-    for (const repo of repos) {
-        const repoDir = path.join(appDir, repo.folder);
-
-        if (!fs.existsSync(repoDir)) {
-            fs.mkdirSync(repoDir, { recursive: true });
-
-            let logMessage = `🌀 Downloading ${repo.url} into ${repoDir}...`;
-            console.log(logMessage);
-            log(mainWindow, `DOWNLOAD`, logMessage);
-
-            try {
-                const response = await axios({
-                    method: 'GET',
-                    url: repo.url,
-                    responseType: 'stream',
-                });
-
-                const directory = unzipper.Parse();
-                response.data.pipe(directory);
-
-                await new Promise((resolve, reject) => {
-                    directory.on('entry', (entry) => {
-                        let entryPath = entry.path;
-                        const type = entry.type; // 'Directory' or 'File'
-
-                        // Remove top-level folder in ZIP if exists
-                        const parts = entryPath.split(/[/\\]/).slice(1);
-                        if (parts.length === 0) {
-                            entry.autodrain();
-                            return;
-                        }
-                        entryPath = path.join(repoDir, ...parts);
-
-                        if (type === 'Directory') {
-                            fs.mkdirSync(entryPath, { recursive: true });
-                            entry.autodrain();
-                        } else {
-                            entry.pipe(fs.createWriteStream(entryPath));
-                        }
-                    });
-
-                    directory.on('close', resolve);
-                    directory.on('error', reject);
-                });
-
-                logMessage = `✅ ${repo.folder} downloaded and extracted successfully!`;
-                console.log(logMessage);
-                log(mainWindow, `DOWNLOAD`, logMessage);
-
-            } catch (error) {
-                console.error(`❌ Error downloading ${repo.url}:`, error.message);
-                log(mainWindow, `DOWNLOAD`, `❌ Error downloading ${repo.url}: ${error.message}`);
-            }
-        } else {
-            let logMessage = `📁 ${repo.folder} already exists`;
-            console.log(logMessage);
-            log(mainWindow, `DOWNLOAD`, logMessage);
-        }
-    }
-}
-
 function startWebSocketClient(srcDirectory) {
 
     const SOCKET_ENDPOINT = `ws://${ipv4Address}:8080/WebSocket`;
@@ -614,6 +438,6 @@ module.exports = {
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
     stopProcess, setShuttingDown,
-    getFormattedDate, ipUpdaterForDotNetSDK, notify, cloneMultipleRepos, extractZipIfNeeded, downloadAndExtract, downloadMultipleRepos,
+    getFormattedDate, ipUpdaterForDotNetSDK, notify,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }
