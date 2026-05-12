@@ -12,7 +12,7 @@ app.setAppUserModelId('MyTime2Desktop');
 const phpPorts = [9000, 9001, 9002, 9003];
 const appPort = 3001;
 
-const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, cloneMultipleRepos, downloadMultipleRepos, ipUpdaterForDotNetSDK, ipv4Address, setShuttingDown } = require('./helpers');
+const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, ipUpdaterForDotNetSDK, ipv4Address, setShuttingDown } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -146,12 +146,6 @@ app.whenReady().then(async () => {
 
   await runInstaller(path.join(appDir, `vs_redist.exe`));
 
-  const repos = [
-    { folder: 'dotnet_sdk', url: 'https://backend.mytime2cloud.com/dotnet_sdk.zip' },
-    { folder: 'java_sdk', url: 'https://backend.mytime2cloud.com/java_sdk.zip' },
-  ];
-
-  downloadMultipleRepos(null, repos);
   ipUpdaterForDotNetSDK(null, jsonPath);
 
   phpPorts.forEach(port => {
