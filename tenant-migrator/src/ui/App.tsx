@@ -28,9 +28,14 @@ export default function App() {
         window.api.listRecipes()
       ]);
       if (Array.isArray(conns)) setConnections(conns);
+      else if (conns && "error" in conns) {
+        setLogs(prev => [...prev, { kind: "error", message: `connections: ${conns.error}` }]);
+      }
       if (Array.isArray(recs)) {
         setRecipes(recs);
         if (recs.length > 0) selectRecipe(recs[0]);
+      } else if (recs && "error" in recs) {
+        setLogs(prev => [...prev, { kind: "error", message: `recipes: ${recs.error}` }]);
       }
     })();
 

@@ -77,7 +77,7 @@ export interface TenantStatus {
 declare global {
   interface Window {
     api: {
-      listRecipes:     () => Promise<string[]>;
+      listRecipes:     () => Promise<string[] | { error: string }>;
       loadRecipe:      (file: string) => Promise<{ recipe: RecipeMeta; path: string } | { error: string }>;
       listConnections: () => Promise<ConnectionRow[] | { error: string }>;
       listCompanies:   (sourceConnection: string) => Promise<CompanyRow[] | { error: string }>;

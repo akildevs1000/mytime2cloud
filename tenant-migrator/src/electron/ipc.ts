@@ -2,9 +2,9 @@
 // All engine operations live here. Renderer asks via window.api, this code
 // answers.
 
-import { ipcMain, BrowserWindow } from "electron";
-import { readdirSync } from "node:fs";
-import { resolve } from "node:path";
+import { ipcMain, BrowserWindow, app } from "electron";
+import { existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import {
   ConnectionManager,
   loadRecipe,
@@ -22,13 +22,73 @@ import {
 
 let connections: ConnectionManager | null = null;
 
-function getConnections(): ConnectionManager {
-  if (!connections) connections = ConnectionManager.load();
-  return connections;
+// Where to look for recipes/ and config/connections.yaml.
+//   dev (electron-vite): the project folder (process.cwd()).
+//   packaged portable:   PORTABLE_EXECUTABLE_DIR (set by the launcher; the dir
+//                        the user actually double-clicked).
+//   packaged nsis:       app.getPath("userData") — %APPDATA%\Tenant Migrator\.
+//                        Install dir (Program Files) is read-only for non-
+//                        admins, so we can't keep editable config there.
+function baseDir(): string {
+  if (!app.isPackaged) return process.cwd();
+  if (process.env.PORTABLE_EXECUTABLE_DIR) return process.env.PORTABLE_EXECUTABLE_DIR;
+  return app.getPath("userData");
 }
 
 function recipesDir(): string {
-  return resolve(process.cwd(), "recipes");
+  return resolve(baseDir(), "recipes");
+}
+
+function connectionsFile(): string {
+  return resolve(baseDir(), "config/connections.yaml");
+}
+
+// First-run scaffold: if the operator launched a fresh install and neither
+// folder exists yet, create them with a documented example so they know what
+// to fill in. We never write connections.yaml itself (passwords) — only the
+// .example.yaml template.
+const CONNECTIONS_EXAMPLE_YAML = `# Copy this file to connections.yaml (same folder) and fill in real values.
+# Each connection is a named entry. Recipes reference these by name.
+
+connections:
+  local-snapshot:
+    host: 127.0.0.1
+    port: 5432
+    user: postgres
+    password: CHANGE_ME
+    database: mytime2cloud-local
+
+  live-source:
+    host: CHANGE_ME
+    port: 5432
+    user: postgres
+    password: CHANGE_ME
+    database: mytime2cloud
+    readonly: true
+
+  live-target:
+    host: CHANGE_ME
+    port: 5432
+    user: CHANGE_ME
+    password: CHANGE_ME
+    database: mytime2cloud-v2
+`;
+
+function scaffoldIfMissing(): { scaffolded: boolean; path: string } {
+  const base       = baseDir();
+  const cfgDir     = resolve(base, "config");
+  const recDir     = resolve(base, "recipes");
+  const examplePath = resolve(cfgDir, "connections.example.yaml");
+  let scaffolded = false;
+  if (!existsSync(cfgDir)) { mkdirSync(cfgDir, { recursive: true }); scaffolded = true; }
+  if (!existsSync(recDir)) { mkdirSync(recDir, { recursive: true }); scaffolded = true; }
+  if (!existsSync(examplePath)) { writeFileSync(examplePath, CONNECTIONS_EXAMPLE_YAML, "utf8"); scaffolded = true; }
+  return { scaffolded, path: base };
+}
+
+function getConnections(): ConnectionManager {
+  if (!connections) connections = ConnectionManager.load(connectionsFile());
+  return connections;
 }
 
 function emitProgress(event: { kind: string; message?: string; ordinal?: number; total?: number }) {
@@ -123,16 +183,19 @@ function applyOverrides(recipe: Recipe, overrides?: Overrides): Recipe {
 }
 
 export function registerIpcHandlers() {
+  scaffoldIfMissing();
+
   // -----------------------------------------------------------------------
   // recipes:list / recipes:load
   // -----------------------------------------------------------------------
   ipcMain.handle("recipes:list", async () => {
+    const dir = recipesDir();
     try {
-      return readdirSync(recipesDir())
+      return readdirSync(dir)
         .filter(f => f.endsWith(".yaml") || f.endsWith(".yml"))
         .sort();
     } catch (err) {
-      return { error: (err as Error).message };
+      return { error: `${(err as Error).message} (looked in ${dir})` };
     }
   });
 
