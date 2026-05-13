@@ -15,6 +15,14 @@ table_overrides:
     where: "company_id::text = '{{company_id}}'"
   visitors:
     where: "company_id::text = '{{company_id}}'"
+  schedule_employees:
+    exclude: true
+  # Skip remap: this table has no company_id, so the engine treats every existing
+  # target row as foreign and remaps colliding source ids. On re-sync this causes
+  # cumulative duplication. Skipping remap means ON CONFLICT DO NOTHING handles
+  # already-migrated rows correctly; new rows still flow through normally.
+  employee_leave_timelines:
+    skip_remap: true
 
 # The 'companies' table is special — its own `id` is the tenant key.
 tenant_key_overrides:
@@ -41,8 +49,9 @@ linked_tables:
 
 # When a parent's id is remapped, rewrite the child's FK column to match.
 fk_cascades:
-  - { child: employee_government_holidays, column: holiday_id, parent: holidays }
-  - { child: employee_report,              column: report_id,  parent: report_notifications }
+  - { child: employee_government_holidays, column: holiday_id,        parent: holidays }
+  - { child: employee_report,              column: report_id,         parent: report_notifications }
+  - { child: employee_leave_timelines,     column: employee_leave_id, parent: employee_leaves }
 
 # Hooks (run inside the same transaction as the dump).
 # pre_restore_sql: |
