@@ -17,6 +17,12 @@ table_overrides:
     where: "company_id::text = '{{company_id}}'"
   schedule_employees:
     exclude: true
+  report_notifications:
+    exclude: true
+  shifts:
+    exclude: true
+  attendances:
+    exclude: true
   # Skip remap: this table has no company_id, so the engine treats every existing
   # target row as foreign and remaps colliding source ids. On re-sync this causes
   # cumulative duplication. Skipping remap means ON CONFLICT DO NOTHING handles
