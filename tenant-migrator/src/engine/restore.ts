@@ -84,6 +84,36 @@ export function splitStatements(sql: string): string[] {
   return out;
 }
 
+// Count the number of top-level (a,b,c) tuples in an INSERT … VALUES (…),(…) …
+// statement. Single-quoted strings (with '' escapes) are respected so commas
+// or parens inside quoted values don't confuse the depth counter. Returns 0 if
+// no VALUES clause was found.
+export function countTuples(sql: string): number {
+  const m = sql.match(/\bVALUES\b/i);
+  if (!m) return 0;
+  let i = (m.index ?? 0) + m[0].length;
+  const len = sql.length;
+  let depth   = 0;
+  let count   = 0;
+  let inStr   = false;
+  while (i < len) {
+    const c = sql[i];
+    if (inStr) {
+      if (c === "'") {
+        if (sql[i + 1] === "'") { i += 2; continue; }
+        inStr = false; i++; continue;
+      }
+      i++; continue;
+    }
+    if (c === "'") { inStr = true; i++; continue; }
+    if (c === "(") { if (depth === 0) count++; depth++; i++; continue; }
+    if (c === ")") { depth--; i++; continue; }
+    if (c === ";" && depth === 0) break;
+    i++;
+  }
+  return count;
+}
+
 export async function runRestore(
   targetPool: Pool,
   sql: string,
@@ -123,7 +153,13 @@ export async function runRestore(
       try {
         const res = await client.query(s);
         if (s.startsWith("INSERT")) {
-          if ((res.rowCount ?? 0) > 0) inserted++; else skipped++;
+          // Batched INSERTs: rowCount = actual rows persisted. Tuples that hit
+          // ON CONFLICT DO NOTHING don't bump rowCount, so the difference
+          // between attempted-tuple-count and rowCount is the "skipped" number.
+          const attempted = countTuples(s);
+          const persisted = res.rowCount ?? 0;
+          inserted += persisted;
+          skipped  += Math.max(0, attempted - persisted);
         }
         onEvent?.({ kind: "statement", ordinal: i + 1, total, affected: res.rowCount ?? 0 });
       } catch (err) {

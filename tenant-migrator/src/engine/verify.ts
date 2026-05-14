@@ -55,18 +55,22 @@ export async function runVerify(
 
 function computeFilters(recipe: Recipe, sourceSchema: SchemaMap): Map<string, string> {
   const out = new Map<string, string>();
+  // Tables marked exclude in the recipe are NOT in scope for verify either —
+  // counting them would always show as missing/extra and confuse the user.
+  const isExcluded = (t: string) => recipe.table_overrides[t]?.exclude === true;
+
   for (const [t, ovr] of Object.entries(recipe.tenant_key_overrides)) {
-    if (sourceSchema.has(t)) out.set(t, expandPlaceholders(ovr.where, recipe));
+    if (sourceSchema.has(t) && !isExcluded(t)) out.set(t, expandPlaceholders(ovr.where, recipe));
   }
   for (const t of tablesWithCompanyId(sourceSchema)) {
-    if (out.has(t)) continue;
+    if (out.has(t) || isExcluded(t)) continue;
     const ovr = recipe.table_overrides[t];
     out.set(t, ovr?.where
       ? expandPlaceholders(ovr.where, recipe)
       : `company_id = ${recipe.company_id}`);
   }
   for (const lt of recipe.linked_tables) {
-    if (out.has(lt.table)) continue;
+    if (out.has(lt.table) || isExcluded(lt.table)) continue;
     out.set(lt.table, expandPlaceholders(lt.where, recipe));
   }
   return out;

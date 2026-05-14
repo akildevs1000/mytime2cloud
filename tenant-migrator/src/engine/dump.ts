@@ -77,17 +77,17 @@ export async function buildDump(args: BuildArgs): Promise<DumpResult> {
 
     const tableRemap   = mapFromEntries(remap.get(table));
     const fkRemap      = fkRemapByChild.get(table);
-    const inserts      = await emitTableInserts(
+    const emission     = await emitTableInserts(
       sourcePool, table, where, shared, tableRemap, fkRemap
     );
-    out.push(`\n-- Table: ${table}   (${inserts.length} rows)   WHERE ${where}` +
+    out.push(`\n-- Table: ${table}   (${emission.rowCount} rows in ${emission.statements.length} INSERT(s))   WHERE ${where}` +
              (droppedFromSource.length ? `   (dropped: ${droppedFromSource.join(", ")})` : "") +
              (tableRemap?.size ? `   [REMAP: ${tableRemap.size} id(s)]` : ""));
-    out.push(...inserts);
+    out.push(...emission.statements);
 
     stats.push({
       table,
-      rows: inserts.length,
+      rows: emission.rowCount,
       remapped: tableRemap?.size ?? 0,
       status: "ok",
       where,
@@ -152,6 +152,17 @@ function mapFromEntries(entries: { oldId: string; newId: string }[] | undefined)
   return new Map(entries.map(e => [e.oldId, e.newId]));
 }
 
+// Group source rows into multi-row INSERT statements. One INSERT can carry up
+// to BATCH_SIZE tuples — drastically reduces network round-trips on the restore
+// side. ON CONFLICT DO NOTHING still applies per-row inside a batch, so
+// idempotency and same-id collision handling are unchanged.
+const BATCH_SIZE = 500;
+
+interface InsertEmission {
+  statements: string[];   // INSERT statements (one per batch)
+  rowCount:   number;     // total source rows emitted across all batches
+}
+
 async function emitTableInserts(
   pool: Pool,
   table: string,
@@ -159,7 +170,7 @@ async function emitTableInserts(
   cols: string[],
   idRemap: Map<string, string> | undefined,
   fkRemap: Map<string, Map<string, string>> | undefined
-): Promise<string[]> {
+): Promise<InsertEmission> {
   // Cast every column to text on the SOURCE side so we get a uniform string
   // representation (handles arrays, jsonb, timestamps, bytea -- everything).
   // We re-quote on the JS side using PG's standard text format.
@@ -168,7 +179,7 @@ async function emitTableInserts(
   const { rows } = await pool.query(sql);
 
   const colList = cols.map(quoteIdent).join(",");
-  const inserts: string[] = [];
+  const tuples: string[] = [];
 
   for (const row of rows) {
     const values: string[] = [];
@@ -185,11 +196,17 @@ async function emitTableInserts(
       }
       values.push(quoteLiteral(v));
     }
-    inserts.push(
-      `INSERT INTO ${quoteIdent(table)} (${colList}) VALUES (${values.join(",")}) ON CONFLICT DO NOTHING;`
+    tuples.push(`(${values.join(",")})`);
+  }
+
+  const statements: string[] = [];
+  for (let i = 0; i < tuples.length; i += BATCH_SIZE) {
+    const batch = tuples.slice(i, i + BATCH_SIZE);
+    statements.push(
+      `INSERT INTO ${quoteIdent(table)} (${colList}) VALUES\n  ${batch.join(",\n  ")}\nON CONFLICT DO NOTHING;`
     );
   }
-  return inserts;
+  return { statements, rowCount: tuples.length };
 }
 
 function buildHeader(recipe: Recipe, remap: RemapByTable): string {

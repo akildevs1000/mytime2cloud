@@ -40,6 +40,7 @@ export async function detectCollisions(args: DetectArgs): Promise<RemapByTable> 
 
     const override = args.recipe.table_overrides[table];
     if (override?.skip_remap) continue;
+    if (override?.exclude)    continue;   // excluded tables aren't dumped → no need to remap them
 
     // Source ids that this dump will emit.
     const srcRes = await args.sourcePool.query<{ id: string }>(
