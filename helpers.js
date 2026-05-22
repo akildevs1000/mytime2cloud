@@ -8,7 +8,16 @@ const WebSocket = require("ws");
 const isDev = !app.isPackaged;
 
 let isShuttingDown = false;
-function setShuttingDown(v) { isShuttingDown = v; }
+const pendingPhpCgiTimers = new Set();
+function setShuttingDown(v) {
+    isShuttingDown = v;
+    if (v) {
+        // Cancel any already-scheduled PHP-CGI restart timers so they don't
+        // spawn a new child after kill-processes.bat has run.
+        for (const t of pendingPhpCgiTimers) clearTimeout(t);
+        pendingPhpCgiTimers.clear();
+    }
+}
 
 let appDir;
 if (isDev) {
@@ -101,7 +110,12 @@ function spawnPhpCgiWorker(phpCGi, port) {
                 return;
             }
             logger(`APPLICATION`, `[PHP-CGI:${port}] exited with code ${code}. Restarting in 2s...`);
-            setTimeout(start, 2000); // auto-restart after 2 seconds
+            const timer = setTimeout(() => {
+                pendingPhpCgiTimers.delete(timer);
+                if (isShuttingDown) return; // double-check in case shutdown began during the wait
+                start();
+            }, 2000);
+            pendingPhpCgiTimers.add(timer);
         });
 
         child.on('error', (err) => {
@@ -190,16 +204,9 @@ function log(mainWindow = null, processType, message) {
     const timestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     const fullMessage = `[${timestamp}] ${message}\n`;
 
-    // Send to frontend
-    if (mainWindow && mainWindow.webContents) {
-        mainWindow.webContents.send('log', fullMessage);
-    }
-
-    // Write to file in logs directory within appDir
     const logDir = path.join(appDir, 'logs');
     const logFile = path.join(logDir, `${processType}-${year}-${month}-${day}.log`);
 
-    // Create logs directory if it doesn't exist
     if (!fs.existsSync(logDir)) {
         fs.mkdirSync(logDir, { recursive: true });
     }
@@ -212,34 +219,16 @@ function log(mainWindow = null, processType, message) {
 }
 
 function ipUpdaterForDotNetSDK(mainWindow, jsonPath) {
-    const jsonData = fs.readFileSync(jsonPath, 'utf-8'); // read as string
+    const jsonData = fs.readFileSync(jsonPath, 'utf-8');
     const data = JSON.parse(jsonData);
 
     data.urls = `http://${ipv4Address}:8080`;
     data.Options.LocalIP = ipv4Address;
 
-    const updatedJsonData = JSON.stringify(data, null, 2);
-
-    // Write the updated JSON data to the file
-    fs.writeFile(jsonPath, updatedJsonData, (err) => {
-        if (err) throw err;
-        let result = `JSON file has been updated! `;
-        console.log("🚀 ~ ipUpdaterForDotNetSDK ~ result:", result)
-        log(mainWindow, `DOTNET`, result);
-    });
-}
-
-function stopProcess(mainWindow, Process) {
-
-    if (!Process) {
-        log(mainWindow, `Stop-Services`, `Something went wrong ${Process}.`);
-        return;
-    }
-
-    Process.kill();
-    Process = null;
-    log(mainWindow, `Stop-Services`, `${Process} has been stopped.`);
-
+    // Write synchronously so the .NET SDK process (started right after this)
+    // is guaranteed to read the updated IP, not the stale value.
+    fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
+    log(mainWindow, `DOTNET`, `appsettings.json updated with IP ${ipv4Address}`);
 }
 
 const timezoneOptions = {
@@ -405,7 +394,18 @@ function runInstaller(installerPath) {
             return resolve('Already installed');
         }
 
+        if (!fs.existsSync(installerPath)) {
+            log(null, `VS_REDIST`, `⚠ Installer not found at ${installerPath}, skipping.`);
+            return resolve('Installer missing');
+        }
+
         const installer = spawn(installerPath, ['/quiet', '/norestart']);
+        let settled = false;
+        const settle = (fn, value) => {
+            if (settled) return;
+            settled = true;
+            fn(value);
+        };
 
         installer.stdout.on('data', (data) => {
             console.log(data.toString());
@@ -416,18 +416,25 @@ function runInstaller(installerPath) {
             log(null, `VS_REDIST`, data.toString());
         });
 
+        // 'error' fires when the process cannot be spawned (e.g. ENOENT, EACCES).
+        // Without this, the promise would hang forever and block app startup.
+        installer.on('error', (err) => {
+            log(null, `VS_REDIST`, `❌ Failed to launch installer: ${err.message}`);
+            settle(reject, err);
+        });
+
         installer.on('close', (code) => {
             if (code === 0) {
                 writeMarker();
                 log(null, `VS_REDIST`, 'Installed successfully');
-                resolve('Installed successfully');
+                settle(resolve, 'Installed successfully');
             } else if (code === 1638) {
                 writeMarker();
                 log(null, `VS_REDIST`, 'Already installed (code 1638)');
-                resolve('Already installed');
+                settle(resolve, 'Already installed');
             } else {
                 log(null, `VS_REDIST`, `❌ Installation failed with code ${code}`);
-                reject(new Error(`Installation failed with code ${code}`));
+                settle(reject, new Error(`Installation failed with code ${code}`));
             }
         });
     });
@@ -437,7 +444,7 @@ module.exports = {
     log, startWebSocketClient, isVSRedistInstalled, runInstaller,
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
-    stopProcess, setShuttingDown,
+    setShuttingDown,
     getFormattedDate, ipUpdaterForDotNetSDK, notify,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }

@@ -402,7 +402,7 @@ export default {
     async getDeviceModelsList() {
       try {
         const { data } = await this.$axios.get(`device-models-list`);
-        this.deviceModelsList = ["All Models", ...data];
+        this.deviceModelsList = data;
       } catch (error) {
         console.error("Error fetching device models list", error);
         return [];

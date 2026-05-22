@@ -55,15 +55,15 @@ function startServices(mainWindow) {
     }
   });
 
-  ScheduleProcess = spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'schedule:work'], {
+  spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'schedule:work'], {
     cwd: srcDirectory
   });
 
-  QueueProcess = spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'queue:work'], {
+  spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'queue:work'], {
     cwd: srcDirectory
   });
 
-  javaSDKProcess = spawnWrapper(mainWindow, "JAVA", javaExe, ['-jar', jarPath], {
+  spawnWrapper(mainWindow, "JAVA", javaExe, ['-jar', jarPath], {
     cwd: javaSDK
   });
 }
@@ -79,7 +79,12 @@ function stopServices(mainWindow) {
 // even when nginx comes up in <1s.
 const MIN_SPLASH_MS = 6000;
 
-function waitForServer(address, onReady) {
+// Cap at 30s — if nginx isn't serving by then, something is wrong and we
+// should surface an error to the user instead of spinning forever.
+const MAX_SERVER_WAIT_MS = 30000;
+const POLL_INTERVAL_MS = 500;
+
+function waitForServer(address, onReady, onTimeout) {
   const startTime = Date.now();
 
   const finish = () => {
@@ -89,18 +94,40 @@ function waitForServer(address, onReady) {
   };
 
   const tryOnce = () => {
+    if (Date.now() - startTime >= MAX_SERVER_WAIT_MS) {
+      onTimeout();
+      return;
+    }
     const req = http.get(address, (res) => {
       res.resume();
       if (res.statusCode === 200) {
         finish();
       } else {
-        setTimeout(tryOnce, 500);
+        setTimeout(tryOnce, POLL_INTERVAL_MS);
       }
     });
-    req.on('error', () => setTimeout(tryOnce, 500));
+    req.on('error', () => setTimeout(tryOnce, POLL_INTERVAL_MS));
     req.setTimeout(2000, () => req.destroy());
   };
   tryOnce();
+}
+
+function showStartupError(window, message) {
+  if (!window || window.isDestroyed()) return;
+  // Stop the rotating splash status, hide the spinner, and replace the text
+  // with an actionable error so the user isn't staring at a forever-spinner.
+  const safeMessage = JSON.stringify(message);
+  window.webContents.executeJavaScript(`
+    try {
+      if (window.__splashStatusInterval) clearInterval(window.__splashStatusInterval);
+      const spinner = document.querySelector('.spinner');
+      if (spinner) spinner.style.display = 'none';
+      const title = document.querySelector('.title');
+      if (title) title.textContent = 'Startup failed';
+      const status = document.getElementById('status');
+      if (status) { status.textContent = ${safeMessage}; status.style.opacity = '1'; }
+    } catch (e) {}
+  `).catch(() => {});
 }
 
 function createMainWindow() {
@@ -132,6 +159,9 @@ function createMainWindow() {
         log(null, `APPLICATION`, `nginx ready, navigating to ${address}`);
         mainWindow.loadURL(address);
       }
+    }, () => {
+      log(null, `APPLICATION`, `nginx did not respond at ${address} within ${MAX_SERVER_WAIT_MS}ms — showing startup error.`);
+      showStartupError(mainWindow, 'The web server did not start. Please check the logs folder in the install directory, then restart the app.');
     });
 
     mainWindow.on('closed', () => {
@@ -144,7 +174,13 @@ function createMainWindow() {
 
 app.whenReady().then(async () => {
 
-  await runInstaller(path.join(appDir, `vs_redist.exe`));
+  try {
+    await runInstaller(path.join(appDir, `vs_redist.exe`));
+  } catch (err) {
+    // Don't let a redist failure block app startup — the bundled SDKs may
+    // still work if the user has a compatible runtime installed already.
+    log(null, `VS_REDIST`, `Continuing without VS Redist: ${err.message}`);
+  }
 
   ipUpdaterForDotNetSDK(null, jsonPath);
 
@@ -159,14 +195,14 @@ app.whenReady().then(async () => {
 let isQuitting = false;
 
 app.on('before-quit', (e) => {
-  if (!isQuitting) {
-    e.preventDefault(); // prevent quit
-    log(mainWindow, `kill-processes`, "Stopping services before quitting...");
-    setShuttingDown(true);          // disable php-cgi auto-restart
-    stopServices(mainWindow);       // spawnSync — blocks until bat finishes
-    isQuitting = true;
-    app.quit();                     // now safe to exit
-  }
+  if (isQuitting) return;
+  e.preventDefault();
+  // mainWindow may already be destroyed by the 'closed' handler — don't rely on it.
+  log(null, `kill-processes`, "Stopping services before quitting...");
+  setShuttingDown(true);          // disable php-cgi auto-restart
+  stopServices(null);             // spawnSync — blocks until bat finishes
+  isQuitting = true;
+  app.quit();                     // now safe to exit
 });
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();

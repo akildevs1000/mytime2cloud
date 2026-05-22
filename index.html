@@ -67,7 +67,8 @@
     const statusEl = document.getElementById('status');
 
     let statusIdx = 0;
-    setInterval(() => {
+    // Exposed so main.js can stop the rotation when surfacing a startup error.
+    window.__splashStatusInterval = setInterval(() => {
       statusEl.style.opacity = '0';
       setTimeout(() => {
         statusIdx = (statusIdx + 1) % statuses.length;

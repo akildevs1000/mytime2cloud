@@ -8,15 +8,10 @@
     "build": "electron-builder"
   },
   "build": {
-    "publish": {
-      "provider": "generic",
-      "url": "https://backend.mytime2cloud.com/desktop_updates/"
-    },
     "appId": "desktop.mytime2cloud",
     "files": [
       "assets/**/*",
       "helpers.js",
-      "updater.js",
       "index.html",
       "main.js"
     ],
@@ -60,6 +55,24 @@
       {
         "from": "backend",
         "to": "backend"
+      },
+      {
+        "from": "dotnet_sdk",
+        "to": "dotnet_sdk",
+        "filter": [
+          "**/*",
+          "!.git/**",
+          "!**/*.pdb",
+          "!dotnet/sdk/**",
+          "!dotnet/packs/**",
+          "!dotnet/templates/**",
+          "!dotnet/shared/Microsoft.WindowsDesktop.App/**"
+        ]
+      },
+      {
+        "from": "java_sdk",
+        "to": "java_sdk",
+        "filter": ["**/*", "!jmods/**"]
       }
     ],
     "productName": "MyTime2Desktop",
@@ -89,10 +102,7 @@
   },
   "dependencies": {
     "axios": "^1.12.2",
-    "electron-updater": "^6.6.2",
     "fs-extra": "^11.3.2",
-    "simple-git": "^3.28.0",
-    "unzipper": "^0.12.3",
     "ws": "^8.18.3"
   }
 }

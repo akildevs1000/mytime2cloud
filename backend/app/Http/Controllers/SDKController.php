@@ -181,13 +181,6 @@ class SDKController extends Controller
 
         return ["cameraResponse" => $cameraResponse1, "cameraResponse2" => $cameraResponse2, "deviceResponse" => $deviceResponse];
     }
-    public function GetPersonsIdsFromOX900Device(Request $request)
-    {
-        $return = (new DeviceCameraModel2Controller($request->camera_sdk_url, $request->device_id))->getPersonsIdsListFromDevice();
-
-        return $return;
-    }
-
     public function deviceRequestLogs(Request $request): JsonResponse
     {
         $date = $request->query('date', now()->format('Y-m-d'));
@@ -268,7 +261,7 @@ class SDKController extends Controller
         $deviceResponse = [];
         try {
             $cameraResponse1 = $this->filterCameraModel1Devices($request);
-            $cameraResponse2 = $this->filterCameraModel2Devices($request); //OX-900 OXSAI Small device
+            $cameraResponse2 = $this->filterCameraModel2Devices($request);
             if ($cameraResponse2 == "")
                 $cameraResponse2 = [];
             $deviceResponse = $cameraResponse2;
@@ -392,12 +385,11 @@ class SDKController extends Controller
     public function processUploadPersons($url, $device_id, $person)
     {
         $image = public_path() . "/media/employee/profile_picture/" . $person["profile_picture_raw"];
+        $imageData = file_get_contents($image);
+        $person["faceImage"] = base64_encode($imageData);
+        // return AddPerson::dispatch($url, $person);
+
         try {
-            $imageData = file_get_contents($image);
-            $person["faceImage"] = base64_encode($imageData);
-            // return AddPerson::dispatch($url, $person);
-
-
             // Send HTTP POST request
             $response = Http::timeout(30)
                 ->withoutVerifying()
@@ -409,7 +401,6 @@ class SDKController extends Controller
             return [
                 "name" => $person["name"],
                 "userCode" => $person["userCode"],
-                "device_id" => $device_id,
                 "device_id" => $device_id,
                 'status' => $response->status(),
                 'sdk_response' => $response->json(),
@@ -452,7 +443,10 @@ class SDKController extends Controller
                     if ($personProfilePic != '') {
 
 
-                        $path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+                        //$path = public_path('media/employee/profile_picture/' . $persons['userCode'] . '.jpg');
+
+                        $path = public_path('media/employee/profile_picture/' . $persons['profile_picture_raw']);
+
 
                         if (file_exists($path)) {
                             $imageData = file_get_contents($path);
@@ -623,7 +617,7 @@ class SDKController extends Controller
     {
         return $this->getSessionData($id);
     }
-    public function filterCameraModel2Devices($request) //OX-900
+    public function filterCameraModel2Devices($request)
     {
 
 
@@ -681,8 +675,6 @@ class SDKController extends Controller
                         $md5string = base64_encode($imageData);;
                         $response = (new DeviceCameraModel2Controller($value['camera_sdk_url']))->pushUserToCameraDevice($persons['name'],  $persons['userCode'], $md5string, $value['device_id'], $persons, $sessionId);
 
-                        //queue job
-
 
 
                         //$responseArray = $response != '' ? json_decode($response) : '';
@@ -698,8 +690,6 @@ class SDKController extends Controller
                             "name" => $persons['name'],
                             "userCode" => $persons['userCode'],
                             "device_id" => $value['device_id'],
-                            "device_name" => $value['name'],
-                            "device_table_id" => $value['id'],
                             'status' => $response == '' ? '200' : $response,
                             'sdk_response' => ["message" => $response == '' ? '200' : $response],
                         ];
@@ -783,7 +773,7 @@ class SDKController extends Controller
             $url = "http://" . gethostbyname(gethostname()) . ":8080" . "/Person/AddRange";
         }
 
-        info("Visitor Upload:" , [$json, $url]);
+        info("Visitor Upload:", [$json, $url]);
 
         $return = TimezonePhotoUploadJob::dispatch($json, $url);
     }

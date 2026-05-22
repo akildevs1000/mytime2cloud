@@ -223,10 +223,31 @@ class AttendanceLogController extends Controller
         $records = [];
 
         foreach ($result["data"] as $row) {
-            $columns = explode(',', $row);
+
+          $columns = explode(',', $row);
 
             $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
             $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+            $company_id = Device::where("device_id", $columns[1])->pluck("company_id")->first();
+
+            $deviceId = $columns[1] ?? null;  //  
+
+            // 2. Look up the function from your map (normalized to lowercase)
+            $deviceFunction = isset($deviceFunctionMap[$deviceId])
+                ? strtolower($deviceFunctionMap[$deviceId])
+                : '';
+
+            if ($deviceFunction === 'auto' || $deviceFunction === 'Auto') {
+                // If the device is set to Auto, store it as 'Auto'
+                $logType = 'auto';
+            } elseif ($deviceFunction === 'in' || $deviceFunction === 'In') {
+                $logType = 'In';
+            } elseif ($deviceFunction === 'out' || $deviceFunction === 'Out') {
+                $logType = 'Out';
+            } else {
+                // Fallback: check if 'in' is part of the DeviceID string
+                $logType = null;
+            }
 
             $records[] = [
                 "UserID"              => $columns[0] ?? null,
@@ -239,8 +260,7 @@ class AttendanceLogController extends Controller
                 "log_date_time"       => $logTime,
                 "index_serial_number" => $columns[3] ?? null,
                 "log_date"            => $logDate,
-
-                "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
+                "log_type" => $logType
             ];
         }
 
@@ -263,6 +283,88 @@ class AttendanceLogController extends Controller
             return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
         }
     }
+
+    // public function store()
+    // {
+    //     $result = $this->handleFile();
+
+    //     if (array_key_exists("error", $result)) {
+    //         return $this->getMeta("Sync Attenance Logs", $result["message"] . "\n");
+    //     }
+
+    //     $result["data"] = array_values(array_unique($result["data"]));
+
+    //     // $deviceFunctionMap = Device::excludeMobile()
+    //     //     ->get(['device_id', 'function']) // Only fetch what you need
+    //     //     ->pluck('function', 'device_id') // Creates [ 'ID123' => 'Attendance', 'ID456' => 'Access' ]
+    //     //     ->toArray();
+
+    //     // $inTypeValues = ['in', 'auto', 'entry']; // Define this once outside the loop
+
+    //     $records = [];
+
+    //     foreach ($result["data"] as $row) {
+    //         $columns = explode(',', $row);
+
+    //         $logTime = isset($columns[2]) ? date('Y-m-d H:i:s', strtotime($columns[2])) : null;
+    //         $logDate = isset($columns[2]) ? date('Y-m-d', strtotime($columns[2])) : date('Y-m-d');
+
+    //         // $deviceId = $columns[1] ?? null;
+
+    //     // 2. Look up the function from your map (normalized to lowercase)
+    //     // $deviceFunction = isset($deviceFunctionMap[$deviceId])
+    //     //     ? strtolower($deviceFunctionMap[$deviceId])
+    //     //     : '';
+
+    //     // // 3. Determine the LogType based on your requirements
+    //     // if (in_array($deviceFunction, $inTypeValues)) {
+    //     //     $logType = 'In';
+    //     // } elseif ($deviceFunction === 'out') {
+    //     //     $logType = 'Out';
+    //     // } else {
+    //     //     // Fallback: check if 'in' is part of the DeviceID string itself
+    //     //     $logType = (str_contains(strtolower($deviceId), 'in')) ? 'In' : 'Out';
+    //     // }
+
+    //     $payload = [
+    //             "UserID"              => $columns[0] ?? null,
+    //             "DeviceID"            => $columns[1] ?? null,
+    //             "LogTime"             => $logTime,
+    //             "SerialNumber"        => $columns[3] ?? null,
+    //             "status"              => $columns[4] ?? "Allowed",
+    //             "mode"                => $columns[5] ?? "Face",
+    //             "reason"              => $columns[6] ?? "---",
+    //             "log_date_time"       => $logTime,
+    //             "index_serial_number" => $columns[3] ?? null,
+    //             "log_date"            => $logDate,
+
+    //             // "log_type"            =>  $deviceFunctionMap[$columns[1]] ?? null
+    //             "log_type" => "in"
+    //         ];
+
+    //         Log::info(json_encode($payload, JSON_PRETTY_PRINT));
+    //         $records[] = $payload;
+    //     }
+
+    //     try {
+    //         // ✅ skips duplicates based on unique index: (DeviceID, LogTime, UserID)
+    //         $inserted = DB::table('attendance_logs')->insertOrIgnore($records);
+
+    //         Storage::put("logs-count-" . $result['date'] . ".txt", $result['totalLines']);
+
+    //         // $inserted may be int or bool depending on Laravel/driver; keep message safe.
+    //         $insertedCountText = is_int($inserted) ? $inserted : "some";
+
+    //         return $this->getMeta(
+    //             "Sync Attenance Logs",
+    //             "Processed " . count($records) . " logs. Inserted " . $insertedCountText . " new logs. Duplicates ignored.\n"
+    //         );
+    //     } catch (\Throwable $th) {
+    //         Logger::channel("custom")->error('Error occured while inserting logs.');
+    //         Logger::channel("custom")->error('Error Details: ' . $th);
+    //         return $this->getMeta("Sync Attenance Logs", " Error occured." . "\n");
+    //     }
+    // }
 
     public function storeOLD()
     {
