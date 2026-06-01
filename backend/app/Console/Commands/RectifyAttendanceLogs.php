@@ -6,11 +6,10 @@ use Illuminate\Console\Command;
 use App\Models\Device;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log; // Added Log Facade
-use Carbon\Carbon;
 
 class RectifyAttendanceLogs extends Command
 {
-    protected $signature = 'attendance:rectify {date? : The date to start fixing from (YYYY-MM-DD)}';
+    protected $signature = 'attendance:rectify';
     protected $description = 'Syncs attendance log_types with device function settings (Auto, In, Out, Option) - Only updates NULL log_types';
 
     /**
@@ -24,12 +23,9 @@ class RectifyAttendanceLogs extends Command
 
     public function handle()
     {
-        $dateArgument = $this->argument('date');
-        $startDate = $dateArgument ? Carbon::parse($dateArgument)->toDateString() : Carbon::today()->toDateString();
-
         // Start Logging
-        Log::channel('attendance_rectify')->info("--- Command Started: Rectifying NULL logs from {$startDate} ---");
-        $this->warn("!!! Rectifying NULL log_types from: {$startDate} onwards !!!");
+        Log::channel('attendance_rectify')->info("--- Command Started: Rectifying all NULL log_types ---");
+        $this->warn("!!! Rectifying all NULL log_types !!!");
 
         try {
             $deviceFunctionMap = Device::excludeMobile()
@@ -37,14 +33,9 @@ class RectifyAttendanceLogs extends Command
                 ->pluck('function', 'device_id')
                 ->toArray();
 
-            $currentDate = Carbon::parse($startDate);
-            $relativeYesterday = $currentDate->copy()->subDay()->toDateString();
-            $relativeToday = $currentDate->toDateString();
-
-            $query = DB::table('attendance_logs')
-                ->whereDate('log_date', '>=', $relativeYesterday)
-                ->whereDate('log_date', '<=', $relativeToday)
-                ->whereNull('log_type');
+            // No date window: process every row with a NULL log_type, regardless of log_date
+            // or created_at. This catches backfilled "missing logs" whose dates are old.
+            $query = DB::table('attendance_logs')->whereNull('log_type');
 
             $totalFound = $query->count();
             
@@ -58,7 +49,7 @@ class RectifyAttendanceLogs extends Command
             $correctedCount = 0;
             $processedCount = 0;
 
-            $query->orderBy('id')->chunk(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount) {
+            $query->chunkById(500, function ($logs) use ($deviceFunctionMap, &$correctedCount, &$processedCount) {
                 $grouped = ['Auto' => [], 'In' => [], 'Out' => [], 'Option' => []];
 
                 foreach ($logs as $log) {
@@ -90,7 +81,7 @@ class RectifyAttendanceLogs extends Command
             $this->newLine();
             
             // Final Summary Logging
-            $summary = "Summary: Processed: {$processedCount} | Corrected: {$correctedCount} | Date: {$startDate}";
+            $summary = "Summary: Processed: {$processedCount} | Corrected: {$correctedCount}";
             $this->logInfo($summary);
             $this->logInfo("✓ Successfully rectified NULL attendance logs.");
 
