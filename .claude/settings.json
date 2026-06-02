@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la .env*)",
+      "Bash(grep -E \"^\\(DB_|DESKTOP_DB|APP_ENV|APP_URL\\)\" .env)",
+      "Bash(grep -nE 'connection|protected \\\\$table|class Device' app/Models/Device.php)",
+      "Bash(grep -iE \"BACKEND_URL|LOCAL_IP|LOCAL_PORT|SOCKET\" .env)",
+      "Bash(ls -la .env* nuxt.config.js)",
+      "Bash(start \"\" \"fire-alarm-test.html\")",
+      "Bash(ls node_modules/axios/package.json)",
+      "Bash(sed -n '1,12p' log-listener.js)",
+      "Bash(node --check log-listener-batch.js)",
+      "Bash(cd /d/projects/mytime2cloud/newmytime2cloud1 2>/dev/null && echo \"=== root ===\" && ls -1 && echo \"=== package.json \\(name/deps\\) ===\" && cat package.json 2>/dev/null | head -50)",
+      "Read(//d/projects/mytime2cloud/newmytime2cloud1/**)",
+      "Bash(cd /d/projects/mytime2cloud/newmytime2cloud1/backend)",
+      "Bash(grep -rn \"get_notifications_alarm\\\\|update-device-alarm-status\" routes/)",
+      "Bash(grep -n \"function AlarmOffToDeviceSDK\" app/Http/Controllers/DeviceController.php)",
+      "Bash(cd /d/projects/mytime2cloud/newmytime2cloud1/frontend-new)",
+      "Bash(ls -1 .env*)",
+      "Bash(grep -h \"NEXT_PUBLIC_API_URL\" .env*)",
+      "Bash(xargs grep -l \"leave\")",
+      "Bash(xargs ls -t)",
+      "PowerShell($php = \"d:\\\\projects\\\\mytime2cloud\\\\cloud-app\\\\backend\\\\php\\\\php.exe\"; if \\(-not \\(Test-Path $php\\)\\) { $php = \"php\" }; & $php -l \"d:\\\\projects\\\\mytime2cloud\\\\cloud-app\\\\backend\\\\app\\\\Models\\\\Attendance.php\"; & $php -l \"d:\\\\projects\\\\mytime2cloud\\\\cloud-app\\\\backend\\\\app\\\\Http\\\\Controllers\\\\EmployeeLeavesController.php\")",
+      "Bash(node -e \"const p=require\\('./frontend/package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,1\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(node index.js slots)",
+      "Bash(node index.js qr)",
+      "Bash(node index.js book)",
+      "Bash(node -e ' *)"
+    ],
+    "additionalDirectories": [
+      "D:\\projects\\mytime2cloud\\newmytime2cloud1\\frontend-new\\src\\lib",
+      "D:\\projects\\mytime2cloud\\newmytime2cloud1\\frontend-new\\src\\components\\Dashboard",
+      "d:\\projects\\qr-booking-ai"
+    ]
+  }
+}

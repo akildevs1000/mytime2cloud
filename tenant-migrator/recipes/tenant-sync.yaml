@@ -15,14 +15,24 @@ table_overrides:
     where: "company_id::text = '{{company_id}}'"
   visitors:
     where: "company_id::text = '{{company_id}}'"
-  schedule_employees:
+  # Excluded tables — never dumped, regardless of source row count.
+  activities:
     exclude: true
-  report_notifications:
+  ai_feeds:
     exclude: true
-  shifts:
+  announcements_categories:
     exclude: true
   attendances:
     exclude: true
+  mail_contents:
+    exclude: true
+  report_notifications:
+    exclude: true
+  report_notifications_manager:
+    exclude: true
+  # schedule_employees temporarily included for current migration round.
+  # schedule_employees:
+  #   exclude: true
   # Skip remap: this table has no company_id, so the engine treats every existing
   # target row as foreign and remaps colliding source ids. On re-sync this causes
   # cumulative duplication. Skipping remap means ON CONFLICT DO NOTHING handles
