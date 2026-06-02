@@ -674,8 +674,9 @@ class Attendance extends Model
             return "P";
         }
 
-        if (self::isLeave($company_id, $employee_id, $date)) {
-            return "L";
+        $leaveStatus = self::leaveStatusFor($company_id, $employee_id, $date);
+        if ($leaveStatus) {
+            return $leaveStatus;
         }
 
         // 2. SECOND PRIORITY: Public Holiday
@@ -775,15 +776,61 @@ class Attendance extends Model
         return array_values(array_diff($params["UserIds"], $alreadyRendered));
     }
 
+    /**
+     * Is this employee on an APPROVED leave on $date?
+     * NOTE: $employeeId is the attendance employee_id, which equals employees.system_user_id.
+     */
     public static function isLeave(int $companyId, int $employeeId, string $date): bool
     {
-        return Cache::rememberForever("leave_{$companyId}_{$employeeId}_{$date}", function () use ($companyId, $employeeId, $date) {
-            return static::where([
-                'company_id'  => $companyId,
-                'employee_id' => $employeeId,
-                'date'        => $date,
-                'status'      => 'L',
-            ])->exists();
-        });
+        return self::leaveStatusFor($companyId, $employeeId, $date) !== null;
+    }
+
+    /**
+     * Returns the leave status letter ('V' vacation / 'L' leave) when the employee
+     * has an APPROVED employee_leaves row covering $date, otherwise null.
+     *
+     * This reads the source of truth (employee_leaves), so any re-render of the day
+     * keeps the leave instead of recomputing it back to Absent/Week-off/Holiday.
+     *
+     * NOTE: $employeeId is the attendance employee_id (= employees.system_user_id),
+     * whereas employee_leaves.employee_id references employees.id, hence the subquery.
+     */
+    public static function leaveStatusFor($companyId, $employeeId, string $date): ?string
+    {
+        $leave = EmployeeLeaves::query()
+            ->where('employee_leaves.company_id', $companyId)
+            ->where('employee_leaves.status', EmployeeLeaves::APPROVED)
+            ->where('employee_leaves.start_date', '<=', $date)
+            ->where('employee_leaves.end_date', '>=', $date)
+            ->whereIn('employee_leaves.employee_id', function ($q) use ($companyId, $employeeId) {
+                $q->select('id')
+                    ->from('employees')
+                    ->where('company_id', $companyId)
+                    ->where('system_user_id', $employeeId);
+            })
+            ->with('leave_type')
+            ->first(['id', 'start_date', 'end_date', 'leave_type_id']);
+
+        if (!$leave) {
+            return null;
+        }
+
+        return self::leaveStatusType($leave);
+    }
+
+    /**
+     * Decide whether a leave record is a Vacation ('V') or a Leave ('L').
+     * Unifies the two pre-existing conventions in the codebase: a leave type named
+     * "vacation", or a span longer than 2 days, is treated as Vacation.
+     *
+     * @param \App\Models\EmployeeLeaves $leave
+     */
+    public static function leaveStatusType($leave): string
+    {
+        $typeName = strtolower(optional($leave->leave_type)->name ?? '');
+        $days = \Carbon\Carbon::parse($leave->start_date)
+            ->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1;
+
+        return (str_contains($typeName, 'vacation') || $days > 2) ? 'V' : 'L';
     }
 }

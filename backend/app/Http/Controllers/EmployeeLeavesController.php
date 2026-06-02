@@ -327,16 +327,19 @@ class EmployeeLeavesController extends Controller
                     $startDate = $model->start_date;
                     $endDate = $model->end_date;
 
-                    // Count the number of days between start and end date (inclusive)
-                    $dateCount = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)) + 1;
+                    // Use the same V/L decision as Attendance::determineStatus so a later
+                    // re-render of any day cannot disagree with what we set here.
+                    $leaveStatus = Attendance::leaveStatusType($model->loadMissing('leave_type'));
 
-                    // Update attendance records
+                    // Update existing attendance records across the whole leave range.
+                    // (Days with no row yet get the same status when they are rendered,
+                    // because determineStatus() now reads employee_leaves directly.)
                     $response = Attendance::where([
                         "company_id" => $company_id,
                         "employee_id" => $employee_id
                     ])
                         ->whereBetween("date", [$startDate, $endDate])
-                        ->update(["status" => ($dateCount > 2) ? "V" : "L"]);
+                        ->update(["status" => $leaveStatus]);
                 }
 
                 return $this->response("Employee Leave $status_text Successfully.",  $response, true);
