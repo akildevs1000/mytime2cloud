@@ -12,7 +12,7 @@ app.setAppUserModelId('MyTime2Desktop');
 const phpPorts = [9000, 9001, 9002, 9003];
 const appPort = 3001;
 
-const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, ipUpdaterForDotNetSDK, ipv4Address, setShuttingDown } = require('./helpers');
+const { log, startWebSocketClient, runInstaller, spawnWrapper, spawnPhpCgiWorker, ipv4Address, setShuttingDown } = require('./helpers');
 
 const isDev = !app.isPackaged;
 
@@ -28,7 +28,6 @@ const phpPath = path.join(srcDirectory, 'php');
 const dotnetSDK = path.join(appDir, 'dotnet_sdk');
 const javaSDK = path.join(appDir, 'java_sdk');
 const jarPath = path.join(javaSDK, 'SxDeviceManager.jar');
-const jsonPath = path.join(dotnetSDK, 'appsettings.json');
 
 const nginxPath = path.join(appDir, 'nginx.exe');
 const phpPathCli = path.join(phpPath, 'php.exe');
@@ -190,8 +189,6 @@ app.whenReady().then(async () => {
     // still work if the user has a compatible runtime installed already.
     log(null, `VS_REDIST`, `Continuing without VS Redist: ${err.message}`);
   }
-
-  ipUpdaterForDotNetSDK(null, jsonPath);
 
   phpPorts.forEach(port => {
     spawnPhpCgiWorker(phpCGi, port);

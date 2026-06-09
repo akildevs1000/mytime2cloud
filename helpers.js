@@ -218,19 +218,6 @@ function log(mainWindow = null, processType, message) {
     });
 }
 
-function ipUpdaterForDotNetSDK(mainWindow, jsonPath) {
-    const jsonData = fs.readFileSync(jsonPath, 'utf-8');
-    const data = JSON.parse(jsonData);
-
-    data.urls = `http://${ipv4Address}:8080`;
-    data.Options.LocalIP = ipv4Address;
-
-    // Write synchronously so the .NET SDK process (started right after this)
-    // is guaranteed to read the updated IP, not the stale value.
-    fs.writeFileSync(jsonPath, JSON.stringify(data, null, 2));
-    log(mainWindow, `DOTNET`, `appsettings.json updated with IP ${ipv4Address}`);
-}
-
 const timezoneOptions = {
     year: "numeric",
     month: "2-digit",
@@ -445,6 +432,6 @@ module.exports = {
     tailLogFile,
     spawnWrapper, spawnPhpCgiWorker,
     setShuttingDown,
-    getFormattedDate, ipUpdaterForDotNetSDK, notify,
+    getFormattedDate, notify,
     timezoneOptions, verification_methods, reasons, ipv4Address
 }
