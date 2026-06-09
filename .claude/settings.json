@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./php/php.exe -r '$db=new PDO\\(\"sqlite:database/database.sqlite\"\\); $c=$db->query\\(\"SELECT COUNT\\(*\\) FROM attendance_logs\"\\)->fetchColumn\\(\\); echo \"rows: $c\\\\n\"; echo \"--- indexes ---\\\\n\"; foreach\\($db->query\\(\"SELECT name,sql FROM sqlite_master WHERE type=\\\\\"index\\\\\" AND tbl_name=\\\\\"attendance_logs\\\\\"\"\\) as $r\\){ echo $r[\"name\"].\": \".$r[\"sql\"].\"\\\\n\"; }')",
+      "Bash(./php/php.exe -m)",
+      "Bash(./php/php.exe -d opcache.enable_cli=1 -r 'echo function_exists\\(\"opcache_get_status\"\\) ? \"OPcache loaded OK\\\\n\" : \"NOT loaded\\\\n\"; $s=opcache_get_status\\(false\\); echo \"enabled: \".\\($s[\"opcache_enabled\"]?\"yes\":\"no\"\\).\"\\\\n\";')",
+      "Bash(./php/php.exe artisan *)",
+      "Bash(./php/php.exe -r '$l=file\\(\"/dev/stdin\"\\);')",
+      "Bash(npm run *)",
+      "Bash(tail -20 APPLICATION-2026-06-09.log)",
+      "Bash(tail -8 error.log)",
+      "Bash(tail -8 access.log)",
+      "Bash(cmd /c kill-processes.bat)",
+      "Bash(unset ELECTRON_RUN_AS_NODE)",
+      "Bash(node --check main.js)"
+    ]
+  }
+}

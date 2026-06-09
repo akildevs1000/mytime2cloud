@@ -59,7 +59,10 @@ function startServices(mainWindow) {
     cwd: srcDirectory
   });
 
-  spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'queue:work'], {
+  // queue:listen (not queue:work) so the long-running parent never accumulates
+  // memory — it boots a fresh PHP process per job. spawnWrapper does not auto-restart
+  // on exit, so a memory-leaking queue:work would silently stop after recycling.
+  spawnWrapper(mainWindow, "APPLICATION", phpPathCli, ['artisan', 'queue:listen'], {
     cwd: srcDirectory
   });
 
@@ -162,6 +165,12 @@ function createMainWindow() {
     }, () => {
       log(null, `APPLICATION`, `nginx did not respond at ${address} within ${MAX_SERVER_WAIT_MS}ms — showing startup error.`);
       showStartupError(mainWindow, 'The web server did not start. Please check the logs folder in the install directory, then restart the app.');
+      // Startup failed but the window stays open on the error screen, so 'before-quit'
+      // never fires. Tear down the services we spawned now — otherwise nginx/php-cgi
+      // keep holding their ports and the next launch collides on port 3001.
+      log(null, `kill-processes`, "Startup failed — stopping spawned services to free ports.");
+      setShuttingDown(true);   // disable php-cgi auto-restart + cancel pending restart timers
+      stopServices(null);      // spawnSync — blocks until kill-processes.bat finishes
     });
 
     mainWindow.on('closed', () => {

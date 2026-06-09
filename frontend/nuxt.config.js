@@ -104,6 +104,17 @@ export default {
     icon: {
       source: "icon-515x512.png", // Path to your app icon
     },
+    // Self-host Workbox so the desktop app never reaches the jsDelivr CDN and
+    // works fully offline. The files live in static/workbox-v5.1.4/ (copied from
+    // node_modules/workbox-cdn). workboxURL loads the loader locally; the loader
+    // hardcodes the CDN for its sub-modules, so modulePathPrefix is required to
+    // make workbox-core/precaching/routing/strategies load locally too.
+    workbox: {
+      workboxURL: "/workbox-v5.1.4/workbox-sw.js",
+      config: {
+        modulePathPrefix: "/workbox-v5.1.4/",
+      },
+    },
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify

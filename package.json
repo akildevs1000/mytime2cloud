@@ -1,6 +1,6 @@
 {
   "name": "mytime2cloud-desktop-app",
-  "version": "27.10.2025",
+  "version": "09.06.2026",
   "description": "mytime2cloud-desktop-app",
   "main": "main.js",
   "scripts": {
@@ -31,10 +31,6 @@
       {
         "from": "frontend/dist",
         "to": "frontend/dist"
-      },
-      {
-        "from": "employee/dist",
-        "to": "employee/dist"
       },
       {
         "from": "logs",
